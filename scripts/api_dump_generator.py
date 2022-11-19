@@ -629,32 +629,59 @@ TEXT_CODEGEN = """
 #include "api_dump.h"
 
 @foreach struct
-std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
+void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
 @end struct
 @foreach union
-std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
+void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
 
 //============================= typedefs ==============================//
 
 // Functions for dumping typedef types that the codegen scripting can't handle
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-std::ostream& dump_text_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_text_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_text_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
 {{
-    return dump_text_VkAccelerationStructureTypeKHR(object, settings, indents);
+    dump_text_VkAccelerationStructureTypeKHR(object, settings, indents);
 }}
-std::ostream& dump_text_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_text_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_text_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
 {{
-    return dump_text_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
+    dump_text_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
 }}
 #endif // VK_ENABLE_BETA_EXTENSIONS
 
-
 //======================== pNext Chain Implementation =======================//
 
-std::ostream& dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
+void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents)
+{{
+    if (object == nullptr) {{
+        dump_text_value<const void*>(object, settings, "const void*", "pNext", indents, dump_text_void);
+        return;
+    }}
+
+    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
+    @foreach struct
+        @if({sctStructureTypeIndex} != -1)
+    case {sctStructureTypeIndex}:
+        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.stream() << "{sctName}\\n";
+        break;
+        @end if
+    @end struct
+
+    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
+    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.stream() << "NULL\\n";
+        break;
+    default:
+        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
+    }}
+}}
+
+void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {{
     switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
     @foreach struct
@@ -678,43 +705,18 @@ std::ostream& dump_text_pNext_trampoline(const void* object, const ApiDumpSettin
         settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
         settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
     }}
-    return settings.stream();
-}}
-
-std::ostream& dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents)
-{{
-    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
-    @foreach struct
-        @if({sctStructureTypeIndex} != -1)
-    case {sctStructureTypeIndex}:
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
-        settings.stream() << "{sctName}\\n";
-        break;
-        @end if
-    @end struct
-
-    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
-    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
-        settings.stream() << "NULL\\n";
-        break;
-    default:
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
-        settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
-    }}
-    return settings.stream();
 }}
 
 //=========================== Type Implementations ==========================//
 
 @foreach type where('{etyName}' != 'void')
-std::ostream& dump_text_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
+void dump_text_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
 {{
     @if('{etyName}' != 'uint8_t')
-    return settings.stream() << object;
+    settings.stream() << object;
     @end if
     @if('{etyName}' == 'uint8_t')
-    return settings.stream() << (uint32_t) object;
+    settings.stream() << (uint32_t) object;
     @end if
 }}
 @end type
@@ -722,24 +724,24 @@ std::ostream& dump_text_{etyName}({etyName} object, const ApiDumpSettings& setti
 //========================= Basetype Implementations ========================//
 
 @foreach basetype where(not '{baseName}' in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer'])
-std::ostream& dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
+void dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << object;
+    settings.stream() << object;
 }}
 @end basetype
 @foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-std::ostream& dump_text_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
+void dump_text_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << object;
+    settings.stream() << object;
 }}
 #endif
 @end basetype
 @foreach basetype where('{baseName}' in ['CAMetalLayer'])
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-std::ostream& dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
+void dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << object;
+    settings.stream() << object;
 }}
 #endif
 @end basetype
@@ -747,16 +749,16 @@ std::ostream& dump_text_{baseName}({baseName} object, const ApiDumpSettings& set
 //======================= System Type Implementations =======================//
 
 @foreach systype
-std::ostream& dump_text_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
+void dump_text_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << object;
+    settings.stream() << object;
 }}
 @end systype
 
 //========================== Handle Implementations =========================//
 
 @foreach handle
-std::ostream& dump_text_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
+void dump_text_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress()) {{
         settings.stream() << object;
@@ -768,15 +770,13 @@ std::ostream& dump_text_{hdlName}(const {hdlName} object, const ApiDumpSettings&
     }} else {{
         settings.stream() << "address";
     }}
-
-    return settings.stream();
 }}
 @end handle
 
 //=========================== Enum Implementations ==========================//
 
 @foreach enum
-std::ostream& dump_text_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents)
+void dump_text_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents)
 {{
     switch((int64_t) object)
     {{
@@ -788,7 +788,7 @@ std::ostream& dump_text_{enumName}({enumName} object, const ApiDumpSettings& set
     default:
         settings.stream() << "UNKNOWN (";
     }}
-    return settings.stream() << object << ")";
+    settings.stream() << object << ")";
 }}
 @end enum
 
@@ -801,59 +801,58 @@ std::ostream& dump_text_{enumName}({enumName} object, const ApiDumpSettings& set
 // only needs to be generated by the first .h file.
 typedef VkFlags64 {bitName};
 @end if
-std::ostream& dump_text_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents)
+void dump_text_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents)
 {{
     bool is_first = true;
     //settings.formatNameType(stream, indents, name, type_string) << object;
     settings.stream() << object;
     @foreach option
         @if('{optMultiValue}' != 'None')
-            if(object == {optValue})
-                is_first = dump_text_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object == {optValue})
+        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
         @end if
         @if('{optMultiValue}' == 'None')
-            if(object & {optValue})
-                is_first = dump_text_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object & {optValue})
+        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
         @end if
 
     @end option
     if(!is_first)
         settings.stream() << ")";
-    return settings.stream();
 }}
 @end bitmask
 
 //=========================== Flag Implementations ==========================//
 
 @foreach flag where('{flagEnum}' != 'None')
-std::ostream& dump_text_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
+void dump_text_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return dump_text_{flagEnum}(({flagEnum}) object, settings, indents);
+    dump_text_{flagEnum}(({flagEnum}) object, settings, indents);
 }}
 @end flag
 @foreach flag where('{flagEnum}' == 'None')
-std::ostream& dump_text_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
+void dump_text_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << object;
+    settings.stream() << object;
 }}
 @end flag
 
 //======================= Func Pointer Implementations ======================//
 
 @foreach funcpointer
-std::ostream& dump_text_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents)
+void dump_text_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress())
-        return settings.stream() << object;
+        settings.stream() << object;
     else
-        return settings.stream() << "address";
+        settings.stream() << "address";
 }}
 @end funcpointer
 
 //========================== Struct Implementations =========================//
 
 @foreach struct where('{sctName}' not in ['VkPhysicalDeviceMemoryProperties','VkPhysicalDeviceGroupProperties'])
-std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
+void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress())
         settings.stream() << &object << ":\\n";
@@ -872,11 +871,7 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
     dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});  // AET
         @end if
         @if('{memName}' == 'pNext')
-    if(object.pNext != nullptr){{
-        dump_text_pNext_struct_name(object.{memName}, settings, indents + 1);
-    }} else {{
-        dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID}); // BET
-    }}
+    dump_text_pNext_struct_name(object.{memName}, settings, indents + 1);
         @end if
     @end if
     @if({memPtrLevel} == 1 and '{memLength}' == 'None')
@@ -923,11 +918,10 @@ std::ostream& dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings
         @end if
     @end if
     @end member
-    return settings.stream();
 }}
 @end struct
 
-std::ostream& dump_text_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
+void dump_text_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress())
         settings.stream() << &object << ":\\n";
@@ -938,10 +932,9 @@ std::ostream& dump_text_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceM
     dump_text_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_text_VkMemoryType); // DQA
     dump_text_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_text_uint32_t); // GET
     dump_text_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_text_VkMemoryHeap); // EQA
-    return settings.stream();
 }}
 
-std::ostream& dump_text_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
+void dump_text_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress())
         settings.stream() << &object << ":\\n";
@@ -952,13 +945,12 @@ std::ostream& dump_text_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGr
     dump_text_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_text_uint32_t); // JET
     dump_text_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_text_VkPhysicalDevice); // FQA
     dump_text_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_text_VkBool32); // KET
-    return settings.stream();
 }}
 
 //========================== Union Implementations ==========================//
 
 @foreach union
-std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents)
+void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress())
         settings.stream() << &object << " (Union):\\n";
@@ -976,7 +968,6 @@ std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& 
     dump_text_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 1, dump_text_{chcTypeID}); // GQA
     @end if
     @end choice
-    return settings.stream();
 }}
 @end union
 
@@ -984,10 +975,10 @@ std::ostream& dump_text_{unName}(const {unName}& object, const ApiDumpSettings& 
 
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 @if('{funcReturn}' != 'void')
-std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+void dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 @end if
 @if('{funcReturn}' == 'void')
-std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+void dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 @end if
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -1015,8 +1006,6 @@ std::ostream& dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
         @end parameter
     }}
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
-
-    return settings.stream();
 }}
 @end function
 
@@ -1058,32 +1047,31 @@ HTML_CODEGEN = """
 #include "api_dump.h"
 
 @foreach struct
-std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
+void dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
 @end struct
 @foreach union
-std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
+void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
 
 //============================= typedefs ==============================//
 
 // Functions for dumping typedef types that the codegen scripting can't handle
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-std::ostream& dump_html_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_html_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
+void dump_html_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
 {{
-    return dump_html_VkAccelerationStructureTypeKHR(object, settings, indents);
+    dump_html_VkAccelerationStructureTypeKHR(object, settings, indents);
 }}
-std::ostream& dump_html_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_html_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
+void dump_html_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
 {{
-    return dump_html_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
+    dump_html_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
 }}
 #endif // VK_ENABLE_BETA_EXTENSIONS
 
-
 //======================== pNext Chain Implementation =======================//
 
-std::ostream& dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
+void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {{
     switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
     @foreach struct
@@ -1109,13 +1097,11 @@ std::ostream& dump_html_pNext_trampoline(const void* object, const ApiDumpSettin
         dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");
         settings.stream() << "<div class='val'>UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) <<")</div></summary></details>";
     }}
-    return settings.stream();
 }}
-
 //=========================== Type Implementations ==========================//
 
 @foreach type where('{etyName}' != 'void')
-std::ostream& dump_html_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
+void dump_html_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>";
     @if('{etyName}' != 'uint8_t')
@@ -1124,31 +1110,31 @@ std::ostream& dump_html_{etyName}({etyName} object, const ApiDumpSettings& setti
     @if('{etyName}' == 'uint8_t')
     settings.stream() << (uint32_t) object;
     @end if
-    return settings.stream() << "</div></summary>";
+    settings.stream() << "</div></summary>";
 }}
 @end type
 
 //========================= Basetype Implementations ========================//
 
 @foreach basetype where(not '{baseName}' in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer'])
-std::ostream& dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
+void dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << "<div class='val'>" << object << "</div></summary>";
+    settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }}
 @end basetype
 @foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-std::ostream& dump_html_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
+void dump_html_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << "<div class='val'>" << object << "</div></summary>";
+    settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }}
 #endif
 @end basetype
 @foreach basetype where('{baseName}' in ['CAMetalLayer'])
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-std::ostream& dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
+void dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << "<div class='val'>" << object << "</div></summary>";
+    settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }}
 #endif
 @end basetype
@@ -1156,16 +1142,16 @@ std::ostream& dump_html_{baseName}({baseName} object, const ApiDumpSettings& set
 //======================= System Type Implementations =======================//
 
 @foreach systype
-std::ostream& dump_html_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
+void dump_html_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << "<div class='val'>" << object << "</div></summary>";
+    settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }}
 @end systype
 
 //========================== Handle Implementations =========================//
 
 @foreach handle
-std::ostream& dump_html_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
+void dump_html_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {{
@@ -1178,14 +1164,14 @@ std::ostream& dump_html_{hdlName}(const {hdlName} object, const ApiDumpSettings&
     }} else {{
         settings.stream() << "address";
     }}
-    return settings.stream() << "</div></summary>";
+    settings.stream() << "</div></summary>";
 }}
 @end handle
 
 //=========================== Enum Implementations ==========================//
 
 @foreach enum
-std::ostream& dump_html_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents)
+void dump_html_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1198,46 +1184,46 @@ std::ostream& dump_html_{enumName}({enumName} object, const ApiDumpSettings& set
     default:
         settings.stream() << "UNKNOWN (";
     }}
-    return settings.stream() << object << ")</div></summary>";
+    settings.stream() << object << ")</div></summary>";
 }}
 @end enum
 
 //========================= Bitmask Implementations =========================//
 
 @foreach bitmask
-std::ostream& dump_html_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents)
+void dump_html_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class=\'val\'>";
     bool is_first = true;
     settings.stream() << object;
     @foreach option
         @if('{optMultiValue}' != 'None')
-            if(object == {optValue})
-                is_first = dump_html_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object == {optValue})
+        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
         @end if
         @if('{optMultiValue}' == 'None')
-            if(object & {optValue})
-                is_first = dump_html_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object & {optValue})
+        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
         @end if
     @end option
     if(!is_first)
         settings.stream() << ")";
-    return settings.stream() << "</div></summary>";
+    settings.stream() << "</div></summary>";
 }}
 @end bitmask
 
 //=========================== Flag Implementations ==========================//
 
 @foreach flag where('{flagEnum}' != 'None')
-std::ostream& dump_html_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
+void dump_html_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return dump_html_{flagEnum}(({flagEnum}) object, settings, indents);
+    dump_html_{flagEnum}(({flagEnum}) object, settings, indents);
 }}
 @end flag
 @foreach flag where('{flagEnum}' == 'None')
-std::ostream& dump_html_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
+void dump_html_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << "<div class=\'val\'>"
+    settings.stream() << "<div class=\'val\'>"
                              << object << "</div></summary>";
 }}
 @end flag
@@ -1245,21 +1231,21 @@ std::ostream& dump_html_{flagName}({flagName} object, const ApiDumpSettings& set
 //======================= Func Pointer Implementations ======================//
 
 @foreach funcpointer
-std::ostream& dump_html_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents)
+void dump_html_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class=\'val\'>";
     if(settings.showAddress())
         settings.stream() << object;
     else
         settings.stream() << "address";
-    return settings.stream() << "</div></summary>";
+    settings.stream() << "</div></summary>";
 }}
 @end funcpointer
 
 //========================== Struct Implementations =========================//
 
 @foreach struct where('{sctName}' not in ['VkPhysicalDeviceMemoryProperties' ,'VkPhysicalDeviceGroupProperties'])
-std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
+void dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class=\'val\'>";
     if(settings.showAddress())
@@ -1320,11 +1306,10 @@ std::ostream& dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings
         dump_html_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
     @end if
     @end member
-    return settings.stream();
 }}
 @end struct
 
-std::ostream& dump_html_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -1336,10 +1321,9 @@ std::ostream& dump_html_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceM
     dump_html_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_html_VkMemoryType); // ZRV
     dump_html_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_html_uint32_t);
     dump_html_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_html_VkMemoryHeap); // ZRW
-    return settings.stream();
 }}
 
-std::ostream& dump_html_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -1352,13 +1336,12 @@ std::ostream& dump_html_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGr
     dump_html_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_html_uint32_t);
     dump_html_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_html_VkPhysicalDevice); // ZRX
     dump_html_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_html_VkBool32);
-    return settings.stream();
 }}
 
 //========================== Union Implementations ==========================//
 
 @foreach union
-std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents)
+void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -1378,7 +1361,6 @@ std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& 
     dump_html_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 1, dump_html_{chcTypeID}); // ZRY
     @end if
     @end choice
-    return settings.stream();
 }}
 @end union
 
@@ -1386,10 +1368,10 @@ std::ostream& dump_html_{unName}(const {unName}& object, const ApiDumpSettings& 
 
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 @if('{funcReturn}' != 'void')
-std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+void dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 @end if
 @if('{funcReturn}' == 'void')
-std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+void dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 @end if
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -1418,7 +1400,7 @@ std::ostream& dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
     }}
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
 
-    return settings.stream() << "</details>";
+    settings.stream() << "</details>";
 }}
 @end function
 """
@@ -1458,32 +1440,31 @@ JSON_CODEGEN = """
 #include "api_dump.h"
 
 @foreach struct
-std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
+void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
 @end struct
 @foreach union
-std::ostream& dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
+void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
 
 //============================= typedefs ==============================//
 
 // Functions for dumping typedef types that the codegen scripting can't handle
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-std::ostream& dump_json_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_json_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
+void dump_json_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
 {{
-    return dump_json_VkAccelerationStructureTypeKHR(object, settings, indents);
+    dump_json_VkAccelerationStructureTypeKHR(object, settings, indents);
 }}
-std::ostream& dump_json_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
-std::ostream& dump_json_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
+void dump_json_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
 {{
-    return dump_json_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
+    dump_json_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
 }}
 #endif // VK_ENABLE_BETA_EXTENSIONS
 
-
 //======================== pNext Chain Implementation =======================//
 
-std::ostream& dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
+void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {{
     switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
     @foreach struct
@@ -1513,21 +1494,20 @@ std::ostream& dump_json_pNext_trampoline(const void* object, const ApiDumpSettin
         settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"UNKNOWN (\\"" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << "\\")\\n";
         settings.stream() << settings.indentation(indents) << "}}";
     }}
-    return settings.stream();
 }}
 
 //=========================== Type Implementations ==========================//
 
 @foreach type where('{etyName}' != 'void')
-std::ostream& dump_json_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
+void dump_json_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
 {{
 
     //settings.stream() << settings.indentation(indents);
     @if('{etyName}' != 'uint8_t')
-    return settings.stream() << "\\"" << object << "\\"";
+    settings.stream() << "\\"" << object << "\\"";
     @end if
     @if('{etyName}' == 'uint8_t')
-    return settings.stream() << "\\"" << (uint32_t) object << "\\"";
+    settings.stream() << "\\"" << (uint32_t) object << "\\"";
     @end if
 }}
 @end type
@@ -1535,24 +1515,24 @@ std::ostream& dump_json_{etyName}({etyName} object, const ApiDumpSettings& setti
 //========================= Basetype Implementations ========================//
 
 @foreach basetype where(not '{baseName}' in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer'])
-std::ostream& dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
+void dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << "\\"" << object << "\\"";
+    settings.stream() << "\\"" << object << "\\"";
 }}
 @end basetype
 @foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-std::ostream& dump_json_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
+void dump_json_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << "\\"" << object << "\\"";
+    settings.stream() << "\\"" << object << "\\"";
 }}
 #endif
 @end basetype
 @foreach basetype where('{baseName}' in ['CAMetalLayer'])
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-std::ostream& dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
+void dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << "\\"" << object << "\\"";
+    settings.stream() << "\\"" << object << "\\"";
 }}
 #endif
 @end basetype
@@ -1560,30 +1540,29 @@ std::ostream& dump_json_{baseName}({baseName} object, const ApiDumpSettings& set
 //======================= System Type Implementations =======================//
 
 @foreach systype
-std::ostream& dump_json_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
+void dump_json_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << "\\"" << object << "\\"";
+    settings.stream() << "\\"" << object << "\\"";
 }}
 @end systype
 
 //========================== Handle Implementations =========================//
 
 @foreach handle
-std::ostream& dump_json_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
+void dump_json_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress()) {{
-        return settings.stream() << "\\"" << object << "\\"";
+        settings.stream() << "\\"" << object << "\\"";
     }} else {{
-        return settings.stream() << "\\"address\\"";
+        settings.stream() << "\\"address\\"";
     }}
-    return settings.stream();
 }}
 @end handle
 
 //=========================== Enum Implementations ==========================//
 
 @foreach enum
-std::ostream& dump_json_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents)
+void dump_json_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents)
 {{
     switch((int64_t) object)
     {{
@@ -1595,14 +1574,13 @@ std::ostream& dump_json_{enumName}({enumName} object, const ApiDumpSettings& set
     default:
         settings.stream() << "\\"UNKNOWN (" << object << ")\\"";
     }}
-    return settings.stream();
 }}
 @end enum
 
 //========================= Bitmask Implementations =========================//
 
 @foreach bitmask
-std::ostream& dump_json_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents)
+void dump_json_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents)
 {{
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -1610,52 +1588,51 @@ std::ostream& dump_json_{bitName}({bitName} object, const ApiDumpSettings& setti
         settings.stream() << ' ';
     @foreach option
         @if('{optMultiValue}' != 'None')
-            if(object == {optValue})
-                is_first = dump_json_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object == {optValue})
+        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
         @end if
         @if('{optMultiValue}' == 'None')
-            if(object & {optValue})
-                is_first = dump_json_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object & {optValue})
+        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
         @end if
     @end option
     if(!is_first)
         settings.stream() << ')';
-    return settings.stream() << "\\"";
+    settings.stream() << "\\"";
 }}
 @end bitmask
 
 //=========================== Flag Implementations ==========================//
 
 @foreach flag where('{flagEnum}' != 'None')
-std::ostream& dump_json_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
+void dump_json_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return dump_json_{flagEnum}(({flagEnum}) object, settings, indents);
+    dump_json_{flagEnum}(({flagEnum}) object, settings, indents);
 }}
 @end flag
 @foreach flag where('{flagEnum}' == 'None')
-std::ostream& dump_json_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
+void dump_json_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents)
 {{
-    return settings.stream() << '"' << object << "\\"";
+    settings.stream() << '"' << object << "\\"";
 }}
 @end flag
 
 //======================= Func Pointer Implementations ======================//
 
 @foreach funcpointer
-std::ostream& dump_json_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents)
+void dump_json_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress())
        settings.stream() << "\\"" << object << "\\"";
     else
         settings.stream() << "\\"address\\"";
-    return settings.stream();
 }}
 @end funcpointer
 
 //========================== Struct Implementations =========================//
 
 @foreach struct where('{sctName}' not in ['VkPhysicalDeviceMemoryProperties' ,'VkPhysicalDeviceGroupProperties'])
-std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
+void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << settings.indentation(indents) << "[\\n";
 
@@ -1722,7 +1699,6 @@ std::ostream& dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings
     needMemberComma = true;
     @end member
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
-    return settings.stream();
 }}
 @end struct
 
@@ -1738,7 +1714,7 @@ bool is_struct(const char *t)
     return false;
 }}
 
-std::ostream& dump_json_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << settings.indentation(indents) << "[\\n";
 
@@ -1750,10 +1726,9 @@ std::ostream& dump_json_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceM
     settings.stream() << ",\\n";
     dump_json_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_json_VkMemoryHeap); // MQA
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
-    return settings.stream();
 }}
 
-std::ostream& dump_json_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << settings.indentation(indents) << "[\\n";
 
@@ -1767,12 +1742,11 @@ std::ostream& dump_json_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGr
     settings.stream() << ",\\n";
     dump_json_value<const VkBool32>(object.subsetAllocation, NULL, settings, "VkBool32", "subsetAllocation", indents + 1, dump_json_VkBool32);
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
-    return settings.stream();
 }}
 
 //========================== Union Implementations ==========================//
 @foreach union
-std::ostream& dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents)
+void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << settings.indentation(indents) << "[\\n";
 
@@ -1793,7 +1767,6 @@ std::ostream& dump_json_{unName}(const {unName}& object, const ApiDumpSettings& 
     @end choice
 
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
-    return settings.stream();
 }}
 @end union
 
@@ -1816,10 +1789,10 @@ static bool needFuncComma = false;
 
 @foreach function where(not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 @if('{funcReturn}' != 'void')
-std::ostream& dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
+void dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 @end if
 @if('{funcReturn}' == 'void')
-std::ostream& dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
+void dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 @end if
 {{
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -1862,7 +1835,6 @@ std::ostream& dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams}
     settings.stream() << settings.indentation(2) << "}}";
     needFuncComma = true;
     if (settings.shouldFlush()) settings.stream().flush();
-    return settings.stream();
 }}
 @end function
 """
@@ -2672,15 +2644,11 @@ class VulkanFunction:
         self.returnType = rootNode.find('proto').find('type').text
 
         self.parameters = []
-        self.namedParams = ''
-        self.typedParams = ''
         for node in rootNode.findall('param'):
             self.parameters.append(VulkanFunction.Parameter(node, constants, aliases, self.name))
-            self.namedParams += self.parameters[-1].name + ', '
-            self.typedParams += self.parameters[-1].text + ', '
-        if len(self.parameters) > 0:
-            self.namedParams = self.namedParams[0:-2]
-            self.typedParams = self.typedParams[0:-2]
+
+        self.namedParams = ','.join(p.name for p in self.parameters)
+        self.typedParams = ','.join(p.text for p in self.parameters)
 
         if self.parameters[0].type in ['VkInstance', 'VkPhysicalDevice'] or self.name == 'vkCreateInstance':
             self.dispatchType = 'instance'
@@ -2696,11 +2664,6 @@ class VulkanFunction:
         if self.name in TRACKED_STATE:
             self.stateTrackingCode = TRACKED_STATE[self.name]
 
-        self.safeToPrint = True
-        for param in self.parameters:
-            if param.pointerLevels == 1 and param.type.find("const") == -1:
-                self.safeToPrint = False
-
     def values(self):
         return {
             'funcName': self.name,
@@ -2712,7 +2675,6 @@ class VulkanFunction:
             'funcDispatchParam': self.parameters[0].name,
             'funcDispatchType' : self.dispatchType,
             'funcStateTrackingCode': self.stateTrackingCode,
-            'funcSafeToPrint': self.safeToPrint,
         }
 
 class VulkanFunctionPointer:
