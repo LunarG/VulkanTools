@@ -852,7 +852,7 @@ class ApiDumpInstance {
 
     bool conditional_initialized = false;
     bool should_dump_output = true;
-    bool first_func_call_on_frame = false;
+    bool first_func_call_on_frame = true;
 
     std::chrono::system_clock::time_point program_start;
 
@@ -888,6 +888,25 @@ void OutputAddress(const ApiDumpSettings &settings, const void *addr, bool quote
 ApiDumpInstance ApiDumpInstance::current_instance;
 
 //==================================== Text Backend Helpers ======================================//
+
+std::ostream &dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcReturn) {
+    const ApiDumpSettings &settings(dump_inst.settings());
+    if (settings.showThreadAndFrame()) {
+        settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
+    }
+    if (settings.showTimestamp() && settings.showThreadAndFrame()) {
+        settings.stream() << ", ";
+    }
+    if (settings.showTimestamp()) {
+        settings.stream() << "Time " << dump_inst.current_time_since_start().count() << " us";
+    }
+    if (settings.showTimestamp() || settings.showThreadAndFrame()) {
+        settings.stream() << ":\n";
+    }
+    settings.stream() << funcName << " returns " << funcReturn;
+
+    return settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}
 
 template <typename T>
 void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
@@ -1010,6 +1029,18 @@ std::ostream &dump_html_nametype(std::ostream &stream, bool showType, const char
         stream << "<div class='type'>" << type << "</div>";
     }
     return stream;
+}
+
+std::ostream &dump_html_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcReturn) {
+    const ApiDumpSettings &settings(dump_inst.settings());
+    if (settings.showThreadAndFrame()) {
+        settings.stream() << "<div class='thd'>Thread: " << dump_inst.threadID() << "</div>";
+    }
+    if (settings.showTimestamp())
+        settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
+    settings.stream() << "<details class='fn'><summary>";
+    dump_html_nametype(settings.stream(), settings.showType(), funcName, funcReturn);
+    return settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
 }
 
 template <typename T>
@@ -1153,6 +1184,34 @@ void dump_html_pNext(const T *object, const ApiDumpSettings &settings, const cha
 }
 
 //==================================== Json Backend Helpers ======================================//
+
+std::ostream &dump_json_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcReturn) {
+    const ApiDumpSettings &settings(dump_inst.settings());
+
+    if (!dump_inst.firstFunctionCallOnFrame()) settings.stream() << ",\n";
+
+    // Display api call name
+    settings.stream() << settings.indentation(2) << "{\n";
+    settings.stream() << settings.indentation(3) << "\"name\" : \"" << funcName << "\",\n";
+
+    // Display thread info
+    if (settings.showThreadAndFrame()) {
+        { settings.stream() << settings.indentation(3) << "\"thread\" : \"Thread " << dump_inst.threadID() << "\",\n"; }
+    }
+
+    // Display elapsed time
+    if (settings.showTimestamp()) {
+        {
+            settings.stream() << settings.indentation(3) << "\"time\" : \"" << dump_inst.current_time_since_start().count()
+                              << " us\",\n";
+        }
+    }
+
+    // Display return value
+    settings.stream() << settings.indentation(3) << "\"returnType\" : \"" << funcReturn << "\",\n";
+
+    return settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}
 
 template <typename T>
 void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
