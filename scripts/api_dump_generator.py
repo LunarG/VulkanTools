@@ -2007,21 +2007,21 @@ class ApiDumpOutputGenerator(OutputGenerator):
         self.format = None
 
         self.constants = {}
-        self.extensions = set()
+        self.extensions = {}
         self.extFuncs = {}
         self.extTypes = {}
         self.includes = {}
 
-        self.basetypes = set()
-        self.bitmasks = set()
-        self.enums = set()
-        self.externalTypes = set()
-        self.flags = set()
-        self.funcPointers = set()
-        self.functions = set()
-        self.handles = set()
-        self.structs = set()
-        self.unions = set()
+        self.basetypes = {}
+        self.bitmasks = {}
+        self.enums = {}
+        self.externalTypes = {}
+        self.flags = {}
+        self.funcPointers = {}
+        self.functions = {}
+        self.handles = {}
+        self.structs = {}
+        self.unions = {}
         self.aliases = {}
 
         self.registryFile = registryFile
@@ -2039,12 +2039,13 @@ class ApiDumpOutputGenerator(OutputGenerator):
             root = self.registry.reg
 
         for node in root.find('extensions').findall('extension'):
-            ext = VulkanExtension(node)
-            self.extensions.add(ext)
-            for item in ext.vktypes:
-                self.extTypes[item] = ext
-            for item in ext.vkfuncs:
-                self.extFuncs[item] = ext
+            if node.get('supported') == 'vulkan': # dont print unsupported extensions
+                ext = VulkanExtension(node)
+                self.extensions[ext.name] = ext
+                for item in ext.vktypes:
+                    self.extTypes[item] = ext
+                for item in ext.vkfuncs:
+                    self.extFuncs[item] = ext
 
         for node in self.registry.reg.findall('enums'):
             if node.get('name') == 'API Constants':
@@ -2057,27 +2058,28 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
 
     def endFile(self):
-        # Find all of the extensions that use the system types
-        self.sysTypes = set()
+        # Find all 'system' types and put it in a set
+        sysTypeNames = set()
         for node in self.registry.reg.find('types').findall('type'):
             if node.get('category') is None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform':
-                for extension in self.extTypes:
-                    for structName in self.extTypes[extension].vktypes:
-                        for struct in self.structs:
-                            if struct.name == structName:
-                                for member in struct.members:
-                                    if node.get('name') == member.baseType or node.get('name') + '*' == member.baseType:
-                                        sysType = VulkanSystemType(node.get('name'), self.extTypes[structName])
-                                        if sysType not in self.sysTypes:
-                                            self.sysTypes.add(sysType)
-                    for funcName in self.extTypes[extension].vkfuncs:
-                        for func in self.functions:
-                            if func.name == funcName:
-                                for param in func.parameters:
-                                    if node.get('name') == param.baseType or node.get('name') + '*' == param.baseType:
-                                        sysType = VulkanSystemType(node.get('name'), self.extFuncs[funcName])
-                                        if sysType not in self.sysTypes:
-                                            self.sysTypes.add(sysType)
+                sysTypeNames.add(node.get('name'))
+
+        # Look through the set of sysTypeName to find all of the extensions that use the system types, then add it to sysTypes
+        self.sysTypes = {}
+        for sysTypeName in sysTypeNames:
+            for extension in self.extTypes.values():
+                for typeName in extension.vktypes:
+                    if typeName not in self.structs:
+                        continue # not all types are structures nor will be enabled
+                    for member in self.structs[typeName].members:
+                        if sysTypeName == member.baseType or sysTypeName + '*' == member.baseType:
+                            self.sysTypes[sysTypeName] = VulkanSystemType(sysTypeName, extension)
+                for functionName in extension.vkfuncs:
+                    if functionName not in self.functions:
+                        continue # not all functions will be enabled
+                    for param in self.functions[functionName].parameters:
+                        if sysTypeName == param.baseType or sysTypeName + '*' == param.baseType:
+                            self.sysTypes[sysTypeName] = VulkanSystemType(sysTypeName, extension)
 
         # Find every @foreach, @if, and @end
         forIter = re.finditer('(^\\s*\\@foreach\\s+[a-z]+(\\s+where\\(.*\\))?\\s*^)|(\\@foreach [a-z]+(\\s+where\\(.*\\))?\\b)', self.format, flags=re.MULTILINE)
@@ -2164,7 +2166,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
         if name == "vkEnumerateInstanceVersion": return # TODO: Create exclusion list or metadata to indicate this
 
-        self.functions.add(VulkanFunction(cmd.elem, self.constants, self.aliases, self.extFuncs))
+        self.functions[cmd.elem.get('name')] = VulkanFunction(cmd.elem, self.constants, self.aliases, self.extFuncs)
 
     # These are actually constants
     def genEnum(self, enuminfo, name, alias):
@@ -2183,9 +2185,9 @@ class ApiDumpOutputGenerator(OutputGenerator):
         self.trackedTypes.append(trackedName)
 
         if groupinfo.elem.get('type') == 'bitmask':
-            self.bitmasks.add(VulkanBitmask(groupinfo.elem, self.extensions))
+            self.bitmasks[groupinfo.elem.get('name')] = VulkanBitmask(groupinfo.elem, self.extensions)
         elif groupinfo.elem.get('type') == 'enum':
-            self.enums.add(VulkanEnum(groupinfo.elem, self.extensions))
+            self.enums[groupinfo.elem.get('name')] = VulkanEnum(groupinfo.elem, self.extensions)
 
     def genType(self, typeinfo, name, alias):
         gen.OutputGenerator.genType(self, typeinfo, name, alias)
@@ -2201,19 +2203,20 @@ class ApiDumpOutputGenerator(OutputGenerator):
         self.trackedTypes.append(trackedName)
 
         if typeinfo.elem.get('category') == 'struct':
-            self.structs.add(VulkanStruct(typeinfo.elem, self.constants, self.enums))
+            self.structs[typeinfo.elem.get('name')] = VulkanStruct(typeinfo.elem, self.constants, self.enums)
         elif typeinfo.elem.get('category') == 'basetype':
-            self.basetypes.add(VulkanBasetype(typeinfo.elem))
+            self.basetypes[typeinfo.elem.get('name')] = VulkanBasetype(typeinfo.elem)
         elif typeinfo.elem.get('category') is None and typeinfo.elem.get('requires') == 'vk_platform':
-            self.externalTypes.add(VulkanExternalType(typeinfo.elem))
+            self.externalTypes[typeinfo.elem.get('name')] = VulkanExternalType(typeinfo.elem)
         elif typeinfo.elem.get('category') == 'handle':
-            self.handles.add(VulkanHandle(typeinfo.elem))
+            self.handles[typeinfo.elem.get('name')] = VulkanHandle(typeinfo.elem)
         elif typeinfo.elem.get('category') == 'union':
-            self.unions.add(VulkanUnion(typeinfo.elem, self.constants))
+            self.unions[typeinfo.elem.get('name')] = VulkanUnion(typeinfo.elem, self.constants)
         elif typeinfo.elem.get('category') == 'bitmask':
-            self.flags.add(VulkanFlags(typeinfo.elem))
+            self.flags[typeinfo.elem.get('name')] = VulkanFlags(typeinfo.elem)
         elif typeinfo.elem.get('category') == 'funcpointer':
-            self.funcPointers.add(VulkanFunctionPointer(typeinfo.elem))
+            func = VulkanFunctionPointer(typeinfo.elem)
+            self.funcPointers[func.name] = func
 
     def expand(self, loop, parents=[]):
         # Figure out what we're dealing with
@@ -2256,6 +2259,10 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
         # Generate the output string
         out = ''
+        # turn subjects into a set if it is a dict
+        if type(subjects) is dict:
+            subjects = subjects.values()
+
         for item in subjects:
 
             # Merge the values and the parent values
@@ -2275,8 +2282,8 @@ class ApiDumpOutputGenerator(OutputGenerator):
                 ext = self.extFuncs[item.name]
             elif item.name in self.extTypes:
                 ext = self.extTypes[item.name]
-            elif item in self.sysTypes:
-                ext = item.ext
+            elif item.name in self.sysTypes:
+                ext = self.sysTypes[item.name].ext
             else:
                 ext = None
             if ext is not None and ext.guard is not None:
@@ -2430,7 +2437,7 @@ class VulkanBitmask:
 
             self.options.append(VulkanEnum.Option(childName, childValue, childBitpos, childComment))
 
-        for ext in extensions:
+        for ext in extensions.values():
             if self.name in ext.enumValues:
                 childName, childValue = ext.enumValues[self.name]
                 self.options.append(VulkanEnum.Option(childName, childValue, None, None))
@@ -2518,7 +2525,7 @@ class VulkanEnum:
 
             self.options.append(VulkanEnum.Option(childName, childValue, childBitpos, childComment))
 
-        for ext in extensions:
+        for ext in extensions.values():
             if self.name in ext.enumValues:
                 childName, childValue = ext.enumValues[self.name]
                 duplicate = False
@@ -2742,11 +2749,9 @@ class VulkanStruct:
         if(self.structExtends is not None):
             for member in self.members:
                 if(member.structValues is not None):
-                    for enum in enums:
-                        if(enum.name == 'VkStructureType'):
-                            for opt in enum.options:
-                                if(member.structValues  == opt.name):
-                                    self.structureIndex = opt.value
+                    for opt in enums['VkStructureType'].options:
+                        if(member.structValues  == opt.name):
+                            self.structureIndex = opt.value
 
     def values(self):
         return {
@@ -2760,9 +2765,6 @@ class VulkanSystemType:
         self.name = name
         self.type = self.name if name not in POINTER_TYPES else self.name + '*'
         self.ext = ext
-
-    def __eq__(self, that):
-        return self.name == that.name and self.type == that.type
 
     def __hash__(self):
         return hash(self.name) | hash(self.type)
