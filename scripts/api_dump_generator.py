@@ -804,18 +804,16 @@ typedef VkFlags64 {bitName};
 void dump_text_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents)
 {{
     bool is_first = true;
-    //settings.formatNameType(stream, indents, name, type_string) << object;
     settings.stream() << object;
     @foreach option
         @if('{optMultiValue}' != 'None')
-    if(object == {optValue})
-        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object == {optValue}) {{
         @end if
         @if('{optMultiValue}' == 'None')
-    if(object & {optValue})
-        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object & {optValue}) {{
         @end if
-
+        settings.stream() << (is_first ? \" (\" : \" | \") << "{optName}"; is_first = false;
+    }}
     @end option
     if(!is_first)
         settings.stream() << ")";
@@ -1198,13 +1196,13 @@ void dump_html_{bitName}({bitName} object, const ApiDumpSettings& settings, int 
     settings.stream() << object;
     @foreach option
         @if('{optMultiValue}' != 'None')
-    if(object == {optValue})
-        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object == {optValue}) {{
         @end if
         @if('{optMultiValue}' == 'None')
-    if(object & {optValue})
-        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object & {optValue}) {{
         @end if
+        settings.stream() << (is_first ? \" (\" : \" | \") << "{optName}"; is_first = false;
+    }}
     @end option
     if(!is_first)
         settings.stream() << ")";
@@ -1588,13 +1586,13 @@ void dump_json_{bitName}({bitName} object, const ApiDumpSettings& settings, int 
         settings.stream() << ' ';
     @foreach option
         @if('{optMultiValue}' != 'None')
-    if(object == {optValue})
-        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object == {optValue}) {{
         @end if
         @if('{optMultiValue}' == 'None')
-    if(object & {optValue})
-        is_first = dump_bitmaskOption("{optName}", settings.stream(), is_first);
+    if(object & {optValue}) {{
         @end if
+        settings.stream() << (is_first ? \" (\" : \" | \") << "{optName}"; is_first = false;
+    }}
     @end option
     if(!is_first)
         settings.stream() << ')';
