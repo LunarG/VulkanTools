@@ -11,7 +11,12 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.5.1](https://github.com/LunarG/VulkanTools/tree/master) - October 2022
+## [Vulkan Configurator 2.5.2](https://github.com/LunarG/VulkanTools/tree/master) - December 2022
+
+### Improvements:
+- Add `warn_on_robust_oob` validation layer setting handling
+
+## [Vulkan Configurator 2.5.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.231.0) - October 2022
 
 ### Features:
 - Add ENUM setting type children settings #1746
