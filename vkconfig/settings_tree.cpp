@@ -297,6 +297,7 @@ static bool IsBuiltinValidationSetting(const Parameter &parameter, const std::st
     keys.push_back("printf_verbose");
     keys.push_back("printf_buffer_size");
     keys.push_back("gpuav_buffer_oob");
+    keys.push_back("warn_on_robust_oob");
     keys.push_back("validate_draw_indirect");
     keys.push_back("vma_linear_output");
     keys.push_back("fine_grained_locking");
