@@ -289,23 +289,23 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
                     this->widget_shader_gpu_oob->setToolTip(value->description.c_str());
                     this->tree->setItemWidget(this->item_shader_gpu_oob, 0, this->widget_shader_gpu_oob);
                     this->connect(this->widget_shader_gpu_oob, SIGNAL(clicked(bool)), this, SLOT(OnShaderGPUOOBChecked(bool)));
-                }
-            }
 
-            {
-                const SettingMetaBool *value = FindSetting<SettingMetaBool>(meta_set, "warn_on_robust_oob");
-                if (IsSupported(value)) {
-                    this->item_shader_gpu_robust_oob = new QTreeWidgetItem();
-                    this->item_shader_gpu_robust_oob->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-                    this->item_shader_gpu->addChild(this->item_shader_gpu_robust_oob);
-                    this->item_shader_gpu->setExpanded(true);
+                    {
+                        const SettingMetaBool *value = FindSetting<SettingMetaBool>(meta_set, "warn_on_robust_oob");
+                        if (IsSupported(value)) {
+                            this->item_shader_gpu_robust_oob = new QTreeWidgetItem();
+                            this->item_shader_gpu_robust_oob->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+                            this->item_shader_gpu_oob->addChild(this->item_shader_gpu_robust_oob);
+                            this->item_shader_gpu_oob->setExpanded(true);
 
-                    this->widget_shader_gpu_robust_oob = new QCheckBox(this);
-                    this->widget_shader_gpu_robust_oob->setText(value->label.c_str());
-                    this->widget_shader_gpu_robust_oob->setToolTip(value->description.c_str());
-                    this->tree->setItemWidget(this->item_shader_gpu_robust_oob, 0, this->widget_shader_gpu_robust_oob);
-                    this->connect(this->widget_shader_gpu_robust_oob, SIGNAL(clicked(bool)), this,
-                                  SLOT(OnShaderGPURobustOOBChecked(bool)));
+                            this->widget_shader_gpu_robust_oob = new QCheckBox(this);
+                            this->widget_shader_gpu_robust_oob->setText(value->label.c_str());
+                            this->widget_shader_gpu_robust_oob->setToolTip(value->description.c_str());
+                            this->tree->setItemWidget(this->item_shader_gpu_robust_oob, 0, this->widget_shader_gpu_robust_oob);
+                            this->connect(this->widget_shader_gpu_robust_oob, SIGNAL(clicked(bool)), this,
+                                          SLOT(OnShaderGPURobustOOBChecked(bool)));
+                        }
+                    }
                 }
             }
 
@@ -861,12 +861,12 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
                 this->widget_shader_gpu_oob->setEnabled(shader_gpu);
                 if (refresh_areas == REFRESH_ENABLE_AND_STATE)
                     this->widget_shader_gpu_oob->setChecked(this->HasDataBool("gpuav_buffer_oob"));
-            }
 
-            if (this->widget_shader_gpu_robust_oob != nullptr) {
-                this->widget_shader_gpu_robust_oob->setEnabled(shader_gpu);
-                if (refresh_areas == REFRESH_ENABLE_AND_STATE)
-                    this->widget_shader_gpu_robust_oob->setChecked(this->HasDataBool("warn_on_robust_oob"));
+                if (this->widget_shader_gpu_robust_oob != nullptr) {
+                    this->widget_shader_gpu_robust_oob->setEnabled(shader_gpu && this->HasDataBool("gpuav_buffer_oob"));
+                    if (refresh_areas == REFRESH_ENABLE_AND_STATE)
+                        this->widget_shader_gpu_robust_oob->setChecked(this->HasDataBool("warn_on_robust_oob"));
+                }
             }
 
             if (this->widget_shader_gpu_indirect != nullptr) {
