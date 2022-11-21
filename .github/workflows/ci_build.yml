@@ -77,7 +77,7 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get -qq update
-        sudo apt-get install -y libxkbcommon-dev libwayland-dev libxrandr-dev qt5-default\
+        sudo apt-get install -y libxkbcommon-dev libwayland-dev libxrandr-dev qtbase5-dev\
                               libx11-xcb-dev libxcb-randr0-dev cmake jq wget
     - name: Build and Test VulkanTools 
       run: python3 scripts/github_ci_linux.py --config ${{ matrix.config.type }}
