@@ -21,6 +21,7 @@
 #include "setting_flags.h"
 #include "json.h"
 #include "layer.h"
+#include "setting.h"
 
 #include <QJsonArray>
 
@@ -41,11 +42,17 @@ bool SettingMetaEnumeration::Load(const QJsonObject& json_setting) {
         setting_enum_value.view = this->view;
         LoadMetaHeader(setting_enum_value, json_object);
 
-        if (json_object.value("settings") != QJsonValue::Undefined) {
-            this->layer.AddSettingsSet(setting_enum_value.settings, this, json_object.value("settings"));
-        }
-
         this->enum_values.push_back(setting_enum_value);
+
+        for (std::size_t i = 0, n = this->enum_values.size(); i < n; ++i) {
+            if (this->enum_values[i].key != setting_enum_value.key) {
+                continue;
+            }
+
+            if (json_object.value("settings") != QJsonValue::Undefined) {
+                this->layer.AddSettingsSet(this->enum_values[i].settings, this, json_object.value("settings"));
+            }
+        }
     }
     return true;
 }
