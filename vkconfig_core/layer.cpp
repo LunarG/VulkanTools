@@ -389,7 +389,7 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
     }
 }
 
-void Layer::AddSettingData(SettingDataSet& settings, const QJsonValue& json_setting_value) {
+void Layer::AddSettingData(SettingDataSet& settings_data, const QJsonValue& json_setting_value) {
     const QJsonObject& json_setting_object = json_setting_value.toObject();
 
     const std::string& key = ReadStringValue(json_setting_object, "key");
@@ -401,5 +401,5 @@ void Layer::AddSettingData(SettingDataSet& settings, const QJsonValue& json_sett
     const bool result = setting_data->Load(json_setting_object);
     assert(result);
 
-    settings.push_back(setting_data);
+    settings_data.push_back(setting_data);
 }
