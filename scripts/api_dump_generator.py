@@ -2352,10 +2352,13 @@ class VulkanVariable:
                 continue
             self.text += node
 
-        typeMatch = re.search('.+?(?=' + self.name + ')', self.text)
-        self.type = typeMatch.string[typeMatch.start():typeMatch.end()]
-        self.type = ' '.join(self.type.split())
-        bracketMatch = re.search('(?<=\\[)[a-zA-Z0-9_]+(?=\\])', self.text)
+        # Need to get the 'full type', do this by making a list out of the text, remove the name, then put it back together
+        # We must add spaces around the brackets so they are separate list elements, which is necessary to prune array length declarations
+        text_list = self.text.replace('[', ' [ ').replace(']', ' ] ').split()
+        if self.name in text_list:
+            text_list = text_list[0:text_list.index(self.name)] # remove all elements after the name
+        self.type = ' '.join(text_list)
+        bracketMatch = re.search('(?<=\\[)[ a-zA-Z0-9_]+(?=\\])', self.text)
         if bracketMatch is not None:
             matchText = bracketMatch.string[bracketMatch.start():bracketMatch.end()]
             self.childType = self.type
@@ -2652,8 +2655,8 @@ class VulkanFunction:
         for node in rootNode.findall('param'):
             self.parameters.append(VulkanFunction.Parameter(node, constants, aliases, self.name))
 
-        self.namedParams = ','.join(p.name for p in self.parameters)
-        self.typedParams = ','.join(p.text for p in self.parameters)
+        self.namedParams = ', '.join(p.name for p in self.parameters)
+        self.typedParams = ', '.join(p.text for p in self.parameters)
 
         if self.parameters[0].type in ['VkInstance', 'VkPhysicalDevice'] or self.name == 'vkCreateInstance':
             self.dispatchType = 'instance'
