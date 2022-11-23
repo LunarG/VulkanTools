@@ -1634,9 +1634,10 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
 {{
     settings.stream() << settings.indentation(indents) << "[\\n";
 
-    bool needMemberComma = false;
     @foreach member
-    if (needMemberComma) settings.stream() << ",\\n";
+    @if({memIndex} != 0)
+    settings.stream() << ",\\n";
+    @end if
     @if('{memCondition}' != 'None')
     if({memCondition})
     @end if
@@ -1694,7 +1695,6 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
         settings.stream() << settings.indentation(indents+1) << "}}";
     }}
     @end if
-    needMemberComma = true;
     @end member
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
 }}
@@ -1748,10 +1748,10 @@ void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings,
 {{
     settings.stream() << settings.indentation(indents) << "[\\n";
 
-    bool needChoiceComma = false;
     @foreach choice
-    if (needChoiceComma) settings.stream() << ",\\n";
-
+    @if({chcIndex} != 0)
+    settings.stream() << ",\\n";
+    @end if
     @if({chcPtrLevel} == 0)
     dump_json_value<const {chcBaseType}>(object.{chcName}, NULL, settings, "{chcType}", "{chcName}", indents + 2, dump_json_{chcTypeID});
     @end if
@@ -1761,7 +1761,6 @@ void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings,
     @if({chcPtrLevel} == 1 and '{chcLength}' != 'None')
     dump_json_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 2, dump_json_{chcTypeID}); // OQA
     @end if
-    needChoiceComma = true;
     @end choice
 
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
@@ -1781,9 +1780,6 @@ bool is_union(const char *t)
 }}
 
 //========================= Function Implementations ========================//
-
-static bool needFuncComma = false;
-
 
 @foreach function where(not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 @if('{funcReturn}' != 'void')
@@ -1806,13 +1802,13 @@ void dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
     // Display parameter values
     if(settings.showParams())
     {{
-        bool needParameterComma = false;
-
         settings.stream() << settings.indentation(3) << "\\\"args\\\" :\\n";
         settings.stream() << settings.indentation(3) << "[\\n";
 
         @foreach parameter
-        if (needParameterComma) settings.stream() << ",\\n";
+        @if({prmIndex} != 0)
+        settings.stream() << ",\\n";
+        @end if
         @if('{prmParameterStorage}' != '')
         {prmParameterStorage}
         @end if
@@ -1825,13 +1821,11 @@ void dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
         @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
         dump_json_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 4, dump_json_{prmTypeID}); // PQA
         @end if
-        needParameterComma = true;
         @end parameter
 
         settings.stream() << "\\n" << settings.indentation(3) << "]\\n";
     }}
     settings.stream() << settings.indentation(2) << "}}";
-    needFuncComma = true;
     if (settings.shouldFlush()) settings.stream().flush();
 }}
 @end function
@@ -2632,8 +2626,9 @@ class VulkanFunction:
 
     class Parameter(VulkanVariable):
 
-        def __init__(self, rootNode, constants, aliases, parentName):
+        def __init__(self, rootNode, constants, aliases, parentName, index):
             VulkanVariable.__init__(self, rootNode, constants, aliases, parentName)
+            self.index = index
 
         def values(self):
             return {
@@ -2645,6 +2640,7 @@ class VulkanFunction:
                 'prmPtrLevel': self.pointerLevels,
                 'prmLength': self.arrayLength,
                 'prmParameterStorage': self.parameterStorage,
+                'prmIndex': self.index
             }
 
     def __init__(self, rootNode, constants, aliases, extensions):
@@ -2652,8 +2648,10 @@ class VulkanFunction:
         self.returnType = rootNode.find('proto').find('type').text
 
         self.parameters = []
+        index = 0
         for node in rootNode.findall('param'):
-            self.parameters.append(VulkanFunction.Parameter(node, constants, aliases, self.name))
+            self.parameters.append(VulkanFunction.Parameter(node, constants, aliases, self.name, index))
+            index = index + 1
 
         self.namedParams = ', '.join(p.name for p in self.parameters)
         self.typedParams = ', '.join(p.text for p in self.parameters)
@@ -2716,7 +2714,7 @@ class VulkanStruct:
 
     class Member(VulkanVariable):
 
-        def __init__(self, rootNode, constants, parentName):
+        def __init__(self, rootNode, constants, parentName, index):
             VulkanVariable.__init__(self, rootNode, constants, None, parentName)
 
             # Search for a member condition
@@ -2724,6 +2722,7 @@ class VulkanStruct:
             if rootNode.get('noautovalidity') == 'true' and parentName in VALIDITY_CHECKS and self.name in VALIDITY_CHECKS[parentName]:
                 self.condition = VALIDITY_CHECKS[parentName][self.name]
             self.structValues = rootNode.get('values')
+            self.index = index
 
         def values(self):
             return {
@@ -2737,6 +2736,7 @@ class VulkanStruct:
                 'memLengthIsMember': self.lengthMember,
                 'memCondition': self.condition,
                 'memParameterStorage': self.parameterStorage,
+                'memIndex' : self.index
             }
 
 
@@ -2744,8 +2744,10 @@ class VulkanStruct:
         self.name = rootNode.get('name')
         self.structExtends = rootNode.get('structextends')
         self.members = []
+        index = 0
         for node in rootNode.findall('member'):
-            self.members.append(VulkanStruct.Member(node, constants, self.name))
+            self.members.append(VulkanStruct.Member(node, constants, self.name, index))
+            index = index + 1
 
         self.structureIndex = -1
 
@@ -2782,8 +2784,9 @@ class VulkanUnion:
 
     class Choice(VulkanVariable):
 
-        def __init__(self, rootNode, constants, parentName):
+        def __init__(self, rootNode, constants, parentName, index):
             VulkanVariable.__init__(self, rootNode, constants, None, parentName)
+            self.index = index
 
         def values(self):
             return {
@@ -2795,13 +2798,16 @@ class VulkanUnion:
                 'chcPtrLevel': self.pointerLevels,
                 'chcLength': self.arrayLength,
                 #'chcLengthIsMember': self.lengthMember,
+                'chcIndex': self.index,
             }
 
     def __init__(self, rootNode, constants):
         self.name = rootNode.get('name')
         self.choices = []
+        index = 0
         for node in rootNode.findall('member'):
-            self.choices.append(VulkanUnion.Choice(node, constants, self.name))
+            self.choices.append(VulkanUnion.Choice(node, constants, self.name, index))
+            index = index + 1
 
     def values(self):
         return {
