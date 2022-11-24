@@ -1489,7 +1489,7 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         settings.stream() << settings.indentation(indents) << "{{\\n";
         settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";
         settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";
-        settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"UNKNOWN (\\"" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << "\\")\\n";
+        settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\"\\n";
         settings.stream() << settings.indentation(indents) << "}}";
     }}
 }}
