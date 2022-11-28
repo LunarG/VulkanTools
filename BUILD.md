@@ -10,7 +10,7 @@ supplementing the loader and validation layer core components found at https://g
 
 Windows 7+ with additional required software packages:
 
-- Microsoft Visual Studio 2017 or 2019: it is possible that lesser/older versions may work, but not guaranteed.
+- Microsoft Visual Studio 2017, 2019 or 2022: it is possible that lesser/older versions may work, but not guaranteed.
 - [CMake 3.10.2](https://cmake.org/files/v3.10/cmake-3.10.2-win64-x64.zip) is recommended.
   - Tell the installer to "Add CMake to the system `PATH`" environment variable.
 - Python 3 (from https://www.python.org/downloads).  Notes:
@@ -182,7 +182,7 @@ ctest --parallel 8 --output-on-failure
 Use the following to ensure the Android build works.
 
 #### Android Build from Windows
-From Developer Command Prompt for VS2015:
+From Developer Command Prompt for VS2017:
 ```
 cd build-android
 update_external_sources_android.bat
@@ -355,10 +355,10 @@ quick-start tool for common use cases and default configurations.
 Cygwin is used in order to obtain a local copy of the Git repository, and to run the CMake command that creates Visual Studio files.
 Visual Studio is used to build the software, and will re-run CMake as appropriate.
 
-To build all Windows targets (e.g. in a "Developer Command Prompt for VS2015" window):
+To build all Windows targets (e.g. in a "Developer Command Prompt for VS2017" window):
 ```
 cd VulkanTools  # cd to the root of the VulkanTools git repository
-cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=build/install -DVULKAN_HEADERS_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_LOADER_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_VALIDATIONLAYERS_INSTALL_DIR=absolute_path_to_install_directory
+cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=build/install -DVULKAN_HEADERS_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_LOADER_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_VALIDATIONLAYERS_INSTALL_DIR=absolute_path_to_install_directory
 cmake --build dbuild --config Debug --target install
 ```
 
