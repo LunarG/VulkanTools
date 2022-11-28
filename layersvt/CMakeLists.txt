@@ -79,6 +79,11 @@ if (WIN32)
         )
         add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
         target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+        set_target_properties(VkLayer_${target} PROPERTIES
+            CXX_STANDARD 17
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+        )
         if(BUILD_APIDUMP)
             add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
             add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
@@ -120,7 +125,7 @@ if (WIN32)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_CRT_SECURE_NO_WARNINGS /bigobj")
     set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS /bigobj")
 else()
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpointer-arith")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 endif()
