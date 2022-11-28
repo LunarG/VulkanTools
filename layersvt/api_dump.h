@@ -441,6 +441,11 @@ class ApiDumpSettings {
             stream() << "[\n";
         }
 
+        if (use_spaces)
+            stream() << std::setfill(' ');
+        else
+            stream() << std::setfill('\t');
+
         if (isFrameInRange(0)) {
             setupInterFrameOutputFormatting(0);
         }
@@ -519,18 +524,20 @@ class ApiDumpSettings {
 
     std::ostream &formatNameType(std::ostream &stream, int indents, const char *name, const char *type) const {
         stream << indentation(indents) << name << ": ";
-
         if (use_spaces)
-            stream << std::setfill(' ') << std::setw(name_size - (int)strlen(name) - 2);
+            stream << std::setw(name_size - (int)strlen(name) - 2) << "";
         else
-            stream << std::setfill('\t') << std::setw((name_size - (int)strlen(name) - 3 + indent_size) / indent_size);
+            stream << std::setw((name_size - (int)strlen(name) - 3 + indent_size) / indent_size) << "";
 
-        if (show_type && use_spaces)
-            stream << type << std::setfill(' ') << std::setw(type_size - (int)strlen(type));
-        else if (show_type && !use_spaces)
-            stream << type << std::setfill('\t') << std::setw((type_size - (int)strlen(type) - 1 + indent_size) / indent_size);
-
-        return stream << " = ";
+        if (show_type) {
+            if (use_spaces)
+                stream << type << std::setw(type_size - (int)strlen(type)) << " = ";
+            else
+                stream << type << std::setw((type_size - (int)strlen(type) - 1 + indent_size) / indent_size) << " = ";
+        } else {
+            stream << " = ";
+        }
+        return stream;
     }
 
     inline const char *indentation(int indents) const {
