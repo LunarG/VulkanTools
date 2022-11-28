@@ -42,7 +42,7 @@ if (WIN32)
     # The changed behavior is that constructor initializers are now fixed to clear the struct members.
     add_compile_options("$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,19>>:/wd4351>")
 else()
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wpointer-arith -Wno-unused-function -Wno-sign-compare")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wpointer-arith -Wno-unused-function -Wno-sign-compare")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith -Wno-unused-function -Wno-sign-compare")
 endif()
 
@@ -170,6 +170,11 @@ FOREACH(subdir ${ST_SUBDIRS})
     add_factory_layer(${subdir} ${CMAKE_LAYER_FACTORY_SOURCE_DIR}/${subdir} layer_factory.cpp layer_factory.h ${Vulkan-ValidationLayers_INCLUDE_DIR}/xxhash.c ${INTERCEPTOR_SOURCES})
     add_dependencies(VkLayer_${subdir} ${dep_chain})
     set(dep_chain VkLayer_${subdir})
+    set_target_properties(VkLayer_${subdir} PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+    )
 ENDFOREACH()
 
 # Add targets for JSON file install. Try to follow the same convention as the Khronos Vulkan-ValidationLayers repository to maintain

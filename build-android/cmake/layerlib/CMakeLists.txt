@@ -8,7 +8,7 @@ if (CMAKE_CURRENT_SOURCE_DIR MATCHES "sources/third_party/vulkan/src")
     set(BUILD_IN_NDK ON)
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror \
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Werror \
         -Wno-unused-function -Wno-unused-const-variable \
         -Wno-c++98-compat-pedantic -DVK_PROTOTYPES \
         -DVK_USE_PLATFORM_ANDROID_KHR")
