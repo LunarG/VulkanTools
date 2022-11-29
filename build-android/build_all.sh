@@ -29,6 +29,7 @@ if [[ $(uname) == "Linux" ]]; then
 elif [[ $(uname) == "Darwin" ]]; then
     cores=$(sysctl -n hw.ncpu) || echo 4
 fi
+use_cores=${VT_BUILD_CORES:-$cores}
 
 function findtool() {
     if [[ ! $(type -t $1) ]]; then
@@ -66,7 +67,7 @@ function create_APK() {
 #
 ./update_external_sources_android.sh --no-build
 ./android-generate.sh
-ndk-build -j $cores
+ndk-build -j $use_cores -l $use_cores
 
 #
 # build VulkanLayerValidationTests APK
