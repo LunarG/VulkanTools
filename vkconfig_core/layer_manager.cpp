@@ -88,6 +88,48 @@ void LayerManager::Clear() { available_layers.clear(); }
 
 bool LayerManager::Empty() const { return available_layers.empty(); }
 
+std::vector<std::string> LayerManager::BuildPathList() const {
+    std::vector<std::string> list;
+
+    // FIRST: If VK_LAYER_PATH is set it has precedence over other layers.
+    {
+        const std::vector<std::string> &paths = environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV_SET);
+        for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
+            list.push_back(paths[i]);
+        }
+    }
+
+    // SECOND: Any per layers configuration user-defined path from Vulkan Configurator? Search for those too
+    {
+        const std::vector<std::string> &paths = environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
+        for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
+            list.push_back(paths[i]);
+        }
+    }
+
+    // THIRD: Add VK_ADD_LAYER_PATH layers
+    {
+        const std::vector<std::string> &paths = environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV_ADD);
+        for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
+            list.push_back(paths[i]);
+        }
+    }
+
+    // FOURTH: Standard layer paths, in standard locations. The above has always taken precedence
+    {
+        for (std::size_t i = 0, n = countof(SEARCH_PATHS); i < n; i++) {
+            list.push_back(SEARCH_PATHS[i]);
+        }
+    }
+
+    // FIFTH: Standard layer paths, in standard locations. The above has always taken precedence
+    if (!qgetenv("VULKAN_SDK").isEmpty()) {
+        list.push_back(GetPath(BUILTIN_PATH_EXPLICIT_LAYERS));
+    }
+
+    return list;
+}
+
 // Find all installed layers on the system.
 void LayerManager::LoadAllInstalledLayers() {
     available_layers.clear();

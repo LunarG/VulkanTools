@@ -105,6 +105,8 @@ class MainWindow : public QMainWindow {
     void ImportClicked(ConfigurationListItem *item);
     void ReloadDefaultClicked(ConfigurationListItem *item);
 
+    void AddLayerItem(const Parameter &parameter);
+
    public Q_SLOTS:
     void toolsVulkanInfo(bool checked);
     void toolsVulkanInstallation(bool checked);
