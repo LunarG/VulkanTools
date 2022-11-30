@@ -282,7 +282,7 @@ void MainWindow::AddLayerItem(const Parameter &parameter) {
     const QSize combo_version_size = fm.size(Qt::TextSingleLine, layer->api_version.str().c_str());
     item_state->setSizeHint(1, combo_version_size);
 
-    const QSize combo_state_size = fm.size(Qt::TextSingleLine, "Application-Controlled") * 1.6;
+    const QSize combo_state_size = fm.size(Qt::TextSingleLine, "Application-Controlled");
     item_state->setSizeHint(2, combo_state_size);
 
     // Add the top level item
@@ -379,8 +379,24 @@ void MainWindow::UpdateUI() {
     if (configuration != nullptr) {
         std::vector<Parameter> parameters = GatherParameters(configuration->parameters, configurator.layers.available_layers);
 
+        {
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            ui->tree_layers_list->addTopLevelItem(item);
+            item->setText(0, "Execute Closer to the Vulkan Application");
+            // item->setTextAlignment(0, Qt::AlignHCenter | Qt::AlignVCenter);
+            item->setDisabled(true);
+        }
+
         for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
             AddLayerItem(parameters[i]);
+        }
+
+        {
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            ui->tree_layers_list->addTopLevelItem(item);
+            item->setText(0, "Execute Closer to the Vulkan Driver");
+            // item->setTextAlignment(0, Qt::AlignHCenter | Qt::AlignVCenter);
+            item->setDisabled(true);
         }
 
         resizeEvent(nullptr);
