@@ -442,7 +442,7 @@
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <widget class="QTreeWidget" name="tree_layers_list">
+               <widget class="QListWidget" name="tree_layers_list">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
@@ -464,6 +464,9 @@
                 <property name="lineWidth">
                  <number>1</number>
                 </property>
+                <property name="verticalScrollBarPolicy">
+                 <enum>Qt::ScrollBarAlwaysOn</enum>
+                </property>
                 <property name="editTriggers">
                  <set>QAbstractItemView::NoEditTriggers</set>
                 </property>
@@ -479,46 +482,17 @@
                 <property name="alternatingRowColors">
                  <bool>true</bool>
                 </property>
-                <property name="indentation">
-                 <number>5</number>
-                </property>
-                <property name="columnCount">
-                 <number>3</number>
-                </property>
-                <attribute name="headerVisible">
-                 <bool>false</bool>
-                </attribute>
-                <attribute name="headerMinimumSectionSize">
-                 <number>20</number>
-                </attribute>
-                <column>
-                 <property name="text">
-                  <string notr="true">1</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string notr="true">2</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string notr="true">3</string>
-                 </property>
-                </column>
                </widget>
                <widget class="QWidget" name="verticalLayoutWidget_5">
                 <layout class="QVBoxLayout" name="verticalLayout">
                  <item>
-                  <widget class="QTreeWidget" name="tree_layers_paths">
-                   <attribute name="headerVisible">
-                    <bool>false</bool>
-                   </attribute>
-                   <column>
-                    <property name="text">
-                     <string notr="true">1</string>
-                    </property>
-                   </column>
+                  <widget class="QListWidget" name="tree_layers_paths">
+                   <property name="verticalScrollBarPolicy">
+                    <enum>Qt::ScrollBarAlwaysOn</enum>
+                   </property>
+                   <property name="alternatingRowColors">
+                    <bool>true</bool>
+                   </property>
                   </widget>
                  </item>
                 </layout>

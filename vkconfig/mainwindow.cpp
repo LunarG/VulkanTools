@@ -24,7 +24,6 @@
 #include "dialog_about.h"
 #include "dialog_vulkan_analysis.h"
 #include "dialog_vulkan_info.h"
-#include "dialog_layers.h"
 #include "dialog_applications.h"
 
 #include "configurator.h"
@@ -269,13 +268,20 @@ void MainWindow::AddLayerItem(const Parameter &parameter) {
 
     TreeWidgetItemParameter *item_state = new TreeWidgetItemParameter(parameter.key.c_str());
 
-    item_state->setText(0, decorated_name.c_str());
-    if (layer != nullptr) item_state->setToolTip(0, layer->manifest_path.c_str());
+    // item_state->setText(decorated_name.c_str());
+    // if (layer != nullptr) item_state->setToolTip(layer->manifest_path.c_str());
     item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
-    item_state->setDisabled(layer == nullptr);
+    LayerWidget *layer_widget = new LayerWidget(layer, parameter, ui->tree_layers_list, item_state);
+
+    item_state->widget = layer_widget;
+    // item_state->setDisabled(layer == nullptr);
+
+    // item_state->layer_state->addItem(is_implicit_layer ? "Implicitly On" : "Application-Controlled");
+    // item_state->layer_state->addItem("Forced On");
+    // item_state->layer_state->addItem("Forced Off");
 
     const QFontMetrics fm = ui->tree_layers_list->fontMetrics();
-
+    /*
     const QSize combo_name_size = fm.size(Qt::TextSingleLine, parameter.key.c_str()) * 1.2;
     item_state->setSizeHint(0, combo_name_size);
 
@@ -284,25 +290,28 @@ void MainWindow::AddLayerItem(const Parameter &parameter) {
 
     const QSize combo_state_size = fm.size(Qt::TextSingleLine, "Application-Controlled");
     item_state->setSizeHint(2, combo_state_size);
-
+    */
     // Add the top level item
-    ui->tree_layers_list->addTopLevelItem(item_state);
+    ui->tree_layers_list->addItem(item_state);
+    ui->tree_layers_list->setItemWidget(item_state, layer_widget);
 
     // Add a combo box. Default has gray background which looks hidious
-    WidgetTreeFriendlyComboBox *widget_version = new WidgetTreeFriendlyComboBox(item_state);
-    ui->tree_layers_list->setItemWidget(item_state, 1, widget_version);
+    // WidgetTreeFriendlyComboBox *widget_version = new WidgetTreeFriendlyComboBox(item_state);
+    // ui->tree_layers_list->setItemWidget(item_state, 1, widget_version);
 
-    widget_version->addItem(layer->api_version.str().c_str());
+    // widget_version->addItem(layer->api_version.str().c_str());
 
-    WidgetTreeFriendlyComboBox *widget_state = new WidgetTreeFriendlyComboBox(item_state);
-    ui->tree_layers_list->setItemWidget(item_state, 2, widget_state);
+    // WidgetTreeFriendlyComboBox *widget_state = new WidgetTreeFriendlyComboBox(item_state);
+    // ui->tree_layers_list->setItemWidget(item_state, 2, widget_state);
 
+    /*
     widget_state->addItem(is_implicit_layer ? "Implicitly On" : "Application-Controlled");
     widget_state->addItem("Forced On");
     widget_state->addItem("Forced Off");
     widget_state->setCurrentIndex(parameter.state);
 
-    connect(widget_state, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
+    connect(widget_state, SIGNAL(selectionMade(QListWidgetItem *, int)), this, SLOT(layerUseChanged(QListWidgetItem *, int)));
+    */
 }
 
 void MainWindow::UpdateUI() {
@@ -366,9 +375,9 @@ void MainWindow::UpdateUI() {
     for (std::size_t path_index = 0, count = layer_paths.size(); path_index < count; ++path_index) {
         const std::string user_defined_path(ConvertNativeSeparators(layer_paths[path_index]));
 
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        ui->tree_layers_paths->addTopLevelItem(item);
-        item->setText(0, user_defined_path.c_str());
+        QListWidgetItem *item = new QListWidgetItem();
+        ui->tree_layers_paths->addItem(item);
+        item->setText(user_defined_path.c_str());
     }
 
     // Load Layers items
@@ -380,11 +389,15 @@ void MainWindow::UpdateUI() {
         std::vector<Parameter> parameters = GatherParameters(configuration->parameters, configurator.layers.available_layers);
 
         {
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            ui->tree_layers_list->addTopLevelItem(item);
-            item->setText(0, "Execute Closer to the Vulkan Application");
-            // item->setTextAlignment(0, Qt::AlignHCenter | Qt::AlignVCenter);
-            item->setDisabled(true);
+            QListWidgetItem *item = new QListWidgetItem();
+            ui->tree_layers_list->addItem(item);
+            item->setText("Execute Closer to the Vulkan Application");
+            item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+            item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+            QFont font = item->font();
+            font.setItalic(true);
+            item->setFont(font);
+            // item->setDisabled(true);
         }
 
         for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
@@ -392,20 +405,24 @@ void MainWindow::UpdateUI() {
         }
 
         {
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            ui->tree_layers_list->addTopLevelItem(item);
-            item->setText(0, "Execute Closer to the Vulkan Driver");
-            // item->setTextAlignment(0, Qt::AlignHCenter | Qt::AlignVCenter);
-            item->setDisabled(true);
+            QListWidgetItem *item = new QListWidgetItem();
+            ui->tree_layers_list->addItem(item);
+            item->setText("Execute Closer to the Vulkan Driver");
+            item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+            item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+            QFont font = item->font();
+            font.setItalic(true);
+            item->setFont(font);
+            // item->setDisabled(true);
         }
 
         resizeEvent(nullptr);
 
         ui->tree_layers_list->update();
     }
-    ui->tree_layers_list->resizeColumnToContents(0);
-    ui->tree_layers_list->resizeColumnToContents(1);
-    ui->tree_layers_list->resizeColumnToContents(2);
+    // ui->tree_layers_list->resizeColumnToContents(0);
+    // ui->tree_layers_list->resizeColumnToContents(1);
+    // ui->tree_layers_list->resizeColumnToContents(2);
 
     // Update settings
     ui->push_button_edit->setEnabled(environment.UseOverride() && has_select_configuration);
@@ -915,7 +932,7 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     const QFontMetrics fm = ui->tree_layers_list->fontMetrics();
     const int combo_width = (fm.size(Qt::TextSingleLine, "Application-Controlled").width() * 1.6);
     const int width = ui->tree_layers_list->width() - combo_width;
-    ui->tree_layers_list->setColumnWidth(0, width);
+    // ui->tree_layers_list->setColumnWidth(0, width);
 }
 
 void MainWindow::showEvent(QShowEvent *event) {
@@ -965,11 +982,12 @@ void MainWindow::on_push_button_edit_clicked() {
     assert(configuration != nullptr);
 
     const std::string configuration_name = configuration->key;
-
+    /*
     LayersDialog dlg(this, *configuration);
     if (dlg.exec() == QDialog::Accepted) {
         LoadConfigurationList();
     }
+    */
 }
 
 // Edit the layers for the given configuration.
@@ -981,11 +999,12 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     Configuration *configuration =
         FindByKey(configurator.configurations.available_configurations, item->configuration_name.c_str());
     assert(configuration != nullptr);
-
+    /*
     LayersDialog dlg(this, *configuration);
     if (dlg.exec() == QDialog::Accepted) {
         LoadConfigurationList();
     }
+    */
 }
 
 void MainWindow::NewClicked() {
@@ -994,7 +1013,7 @@ void MainWindow::NewClicked() {
 
     Configuration &new_configuration =
         configurator.configurations.CreateConfiguration(configurator.layers.available_layers, "New Configuration");
-
+    /*
     LayersDialog dlg(this, new_configuration);
     switch (dlg.exec()) {
         case QDialog::Accepted:
@@ -1007,7 +1026,7 @@ void MainWindow::NewClicked() {
             assert(0);
             break;
     }
-
+    */
     LoadConfigurationList();
 }
 
