@@ -51,6 +51,71 @@ class ConfigurationListItem : public QTreeWidgetItem {
     ConfigurationListItem &operator=(const ConfigurationListItem &) = delete;
 };
 
+class LayerWidget : public QLabel {
+    Q_OBJECT
+
+   public:
+    LayerWidget(const Layer *layer, const Parameter &parameter, QListWidget *list, QListWidgetItem *item) : item(item) {
+        this->layer_version = new QComboBox(this);
+        this->layer_version->show();
+        this->layer_state = new QComboBox(this);
+        this->layer_state->addItem(false ? "Implicitly On" : "Application-Controlled");
+        this->layer_state->addItem("Forced On");
+        this->layer_state->addItem("Forced Off");
+        this->layer_state->setCurrentIndex(parameter.state);
+        this->layer_state->show();
+
+        std::string decorated_name(layer->key);
+
+        bool is_implicit_layer = false;
+        if (layer != nullptr) {
+            if (layer->status != STATUS_STABLE) {
+                decorated_name += format(" (%s)", GetToken(layer->status));
+            }
+
+            // if (IsDLL32Bit(layer->manifest_path)) {
+            //    decorated_name += " (32-bit)";
+            //}
+        } else {
+            // A layers configuration may have excluded layer that are misssing because they are not available on this platform
+            // We simply hide these layers to avoid confusing the Vulkan developers
+            if (parameter.state == LAYER_STATE_EXCLUDED) return;
+
+            decorated_name += " (Missing)";
+        }
+        this->setText(decorated_name.c_str());
+
+        item->setSizeHint(QSize(0, ITEM_HEIGHT));
+
+        // list->addItem(item);
+        // list->setItemWidget(item, this);
+    }
+
+    QComboBox *layer_version;
+    QComboBox *layer_state;
+
+   protected:
+    void resizeEvent(QResizeEvent *event) override {
+        QSize size = event->size();
+
+        const QFontMetrics fm = this->layer_state->fontMetrics();
+        const int width = std::max(HorizontalAdvance(fm, "Pouet 00"), 80);
+
+        const QRect button_rect = QRect(size.width() - width, 0, width, size.height());
+        this->layer_state->setGeometry(button_rect);
+    }
+
+   public:
+    QListWidgetItem *item;
+};
+
+class TreeWidgetItemParameter : public QListWidgetItem {
+   public:
+    TreeWidgetItemParameter(const char *layer_name) : widget(nullptr) { assert(layer_name != nullptr); }
+
+    QWidget *widget;
+};
+
 enum Tool { TOOL_VULKAN_INFO, TOOL_VULKAN_INSTALL };
 
 class MainWindow : public QMainWindow {

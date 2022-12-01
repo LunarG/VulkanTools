@@ -23,12 +23,12 @@
 
 #include <QWidget>
 #include <QComboBox>
-#include <QTreeWidgetItem>
+#include <QListWidgetItem>
 
 class WidgetTreeFriendlyComboBox : public QComboBox {
     Q_OBJECT
    public:
-    WidgetTreeFriendlyComboBox(QTreeWidgetItem *item);
+    WidgetTreeFriendlyComboBox(QListWidgetItem *item);
 
     void wheelEvent(QWheelEvent *e) {
         if (hasFocus()) QComboBox::wheelEvent(e);
@@ -38,11 +38,11 @@ class WidgetTreeFriendlyComboBox : public QComboBox {
     void indexChanged(int nIndex);
 
    Q_SIGNALS:
-    void selectionMade(QTreeWidgetItem *tree_item, int index);
+    void selectionMade(QListWidgetItem *tree_item, int index);
 
    private:
     WidgetTreeFriendlyComboBox(const WidgetTreeFriendlyComboBox &) = delete;
     WidgetTreeFriendlyComboBox &operator=(const WidgetTreeFriendlyComboBox &) = delete;
 
-    QTreeWidgetItem *item;
+    QListWidgetItem *item;
 };
