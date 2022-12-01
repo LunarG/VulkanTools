@@ -56,10 +56,16 @@ class LayerWidget : public QLabel {
 
    public:
     LayerWidget(const Layer *layer, const Parameter &parameter, QListWidget *list, QListWidgetItem *item) : item(item) {
+        const bool is_implicit_layer = layer->type == LAYER_TYPE_IMPLICIT;
+
+        const QFontMetrics fm = list->fontMetrics();
+        const QSize combo_version_size = fm.size(Qt::TextSingleLine, layer->api_version.str().c_str());
+
         this->layer_version = new QComboBox(this);
         this->layer_version->show();
+        this->layer_version->addItem(layer->api_version.str().c_str());
         this->layer_state = new QComboBox(this);
-        this->layer_state->addItem(false ? "Implicitly On" : "Application-Controlled");
+        this->layer_state->addItem(is_implicit_layer ? "Implicitly On" : "Application-Controlled");
         this->layer_state->addItem("Forced On");
         this->layer_state->addItem("Forced Off");
         this->layer_state->setCurrentIndex(parameter.state);
@@ -67,7 +73,6 @@ class LayerWidget : public QLabel {
 
         std::string decorated_name(layer->key);
 
-        bool is_implicit_layer = false;
         if (layer != nullptr) {
             if (layer->status != STATUS_STABLE) {
                 decorated_name += format(" (%s)", GetToken(layer->status));
@@ -99,10 +104,14 @@ class LayerWidget : public QLabel {
         QSize size = event->size();
 
         const QFontMetrics fm = this->layer_state->fontMetrics();
-        const int width = std::max(HorizontalAdvance(fm, "Pouet 00"), 80);
+        const int width_state = std::max(HorizontalAdvance(fm, "Application-Controlled 000"), 80);
+        const int width_version = std::max(HorizontalAdvance(fm, "1.2.199 000"), 80);
 
-        const QRect button_rect = QRect(size.width() - width, 0, width, size.height());
-        this->layer_state->setGeometry(button_rect);
+        const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, size.height());
+        this->layer_state->setGeometry(state_button_rect);
+
+        const QRect version_button_rect = QRect(size.width() - width_state - width_version, 0, width_version, size.height());
+        this->layer_version->setGeometry(version_button_rect);
     }
 
    public:
