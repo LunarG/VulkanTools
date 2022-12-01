@@ -320,15 +320,16 @@ void MainWindow::UpdateUI() {
     const bool has_select_configuration = configurator.configurations.HasSelectConfiguration();
     const std::string &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
-    // ui->tree_configurations->blockSignals(true);
+    const bool enable_layer_ui = ui->radio_vulkan_configurator->isChecked() && !environment.mode_disable_layers;
+
+    // ui->tree_layers_paths->blockSignals(true);
 
     ui->radio_vulkan_configurator->setChecked(environment.UseOverride());
     ui->radio_vulkan_applications->setChecked(!ui->radio_vulkan_configurator->isChecked());
 
     // Update configurations
     // ui->layout_layers_buttons->setEnabled(ui->radio_vulkan_configurator->isChecked() && !environment.mode_disable_layers);
-    ui->comboBox_configurations->setEnabled(ui->radio_vulkan_configurator->isChecked() && !environment.mode_disable_layers);
-
+    ui->comboBox_configurations->setEnabled(enable_layer_ui);
     ui->comboBox_configurations->clear();
     for (std::size_t i = 0, n = configurator.configurations.available_configurations.size(); i < n; ++i) {
         Configuration *configuration = &configurator.configurations.available_configurations[i];
@@ -370,6 +371,8 @@ void MainWindow::UpdateUI() {
     */
     // Load Layers paths
     std::vector<std::string> layer_paths = configurator.layers.BuildPathList();
+
+    ui->tree_layers_paths->setEnabled(enable_layer_ui);
     ui->tree_layers_paths->clear();
 
     for (std::size_t path_index = 0, count = layer_paths.size(); path_index < count; ++path_index) {
@@ -381,6 +384,7 @@ void MainWindow::UpdateUI() {
     }
 
     // Load Layers items
+    ui->tree_layers_list->setEnabled(enable_layer_ui);
     ui->tree_layers_list->clear();
 
     Configuration *configuration =
@@ -425,11 +429,17 @@ void MainWindow::UpdateUI() {
     // ui->tree_layers_list->resizeColumnToContents(2);
 
     // Update settings
-    ui->push_button_edit->setEnabled(environment.UseOverride() && has_select_configuration);
-    ui->push_button_remove->setEnabled(environment.UseOverride() && has_select_configuration);
-    ui->push_button_duplicate->setEnabled(environment.UseOverride() && has_select_configuration);
-    ui->push_button_new->setEnabled(environment.UseOverride());
-    ui->settings_tree->setEnabled(environment.UseOverride() && !environment.mode_disable_layers && has_select_configuration);
+    ui->combo_box_mode->setEnabled(ui->radio_vulkan_configurator->isChecked());
+    ui->combo_box_mode->setCurrentIndex(environment.UsePersistentOverrideMode() ? 1 : 0);
+
+    ui->check_box_disable->setEnabled(ui->radio_vulkan_configurator->isChecked());
+    // ui->check_box_disable->setChecked(!environment.mode_disable_layers);
+
+    ui->push_button_edit->setEnabled(enable_layer_ui && environment.UseOverride() && has_select_configuration);
+    ui->push_button_remove->setEnabled(enable_layer_ui && environment.UseOverride() && has_select_configuration);
+    ui->push_button_duplicate->setEnabled(enable_layer_ui && environment.UseOverride() && has_select_configuration);
+    ui->push_button_new->setEnabled(enable_layer_ui && environment.UseOverride());
+    ui->settings_tree->setEnabled(enable_layer_ui && environment.UseOverride() && has_select_configuration);
 
     // Handle application lists states
     ui->check_box_apply_list->setEnabled(!been_warned_about_old_loader && ui->radio_vulkan_configurator->isChecked());
@@ -461,17 +471,14 @@ void MainWindow::UpdateUI() {
     _launcher_apps_combo->blockSignals(false);
 
     // Handle persistent states
-    ui->combo_box_mode->setEnabled(ui->radio_vulkan_configurator->isChecked());
-    ui->combo_box_mode->setCurrentIndex(environment.UsePersistentOverrideMode() ? 1 : 0);
-
-    ui->check_box_disable->setEnabled(ui->radio_vulkan_configurator->isChecked());
-    ui->check_box_disable->setChecked(environment.mode_disable_layers);
+    /*
     ui->tree_layers_paths->setEnabled(!environment.mode_disable_layers);
     ui->tree_layers_list->setEnabled(!environment.mode_disable_layers);
     ui->push_button_new->setEnabled(!environment.mode_disable_layers);
     ui->push_button_edit->setEnabled(!environment.mode_disable_layers);
     ui->push_button_duplicate->setEnabled(!environment.mode_disable_layers);
     ui->push_button_remove->setEnabled(!environment.mode_disable_layers);
+    */
 
     // Launcher states
     const bool has_application_list = !environment.GetApplications().empty();
