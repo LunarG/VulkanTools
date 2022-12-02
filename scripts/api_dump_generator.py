@@ -306,13 +306,13 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(VkQueue queue, 
         switch(ApiDumpInstance::current().settings().format())
         {{
             case ApiDumpFormat::Text:
-                dump_text_function_head(ApiDumpInstance::current(), \"vkQueuePresentKHR(queue, pPresentInfo)\", \"vVkResult\");
+                dump_text_function_head(ApiDumpInstance::current(), \"vkQueuePresentKHR(queue, pPresentInfo)\", \"VkResult\");
                 break;
             case ApiDumpFormat::Html:
-                dump_html_function_head(ApiDumpInstance::current(), \"vkQueuePresentKHR(queue, pPresentInfo)\", \"vVkResult\");
+                dump_html_function_head(ApiDumpInstance::current(), \"vkQueuePresentKHR(queue, pPresentInfo)\", \"VkResult\");
                 break;
             case ApiDumpFormat::Json:
-                dump_json_function_head(ApiDumpInstance::current(), \"vkQueuePresentKHR\", \"vVkResult\");
+                dump_json_function_head(ApiDumpInstance::current(), \"vkQueuePresentKHR\", \"VkResult\");
                 break;
         }}
     }}
@@ -656,7 +656,7 @@ void dump_text_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureF
 void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents)
 {{
     if (object == nullptr) {{
-        dump_text_value<const void*>(object, settings, "const void*", "pNext", indents, dump_text_void);
+        dump_text_value<const void*>(object, settings, "void*", "pNext", indents, dump_text_void);
         return;
     }}
 
@@ -664,7 +664,12 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
     @foreach struct
         @if({sctStructureTypeIndex} != -1)
     case {sctStructureTypeIndex}:
+        @if({sctIsPNextChainConst} == True)
         settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        @end if
+        @if({sctIsPNextChainConst} == False)
+        settings.formatNameType(settings.stream(), indents, "pNext", "void*");
+        @end if
         settings.stream() << "{sctName}\\n";
         break;
         @end if
@@ -2758,10 +2763,17 @@ class VulkanStruct:
                         if(member.structValues  == opt.name):
                             self.structureIndex = opt.value
 
+        self.isPNextChainConst = False
+        for member in self.members:
+            if member.name == 'pNext' and member.type == "const void*":
+                self.isPNextChainConst = True
+                break
+
     def values(self):
         return {
             'sctName': self.name,
             'sctStructureTypeIndex': self.structureIndex,
+            'sctIsPNextChainConst': self.isPNextChainConst,
         }
 
 class VulkanSystemType:
