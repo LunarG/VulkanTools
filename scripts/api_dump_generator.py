@@ -628,9 +628,9 @@ TEXT_CODEGEN = """
 
 #include "api_dump.h"
 
-@foreach struct
-void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
-@end struct
+void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents);
+void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
+
 @foreach union
 void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
@@ -650,67 +650,6 @@ void dump_text_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureF
     dump_text_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
 }}
 #endif // VK_ENABLE_BETA_EXTENSIONS
-
-//======================== pNext Chain Implementation =======================//
-
-void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents)
-{{
-    if (object == nullptr) {{
-        dump_text_value<const void*>(object, settings, "void*", "pNext", indents, dump_text_void);
-        return;
-    }}
-
-    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
-    @foreach struct
-        @if({sctStructureTypeIndex} != -1)
-    case {sctStructureTypeIndex}:
-        @if({sctIsPNextChainConst} == True)
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
-        @end if
-        @if({sctIsPNextChainConst} == False)
-        settings.formatNameType(settings.stream(), indents, "pNext", "void*");
-        @end if
-        settings.stream() << "{sctName}\\n";
-        break;
-        @end if
-    @end struct
-
-    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
-    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
-        settings.stream() << "NULL\\n";
-        break;
-    default:
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
-        settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
-    }}
-}}
-
-void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
-{{
-    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
-    @foreach struct
-        @if({sctStructureTypeIndex} != -1)
-    case {sctStructureTypeIndex}:
-        dump_text_pNext<const {sctName}>(static_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_text_{sctName});
-        break;
-        @end if
-    @end struct
-
-    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
-    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
-            dump_text_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
-        }} else {{
-            settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
-            settings.stream() << "NULL\\n";
-        }}
-        break;
-    default:
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
-        settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
-    }}
-}}
 
 //=========================== Type Implementations ==========================//
 
@@ -974,6 +913,67 @@ void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings,
 }}
 @end union
 
+//======================== pNext Chain Implementation =======================//
+
+void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents)
+{{
+    if (object == nullptr) {{
+        dump_text_value<const void*>(object, settings, "void*", "pNext", indents, dump_text_void);
+        return;
+    }}
+
+    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
+    @foreach struct
+        @if({sctStructureTypeIndex} != -1)
+    case {sctStructureTypeIndex}:
+        @if({sctIsPNextChainConst} == True)
+        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        @end if
+        @if({sctIsPNextChainConst} == False)
+        settings.formatNameType(settings.stream(), indents, "pNext", "void*");
+        @end if
+        settings.stream() << "{sctName}\\n";
+        break;
+        @end if
+    @end struct
+
+    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
+    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.stream() << "NULL\\n";
+        break;
+    default:
+        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
+    }}
+}}
+
+void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
+{{
+    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
+    @foreach struct
+        @if({sctStructureTypeIndex} != -1)
+    case {sctStructureTypeIndex}:
+        dump_text_pNext<const {sctName}>(static_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_text_{sctName});
+        break;
+        @end if
+    @end struct
+
+    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
+    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
+            dump_text_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
+        }} else {{
+            settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+            settings.stream() << "NULL\\n";
+        }}
+        break;
+    default:
+        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
+    }}
+}}
+
 //========================= Function Implementations ========================//
 
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
@@ -1049,9 +1049,8 @@ HTML_CODEGEN = """
 
 #include "api_dump.h"
 
-@foreach struct
-void dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
-@end struct
+void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
+
 @foreach union
 void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
@@ -1072,35 +1071,7 @@ void dump_html_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureF
 }}
 #endif // VK_ENABLE_BETA_EXTENSIONS
 
-//======================== pNext Chain Implementation =======================//
 
-void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
-{{
-    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
-    @foreach struct
-        @if({sctStructureTypeIndex} != -1)
-    case {sctStructureTypeIndex}:
-        dump_html_pNext<const {sctName}>(static_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_html_{sctName});
-        break;
-        @end if
-    @end struct
-
-    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
-    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
-            dump_html_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
-        }} else {{
-            settings.stream() << "<details class='data'><summary>";
-            dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");
-            settings.stream() << "<div class='val'> NULL</div></summary></details>";
-        }}
-        break;
-    default:
-        settings.stream() << "<details class='data'><summary>";
-        dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");
-        settings.stream() << "<div class='val'>UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) <<")</div></summary></details>";
-    }}
-}}
 //=========================== Type Implementations ==========================//
 
 @foreach type where('{etyName}' != 'void')
@@ -1367,6 +1338,36 @@ void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings,
 }}
 @end union
 
+//======================== pNext Chain Implementation =======================//
+
+void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
+{{
+    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
+    @foreach struct
+        @if({sctStructureTypeIndex} != -1)
+    case {sctStructureTypeIndex}:
+        dump_html_pNext<const {sctName}>(static_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_html_{sctName});
+        break;
+        @end if
+    @end struct
+
+    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
+    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
+            dump_html_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
+        }} else {{
+            settings.stream() << "<details class='data'><summary>";
+            dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");
+            settings.stream() << "<div class='val'> NULL</div></summary></details>";
+        }}
+        break;
+    default:
+        settings.stream() << "<details class='data'><summary>";
+        dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");
+        settings.stream() << "<div class='val'>UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) <<")</div></summary></details>";
+    }}
+}}
+
 //========================= Function Implementations ========================//
 
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
@@ -1442,9 +1443,8 @@ JSON_CODEGEN = """
 
 #include "api_dump.h"
 
-@foreach struct
-void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
-@end struct
+void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
+
 @foreach union
 void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
@@ -1464,40 +1464,6 @@ void dump_json_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureF
     dump_json_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
 }}
 #endif // VK_ENABLE_BETA_EXTENSIONS
-
-//======================== pNext Chain Implementation =======================//
-
-void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
-{{
-    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
-    @foreach struct
-        @if({sctStructureTypeIndex} != -1)
-    case {sctStructureTypeIndex}:
-        dump_json_pNext<const {sctName}>(static_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_json_{sctName});
-        break;
-        @end if
-    @end struct
-
-    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
-    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
-            dump_json_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
-        }} else {{
-            settings.stream() << settings.indentation(indents) << "{{\\n";
-            settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";
-            settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";
-            settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"NULL\\"\\n";
-            settings.stream() << settings.indentation(indents) << "}}";
-        }}
-        break;
-    default:
-        settings.stream() << settings.indentation(indents) << "{{\\n";
-        settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";
-        settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";
-        settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\"\\n";
-        settings.stream() << settings.indentation(indents) << "}}";
-    }}
-}}
 
 //=========================== Type Implementations ==========================//
 
@@ -1782,6 +1748,40 @@ bool is_union(const char *t)
     if (strncmp("{unName}", tm, tmlen) == 0 && strlen("{unName}") == tmlen) return true;
 @end union
     return false;
+}}
+
+//======================== pNext Chain Implementation =======================//
+
+void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
+{{
+    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
+    @foreach struct
+        @if({sctStructureTypeIndex} != -1)
+    case {sctStructureTypeIndex}:
+        dump_json_pNext<const {sctName}>(static_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_json_{sctName});
+        break;
+        @end if
+    @end struct
+
+    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
+    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
+            dump_json_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
+        }} else {{
+            settings.stream() << settings.indentation(indents) << "{{\\n";
+            settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";
+            settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";
+            settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"NULL\\"\\n";
+            settings.stream() << settings.indentation(indents) << "}}";
+        }}
+        break;
+    default:
+        settings.stream() << settings.indentation(indents) << "{{\\n";
+        settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";
+        settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";
+        settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\"\\n";
+        settings.stream() << settings.indentation(indents) << "}}";
+    }}
 }}
 
 //========================= Function Implementations ========================//
