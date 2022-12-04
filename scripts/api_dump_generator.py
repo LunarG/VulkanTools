@@ -793,7 +793,7 @@ void dump_text_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int 
 
 //========================== Struct Implementations =========================//
 
-@foreach struct where('{sctName}' not in ['VkPhysicalDeviceMemoryProperties','VkPhysicalDeviceGroupProperties'])
+@foreach struct
 void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
 {{
     if(settings.showAddress())
@@ -862,32 +862,6 @@ void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     @end member
 }}
 @end struct
-
-void dump_text_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress())
-        settings.stream() << &object << ":\\n";
-    else
-        settings.stream() << "address:\\n";
-
-    dump_text_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_text_uint32_t); // FET
-    dump_text_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_text_VkMemoryType); // DQA
-    dump_text_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_text_uint32_t); // GET
-    dump_text_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_text_VkMemoryHeap); // EQA
-}}
-
-void dump_text_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress())
-        settings.stream() << &object << ":\\n";
-    else
-        settings.stream() << "address:\\n";
-    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType); // HET
-    dump_text_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_text_void); // IET
-    dump_text_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_text_uint32_t); // JET
-    dump_text_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_text_VkPhysicalDevice); // FQA
-    dump_text_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_text_VkBool32); // KET
-}}
 
 //========================== Union Implementations ==========================//
 
@@ -1218,7 +1192,7 @@ void dump_html_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int 
 
 //========================== Struct Implementations =========================//
 
-@foreach struct where('{sctName}' not in ['VkPhysicalDeviceMemoryProperties' ,'VkPhysicalDeviceGroupProperties'])
+@foreach struct
 void dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class=\'val\'>";
@@ -1282,35 +1256,6 @@ void dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     @end member
 }}
 @end struct
-
-void dump_html_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
-{{
-    settings.stream() << "<div class='val'>";
-    if(settings.showAddress())
-        settings.stream() << &object << "\\n";
-    else
-        settings.stream() << "address\\n";
-    settings.stream() << "</div></summary>";
-    dump_html_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_html_VkMemoryType); // ZRV
-    dump_html_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_html_VkMemoryHeap); // ZRW
-}}
-
-void dump_html_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
-{{
-    settings.stream() << "<div class='val'>";
-    if(settings.showAddress())
-        settings.stream() << &object << "\\n";
-    else
-        settings.stream() << "address\\n";
-    settings.stream() << "</div></summary>";
-    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
-    dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
-    dump_html_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_html_VkPhysicalDevice); // ZRX
-    dump_html_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_html_VkBool32);
-}}
 
 //========================== Union Implementations ==========================//
 
@@ -1600,7 +1545,7 @@ void dump_json_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int 
 
 //========================== Struct Implementations =========================//
 
-@foreach struct where('{sctName}' not in ['VkPhysicalDeviceMemoryProperties' ,'VkPhysicalDeviceGroupProperties'])
+@foreach struct
 void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << settings.indentation(indents) << "[\\n";
@@ -1681,36 +1626,6 @@ bool is_struct(const char *t)
     if (strncmp("{sctName}", tm, tmlen) == 0 && strlen("{sctName}") == tmlen) return true;
 @end struct
     return false;
-}}
-
-void dump_json_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& object, const ApiDumpSettings& settings, int indents)
-{{
-    settings.stream() << settings.indentation(indents) << "[\\n";
-
-    dump_json_value<const uint32_t>(object.memoryTypeCount, NULL, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_json_uint32_t);
-    settings.stream() << ",\\n";
-    dump_json_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_json_VkMemoryType); // LQA
-    settings.stream() << ",\\n";
-    dump_json_value<const uint32_t>(object.memoryHeapCount, NULL, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_json_uint32_t);
-    settings.stream() << ",\\n";
-    dump_json_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_json_VkMemoryHeap); // MQA
-    settings.stream() << "\\n" << settings.indentation(indents) << "]";
-}}
-
-void dump_json_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
-{{
-    settings.stream() << settings.indentation(indents) << "[\\n";
-
-    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", indents + 1, dump_json_VkStructureType);
-    settings.stream() << ",\\n";
-    dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", indents + 1, dump_json_void);
-    settings.stream() << ",\\n";
-    dump_json_value<const uint32_t>(object.physicalDeviceCount, NULL, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_json_uint32_t);
-    settings.stream() << ",\\n";
-    dump_json_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_json_VkPhysicalDevice); // NQA
-    settings.stream() << ",\\n";
-    dump_json_value<const VkBool32>(object.subsetAllocation, NULL, settings, "VkBool32", "subsetAllocation", indents + 1, dump_json_VkBool32);
-    settings.stream() << "\\n" << settings.indentation(indents) << "]";
 }}
 
 //========================== Union Implementations ==========================//
@@ -2768,6 +2683,20 @@ class VulkanStruct:
             if member.name == 'pNext' and member.type == "const void*":
                 self.isPNextChainConst = True
                 break
+
+        # The xml doesn't contain the relevant information here since the struct contains 'fixed' length arrays.
+        # Thus we have to fix up the variable such that the length member corresponds to the runtime length, not compile time.
+        if self.name in ['VkPhysicalDeviceMemoryProperties','VkPhysicalDeviceGroupProperties']:
+            for member in self.members:
+                if member.name == 'memoryTypes':
+                    member.lengthMember = True
+                    member.arrayLength = 'memoryTypeCount'
+                if member.name == 'memoryHeaps':
+                    member.lengthMember = True
+                    member.arrayLength = 'memoryHeapCount'
+                if member.name == 'physicalDevices':
+                    member.lengthMember = True
+                    member.arrayLength = 'physicalDeviceCount'
 
     def values(self):
         return {
