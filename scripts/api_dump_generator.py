@@ -802,53 +802,53 @@ void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
         settings.stream() << "address:\\n";
 
     @foreach member
-    @if('{memCondition}' != 'None')
+        @if('{memCondition}' != 'None')
     if({memCondition})
-    @end if
-    @if('{memParameterStorage}' != '')
+        @end if
+        @if('{memParameterStorage}' != '')
     {memParameterStorage}
-    @end if
-    @if({memPtrLevel} == 0)
-        @if('{memName}' != 'pNext')
+        @end if
+        @if({memPtrLevel} == 0)
+            @if('{memName}' != 'pNext')
     dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});  // AET
-        @end if
-        @if('{memName}' == 'pNext')
+            @end if
+            @if('{memName}' == 'pNext')
     dump_text_pNext_struct_name(object.{memName}, settings, indents + 1);
+            @end if
         @end if
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' == 'None')
+        @if({memPtrLevel} == 1 and '{memLength}' == 'None')
     dump_text_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
+        @end if
+        @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
     dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}); // AQA
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
-    @if('{memLength}'[0].isdigit() or '{memLength}'[0].isupper())
+        @end if
+        @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
+            @if('{memLength}'[0].isdigit() or '{memLength}'[0].isupper())
     dump_text_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}); // BQA
-    @end if
-    @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
-    @if('{memLength}' == 'rasterizationSamples')
+            @end if
+            @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
+                @if('{memLength}' == 'rasterizationSamples')
     dump_text_array<const {memBaseType}>(object.{memName}, (object.{memLength} + 31) / 32, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}); // BQB
-    @end if
-    @if('{memLength}' != 'rasterizationSamples')
+                @end if
+                @if('{memLength}' != 'rasterizationSamples')
     dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}); // BQB
-    @end if
-    @end if
-    @end if
+                @end if
+            @end if
+        @end if
 
-    @if('{sctName}' == 'VkShaderModuleCreateInfo')
-    @if('{memName}' == 'pCode')
+        @if('{sctName}' == 'VkShaderModuleCreateInfo')
+            @if('{memName}' == 'pCode')
     if(settings.showShader())
         dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}); // CQA
     else
         dump_text_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
-    @end if
-    @end if
+            @end if
+        @end if
 
-    @if('{memCondition}' != 'None')
+        @if('{memCondition}' != 'None')
     else
         dump_text_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
-    @end if
+        @end if
     @end member
 
     @foreach member
@@ -1229,56 +1229,56 @@ void dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     settings.stream() << "</div></summary>";
 
     @foreach member
-    @if('{memCondition}' != 'None')
+        @if('{memCondition}' != 'None')
     if({memCondition})
-    @end if
-    @if('{memParameterStorage}' != '')
-    {memParameterStorage}
-    @end if
-    @if({memPtrLevel} == 0)
-        @if('{memName}' != 'pNext')
-    dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
         @end if
-        @if('{memName}' == 'pNext')
+        @if('{memParameterStorage}' != '')
+    {memParameterStorage}
+        @end if
+        @if({memPtrLevel} == 0)
+            @if('{memName}' != 'pNext')
+    dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
+            @end if
+            @if('{memName}' == 'pNext')
     if(object.pNext != nullptr){{
         dump_html_pNext_trampoline(object.{memName}, settings, indents + 1);
     }} else {{
         dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
     }}
+            @end if
         @end if
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' == 'None')
+        @if({memPtrLevel} == 1 and '{memLength}' == 'None')
     dump_html_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
+        @end if
+        @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
     dump_html_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}); // ZRR
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
-    @if('{memLength}'[0].isdigit() or '{memLength}'[0].isupper())
+        @end if
+        @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
+            @if('{memLength}'[0].isdigit() or '{memLength}'[0].isupper())
     dump_html_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}); // ZRS
-    @end if
-    @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
-    @if('{memLength}' == 'rasterizationSamples')
+            @end if
+            @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
+                @if('{memLength}' == 'rasterizationSamples')
     dump_html_array<const {memBaseType}>(object.{memName}, (object.{memLength} + 31) / 32, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}); // ZRT
-    @end if
-    @if('{memLength}' != 'rasterizationSamples')
+                @end if
+                @if('{memLength}' != 'rasterizationSamples')
     dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}); // ZRT
-    @end if
-    @end if
-    @end if
-    @if('{sctName}' == 'VkShaderModuleCreateInfo')
-    @if('{memName}' == 'pCode')
+                @end if
+            @end if
+        @end if
+        @if('{sctName}' == 'VkShaderModuleCreateInfo')
+            @if('{memName}' == 'pCode')
     if(settings.showShader())
         dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}); // ZRU
     else
         dump_html_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
-    @end if
-    @end if
+            @end if
+        @end if
 
-    @if('{memCondition}' != 'None')
+        @if('{memCondition}' != 'None')
     else
         dump_html_special("UNUSED", settings, "{memType}", "{memName}", indents + 1);
-    @end if
+        @end if
     @end member
 }}
 @end struct
@@ -1606,56 +1606,56 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     settings.stream() << settings.indentation(indents) << "[\\n";
 
     @foreach member
-    @if({memIndex} != 0)
+        @if({memIndex} != 0)
     settings.stream() << ",\\n";
-    @end if
-    @if('{memCondition}' != 'None')
-    if({memCondition})
-    @end if
-    @if('{memParameterStorage}' != '')
-    {memParameterStorage}
-    @end if
-    @if({memPtrLevel} == 0)
-        @if('{memName}' != 'pNext')
-    dump_json_value<const {memBaseType}>(object.{memName}, NULL, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID});
         @end if
-        @if('{memName}' == 'pNext')
+        @if('{memCondition}' != 'None')
+    if({memCondition})
+        @end if
+        @if('{memParameterStorage}' != '')
+    {memParameterStorage}
+        @end if
+        @if({memPtrLevel} == 0)
+            @if('{memName}' != 'pNext')
+    dump_json_value<const {memBaseType}>(object.{memName}, NULL, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID});
+            @end if
+            @if('{memName}' == 'pNext')
     if(object.pNext != nullptr){{
         dump_json_pNext_trampoline(object.{memName}, settings, indents + 1);
     }} else {{
         dump_json_value<const {memBaseType}>(object.{memName}, object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID});
     }}
+            @end if
         @end if
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' == 'None')
+        @if({memPtrLevel} == 1 and '{memLength}' == 'None')
     dump_json_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID});
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
+        @end if
+        @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
     dump_json_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}); // IQA
-    @end if
-    @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
-    @if('{memLength}'[0].isdigit() or '{memLength}'[0].isupper())
+        @end if
+        @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
+            @if('{memLength}'[0].isdigit() or '{memLength}'[0].isupper())
     dump_json_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}); // JQA
-    @end if
-    @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
-    @if('{memLength}' == 'rasterizationSamples')
+            @end if
+            @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
+                @if('{memLength}' == 'rasterizationSamples')
     dump_json_array<const {memBaseType}>(object.{memName}, (object.{memLength} + 31) / 32, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}); // JQA
-    @end if
-    @if('{memLength}' != 'rasterizationSamples')
+                @end if
+                @if('{memLength}' != 'rasterizationSamples')
     dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}); // JQA
-    @end if
-    @end if
-    @end if
-    @if('{sctName}' == 'VkShaderModuleCreateInfo')
-    @if('{memName}' == 'pCode')
+                @end if
+            @end if
+        @end if
+        @if('{sctName}' == 'VkShaderModuleCreateInfo')
+            @if('{memName}' == 'pCode')
     if(settings.showShader())
         dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}); // KQA
     else
         dump_json_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
-    @end if
-    @end if
+            @end if
+        @end if
 
-    @if('{memCondition}' != 'None')
+        @if('{memCondition}' != 'None')
     else
     {{
         settings.stream() << settings.indentation(indents+1) << "{{\\n";
@@ -1665,7 +1665,7 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
         settings.stream() << settings.indentation(indents+2) << "\\"value\\" : \\"UNUSED\\"\\n";
         settings.stream() << settings.indentation(indents+1) << "}}";
     }}
-    @end if
+        @end if
     @end member
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
 }}
