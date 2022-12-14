@@ -135,6 +135,9 @@ class WidgetSettingValidation : public WidgetSettingBase {
     QTreeWidgetItem *item_best_amd;
     QCheckBox *widget_best_amd;
 
+    QTreeWidgetItem *item_best_img;
+    QCheckBox *widget_best_img;
+
     QTreeWidgetItem *item_best_nvidia;
     QCheckBox *widget_best_nvidia;
 
@@ -178,6 +181,7 @@ class WidgetSettingValidation : public WidgetSettingBase {
     void OnBestChecked(bool checked);
     void OnBestArmChecked(bool checked);
     void OnBestAmdChecked(bool checked);
+    void OnBestImgChecked(bool checked);
     void OnBestNvidiaChecked(bool checked);
 
     void OnSettingChanged();

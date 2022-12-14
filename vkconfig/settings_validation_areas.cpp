@@ -56,6 +56,7 @@ static const char *TOKEN_SYNC_QUEUE_SUBMIT = "VALIDATION_CHECK_ENABLE_SYNCHRONIZ
 static const char *TOKEN_BEST = "VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT";
 static const char *TOKEN_BEST_ARM = "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_ARM";
 static const char *TOKEN_BEST_AMD = "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_AMD";
+static const char *TOKEN_BEST_IMG = "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_IMG";
 static const char *TOKEN_BEST_NVIDIA = "VALIDATION_CHECK_ENABLE_VENDOR_SPECIFIC_NVIDIA";
 
 QCheckBox *WidgetSettingValidation::CreateWidget(QTreeWidgetItem *parent, QTreeWidgetItem **item, const char *key,
@@ -146,6 +147,8 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
       widget_best_arm(nullptr),
       item_best_amd(nullptr),
       widget_best_amd(nullptr),
+      item_best_img(nullptr),
+      widget_best_img(nullptr),
       item_best_nvidia(nullptr),
       widget_best_nvidia(nullptr),
 
@@ -453,6 +456,10 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
         if (this->widget_best_arm != nullptr)
             this->connect(this->widget_best_arm, SIGNAL(clicked(bool)), this, SLOT(OnBestArmChecked(bool)));
 
+        this->widget_best_img = this->CreateWidget(this->item_best, &this->item_best_img, "enables", TOKEN_BEST_IMG);
+        if (this->widget_best_img != nullptr)
+            this->connect(this->widget_best_img, SIGNAL(clicked(bool)), this, SLOT(OnBestImgChecked(bool)));
+
         this->widget_best_nvidia = this->CreateWidget(this->item_best, &this->item_best_nvidia, "enables", TOKEN_BEST_NVIDIA);
         if (this->widget_best_nvidia != nullptr)
             this->connect(this->widget_best_nvidia, SIGNAL(clicked(bool)), this, SLOT(OnBestNvidiaChecked(bool)));
@@ -680,6 +687,11 @@ void WidgetSettingValidation::OnBestArmChecked(bool checked) {
 
 void WidgetSettingValidation::OnBestAmdChecked(bool checked) {
     this->UpdateFlag("enables", TOKEN_BEST_AMD, checked);
+    this->OnSettingChanged();
+}
+
+void WidgetSettingValidation::OnBestImgChecked(bool checked) {
+    this->UpdateFlag("enables", TOKEN_BEST_IMG, checked);
     this->OnSettingChanged();
 }
 
@@ -946,6 +958,13 @@ void WidgetSettingValidation::Refresh(RefreshAreas refresh_areas) {
         this->widget_best_amd->setEnabled(HasDataFlag("enables", TOKEN_BEST));
         if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
             this->widget_best_amd->setChecked(HasDataFlag("enables", TOKEN_BEST_AMD));
+        }
+    }
+
+    if (this->widget_best_img != nullptr) {
+        this->widget_best_img->setEnabled(HasDataFlag("enables", TOKEN_BEST));
+        if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
+            this->widget_best_img->setChecked(HasDataFlag("enables", TOKEN_BEST_IMG));
         }
     }
 
