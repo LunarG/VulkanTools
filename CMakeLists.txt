@@ -122,22 +122,22 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD")
         endif()
     endif()
 
-    include(FindPkgConfig)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
 
+    find_package(PkgConfig REQUIRED QUIET) # Use PkgConfig to find Linux system libraries
+
     if (BUILD_WSI_XCB_SUPPORT)
-        find_package(XCB REQUIRED)
+        pkg_check_modules(XCB REQUIRED QUIET IMPORTED_TARGET xcb)
     endif()
 
     if (BUILD_WSI_XLIB_SUPPORT)
-        find_package(X11 REQUIRED)
+        pkg_check_modules(X11 REQUIRED QUIET IMPORTED_TARGET x11)
     endif()
 
     if (BUILD_WSI_WAYLAND_SUPPORT)
-        find_package(Wayland REQUIRED)
-        include_directories(${WAYLAND_CLIENT_INCLUDE_DIR})
+        pkg_check_modules(WAYLAND_CLIENT REQUIRED QUIET IMPORTED_TARGET wayland-client)
     endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     option(BUILD_MOLTENVK_SUPPORT "Build MoltenVK WSI support" ON)
