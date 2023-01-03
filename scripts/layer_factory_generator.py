@@ -347,15 +347,15 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
     // Clean up logging callback, if any
     while (instance_data->logging_messenger.size() > 0) {
         VkDebugUtilsMessengerEXT messenger = instance_data->logging_messenger.back();
-        layer_destroy_callback(instance_data->report_data, messenger, pAllocator);
+        LayerDestroyCallback(instance_data->report_data, messenger, pAllocator);
         instance_data->logging_messenger.pop_back();
     }
     while (instance_data->logging_callback.size() > 0) {
         VkDebugReportCallbackEXT callback = instance_data->logging_callback.back();
-        layer_destroy_callback(instance_data->report_data, callback, pAllocator);
+        LayerDestroyCallback(instance_data->report_data, callback, pAllocator);
         instance_data->logging_callback.pop_back();
     }
-    layer_debug_utils_destroy_instance(instance_data->report_data);
+    LayerDebugUtilsDestroyInstance(instance_data->report_data);
     FreeLayerDataPtr(key, instance_layer_data_map);
 }
 
@@ -424,7 +424,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance instance,
         intercept->PreCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
     }
     VkResult result = instance_data->dispatch_table.CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
-    result = layer_create_report_callback(instance_data->report_data, false, pCreateInfo, pAllocator, pCallback);
+    result = LayerCreateReportCallback(instance_data->report_data, false, pCreateInfo, pAllocator, pCallback);
     for (auto intercept : global_interceptor_list) {
         intercept->PostCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback, result);
     }
@@ -438,7 +438,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance instance, Vk
         intercept->PreCallDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
     }
     instance_data->dispatch_table.DestroyDebugReportCallbackEXT(instance, callback, pAllocator);
-    layer_destroy_callback(instance_data->report_data, callback, pAllocator);
+    LayerDestroyCallback(instance_data->report_data, callback, pAllocator);
     for (auto intercept : global_interceptor_list) {
         intercept->PostCallDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
     }
@@ -556,6 +556,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
                 for s in genOpts.prefixText:
                     write(s, file=self.outFile)
             write('#include "vulkan/vk_layer.h"', file=self.outFile)
+            write('#include <csignal>\n', file=self.outFile)
             write('#include <unordered_map>\n', file=self.outFile)
             write('class layer_factory;', file=self.outFile)
             write('extern std::vector<layer_factory *> global_interceptor_list;', file=self.outFile)
@@ -577,27 +578,15 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.layer_factory += '        bool log_msg(const debug_report_data *debug_data, VkFlags msg_flags, VkObjectType object_type,\n'
         self.layer_factory += '                                   uint64_t src_object, const std::string &vuid_text, const char *format, ...) {\n'
         self.layer_factory += '            if (!debug_data) return false;\n'
-        self.layer_factory += '            VkFlags local_severity = 0;\n'
-        self.layer_factory += '            VkFlags local_type = 0;\n'
-        self.layer_factory += '            DebugReportFlagsToAnnotFlags(msg_flags, true, &local_severity, &local_type);\n'
-        self.layer_factory += '            if (!debug_data || !(debug_data->active_severities & local_severity) || !(debug_data->active_types & local_type)) {\n'
-        self.layer_factory += '                // Message is not wanted\n'
-        self.layer_factory += '                return false;\n'
-        self.layer_factory += '            }\n'
-        self.layer_factory += '        \n'
-        self.layer_factory += '            va_list argptr;\n'
-        self.layer_factory += '            va_start(argptr, format);\n'
-        self.layer_factory += '            char *str;\n'
-        self.layer_factory += '            if (-1 == vasprintf(&str, format, argptr)) {\n'
-        self.layer_factory += '                // On failure, glibc vasprintf leaves str undefined\n'
-        self.layer_factory += '                str = nullptr;\n'
-        self.layer_factory += '            }\n'
-        self.layer_factory += '            va_end(argptr);\n'
-        self.layer_factory += '        \n'
+        self.layer_factory += '\n'
         self.layer_factory += '            VulkanTypedHandle null_handle{};\n'
         self.layer_factory += '            LogObjectList objlist(null_handle);\n'
+        self.layer_factory += '            va_list argptr;\n'
+        self.layer_factory += '            va_start(argptr, format);\n'
+        self.layer_factory += '            const bool result = LogMsg(debug_data, msg_flags, objlist, vuid_text, format, argptr);\n'
         self.layer_factory += '            va_end(argptr);\n'
-        self.layer_factory += '            return LogMsgLocked(debug_data, msg_flags, objlist, vuid_text, str);\n'
+        self.layer_factory += '\n'
+        self.layer_factory += '            return result;\n'
         self.layer_factory += '        }\n'
         self.layer_factory += '\n'
         self.layer_factory += '        // Pre/post hook point declarations\n'
