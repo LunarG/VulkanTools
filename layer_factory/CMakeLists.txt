@@ -91,7 +91,7 @@ foreach(SUBDIR ${ST_SUBDIRS})
     set(TARGET_NAME VkLayer_${SUBDIR})
     set(CONFIG_DEFINES
         -DINPUT_FILE=${JSON_TEMPLATE_PATH}
-        -DVK_VERSION="${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}"
+        -DVK_VERSION="${VulkanHeaders_VERSION}"
     )
     set(CONFIG_DEFINES ${CONFIG_DEFINES}
         -DOUTPUT_FILE="$<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.json"
@@ -126,7 +126,7 @@ foreach(SUBDIR ${ST_SUBDIRS})
         file(WRITE ${dst_json} ${target_json_file})
 
         add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-        target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+        target_link_Libraries(VkLayer_${target} Vulkan::Headers ${VkLayer_utils_LIBRARY})
         target_include_directories(VkLayer_${target} PRIVATE ${subdir})
         endmacro()
     else()
@@ -137,7 +137,7 @@ foreach(SUBDIR ${ST_SUBDIRS})
         file(TO_NATIVE_PATH ${JSON_DEST_PATH}/VkLayer_${target}.json dst_json)
         file(WRITE ${dst_json} ${target_json_file})
         add_library(VkLayer_${target} SHARED ${ARGN})
-        target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+        target_link_Libraries(VkLayer_${target} Vulkan::Headers ${VkLayer_utils_LIBRARY})
         target_include_directories(VkLayer_${target} PRIVATE ${subdir})
         set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic,--exclude-libs,ALL")
         endmacro()
@@ -151,7 +151,7 @@ if(UNIX)
         -DINPUT_FILE=${CMAKE_CURRENT_SOURCE_DIR}/layer_factory.json.in
         -DLAYER_NAME="VK_LAYER_LUNARG_layer_factory"
         -DRELATIVE_LAYER_BINARY="./libVkLayer_layer_factory.so"
-        -DVK_VERSION="${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}"
+        -DVK_VERSION="${VulkanHeaders_VERSION}"
         -DOUTPUT_FILE="layer_factory_linux.json"
     )
     add_custom_target(layer_factory_linux-json ALL

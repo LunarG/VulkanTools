@@ -71,7 +71,7 @@ add_executable(vkvia
 endif()
 
 target_include_directories(vkvia PUBLIC ${JSONCPP_INCLUDE_DIR})
-target_link_libraries(vkvia Vulkan::Vulkan ${CMAKE_DL_LIBS})
+target_link_libraries(vkvia Vulkan::Headers Vulkan::Vulkan ${CMAKE_DL_LIBS})
 if(WIN32)
     target_link_libraries(vkvia version shlwapi Cfgmgr32)
 endif()

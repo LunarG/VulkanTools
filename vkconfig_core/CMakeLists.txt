@@ -62,8 +62,7 @@ if(Qt5_FOUND)
         add_compile_options("-Wno-maybe-uninitialized")
      endif()
 
-    target_include_directories(vkconfig_core PRIVATE "${Vulkan_INCLUDE_DIR}")
-    target_link_libraries(vkconfig_core vku Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+    target_link_libraries(vkconfig_core Vulkan::Headers vku Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
     target_compile_definitions(vkconfig_core PRIVATE ${VKCONFIG_DEFINITIONS})
 
     add_subdirectory(test)

@@ -41,8 +41,7 @@ else()
             add_executable(vkconfig ${FILES_ALL} ${FILES_UI})
         endif()
 
-        target_include_directories(vkconfig PRIVATE "${Vulkan_INCLUDE_DIR}")
-        target_link_libraries(vkconfig vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+        target_link_libraries(vkconfig Vulkan::Headers vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
         target_compile_definitions(vkconfig PRIVATE ${VKCONFIG_DEFINITIONS})
 
         install(TARGETS vkconfig DESTINATION ${CMAKE_INSTALL_BINDIR})

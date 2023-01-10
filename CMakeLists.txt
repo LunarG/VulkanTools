@@ -42,7 +42,6 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_HEADERS_INSTALL_DIR};${VULKA
 message(STATUS "Using find_package to locate Vulkan")
 find_package(Vulkan)
 message(STATUS "Vulkan FOUND = ${Vulkan_FOUND}")
-message(STATUS "Vulkan Include = ${Vulkan_INCLUDE_DIR}")
 message(STATUS "Vulkan Lib = ${Vulkan_LIBRARY}")
 
 if(NOT VULKAN_HEADERS_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_HEADERS_INSTALL_DIR})
@@ -151,9 +150,7 @@ set (SUBPROJECTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/submodules)
 
 set(VULKANTOOLS_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
 
-# Header file for CMake settings
-find_package(VulkanHeaders)
-include_directories(${VulkanHeaders_INCLUDE_DIR} ${PROJECT_BINARY_DIR}/${VALIDATION_LAYERS_RELATIVE_LOCATION})
+find_package(VulkanHeaders REQUIRED CONFIG)
 
 # The vulkan loader search is:
 #     User-supplied setting of CMAKE_PREFIX_PATH
@@ -225,10 +222,10 @@ endif()
 # Define macro used for building vkxml generated files
 macro(run_vulkantools_vk_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
-    COMMAND ${PYTHON_CMD} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VulkanRegistry_DIR}/vk.xml -scripts ${VulkanRegistry_DIR} ${output}
+    COMMAND ${PYTHON_CMD} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/vk.xml -scripts ${VULKAN_HEADERS_REGISTRY_DIRECTORY} ${output}
         -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_KHR_video_decode_h264
         -removeExtensions VK_KHR_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264 -removeExtensions VK_EXT_video_encode_h265
-    DEPENDS ${VulkanRegistry_DIR}/vk.xml ${VulkanRegistry_DIR}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VulkanRegistry_DIR}/reg.py
+    DEPENDS ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/vk.xml ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/reg.py
     )
 endmacro()
 

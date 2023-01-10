@@ -22,6 +22,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_library(vku STATIC ${FILES_SOURCE} ${FILES_HEADER})
 
+target_link_libraries(vku PRIVATE Vulkan::Headers)
+
 if(WIN32)
 	target_compile_definitions(vku PUBLIC _CRT_SECURE_NO_WARNINGS)
 else()
@@ -30,6 +32,5 @@ endif()
 install(TARGETS vku DESTINATION ${CMAKE_INSTALL_LIBDIR})
 set_target_properties(vku PROPERTIES LINKER_LANGUAGE CXX)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/generated
-                    ${VulkanHeaders_INCLUDE_DIRS})
+                    ${CMAKE_CURRENT_SOURCE_DIR}/generated)
 
