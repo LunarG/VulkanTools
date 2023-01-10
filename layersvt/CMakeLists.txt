@@ -78,7 +78,7 @@ if (WIN32)
             VERBATIM
         )
         add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-        target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+        target_link_Libraries(VkLayer_${target} Vulkan::Headers ${VkLayer_utils_LIBRARY})
         set_target_properties(VkLayer_${target} PROPERTIES
             CXX_STANDARD 17
             CXX_STANDARD_REQUIRED ON
@@ -93,7 +93,7 @@ if (WIN32)
 else()
     macro(add_vk_layer target)
         add_library(VkLayer_${target} SHARED ${ARGN})
-        target_link_Libraries(VkLayer_${target} ${VkLayer_utils_LIBRARY})
+        target_link_Libraries(VkLayer_${target} Vulkan::Headers ${VkLayer_utils_LIBRARY})
         add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
         add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
         if (NOT APPLE)
@@ -165,7 +165,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake" "configure_file(\"\${IN
 foreach(TARGET_NAME ${TARGET_NAMES})
     set(CONFIG_DEFINES
         -DINPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}.json.in"
-        -DVK_VERSION="${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}"
+        -DVK_VERSION="${VulkanHeaders_VERSION}"
     )
     # Get the needed properties from that target
     set(CONFIG_DEFINES ${CONFIG_DEFINES}

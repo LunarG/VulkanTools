@@ -106,7 +106,7 @@ add_executable(vkvia
                   ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 endif()
 target_include_directories(vkvia PUBLIC ${JSONCPP_INCLUDE_DIR})
-target_link_libraries(vkvia ${LIBRARIES})
+target_link_libraries(vkvia Vulkan::Headers ${LIBRARIES})
 if(WIN32)
     target_link_libraries(vkvia version)
 endif()
