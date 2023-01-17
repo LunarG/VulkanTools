@@ -11,13 +11,24 @@ VkTrace and VkReplay have been deprecated and replaced by [gfxreconstruct](https
 Both VkTrace and VkReplay have been removed from VulkanTools and can now be found in the [vktrace](https://github.com/LunarG/vktrace) archive.
 Both these tools are also no longer part of the [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/).
 
+## Default branch changed to 'main' 2023-01-17
+
+The default branch of this repository is now 'main'. This change should be largely transparent to repository users, since github rewrites many references to the old 'master' branch to 'main'. However, if you have a checked-out local clone, you may wish to take the following steps as recommended by github:
+
+```sh
+git branch -m master main
+git fetch origin
+git branch -u origin/main main
+git remote set-head origin -a
+```
+
 ## CI Build Status
 | Build Status |
 |:------------|
-| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_windows.yml/badge.svg?branch=master)](https://github.com/LunarG/VulkanTools/actions) |
-| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_linux.yml/badge.svg?branch=master)](https://github.com/LunarG/VulkanTools/actions) |
-| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_linux_gn.yml/badge.svg?branch=master)](https://github.com/LunarG/VulkanTools/actions) |
-| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_android.yml/badge.svg?branch=master)](https://github.com/LunarG/VulkanTools/actions) |
+| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_windows.yml/badge.svg?branch=main)](https://github.com/LunarG/VulkanTools/actions) |
+| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_linux.yml/badge.svg?branch=main)](https://github.com/LunarG/VulkanTools/actions) |
+| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_linux_gn.yml/badge.svg?branch=main)](https://github.com/LunarG/VulkanTools/actions) |
+| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_android.yml/badge.svg?branch=main)](https://github.com/LunarG/VulkanTools/actions) |
 
 ## Contributing
 

@@ -45,7 +45,7 @@ void ShowDoc(DocType doc_type) {
         }
         case DOC_FIND_LAYERS: {
             const std::string url =
-                "https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.adoc#vulkan-layers";
+                "https://github.com/KhronosGroup/Vulkan-Guide/blob/main/chapters/development_tools.adoc#vulkan-layers";
             QDesktopServices::openUrl(QUrl(url.c_str()));
             break;
         }
@@ -55,7 +55,7 @@ void ShowDoc(DocType doc_type) {
             break;
         }
         case DOC_VKCONFIG_CHANGELOG: {
-            QDesktopServices::openUrl(QUrl("https://github.com/LunarG/VulkanTools/blob/master/vkconfig/CHANGELOG.md"));
+            QDesktopServices::openUrl(QUrl("https://github.com/LunarG/VulkanTools/blob/main/vkconfig/CHANGELOG.md"));
             break;
         }
         case DOC_GPU_INFO: {

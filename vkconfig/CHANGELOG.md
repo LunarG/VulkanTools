@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD041 -->
 <p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width="263" height="113" /></p>
-<p align="left">Copyright © 2015-2022 LunarG, Inc.</p>
+<p align="left">Copyright ï¿½ 2015-2022 LunarG, Inc.</p>
 
 [![Creative Commons][3]][4]
 
@@ -11,7 +11,7 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.5.2](https://github.com/LunarG/VulkanTools/tree/master) - December 2022
+## [Vulkan Configurator 2.5.2](https://github.com/LunarG/VulkanTools/tree/main) - December 2022
 
 ### Improvements:
 - Add `warn_on_robust_oob` validation layer setting handling
@@ -107,7 +107,7 @@
 - Add build date in the title bar
 
 ### Improvements:
-- Add link to [Vulkan Guide layers](https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/development_tools.md#vulkan-layers) list within the help menu
+- Add link to [Vulkan Guide layers](https://github.com/KhronosGroup/Vulkan-Guide/blob/main/chapters/development_tools.md#vulkan-layers) list within the help menu
 - Update built-in VUIDs to the list included in SDK 1.2.176 #1511
 - Refactor the layer window to expose more layer documentation #1519
 - Add shader caching setting to validation built-in UI #1552
