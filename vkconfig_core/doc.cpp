@@ -121,7 +121,7 @@ static const std::string GetLayerSettingsDocURL(const Layer& layer) {
         return format("https://github.com/LunarG/VulkanTools/tree/sdk-%s.0/vkconfig#vulkan-layers-settings",
                       layer.api_version.str().c_str());
     } else {
-        return "https://github.com/LunarG/VulkanTools/tree/master/vkconfig#vulkan-layers-settings";
+        return "https://github.com/LunarG/VulkanTools/tree/main/vkconfig#vulkan-layers-settings";
     }
 }
 

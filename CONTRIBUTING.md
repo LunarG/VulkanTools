@@ -37,7 +37,7 @@ to work on an issue that is assigned, simply coordinate with the current assigne
   This will involve [forking the repository](https://help.github.com/articles/fork-a-repo/),
   creating a branch with your commits, and then [submitting a pull request](https://help.github.com/articles/using-pull-requests/).
 * Please read and adhere to the style and process [guidelines ](#coding-conventions-and-formatting) enumerated below.
-* Please base your fixes on the master branch.  SDK branches are generally not updated except for critical fixes needed to repair an SDK release.
+* Please base your fixes on the main branch.  SDK branches are generally not updated except for critical fixes needed to repair an SDK release.
 * The resulting Pull Request will be assigned to a repository maintainer. It is the maintainer's responsibility to ensure the Pull Request
   passes the Google/LunarG internal CI processes. Once the Pull Request has been approved and is passing internal CI, a repository maintainer
   will merge the PR.

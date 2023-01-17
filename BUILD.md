@@ -88,10 +88,6 @@ macOS 10.11.4 have been tested with this repo.
 - [CMake 3.10.2](https://cmake.org/files/v3.10/cmake-3.10.2-Darwin-x86_64.tar.gz) is recommended.
 
 Setup Homebrew and components
-- Follow instructions on [brew.sh](http://brew.sh) to get homebrew installed.
-```
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
 
 - Ensure Homebrew is at the beginning of your PATH:
 ```
@@ -241,9 +237,9 @@ The VulkanTools repository contains a submodule named jsoncpp. You may occasiona
 You will know this needs to be performed when you perform a pull, and you check the status of your tree with `git status` and something similar to the following shows:
 
 ```
-(master *)] $ git status
-On branch master
-Your branch is up-to-date with 'origin/master'.
+(main *)] $ git status
+On branch main
+Your branch is up-to-date with 'origin/main'.
 
 Changes not staged for commit:
   (use "git add <file>..." to update what will be committed)

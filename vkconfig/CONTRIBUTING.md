@@ -12,7 +12,7 @@ Furthermore:
 --------------
 ## Building Vulkan Configurator
 
-It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](https://github.com/LunarG/VulkanTools/blob/master/BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
+It requires *[Qt 5](https://www.qt.io/download)* to be install and *Qt* `bin` directory to be added to the `PATH` environment variable. *Vulkan Configurator* is built as part of the [VulkanTools](https://github.com/LunarG/VulkanTools/blob/main/BUILD.md) using *CMake* build system or alternatively with `vkconfig.pro` using Qt Creator.
 
 --------------
 ## How to run Vulkan Configurator Unit Tests
@@ -44,7 +44,7 @@ ctest --output-on-failure --parallel 16
   This will involve [forking the repository](https://help.github.com/articles/fork-a-repo/),
   creating a branch with your commits, and then [submitting a pull request](https://help.github.com/articles/using-pull-requests/).
 * Please read and adhere to the style and process [guidelines ](#coding-conventions-and-formatting) enumerated below.
-* Please base your fixes on the `master` branch. SDK branches are generally not updated except for critical fixes needed to repair an SDK release.
+* Please base your fixes on the `main` branch. SDK branches are generally not updated except for critical fixes needed to repair an SDK release.
 * The resulting Pull Request will be assigned to a repository maintainer. Once the Pull Request has been approved and is passing internal CI, a repository maintainer
   will merge the PR.
 
