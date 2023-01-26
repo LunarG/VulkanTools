@@ -44,7 +44,7 @@ The tool is distributed differently, depending on the platform:
 - Windows: The tool will be present on the start menu, in the Vulkan SDK menu. User can also invoke from a command line.
 - macOS: The tool is provided as an application bundle. Run it by double-clicking the bundle from a Finder window.
 
-Vulkan Configurator may be used with command line arguments to averride layers. Use `vkconfig --help` in the console for more information.
+Vulkan Configurator may be used with command line arguments to override layers. Use `vkconfig --help` in the console for more information.
 
 ![Vulkan Configurator Animated Presentation](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/images/presentation.gif)
 
