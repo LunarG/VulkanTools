@@ -678,7 +678,7 @@ class ApiDumpSettings {
 
 class ApiDumpInstance {
    public:
-    ApiDumpInstance() noexcept : frame_count(0), thread_count(0) { program_start = std::chrono::system_clock::now(); }
+    ApiDumpInstance() noexcept : frame_count(0) { program_start = std::chrono::system_clock::now(); }
     // Can't copy or move this type
     ApiDumpInstance(const ApiDumpInstance &) = delete;
     ApiDumpInstance &operator=(const ApiDumpInstance &) = delete;
@@ -725,22 +725,16 @@ class ApiDumpInstance {
     ApiDumpSettings &settings() { return dump_settings; }
 
     uint64_t threadID() {
-        if (thread_id != UINT64_MAX) {
-            return thread_id;
-        }
         std::thread::id this_id = std::this_thread::get_id();
         std::lock_guard<std::recursive_mutex> lg(thread_mutex);
 
-        for (uint32_t i = 0; i < thread_count; ++i) {
-            if (thread_map[i] == this_id) {
-                return i;
-            }
+        auto it = thread_map.find(this_id);
+        if (it != thread_map.end()) {
+            return it->second;
         }
 
-        uint32_t new_index = thread_count;
-        thread_map[thread_count++] = this_id;
-        assert(thread_count < MAX_THREADS);
-        return new_index;
+        thread_map.insert({this_id, thread_map.size()});
+        return thread_map.size() - 1;
     }
 
     void setCmdBuffer(VkCommandBuffer cmd_buffer) { this->cmd_buffer = cmd_buffer; }
@@ -828,11 +822,8 @@ class ApiDumpInstance {
     std::recursive_mutex frame_mutex;
     uint64_t frame_count;
 
-    static const size_t MAX_THREADS = 513;
     std::recursive_mutex thread_mutex;
-    std::thread::id thread_map[MAX_THREADS];
-    uint32_t thread_count;
-    uint64_t thread_id = UINT64_MAX;
+    std::unordered_map<std::thread::id, uint64_t> thread_map;
 
     std::recursive_mutex cmd_buffer_state_mutex;
     std::map<std::pair<VkDevice, VkCommandPool>, std::unordered_set<VkCommandBuffer> > cmd_buffer_pools;
