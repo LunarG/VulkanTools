@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2015-2016, 2019, 2021 Valve Corporation
-# Copyright (c) 2015-2016, 2019, 2021 LunarG, Inc.
+# Copyright (c) 2015-2023 Valve Corporation
+# Copyright (c) 2015-2023 LunarG, Inc.
 # Copyright (c) 2015-2016, 2019, 2021 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -426,8 +426,8 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 """
 
 TEXT_CODEGEN = """
-/* Copyright (c) 2015-2016, 2019 Valve Corporation
- * Copyright (c) 2015-2016, 2019 LunarG, Inc.
+/* Copyright (c) 2015-2023 Valve Corporation
+ * Copyright (c) 2015-2023 LunarG, Inc.
  * Copyright (c) 2015-2016, 2019 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -728,10 +728,10 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
         @if({sctStructureTypeIndex} != -1)
     case {sctStructureTypeIndex}:
         @if({sctIsPNextChainConst} == True)
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.formatNameType(indents, "pNext", "const void*");
         @end if
         @if({sctIsPNextChainConst} == False)
-        settings.formatNameType(settings.stream(), indents, "pNext", "void*");
+        settings.formatNameType(indents, "pNext", "void*");
         @end if
         settings.stream() << "{sctName}\\n";
         break;
@@ -740,11 +740,11 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
 
     case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
     case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.formatNameType(indents, "pNext", "const void*");
         settings.stream() << "NULL\\n";
         break;
     default:
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.formatNameType(indents, "pNext", "const void*");
         settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
     }}
 }}
@@ -765,12 +765,12 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
             dump_text_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
         }} else {{
-            settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+            settings.formatNameType(indents, "pNext", "const void*");
             settings.stream() << "NULL\\n";
         }}
         break;
     default:
-        settings.formatNameType(settings.stream(), indents, "pNext", "const void*");
+        settings.formatNameType(indents, "pNext", "const void*");
         settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
     }}
 }}
@@ -820,8 +820,8 @@ void dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 # that are opened are closed in another function. See api_dump.h. This may need refactoring.
 
 HTML_CODEGEN = """
-/* Copyright (c) 2015-2017, 2019 Valve Corporation
- * Copyright (c) 2015-2017, 2019 LunarG, Inc.
+/* Copyright (c) 2015-2023 Valve Corporation
+ * Copyright (c) 2015-2023 LunarG, Inc.
  * Copyright (c) 2015-2017, 2019 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1184,8 +1184,8 @@ void dump_html_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 # This JSON Codegen is essentially copied from the HTML section above.
 
 JSON_CODEGEN = """
-/* Copyright (c) 2015-2019, 2019 Valve Corporation
- * Copyright (c) 2015-2019, 2019 LunarG, Inc.
+/* Copyright (c) 2015-2023 Valve Corporation
+ * Copyright (c) 2015-2023 LunarG, Inc.
  * Copyright (c) 2015-2017, 2019 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
