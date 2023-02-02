@@ -1,6 +1,6 @@
-/* Copyright (c) 2015-2019 The Khronos Group Inc.
- * Copyright (c) 2015-2019 Valve Corporation
- * Copyright (c) 2015-2019 LunarG, Inc.
+/* Copyright (c) 2015-2023 The Khronos Group Inc.
+ * Copyright (c) 2015-2023 Valve Corporation
+ * Copyright (c) 2015-2023 LunarG, Inc.
  * Copyright (C) 2015-2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -234,7 +234,7 @@ class ConditionalFrameOutput {
 
 class ApiDumpSettings {
    public:
-    ApiDumpSettings() {
+    ApiDumpSettings() : output_stream(std::cout.rdbuf()) {
         std::string filename_string = "";
         // If the layer settings file has a flag indicating to output to a file,
         // do so, to the appropriate filename.
@@ -259,15 +259,8 @@ class ApiDumpSettings {
         }
         // If one of the above has set a filename, open the file as an output stream.
         if (!filename_string.empty()) {
-            use_cout = false;
-            output_stream.open(filename_string, std::ofstream::out | std::ostream::trunc);
-            size_t last_slash_idx = filename_string.find_last_of("\\/");
-            if (std::string::npos != last_slash_idx) {
-                output_dir = filename_string.substr(0, last_slash_idx + 1);
-            }
-        } else {
-            // Otherwise, fallback to cout only
-            use_cout = true;
+            output_file_stream.open(filename_string, std::ofstream::out | std::ostream::trunc);
+            output_stream.rdbuf(output_file_stream.rdbuf());
         }
 
         // Get the remaining settings (some we also want to provide the ability to override
@@ -310,6 +303,7 @@ class ApiDumpSettings {
         }
 
         indent_size = std::max(readIntOption("lunarg_api_dump.indent_size", 4), 0);
+        tab_size = indent_size;
         show_type = readBoolOption("lunarg_api_dump.show_types", true);
         name_size = std::max(readIntOption("lunarg_api_dump.name_size", 32), 0);
         type_size = std::max(readIntOption("lunarg_api_dump.type_size", 0), 0);
@@ -334,11 +328,19 @@ class ApiDumpSettings {
             }
         }
 
+        // Setfill stays active for the duration of the stream. Setting it during construction
+        // means it doesn't have to be set again whenever setw() is called.
+        output_stream << std::setfill(use_spaces ? ' ' : '\t');
+
+        if (!use_spaces) {
+            indent_size = 1;  // setting this allows indentation to not need a branch on use_spaces
+        }
+
         // Generate HTML heading if specified
         if (output_format == ApiDumpFormat::Html) {
             // clang-format off
             // Insert html heading
-            stream() <<
+            output_stream <<
                 "<!doctype html>"
                 "<html>"
                     "<head>"
@@ -438,13 +440,8 @@ class ApiDumpSettings {
                         "<div id='wrapper'>";
             // clang-format on
         } else if (output_format == ApiDumpFormat::Json) {
-            stream() << "[\n";
+            output_stream << "[\n";
         }
-
-        if (use_spaces)
-            stream() << std::setfill(' ');
-        else
-            stream() << std::setfill('\t');
 
         if (isFrameInRange(0)) {
             setupInterFrameOutputFormatting(0);
@@ -454,12 +451,11 @@ class ApiDumpSettings {
     ~ApiDumpSettings() {
         if (output_format == ApiDumpFormat::Html) {
             // Close off html
-            stream() << "</div></body></html>";
+            output_stream << "</div></body></html>";
         } else if (output_format == ApiDumpFormat::Json) {
             // Close off json
-            stream() << "\n]" << std::endl;
+            output_stream << "\n]" << std::endl;
         }
-        if (!use_cout) output_stream.close();
     }
 
     void setupInterFrameOutputFormatting(uint64_t frame_count) const /*name change? */
@@ -468,34 +464,34 @@ class ApiDumpSettings {
         switch (format()) {
             case (ApiDumpFormat::Html):
                 if (frame_count > 0) {
-                    if (condFrameOutput.isFrameInRange(frame_count - 1)) stream() << "</details>";
+                    if (condFrameOutput.isFrameInRange(frame_count - 1)) output_stream << "</details>";
                 }
                 if (condFrameOutput.isFrameInRange(frame_count)) {
-                    stream() << "<details class='frm'><summary>Frame ";
+                    output_stream << "<details class='frm'><summary>Frame ";
                     if (show_thread_and_frame) {
-                        stream() << frame_count;
+                        output_stream << frame_count;
                     }
-                    stream() << "</summary>";
+                    output_stream << "</summary>";
                 }
                 break;
 
             case (ApiDumpFormat::Json):
 
                 if (frame_count > 0) {
-                    if (condFrameOutput.isFrameInRange(frame_count - 1)) stream() << "\n" << indentation(1) << "]\n}";
+                    if (condFrameOutput.isFrameInRange(frame_count - 1)) output_stream << "\n" << indentation(1) << "]\n}";
                 }
                 if (condFrameOutput.isFrameInRange(frame_count)) {
                     if (!hasPrintedAFrame) {
                         hasPrintedAFrame = true;
                     } else {
-                        stream() << ",\n";
+                        output_stream << ",\n";
                     }
-                    stream() << "{\n";
+                    output_stream << "{\n";
                     if (show_thread_and_frame) {
-                        stream() << indentation(1) << "\"frameNumber\" : \"" << frame_count << "\",\n";
+                        output_stream << indentation(1) << "\"frameNumber\" : \"" << frame_count << "\",\n";
                     }
-                    stream() << indentation(1) << "\"apiCalls\" :\n";
-                    stream() << indentation(1) << "[\n";
+                    output_stream << indentation(1) << "\"apiCalls\" :\n";
+                    output_stream << indentation(1) << "[\n";
                 }
                 break;
             case (ApiDumpFormat::Text):
@@ -508,10 +504,10 @@ class ApiDumpSettings {
     void closeFrameOutput() const {
         switch (format()) {
             case (ApiDumpFormat::Html):
-                stream() << "</details>";
+                output_stream << "</details>";
                 break;
             case (ApiDumpFormat::Json):
-                stream() << "\n" << indentation(1) << "]\n}";
+                output_stream << "\n" << indentation(1) << "]\n}";
                 break;
             case (ApiDumpFormat::Text):
                 break;
@@ -522,31 +518,28 @@ class ApiDumpSettings {
 
     ApiDumpFormat format() const { return output_format; }
 
-    void formatNameType(std::ostream &stream, int indents, const char *name, const char *type) const {
-        stream << indentation(indents) << name << ": ";
+    void formatNameType(int indents, const char *name, const char *type) const {
+        output_stream << indentation(indents) << name << ": ";
+        // We have to 'print' an empty string for the setw to actually add the desired padding.
         if (use_spaces)
-            stream << std::setw(name_size - (int)strlen(name) - 2) << "";
+            output_stream << std::setw(name_size - (int)strlen(name) - 2) << "";
         else
-            stream << std::setw((name_size - (int)strlen(name) - 3 + indent_size) / indent_size) << "";
+            output_stream << std::setw((name_size - (int)strlen(name) - 3 + tab_size) / tab_size) << "";
 
         if (show_type) {
             if (use_spaces)
-                stream << type << std::setw(type_size - (int)strlen(type)) << " = ";
+                output_stream << type << std::setw(type_size - (int)strlen(type)) << " = ";
             else
-                stream << type << std::setw((type_size - (int)strlen(type) - 1 + indent_size) / indent_size) << " = ";
+                output_stream << type << std::setw((type_size - (int)strlen(type) - 1 + tab_size) / tab_size) << " = ";
         } else {
-            stream << " = ";
+            output_stream << " = ";
         }
     }
 
     inline const char *indentation(int indents) const {
-        if (use_spaces) {
-            stream() << std::setfill(' ') << std::setw(indents * indent_size);
-            return "";
-        } else {
-            stream() << std::setfill('\t') << std::setw(indents);
-            return "";
-        }
+        // We have to 'print' an empty string for the setw to actually add the desired padding.
+        output_stream << std::setw(indents * indent_size) << "";
+        return "";
     }
 
     bool shouldFlush() const { return should_flush; }
@@ -563,9 +556,9 @@ class ApiDumpSettings {
 
     bool showThreadAndFrame() const { return show_thread_and_frame; }
 
-    std::ostream &stream() const { return use_cout ? std::cout : *(std::ofstream *)&output_stream; }
-
-    std::string directory() const { return output_dir; }
+    // The const cast is necessary because everyone who 'writes' to the stream necessarily must be able to modify it.
+    // Since basically every function in this struct is const, we have to work around that.
+    std::ostream &stream() const { return output_stream; }
 
     bool isFrameInRange(uint64_t frame) const { return condFrameOutput.isFrameInRange(frame); }
 
@@ -659,9 +652,10 @@ class ApiDumpSettings {
             return default_value;
     }
 
-    bool use_cout;
-    std::string output_dir = "";
-    std::ofstream output_stream;
+    // The mutable is necessary because everyone who 'writes' to the stream necessarily must be able to modify it.
+    // Since basically every function in this struct is const, we have to work around that.
+    mutable std::ostream output_stream;
+    std::ofstream output_file_stream;
     ApiDumpFormat output_format;
     bool show_params;
     bool show_address;
@@ -669,7 +663,7 @@ class ApiDumpSettings {
     bool show_timestamp;
 
     bool show_type;
-    int indent_size;
+    int indent_size;  // how many indent levels to use - also sets the tab_size
     int name_size;
     int type_size;
     bool use_spaces;
@@ -678,13 +672,13 @@ class ApiDumpSettings {
 
     bool use_conditional_output = false;
     ConditionalFrameOutput condFrameOutput;
+
+    int tab_size;  // equal to the indent size if using spaces, otherwise is equal to 1
 };
 
 class ApiDumpInstance {
    public:
-    ApiDumpInstance() noexcept : dump_settings(NULL), frame_count(0), thread_count(0) {
-        program_start = std::chrono::system_clock::now();
-    }
+    ApiDumpInstance() noexcept : frame_count(0), thread_count(0) { program_start = std::chrono::system_clock::now(); }
     // Can't copy or move this type
     ApiDumpInstance(const ApiDumpInstance &) = delete;
     ApiDumpInstance &operator=(const ApiDumpInstance &) = delete;
@@ -692,11 +686,7 @@ class ApiDumpInstance {
     ApiDumpInstance &operator=(ApiDumpInstance &&) = delete;
 
     ~ApiDumpInstance() {
-        if (!dump_settings) return;
-
         if (!first_func_call_on_frame) settings().closeFrameOutput();
-
-        delete dump_settings;
     }
 
     uint64_t frameCount() {
@@ -732,11 +722,7 @@ class ApiDumpInstance {
 
     std::recursive_mutex *outputMutex() { return &output_mutex; }
 
-    const ApiDumpSettings &settings() {
-        if (dump_settings == NULL) dump_settings = new ApiDumpSettings();
-
-        return *dump_settings;
-    }
+    ApiDumpSettings &settings() { return dump_settings; }
 
     uint64_t threadID() {
         if (thread_id != UINT64_MAX) {
@@ -821,7 +807,12 @@ class ApiDumpInstance {
         return std::chrono::duration_cast<std::chrono::microseconds>(now - program_start);
     }
 
-    static ApiDumpInstance &current() { return current_instance; }
+    static ApiDumpInstance &current() {
+        // Because ApiDumpInstance is a static variable in a static function, there will only be one instance of it.
+        // Additionally, the object will be constructed on the *first* call to current(), rather than at process startup time.
+        static ApiDumpInstance current_instance;
+        return current_instance;
+    }
 
     std::unordered_map<uint64_t, std::string> object_name_map;
 
@@ -832,9 +823,7 @@ class ApiDumpInstance {
     }
 
    private:
-    static ApiDumpInstance current_instance;
-
-    ApiDumpSettings *dump_settings;
+    ApiDumpSettings dump_settings;
     std::recursive_mutex output_mutex;
     std::recursive_mutex frame_mutex;
     uint64_t frame_count;
@@ -873,7 +862,6 @@ class ApiDumpInstance {
 // If the quotes arg is true, the address is encloded in quotes.
 // Used for text, html, and json output.
 void OutputAddress(const ApiDumpSettings &settings, const void *addr) {
-    if (settings.format() == ApiDumpFormat::Json) settings.stream() << "\"";
     if (settings.showAddress())
         if (addr == NULL)
             settings.stream() << "NULL";
@@ -881,10 +869,13 @@ void OutputAddress(const ApiDumpSettings &settings, const void *addr) {
             settings.stream() << addr;
     else
         settings.stream() << "address";
-    if (settings.format() == ApiDumpFormat::Json) settings.stream() << "\"";
 }
 
-ApiDumpInstance ApiDumpInstance::current_instance;
+void OutputAddressJSON(const ApiDumpSettings &settings, const void *addr) {
+    settings.stream() << "\"";
+    OutputAddress(settings, addr);
+    settings.stream() << "\"";
+}
 
 //==================================== Text Backend Helpers ======================================//
 
@@ -910,7 +901,7 @@ void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, c
 template <typename T>
 void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
                      const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
-    settings.formatNameType(settings.stream(), indents, name, type_string);
+    settings.formatNameType( indents, name, type_string);
     if (array == NULL) {
         settings.stream() << "NULL\n";
         return;
@@ -928,7 +919,7 @@ void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings
 template <typename T>
 void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
                      const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
-    settings.formatNameType(settings.stream(), indents, name, type_string);
+    settings.formatNameType(indents, name, type_string);
     if (array == NULL) {
         settings.stream() << "NULL\n";
         return;
@@ -947,7 +938,7 @@ template <typename T>
 void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
                        void (*dump)(const T, const ApiDumpSettings &, int)) {
     if (pointer == NULL) {
-        settings.formatNameType(settings.stream(), indents, name, type_string);
+        settings.formatNameType(indents, name, type_string);
         settings.stream() << "NULL\n";
     } else {
         dump_text_value(*pointer, settings, type_string, name, indents, dump);
@@ -958,7 +949,7 @@ template <typename T>
 void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
                        void (*dump)(const T &, const ApiDumpSettings &, int)) {
     if (pointer == NULL) {
-        settings.formatNameType(settings.stream(), indents, name, type_string);
+        settings.formatNameType(indents, name, type_string);
         settings.stream() << "NULL\n";
     } else {
         dump_text_value(*pointer, settings, type_string, name, indents, dump);
@@ -968,7 +959,7 @@ void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const 
 template <typename T>
 void dump_text_value(const T object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
                      void (*dump)(const T, const ApiDumpSettings &, int)) {
-    settings.formatNameType(settings.stream(), indents, name, type_string);
+    settings.formatNameType(indents, name, type_string);
     dump(object, settings, indents);
     settings.stream() << "\n";
 }
@@ -976,12 +967,12 @@ void dump_text_value(const T object, const ApiDumpSettings &settings, const char
 template <typename T>
 void dump_text_value(const T &object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
                      void (*dump)(const T &, const ApiDumpSettings &, int)) {
-    settings.formatNameType(settings.stream(), indents, name, type_string);
+    settings.formatNameType(indents, name, type_string);
     dump(object, settings, indents);
 }
 
 void dump_text_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
-    settings.formatNameType(settings.stream(), indents, name, type_string);
+    settings.formatNameType(indents, name, type_string);
     settings.stream() << text << "\n";
 }
 
@@ -1009,7 +1000,7 @@ void dump_text_pNext(const T *object, const ApiDumpSettings &settings, const cha
     if (object == NULL)
         settings.stream() << "NULL";
     else if (settings.showAddress()) {
-        settings.formatNameType(settings.stream(), indents, "pNext", type_string);
+        settings.formatNameType(indents, "pNext", type_string);
         dump(*object, settings, indents);
     } else
         settings.stream() << "address";
@@ -1203,7 +1194,7 @@ void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings
         settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddress(settings, array);
+        OutputAddressJSON(settings, array);
         settings.stream() << "\n";
         settings.stream() << settings.indentation(indents) << "}";
         return;
@@ -1214,7 +1205,7 @@ void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings
         settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddress(settings, array);
+        OutputAddressJSON(settings, array);
         settings.stream() << ",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"elements\" :\n";
         settings.stream() << settings.indentation(indents + 1) << "[\n";
@@ -1239,7 +1230,7 @@ void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings
         settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddress(settings, array);
+        OutputAddressJSON(settings, array);
         settings.stream() << "\n";
         settings.stream() << settings.indentation(indents) << "}";
         return;
@@ -1249,7 +1240,7 @@ void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings
         settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddress(settings, array);
+        OutputAddressJSON(settings, array);
         settings.stream() << ",\n";
         settings.stream() << settings.indentation(indents + 1) << "\"elements\" :\n";
         settings.stream() << settings.indentation(indents + 1) << "[\n";
@@ -1313,7 +1304,7 @@ void dump_json_value(const T object, const void *pObject, const ApiDumpSettings 
     if (isPnext || (strchr(type_string, '*') && strcmp(type_string, "const char*") && strcmp(type_string, "const char* const"))) {
         // Print pointers, except for char string pointers
         settings.stream() << ",\n" << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddress(settings, pObject);
+        OutputAddressJSON(settings, pObject);
     }
     if (!isPnext || (isPnext && pObject != nullptr)) {
         settings.stream() << ",\n";
@@ -1341,7 +1332,7 @@ void dump_json_value(const T &object, const void *pObject, const ApiDumpSettings
     if (isPnext || (strchr(type_string, '*') && strcmp(type_string, "const char*") && strcmp(type_string, "const char* const"))) {
         // Print pointers, except for char string pointers
         settings.stream() << ",\n" << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddress(settings, pObject);
+        OutputAddressJSON(settings, pObject);
     }
     if (!isPnext || (isPnext && pObject != nullptr)) {
         settings.stream() << ",\n";
@@ -1360,7 +1351,7 @@ void dump_json_special(const char *text, const ApiDumpSettings &settings, const 
     settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
     settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
     settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
-    OutputAddress(settings, text);
+    OutputAddressJSON(settings, text);
     settings.stream() << ",\n";
     settings.stream() << settings.indentation(indents + 1) << "\"value\" : ";
     settings.stream() << "\"" << text << "\"\n";
@@ -1375,7 +1366,7 @@ void dump_json_cstring(const char *object, const ApiDumpSettings &settings, int 
 }
 
 void dump_json_void(const void *object, const ApiDumpSettings &settings, int indents) {
-    OutputAddress(settings, object);
+    OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 
@@ -1390,12 +1381,8 @@ void dump_json_pNext(const T *object, const ApiDumpSettings &settings, const cha
     if (object == NULL) {
         settings.stream() << settings.indentation(indents) << "{\n";
         settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "*\",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \""
-                          << "pNext"
-                          << "\",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddress(settings, NULL);
-        settings.stream() << ",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"pNext\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"NULL\",\n";
         settings.stream() << settings.indentation(indents) << "}";
     } else {
         dump_json_value(*object, object, settings, type_string, "pNext", indents, dump);
@@ -1408,12 +1395,8 @@ void dump_json_pNext(const T *object, const ApiDumpSettings &settings, const cha
     if (object == NULL) {
         settings.stream() << settings.indentation(indents) << "{\n";
         settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "*\",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \""
-                          << "pNext"
-                          << "\",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddress(settings, NULL);
-        settings.stream() << ",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"pNext\",\n";
+        settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"NULL\",\n";
         settings.stream() << settings.indentation(indents) << "}";
     } else {
         dump_json_value(*object, object, settings, type_string, "pNext", indents, dump);
