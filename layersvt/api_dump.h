@@ -611,7 +611,14 @@ class ApiDumpSettings {
 
     // Utility member to convert from string to a boolean
     bool GetStringBooleanValue(const std::string &value) {
-        if (ToLowerString(value) == "true") {
+        auto lower_str = ToLowerString(value);
+        if (lower_str == "true") {
+            return true;
+        }
+        if (lower_str == "on") {
+            return true;
+        }
+        if (lower_str == "1") {
             return true;
         }
         return false;
@@ -892,7 +899,7 @@ void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, c
 template <typename T>
 void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
                      const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
-    settings.formatNameType( indents, name, type_string);
+    settings.formatNameType(indents, name, type_string);
     if (array == NULL) {
         settings.stream() << "NULL\n";
         return;
