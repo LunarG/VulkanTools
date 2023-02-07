@@ -1284,7 +1284,7 @@ extern bool is_struct(const char *t);
 template <typename T>
 void dump_json_value(const T object, const void *pObject, const ApiDumpSettings &settings, const char *type_string,
                      const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
-    bool isPnext = !strcmp(name, "pNext") | !strcmp(name, "pUserData");
+    bool isPnext = !strcmp(name, "pNext") || !strcmp(name, "pUserData");
     const char *star = (isPnext && !strstr(type_string, "void")) ? "*" : "";
     settings.stream() << settings.indentation(indents) << "{\n";
     if (is_union(type_string))
@@ -1312,7 +1312,7 @@ void dump_json_value(const T object, const void *pObject, const ApiDumpSettings 
 template <typename T>
 void dump_json_value(const T &object, const void *pObject, const ApiDumpSettings &settings, const char *type_string,
                      const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
-    bool isPnext = !strcmp(name, "pNext") | !strcmp(name, "pUserData");
+    bool isPnext = !strcmp(name, "pNext") || !strcmp(name, "pUserData");
     const char *star = (isPnext && !strstr(type_string, "void")) ? "*" : "";
     settings.stream() << settings.indentation(indents) << "{\n";
     if (is_union(type_string))
