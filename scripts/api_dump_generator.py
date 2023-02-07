@@ -1325,8 +1325,6 @@ void dump_json_{bitName}({bitName} object, const ApiDumpSettings& settings, int 
 {{
     bool is_first = true;
     settings.stream() << '"' << object;
-    if (object)
-        settings.stream() << ' ';
     @foreach option
         @if('{optMultiValue}' != 'None')
     if(object == {optValue}) {{
