@@ -455,7 +455,7 @@ TEXT_CODEGEN = """
 
 #include "api_dump.h"
 
-void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents);
+void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type);
 void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
 
 @foreach union
@@ -640,7 +640,7 @@ void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});  // AET
             @end if
             @if('{memName}' == 'pNext')
-    dump_text_pNext_struct_name(object.{memName}, settings, indents + 1);
+    dump_text_pNext_struct_name(object.{memName}, settings, indents + 1, "{memType}");
             @end if
         @end if
         @if({memPtrLevel} == 1 and '{memLength}' == 'None')
@@ -716,54 +716,46 @@ void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings,
 
 //======================== pNext Chain Implementation =======================//
 
-void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents)
+void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type)
 {{
     if (object == nullptr) {{
-        dump_text_value<const void*>(object, settings, "void*", "pNext", indents, dump_text_void);
+        dump_text_value<const void*>(object, settings, pnext_type, "pNext", indents, dump_text_void);
         return;
     }}
 
-    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
+    settings.formatNameType(indents, "pNext", pnext_type);
+    switch(reinterpret_cast<const VkBaseInStructure*>(object)->sType) {{
     @foreach struct
         @if({sctStructureTypeIndex} != -1)
-    case {sctStructureTypeIndex}:
-        @if({sctIsPNextChainConst} == True)
-        settings.formatNameType(indents, "pNext", "const void*");
-        @end if
-        @if({sctIsPNextChainConst} == False)
-        settings.formatNameType(indents, "pNext", "void*");
-        @end if
-        settings.stream() << "{sctName}\\n";
-        break;
+        case {sctStructureTypeIndex}:
+            settings.stream() << "{sctName}\\n";
+            break;
         @end if
     @end struct
-
-    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
-    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        settings.formatNameType(indents, "pNext", "const void*");
-        settings.stream() << "NULL\\n";
-        break;
-    default:
-        settings.formatNameType(indents, "pNext", "const void*");
-        settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
+        case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
+        case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+        default:
+            settings.stream() << "NULL\\n";
+            break;
     }}
 }}
 
 void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {{
-    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
+    const auto* base_struct = reinterpret_cast<const VkBaseInStructure*>(object);
+    switch(base_struct->sType) {{
     @foreach struct
         @if({sctStructureTypeIndex} != -1)
     case {sctStructureTypeIndex}:
-        dump_text_pNext<const {sctName}>(static_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_text_{sctName});
+        dump_text_pNext<const {sctName}>(reinterpret_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_text_{sctName});
         break;
         @end if
     @end struct
 
     case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
     case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
-        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
-            dump_text_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
+        if(base_struct->pNext != nullptr){{
+            dump_text_pNext_trampoline(reinterpret_cast<const void*>(base_struct->pNext), settings, indents);
         }} else {{
             settings.formatNameType(indents, "pNext", "const void*");
             settings.stream() << "NULL\\n";
@@ -771,7 +763,7 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         break;
     default:
         settings.formatNameType(indents, "pNext", "const void*");
-        settings.stream() << "UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\n";
+        settings.stream() << "UNKNOWN (" << (int64_t) (base_struct->sType) << ")\\n";
     }}
 }}
 
@@ -2506,18 +2498,11 @@ class VulkanStruct:
 
         self.structureIndex = -1
 
-        if(self.structExtends is not None):
-            for member in self.members:
-                if(member.structValues is not None):
-                    for opt in enums['VkStructureType'].options:
-                        if(member.structValues  == opt.name):
-                            self.structureIndex = opt.value
-
-        self.isPNextChainConst = False
         for member in self.members:
-            if member.name == 'pNext' and member.type == "const void*":
-                self.isPNextChainConst = True
-                break
+            if(member.structValues is not None):
+                for opt in enums['VkStructureType'].options:
+                    if(member.structValues  == opt.name):
+                        self.structureIndex = opt.value
 
         # The xml doesn't contain the relevant information here since the struct contains 'fixed' length arrays.
         # Thus we have to fix up the variable such that the length member corresponds to the runtime length, not compile time.
@@ -2543,7 +2528,6 @@ class VulkanStruct:
         return {
             'sctName': self.name,
             'sctStructureTypeIndex': self.structureIndex,
-            'sctIsPNextChainConst': self.isPNextChainConst,
         }
 
 class VulkanSystemType:
