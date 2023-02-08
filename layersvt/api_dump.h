@@ -802,6 +802,8 @@ class ApiDumpInstance {
     void setIsDynamicViewport(bool is_dynamic_viewport) { this->is_dynamic_viewport = is_dynamic_viewport; }
     bool getIsDynamicScissor() const { return is_dynamic_scissor; }
     bool getIsDynamicViewport() const { return is_dynamic_viewport; }
+    void setMemoryHeapCount(uint32_t memory_heap_count) { this->memory_heap_count = memory_heap_count; }
+    uint32_t getMemoryHeapCount() { return memory_heap_count; }
 
     std::chrono::microseconds current_time_since_start() {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -854,6 +856,9 @@ class ApiDumpInstance {
     // respective dynamic state is set.
     bool is_dynamic_scissor;
     bool is_dynamic_viewport;
+
+    // Storage for VkPhysicalDeviceMemoryBudgetPropertiesEXT which needs the number of heaps from VkPhysicalDeviceMemoryProperties
+    uint32_t memory_heap_count;
 };
 
 // Utility to output an address.
