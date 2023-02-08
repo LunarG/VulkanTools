@@ -992,7 +992,6 @@ void dump_text_void(const void *object, const ApiDumpSettings &settings, int ind
         return;
     }
     OutputAddress(settings, object);
-    settings.stream();
 }
 
 void dump_text_int(int object, const ApiDumpSettings &settings, int indents) { settings.stream() << object; }
