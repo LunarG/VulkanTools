@@ -2528,7 +2528,7 @@ class VulkanStruct:
 
         # The xml doesn't contain the relevant information here since the struct contains 'fixed' length arrays.
         # Thus we have to fix up the variable such that the length member corresponds to the runtime length, not compile time.
-        if self.name in ['VkPhysicalDeviceMemoryProperties','VkPhysicalDeviceGroupProperties', 'VkPhysicalDeviceMemoryBudgetPropertiesEXT']:
+        if self.name in ['VkPhysicalDeviceMemoryProperties','VkPhysicalDeviceGroupProperties', 'VkPhysicalDeviceMemoryBudgetPropertiesEXT', 'VkQueueFamilyGlobalPriorityPropertiesKHR']:
             for member in self.members:
                 if member.name == 'memoryTypes':
                     member.lengthMember = True
@@ -2545,6 +2545,10 @@ class VulkanStruct:
                 if member.name == 'heapUsage':
                     member.lengthMember = True
                     member.arrayLength = 'ApiDumpInstance::current().getMemoryHeapCount()'
+                if member.name == 'priorities':
+                    member.lengthMember = True
+                    member.arrayLength = 'priorityCount'
+
 
     def values(self):
         return {
