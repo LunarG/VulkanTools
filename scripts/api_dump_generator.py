@@ -522,7 +522,16 @@ void dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, in
 @foreach systype
 void dump_text_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
 {{
+    @if({sysNeedsPointer} == True)
+    if (object == NULL) {{
+        settings.stream() << "NULL";
+        return;
+    }}
+    OutputAddress(settings, object);
+    @end if
+    @if({sysNeedsPointer} == False)
     settings.stream() << object;
+    @end if
 }}
 @end systype
 
@@ -911,7 +920,14 @@ void dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, in
 @foreach systype
 void dump_html_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
 {{
+    @if({sysNeedsPointer} == True)
+    settings.stream() << "<div class='val'>";
+    OutputAddress(settings, object);
+    settings.stream() << "</div>";
+    @end if
+    @if({sysNeedsPointer} == False)
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
+    @end if
 }}
 @end systype
 
@@ -1275,7 +1291,13 @@ void dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, in
 @foreach systype
 void dump_json_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents)
 {{
+    @if({sysNeedsPointer} == True)
+    OutputAddressJSON(settings, object);
+    settings.stream() << "\\n";
+    @end if
+    @if({sysNeedsPointer} == False)
     settings.stream() << "\\"" << object << "\\"";
+    @end if
 }}
 @end systype
 
@@ -2534,7 +2556,12 @@ class VulkanSystemType:
 
     def __init__(self, name, ext):
         self.name = name
-        self.type = self.name if name not in POINTER_TYPES else self.name + '*'
+        if name in POINTER_TYPES:
+            self.type = self.name + '*'
+            self.needsPointer = True
+        else:
+            self.needsPointer = False
+            self.type = self.name
         self.ext = ext
 
     def __hash__(self):
@@ -2544,6 +2571,7 @@ class VulkanSystemType:
         return {
             'sysName': self.name,
             'sysType': self.type,
+            'sysNeedsPointer': self.needsPointer,
         }
 
 class VulkanUnion:
