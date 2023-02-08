@@ -995,13 +995,12 @@ void dump_text_int(int object, const ApiDumpSettings &settings, int indents) { s
 template <typename T>
 void dump_text_pNext(const T *object, const ApiDumpSettings &settings, const char *type_string, int indents,
                      void (*dump)(const T &, const ApiDumpSettings &, int)) {
-    if (object == NULL)
+    if (object == NULL) {
         settings.stream() << "NULL";
-    else if (settings.showAddress()) {
+    } else {
         settings.formatNameType(indents, "pNext", type_string);
         dump(*object, settings, indents);
-    } else
-        settings.stream() << "address";
+    }
 }
 
 //==================================== Html Backend Helpers ======================================//
