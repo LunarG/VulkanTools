@@ -1633,6 +1633,15 @@ PARAMETER_STATE = {
             },
         ],
     },
+    'VkPhysicalDeviceMemoryProperties': {
+        'VkPhysicalDeviceMemoryProperties2': [
+            {
+                'name': 'memoryProperties',
+                'type': 'VkPhysicalDeviceMemoryProperties',
+                'stmt': 'ApiDumpInstance::current().setMemoryHeapCount(object.memoryProperties.memoryHeapCount);',
+            },
+        ],
+    },
 }
 
 VALIDITY_CHECKS = {
@@ -2512,7 +2521,7 @@ class VulkanStruct:
 
         # The xml doesn't contain the relevant information here since the struct contains 'fixed' length arrays.
         # Thus we have to fix up the variable such that the length member corresponds to the runtime length, not compile time.
-        if self.name in ['VkPhysicalDeviceMemoryProperties','VkPhysicalDeviceGroupProperties']:
+        if self.name in ['VkPhysicalDeviceMemoryProperties','VkPhysicalDeviceGroupProperties', 'VkPhysicalDeviceMemoryBudgetPropertiesEXT']:
             for member in self.members:
                 if member.name == 'memoryTypes':
                     member.lengthMember = True
@@ -2523,6 +2532,12 @@ class VulkanStruct:
                 if member.name == 'physicalDevices':
                     member.lengthMember = True
                     member.arrayLength = 'physicalDeviceCount'
+                if member.name == 'heapBudget':
+                    member.lengthMember = True
+                    member.arrayLength = 'ApiDumpInstance::current().getMemoryHeapCount()'
+                if member.name == 'heapUsage':
+                    member.lengthMember = True
+                    member.arrayLength = 'ApiDumpInstance::current().getMemoryHeapCount()'
 
     def values(self):
         return {
