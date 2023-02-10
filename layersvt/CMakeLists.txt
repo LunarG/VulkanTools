@@ -44,11 +44,16 @@ add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
 
 if (BUILD_APIDUMP)
     add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
-    add_custom_target( generate_api_h DEPENDS api_dump_text.h )
+    add_custom_target( generate_api_text_h DEPENDS api_dump_text.h )
     add_custom_target( generate_api_html_h DEPENDS api_dump_html.h )
-    set_target_properties(generate_api_cpp generate_api_h generate_api_html_h PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
     add_custom_target( generate_api_json_h DEPENDS api_dump_json.h )
-    set_target_properties(generate_api_cpp generate_api_h generate_api_json_h PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
+    add_custom_target( generate_api_video_text_h DEPENDS api_dump_video_text.h )
+    add_custom_target( generate_api_video_html_h DEPENDS api_dump_video_html.h )
+    add_custom_target( generate_api_video_json_h DEPENDS api_dump_video_json.h )
+
+    set_target_properties(generate_api_cpp generate_api_text_h generate_api_html_h generate_api_json_h
+        generate_api_video_text_h generate_api_video_html_h generate_api_video_json_h
+         PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
 endif()
 
 if (NOT APPLE)
@@ -84,18 +89,12 @@ if (WIN32)
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
         )
-        if(BUILD_APIDUMP)
-            add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
-            add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
-        endif()
         set_target_properties(copy-${target}-def-file PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
     endmacro()
 else()
     macro(add_vk_layer target)
         add_library(VkLayer_${target} SHARED ${ARGN})
         target_link_Libraries(VkLayer_${target} Vulkan::Headers ${VkLayer_utils_LIBRARY})
-        add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_html_h)
-        add_dependencies(VkLayer_${target} generate_api_cpp generate_api_h generate_api_json_h)
         if (NOT APPLE)
             set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
         endif ()
@@ -136,6 +135,13 @@ if(BUILD_APIDUMP)
     run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_text.h)
     run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_html.h)
     run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_json.h)
+    run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_text.h)
+    run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_html.h)
+    run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_json.h)
+
+    add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
+    add_dependencies(VkLayer_api_dump generate_api_cpp generate_api_text_h generate_api_html_h generate_api_json_h
+        generate_api_video_text_h generate_api_video_html_h generate_api_video_json_h)
 endif ()
 
 if (NOT APPLE)
@@ -145,10 +151,6 @@ if (NOT APPLE)
     if(BUILD_SCREENSHOT)
         add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
     endif ()
-endif ()
-
-if(BUILD_APIDUMP)
-    add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp ../vku/vk_layer_settings.cpp ../vku/vk_layer_settings.h)
 endif ()
 
 # json file creation

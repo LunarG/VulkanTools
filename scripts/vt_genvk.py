@@ -232,6 +232,36 @@ def makeGenOpts(args):
             expandEnumerants  = False)
     ]
 
+    # API dump generator options for api_dump_video_text.h
+    genOpts['api_dump_video_text.h'] = [
+        ApiDumpOutputGenerator,
+        ApiDumpGeneratorOptions(
+            conventions       = conventions,
+            input             = TEXT_CODEGEN,
+            filename          = 'api_dump_video_text.h',
+            apiname           = 'vulkan',
+            genpath           = None,
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            genFuncPointers   = True,
+            protectFile       = protect,
+            protectFeature    = False,
+            protectProto      = None,
+            protectProtoStr   = 'VK_NO_PROTOTYPES',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            expandEnumerants  = False,
+            isVideoGeneration = True)
+    ]
+
     # API dump generator options for api_dump_html.h
     genOpts['api_dump_html.h'] = [
         ApiDumpOutputGenerator,
@@ -259,6 +289,36 @@ def makeGenOpts(args):
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
             expandEnumerants  = False)
+    ]
+
+     # API dump generator options for api_dump_video_html.h
+    genOpts['api_dump_video_html.h'] = [
+        ApiDumpOutputGenerator,
+        ApiDumpGeneratorOptions(
+            conventions       = conventions,
+            input             = HTML_CODEGEN,
+            filename          = 'api_dump_video_html.h',
+            apiname           = 'vulkan',
+            genpath           = None,
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            genFuncPointers   = True,
+            protectFile       = protect,
+            protectFeature    = False,
+            protectProto      = None,
+            protectProtoStr   = 'VK_NO_PROTOTYPES',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            expandEnumerants  = False,
+            isVideoGeneration = True)
     ]
 
     # API dump generator options for api_dump_json.h
@@ -289,6 +349,37 @@ def makeGenOpts(args):
             alignFuncParam    = 48,
             expandEnumerants  = False)
     ]
+
+    # API dump generator options for api_dump_video_json.h
+    genOpts['api_dump_video_json.h'] = [
+        ApiDumpOutputGenerator,
+        ApiDumpGeneratorOptions(
+            conventions       = conventions,
+            input             = JSON_CODEGEN,
+            filename          = 'api_dump_video_json.h',
+            apiname           = 'vulkan',
+            genpath           = None,
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            genFuncPointers   = True,
+            protectFile       = protect,
+            protectFeature    = False,
+            protectProto      = None,
+            protectProtoStr   = 'VK_NO_PROTOTYPES',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            expandEnumerants  = False,
+            isVideoGeneration = True)
+    ]
+
 
     # Helper file generator options for vk_struct_size_helper.h
     genOpts['vk_struct_size_helper.h'] = [
