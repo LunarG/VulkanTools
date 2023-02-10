@@ -420,16 +420,18 @@ TEXT_CODEGEN = """
 #pragma once
 
 #include "api_dump.h"
-
+#include "api_dump_video_text.h"
+@if(not {isVideoGeneration})
 void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type);
 void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
-
+@end if
 @foreach union
 void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
 
 //============================= typedefs ==============================//
 
+@if(not {isVideoGeneration})
 // Functions for dumping typedef types that the codegen scripting can't handle
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
@@ -443,17 +445,20 @@ void dump_text_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureF
     dump_text_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
 }}
 #endif // VK_ENABLE_BETA_EXTENSIONS
-
+@end if
 //=========================== Type Implementations ==========================//
 
 @foreach type where('{etyName}' != 'void')
 void dump_text_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
 {{
-    @if('{etyName}' != 'uint8_t')
+    @if('{etyName}' != 'uint8_t' and '{etyName}' != 'int8_t')
     settings.stream() << object;
     @end if
     @if('{etyName}' == 'uint8_t')
     settings.stream() << (uint32_t) object;
+    @end if
+    @if('{etyName}' == 'int8_t')
+    settings.stream() << (int32_t) object;
     @end if
 }}
 @end type
@@ -700,7 +705,7 @@ void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings,
 @end union
 
 //======================== pNext Chain Implementation =======================//
-
+@if(not {isVideoGeneration})
 void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type)
 {{
     if (object == nullptr) {{
@@ -751,7 +756,7 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         settings.stream() << "UNKNOWN (" << (int64_t) (base_struct->sType) << ")\\n";
     }}
 }}
-
+@end if
 //========================= Function Implementations ========================//
 
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
@@ -826,15 +831,17 @@ HTML_CODEGEN = """
 #pragma once
 
 #include "api_dump.h"
-
+#include "api_dump_video_html.h"
+@if(not {isVideoGeneration})
 void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
-
+@end if
 @foreach union
 void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
 
 //============================= typedefs ==============================//
 
+@if(not {isVideoGeneration})
 // Functions for dumping typedef types that the codegen scripting can't handle
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_html_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
@@ -848,7 +855,7 @@ void dump_html_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureF
     dump_html_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
 }}
 #endif // VK_ENABLE_BETA_EXTENSIONS
-
+@end if
 
 //=========================== Type Implementations ==========================//
 
@@ -856,11 +863,14 @@ void dump_html_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureF
 void dump_html_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>";
-    @if('{etyName}' != 'uint8_t')
+    @if('{etyName}' != 'uint8_t' and '{etyName}' != 'int8_t')
     settings.stream() << object;
     @end if
     @if('{etyName}' == 'uint8_t')
     settings.stream() << (uint32_t) object;
+    @end if
+    @if('{etyName}' == 'int8_t')
+    settings.stream() << (int32_t) object;
     @end if
     settings.stream() << "</div></summary>";
 }}
@@ -1105,7 +1115,7 @@ void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings,
 @end union
 
 //======================== pNext Chain Implementation =======================//
-
+@if(not {isVideoGeneration})
 void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {{
     switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
@@ -1133,7 +1143,7 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         settings.stream() << "<div class='val'>UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) <<")</div></summary></details>";
     }}
 }}
-
+@end if
 //========================= Function Implementations ========================//
 
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
@@ -1208,15 +1218,17 @@ JSON_CODEGEN = """
 #pragma once
 
 #include "api_dump.h"
-
+#include "api_dump_video_json.h"
+@if(not {isVideoGeneration})
 void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
-
+@end if
 @foreach union
 void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
 
 //============================= typedefs ==============================//
 
+@if(not {isVideoGeneration})
 // Functions for dumping typedef types that the codegen scripting can't handle
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_json_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
@@ -1230,6 +1242,7 @@ void dump_json_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureF
     dump_json_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
 }}
 #endif // VK_ENABLE_BETA_EXTENSIONS
+@end if
 
 //=========================== Type Implementations ==========================//
 
@@ -1237,12 +1250,14 @@ void dump_json_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureF
 void dump_json_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents)
 {{
 
-    //settings.stream() << settings.indentation(indents);
-    @if('{etyName}' != 'uint8_t')
+    @if('{etyName}' != 'uint8_t' and '{etyName}' != 'int8_t')
     settings.stream() << "\\"" << object << "\\"";
     @end if
     @if('{etyName}' == 'uint8_t')
     settings.stream() << "\\"" << (uint32_t) object << "\\"";
+    @end if
+    @if('{etyName}' == 'int8_t')
+    settings.stream() << "\\"" << (int32_t) object << "\\"";
     @end if
 }}
 @end type
@@ -1443,7 +1458,7 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
 }}
 @end struct
-
+@if({isVideoGeneration})
 bool is_struct(const char *t)
 {{
     char *tm = (char*)t;
@@ -1455,7 +1470,7 @@ bool is_struct(const char *t)
 @end struct
     return false;
 }}
-
+@end if
 //========================== Union Implementations ==========================//
 @foreach union
 void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents)
@@ -1480,7 +1495,7 @@ void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings,
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
 }}
 @end union
-
+@if({isVideoGeneration})
 bool is_union(const char *t)
 {{
     char *tm = (char*)t;
@@ -1492,9 +1507,9 @@ bool is_union(const char *t)
 @end union
     return false;
 }}
-
+@end if
 //======================== pNext Chain Implementation =======================//
-
+@if(not {isVideoGeneration})
 void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {{
     switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
@@ -1526,7 +1541,7 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         settings.stream() << settings.indentation(indents) << "}}";
     }}
 }}
-
+@end if
 //========================= Function Implementations ========================//
 
 @foreach function where(not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
@@ -1688,6 +1703,11 @@ VALIDITY_CHECKS = {
     },
 }
 
+# These types are defined in both video.xml and vk.xml. Because duplicate functions aren't allowed,
+# we have to prevent these from generating twice. This is done by removing the types from the non-video
+# outputs
+DUPLICATE_TYPES_IN_VIDEO_HEADER = ['uint32_t', 'uint16_t', 'uint8_t', 'int32_t', 'int8_t']
+
 class ApiDumpGeneratorOptions(GeneratorOptions):
     def __init__(self,
                  conventions = None,
@@ -1717,6 +1737,7 @@ class ApiDumpGeneratorOptions(GeneratorOptions):
                  indentFuncPointer = False,
                  alignFuncParam = 0,
                  expandEnumerants = True,
+                 isVideoGeneration = False,
                  ):
         GeneratorOptions.__init__(self,
                  conventions = conventions,
@@ -1745,6 +1766,7 @@ class ApiDumpGeneratorOptions(GeneratorOptions):
         self.indentFuncProto = indentFuncProto
         self.indentFuncPointer = indentFuncPointer
         self.alignFuncParam  = alignFuncParam
+        self.isVideoGeneration = isVideoGeneration
 
 
 class ApiDumpOutputGenerator(OutputGenerator):
@@ -1756,6 +1778,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
                  registryFile = None):
         gen.OutputGenerator.__init__(self, errFile, warnFile, diagFile)
         self.format = None
+        self.isVideoGeneration = False
 
         self.constants = {}
         self.extensions = {}
@@ -1763,6 +1786,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
         self.extTypes = {}
         self.includes = {}
 
+        self.sysTypes = {}
         self.basetypes = {}
         self.bitmasks = {}
         self.enums = {}
@@ -1783,6 +1807,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
     def beginFile(self, genOpts):
         gen.OutputGenerator.beginFile(self, genOpts)
         self.format = genOpts.input
+        self.isVideoGeneration = genOpts.isVideoGeneration
 
         if self.registryFile is not None:
             root = xml.etree.ElementTree.parse(self.registryFile)
@@ -1812,7 +1837,8 @@ class ApiDumpOutputGenerator(OutputGenerator):
         # Find all 'system' types and put it in a set
         sysTypeNames = set()
         for node in self.registry.reg.find('types').findall('type'):
-            if node.get('category') is None and node.get('requires') in self.includes and node.get('requires') != 'vk_platform':
+            if node.get('category') is None and node.get('requires') in self.includes and node.get('requires') not in ['vk_platform', 'stdint'] \
+                and "vk_video" not in node.get('requires'):
                 sysTypeNames.add(node.get('name'))
 
         # Look through the set of sysTypeName to find all of the extensions that use the system types, then add it to sysTypes
@@ -1957,8 +1983,13 @@ class ApiDumpOutputGenerator(OutputGenerator):
             self.structs[typeinfo.elem.get('name')] = VulkanStruct(typeinfo.elem, self.constants, self.enums)
         elif typeinfo.elem.get('category') == 'basetype':
             self.basetypes[typeinfo.elem.get('name')] = VulkanBasetype(typeinfo.elem)
-        elif typeinfo.elem.get('category') is None and typeinfo.elem.get('requires') == 'vk_platform':
-            self.externalTypes[typeinfo.elem.get('name')] = VulkanExternalType(typeinfo.elem)
+        elif typeinfo.elem.get('category') is None and typeinfo.elem.get('requires') in ['vk_platform', 'stdint']:
+            # only add these types if we are generating the video headers
+            if typeinfo.elem.get('name') in DUPLICATE_TYPES_IN_VIDEO_HEADER:
+                if self.isVideoGeneration:
+                    self.externalTypes[typeinfo.elem.get('name')] = VulkanExternalType(typeinfo.elem)
+            else:
+                self.externalTypes[typeinfo.elem.get('name')] = VulkanExternalType(typeinfo.elem)
         elif typeinfo.elem.get('category') == 'handle':
             self.handles[typeinfo.elem.get('name')] = VulkanHandle(typeinfo.elem)
         elif typeinfo.elem.get('category') == 'union':
@@ -2018,6 +2049,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
             # Merge the values and the parent values
             values = item.values().copy()
+            values.update({'isVideoGeneration' : str(self.isVideoGeneration)})
             for parent in parents:
                 values.update(parent.values())
 
@@ -2302,7 +2334,8 @@ class VulkanExtension:
 
     def __init__(self, rootNode):
         self.name = rootNode.get('name')
-        self.number = int(rootNode.get('number'))
+        # video.xml extensions dont have numbers - just use None in that case
+        self.number = int(rootNode.get('number')) if rootNode.get('number') else None
         self.type = rootNode.get('type')
         self.dependency = rootNode.get('requires')
         self.guard = GetFeatureProtect(rootNode)

@@ -213,15 +213,21 @@ if (WIN32)
                          IMPORTED_LOCATION_DEBUG "${JSONCPP_DLIB}")
 endif()
 
-# Define macro used for building vkxml generated files
-macro(run_vulkantools_vk_xml_generate dependency output)
+# Define macro used for building vk.xml generated files
+function(run_vulkantools_vk_xml_generate dependency output)
     add_custom_command(OUTPUT ${output}
-    COMMAND ${PYTHON_CMD} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/vk.xml -scripts ${VULKAN_HEADERS_REGISTRY_DIRECTORY} ${output}
-        -removeExtensions VK_KHR_video_queue -removeExtensions VK_KHR_video_decode_queue -removeExtensions VK_KHR_video_encode_queue -removeExtensions VK_KHR_video_decode_h264
-        -removeExtensions VK_KHR_video_decode_h265 -removeExtensions VK_EXT_video_encode_h264 -removeExtensions VK_EXT_video_encode_h265
-    DEPENDS ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/vk.xml ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/reg.py
+        COMMAND ${PYTHON_CMD} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/vk.xml -scripts ${VULKAN_HEADERS_REGISTRY_DIRECTORY} ${output}
+        DEPENDS ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/vk.xml ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/reg.py
     )
-endmacro()
+endfunction()
+
+# Define macro used for building video.xml generated files
+function(run_vulkantools_video_xml_generate dependency output)
+    add_custom_command(OUTPUT ${output}
+        COMMAND ${PYTHON_CMD} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/video.xml -scripts ${VULKAN_HEADERS_REGISTRY_DIRECTORY} ${output}
+        DEPENDS ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/video.xml ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_HEADERS_REGISTRY_DIRECTORY}/reg.py
+    )
+endfunction()
 
 if(BUILD_TESTS)
     add_subdirectory(tests)
