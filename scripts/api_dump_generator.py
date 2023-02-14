@@ -1441,14 +1441,7 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
 
         @if('{memCondition}' != 'None')
     else
-    {{
-        settings.stream() << settings.indentation(indents+1) << "{{\\n";
-        settings.stream() << settings.indentation(indents+2) << "\\"type\\" : \\"{memType}\\",\\n";
-        settings.stream() << settings.indentation(indents+2) << "\\"name\\" : \\"{memName}\\",\\n";
-        settings.stream() << settings.indentation(indents+2) << "\\"address\\" : \\"UNUSED\\",\\n";
-        settings.stream() << settings.indentation(indents+2) << "\\"value\\" : \\"UNUSED\\"\\n";
-        settings.stream() << settings.indentation(indents+1) << "}}";
-    }}
+        dump_json_UNUSED(settings, "{memType}", "{memName}", indents + 1);
         @end if
     @end member
     settings.stream() << "\\n" << settings.indentation(indents) << "]";

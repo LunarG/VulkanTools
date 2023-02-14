@@ -1182,7 +1182,12 @@ void dump_json_function_head(ApiDumpInstance &dump_inst, const char *funcName, c
     }
 
     // Display return value
-    settings.stream() << settings.indentation(3) << "\"returnType\" : \"" << funcReturn << "\",\n";
+    settings.stream() << settings.indentation(3) << "\"returnType\" : \"" << funcReturn << "\"";
+    // Add a trailing comma if the return type isn't void or detailed mode is false - JSON doesn't allow trailing commas in object
+    if (strcmp("void", funcReturn) != 0 || settings.showParams()) {
+        settings.stream() << ",";
+    }
+    settings.stream() << "\n";
 
     settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
 }
@@ -1356,6 +1361,15 @@ void dump_json_special(const char *text, const ApiDumpSettings &settings, const 
     settings.stream() << ",\n";
     settings.stream() << settings.indentation(indents + 1) << "\"value\" : ";
     settings.stream() << "\"" << text << "\"\n";
+    settings.stream() << settings.indentation(indents) << "}";
+}
+
+void dump_json_UNUSED(const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
+    settings.stream() << settings.indentation(indents) << "{\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"address\" : \"UNUSED\",\n";
+    settings.stream() << settings.indentation(indents + 1) << "\"value\" : \"UNUSED\"\n";
     settings.stream() << settings.indentation(indents) << "}";
 }
 
