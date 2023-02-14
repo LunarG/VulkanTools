@@ -638,11 +638,18 @@ void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
         settings.stream() << "address:\\n";
 
     @foreach member
+        @if('{memParameterStorage}' != '' and '{memCondition}' != 'None')
+    if({memCondition})
+        {memParameterStorage}
+        @end if
+        @if('{memParameterStorage}' != '' and '{memCondition}' == 'None')
+    {memParameterStorage}
+        @end if
+    @end member
+
+    @foreach member
         @if('{memCondition}' != 'None')
     if({memCondition})
-        @end if
-        @if('{memParameterStorage}' != '')
-    {memParameterStorage}
         @end if
         @if({memPtrLevel} == 0)
             @if('{memName}' != 'pNext')
@@ -1038,11 +1045,18 @@ void dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     settings.stream() << "</div></summary>";
 
     @foreach member
+        @if('{memParameterStorage}' != '' and '{memCondition}' != 'None')
+    if({memCondition})
+        {memParameterStorage}
+        @end if
+        @if('{memParameterStorage}' != '' and '{memCondition}' == 'None')
+    {memParameterStorage}
+        @end if
+    @end member
+
+    @foreach member
         @if('{memCondition}' != 'None')
     if({memCondition})
-        @end if
-        @if('{memParameterStorage}' != '')
-    {memParameterStorage}
         @end if
         @if({memPtrLevel} == 0)
             @if('{memName}' != 'pNext')
@@ -1390,14 +1404,21 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     settings.stream() << settings.indentation(indents) << "[\\n";
 
     @foreach member
+        @if('{memParameterStorage}' != '' and '{memCondition}' != 'None')
+    if({memCondition})
+        {memParameterStorage}
+        @end if
+        @if('{memParameterStorage}' != '' and '{memCondition}' == 'None')
+    {memParameterStorage}
+        @end if
+    @end member
+
+    @foreach member
         @if({memIndex} != 0)
     settings.stream() << ",\\n";
         @end if
         @if('{memCondition}' != 'None')
     if({memCondition})
-        @end if
-        @if('{memParameterStorage}' != '')
-    {memParameterStorage}
         @end if
         @if({memPtrLevel} == 0)
             @if('{memName}' != 'pNext')
