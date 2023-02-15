@@ -528,9 +528,10 @@ class ApiDumpSettings {
 
         if (show_type) {
             if (use_spaces)
-                output_stream << type << std::setw(type_size - (int)strlen(type)) << " = ";
+                output_stream << std::left << std::setw(type_size) << type << " = ";
             else
-                output_stream << type << std::setw((type_size - (int)strlen(type) - 1 + tab_size) / tab_size) << " = ";
+                output_stream << type << std::setw((type_size - (int)strlen(type) - 1 + tab_size) / tab_size) << ""
+                              << " = ";
         } else {
             output_stream << " = ";
         }
