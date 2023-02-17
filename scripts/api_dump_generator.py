@@ -530,7 +530,10 @@ void dump_text_{sysName}(const {sysType} object, const ApiDumpSettings& settings
     OutputAddress(settings, object);
     @end if
     @if({sysNeedsPointer} == False)
-    settings.stream() << object;
+    if (settings.showAddress())
+        settings.stream() << object;
+    else
+        settings.stream() << "address";
     @end if
 }}
 @end systype
@@ -933,7 +936,10 @@ void dump_html_{sysName}(const {sysType} object, const ApiDumpSettings& settings
     settings.stream() << "</div>";
     @end if
     @if({sysNeedsPointer} == False)
-    settings.stream() << "<div class='val'>" << object << "</div></summary>";
+    if (settings.showAddress())
+        settings.stream() << "<div class='val'>" << object << "</div></summary>";
+    else
+        settings.stream() << "<div class='val'>address</div></summary>";
     @end if
 }}
 @end systype
@@ -1310,7 +1316,10 @@ void dump_json_{sysName}(const {sysType} object, const ApiDumpSettings& settings
     settings.stream() << "\\n";
     @end if
     @if({sysNeedsPointer} == False)
-    settings.stream() << "\\"" << object << "\\"";
+    if (settings.showAddress())
+        settings.stream() << "\\"" << object << "\\"";
+    else
+        settings.stream() << "\\"address\\"";
     @end if
 }}
 @end systype
