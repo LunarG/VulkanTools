@@ -826,6 +826,19 @@ class ApiDumpInstance {
         return vk_instance_map.at(phys_dev);
     }
 
+    void update_object_name_map(const VkDebugMarkerObjectNameInfoEXT *pNameInfo) {
+        if (pNameInfo->pObjectName)
+            object_name_map.emplace(pNameInfo->object, pNameInfo->pObjectName);
+        else
+            object_name_map.erase(pNameInfo->object);
+    }
+    void update_object_name_map(const VkDebugUtilsObjectNameInfoEXT *pNameInfo) {
+        if (pNameInfo->pObjectName)
+            object_name_map.emplace(pNameInfo->objectHandle, pNameInfo->pObjectName);
+        else
+            object_name_map.erase(pNameInfo->objectHandle);
+    }
+
    private:
     ApiDumpSettings dump_settings;
     std::recursive_mutex output_mutex;
@@ -883,7 +896,8 @@ void OutputAddressJSON(const ApiDumpSettings &settings, const void *addr) {
 
 //==================================== Text Backend Helpers ======================================//
 
-void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcReturn) {
+void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
+                             const char *funcReturn) {
     const ApiDumpSettings &settings(dump_inst.settings());
     if (settings.showThreadAndFrame()) {
         settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
@@ -897,7 +911,7 @@ void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, c
     if (settings.showTimestamp() || settings.showThreadAndFrame()) {
         settings.stream() << ":\n";
     }
-    settings.stream() << funcName << " returns " << funcReturn;
+    settings.stream() << funcName << "(" << funcNamedParams << ") returns " << funcReturn;
 
     settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
 }
@@ -1017,7 +1031,8 @@ void dump_html_nametype(std::ostream &stream, bool showType, const char *name, c
     }
 }
 
-void dump_html_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcReturn) {
+void dump_html_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
+                             const char *funcReturn) {
     const ApiDumpSettings &settings(dump_inst.settings());
     if (settings.showThreadAndFrame()) {
         settings.stream() << "<div class='thd'>Thread: " << dump_inst.threadID() << "</div>";
@@ -1025,7 +1040,10 @@ void dump_html_function_head(ApiDumpInstance &dump_inst, const char *funcName, c
     if (settings.showTimestamp())
         settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
     settings.stream() << "<details class='fn'><summary>";
-    dump_html_nametype(settings.stream(), settings.showType(), funcName, funcReturn);
+    settings.stream() << "<div class='var'>" << funcName << "(" << funcNamedParams << ")</div>";
+    if (settings.showType()) {
+        settings.stream() << "<div class='type'>" << funcReturn << "</div>";
+    }
     settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
 }
 
@@ -1416,5 +1434,23 @@ void dump_json_pNext(const T *object, const ApiDumpSettings &settings, const cha
         settings.stream() << settings.indentation(indents) << "}";
     } else {
         dump_json_value(*object, object, settings, type_string, "pNext", indents, dump);
+    }
+}
+
+//==================================== Common Helpers ======================================//
+
+void dump_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams, const char *funcReturn) {
+    if (dump_inst.shouldDumpOutput()) {
+        switch (dump_inst.settings().format()) {
+            case ApiDumpFormat::Text:
+                dump_text_function_head(dump_inst, funcName, funcNamedParams, funcReturn);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_function_head(dump_inst, funcName, funcNamedParams, funcReturn);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_function_head(dump_inst, funcName, funcReturn);
+                break;
+        }
     }
 }

@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 # Author: Lenny Komow <lenny@lunarg.com>
+# Author: Charles Giessen <charles@lunarg.com>
 #
 # The API dump layer works by passing custom format strings to the ApiDumpGenerator. These format
 # strings are C++ code, with 3-ish exceptions:
@@ -45,6 +46,11 @@ import generator as gen
 from generator import *
 from collections import namedtuple
 from common_codegen import *
+
+BLOCKING_API_CALLS = [
+    'vkWaitForFences', 'vkWaitSemaphores', 'vkQueuePresentKHR', 'vkDeviceWaitIdle',
+    'vkQueueWaitIdle', 'vkAcquireNextImageKHR', 'vkGetQueryPoolResults',
+]
 
 COMMON_CODEGEN = """
 /* Copyright (c) 2015-2016, 2021 Valve Corporation
@@ -89,20 +95,7 @@ COMMON_CODEGEN = """
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance)
 {{
     ApiDumpInstance::current().outputMutex()->lock();
-    if (ApiDumpInstance::current().shouldDumpOutput()) {{
-        switch(ApiDumpInstance::current().settings().format())
-        {{
-            case ApiDumpFormat::Text:
-                dump_text_function_head(ApiDumpInstance::current(), \"vkCreateInstance(pCreateInfo, pAllocator, pInstance)\", \"VkResult\");
-                break;
-            case ApiDumpFormat::Html:
-                dump_html_function_head(ApiDumpInstance::current(), \"vkCreateInstance(pCreateInfo, pAllocator, pInstance)\", \"VkResult\");
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_function_head(ApiDumpInstance::current(), \"vkCreateInstance\", \"VkResult\");
-                break;
-        }}
-    }}
+    dump_function_head(ApiDumpInstance::current(), "vkCreateInstance", "pCreateInfo, pAllocator, pInstance", "VkResult");
 
     // Get the function pointer
     VkLayerInstanceCreateInfo* chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
@@ -142,20 +135,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCre
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice)
 {{
     ApiDumpInstance::current().outputMutex()->lock();
-    if (ApiDumpInstance::current().shouldDumpOutput()) {{
-        switch(ApiDumpInstance::current().settings().format())
-        {{
-            case ApiDumpFormat::Text:
-                dump_text_function_head(ApiDumpInstance::current(), \"vkCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice)\", \"VkResult\");
-                break;
-            case ApiDumpFormat::Html:
-                dump_html_function_head(ApiDumpInstance::current(), \"vkCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice)\", \"VkResult\");
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_function_head(ApiDumpInstance::current(), \"vkCreateDevice\", \"VkResult\");
-                break;
-        }}
-    }}
+    dump_function_head(ApiDumpInstance::current(), "vkCreateDevice", "physicalDevice, pCreateInfo, pAllocator, pDevice", "VkResult");
+
     // Get the function pointer
     VkLayerDeviceCreateInfo* chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
     assert(chain_info->u.pLayerInfo != 0);
@@ -231,21 +212,10 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
 @foreach function where('{funcDispatchType}' == 'instance' and '{funcName}' not in ['vkCreateInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties'])
 VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    @if('{funcName}' not in BLOCKING_API_CALLS)
     ApiDumpInstance::current().outputMutex()->lock();
-    if (ApiDumpInstance::current().shouldDumpOutput()) {{
-        switch(ApiDumpInstance::current().settings().format())
-        {{
-            case ApiDumpFormat::Text:
-                dump_text_function_head(ApiDumpInstance::current(), \"{funcName}({funcNamedParams})\", \"{funcReturn}\");
-                break;
-            case ApiDumpFormat::Html:
-                dump_html_function_head(ApiDumpInstance::current(), \"{funcName}({funcNamedParams})\", \"{funcReturn}\");
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_function_head(ApiDumpInstance::current(), \"{funcName}\", \"{funcReturn}\");
-                break;
-        }}
-    }}
+    dump_function_head(ApiDumpInstance::current(), "{funcName}", "{funcNamedParams}", "{funcReturn}");
+    @end if
 
     @if('{funcName}' == 'vkGetPhysicalDeviceToolPropertiesEXT')
     static const VkPhysicalDeviceToolPropertiesEXT api_dump_layer_tool_props = {{
@@ -270,6 +240,10 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     @end if
     @if('{funcReturn}' == 'void')
     instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
+    @end if
+    @if('{funcName}' in BLOCKING_API_CALLS)
+    ApiDumpInstance::current().outputMutex()->lock();
+    dump_function_head(ApiDumpInstance::current(), "{funcName}", "{funcNamedParams}", "{funcReturn}");
     @end if
     {funcStateTrackingCode}
     @if('{funcName}' == 'vkEnumeratePhysicalDevices')
@@ -330,39 +304,23 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 @foreach function where('{funcDispatchType}' == 'device' and '{funcName}' not in ['vkGetDeviceProcAddr'])
 VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
+    @if('{funcName}' not in BLOCKING_API_CALLS)
     ApiDumpInstance::current().outputMutex()->lock();
-    @if('{funcName}' == 'vkDebugMarkerSetObjectNameEXT')
-    if (pNameInfo->pObjectName)
-        ApiDumpInstance::current().object_name_map.insert(std::make_pair<uint64_t, std::string>((uint64_t &&)pNameInfo->object, pNameInfo->pObjectName));
-    else
-        ApiDumpInstance::current().object_name_map.erase(pNameInfo->object);
+    @if('{funcName}' in ['vkDebugMarkerSetObjectNameEXT', 'vkSetDebugUtilsObjectNameEXT'])
+    ApiDumpInstance::current().update_object_name_map(pNameInfo);
     @end if
-    @if('{funcName}' == 'vkSetDebugUtilsObjectNameEXT')
-    if (pNameInfo->pObjectName)
-        ApiDumpInstance::current().object_name_map.insert(std::make_pair<uint64_t, std::string>((uint64_t &&)pNameInfo->objectHandle, pNameInfo->pObjectName));
-    else
-        ApiDumpInstance::current().object_name_map.erase(pNameInfo->objectHandle);
+    dump_function_head(ApiDumpInstance::current(), "{funcName}", "{funcNamedParams}", "{funcReturn}");
     @end if
-    if (ApiDumpInstance::current().shouldDumpOutput()) {{
-        switch(ApiDumpInstance::current().settings().format())
-        {{
-            case ApiDumpFormat::Text:
-                dump_text_function_head(ApiDumpInstance::current(), \"{funcName}({funcNamedParams})\", \"{funcReturn}\");
-                break;
-            case ApiDumpFormat::Html:
-                dump_html_function_head(ApiDumpInstance::current(), \"{funcName}({funcNamedParams})\", \"{funcReturn}\");
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_function_head(ApiDumpInstance::current(), \"{funcName}\", \"{funcReturn}\");
-                break;
-        }}
-    }}
 
     @if('{funcReturn}' != 'void')
     {funcReturn} result = device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     @end if
     @if('{funcReturn}' == 'void')
     device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
+    @end if
+    @if('{funcName}' in BLOCKING_API_CALLS)
+    ApiDumpInstance::current().outputMutex()->lock();
+    dump_function_head(ApiDumpInstance::current(), "{funcName}", "{funcNamedParams}", "{funcReturn}");
     @end if
     {funcStateTrackingCode}
     @if('{funcName}' == 'vkDestroyDevice')
