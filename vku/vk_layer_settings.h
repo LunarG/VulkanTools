@@ -35,29 +35,29 @@ typedef void *(*LAYER_SETTING_LOG_CALLBACK)(const char *setting_key, const char 
 
 // Initialize the callback function to get error messages. By default the error messages are outputed to stderr. Use nullptr to
 // return to the default behavior.
-VK_LAYER_EXPORT void InitLayerSettingsLogCallback(LAYER_SETTING_LOG_CALLBACK callback);
+void InitLayerSettingsLogCallback(LAYER_SETTING_LOG_CALLBACK callback);
 
 // Check whether a setting was set either from vk_layer_settings.txt or an environment variable
-VK_LAYER_EXPORT bool IsLayerSetting(const char *layer_key, const char *setting_key);
+bool IsLayerSetting(const char *layer_key, const char *setting_key);
 
 // Query setting data for BOOL setting type in the layer manifest
-VK_LAYER_EXPORT bool GetLayerSettingBool(const char *layer_key, const char *setting_key);
+bool GetLayerSettingBool(const char *layer_key, const char *setting_key);
 
 // Query setting data for INT setting type in the layer manifest
-VK_LAYER_EXPORT int GetLayerSettingInt(const char *layer_key, const char *setting_key);
+int GetLayerSettingInt(const char *layer_key, const char *setting_key);
 
 // Query setting data for FLOAT setting type in the layer manifest
-VK_LAYER_EXPORT double GetLayerSettingFloat(const char *layer_key, const char *setting_key);
+double GetLayerSettingFloat(const char *layer_key, const char *setting_key);
 
 // Query setting data for FRAMES setting type in the layer manifest
-VK_LAYER_EXPORT std::string GetLayerSettingFrames(const char *layer_key, const char *setting_key);
+std::string GetLayerSettingFrames(const char *layer_key, const char *setting_key);
 
 // Query setting data for STRING, ENUM, LOAD_FILE, SAVE_FILE and SAVE_FOLDER setting types in the layer manifest
-VK_LAYER_EXPORT std::string GetLayerSettingString(const char *layer_key, const char *setting_key);
+std::string GetLayerSettingString(const char *layer_key, const char *setting_key);
 
 // Query setting data for FLAGS setting type in the layer manifest
-VK_LAYER_EXPORT Strings GetLayerSettingStrings(const char *layer_key, const char *setting_key);
+Strings GetLayerSettingStrings(const char *layer_key, const char *setting_key);
 
 // Query setting data for LIST setting type in the layer manifest
-VK_LAYER_EXPORT List GetLayerSettingList(const char *layer_key, const char *setting_key);
+List GetLayerSettingList(const char *layer_key, const char *setting_key);
 }  // namespace vku

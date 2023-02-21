@@ -270,12 +270,12 @@ static std::string GetEnvVarKey(const char *layer_key, const char *setting_key, 
     return result.str();
 }
 
-VK_LAYER_EXPORT void InitLayerSettingsLogCallback(LAYER_SETTING_LOG_CALLBACK callback) {
+void InitLayerSettingsLogCallback(LAYER_SETTING_LOG_CALLBACK callback) {
     vk_layer_settings.SetCallback(callback);
     return;
 }
 
-VK_LAYER_EXPORT bool IsLayerSetting(const char *layer_key, const char *setting_key) {
+bool IsLayerSetting(const char *layer_key, const char *setting_key) {
     assert(layer_key);
     assert(!std::string(layer_key).empty());
     assert(setting_key);
@@ -299,7 +299,7 @@ static std::string GetLayerSettingData(const char *layer_key, const char *settin
     return vk_layer_settings.Get(GetSettingKey(layer_key, setting_key).c_str());
 }
 
-VK_LAYER_EXPORT bool GetLayerSettingBool(const char *layer_key, const char *setting_key) {
+bool GetLayerSettingBool(const char *layer_key, const char *setting_key) {
     assert(IsLayerSetting(layer_key, setting_key));
 
     bool result = false;  // default value
@@ -320,7 +320,7 @@ VK_LAYER_EXPORT bool GetLayerSettingBool(const char *layer_key, const char *sett
     return result;
 }
 
-VK_LAYER_EXPORT int GetLayerSettingInt(const char *layer_key, const char *setting_key) {
+int GetLayerSettingInt(const char *layer_key, const char *setting_key) {
     assert(IsLayerSetting(layer_key, setting_key));
 
     int result = 0;  // default value
@@ -339,7 +339,7 @@ VK_LAYER_EXPORT int GetLayerSettingInt(const char *layer_key, const char *settin
     return result;
 }
 
-VK_LAYER_EXPORT double GetLayerSettingFloat(const char *layer_key, const char *setting_key) {
+double GetLayerSettingFloat(const char *layer_key, const char *setting_key) {
     assert(IsLayerSetting(layer_key, setting_key));
 
     double result = 0.0;  // default value
@@ -358,7 +358,7 @@ VK_LAYER_EXPORT double GetLayerSettingFloat(const char *layer_key, const char *s
     return result;
 }
 
-VK_LAYER_EXPORT std::string GetLayerSettingString(const char *layer_key, const char *setting_key) {
+std::string GetLayerSettingString(const char *layer_key, const char *setting_key) {
     assert(IsLayerSetting(layer_key, setting_key));
 
     std::string setting = GetLayerSettingData(layer_key, setting_key);
@@ -370,7 +370,7 @@ VK_LAYER_EXPORT std::string GetLayerSettingString(const char *layer_key, const c
     return setting;
 }
 
-VK_LAYER_EXPORT std::string GetLayerSettingFrames(const char *layer_key, const char *setting_key) {
+std::string GetLayerSettingFrames(const char *layer_key, const char *setting_key) {
     assert(IsLayerSetting(layer_key, setting_key));
 
     std::string setting = GetLayerSettingData(layer_key, setting_key);
@@ -403,7 +403,7 @@ static inline std::vector<std::string> Split(const std::string &value, const std
     return result;
 }
 
-VK_LAYER_EXPORT Strings GetLayerSettingStrings(const char *layer_key, const char *setting_key) {
+Strings GetLayerSettingStrings(const char *layer_key, const char *setting_key) {
     assert(IsLayerSetting(layer_key, setting_key));
 
     std::string setting = GetLayerSettingData(layer_key, setting_key);
@@ -419,7 +419,7 @@ VK_LAYER_EXPORT Strings GetLayerSettingStrings(const char *layer_key, const char
     }
 }
 
-VK_LAYER_EXPORT List GetLayerSettingList(const char *layer_key, const char *setting_key) {
+List GetLayerSettingList(const char *layer_key, const char *setting_key) {
     assert(IsLayerSetting(layer_key, setting_key));
 
     std::vector<std::string> inputs = GetLayerSettingStrings(layer_key, setting_key);
