@@ -320,8 +320,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     layer_init_instance_dispatch_table(*pInstance, &instance_data->dispatch_table, fpGetInstanceProcAddr);
     instance_data->report_data = new debug_report_data{};
     instance_data->extensions.InitFromInstanceCreateInfo((pCreateInfo->pApplicationInfo ? pCreateInfo->pApplicationInfo->apiVersion : VK_API_VERSION_1_0), pCreateInfo);
-    layer_debug_report_actions(instance_data->report_data, pAllocator, "lunarg_layer_factory");
-    layer_debug_messenger_actions(instance_data->report_data, pAllocator, "lunarg_layer_factory");
+    layer_debug_messenger_actions(instance_data->report_data, "lunarg_layer_factory");
     vlf_report_data = instance_data->report_data;
 
     for (auto intercept : global_interceptor_list) {
@@ -347,12 +346,12 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
     // Clean up logging callback, if any
     while (instance_data->logging_messenger.size() > 0) {
         VkDebugUtilsMessengerEXT messenger = instance_data->logging_messenger.back();
-        LayerDestroyCallback(instance_data->report_data, messenger, pAllocator);
+        LayerDestroyCallback(instance_data->report_data, messenger);
         instance_data->logging_messenger.pop_back();
     }
     while (instance_data->logging_callback.size() > 0) {
         VkDebugReportCallbackEXT callback = instance_data->logging_callback.back();
-        LayerDestroyCallback(instance_data->report_data, callback, pAllocator);
+        LayerDestroyCallback(instance_data->report_data, callback);
         instance_data->logging_callback.pop_back();
     }
     LayerDebugUtilsDestroyInstance(instance_data->report_data);
@@ -424,7 +423,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance instance,
         intercept->PreCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
     }
     VkResult result = instance_data->dispatch_table.CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
-    result = LayerCreateReportCallback(instance_data->report_data, false, pCreateInfo, pAllocator, pCallback);
+    result = LayerCreateReportCallback(instance_data->report_data, false, pCreateInfo, pCallback);
     for (auto intercept : global_interceptor_list) {
         intercept->PostCallCreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback, result);
     }
@@ -438,7 +437,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance instance, Vk
         intercept->PreCallDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
     }
     instance_data->dispatch_table.DestroyDebugReportCallbackEXT(instance, callback, pAllocator);
-    LayerDestroyCallback(instance_data->report_data, callback, pAllocator);
+    LayerDestroyCallback(instance_data->report_data, callback);
     for (auto intercept : global_interceptor_list) {
         intercept->PostCallDestroyDebugReportCallbackEXT(instance, callback, pAllocator);
     }

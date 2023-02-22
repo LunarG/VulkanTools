@@ -50,7 +50,7 @@ add_library(VkLayer_core_validation SHARED
         ${SRC_DIR}/layers/descriptor_sets.cpp
         ${SRC_DIR}/layers/buffer_validation.cpp
         ${SRC_DIR}/layers/shader_validation.cpp
-        ${SRC_DIR}/layers/xxhash.c)
+        ${SRC_DIR}/layers/xxhash.cpp)
 target_include_directories(VkLayer_core_validation PRIVATE
         ${SRC_DIR}/include
         ${SRC_DIR}/layers
@@ -58,7 +58,7 @@ target_include_directories(VkLayer_core_validation PRIVATE
         ${SRC_DIR}/loader)
 target_link_libraries(VkLayer_core_validation PRIVATE
         log layer_utils)
-
+target_compile_definitions(VkLayer_core_validation PUBLIC XXH_NO_LONG_LONG)
 add_library(VkLayer_parameter_validation SHARED
         ${COMMON_DIR}/include/parameter_validation.cpp
         ${SRC_DIR}/layers/parameter_validation_utils.cpp)
