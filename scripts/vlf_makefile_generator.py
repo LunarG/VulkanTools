@@ -76,7 +76,7 @@ if __name__ == '__main__':
             contents += 'include $(CLEAR_VARS)\n'
             contents += 'LOCAL_MODULE := VkLayer_%s\n' % factory_layer
             contents += 'LOCAL_SRC_FILES += $(LAYER_DIR)/include/layer_factory.cpp\n'
-            contents += 'LOCAL_SRC_FILES += $(LVL_DIR)/layers/xxhash.c\n'
+            contents += 'LOCAL_SRC_FILES += $(LVL_DIR)/layers/xxhash.cpp\n'
             # Add *.cpp files (if any) to makefile dependencies
             for path, subdirs, files in os.walk(factory_layer):
                 for file in files:
@@ -91,6 +91,7 @@ if __name__ == '__main__':
             contents += 'LOCAL_STATIC_LIBRARIES += layer_utils\n'
             contents += 'LOCAL_CPPFLAGS += -std=c++17 -DVK_PROTOTYPES -Wall -Werror -Wno-unused-function -Wno-unused-const-variable\n'
             contents += 'LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_ENABLE_BETA_EXTENSIONS -fvisibility=hidden\n'
+            contents += 'LOCAL_CPPFLAGS += -DXXH_NO_LONG_LONG\n'
             contents += 'LOCAL_LDLIBS    := -llog\n'
             contents += 'LOCAL_LDFLAGS   += -Wl,-Bsymbolic\n'
             contents += 'LOCAL_LDFLAGS   += -Wl,--exclude-libs,ALL\n'
