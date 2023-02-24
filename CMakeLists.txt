@@ -10,7 +10,6 @@ set(API_NAME "Vulkan" CACHE STRING "API name")
 add_definitions(-DAPI_NAME="${API_NAME}")
 
 add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
-add_definitions(-DXXH_NO_LONG_LONG)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
