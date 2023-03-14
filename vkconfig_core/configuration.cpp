@@ -104,6 +104,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
 
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer != nullptr) {
+            parameter.api_version = layer->api_version;
             CollectDefaultSettingData(layer->settings, parameter.settings);
         }
 

@@ -215,6 +215,7 @@ std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters
         Parameter parameter;
         parameter.key = layer.key;
         parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
+        parameter.api_version = layer.api_version;
         CollectDefaultSettingData(layer.settings, parameter.settings);
 
         gathered_parameters.push_back(parameter);
