@@ -11,7 +11,12 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.5.2](https://github.com/LunarG/VulkanTools/tree/main) - December 2022
+## [Vulkan Configurator 2.5.3](https://github.com/LunarG/VulkanTools/tree/main) - March 2023
+
+### Improvements:
+- Enabling fully generic layer settings for the validation layer settings
+
+## [Vulkan Configurator 2.5.2](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.236.0) - December 2022
 
 ### Improvements:
 - Add `warn_on_robust_oob` validation layer setting handling
