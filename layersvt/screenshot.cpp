@@ -35,12 +35,12 @@
 
 using namespace std;
 
-#include "vk_dispatch_table_helper.h"
-#include "vk_enum_string_helper.h"
+#include "generated/vk_dispatch_table_helper.h"
+#include "generated/vk_enum_string_helper.h"
 #include "vk_layer_config.h"
 #include "vk_layer_table.h"
-#include "vk_layer_extension_utils.h"
-#include "vk_layer_utils.h"
+#include "utils/vk_layer_extension_utils.h"
+#include "utils/vk_layer_utils.h"
 
 #include "screenshot_parsing.h"
 

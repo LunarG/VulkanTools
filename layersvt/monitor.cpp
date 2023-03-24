@@ -20,15 +20,15 @@
  * Author: Chris Forbes <chrisforbes@google.com>
  * Author: Tony Barbour <tony@lunarg.com>
  */
-#include "vk_layer_data.h"
-#include "vk_layer_extension_utils.h"
+#include "containers/custom_containers.h"
+#include "utils/vk_layer_extension_utils.h"
 #include "vk_layer_table.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unordered_map>
-#include <vk_dispatch_table_helper.h>
+#include <generated/vk_dispatch_table_helper.h>
 #include <vulkan/vk_layer.h>
 #include <vulkan/vulkan.h>
 

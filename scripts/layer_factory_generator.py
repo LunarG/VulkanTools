@@ -183,12 +183,12 @@ class LayerFactoryOutputGenerator(OutputGenerator):
 
 #define VALIDATION_ERROR_MAP_IMPL
 
-#include "vk_dispatch_table_helper.h"
-#include "vk_layer_data.h"
-#include "vk_layer_extension_utils.h"
-#include "vk_layer_logging.h"
-#include "vk_extension_helper.h"
-#include "vk_layer_utils.h"
+#include "generated/vk_dispatch_table_helper.h"
+#include "containers/custom_containers.h"
+#include "utils/vk_layer_extension_utils.h"
+#include "error_message/logging.h"
+#include "generated/vk_extension_helper.h"
+#include "utils/vk_layer_utils.h"
 
 class layer_factory;
 std::vector<layer_factory *> global_interceptor_list;
