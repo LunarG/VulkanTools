@@ -21,7 +21,7 @@
 
 #include <unordered_map>
 #include "vulkan/vulkan.h"
-#include "vk_layer_logging.h"
+#include "error_message/logging.h"
 #include "layer_factory.h"
 
 class MemDemo : public layer_factory {

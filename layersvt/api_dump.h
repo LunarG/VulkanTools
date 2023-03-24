@@ -30,8 +30,8 @@
 #include "vulkan/vk_layer.h"
 #include "vk_layer_config.h"
 #include "vk_layer_table.h"
-#include "vk_layer_extension_utils.h"
-#include "vk_layer_utils.h"
+#include "utils/vk_layer_extension_utils.h"
+#include "utils/vk_layer_utils.h"
 
 // Include the video headers so we can print types that come from them
 #include "vk_video/vulkan_video_codecs_common.h"

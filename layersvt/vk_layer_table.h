@@ -22,7 +22,7 @@
 #include "vulkan/vk_layer.h"
 #include "vulkan/vulkan.h"
 #include <unordered_map>
-#include "vk_layer_utils.h"
+#include "utils/vk_layer_utils.h"
 
 typedef std::unordered_map<void *, VkLayerDispatchTable *> device_table_map;
 typedef std::unordered_map<void *, VkLayerInstanceDispatchTable *> instance_table_map;
