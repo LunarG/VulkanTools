@@ -1412,39 +1412,39 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
         @end if
         @if({memPtrLevel} == 0)
             @if('{memName}' != 'pNext')
-    dump_json_value<const {memBaseType}>(object.{memName}, NULL, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID});
+    dump_json_value<const {memBaseType}>(object.{memName}, NULL, settings, "{memType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID});
             @end if
             @if('{memName}' == 'pNext')
     if(object.pNext != nullptr){{
         dump_json_pNext_trampoline(object.{memName}, settings, indents + 1);
     }} else {{
-        dump_json_value<const {memBaseType}>(object.{memName}, object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID});
+        dump_json_value<const {memBaseType}>(object.{memName}, object.{memName}, settings, "{memType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID});
     }}
             @end if
         @end if
         @if({memPtrLevel} == 1 and '{memLength}' == 'None')
-    dump_json_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_json_{memTypeID});
+    dump_json_pointer<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID});
         @end if
         @if({memPtrLevel} == 1 and '{memLength}' != 'None' and not {memLengthIsMember})
-    dump_json_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}); // IQA
+    dump_json_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID}); // IQA
         @end if
         @if({memPtrLevel} == 1 and '{memLength}' != 'None' and {memLengthIsMember} and '{memName}' != 'pCode')
             @if('{memLength}'[0].isdigit() or '{memLength}'[0].isupper())
-    dump_json_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}); // JQA
+    dump_json_array<const {memBaseType}>(object.{memName}, {memLength}, settings, "{memType}", "{memChildType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID}); // JQA
             @end if
             @if(not ('{memLength}'[0].isdigit() or '{memLength}'[0].isupper()))
                 @if('{memLength}' == 'rasterizationSamples')
-    dump_json_array<const {memBaseType}>(object.{memName}, (object.{memLength} + 31) / 32, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}); // JQA
+    dump_json_array<const {memBaseType}>(object.{memName}, (object.{memLength} + 31) / 32, settings, "{memType}", "{memChildType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID}); // JQA
                 @end if
                 @if('{memLength}' != 'rasterizationSamples')
-    dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}); // JQA
+    dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID}); // JQA
                 @end if
             @end if
         @end if
         @if('{sctName}' == 'VkShaderModuleCreateInfo')
             @if('{memName}' == 'pCode')
     if(settings.showShader())
-        dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_json_{memTypeID}); // KQA
+        dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID}); // KQA
     else
         dump_json_special("SHADER DATA", settings, "{memType}", "{memName}", indents + 1);
             @end if
@@ -1458,19 +1458,7 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
 }}
 @end struct
-@if({isVideoGeneration})
-bool is_struct(const char *t)
-{{
-    char *tm = (char*)t;
-    size_t tmlen;
-    if (strncmp(tm, "const ", 6) == 0) tm = tm + 6;
-    tmlen = strcspn(tm, "[*");
-@foreach struct
-    if (strncmp("{sctName}", tm, tmlen) == 0 && strlen("{sctName}") == tmlen) return true;
-@end struct
-    return false;
-}}
-@end if
+
 //========================== Union Implementations ==========================//
 @foreach union
 void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents)
@@ -1482,32 +1470,20 @@ void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings,
     settings.stream() << ",\\n";
     @end if
     @if({chcPtrLevel} == 0)
-    dump_json_value<const {chcBaseType}>(object.{chcName}, NULL, settings, "{chcType}", "{chcName}", indents + 2, dump_json_{chcTypeID});
+    dump_json_value<const {chcBaseType}>(object.{chcName}, NULL, settings, "{chcType}", "{chcName}", {chcIsStruct}, {chcIsUnion}, indents + 2, dump_json_{chcTypeID});
     @end if
     @if({chcPtrLevel} == 1 and '{chcLength}' == 'None')
-    dump_json_pointer<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 2, dump_json_{chcTypeID});
+    dump_json_pointer<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", {chcIsStruct}, {chcIsUnion}, indents + 2, dump_json_{chcTypeID});
     @end if
     @if({chcPtrLevel} == 1 and '{chcLength}' != 'None')
-    dump_json_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", indents + 2, dump_json_{chcTypeID}); // OQA
+    dump_json_array<const {chcBaseType}>(object.{chcName}, {chcLength}, settings, "{chcType}", "{chcChildType}", "{chcName}", {chcIsStruct}, {chcIsUnion}, indents + 2, dump_json_{chcTypeID}); // OQA
     @end if
     @end choice
 
     settings.stream() << "\\n" << settings.indentation(indents) << "]";
 }}
 @end union
-@if({isVideoGeneration})
-bool is_union(const char *t)
-{{
-    char *tm = (char*)t;
-    size_t tmlen;
-    if (strncmp(tm, "const ", 6) == 0) tm = tm + 6;
-    tmlen = strcspn(tm, "[*");
-@foreach union
-    if (strncmp("{unName}", tm, tmlen) == 0 && strlen("{unName}") == tmlen) return true;
-@end union
-    return false;
-}}
-@end if
+
 //======================== pNext Chain Implementation =======================//
 @if(not {isVideoGeneration})
 void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
@@ -1576,13 +1552,13 @@ void dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
         {prmParameterStorage}
         @end if
         @if({prmPtrLevel} == 0)
-        dump_json_value<const {prmBaseType}>({prmName}, NULL, settings, "{prmType}", "{prmName}", 4, dump_json_{prmTypeID});
+        dump_json_value<const {prmBaseType}>({prmName}, NULL, settings, "{prmType}", "{prmName}", {prmIsStruct}, {prmIsUnion}, 4, dump_json_{prmTypeID});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' == 'None')
-        dump_json_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", 4, dump_json_{prmTypeID});
+        dump_json_pointer<const {prmBaseType}>({prmName}, settings, "{prmType}", "{prmName}", {prmIsStruct}, {prmIsUnion}, 4, dump_json_{prmTypeID});
         @end if
         @if({prmPtrLevel} == 1 and '{prmLength}' != 'None')
-        dump_json_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", 4, dump_json_{prmTypeID}); // PQA
+        dump_json_array<const {prmBaseType}>({prmName}, {prmLength}, settings, "{prmType}", "{prmChildType}", "{prmName}", {prmIsStruct}, {prmIsUnion}, 4, dump_json_{prmTypeID}); // PQA
         @end if
         @end parameter
 
@@ -1857,6 +1833,29 @@ class ApiDumpOutputGenerator(OutputGenerator):
                     for param in self.functions[functionName].parameters:
                         if sysTypeName == param.baseType or sysTypeName + '*' == param.baseType:
                             self.sysTypes[sysTypeName] = VulkanSystemType(sysTypeName, extension)
+
+
+        # Fill in the is_struct and is_union member variables of the Variable class so that json output can be correct
+
+        for value in self.functions.values():
+            for variable in value.parameters:
+                if variable.typeID in self.structs:
+                    variable.is_struct = True
+                if variable.typeID in self.unions:
+                    variable.is_union = True
+        for value in self.structs.values():
+            for variable in value.members:
+                if variable.typeID in self.structs:
+                    variable.is_struct = True
+                if variable.typeID in self.unions:
+                    variable.is_union = True
+        for value in self.unions.values():
+            for variable in value.choices:
+                if variable.typeID in self.structs:
+                    variable.is_struct = True
+                if variable.typeID in self.unions:
+                    variable.is_union = True
+
 
         # Find every @foreach, @if, and @end
         forIter = re.finditer('(^\\s*\\@foreach\\s+[a-z]+(\\s+where\\(.*\\))?\\s*^)|(\\@foreach [a-z]+(\\s+where\\(.*\\))?\\b)', self.format, flags=re.MULTILINE)
@@ -2192,6 +2191,9 @@ class VulkanVariable:
             for states in PARAMETER_STATE[self.typeID][parentName]:
                 self.parameterStorage += states['stmt']
 
+        self.is_struct = False
+        self.is_union = False
+
 class VulkanBasetype:
 
     def __init__(self, rootNode):
@@ -2430,7 +2432,9 @@ class VulkanFunction:
                 'prmPtrLevel': self.pointerLevels,
                 'prmLength': self.arrayLength,
                 'prmParameterStorage': self.parameterStorage,
-                'prmIndex': self.index
+                'prmIndex': self.index,
+                'prmIsStruct': 'true' if self.is_struct else 'false',
+                'prmIsUnion': 'true' if self.is_union else 'false'
             }
 
     def __init__(self, rootNode, constants, aliases, extensions):
@@ -2527,7 +2531,9 @@ class VulkanStruct:
                 'memLengthIsMember': self.lengthMember,
                 'memCondition': self.condition,
                 'memParameterStorage': self.parameterStorage,
-                'memIndex' : self.index
+                'memIndex' : self.index,
+                'memIsStruct': 'true' if self.is_struct else 'false',
+                'memIsUnion': 'true' if self.is_union else 'false',
             }
 
 
@@ -2619,6 +2625,8 @@ class VulkanUnion:
                 'chcLength': self.arrayLength,
                 #'chcLengthIsMember': self.lengthMember,
                 'chcIndex': self.index,
+                'chcIsStruct': 'true' if self.is_struct else 'false',
+                'chcIsUnion': 'true' if self.is_union else 'false',
             }
 
     def __init__(self, rootNode, constants):
