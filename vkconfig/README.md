@@ -9,7 +9,7 @@
 
 <p align="center"><img src="./images/vulkan_configurator.png" width=400 /></p>
 
-*Vulkan Configurator* allows overriding the [layers configuration](https://github.com/KhronosGroup/Vulkan-Loader/blob/main/loader/LoaderAndLayerInterface.md#layers) used by Vulkan applications at runtime.
+*Vulkan Configurator* allows overriding the [layers configuration](https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderInterfaceArchitecture.md#layers) used by Vulkan applications at runtime.
 
 A Vulkan application may configure layers when creating a Vulkan Instance. This layers configuration may be overridden using *Vulkan Configurator* globally or for a selected list of Vulkan applications.
 
