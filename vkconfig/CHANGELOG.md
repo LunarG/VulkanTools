@@ -11,7 +11,7 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.5.3](https://github.com/LunarG/VulkanTools/tree/main) - March 2023
+## [Vulkan Configurator 2.5.3](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.243.0) - March 2023
 
 ### Improvements:
 - Enabling fully generic layer settings for the validation layer settings
