@@ -11,7 +11,12 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.5.3](https://github.com/LunarG/VulkanTools/tree/main) - March 2023
+## [Vulkan Configurator 2.5.4](https://github.com/LunarG/VulkanTools/tree/main) - Mai 2023
+
+### Improvements:
+- Display `deviceUUID` and `driverUUID` in the "Development Status" when available for each physical device
+
+## [Vulkan Configurator 2.5.3](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.243.0) - March 2023
 
 ### Improvements:
 - Enabling fully generic layer settings for the validation layer settings

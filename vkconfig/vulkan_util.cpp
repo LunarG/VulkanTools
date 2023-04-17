@@ -50,6 +50,16 @@ static const char *GetPhysicalDeviceType(VkPhysicalDeviceType type) {
     return translation[type];
 }
 
+std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
+    std::string result;
+
+    for (std::size_t i = 0, n = VK_UUID_SIZE; i < n; ++i) {
+        result += format("%02X", deviceUUID[i]);
+    }
+
+    return result;
+}
+
 Version GetVulkanLoaderVersion() {
     // Check loader version
     QLibrary library(GetVulkanLibrary());
@@ -99,14 +109,17 @@ VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_
 
     // Handle Portability Enumeration requirements
     std::vector<const char *> instance_extensions;
-#if VK_KHR_portability_enumeration
+
     for (std::size_t i = 0, n = instance_properties.size(); i < n && enumerate_portability; ++i) {
-        if (instance_properties[i].extensionName == std::string(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
-            instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-            break;
+        if (instance_properties[i].extensionName == std::string(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME)) {
+            instance_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
         }
-    }
+#if VK_KHR_portability_enumeration
+        else if (instance_properties[i].extensionName == std::string(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
+            instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+        }
 #endif
+    }
 
     // Check Vulkan Devices
 
@@ -117,7 +130,7 @@ VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_
     app.applicationVersion = 0;
     app.pEngineName = VKCONFIG_SHORT_NAME;
     app.engineVersion = 0;
-    app.apiVersion = VK_API_VERSION_1_0;
+    app.apiVersion = VK_API_VERSION_1_1;
 
     VkInstanceCreateInfo inst_info = {};
     inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -252,11 +265,38 @@ std::string GenerateVulkanStatus() {
 
     PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices =
         (PFN_vkEnumeratePhysicalDevices)library.resolve("vkEnumeratePhysicalDevices");
+    assert(vkEnumeratePhysicalDevices);
+
+    PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties =
+        (PFN_vkEnumerateInstanceExtensionProperties)library.resolve("vkEnumerateInstanceExtensionProperties");
+    assert(vkEnumerateInstanceExtensionProperties);
+
+    VkResult result = VK_SUCCESS;
+
+    uint32_t instance_extension_count = 0;
+    result = vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr);
+
+    std::vector<VkExtensionProperties> instance_extensions;
+    if (instance_extension_count > 0) {
+        instance_extensions.resize(instance_extension_count);
+    }
+    result = vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions.data());
+
+    bool has_device_id = false;
+    if (result == VK_SUCCESS) {
+        for (std::size_t i = 0, n = instance_extensions.size(); i < n; ++i) {
+            if (instance_extensions[i].extensionName == std::string(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME)) {
+                has_device_id = true;
+                break;
+            }
+        }
+    }
 
     uint32_t gpu_count = 0;
     err = vkEnumeratePhysicalDevices(inst, &gpu_count, NULL);
 
     PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
+    assert(vkDestroyInstance);
 
     // This can fail on a new Linux setup. Check and fail gracefully rather than crash.
     if (err != VK_SUCCESS) {
@@ -273,16 +313,36 @@ std::string GenerateVulkanStatus() {
     err = vkEnumeratePhysicalDevices(inst, &gpu_count, &devices[0]);
     assert(!err);
 
-    PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties =
+    PFN_vkGetPhysicalDeviceProperties pfnGetPhysicalDeviceProperties =
         (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
+    assert(pfnGetPhysicalDeviceProperties);
 
     log += "- Physical Devices:\n";
     for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
         VkPhysicalDeviceProperties properties;
-        vkGetPhysicalDeviceProperties(devices[i], &properties);
-        log += format("    - %s (%s) with Vulkan %d.%d.%d\n", properties.deviceName, GetPhysicalDeviceType(properties.deviceType),
-                      VK_VERSION_MAJOR(properties.apiVersion), VK_VERSION_MINOR(properties.apiVersion),
-                      VK_VERSION_PATCH(properties.apiVersion));
+        pfnGetPhysicalDeviceProperties(devices[i], &properties);
+
+        const std::string vk_version = format("%d.%d.%d", VK_VERSION_MAJOR(properties.apiVersion),
+                                              VK_VERSION_MINOR(properties.apiVersion), VK_VERSION_PATCH(properties.apiVersion));
+
+        log += format("    - %s with Vulkan %s\n", properties.deviceName, vk_version.c_str());
+
+        if (has_device_id) {
+            PFN_vkGetPhysicalDeviceProperties2 pfnGetPhysicalDeviceProperties2 =
+                (PFN_vkGetPhysicalDeviceProperties2)library.resolve("vkGetPhysicalDeviceProperties2");
+            assert(pfnGetPhysicalDeviceProperties2);
+
+            VkPhysicalDeviceIDPropertiesKHR properties_deviceid{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES_KHR};
+            VkPhysicalDeviceProperties2 properties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, &properties_deviceid};
+
+            pfnGetPhysicalDeviceProperties2(devices[i], &properties2);
+
+            const std::string deviceUUID = GetUUIDString(properties_deviceid.deviceUUID);
+            log += format("        - deviceUUID: %s\n", deviceUUID.c_str());
+
+            const std::string driverUUID = GetUUIDString(properties_deviceid.driverUUID);
+            log += format("        - driverUUID: %s\n", driverUUID.c_str());
+        }
     }
 
     vkDestroyInstance(inst, NULL);
