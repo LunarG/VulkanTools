@@ -166,3 +166,5 @@ void Configurator::ResetToDefault(bool hard) {
 
     this->configurations.RefreshConfiguration(this->layers.available_layers);
 }
+
+std::vector<std::string> Configurator::GetDeviceNames() const { return device_names; }
