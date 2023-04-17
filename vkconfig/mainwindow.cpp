@@ -321,10 +321,7 @@ void MainWindow::LoadConfigurationList() {
     ui->configuration_tree->resizeColumnToContents(0);
     ui->configuration_tree->resizeColumnToContents(1);
 
-    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        _settings_tree_manager.CreateGUI(ui->settings_tree);
-    }
-
+    configurator.request_vulkan_status = true;
     this->UpdateUI();
 }
 

@@ -317,6 +317,9 @@ std::string GenerateVulkanStatus() {
         (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
     assert(pfnGetPhysicalDeviceProperties);
 
+    Configurator &configurator_edit = Configurator::Get();
+    configurator_edit.device_names.clear();
+
     log += "- Physical Devices:\n";
     for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
         VkPhysicalDeviceProperties properties;
@@ -343,6 +346,8 @@ std::string GenerateVulkanStatus() {
             const std::string driverUUID = GetUUIDString(properties_deviceid.driverUUID);
             log += format("        - driverUUID: %s\n", driverUUID.c_str());
         }
+
+        configurator_edit.device_names.push_back(properties.deviceName);
     }
 
     vkDestroyInstance(inst, NULL);

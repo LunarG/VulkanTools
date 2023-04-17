@@ -86,6 +86,28 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         }
         this->field->setCurrentIndex(selection);
         this->field->blockSignals(false);
+    } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
+        if (::CheckSettingOverridden(this->meta)) {
+            this->DisplayOverride(this->field, this->meta);
+        }
+
+        this->field->blockSignals(true);
+        this->field->clear();
+        this->enum_indexes.clear();
+
+        const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
+
+        int selection = 0;
+        const std::string value = this->data().value;
+        for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
+            this->field->addItem(devices[i].c_str());
+            if (devices[i] == value) {
+                selection = static_cast<int>(this->enum_indexes.size());
+            }
+            this->enum_indexes.push_back(i);
+        }
+        this->field->setCurrentIndex(selection);
+        this->field->blockSignals(false);
     } else if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
         if (::CheckSettingOverridden(this->meta)) {
             this->DisplayOverride(this->field, this->meta);
@@ -123,6 +145,11 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
             width = std::max(width, HorizontalAdvance(fm, (profiles[i] + "0000").c_str()));
         }
         this->item->setHidden(profiles.size() <= 1);
+    } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
+        const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
+        for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
+            width = std::max(width, HorizontalAdvance(fm, (devices[i] + "0000").c_str()));
+        }
     } else {
         for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
             width = std::max(width, HorizontalAdvance(fm, (this->meta.enum_values[i].label + "0000").c_str()));
@@ -140,6 +167,11 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
 
         this->data().value = profiles[index];
         this->item->setHidden(profiles.size() <= 1);
+    } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
+        const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
+        assert(index >= 0 && index < static_cast<int>(devices.size()));
+
+        this->data().value = devices[index];
     } else {
         assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 

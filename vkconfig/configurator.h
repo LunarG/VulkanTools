@@ -52,6 +52,8 @@ class Configurator {
 
     std::string profile_file;
 
+    std::vector<std::string> GetDeviceNames() const;
+
    private:
     Configurator(const std::string& VULKAN_SDK);
     ~Configurator();
@@ -66,5 +68,6 @@ class Configurator {
     Environment environment;
     LayerManager layers;
     ConfigurationManager configurations;
+    std::vector<std::string> device_names;
     bool request_vulkan_status;
 };
