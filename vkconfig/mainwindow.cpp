@@ -907,7 +907,6 @@ void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
         configurator.configurations.ReloadDefaultsConfigurations(configurator.layers.available_layers);
 
         LoadConfigurationList();
-        _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 }
 
