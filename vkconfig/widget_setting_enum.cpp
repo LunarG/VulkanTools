@@ -101,7 +101,8 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         const std::string value = this->data().value;
         for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
             this->field->addItem(devices[i].c_str());
-            if (devices[i] == value) {
+            if (devices[i] == value || "${VP_PHYSICAL_DEVICES}" == value) {
+                this->data().value = devices[i];
                 selection = static_cast<int>(this->enum_indexes.size());
             }
             this->enum_indexes.push_back(i);
