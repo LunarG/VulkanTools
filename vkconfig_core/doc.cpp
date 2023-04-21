@@ -155,11 +155,11 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
                 text += format("\t<li>Setting Level: %s</li>\n", GetToken(setting->view));
             }
 
-            text += "</ul>\n";
-
             text += format(
-                "\t<p>Setting Type: <span class=\"code\">%s</span> - Setting Default Value: <span class=\"code\">%s</span></p>\n",
+                "\t<li>Setting Type: <span class=\"code\">%s</span></li>\n\t<li>Setting Default Value: <span class=\"code\">%s</span></li>\n",
                 GetToken(setting->type), setting->Export(EXPORT_MODE_DOC).c_str());
+
+            text += "</ul>\n";
 
             if (IsEnum(setting->type) || IsFlags(setting->type)) {
                 const SettingMetaEnumeration& setting_enum = static_cast<const SettingMetaEnumeration&>(*setting);
@@ -223,13 +223,13 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
             } else {
                 text += "- Environment Variable: " + setting->env + "\n";
             }
-            text += "- Platforms: " + BuildPlatformsMarkdown(setting->platform_flags) + "\n\n";
+            text += "- Platforms: " + BuildPlatformsMarkdown(setting->platform_flags) + "\n";
 
             if (setting->view != SETTING_VIEW_STANDARD) {
-                text += format("Setting Level: %s\n", GetToken(setting->view));
+                text += format("- Setting Level: %s\n", GetToken(setting->view));
             }
 
-            text += format("Setting Type: %s - Setting Default Value: %s\n", GetToken(setting->type),
+            text += format("- Setting Type: %s\n- Setting Default Value: %s\n\n", GetToken(setting->type),
                            setting->Export(EXPORT_MODE_DOC).c_str());
 
             if (IsEnum(setting->type) || IsFlags(setting->type)) {
