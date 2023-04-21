@@ -837,13 +837,13 @@ class ApiDumpInstance {
 
     void update_object_name_map(const VkDebugMarkerObjectNameInfoEXT *pNameInfo) {
         if (pNameInfo->pObjectName)
-            object_name_map.emplace(pNameInfo->object, pNameInfo->pObjectName);
+            object_name_map[pNameInfo->object] = pNameInfo->pObjectName;
         else
             object_name_map.erase(pNameInfo->object);
     }
     void update_object_name_map(const VkDebugUtilsObjectNameInfoEXT *pNameInfo) {
         if (pNameInfo->pObjectName)
-            object_name_map.emplace(pNameInfo->objectHandle, pNameInfo->pObjectName);
+            object_name_map[pNameInfo->objectHandle] = pNameInfo->pObjectName;
         else
             object_name_map.erase(pNameInfo->objectHandle);
     }
