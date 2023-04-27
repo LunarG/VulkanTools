@@ -22,6 +22,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
 
 #define SUPPORT_LAYER_CONFIG_2_2_0 1
