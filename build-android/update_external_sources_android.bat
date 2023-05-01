@@ -228,7 +228,7 @@ goto:eof
    echo.
    echo Building %JSONCPP_DIR%
    cd  %JSONCPP_DIR%
-   python amalgamate.py
+   python3 amalgamate.py
 
    if not exist %JSONCPP_DIR%\dist\json\json.h (
       echo.
