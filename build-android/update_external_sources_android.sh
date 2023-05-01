@@ -112,7 +112,7 @@ function update_jsoncpp () {
 function build_jsoncpp () {
    echo "Building ${BASEDIR}/jsoncpp"
    cd ${BASEDIR}/jsoncpp
-   python amalgamate.py
+   python3 amalgamate.py
 }
 
 function create_vulkan-headers () {
