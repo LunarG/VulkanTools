@@ -613,7 +613,7 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVe
         self.layer_factory += '        }\n'
         self.layer_factory += '\n'
         self.layer_factory += '        bool Error(const std::string &message) {\n'
-        self.layer_factory += '            return log_msg(vlf_report_data, kDebugBit, VK_OBJECT_TYPE_UNKNOWN, 0,\n'
+        self.layer_factory += '            return log_msg(vlf_report_data, kVerboseBit, VK_OBJECT_TYPE_UNKNOWN, 0,\n'
         self.layer_factory += '                           layer_name.c_str(), "%s", message.c_str());\n'
         self.layer_factory += '        }\n'
         self.layer_factory += '\n'
