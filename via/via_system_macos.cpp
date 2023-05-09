@@ -21,6 +21,7 @@
 #ifdef VIA_MACOS_TARGET
 
 #include <cstring>
+#include <cctype>
 #include <sstream>
 #include <algorithm>
 
@@ -124,10 +125,8 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemEnvironmentInfo() {
             }
             if (NULL != strstr(path, "ProductName")) {
                 index = strlen("ProductName:");
-                while (path[index] == ' ' || path[index] == '\t' || path[index] == '\"') {
-                    index++;
-                }
                 _os_name = &path[index];
+                _os_name.erase(std::remove_if(_os_name.begin(), _os_name.end(), ::isspace), _os_name.end());
                 PrintBeginTableRow();
                 PrintTableElement("MacOS");
                 PrintTableElement("");
@@ -140,10 +139,8 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemEnvironmentInfo() {
                 PrintEndTableRow();
             } else if (NULL != strstr(path, "ProductVersion")) {
                 index = strlen("ProductVersion:");
-                while (path[index] == ' ' || path[index] == '\t' || path[index] == '\"') {
-                    index++;
-                }
                 std::string _os_version = &path[index];
+                _os_version.erase(std::remove_if(_os_version.begin(), _os_version.end(), ::isspace), _os_version.end());
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("Product Version");
@@ -151,10 +148,8 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemEnvironmentInfo() {
                 PrintEndTableRow();
             } else if (NULL != strstr(path, "BuildVersion")) {
                 index = strlen("BuildVersion:");
-                while (path[index] == ' ' || path[index] == '\t' || path[index] == '\"') {
-                    index++;
-                }
                 std::string _build_version = &path[index];
+                _build_version.erase(std::remove_if(_build_version.begin(), _build_version.end(), ::isspace), _build_version.end());
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("Build Version");
@@ -315,8 +310,8 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemExecutableInfo() {
     PrintBeginTableRow();
     PrintTableElement("Vulkan API Version");
     PrintTableElement(std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-        std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-        std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)));
+                      std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                      std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)));
     PrintEndTableRow();
 
     PrintBeginTableRow();
@@ -603,7 +598,7 @@ out:
     return found_json;
 }
 
-void ViaSystemMacOS::PrintDriverEnvVarInfo(const char* var, bool& found_json, bool& found_lib) {
+void ViaSystemMacOS::PrintDriverEnvVarInfo(const char *var, bool &found_json, bool &found_lib) {
     bool found_this_lib = false;
     char *env_var_value = getenv(var);
     if (NULL != env_var_value) {
@@ -1179,7 +1174,7 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintSystemImplicitLayerInfo() {
     return result;
 }
 
-ViaSystem::ViaResults ViaSystemMacOS::PrintLayerEnvVar(const char* var) {
+ViaSystem::ViaResults ViaSystemMacOS::PrintLayerEnvVar(const char *var) {
     ViaResults result = VIA_SUCCESSFUL;
 
     // Look at the environment variable paths if it is set.
