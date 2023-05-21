@@ -11,7 +11,7 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.5.4](https://github.com/LunarG/VulkanTools/tree/main) - Mai 2023
+## [Vulkan Configurator 2.5.4](https://github.com/LunarG/VulkanTools/tree/main) - May 2023
 
 ### Improvements:
 - Display `deviceUUID` and `driverUUID` in the "Development Status" when available for each physical device
@@ -96,7 +96,7 @@
 - Discard applied layers configuration to ensure the layers never crash Vulkan Configurator
 
 ### Fixes:
-- Fix 'Edit Layers' button being enabled when there is no active copnfiguration #1616
+- Fix 'Edit Layers' button being enabled when there is no active configuration #1616
 
 ## [Vulkan Configurator 2.4.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.189.0) - September 2021
 
@@ -132,7 +132,7 @@
 - Fix validation layer bool setting written in 'vk_layer-setting.txt' #1551
 - Fix upgrade of 'vkcube' path when the path is no longer valid
 
-## [Vulkan Configurator 2.3.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.176.0) - Mai 2021
+## [Vulkan Configurator 2.3.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.176.0) - May 2021
 
 ### Features:
 - Add Vulkan loader debug message to application launcher #1372
@@ -223,7 +223,7 @@
 ## [Vulkan Configurator 2.0.2](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.154.0) - October 2020
 
 ### Features:
-- Add multiple debug actions simulaneously #1119
+- Add multiple debug actions simultaneously #1119
 - Add better representation of the layers execution order #1181
 
 ### Improvements:
@@ -241,17 +241,17 @@
 ### Fixes:
 - Fix disabled configurations that can't be reenabled or removed
 - Fix display of custom layer paths #1101
-- Fix inconsistant display of separators in paths #1107
+- Fix inconsistent display of separators in paths #1107
 - Fix display of empty entries in the custom path dialog when opening Json files that are not layer json files #1103
 - Fix log file default location to `HOME` to ensure write access #1083
 - Fix log file not written to #1109
-- Fix `debug_output` setting displayed on Linux and macOS but not avaiable #1086
+- Fix `debug_output` setting displayed on Linux and macOS but not available #1086
 - Fix `numeric_bool` setting display #1166
 
 ## [Vulkan Configurator 2.0.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.148.1) - August 2020 (revision 1)
 
 ### Fixes:
-- Fix *Shader Printf* built-in configuration that was setup for *GPU-Assisted* validation isntead
+- Fix *Shader Printf* built-in configuration that was setup for *GPU-Assisted* validation instead
 - Fix layer configurations selection on Linux
 - Fix debug output setting not working
 
