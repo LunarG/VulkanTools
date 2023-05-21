@@ -214,7 +214,7 @@ To use, simply push it to the device and run it.  The resulting json file will b
 
 ## The VulkanTools repository
 
-### Cloning the repository and updaing subcomponents
+### Cloning the repository and updating subcomponents
 
 To create your local git repository of VulkanTools:
 ```
