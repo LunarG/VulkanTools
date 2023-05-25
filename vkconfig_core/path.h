@@ -59,6 +59,8 @@ class Path {
     std::string data;
 };
 
+std::string ConvertSeparators(const std::string& path, const char* native_separator, const char* alien_separator);
+
 std::string ConvertNativeSeparators(const std::string& path);
 
 const char* GetNativeSeparator();

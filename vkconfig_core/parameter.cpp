@@ -225,3 +225,18 @@ std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters
 
     return gathered_parameters;
 }
+
+bool UseBuiltinValidationSettings(const Parameter& parameter) {
+    if (parameter.key != "VK_LAYER_KHRONOS_validation") {
+        return false;
+    }
+
+    for (std::size_t j = 0, m = parameter.settings.size(); j < m; ++j) {
+        const SettingData* setting_data = parameter.settings[j];
+        if (setting_data->key == "validation_control") {
+            return false;
+        }
+    }
+
+    return true;
+}

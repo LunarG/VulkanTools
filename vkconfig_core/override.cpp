@@ -186,6 +186,8 @@ bool WriteSettingsOverride(const std::vector<Layer>& available_layers, const Con
 
         if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
+        const bool use_builtin_validation = UseBuiltinValidationSettings(parameter);
+
         stream << "\n";
         stream << "# " << layer->key.c_str() << "\n\n";
 
@@ -197,6 +199,16 @@ bool WriteSettingsOverride(const std::vector<Layer>& available_layers, const Con
             // Skip groups - they aren't settings, so not relevant in this output
             if (setting_data->type == SETTING_GROUP) {
                 continue;
+            }
+
+            if (!use_builtin_validation) {
+                if (setting_data->key == "enables") {
+                    continue;
+                }
+
+                if (setting_data->key == "disables") {
+                    continue;
+                }
             }
 
             // Skip missing settings
