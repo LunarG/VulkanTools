@@ -22,7 +22,6 @@
 #include "json.h"
 #include "util.h"
 
-#include <QFile>
 #include <QJsonDocument>
 
 #include <iostream>

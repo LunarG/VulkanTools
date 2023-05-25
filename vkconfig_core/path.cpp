@@ -303,6 +303,10 @@ static std::vector<std::string> LoadProfiles(const QJsonDocument& doc) {
 
 std::vector<std::string> GetProfileNames(const std::string& profile_path) {
     const std::string& value = ReplaceBuiltInVariable(profile_path);
+    if (value.empty()) {
+        return std::vector<std::string>();
+    }
+
     const QJsonDocument& doc = ParseJsonFile(value.c_str());
 
     if (doc.isNull() || doc.isEmpty()) {
