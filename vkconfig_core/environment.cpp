@@ -523,7 +523,9 @@ bool ExactExecutableFromAppBundle(std::string& app_path) {
     path += "/Contents/";
     std::string list_file = path + "Info.plist";
     QFile file(list_file.c_str());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
 
     QTextStream stream(&file);
 
