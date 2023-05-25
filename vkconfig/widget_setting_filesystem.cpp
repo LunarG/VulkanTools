@@ -137,6 +137,10 @@ void WidgetSettingFilesystem::browseButtonClicked() {
         file = ConvertNativeSeparators(file);
         LoadFile(file);
 
+        if (VKC_ENV == VKC_ENV_WIN32) {
+            file = ConvertSeparators(file, "/", GetNativeSeparator());
+        }
+
         this->data().value = file;
 
         field->setText(this->data().value.c_str());
@@ -146,7 +150,8 @@ void WidgetSettingFilesystem::browseButtonClicked() {
 }
 
 void WidgetSettingFilesystem::textFieldChanged(const QString& value) {
-    this->data().value = value.toStdString();
+    std::string file = value.toStdString();
+    this->data().value = file;
     this->field->setToolTip(this->field->text());
 
     emit itemChanged();

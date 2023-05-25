@@ -88,7 +88,9 @@ static bool IsDLL32Bit(const std::string full_path) {
     if (full_path.empty()) return false;
 
     QFile file(full_path.c_str());
-    if (!file.open(QIODevice::ReadOnly)) return false;  // punt...
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;  // punt...
+    }
 
     // Not gonna lie, just guessed 1024 and it was enough.
     // This is the minimum page size on any OS (I might be wrong,

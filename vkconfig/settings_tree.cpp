@@ -52,21 +52,6 @@ static const char *TOOLTIP_ORDER =
 
 SettingsTreeManager::SettingsTreeManager() : tree(nullptr) {}
 
-bool SettingsTreeManager::UseBuiltinValidationUI(Parameter &parameter) const {
-    if (parameter.key != "VK_LAYER_KHRONOS_validation") {
-        return false;
-    }
-
-    for (std::size_t j = 0, m = parameter.settings.size(); j < m; ++j) {
-        const SettingData *setting_data = parameter.settings[j];
-        if (setting_data->key == "validation_control") {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     assert(build_tree);
 
@@ -152,7 +137,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
                 this->connect(presets_combobox, SIGNAL(itemChanged()), this, SLOT(OnPresetChanged()));
             }
 
-            if (UseBuiltinValidationUI(parameter)) {
+            if (UseBuiltinValidationSettings(parameter)) {
                 BuildValidationTree(layer_item, parameter);
             } else {
                 BuildGenericTree(layer_item, parameter);

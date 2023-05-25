@@ -67,3 +67,5 @@ bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector
 
 std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters);
 std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
+
+bool UseBuiltinValidationSettings(const Parameter& parameter);

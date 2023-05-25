@@ -66,8 +66,13 @@ std::string SettingDataFilesystem::Export(ExportMode export_mode) const {
         default:
             assert(0);
             return "";
-        case EXPORT_MODE_OVERRIDE:
-            return ReplaceBuiltInVariable(this->value).c_str();
+        case EXPORT_MODE_OVERRIDE: {
+            std::string file = this->value;
+            if (VKC_ENV == VKC_ENV_WIN32) {
+                file = ConvertSeparators(file, "/", GetNativeSeparator());
+            }
+            return ReplaceBuiltInVariable(file).c_str();
+        }
         case EXPORT_MODE_DOC:
             return this->value;
     }
