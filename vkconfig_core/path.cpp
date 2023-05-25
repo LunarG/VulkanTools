@@ -219,10 +219,8 @@ std::string ReplaceBuiltInVariable(const std::string& path) {
     return path;
 }
 
-std::string ConvertNativeSeparators(const std::string& path) {
-    const char* native_separator = GetNativeSeparator();
+std::string ConvertSeparators(const std::string& path, const char* native_separator, const char* alien_separator) {
     const std::size_t native_separator_size = std::strlen(native_separator);
-    const char* alien_separator = VKC_ENV != VKC_ENV_WIN32 ? "\\" : "/";
     const std::size_t alien_separator_size = std::strlen(alien_separator);
 
     std::string current_path = path;
@@ -248,6 +246,13 @@ std::string ConvertNativeSeparators(const std::string& path) {
 const char* GetNativeSeparator() {
     static const char* native_separator = VKC_ENV == VKC_ENV_WIN32 ? "\\" : "/";
     return native_separator;
+}
+
+std::string ConvertNativeSeparators(const std::string& path) {
+    const char* native_separator = GetNativeSeparator();
+    const char* alien_separator = VKC_ENV != VKC_ENV_WIN32 ? "\\" : "/";
+
+    return ConvertSeparators(path, native_separator, alien_separator);
 }
 
 static bool IsPortableChar(char c) {
