@@ -108,7 +108,6 @@ if (APPLE)
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_BINARY_DIR}
         ${Vulkan-ValidationLayers_INCLUDE_DIR}
-        ${JSONCPP_INCLUDE_DIR}
     )
 else ()
     include_directories(
@@ -116,7 +115,6 @@ else ()
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_BINARY_DIR}
         ${Vulkan-ValidationLayers_INCLUDE_DIR}
-        ${JSONCPP_INCLUDE_DIR}
     )
 endif()
 

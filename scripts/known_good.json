@@ -74,11 +74,27 @@
       "cmake_options" : [
         "-DBUILD_TESTS=FALSE","-DBUILD_LAYERS=OFF","-DBUILD_LAYER_SUPPORT_FILES=ON","-DUSE_ROBIN_HOOD_HASHING=OFF"
       ]
+    },
+    {
+        "name": "jsoncpp",
+        "url": "https://github.com/open-source-parsers/jsoncpp.git",
+        "sub_dir": "jsoncpp",
+        "build_dir": "jsoncpp/build",
+        "install_dir": "jsoncpp/build/install",
+        "commit": "1.9.5",
+        "cmake_options": [
+            "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+            "-DJSONCPP_WITH_TESTS=OFF",
+            "-DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF",
+            "-DJSONCPP_WITH_WARNING_AS_ERROR=OFF",
+            "-DJSONCPP_WITH_PKGCONFIG_SUPPORT=OFF"
+        ]
     }
   ],
   "install_names" : {
       "Vulkan-Headers" : "VULKAN_HEADERS_INSTALL_DIR",
       "Vulkan-Loader" : "VULKAN_LOADER_INSTALL_DIR",
-      "Vulkan-ValidationLayers" : "VULKAN_VALIDATIONLAYERS_INSTALL_DIR"
+      "Vulkan-ValidationLayers" : "VULKAN_VALIDATIONLAYERS_INSTALL_DIR",
+      "jsoncpp": "JSONCPP_INSTALL_DIR"
     }
 }
