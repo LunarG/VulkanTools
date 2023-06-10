@@ -61,6 +61,8 @@
 #include <utility>
 
 #ifdef ANDROID
+#include <memory>
+#include <string_view>
 
 #include <android/log.h>
 #include <sys/system_properties.h>
@@ -241,9 +243,96 @@ class ConditionalFrameOutput {
     }
 };
 
+#ifdef __ANDROID__
+template <class char_type = char, class traits = std::char_traits<char_type>>
+class AndroidLogcatBuf final : public std::basic_streambuf<char_type, traits> {
+   public:
+    class LogWriter {
+       public:
+        virtual void write(const std::basic_string<char_type, traits> &data) = 0;
+        virtual ~LogWriter() {}
+    };
+
+    // bufsize should be smaller than 0x400, because `__android_log_print` uses `vsnprintf` with a 1024 buffer size. If bufsize here
+    // is greater or close to 1024, the log will be truncated.
+    AndroidLogcatBuf(std::unique_ptr<LogWriter> log_writer, size_t bufsize = 0x200)
+        : buffer_(std::make_unique<char_type[]>(bufsize)), bufsize_(bufsize), log_writer_(std::move(log_writer)) {
+        // We use the last position of buffer_ to store the overflow character. We use 0 as a sentinel element to indicate if this
+        // overflow slot is in use.
+        this->setp(buffer_.get(), buffer_.get() + bufsize_ - 1);
+    }
+    ~AndroidLogcatBuf() = default;
+
+   private:
+    using int_type = typename traits::int_type;
+    int_type overflow(int_type c) override {
+        // Conform with the C++ standard. Return not eof when called with eof:
+        // https://en.cppreference.com/w/cpp/io/basic_stringbuf/overflow.
+        if (c == traits::eof()) {
+            return traits::not_eof(c);
+        }
+        buffer_[bufsize_ - 1] = traits::to_char_type(c);
+        flushPending();
+        buffer_[bufsize_ - 1] = traits::to_char_type(0);
+        return traits::not_eof(c);
+    }
+
+    int sync() override {
+        flushPending();
+        if (!pending_content_.empty()) {
+            // Also write data after the last new line.
+            log_writer_->write(pending_content_);
+            pending_content_.clear();
+        }
+        return 0;
+    }
+
+    // Flush pending_content_ + buffer_ up to the last new line to the log writer, and always move whatever is left in buffer_ to
+    // pending_content_.
+    void flushPending() {
+        auto len = this->pptr() - this->pbase();
+        if (this->pptr() == buffer_.get() + bufsize_ - 1 && buffer_[bufsize_ - 1] != traits::to_char_type(0)) {
+            len++;
+        }
+        constexpr size_t npos = std::basic_string_view<char_type, traits>::npos;
+        std::basic_string_view<char_type, traits> buf_content(this->pbase(), len);
+        std::size_t last_new_line_pos = buf_content.find_last_of(traits::to_char_type('\n'));
+        if (last_new_line_pos == npos) {
+            pending_content_.append(buf_content);
+            this->setp(buffer_.get(), buffer_.get() + bufsize_ - 1);
+            return;
+        }
+        std::basic_string_view<char_type, traits> before_new_line = buf_content.substr(0, last_new_line_pos);
+        std::basic_string<char_type, traits> to_print = std::move(pending_content_);
+        to_print.append(before_new_line);
+        if (!to_print.empty()) {
+            log_writer_->write(to_print);
+        }
+        std::basic_string_view<char_type, traits> after_new_line = buf_content.substr(last_new_line_pos + 1);
+        pending_content_ = std::basic_string<char_type, traits>(after_new_line);
+        this->setp(buffer_.get(), buffer_.get() + bufsize_ - 1);
+    }
+
+    std::unique_ptr<char_type[]> buffer_;
+    size_t bufsize_;
+    std::basic_string<char_type, traits> pending_content_;
+    std::unique_ptr<LogWriter> log_writer_;
+};
+
+class AndroidLogcatWriter final : public AndroidLogcatBuf<>::LogWriter {
+   public:
+    AndroidLogcatWriter() = default;
+    void write(const std::string &content) override { __android_log_print(ANDROID_LOG_INFO, "api_dump", "%s", content.c_str()); }
+};
+#endif
+
 class ApiDumpSettings {
    public:
     ApiDumpSettings() : output_stream(std::cout.rdbuf()) {
+#ifdef __ANDROID__
+        android_logcat_buf = std::make_unique<AndroidLogcatBuf<>>(std::make_unique<AndroidLogcatWriter>());
+        output_stream.rdbuf(android_logcat_buf.get());
+#endif
         std::string filename_string = "";
         // If the layer settings file has a flag indicating to output to a file,
         // do so, to the appropriate filename.
@@ -673,6 +762,9 @@ class ApiDumpSettings {
     // Since basically every function in this struct is const, we have to work around that.
     mutable std::ostream output_stream;
     std::ofstream output_file_stream;
+#ifdef __ANDROID__
+    std::unique_ptr<AndroidLogcatBuf<>> android_logcat_buf = nullptr;
+#endif
     ApiDumpFormat output_format;
     bool show_params;
     bool show_address;
