@@ -819,6 +819,7 @@ static bool writePPM(const char *filename, VkImage image1) {
                                        need2steps ? VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT : VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
                                        &memAllocInfo.memoryTypeIndex);
     assert(pass);
+    (void)pass;
     err = pTableDevice->AllocateMemory(device, &memAllocInfo, NULL, &data.mem2);
     assert(!err);
     if (VK_SUCCESS != err) return false;
@@ -837,6 +838,7 @@ static bool writePPM(const char *filename, VkImage image1) {
         pass = memory_type_from_properties(&memoryProperties, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
                                            &memAllocInfo.memoryTypeIndex);
         assert(pass);
+        (void)pass;
         err = pTableDevice->AllocateMemory(device, &memAllocInfo, NULL, &data.mem3);
         assert(!err);
         if (VK_SUCCESS != err) return false;
