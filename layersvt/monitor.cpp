@@ -32,7 +32,7 @@
 #include <vulkan/vk_layer.h>
 #include <vulkan/vulkan.h>
 
-#if defined(__linux__ )
+#if defined(__linux__)
 #include <dlfcn.h>
 #endif
 
@@ -43,38 +43,38 @@
 #define TITLE_LENGTH 1000
 #define FPS_LENGTH 24
 struct monitor_layer_data {
-    VkLayerDispatchTable *device_dispatch_table;
-    VkLayerInstanceDispatchTable *instance_dispatch_table;
+    VkLayerDispatchTable *device_dispatch_table{};
+    VkLayerInstanceDispatchTable *instance_dispatch_table{};
 
-    PFN_vkQueuePresentKHR pfnQueuePresentKHR;
+    PFN_vkQueuePresentKHR pfnQueuePresentKHR{};
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    HWND hwnd;
+    HWND hwnd{};
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
-    xcb_connection_t *connection;
-    xcb_window_t xcb_window;
-    bool xcb_fps;
+    xcb_connection_t *connection{};
+    xcb_window_t xcb_window{};
+    bool xcb_fps{};
 #endif
-    char base_title[TITLE_LENGTH];
+    char base_title[TITLE_LENGTH]{};
+    bool got_title = false;
+    VkPhysicalDevice gpu{};
+    VkDevice device{};
 
-    VkPhysicalDevice gpu;
-    VkDevice device;
-
-    PFN_vkSetDeviceLoaderData pfn_dev_init;
-    int lastFrame;
-    time_t lastTime;
-    float fps;
-    int frame;
+    PFN_vkSetDeviceLoaderData pfn_dev_init{};
+    int lastFrame{};
+    time_t lastTime{};
+    float fps{};
+    int frame{};
 };
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
 static struct {
-    void *xcbLib;
-    decltype(xcb_change_property) *change_property;
-    decltype(xcb_flush) *flush;
-    decltype(xcb_get_property) *get_property;
-    decltype(xcb_get_property_reply) *get_property_reply;
-    decltype(xcb_get_property_value_length) *get_property_value_length;
-    decltype(xcb_get_property_value) *get_property_value;
+    void *xcbLib{};
+    decltype(xcb_change_property) *change_property{};
+    decltype(xcb_flush) *flush{};
+    decltype(xcb_get_property) *get_property{};
+    decltype(xcb_get_property_reply) *get_property_reply{};
+    decltype(xcb_get_property_value_length) *get_property_value_length{};
+    decltype(xcb_get_property_value) *get_property_value{};
 } xcb = {NULL};
 #endif
 
@@ -255,11 +255,19 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(VkQueue queue, const VkPresentI
         my_data->fps = (my_data->frame - my_data->lastFrame) / seconds;
         my_data->lastFrame = my_data->frame;
         my_data->lastTime = now;
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+        if (IsWindow(my_instance_data->hwnd) && !my_instance_data->got_title) {
+            GetWindowText(my_instance_data->hwnd, my_instance_data->base_title, TITLE_LENGTH);
+            my_instance_data->got_title = true;
+        }
+#endif
         sprintf(fpsstr, "   FPS = %.2f", my_data->fps);
         strcpy(str, my_instance_data->base_title);
         strcat(str, fpsstr);
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        SetWindowText(my_instance_data->hwnd, str);
+        if (IsWindow(my_instance_data->hwnd)) {
+            SetWindowText(my_instance_data->hwnd, str);
+        }
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
         if (xcb.xcbLib && my_instance_data->xcb_fps && my_instance_data->connection) {
             xcb.change_property(my_instance_data->connection, XCB_PROP_MODE_REPLACE, my_instance_data->xcb_window, XCB_ATOM_WM_NAME,
@@ -312,7 +320,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance instance,
                                                                        VkSurfaceKHR *pSurface) {
     monitor_layer_data *my_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
     my_data->hwnd = pCreateInfo->hwnd;
-    GetWindowText(my_data->hwnd, my_data->base_title, TITLE_LENGTH);
 
     VkResult result = my_data->instance_dispatch_table->CreateWin32SurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
     return result;
