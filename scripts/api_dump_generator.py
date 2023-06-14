@@ -431,23 +431,6 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
 void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
 
-//============================= typedefs ==============================//
-
-@if(not {isVideoGeneration})
-// Functions for dumping typedef types that the codegen scripting can't handle
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_text_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
-void dump_text_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
-{{
-    dump_text_VkAccelerationStructureTypeKHR(object, settings, indents);
-}}
-void dump_text_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
-void dump_text_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
-{{
-    dump_text_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
-}}
-#endif // VK_ENABLE_BETA_EXTENSIONS
-@end if
 //=========================== Type Implementations ==========================//
 
 @foreach type where('{etyName}' != 'void')
@@ -841,24 +824,6 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
 void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
 
-//============================= typedefs ==============================//
-
-@if(not {isVideoGeneration})
-// Functions for dumping typedef types that the codegen scripting can't handle
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_html_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
-void dump_html_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
-{{
-    dump_html_VkAccelerationStructureTypeKHR(object, settings, indents);
-}}
-void dump_html_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
-void dump_html_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
-{{
-    dump_html_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
-}}
-#endif // VK_ENABLE_BETA_EXTENSIONS
-@end if
-
 //=========================== Type Implementations ==========================//
 
 @foreach type where('{etyName}' != 'void')
@@ -1227,24 +1192,6 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
 @foreach union
 void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
 @end union
-
-//============================= typedefs ==============================//
-
-@if(not {isVideoGeneration})
-// Functions for dumping typedef types that the codegen scripting can't handle
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_json_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents);
-void dump_json_VkAccelerationStructureTypeNV(VkAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
-{{
-    dump_json_VkAccelerationStructureTypeKHR(object, settings, indents);
-}}
-void dump_json_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents);
-void dump_json_VkBuildAccelerationStructureFlagsNV(VkBuildAccelerationStructureFlagsNV object, const ApiDumpSettings& settings, int indents)
-{{
-    dump_json_VkBuildAccelerationStructureFlagsKHR(object, settings, indents);
-}}
-#endif // VK_ENABLE_BETA_EXTENSIONS
-@end if
 
 //=========================== Type Implementations ==========================//
 
@@ -1779,9 +1726,6 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
         self.registryFile = registryFile
 
-        # Used to track duplications (thanks 1.1 spec)
-        self.trackedTypes = []
-
     def beginFile(self, genOpts):
         gen.OutputGenerator.beginFile(self, genOpts)
         self.format = genOpts.input
@@ -1857,6 +1801,12 @@ class ApiDumpOutputGenerator(OutputGenerator):
                     variable.is_struct = True
                 if variable.typeID in self.unions:
                     variable.is_union = True
+
+        # Replace any types that are aliases with the non-aliased type
+        for struct in self.structs.values():
+            for member in struct.members:
+                if member.typeID in self.aliases:
+                    member.typeID = self.aliases[member.typeID]
 
 
         # Find every @foreach, @if, and @end
@@ -1955,12 +1905,8 @@ class ApiDumpOutputGenerator(OutputGenerator):
         gen.OutputGenerator.genGroup(self, groupinfo, groupName, alias)
 
         if alias is not None:
-            trackedName = alias
-        else:
-            trackedName = groupName
-        if trackedName in self.trackedTypes:
+            self.aliases[groupName] = alias
             return
-        self.trackedTypes.append(trackedName)
 
         if groupinfo.elem.get('type') == 'bitmask':
             self.bitmasks[groupinfo.elem.get('name')] = VulkanBitmask(groupinfo.elem, self.extensions)
@@ -1971,14 +1917,8 @@ class ApiDumpOutputGenerator(OutputGenerator):
         gen.OutputGenerator.genType(self, typeinfo, name, alias)
 
         if alias is not None:
-            trackedName = alias
-            if typeinfo.elem.get('category') == 'struct':
-                self.aliases[name] = alias
-        else:
-            trackedName = name
-        if trackedName in self.trackedTypes:
+            self.aliases[name] = alias
             return
-        self.trackedTypes.append(trackedName)
 
         if typeinfo.elem.get('category') == 'struct':
             self.structs[typeinfo.elem.get('name')] = VulkanStruct(typeinfo.elem, self.constants, self.enums)
@@ -2503,9 +2443,6 @@ class VulkanHandle:
             'hdlType': self.type,
             'hdlParent': self.parent,
         }
-
-def str_VkStructureTypeToEnum(structureType):
-    return structureType.title().replace('_', '').replace('VkStructureType','Vk')
 
 class VulkanStruct:
 
