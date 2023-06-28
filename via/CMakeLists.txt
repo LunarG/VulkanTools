@@ -5,14 +5,6 @@ file(COPY ${TEXTURES} DESTINATION ${CMAKE_BINARY_DIR}/via/images)
 
 if(WIN32)
 
-    # Use static MSVCRT libraries
-    foreach(configuration in CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
-                             CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-        if(${configuration} MATCHES "/MD")
-            string(REGEX REPLACE "/MD" "/MT" ${configuration} "${${configuration}}")
-        endif()
-    endforeach()
-
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_CRT_SECURE_NO_WARNINGS -D_USE_MATH_DEFINES")
     add_definitions(-DVIA_WINDOWS_TARGET)
