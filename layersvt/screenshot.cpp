@@ -111,6 +111,8 @@ static inline char *local_getenv(const char *name) {
 static inline void local_free_getenv(const char *val) { free((void *)val); }
 #endif
 
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+
 namespace screenshot {
 
 std::mutex globalLock;
