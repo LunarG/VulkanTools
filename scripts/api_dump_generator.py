@@ -82,6 +82,8 @@ COMMON_CODEGEN = """
 #include "api_dump_html.h"
 #include "api_dump_json.h"
 
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+
 // Specifically implemented functions
 
 #if defined(__GNUC__) && __GNUC__ >= 4
