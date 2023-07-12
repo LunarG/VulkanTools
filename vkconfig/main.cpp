@@ -24,8 +24,6 @@
 #include "main_doc.h"
 #include "main_signal.h"
 
-#include "../vkconfig_core/command_line.h"
-
 #include <cassert>
 
 int main(int argc, char* argv[]) {
