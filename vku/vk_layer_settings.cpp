@@ -37,8 +37,6 @@
 #include <regex>
 #include <sys/stat.h>
 
-#include <vulkan/vk_layer.h>
-
 #if defined(_WIN32)
 #include <windows.h>
 #include <direct.h>
