@@ -167,7 +167,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     option(BUILD_APIDUMP "Build api_dump layer" ON)
     option(BUILD_MONITOR "Build monitor layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
-    option(BUILD_VLF "Build layer_factory" ON)
     option(BUILD_VIA "Build via" ON)
 
     option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
@@ -179,7 +178,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     option(BUILD_APIDUMP "Build api_dump layer" ON)
     option(BUILD_MONITOR "Build monitor layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
-    option(BUILD_VLF OFF)
     option(BUILD_DEMOS OFF)
     option(BUILD_VKJSON OFF)
     option(BUILD_VIA "Build VIA" ON)
@@ -205,10 +203,6 @@ endfunction()
 
 if(BUILD_TESTS)
     add_subdirectory(tests)
-endif()
-
-if(BUILD_VLF)
-    add_subdirectory(layer_factory)
 endif()
 
 if(BUILD_VIA)

@@ -1,6 +1,0 @@
-LIBRARY VkLayer_layer_factory
-EXPORTS
-vkGetInstanceProcAddr
-vkGetDeviceProcAddr
-vkEnumerateInstanceLayerProperties
-vkEnumerateInstanceExtensionProperties
