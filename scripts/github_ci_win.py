@@ -43,8 +43,8 @@ def RunShellCmd(command, start_dir = PROJECT_ROOT):
         start_dir = repo_relative(start_dir)
     cmd_list = command.split(" ")
     subprocess.check_call(cmd_list, cwd=start_dir)
- 
- 
+
+
 # TODO: Pass this in as arg, may be useful for running locally
 EXTERNAL_DIR_NAME = "external"
 BUILD_DIR_NAME = "build"
@@ -69,14 +69,14 @@ def BuildVT(args):
 
     print("Run update_external_sources.bat")
     RunShellCmd('update_external_sources.bat')
-    
+
     print("Run update_deps.py for VT Repository")
     update_cmd = 'python3 scripts/update_deps.py --dir %s --config %s --arch %s' % (EXTERNAL_DIR_NAME, args.configuration.lower(), args.arch.lower())
     RunShellCmd(update_cmd)
 
     CreateBuildDirectory(VT_BUILD_DIR)
     print("Run CMake")
-    cmake_cmd = 'cmake -A %s -C ../%s/helper.cmake -DBUILD_VLF=OFF -DUSE_CCACHE=ON ..' % (args.arch, EXTERNAL_DIR_NAME)
+    cmake_cmd = 'cmake -A %s -C ../%s/helper.cmake -DUSE_CCACHE=ON ..' % (args.arch, EXTERNAL_DIR_NAME)
     RunShellCmd(cmake_cmd, VT_BUILD_DIR)
 
     print("Build Vulkan Tools")

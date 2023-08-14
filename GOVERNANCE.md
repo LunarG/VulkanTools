@@ -5,7 +5,6 @@
 * Provide tools to aid in the development of Vulkan applications. Current tools include:
   * via - Vulkan Installation Analyzer
   * layers: device simulation, api dump, fps monitor, screenshot
-  * layer factory: framework that facilitates the creation of new layers
 * Platform support:
   * Windows
   * Linux

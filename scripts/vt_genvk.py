@@ -124,56 +124,6 @@ def makeGenOpts(args):
     # An API style convention object
     conventions = VulkanConventions()
 
-    # Options for Vulkan Layer Factory header
-    genOpts['layer_factory.h'] = [
-          LayerFactoryOutputGenerator,
-          LayerFactoryGeneratorOptions(
-            conventions       = conventions,
-            filename          = 'layer_factory.h',
-            directory         = directory,
-            genpath           = None,
-            apiname           = 'vulkan',
-            profile           = None,
-            versions          = featuresPat,
-            emitversions      = featuresPat,
-            defaultExtensions = 'vulkan',
-            addExtensions     = addExtensionsPat,
-            removeExtensions  = removeExtensionsPat,
-            emitExtensions    = emitExtensionsPat,
-            prefixText        = prefixStrings + vkPrefixStrings,
-            apicall           = 'VKAPI_ATTR ',
-            apientry          = 'VKAPI_CALL ',
-            apientryp         = 'VKAPI_PTR *',
-            alignFuncParam    = 48,
-            helper_file_type  = 'layer_factory_header',
-            expandEnumerants = False)
-        ]
-
-    # Options for Vulkan Layer Factory source file
-    genOpts['layer_factory.cpp'] = [
-          LayerFactoryOutputGenerator,
-          LayerFactoryGeneratorOptions(
-            conventions       = conventions,
-            filename          = 'layer_factory.cpp',
-            directory         = directory,
-            genpath           = None,
-            apiname           = 'vulkan',
-            profile           = None,
-            versions          = featuresPat,
-            emitversions      = featuresPat,
-            defaultExtensions = 'vulkan',
-            addExtensions     = addExtensionsPat,
-            removeExtensions  = removeExtensionsPat,
-            emitExtensions    = emitExtensionsPat,
-            prefixText        = prefixStrings + vkPrefixStrings,
-            apicall           = 'VKAPI_ATTR ',
-            apientry          = 'VKAPI_CALL ',
-            apientryp         = 'VKAPI_PTR *',
-            alignFuncParam    = 48,
-            helper_file_type  = 'layer_factory_source',
-            expandEnumerants = False)
-        ]
-
     # API dump generator options for api_dump.cpp
     genOpts['api_dump.cpp'] = [
         ApiDumpOutputGenerator,
@@ -541,7 +491,6 @@ if __name__ == '__main__':
     # VulkanTools generator additions
     from tool_helper_file_generator import ToolHelperFileOutputGenerator, ToolHelperFileOutputGeneratorOptions
     from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN, HTML_CODEGEN, JSON_CODEGEN
-    from layer_factory_generator import LayerFactoryGeneratorOptions, LayerFactoryOutputGenerator
     from vkconventions import VulkanConventions
 
     # This splits arguments which are space-separated lists

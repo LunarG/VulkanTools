@@ -43,8 +43,8 @@ def RunShellCmd(command, start_dir = PROJECT_ROOT):
         start_dir = repo_relative(start_dir)
     cmd_list = command.split(" ")
     subprocess.check_call(cmd_list, cwd=start_dir)
- 
- 
+
+
 # TODO: Pass this in as arg, may be useful for running locally
 EXTERNAL_DIR_NAME = "external"
 BUILD_DIR_NAME = "build"
@@ -70,7 +70,7 @@ def BuildVT(args):
 
     print("Run update_external_sources.sh")
     RunShellCmd('./update_external_sources.sh')
-    
+
     print("Run update_deps.py for VT Repository")
     update_cmd = 'python3 scripts/update_deps.py --dir %s --config %s --arch x64' % (EXTERNAL_DIR_NAME, args.configuration)
     RunShellCmd(update_cmd)
@@ -114,13 +114,10 @@ def RunATest(vt_cmd, vt_env):
 def RunVTTests(args):
     print("Run VulkanTools Tests using Mock ICD")
     os.chdir(PROJECT_ROOT)
-    vt_cmd = '%s/tests/vlf_test.sh -t %s/Vulkan-Tools/%s' % (BUILD_DIR_NAME, EXTERNAL_DIR, BUILD_DIR_NAME)
     vt_env = dict(os.environ)
     vt_env['LD_LIBRARY_PATH'] = '%s/Vulkan-Loader/%s/loader' % (EXTERNAL_DIR, BUILD_DIR_NAME)
     vt_env['VK_LAYER_PATH'] = '%s/%s/layersvt:%s/%s/layers' % (PROJECT_ROOT, BUILD_DIR_NAME, PROJECT_ROOT, BUILD_DIR_NAME)
     vt_env['VK_ICD_FILENAMES'] = '%s/Vulkan-Tools/%s/icd/VkICD_mock_icd.json' % (EXTERNAL_DIR, BUILD_DIR_NAME)
-    vt_cmd = '%s/tests/vlf_test.sh -t %s/Vulkan-Tools/%s' % (BUILD_DIR_NAME, EXTERNAL_DIR, BUILD_DIR_NAME)
-    RunATest(vt_cmd, vt_env)
     vt_cmd = '%s/tests/apidump_test.sh -t %s/Vulkan-Tools/%s' % (BUILD_DIR_NAME, EXTERNAL_DIR, BUILD_DIR_NAME)
     RunATest(vt_cmd, vt_env)
 

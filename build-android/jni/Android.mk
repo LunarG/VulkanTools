@@ -39,9 +39,6 @@ LOCAL_CPPFLAGS += -std=c++17 -Wall -Werror -Wno-unused-function -Wno-unused-cons
 LOCAL_CPPFLAGS += -DVK_ENABLE_BETA_EXTENSIONS -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES -fvisibility=hidden
 include $(BUILD_STATIC_LIBRARY)
 
-# Pick up VLF layers
-include $(LOCAL_PATH)/$(LAYER_DIR)/include/Android.mk
-
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_api_dump
 LOCAL_SRC_FILES += $(LAYER_DIR)/include/api_dump.cpp
