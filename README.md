@@ -15,25 +15,6 @@ Both these tools are also no longer part of the [Vulkan SDK](https://www.lunarg.
 
 Vulkan-Layer-Factory is deprecated and has been archived in its own repository which is available [here](https://github.com/LunarG/Vulkan-Layer-Factory).
 
-## Default branch changed to 'main' 2023-01-17
-
-The default branch of this repository is now 'main'. This change should be largely transparent to repository users, since github rewrites many references to the old 'master' branch to 'main'. However, if you have a checked-out local clone, you may wish to take the following steps as recommended by github:
-
-```sh
-git branch -m master main
-git fetch origin
-git branch -u origin/main main
-git remote set-head origin -a
-```
-
-## CI Build Status
-| Build Status                                                                                                                                                       |
-| :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_windows.yml/badge.svg?branch=main)](https://github.com/LunarG/VulkanTools/actions)  |
-| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_linux.yml/badge.svg?branch=main)](https://github.com/LunarG/VulkanTools/actions)    |
-| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_linux_gn.yml/badge.svg?branch=main)](https://github.com/LunarG/VulkanTools/actions) |
-| [![Build Status](https://github.com/LunarG/VulkanTools/actions/workflows/build_android.yml/badge.svg?branch=main)](https://github.com/LunarG/VulkanTools/actions)  |
-
 ## Contributing
 
 If you intend to contribute, the preferred work flow is for you to develop your contribution
