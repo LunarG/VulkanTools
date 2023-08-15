@@ -693,6 +693,9 @@ void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings,
         settings.stream() << "address (Union):\\n";
 
     @foreach choice
+    @if('{chcCondition}' != 'None')
+    if({chcCondition})
+    @end if
     @if({chcPtrLevel} == 0)
     dump_text_value<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_text_{chcTypeID}); // LET
     @end if
@@ -1103,6 +1106,9 @@ void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings,
     settings.stream() << "</div></summary>";
 
     @foreach choice
+    @if('{chcCondition}' != 'None')
+    if({chcCondition})
+    @end if
     @if({chcPtrLevel} == 0)
     dump_html_value<const {chcBaseType}>(object.{chcName}, settings, "{chcType}", "{chcName}", indents + 1, dump_html_{chcTypeID});
     @end if
@@ -1468,8 +1474,11 @@ void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings,
     settings.stream() << settings.indentation(indents) << "[\\n";
 
     @foreach choice
-    @if({chcIndex} != 0)
-    settings.stream() << ",\\n";
+    @if('{chcCondition}' != 'None')
+    if({chcCondition})
+    @end if
+    @if({chcIndex} != 0 and '{chcCondition}' == 'None')
+    settings.stream() << ",\\n"; // Only need commas when more than one field is printed
     @end if
     @if({chcPtrLevel} == 0)
     dump_json_value<const {chcBaseType}>(object.{chcName}, NULL, settings, "{chcType}", "{chcName}", {chcIsStruct}, {chcIsUnion}, indents + 2, dump_json_{chcTypeID});
@@ -1638,6 +1647,15 @@ PARAMETER_STATE = {
             },
         ],
     },
+    'VkDescriptorDataEXT': {
+        'VkDescriptorGetInfoEXT':[
+            {
+                'name': 'type',
+                'type': 'VkDescriptorType',
+                'stmt': 'ApiDumpInstance::current().setDescriptorType(object.type);',
+            }
+        ]
+    }
 }
 
 VALIDITY_CHECKS = {
@@ -1679,6 +1697,18 @@ VALIDITY_CHECKS = {
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) || ' +
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER)',
     },
+    'VkDescriptorDataEXT':{
+        'pSampler': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLER',
+        'pCombinedImageSampler': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER',
+        'pInputAttachmentImage': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT',
+        'pSampledImage': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE',
+        'pStorageImage': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE',
+        'pUniformTexelBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER',
+        'pStorageTexelBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER',
+        'pUniformBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER',
+        'pStorageBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER',
+        'accelerationStructure': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR',
+    }
 }
 
 # These types are defined in both video.xml and vk.xml. Because duplicate functions aren't allowed,
@@ -2616,6 +2646,11 @@ class VulkanUnion:
             VulkanVariable.__init__(self, rootNode, constants, None, parentName)
             self.index = index
 
+             # Search for a member condition
+            self.condition = None
+            if parentName in VALIDITY_CHECKS and self.name in VALIDITY_CHECKS[parentName]:
+                self.condition = VALIDITY_CHECKS[parentName][self.name]
+
         def values(self):
             return {
                 'chcName': self.name,
@@ -2625,6 +2660,7 @@ class VulkanUnion:
                 'chcChildType': self.childType,
                 'chcPtrLevel': self.pointerLevels,
                 'chcLength': self.arrayLength,
+                'chcCondition': self.condition,
                 #'chcLengthIsMember': self.lengthMember,
                 'chcIndex': self.index,
                 'chcIsStruct': 'true' if self.is_struct else 'false',
