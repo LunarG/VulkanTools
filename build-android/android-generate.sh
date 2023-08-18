@@ -50,10 +50,10 @@ echo "Using python: $(which $PYTHON_EXECUTABLE)"
 ( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vlf_makefile_generator.py ../../../layer_factory ${REGISTRY_PATH}/../include)
 
 # apidump
-( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump.cpp -removeExtensions VK_NV_cooperative_matrix -removeExtensions VK_QNX_external_memory_screen_buffer)
-( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_text.h -removeExtensions VK_NV_cooperative_matrix -removeExtensions VK_QNX_external_memory_screen_buffer)
-( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_html.h -removeExtensions VK_NV_cooperative_matrix -removeExtensions VK_QNX_external_memory_screen_buffer)
-( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_json.h -removeExtensions VK_NV_cooperative_matrix -removeExtensions VK_QNX_external_memory_screen_buffer)
+( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump.cpp -removeExtensions VK_QNX_external_memory_screen_buffer)
+( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_text.h -removeExtensions VK_QNX_external_memory_screen_buffer)
+( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_html.h -removeExtensions VK_QNX_external_memory_screen_buffer)
+( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vt_genvk.py -registry ${REGISTRY} -scripts ${REGISTRY_PATH} api_dump_json.h -removeExtensions VK_QNX_external_memory_screen_buffer)
 
 ( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vt_genvk.py -registry ${VIDEO_REGISTRY} -scripts ${REGISTRY_PATH} api_dump_video_text.h)
 ( cd generated/include; ${PYTHON_EXECUTABLE} ${VT_SCRIPTS}/vt_genvk.py -registry ${VIDEO_REGISTRY} -scripts ${REGISTRY_PATH} api_dump_video_html.h)
