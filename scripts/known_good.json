@@ -34,6 +34,10 @@
                     "var_name": "VULKAN_HEADERS_INSTALL_DIR",
                     "repo_name": "Vulkan-Headers"
                 }
+            ],
+            "build_platforms": [
+                "linux",
+                "darwin"
             ]
         },
         {
