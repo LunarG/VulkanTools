@@ -77,7 +77,7 @@ def BuildVT(args):
 
     CreateBuildDirectory(VT_BUILD_DIR)
     print("Run CMake")
-    cmake_cmd = 'cmake -C ../%s/helper.cmake -DCMAKE_BUILD_TYPE=%s -DUSE_CCACHE=ON ..' % (EXTERNAL_DIR_NAME, args.configuration.capitalize())
+    cmake_cmd = 'cmake -C ../%s/helper.cmake -DCMAKE_BUILD_TYPE=%s ..' % (EXTERNAL_DIR_NAME, args.configuration.capitalize())
     RunShellCmd(cmake_cmd, VT_BUILD_DIR)
 
     print("Build Vulkan Tools")

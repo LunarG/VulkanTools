@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.17.2)
 
-enable_testing()
-
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
-
-project (VULKAN_TOOLS)
+project(VULKAN_TOOLS)
 
 set(API_NAME "Vulkan" CACHE STRING "API name")
 add_definitions(-DAPI_NAME="${API_NAME}")
@@ -93,22 +89,8 @@ endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(VULKANTOOLS_TARGET_FOLDER vt_cmake_targets)
 
-option(USE_CCACHE "Use ccache" OFF)
-if (USE_CCACHE)
-    find_program(CCACHE_FOUND ccache)
-    if(CCACHE_FOUND)
-        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-    endif(CCACHE_FOUND)
-endif()
-
 option(BUILD_WERROR "Treat compiler warnings as errors" ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD")
-    set(FALLBACK_CONFIG_DIRS "/etc/xdg" CACHE STRING
-        "Search path to use when XDG_CONFIG_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
-    set(FALLBACK_DATA_DIRS "/usr/local/share:/usr/share" CACHE STRING
-        "Search path to use when XDG_DATA_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
-
     if(BUILD_WERROR)
         if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
             add_compile_options(-Werror)
@@ -202,6 +184,7 @@ function(run_vulkantools_video_xml_generate dependency output)
 endfunction()
 
 if(BUILD_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif()
 
