@@ -1,3 +1,4 @@
+CMakeUserPresets.json
 CMakeCache.txt
 CMakeLists.txt.user
 CMakeFiles/
@@ -19,12 +20,10 @@ out64/*
 *.sdf
 *.filters
 .*.swp
-build
-build32
+build*/
 dbuild
 rbuild
 external
-build-android/external
 *.config
 *.creator
 *.creator.user
@@ -37,4 +36,3 @@ helper.cmake
 Vulkan-Headers/
 Vulkan-Tools/
 Vulkan-ValidationLayers/
-build-vkconfig*/
