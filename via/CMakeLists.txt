@@ -59,23 +59,18 @@ endif()
 
 find_package(jsoncpp REQUIRED CONFIG)
 
-target_link_libraries(vkvia Vulkan::Headers Vulkan::Vulkan jsoncpp_static ${CMAKE_DL_LIBS})
+find_library(vulkan_loader vulkan)
+
+target_link_libraries(vkvia Vulkan::Headers
+    jsoncpp_static
+    ${CMAKE_DL_LIBS}
+    ${vulkan_loader}
+    $<TARGET_NAME_IF_EXISTS:PkgConfig::XCB>
+    $<TARGET_NAME_IF_EXISTS:PkgConfig::X11>
+    $<TARGET_NAME_IF_EXISTS:PkgConfig::WAYlAND_CLIENT>
+)
 if(WIN32)
     target_link_libraries(vkvia version shlwapi Cfgmgr32)
 endif()
 
-if(BUILD_WSI_XCB_SUPPORT)
-    target_link_libraries(vkvia PkgConfig::XCB)
-endif()
-
-if (BUILD_WSI_XLIB_SUPPORT)
-    target_link_libraries(vkvia PkgConfig::X11)
-endif()
-
-if(BUILD_WSI_WAYLAND_SUPPORT)
-    target_link_libraries(vkvia PkgConfig::WAYLAND_CLIENT)
-endif()
-
-if(UNIX)
-    install(TARGETS vkvia DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif()
+install(TARGETS vkvia)

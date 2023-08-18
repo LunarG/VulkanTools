@@ -25,8 +25,12 @@ elseif(APPLE)
     target_compile_definitions(Vulkan::Headers INTERFACE VK_USE_PLATFORM_MACOS_MVK VK_USE_PLATFORM_METAL_EXT)
 else()
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
-    option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
-    option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
+
+    # TODO Fix Xlib
+    option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" OFF)
+
+    # TODO: Fix wayland support
+    option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" OFF)
 
     find_package(PkgConfig REQUIRED QUIET) # Use PkgConfig to find Linux system libraries
 

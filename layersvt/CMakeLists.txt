@@ -23,43 +23,6 @@ file(GLOB IMAGES
 )
 file(COPY ${IMAGES} DESTINATION ${CMAKE_BINARY_DIR}/layersvt/images)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DVK_USE_PLATFORM_WIN32_KHX -DWIN32_LEAN_AND_MEAN -DNOMINMAX)
-    set(DisplayServer Win32)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
-    add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD")
-    if (BUILD_WSI_XCB_SUPPORT)
-        add_definitions(-DVK_USE_PLATFORM_XCB_KHR -DVK_USE_PLATFORM_XCB_KHX)
-        set(DisplayServer Xcb)
-    endif()
-
-    if (BUILD_WSI_XLIB_SUPPORT)
-        if (NOT DisplayServer)
-            set(DisplayServer Xlib)
-        endif()
-        add_definitions(-DVK_USE_PLATFORM_XLIB_KHR -DVK_USE_PLATFORM_XLIB_KHX)
-    endif()
-
-    if (BUILD_WSI_WAYLAND_SUPPORT)
-       # TODO Add Wayland Support
-       # add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
-    endif()
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    if (BUILD_MOLTENVK_SUPPORT)
-        add_definitions(-DVK_USE_PLATFORM_MACOS_MVK)
-    endif()
-
-    if (BUILD_METAL_SUPPORT)
-       # TODO Add Metal Support
-       add_definitions(-DVK_USE_PLATFORM_METAL_EXT)
-    endif()
-else()
-    message(FATAL_ERROR "Unsupported Platform!")
-endif()
-
-add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
-
 if (BUILD_APIDUMP)
     add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
     add_custom_target( generate_api_text_h DEPENDS api_dump_text.h )
@@ -128,14 +91,12 @@ if (APPLE)
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_BINARY_DIR}
-        ${Vulkan-ValidationLayers_INCLUDE_DIR}
     )
 else ()
     include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_BINARY_DIR}
-        ${Vulkan-ValidationLayers_INCLUDE_DIR}
     )
 endif()
 
@@ -177,7 +138,7 @@ if (ANDROID)
 endif()
 
 foreach(layer ${TARGET_NAMES})
-    set(INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/json/${layer}.json.in")
+    set(INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${layer}.json.in")
     set(INTERMEDIATE_FILE "${CMAKE_CURRENT_BINARY_DIR}/json/intermediate-${layer}.json")
     set(OUTPUT_FILE_FINAL_NAME "${layer}.json")
     set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})

@@ -60,6 +60,10 @@
 #include <unordered_set>
 #include <utility>
 
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+#include "wayland-client.h"
+#endif
+
 #ifdef ANDROID
 #include <memory>
 #include <string_view>
