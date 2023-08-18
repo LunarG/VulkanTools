@@ -175,6 +175,7 @@ ctest --parallel 8 --output-on-failure
 ```
 
 ### Android Build
+
 Use the following to ensure the Android build works.
 
 #### Android Build from Windows

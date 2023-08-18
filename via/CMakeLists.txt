@@ -18,8 +18,6 @@ else()
         endif()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} -fno-rtti")
     endif()
-    # jsoncpp has intentional fallthrough
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} -std=c++11 -Wno-implicit-fallthrough")
 
     if(APPLE)
         add_definitions(-DVIA_MACOS_TARGET)
@@ -58,6 +56,8 @@ add_executable(vkvia
                   via_system_bsd.hpp
                   via_system_bsd.cpp)
 endif()
+
+find_package(jsoncpp REQUIRED CONFIG)
 
 target_link_libraries(vkvia Vulkan::Headers Vulkan::Vulkan jsoncpp_static ${CMAKE_DL_LIBS})
 if(WIN32)

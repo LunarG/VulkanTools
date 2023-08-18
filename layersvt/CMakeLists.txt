@@ -1,4 +1,22 @@
-cmake_minimum_required(VERSION 3.10.2)
+set(VULKANTOOLS_SCRIPTS_DIR ${PROJECT_SOURCE_DIR}/scripts)
+
+find_package(Python3 REQUIRED)
+
+# Define macro used for building vk.xml generated files
+function(run_vulkantools_vk_xml_generate dependency output)
+    add_custom_command(OUTPUT ${output}
+        COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/vk.xml -scripts ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry ${output} -removeExtensions VK_NV_cooperative_matrix -removeExtensions VK_QNX_external_memory_screen_buffer
+        DEPENDS ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/vk.xml ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/reg.py
+    )
+endfunction()
+
+# Define macro used for building video.xml generated files
+function(run_vulkantools_video_xml_generate dependency output)
+    add_custom_command(OUTPUT ${output}
+        COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/video.xml -scripts ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry ${output}
+        DEPENDS ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/video.xml ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/reg.py
+    )
+endfunction()
 
 file(GLOB IMAGES
    "${PROJECT_SOURCE_DIR}/layersvt/images/*"
@@ -50,10 +68,6 @@ if (BUILD_APIDUMP)
     add_custom_target( generate_api_video_text_h DEPENDS api_dump_video_text.h )
     add_custom_target( generate_api_video_html_h DEPENDS api_dump_video_html.h )
     add_custom_target( generate_api_video_json_h DEPENDS api_dump_video_json.h )
-
-    set_target_properties(generate_api_cpp generate_api_text_h generate_api_html_h generate_api_json_h
-        generate_api_video_text_h generate_api_video_html_h generate_api_video_json_h
-         PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
 endif()
 
 if (NOT APPLE)
@@ -75,6 +89,9 @@ else()
     endif()
 endif ()
 
+# REMOVE: When VVL is replace with utility libraries!
+find_library(VkLayer_utils_LIBRARY VkLayer_utils HINTS ${VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
+
 if (WIN32)
     macro(add_vk_layer target)
         FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def DEF_FILE)
@@ -89,7 +106,6 @@ if (WIN32)
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
         )
-        set_target_properties(copy-${target}-def-file PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
     endmacro()
 else()
     macro(add_vk_layer target)
@@ -98,6 +114,11 @@ else()
         if (NOT APPLE)
             set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
         endif ()
+
+        # Search the VVL include directory using the VVL vk_layer_config.h file
+        find_file(VVL_INCLUDE_DIR vk_layer_config.h REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
+        get_filename_component(VVL_INCLUDE_DIR ${VVL_INCLUDE_DIR} DIRECTORY)
+
         install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endmacro()
 endif()
@@ -122,13 +143,12 @@ if (WIN32)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_CRT_SECURE_NO_WARNINGS /bigobj")
     set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS /bigobj")
 else()
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpointer-arith")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 endif()
 
-#VulkanTools layers
-if(BUILD_APIDUMP)
+# VulkanTools layers
+if (BUILD_APIDUMP)
     run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump.cpp)
     run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_text.h)
     run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_html.h)
@@ -151,42 +171,56 @@ if (NOT APPLE)
     endif ()
 endif ()
 
-# json file creation
+if (ANDROID)
+    message(DEBUG "Android doesn't use json manifests.")
+    return()
+endif()
 
-# The output file needs Unix "/" separators or Windows "\" separators
-# Windows paths need to start with ".\", Unix paths do not.
-# Windows separators actually need to be doubled because the json format uses backslash escapes
-file(TO_NATIVE_PATH "./" RELATIVE_PATH_PREFIX)
-string(REPLACE "\\" "\\\\" RELATIVE_PATH_PREFIX "${RELATIVE_PATH_PREFIX}")
-# Run each .json.in file through the generator
-# We need to create the generator.cmake script so that the generator can be run at compile time, instead of configure time
-# Running at compile time lets us use cmake generator expressions (TARGET_FILE_NAME and TARGET_FILE_DIR, specifically)
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake" "configure_file(\"\${INPUT_FILE}\" \"\${OUTPUT_FILE}\" @ONLY)")
-foreach(TARGET_NAME ${TARGET_NAMES})
-    set(CONFIG_DEFINES
-        -DINPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}.json.in"
-        -DVK_VERSION="${VulkanHeaders_VERSION}"
-    )
-    # Get the needed properties from that target
-    set(CONFIG_DEFINES ${CONFIG_DEFINES}
-        -DOUTPUT_FILE="$<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.json"
-        -DRELATIVE_LAYER_BINARY="${RELATIVE_PATH_PREFIX}$<TARGET_FILE_NAME:${TARGET_NAME}>"
-        )
-
-    add_custom_target(${TARGET_NAME}-json ALL COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake")
-
-    # Add target for JSON file install.
-    if(NOT WIN32)
-        # Add targets for JSON file install on Linux.
-        # Need to remove the "./" from the library path before installing
-        add_custom_target(${TARGET_NAME}-staging-json ALL
-            COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-            COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-            COMMAND sed -i -e "/.library_path.:/s=./libVkLayer=libVkLayer=" ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${TARGET_NAME}.json
-            VERBATIM
-            DEPENDS ${TARGET_NAME}-json
-            )
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${TARGET_NAME}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
+foreach(layer ${TARGET_NAMES})
+    set(INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/json/${layer}.json.in")
+    set(INTERMEDIATE_FILE "${CMAKE_CURRENT_BINARY_DIR}/json/intermediate-${layer}.json")
+    set(OUTPUT_FILE_FINAL_NAME "${layer}.json")
+    set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
+    if (WIN32)
+        set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_BINDIR}) # WIN32/MINGW expect the dll in the `bin` dir, this matches our WIN32 SDK process
     endif()
 
+    if (WIN32)
+        set(JSON_LIBRARY_PATH ".\\\\${layer}.dll")
+    elseif(APPLE)
+        set(JSON_LIBRARY_PATH "./lib${layer}.dylib")
+    else()
+        set(JSON_LIBRARY_PATH "./lib${layer}.so")
+    endif()
+
+    set(JSON_VERSION ${VulkanHeaders_VERSION})
+
+    configure_file(${INPUT_FILE} ${INTERMEDIATE_FILE} @ONLY)
+
+    add_custom_command(TARGET ${layer} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${INTERMEDIATE_FILE} $<TARGET_FILE_DIR:${layer}>/${OUTPUT_FILE_FINAL_NAME}
+    )
+
+    if (UNIX)
+        set(UNIX_INTERMEDIATE_FILE "${CMAKE_CURRENT_BINARY_DIR}/json/unix_install_${layer}.json")
+
+        if(APPLE)
+            set(JSON_LIBRARY_PATH "lib${layer}.dylib")
+        else()
+            set(JSON_LIBRARY_PATH "lib${layer}.so")
+        endif()
+
+        configure_file(${INPUT_FILE} ${UNIX_INTERMEDIATE_FILE} @ONLY)
+
+        install(FILES ${UNIX_INTERMEDIATE_FILE} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/vulkan/explicit_layer.d RENAME ${OUTPUT_FILE_FINAL_NAME})
+    endif()
+
+    if (WIN32)
+        install(FILES ${INTERMEDIATE_FILE} DESTINATION ${LAYER_INSTALL_DIR} RENAME ${OUTPUT_FILE_FINAL_NAME})
+    endif()
+    if (MSVC)
+        install(FILES $<TARGET_PDB_FILE:${layer}> DESTINATION ${LAYER_INSTALL_DIR})
+    endif()
+
+    install(TARGETS ${layer} DESTINATION ${LAYER_INSTALL_DIR})
 endforeach()

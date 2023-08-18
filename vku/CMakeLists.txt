@@ -26,10 +26,7 @@ target_link_libraries(vku PRIVATE Vulkan::Headers)
 
 if(WIN32)
 	target_compile_definitions(vku PUBLIC _CRT_SECURE_NO_WARNINGS)
-else()
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
-install(TARGETS vku DESTINATION ${CMAKE_INSTALL_LIBDIR})
 set_target_properties(vku PROPERTIES LINKER_LANGUAGE CXX)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}/generated)
