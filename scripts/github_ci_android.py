@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# Copyright (c) 2021Valve Corporation
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2021-2023 Valve Corporation
+# Copyright (c) 2021-2023 LunarG, Inc.
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,15 +49,12 @@ DEFAULT_ABI = SUPPORTED_ABIS[0]
 #
 # Fetch Android components, build Android VVL
 def BuildAndroid(target_abi):
-    print("Fetching NDK\n")
-    wget_cmd = 'wget http://dl.google.com/android/repository/android-ndk-r21d-linux-x86_64.zip'
-    RunShellCmd(wget_cmd)
+    # GitHub actions already comes with NDK pre-installed. We should avoid downloading unless we have to.
+    # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#environment-variables-2
+    if "ANDROID_NDK_HOME" not in os.environ:
+        print('ANDROID_NDK_HOME not defined!')
+        sys.exit(1)
 
-    print("Extracting NDK components\n")
-    unzip_cmd = 'unzip -u -q android-ndk-r21d-linux-x86_64.zip'
-    RunShellCmd(unzip_cmd)
-    # Add NDK to path
-    os.environ['ANDROID_NDK_HOME'] = repo_relative('android-ndk-r21d')
     os.environ['PATH'] = os.environ.get('ANDROID_NDK_HOME') + os.pathsep + os.environ.get('PATH')
 
     print("Preparing Android Dependencies\n")
