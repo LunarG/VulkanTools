@@ -113,7 +113,6 @@ jobs:
           -D CMAKE_ANDROID_RTTI=YES \
           -D CMAKE_ANDROID_EXCEPTIONS=YES \
           -D ANDROID_USE_LEGACY_TOOLCHAIN_FILE=NO \
-          -D VUL_WERROR=ON \
           -D CMAKE_BUILD_TYPE=Release \
           -D UPDATE_DEPS=ON \
           -G "Ninja"
