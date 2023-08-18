@@ -76,7 +76,7 @@ def BuildVT(args):
 
     CreateBuildDirectory(VT_BUILD_DIR)
     print("Run CMake")
-    cmake_cmd = 'cmake -A %s -C ../%s/helper.cmake -DUSE_CCACHE=ON ..' % (args.arch, EXTERNAL_DIR_NAME)
+    cmake_cmd = 'cmake -A %s -C ../%s/helper.cmake ..' % (args.arch, EXTERNAL_DIR_NAME)
     RunShellCmd(cmake_cmd, VT_BUILD_DIR)
 
     print("Build Vulkan Tools")
