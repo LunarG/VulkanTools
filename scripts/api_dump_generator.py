@@ -366,12 +366,34 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 }}
 @end function
 
-EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(const char* pName)
 {{
     @foreach function where('{funcType}' in ['global', 'instance'] and '{funcName}' not in [ 'vkEnumerateDeviceExtensionProperties' ])
     if(strcmp(pName, "{funcName}") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>({funcName});
     @end function
+
+    return nullptr;
+}}
+
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(const char* pName)
+{{
+    @foreach function where('{funcType}' == 'device')
+    if(strcmp(pName, "{funcName}") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>({funcName});
+    @end function
+
+    return nullptr;
+}}
+
+EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
+{{
+    auto instance_func = api_dump_known_instance_functions(pName);
+    if (instance_func) return instance_func;
+
+    // Make sure that device functions queried through GIPA works
+    auto device_func = api_dump_known_device_functions(pName);
+    if (device_func) return device_func;
 
     // Haven't created an instance yet, exit now since there is no instance_dispatch_table
     if(instance_dispatch_table(instance)->GetInstanceProcAddr == NULL)
@@ -381,10 +403,8 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
 
 EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
 {{
-    @foreach function where('{funcType}' == 'device')
-    if(strcmp(pName, "{funcName}") == 0)
-        return reinterpret_cast<PFN_vkVoidFunction>({funcName});
-    @end function
+    auto device_func = api_dump_known_device_functions(pName);
+    if (device_func) return device_func;
 
     // Haven't created a device yet, exit now since there is no device_dispatch_table
     if(device_dispatch_table(device)->GetDeviceProcAddr == NULL)
@@ -1519,7 +1539,7 @@ void dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 @end function
 """
 
-POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow', 'AHardwareBuffer']
+POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow', 'AHardwareBuffer', 'wl_display']
 
 TRACKED_STATE = {
     'vkAllocateCommandBuffers':
