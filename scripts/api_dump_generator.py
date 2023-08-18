@@ -1787,7 +1787,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
             root = self.registry.reg
 
         for node in root.find('extensions').findall('extension'):
-            if node.get('supported') == 'vulkan': # dont print unsupported extensions
+            if 'vulkan' in node.get('supported'): # dont print unsupported extensions
                 ext = VulkanExtension(node)
                 self.extensions[ext.name] = ext
                 for item in ext.vktypes:
