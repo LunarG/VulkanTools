@@ -11,58 +11,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(GNUInstallDirs)
 
-# Find Vulkan Headers, Loader, and ValidationLayers
-# Search order:
-#  User-supplied CMAKE_PREFIX_PATH containing paths to the header and/or loader install dirs
-#  CMake options VULKAN_HEADERS_INSTALL_DIR, VULKAN_LOADER_INSTALL_DIR, and/or VULKAN_VALIDATIONLAYERS_INSTALL_DIR
-#  Env vars VULKAN_HEADERS_INSTALL_DIR, VULKAN_LOADER_INSTALL_DIR, and/or VULKAN_VALIDATIONLAYERS_INSTALL_DIR
-#  Fallback to FindVulkan operation using SDK install or system installed components.
-set(VULKAN_HEADERS_INSTALL_DIR "HEADERS-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Headers install directory")
-set(VULKAN_LOADER_INSTALL_DIR "LOADER-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Loader install directory")
-if(WIN32 AND "${VULKAN_LOADER_INSTALL_DIR}" STREQUAL "LOADER-NOTFOUND")
-    if(CMAKE_CL_64)
-        set(VULKAN_LOADER_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/x64")
-    else()
-        set(VULKAN_LOADER_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/x86")
-    endif()
-endif()
-
-set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR "VALIDATIONLAYERS-NOTFOUND" CACHE PATH "Absolute path to Vulkan-ValidationLayers directory")
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_HEADERS_INSTALL_DIR};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_VALIDATIONLAYERS_INSTALL_DIR};$ENV{VULKAN_HEADERS_INSTALL_DIR};$ENV{VULKAN_LOADER_INSTALL_DIR};$ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
-message(STATUS "Using find_package to locate Vulkan")
-find_package(Vulkan)
-message(STATUS "Vulkan FOUND = ${Vulkan_FOUND}")
-message(STATUS "Vulkan Lib = ${Vulkan_LIBRARY}")
-
-if(NOT VULKAN_HEADERS_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_HEADERS_INSTALL_DIR})
-    message(FATAL_ERROR "Must define location of Vulkan-Headers install -- see BUILD.md")
-endif()
-
-# Cmake command line option overrides environment variable
-if(NOT VULKAN_HEADERS_INSTALL_DIR)
-    set(VULKAN_HEADERS_INSTALL_DIR $ENV{VULKAN_HEADERS_INSTALL_DIR})
-endif()
-message(STATUS "Using Vulkan-Headers install located at ${VULKAN_HEADERS_INSTALL_DIR}")
-
-if(NOT VULKAN_LOADER_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_LOADER_INSTALL_DIR})
-    message(FATAL_ERROR "Must define location of Vulkan-Loader install -- see BUILD.md")
-endif()
-
-# Cmake command line option overrides environment variable
-if(NOT VULKAN_LOADER_INSTALL_DIR)
-    set(VULKAN_LOADER_INSTALL_DIR $ENV{VULKAN_LOADER_INSTALL_DIR})
-endif()
-message(STATUS "Using Vulkan-Loader install located at ${VULKAN_LOADER_INSTALL_DIR}")
-
-if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR AND NOT DEFINED ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
-    message(FATAL_ERROR "Must define location of Vulkan-ValidationLayers install -- see BUILD.md")
-endif()
-
-# Cmake command line option overrides environment variable
-if(NOT VULKAN_VALIDATIONLAYERS_INSTALL_DIR)
-    set(VULKAN_VALIDATIONLAYERS_INSTALL_DIR $ENV{VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
-endif()
-message(STATUS "Using Vulkan-ValidationLayers install located at ${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_HEADERS_INSTALL_DIR};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_VALIDATIONLAYERS_INSTALL_DIR};${JSONCPP_INSTALL_DIR})
 
 file(TO_CMAKE_PATH "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}" VULKAN_VALIDATIONLAYERS_INSTALL_DIR)
 set(Vulkan-ValidationLayers_INCLUDE_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/include/vulkan")
@@ -119,25 +68,15 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     option(BUILD_METAL_SUPPORT "Build Metal WSI support" OFF)
 endif()
 
-set (VULKAN_SDK $ENV{VULKAN_SDK})
-
 set(VULKANTOOLS_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
 
 find_package(VulkanHeaders REQUIRED CONFIG)
 
-# The vulkan loader search is:
-#     User-supplied setting of CMAKE_PREFIX_PATH
-#     VULKAN_LOADER_INSTALL_DIR defined via cmake option
-#     VULKAN_LOADER_INSTALL_DIR defined via environment variable
-#     Default findVulkan operation if the VULKAN_SDK environment variable is defined
-set(VULKAN_LOADER_INSTALL_DIR "LOADER-NOTFOUND" CACHE PATH "Absolute path to a Vulkan-Loader install directory")
-if (VULKAN_LOADER_INSTALL_DIR)
-    message(STATUS "VULKAN_LOADER_INSTALL_DIR specified, using find_package to locate Vulkan")
-elseif(ENV{VULKAN_LOADER_INSTALL_DIR})
-    message(STATUS "VULKAN_LOADER_INSTALL_DIR environment variable specified, using find_package to locate Vulkan")
-endif()
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_HEADERS_INSTALL_DIR};${JSONCPP_INSTALL_DIR};$ENV{VULKAN_LOADER_INSTALL_DIR};$ENV{VULKAN_HEADERS_INSTALL_DIR};$ENV{JSONCPP_INSTALL_DIR})
-find_package(Vulkan)
+find_library(Vulkan_LIBRARY NAMES vulkan vulkan-1)
+add_library(Vulkan::Vulkan UNKNOWN IMPORTED)
+set_target_properties(Vulkan::Vulkan PROPERTIES
+    IMPORTED_LOCATION ${Vulkan_LIBRARY})
+target_link_libraries(Vulkan::Vulkan INTERFACE Vulkan::Headers)
 
 find_package(jsoncpp REQUIRED CONFIG)
 

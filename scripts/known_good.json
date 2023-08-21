@@ -34,13 +34,6 @@
                     "var_name": "VULKAN_HEADERS_INSTALL_DIR",
                     "repo_name": "Vulkan-Headers"
                 }
-            ],
-            "cmake_options": [
-                "-DBUILD_TESTS=OFF"
-            ],
-            "build_platforms": [
-                "linux",
-                "darwin"
             ]
         },
         {
@@ -86,7 +79,6 @@
                 }
             ],
             "cmake_options": [
-                "-DBUILD_TESTS=FALSE",
                 "-DBUILD_LAYERS=OFF",
                 "-DBUILD_LAYER_SUPPORT_FILES=ON",
                 "-DUSE_ROBIN_HOOD_HASHING=OFF"
