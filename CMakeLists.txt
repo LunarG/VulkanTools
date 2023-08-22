@@ -16,22 +16,6 @@ set(Vulkan-ValidationLayers_INCLUDE_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/
 set(Vulkan-ValidationLayers_LIBRARY_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/lib")
 find_library(VkLayer_utils_LIBRARY VkLayer_utils HINTS ${Vulkan-ValidationLayers_LIBRARY_DIR})
 
-# Check for python 3.6 or greater
-# Cannot use find_package(PythonInterp 3.6 REQUIRED) because it isn't smart enough to ignore an older /usr/bin/python3
-# Cannot use FindPython3 because it isn't available in CMake 3.10
-# This will go away when we start committing the generated files to this repo
-foreach(PYTHON_MIN_VERSION RANGE 6 20)
-    find_package(PythonInterp "3.${PYTHON_MIN_VERSION}" EXACT)
-    if(PythonInterp_FOUND)
-        set (PYTHON_CMD ${PYTHON_EXECUTABLE})
-        break()
-    endif()
-    unset(PYTHON_EXECUTABLE CACHE)
-endforeach(PYTHON_MIN_VERSION)
-if(NOT PythonInterp_FOUND)
-    message(FATAL_ERROR "Could not find Python >= 3.6")
-endif()
-
 # Enable cmake folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(VULKANTOOLS_TARGET_FOLDER vt_cmake_targets)
@@ -65,8 +49,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     option(BUILD_MOLTENVK_SUPPORT "Build MoltenVK WSI support" ON)
     option(BUILD_METAL_SUPPORT "Build Metal WSI support" OFF)
 endif()
-
-set(VULKANTOOLS_SCRIPTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
 
 find_package(VulkanHeaders REQUIRED CONFIG)
 
@@ -103,22 +85,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
 
 endif()
-
-# Define macro used for building vk.xml generated files
-function(run_vulkantools_vk_xml_generate dependency output)
-    add_custom_command(OUTPUT ${output}
-        COMMAND ${PYTHON_CMD} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/vk.xml -scripts ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry ${output}
-        DEPENDS ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/vk.xml ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/reg.py
-    )
-endfunction()
-
-# Define macro used for building video.xml generated files
-function(run_vulkantools_video_xml_generate dependency output)
-    add_custom_command(OUTPUT ${output}
-        COMMAND ${PYTHON_CMD} -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/video.xml -scripts ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry ${output}
-        DEPENDS ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/video.xml ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry/reg.py
-    )
-endfunction()
 
 if(BUILD_TESTS)
     enable_testing()

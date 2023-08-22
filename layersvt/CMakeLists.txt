@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.10.2)
-
 file(GLOB IMAGES
    "${PROJECT_SOURCE_DIR}/layersvt/images/*"
 )
@@ -126,6 +124,27 @@ else()
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpointer-arith")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
 endif()
+
+find_package(Python3 REQUIRED)
+
+set(VULKANTOOLS_SCRIPTS_DIR "${VULKAN_TOOLS_SOURCE_DIR}/scripts")
+set(VULKAN_REGISTRY "${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry")
+
+# Define macro used for building vk.xml generated files
+function(run_vulkantools_vk_xml_generate dependency output)
+    add_custom_command(OUTPUT ${output}
+        COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY}/vk.xml -scripts ${VULKAN_REGISTRY} ${output}
+        DEPENDS ${VULKAN_REGISTRY}/vk.xml ${VULKAN_REGISTRY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY}/reg.py
+    )
+endfunction()
+
+# Define macro used for building video.xml generated files
+function(run_vulkantools_video_xml_generate dependency output)
+    add_custom_command(OUTPUT ${output}
+        COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY}/video.xml -scripts ${VULKAN_REGISTRY} ${output}
+        DEPENDS ${VULKAN_REGISTRY}/video.xml ${VULKAN_REGISTRY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY}/reg.py
+    )
+endfunction()
 
 #VulkanTools layers
 if(BUILD_APIDUMP)
