@@ -10,6 +10,9 @@ add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
 include(GNUInstallDirs)
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${VULKAN_HEADERS_INSTALL_DIR};${VULKAN_LOADER_INSTALL_DIR};${VULKAN_VALIDATIONLAYERS_INSTALL_DIR};${JSONCPP_INSTALL_DIR})
+if (GOOGLETEST_INSTALL_DIR)
+    list(APPEND CMAKE_PREFIX_PATH ${GOOGLETEST_INSTALL_DIR})
+endif()
 
 file(TO_CMAKE_PATH "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}" VULKAN_VALIDATIONLAYERS_INSTALL_DIR)
 set(Vulkan-ValidationLayers_INCLUDE_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/include/vulkan")
@@ -89,6 +92,8 @@ endif()
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
+
+    find_package(GTest REQUIRED CONFIG)
 endif()
 
 if(BUILD_VIA)
@@ -102,9 +107,6 @@ endif()
 
 if(BUILD_LAYERMGR)
     include_directories(external)
-
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    add_subdirectory(external/googletest)
 
     add_subdirectory(vkconfig_core)
     add_subdirectory(vkconfig)
