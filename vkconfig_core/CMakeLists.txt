@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 3.10.2)
-project(vkconfig)
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5 COMPONENTS Core Gui Widgets Network QUIET)
