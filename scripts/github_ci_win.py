@@ -67,9 +67,6 @@ def CreateBuildDirectory(dir_path):
 def BuildVT(args):
     print("Build Configuration: %s %s" % (args.arch, args.configuration))
 
-    print("Run update_external_sources.bat")
-    RunShellCmd('update_external_sources.bat')
-
     print("Run update_deps.py for VT Repository")
     update_cmd = 'python3 scripts/update_deps.py --dir %s --config %s --arch %s' % (EXTERNAL_DIR_NAME, args.configuration.lower(), args.arch.lower())
     RunShellCmd(update_cmd)

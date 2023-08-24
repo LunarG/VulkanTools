@@ -100,6 +100,14 @@
             ]
         },
         {
+            "name": "valijson",
+            "url": "https://github.com/tristanpenman/valijson.git",
+            "sub_dir": "valijson",
+            "build_dir": "valijson/build",
+            "install_dir": "valijson/build/install",
+            "commit": "v1.0"
+        },
+        {
             "name": "googletest",
             "url": "https://github.com/google/googletest.git",
             "sub_dir": "googletest",
@@ -122,6 +130,7 @@
         "Vulkan-Loader": "VULKAN_LOADER_INSTALL_DIR",
         "Vulkan-ValidationLayers": "VULKAN_VALIDATIONLAYERS_INSTALL_DIR",
         "jsoncpp": "JSONCPP_INSTALL_DIR",
+        "valijson": "VALIJSON_INSTALL_DIR",
         "googletest": "GOOGLETEST_INSTALL_DIR"
     }
 }

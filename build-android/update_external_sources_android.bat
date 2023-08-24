@@ -1,5 +1,5 @@
 @echo off
-REM Update source for jsoncpp, Vulkan-Headers, Vulkan-Tools, and Vulkan-ValidationLayers
+REM Update source for Vulkan-Headers, Vulkan-Tools, and Vulkan-ValidationLayers
 
 REM
 REM Copyright 2016-2019 The Android Open Source Project
@@ -24,7 +24,6 @@ set errorCode=0
 set ANDROID_BUILD_DIR=%~dp0
 set BUILD_DIR=%ANDROID_BUILD_DIR%
 set BASE_DIR=%BUILD_DIR%\third_party
-set JSONCPP_DIR=%BASE_DIR%\jsoncpp
 set VULKAN_TOOLS_DIR=%BASE_DIR%\Vulkan-Tools
 set VULKAN_HEADERS_DIR=%BASE_DIR%\Vulkan-Headers
 set VULKAN_VALIDATIONLAYERS_DIR=%BASE_DIR%\Vulkan-ValidationLayers
@@ -67,13 +66,6 @@ if %errorCode% neq 0 (goto:error)
 
 REM Read the target versions from external file, which is shared with Linux script
 
-if not exist %ANDROID_BUILD_DIR%\jsoncpp_revision_android (
-   echo.
-   echo Missing jsoncpp_revision_android file. Place it in %ANDROID_BUILD_DIR%
-   set errorCode=1
-   goto:error
-)
-
 if not exist %ANDROID_BUILD_DIR%\vulkan-tools_revision_android (
    echo.
    echo Missing vulkan-tools_revision_android file. Place it in %ANDROID_BUILD_DIR%
@@ -88,22 +80,18 @@ if not exist %ANDROID_BUILD_DIR%\vulkan-validationlayers_revision_android (
    goto:error
 )
 
-set /p JSONCPP_REVISION= < jsoncpp_revision_android
 set /p VULKAN_TOOLS_REVISION= < vulkan-tools_revision_android
 set /p VULKAN_VALIDATIONLAYERS_REVISION= < vulkan-validationlayers_revision_android
 set /p VULKAN_HEADERS_REVISION= < vulkan-headers_revision_android
-echo JSONCPP_REVISION=%JSONCPP_REVISION%
 echo VULKAN_TOOLS_REVISION=%VULKAN_TOOLS_REVISION%
 echo VULKAN_VALIDATIONLAYERS_REVISION=%VULKAN_VALIDATIONLAYERS_REVISION%
 echo VULKAN_HEADERS_REVISION=%VULKAN_HEADERS_REVISION%
 
-echo Creating and/or updating jsoncpp, vulkan-tools, vulkan-validationlayers in %BASE_DIR%
+echo Creating and/or updating vulkan-tools, vulkan-validationlayers in %BASE_DIR%
 
 set sync-vulkan-headers=1
-set sync-jsoncpp=1
 set sync-vulkan-tools=1
 set sync-vulkan-validationlayers=1
-set build-jsoncpp=1
 
 REM Always init the submodules, which includes vulkan headers
 echo Initializing submodules
@@ -116,19 +104,6 @@ if %sync-vulkan-headers% equ 1 (
    )
    if %errorCode% neq 0 (goto:error)
    call:update_vulkan-headers
-   if %errorCode% neq 0 (goto:error)
-)
-
-if %sync-jsoncpp% equ 1 (
-   if exist %JSONCPP_DIR% (
-      rd /S /Q %JSONCPP_DIR%
-   )
-   if %errorlevel% neq 0 (goto:error)
-   if not exist %JSONCPP_DIR% (
-      call:create_jsoncpp
-   )
-   if %errorCode% neq 0 (goto:error)
-   call:update_jsoncpp
    if %errorCode% neq 0 (goto:error)
 )
 
@@ -151,12 +126,6 @@ if %sync-vulkan-validationlayers% equ 1 (
    call:update_vulkan-validationlayers
    if %errorCode% neq 0 (goto:error)
 )
-
-if %build-jsoncpp% equ 1 (
-   call:build_jsoncpp
-   if %errorCode% neq 0 (goto:error)
-)
-
 
 echo.
 echo Exiting
@@ -203,40 +172,6 @@ goto:eof
     )
 goto:eof
  
-:create_jsoncpp
-   echo.
-   echo Creating local jsoncpp repository %JSONCPP_DIR%)
-   if not exist "%JSONCPP_DIR%\" mkdir %JSONCPP_DIR%
-   cd %JSONCPP_DIR%
-   git clone https://github.com/open-source-parsers/jsoncpp.git .
-   git checkout %JSONCPP_REVISION%
-   if not exist %JSONCPP_DIR%\include\json\json.h (
-      echo jsoncpp source download failed!
-      set errorCode=1
-   )
-goto:eof
-
-:update_jsoncpp
-   echo.
-   echo Updating %JSONCPP_DIR%
-   cd %JSONCPP_DIR%
-   git fetch --all
-   git checkout %JSONCPP_REVISION%
-goto:eof
-
-:build_jsoncpp
-   echo.
-   echo Building %JSONCPP_DIR%
-   cd  %JSONCPP_DIR%
-   python3 amalgamate.py
-
-   if not exist %JSONCPP_DIR%\dist\json\json.h (
-      echo.
-      echo JsonCPP Amalgamation failed to generate %JSONCPP_DIR%\dist\json\json.h
-      set errorCode=1
-   )
-goto:eof
-
 :create_vulkan-tools
    echo.
    echo Creating local vulkan-tools repository %VULKAN_TOOLS_DIR%

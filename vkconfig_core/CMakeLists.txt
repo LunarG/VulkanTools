@@ -56,10 +56,11 @@ if(Qt5_FOUND)
 
     if (CMAKE_COMPILER_IS_GNUCC)
         # Disable -Wno-maybe-uninitialized because of warnings with jsoncpp and GCC 12
+        # TODO: Fix now that jsoncpp is grabbed via known_good.json
         add_compile_options("-Wno-maybe-uninitialized")
      endif()
 
-    target_link_libraries(vkconfig_core Vulkan::Headers vku Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+    target_link_libraries(vkconfig_core Vulkan::Headers valijson vku Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
     target_compile_definitions(vkconfig_core PRIVATE ${VKCONFIG_DEFINITIONS})
 
     add_subdirectory(test)
