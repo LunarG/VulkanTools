@@ -1,5 +1,5 @@
 #!/bin/bash
-# Update source for jsoncpp, Vulkan-Headers, Vulkan-Tools, and Vulkan-ValidationLayers
+# Update source for Vulkan-Headers, Vulkan-Tools, and Vulkan-ValidationLayers
 
 # Copyright 2016 The Android Open Source Project
 # Copyright (C) 2015 Valve Corporation
@@ -22,22 +22,18 @@ ANDROIDBUILDDIR=$PWD
 BUILDDIR=$ANDROIDBUILDDIR
 BASEDIR=$BUILDDIR/third_party
 
-JSONCPP_REVISION=$(cat $ANDROIDBUILDDIR/jsoncpp_revision_android)
 VULKAN_TOOLS_REVISION=$(cat $ANDROIDBUILDDIR/vulkan-tools_revision_android)
 VULKAN_HEADERS_REVISION=$(cat $ANDROIDBUILDDIR/vulkan-headers_revision_android)
 VULKAN_VALIDATIONLAYERS_REVISION=$(cat $ANDROIDBUILDDIR/vulkan-validationlayers_revision_android)
 
-echo "JSONCPP_REVISION=$JSONCPP_REVISION"
 echo "VULKAN_TOOLS_REVISION=$VULKAN_TOOLS_REVISION"
 echo "VULKAN_HEADERS_REVISION=$VULKAN_HEADERS_REVISION"
 echo "VULKAN_VALIDATIONLAYERS_REVISION=$VULKAN_VALIDATIONLAYERS_REVISION"
 
-JSONCPP_URL=$(cat $ANDROIDBUILDDIR/jsoncpp_url_android)
 VULKAN_TOOLS_URL=$(cat $ANDROIDBUILDDIR/vulkan-tools_url_android)
 VULKAN_HEADERS_URL=$(cat $ANDROIDBUILDDIR/vulkan-headers_url_android)
 VULKAN_VALIDATIONLAYERS_URL=$(cat $ANDROIDBUILDDIR/vulkan-validationlayers_url_android)
 
-echo "JSONCPP_URL=$JSONCPP_URL"
 echo "VULKAN_TOOLS_URL=$VULKAN_TOOLS_URL"
 echo "VULKAN_HEADERS_URL=$VULKAN_HEADERS_URL"
 
@@ -92,28 +88,6 @@ if [[ $nobuild ]]
 then
     echo Skipping build.
 fi
-
-function create_jsoncpp () {
-   rm -rf ${BASEDIR}/jsoncpp
-   echo "Creating local jsoncpp repository (${BASEDIR}/jsoncpp)."
-   mkdir -p ${BASEDIR}/jsoncpp
-   cd ${BASEDIR}/jsoncpp
-   git clone ${JSONCPP_URL} .
-   git checkout ${JSONCPP_REVISION}
-}
-
-function update_jsoncpp () {
-   echo "Updating ${BASEDIR}/jsoncpp"
-   cd ${BASEDIR}/jsoncpp
-   git fetch --all
-   git checkout ${JSONCPP_REVISION}
-}
-
-function build_jsoncpp () {
-   echo "Building ${BASEDIR}/jsoncpp"
-   cd ${BASEDIR}/jsoncpp
-   python3 amalgamate.py
-}
 
 function create_vulkan-headers () {
    rm -rf $BASEDIR/Vulkan-Headers
@@ -204,12 +178,6 @@ if [ ! -d "$BASEDIR/Vulkan-ValidationLayers" -o ! -d "$BASEDIR/Vulkan-Validation
    create_vulkan-validationlayers
 fi
 update_vulkan-validationlayers
-
-if [ ! -d "${BASEDIR}/jsoncpp" -o ! -d "${BASEDIR}/jsoncpp/.git" ]; then
-   create_jsoncpp
-fi
-update_jsoncpp
-build_jsoncpp
 
 echo ""
 echo "${0##*/} finished."

@@ -19,6 +19,10 @@
 
 #ifdef VIA_WINDOWS_TARGET
 
+#pragma comment(lib, "version.lib")
+#pragma comment(lib, "shlwapi.lib")
+#pragma comment(lib, "Cfgmgr32.lib")
+
 #include "via_system_windows.hpp"
 
 static bool g_is_wow64 = false;

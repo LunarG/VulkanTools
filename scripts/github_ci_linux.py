@@ -68,9 +68,6 @@ def BuildVT(args):
     cmake_ver_cmd = 'cmake --version'
     RunShellCmd(cmake_ver_cmd)
 
-    print("Run update_external_sources.sh")
-    RunShellCmd('./update_external_sources.sh')
-
     print("Run update_deps.py for VT Repository")
     update_cmd = 'python3 scripts/update_deps.py --dir %s --config %s --arch x64' % (EXTERNAL_DIR_NAME, args.configuration)
     RunShellCmd(update_cmd)

@@ -130,7 +130,6 @@ export PATH=$HOME/Library/Android/sdk/ndk-bundle:$PATH
     git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
     cd VulkanTools
     mkdir build
-    .\update_external_sources.bat
     cd build
     ..\scripts\update_deps.py --arch x64
     cmake -A x64 -C helper.cmake ..
@@ -142,7 +141,6 @@ export PATH=$HOME/Library/Android/sdk/ndk-bundle:$PATH
     git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
     cd VulkanTools
     mkdir build
-     .\update_external_sources.bat
     cd build
     ..\scripts\update_deps.py --arch Win32
     cmake -A Win32 -C helper.cmake ..
@@ -161,7 +159,6 @@ ctest -C Release  --output-on-failure --parallel 16
     git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
     cd VulkanTools
     mkdir build
-    ./update_external_sources.sh
     cd build
     ../scripts/update_deps.py
     cmake -C helper.cmake ..
@@ -225,46 +222,7 @@ git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
 
 # Enter the folder containing the cloned source
 cd VulkanTools
-
-# This will perform some initialization and ensure subcomponents are built:
-./update_external_sources.sh    # linux
-./update_external_sources.bat   # windows
 ```
-
-### Updating the Repository After a Pull
-
-The VulkanTools repository contains a submodule named jsoncpp. You may occasionally have to update the source in that submodules.
-You will know this needs to be performed when you perform a pull, and you check the status of your tree with `git status` and something similar to the following shows:
-
-```
-(main *)] $ git status
-On branch main
-Your branch is up-to-date with 'origin/main'.
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-  modified:   submodules/jsoncpp (new commits)
-
-no changes added to commit (use "git add" and/or "git commit -a")
-```
-
-To resolve this, simply update the sub-module using:
-
-```
-git submodule update --recursive
-```
-
-Then, update the external sources as before:
-
-```
-# This will perform required subcomponent operations.
-./update_external_sources.sh    # linux
-./update_external_sources.bat   # windows
-```
-
-Now, you should be able to continue building as normal.
 
 ### Repository Dependencies
 This repository attempts to resolve some of its dependencies by using
