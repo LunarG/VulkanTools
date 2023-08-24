@@ -72,9 +72,21 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
 
     option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
 
+elseif(ANDROID)
+
+    # Currently the Android build only build the API dump and screen shot layer.
+    # - libVkLayer_api_dump.so
+    # - libVkLayer_screenshot.so
+    option(BUILD_APIDUMP "Build api_dump layer" ON)
+    set(BUILD_MONITOR OFF)
+    option(BUILD_SCREENSHOT "Build screenshot layer" ON)
+    set(BUILD_DEMOS OFF)
+    set(BUILD_VKJSON OFF)
+    set(BUILD_VIA OFF)
+    set(BUILD_LAYERMGR OFF)
+
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
-    option(BUILD_LOADER OFF)
     option(BUILD_APIDUMP "Build api_dump layer" ON)
     option(BUILD_MONITOR "Build monitor layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
