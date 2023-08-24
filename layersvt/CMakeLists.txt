@@ -96,6 +96,9 @@ else()
         if (NOT APPLE)
             set_target_properties(VkLayer_${target} PROPERTIES LINK_FLAGS "-Wl,-Bsymbolic")
         endif ()
+        if (ANDROID)
+            target_link_Libraries(VkLayer_${target} log)
+        endif()
         install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
     endmacro()
 endif()
@@ -170,7 +173,10 @@ if (NOT APPLE)
     endif ()
 endif ()
 
-# json file creation
+if (ANDROID)
+    message(DEBUG "Android doesn't use json manifests.")
+    return()
+endif()
 
 # The output file needs Unix "/" separators or Windows "\" separators
 # Windows paths need to start with ".\", Unix paths do not.
