@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.17.2)
 
 project(VULKAN_TOOLS)
 
+add_subdirectory(scripts)
+
 set(API_NAME "Vulkan" CACHE STRING "API name")
 add_definitions(-DAPI_NAME="${API_NAME}")
 
@@ -9,26 +11,6 @@ add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
 
 include(GNUInstallDirs)
 
-if (JSONCPP_INSTALL_DIR)
-    list(APPEND CMAKE_PREFIX_PATH ${JSONCPP_INSTALL_DIR})
-endif()
-if (VULKAN_HEADERS_INSTALL_DIR)
-    list(APPEND CMAKE_PREFIX_PATH ${VULKAN_HEADERS_INSTALL_DIR})
-endif()
-if (GOOGLETEST_INSTALL_DIR)
-    list(APPEND CMAKE_PREFIX_PATH ${GOOGLETEST_INSTALL_DIR})
-endif()
-if (VALIJSON_INSTALL_DIR)
-    list(APPEND CMAKE_PREFIX_PATH ${VALIJSON_INSTALL_DIR})
-endif()
-if (VULKAN_LOADER_INSTALL_DIR)
-    list(APPEND CMAKE_PREFIX_PATH ${VULKAN_LOADER_INSTALL_DIR})
-endif()
-if (VULKAN_VALIDATIONLAYERS_INSTALL_DIR)
-    list(APPEND CMAKE_PREFIX_PATH ${VULKAN_VALIDATIONLAYERS_INSTALL_DIR})
-endif()
-
-file(TO_CMAKE_PATH "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}" VULKAN_VALIDATIONLAYERS_INSTALL_DIR)
 set(Vulkan-ValidationLayers_INCLUDE_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/include/vulkan")
 set(Vulkan-ValidationLayers_LIBRARY_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/lib")
 find_library(VkLayer_utils_LIBRARY VkLayer_utils HINTS ${Vulkan-ValidationLayers_LIBRARY_DIR})
@@ -83,7 +65,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     CMAKE_SYSTEM_NAME STREQUAL "Linux" OR
     CMAKE_SYSTEM_NAME MATCHES "BSD")
 
-    option(BUILD_TESTS "Build tests" ON)
     option(BUILD_APIDUMP "Build api_dump layer" ON)
     option(BUILD_MONITOR "Build monitor layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
@@ -94,7 +75,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
     option(BUILD_LOADER OFF)
-    option(BUILD_TESTS OFF)
     option(BUILD_APIDUMP "Build api_dump layer" ON)
     option(BUILD_MONITOR "Build monitor layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
@@ -105,6 +85,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
 endif()
 
+option(BUILD_TESTS "Build tests")
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
