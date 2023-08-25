@@ -28,8 +28,7 @@
 #include <string.h>
 #include <time.h>
 #include <unordered_map>
-#include <generated/vk_dispatch_table_helper.h>
-#include <vulkan/vk_layer.h>
+
 #include <vulkan/vulkan.h>
 
 #if defined(__linux__)
@@ -43,8 +42,8 @@
 #define TITLE_LENGTH 1000
 #define FPS_LENGTH 24
 struct monitor_layer_data {
-    VkLayerDispatchTable *device_dispatch_table{};
-    VkLayerInstanceDispatchTable *instance_dispatch_table{};
+    VulDeviceDispatchTable *device_dispatch_table{};
+    VulInstanceDispatchTable *instance_dispatch_table{};
 
     PFN_vkQueuePresentKHR pfnQueuePresentKHR{};
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -85,7 +84,7 @@ template monitor_layer_data *GetLayerDataPtr<monitor_layer_data>(void *data_key,
                                                                  std::unordered_map<void *, monitor_layer_data *> &data_map);
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice gpu, const VkDeviceCreateInfo *pCreateInfo,
-                                                              const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
+                                              const VkAllocationCallbacks *pAllocator, VkDevice *pDevice) {
     VkLayerDeviceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
     assert(chain_info->u.pLayerInfo);
@@ -107,8 +106,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice gpu, const VkDevi
     monitor_layer_data *my_device_data = GetLayerDataPtr(get_dispatch_key(*pDevice), layer_data_map);
 
     // Setup device dispatch table
-    my_device_data->device_dispatch_table = new VkLayerDispatchTable;
-    layer_init_device_dispatch_table(*pDevice, my_device_data->device_dispatch_table, fpGetDeviceProcAddr);
+    my_device_data->device_dispatch_table = new VulDeviceDispatchTable;
+    vulInitDeviceDispatchTable(*pDevice, my_device_data->device_dispatch_table, fpGetDeviceProcAddr);
 
     // store the loader callback for initializing created dispatchable objects
     chain_info = get_chain_info(pCreateInfo, VK_LOADER_DATA_CALLBACK);
@@ -126,17 +125,17 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice gpu, const VkDevi
     time(&my_device_data->lastTime);
 
     // Get our WSI hooks in
-    VkLayerDispatchTable *pTable = my_device_data->device_dispatch_table;
+    VulDeviceDispatchTable *pTable = my_device_data->device_dispatch_table;
     my_device_data->pfnQueuePresentKHR = (PFN_vkQueuePresentKHR)pTable->GetDeviceProcAddr(*pDevice, "vkQueuePresentKHR");
 
     return result;
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(VkInstance instance, uint32_t *pPhysicalDeviceCount,
-                                                                          VkPhysicalDevice *pPhysicalDevices) {
+                                                          VkPhysicalDevice *pPhysicalDevices) {
     dispatch_key key = get_dispatch_key(instance);
     monitor_layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
-    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VulInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
 
     VkResult result = pTable->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
 
@@ -151,11 +150,11 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(VkInstance instance, u
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroups(
-    VkInstance instance, uint32_t *pPhysicalDeviceGroupCount, VkPhysicalDeviceGroupProperties *pPhysicalDeviceGroupProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroups(VkInstance instance, uint32_t *pPhysicalDeviceGroupCount,
+                                                               VkPhysicalDeviceGroupProperties *pPhysicalDeviceGroupProperties) {
     dispatch_key key = get_dispatch_key(instance);
     monitor_layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
-    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VulInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
 
     VkResult result = pTable->EnumeratePhysicalDeviceGroups(instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
@@ -175,15 +174,15 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroups(
 VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice device, const VkAllocationCallbacks *pAllocator) {
     dispatch_key key = get_dispatch_key(device);
     monitor_layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
-    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VulDeviceDispatchTable *pTable = my_data->device_dispatch_table;
     pTable->DeviceWaitIdle(device);
     pTable->DestroyDevice(device, pAllocator);
     delete pTable;
     layer_data_map.erase(key);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo,
-                                                                const VkAllocationCallbacks *pAllocator, VkInstance *pInstance) {
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
+                                                VkInstance *pInstance) {
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
     assert(chain_info->u.pLayerInfo);
@@ -200,8 +199,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo *pCre
     if (result != VK_SUCCESS) return result;
 
     monitor_layer_data *my_data = GetLayerDataPtr(get_dispatch_key(*pInstance), layer_data_map);
-    my_data->instance_dispatch_table = new VkLayerInstanceDispatchTable;
-    layer_init_instance_dispatch_table(*pInstance, my_data->instance_dispatch_table, fpGetInstanceProcAddr);
+    my_data->instance_dispatch_table = new VulInstanceDispatchTable;
+    vulInitInstanceDispatchTable(*pInstance, my_data->instance_dispatch_table, fpGetInstanceProcAddr);
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     // Initialize connection to null in case vkCreateXcbSurfaceKHR is never called
@@ -235,7 +234,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo *pCre
 VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
     dispatch_key key = get_dispatch_key(instance);
     monitor_layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
-    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VulInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
     pTable->DestroyInstance(instance, pAllocator);
     delete pTable;
     layer_data_map.erase(key);
@@ -282,8 +281,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueuePresentKHR(VkQueue queue, const VkPresentI
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolPropertiesEXT(
-    VkPhysicalDevice physicalDevice, uint32_t *pToolCount, VkPhysicalDeviceToolPropertiesEXT *pToolProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice physicalDevice, uint32_t *pToolCount,
+                                                                    VkPhysicalDeviceToolPropertiesEXT *pToolProperties) {
     static const VkPhysicalDeviceToolPropertiesEXT monitor_layer_tool_props = {
         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT,
         nullptr,
@@ -314,10 +313,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolPropertiesEXT(
 }
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance instance,
-                                                                       const VkWin32SurfaceCreateInfoKHR *pCreateInfo,
-                                                                       const VkAllocationCallbacks *pAllocator,
-                                                                       VkSurfaceKHR *pSurface) {
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance instance, const VkWin32SurfaceCreateInfoKHR *pCreateInfo,
+                                                       const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface) {
     monitor_layer_data *my_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
     my_data->hwnd = pCreateInfo->hwnd;
 
@@ -325,10 +322,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance instance,
     return result;
 }
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(VkInstance instance,
-                                                                     const VkXcbSurfaceCreateInfoKHR *pCreateInfo,
-                                                                     const VkAllocationCallbacks *pAllocator,
-                                                                     VkSurfaceKHR *pSurface) {
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(VkInstance instance, const VkXcbSurfaceCreateInfoKHR *pCreateInfo,
+                                                     const VkAllocationCallbacks *pAllocator, VkSurfaceKHR *pSurface) {
     static bool xcbErrorPrinted = false;  // Only print xcb error message once
     xcb_get_property_cookie_t cookie;
     xcb_get_property_reply_t *reply;
@@ -385,7 +380,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
     monitor_layer_data *dev_data;
     dev_data = GetLayerDataPtr(get_dispatch_key(dev), layer_data_map);
-    VkLayerDispatchTable *pTable = dev_data->device_dispatch_table;
+    VulDeviceDispatchTable *pTable = dev_data->device_dispatch_table;
 
     if (pTable->GetDeviceProcAddr == NULL) return NULL;
     return pTable->GetDeviceProcAddr(dev, funcName);
@@ -413,7 +408,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
 
     monitor_layer_data *instance_data;
     instance_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
-    VkLayerInstanceDispatchTable *pTable = instance_data->instance_dispatch_table;
+    VulInstanceDispatchTable *pTable = instance_data->instance_dispatch_table;
 
     if (pTable->GetInstanceProcAddr == NULL) return NULL;
     return pTable->GetInstanceProcAddr(instance, funcName);

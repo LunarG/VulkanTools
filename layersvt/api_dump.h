@@ -32,6 +32,7 @@
 #include "vk_layer_table.h"
 #include "utils/vk_layer_extension_utils.h"
 #include "utils/vk_layer_utils.h"
+#include <vulkan/utility/vul_dispatch_table.h>
 
 // Include the video headers so we can print types that come from them
 #include "vk_video/vulkan_video_codecs_common.h"
@@ -1295,15 +1296,13 @@ void dump_json_function_head(ApiDumpInstance &dump_inst, const char *funcName, c
 
     // Display thread info
     if (settings.showThreadAndFrame()) {
-        { settings.stream() << settings.indentation(3) << "\"thread\" : \"Thread " << dump_inst.threadID() << "\",\n"; }
+        settings.stream() << settings.indentation(3) << "\"thread\" : \"Thread " << dump_inst.threadID() << "\",\n";
     }
 
     // Display elapsed time
     if (settings.showTimestamp()) {
-        {
-            settings.stream() << settings.indentation(3) << "\"time\" : \"" << dump_inst.current_time_since_start().count()
-                              << " us\",\n";
-        }
+        settings.stream() << settings.indentation(3) << "\"time\" : \"" << dump_inst.current_time_since_start().count()
+                          << " us\",\n";
     }
 
     // Display return value

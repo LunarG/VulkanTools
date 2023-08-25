@@ -57,6 +57,8 @@ set_target_properties(Vulkan::Vulkan PROPERTIES
     IMPORTED_LOCATION ${Vulkan_LIBRARY})
 target_link_libraries(Vulkan::Vulkan INTERFACE Vulkan::Headers)
 
+find_package(VulkanUtilityLibraries REQUIRED CONFIG)
+
 find_package(valijson REQUIRED CONFIG)
 
 find_package(jsoncpp REQUIRED CONFIG)
