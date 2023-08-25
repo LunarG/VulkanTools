@@ -99,30 +99,6 @@ export PATH=/usr/local/bin:$PATH
 brew install python python3 git
 ```
 
-### Android Additional System Requirements
-Install the required tools for Linux and Windows covered above, then add the
-following.
-
-#### Android Studio
-- Install 2.1 or later version of [Android Studio](https://developer.android.com/studio)
-- From the "Welcome to Android Studio" splash screen, add the following components using Configure > SDK Manager:
-  - SDK Tools > Android NDK
-
-#### Add NDK to path
-
-On Windows:
-```
-set PATH=%LOCALAPPDATA%\Android\sdk\ndk-bundle;%PATH%
-```
-On Linux:
-```
-export PATH=$HOME/Android/Sdk/ndk-bundle:$PATH
-```
-On macOS:
-```
-export PATH=$HOME/Library/Android/sdk/ndk-bundle:$PATH
-```
-
 ## Getting Started Build Instructions
 
 ### 64-bit Windows Build 
@@ -172,42 +148,8 @@ ctest --parallel 8 --output-on-failure
 ```
 
 ### Android Build
-Use the following to ensure the Android build works.
 
-#### Android Build from Windows
-From Developer Command Prompt for VS2017:
-```
-cd build-android
-update_external_sources_android.bat
-android-generate.bat
-ndk-build
-```
-
-#### Android Build from Linux
-From your terminal:
-```
-cd build-android
-./update_external_sources_android.sh
-./android-generate.sh
-ndk-build -j $(nproc)
-```
-
-#### Android Build from macOS 
-From your terminal:
-```
-cd build-android
-./update_external_sources_android.sh
-./android-generate.sh
-ndk-build -j $(sysctl -n hw.ncpu)
-```
-
-#### vkjson_info
-Currently vkjson_info is only available as an executable for devices with root access.
-
-To use, simply push it to the device and run it.  The resulting json file will be found in:
-```
-/sdcard/Android/<output>.json
-```
+TODO: Update android build documentation with new CMake build.
 
 ## The VulkanTools repository
 
