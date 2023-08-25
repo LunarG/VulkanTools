@@ -77,16 +77,6 @@ jobs:
       - name: Build and Test VulkanTools
         run: python3 scripts/github_ci_win.py --config ${{ matrix.config }} --arch ${{ matrix.arch }}
 
-  android:
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-          abi: [ arm64-v8a , armeabi-v7a ]
-    steps:
-    - uses: actions/checkout@v3
-    - name: ndk-build
-      run: python scripts/github_ci_android.py --abi ${{ matrix.abi }}
-
   android-cmake:
     runs-on: ubuntu-22.04
     steps:
@@ -109,4 +99,3 @@ jobs:
         run: cmake --build build
       - name: Install
         run: cmake --install build --prefix build/install
-    
