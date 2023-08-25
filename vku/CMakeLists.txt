@@ -18,8 +18,6 @@
 file(GLOB FILES_SOURCE ./*.cpp)
 file(GLOB FILES_HEADER ./*.h)
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
 add_library(vku STATIC ${FILES_SOURCE} ${FILES_HEADER})
 
 target_link_libraries(vku PRIVATE Vulkan::Headers)
