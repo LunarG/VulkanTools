@@ -7,7 +7,16 @@ add_subdirectory(scripts)
 set(API_NAME "Vulkan" CACHE STRING "API name")
 add_definitions(-DAPI_NAME="${API_NAME}")
 
-add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
+
+add_compile_definitions(VK_ENABLE_BETA_EXTENSIONS)
+
+# TODO: Cleanup VK definitions
+if (ANDROID)
+    add_compile_definitions(VK_USE_PLATFORM_ANDROID_KHR)
+endif()
 
 include(GNUInstallDirs)
 
