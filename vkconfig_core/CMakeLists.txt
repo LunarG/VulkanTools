@@ -58,5 +58,7 @@ if(Qt5_FOUND)
 
     target_link_libraries(vkconfig_core Vulkan::Headers valijson Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
 
-    add_subdirectory(test)
+    if(BUILD_TESTS)
+        add_subdirectory(test)
+    endif()
 endif()

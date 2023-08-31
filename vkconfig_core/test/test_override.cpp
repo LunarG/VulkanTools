@@ -132,7 +132,7 @@ TEST(test_override, vk_layer_settings_txt) {
 
     EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "enum_with_optional"));
     std::string setting_enum_with_optional;
-    vlGetLayerSettingValue(layerSettingSet, "enum_required_only", setting_enum_with_optional);
+    vlGetLayerSettingValue(layerSettingSet, "enum_with_optional", setting_enum_with_optional);
     EXPECT_STREQ("value1", setting_enum_with_optional.c_str());
 
     EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "flags_required_only"));
@@ -189,7 +189,7 @@ TEST(test_override, vk_layer_settings_txt) {
 
     EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "save_folder_required_only"));
     std::string setting_save_folder_required_only;
-    vlGetLayerSettingValue(layerSettingSet, "load_file_with_optional", setting_save_folder_required_only);
+    vlGetLayerSettingValue(layerSettingSet, "save_folder_required_only", setting_save_folder_required_only);
     EXPECT_STREQ("./my_test", setting_save_folder_required_only.c_str());
 
     EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "save_folder_with_optional"));
@@ -214,17 +214,17 @@ TEST(test_override, vk_layer_settings_txt) {
 
     EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "float_with_optional"));
     float setting_float_with_optional = 0.0f;
-    vlGetLayerSettingValue(layerSettingSet, "float_required_only", setting_float_with_optional);
+    vlGetLayerSettingValue(layerSettingSet, "float_with_optional", setting_float_with_optional);
     EXPECT_EQ(76.500000, setting_float_with_optional);
 
     EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "frames_required_only"));
     std::string setting_frames_required_only;
-    vlGetLayerSettingValue(layerSettingSet, "float_required_only", setting_frames_required_only);
+    vlGetLayerSettingValue(layerSettingSet, "frames_required_only", setting_frames_required_only);
     EXPECT_STREQ("76-82,75", setting_frames_required_only.c_str());
 
     EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "frames_with_optional"));
     std::string setting_frames_with_optional;
-    vlGetLayerSettingValue(layerSettingSet, "float_required_only", setting_frames_with_optional);
+    vlGetLayerSettingValue(layerSettingSet, "frames_with_optional", setting_frames_with_optional);
     EXPECT_STREQ("79-82,75", setting_frames_with_optional.c_str());
 
     EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "list_required_only"));

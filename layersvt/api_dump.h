@@ -28,7 +28,6 @@
 #endif  // NOMINMAX
 
 #include "vulkan/vk_layer.h"
-#include "vk_layer_config.h"
 #include "vk_layer_table.h"
 #include "utils/vk_layer_extension_utils.h"
 #include "utils/vk_layer_utils.h"

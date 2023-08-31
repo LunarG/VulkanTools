@@ -21,10 +21,10 @@ The Screenshot Layer can also be enabled and configured using the [Vulkan Config
 
 ## Android
 
-Frame numbers can be specified with the debug.vulkan.screenshot property:
+Frame numbers can be specified with the debug.vulkan.screenshot.frames property:
 
 ```
-adb shell setprop debug.vulkan.screenshot <framenumbers>
+adb shell setprop debug.vulkan.screenshot.frames <framenumbers>
 ```
 
 The directory in which to create the image files can be specified with the debug.vulkan.screenshot.dir property:
