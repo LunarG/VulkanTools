@@ -47,15 +47,16 @@ if(Qt5_FOUND)
     set(FILES_ALL ${FILES_SOURCE} ${FILES_HEADER} ${FILES_RESOURCES})
 
     add_library(vkconfig_core STATIC ${FILES_ALL})
+    target_compile_options(vkconfig_core PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/MP>)
     target_compile_definitions(vkconfig_core PRIVATE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)
+    set_target_properties(vkconfig_core PROPERTIES FOLDER "vkconfig")
 
     if(WIN32)
         target_compile_definitions(vkconfig_core PRIVATE _CRT_SECURE_NO_WARNINGS)
         target_link_libraries(vkconfig_core Cfgmgr32)
     endif()
 
-    target_link_libraries(vkconfig_core Vulkan::Headers Vulkan::LayerSettings vku valijson Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
-    target_compile_definitions(vkconfig_core PRIVATE ${VKCONFIG_DEFINITIONS})
+    target_link_libraries(vkconfig_core Vulkan::Headers valijson Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
 
     add_subdirectory(test)
 endif()
