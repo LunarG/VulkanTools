@@ -22,17 +22,14 @@ else()
 
     set(FILES_ALL ${FILES_UI} ${FILES_SOURCE} ${FILES_HEADER} ${FILES_DOCS} resources.qrc)
 
-    add_definitions(-DQT_NO_DEBUG_OUTPUT)
-    add_definitions(-DQT_NO_WARNING_OUTPUT)
-
     if(NOT APPLE)
         if (NOT DEFINED CMAKE_INSTALL_BINDIR)
             include(GNUInstallDirs)
         endif()
 
         if(WIN32)
-            add_definitions(-D_CRT_SECURE_NO_WARNINGS)
             add_executable(vkconfig WIN32 ${FILES_ALL} ${CMAKE_CURRENT_SOURCE_DIR}/resourcefiles/vkconfig.rc)
+            target_compile_definitions(vkconfig PRIVATE _CRT_SECURE_NO_WARNINGS)
             target_compile_options(vkconfig PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/MP>)
             target_link_libraries(vkconfig Cfgmgr32)
         else()
@@ -40,7 +37,8 @@ else()
         endif()
 
         target_link_libraries(vkconfig Vulkan::Headers vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
-        target_compile_definitions(vkconfig PRIVATE ${VKCONFIG_DEFINITIONS})
+        target_compile_definitions(vkconfig PRIVATE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)
+        set_target_properties(vkconfig PROPERTIES FOLDER "vkconfig")
 
         install(TARGETS vkconfig DESTINATION ${CMAKE_INSTALL_BINDIR})
 

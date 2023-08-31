@@ -22,7 +22,7 @@
 #include "../environment.h"
 #include "../layer.h"
 #include "../layer_manager.h"
-#include "../../vku/vk_layer_settings.h"
+#include <vulkan/layer/vk_layer_settings.hpp>
 
 #include <gtest/gtest.h>
 
@@ -115,86 +115,140 @@ TEST(test_override, vk_layer_settings_txt) {
 
     EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.available_layers, configuration));
 
-    EXPECT_EQ(false, vku::IsLayerSetting(LAYER, "not_found"));
+    VlLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
+    vlCreateLayerSettingSet(LAYER, nullptr, nullptr, nullptr, &layerSettingSet);
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "toogle"));
-    EXPECT_EQ(true, vku::GetLayerSettingBool(LAYER, "toogle"));
+    EXPECT_EQ(false, vlHasLayerSetting(layerSettingSet, "not_found"));
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "enum_required_only"));
-    EXPECT_STREQ("value2", vku::GetLayerSettingString(LAYER, "enum_required_only").c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "toogle"));
+    bool setting_toogle = false;
+    vlGetLayerSettingValue(layerSettingSet, "toogle", setting_toogle);
+    EXPECT_EQ(true, setting_toogle);
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "enum_with_optional"));
-    EXPECT_STREQ("value1", vku::GetLayerSettingString(LAYER, "enum_with_optional").c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "enum_required_only"));
+    std::string setting_enum_required_only;
+    vlGetLayerSettingValue(layerSettingSet, "enum_required_only", setting_enum_required_only);
+    EXPECT_STREQ("value2", setting_enum_required_only.c_str());
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "flags_required_only"));
-    std::vector<std::string> flags_required_only = vku::GetLayerSettingStrings(LAYER, "flags_required_only");
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "flags_with_optional"));
-    std::vector<std::string> flags_with_optional = vku::GetLayerSettingStrings(LAYER, "flags_with_optional");
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "enum_with_optional"));
+    std::string setting_enum_with_optional;
+    vlGetLayerSettingValue(layerSettingSet, "enum_required_only", setting_enum_with_optional);
+    EXPECT_STREQ("value1", setting_enum_with_optional.c_str());
 
-    EXPECT_STREQ("flag0", flags_required_only[0].c_str());
-    EXPECT_STREQ("flag2", flags_required_only[1].c_str());
-    EXPECT_STREQ("flag0", flags_with_optional[0].c_str());
-    EXPECT_STREQ("flag2", flags_with_optional[1].c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "flags_required_only"));
+    std::vector<std::string> setting_flags_required_only;
+    vlGetLayerSettingValues(layerSettingSet, "flags_required_only", setting_flags_required_only);
+    EXPECT_STREQ("flag0", setting_flags_required_only[0].c_str());
+    EXPECT_STREQ("flag2", setting_flags_required_only[1].c_str());
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "string_required_only"));
-    EXPECT_STREQ("My string", vku::GetLayerSettingString(LAYER, "string_required_only").c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "flags_with_optional"));
+    std::vector<std::string> setting_flags_with_optional;
+    vlGetLayerSettingValues(layerSettingSet, "flags_with_optional", setting_flags_with_optional);
+    EXPECT_STREQ("flag0", setting_flags_with_optional[0].c_str());
+    EXPECT_STREQ("flag2", setting_flags_with_optional[1].c_str());
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "string_with_optional"));
-    EXPECT_STREQ("My string", vku::GetLayerSettingString(LAYER, "string_with_optional").c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "string_required_only"));
+    std::string setting_string_required_only;
+    vlGetLayerSettingValue(layerSettingSet, "string_required_only", setting_string_required_only);
+    EXPECT_STREQ("My string", setting_string_required_only.c_str());
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "bool_required_only"));
-    EXPECT_EQ(true, vku::GetLayerSettingBool(LAYER, "bool_required_only"));
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "string_with_optional"));
+    std::string setting_string_with_optional;
+    vlGetLayerSettingValue(layerSettingSet, "string_required_only", setting_string_with_optional);
+    EXPECT_STREQ("My string", setting_string_with_optional.c_str());
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "bool_with_optional"));
-    EXPECT_EQ(true, vku::GetLayerSettingBool(LAYER, "bool_with_optional"));
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "bool_required_only"));
+    bool setting_bool_required_only = false;
+    vlGetLayerSettingValue(layerSettingSet, "bool_required_only", setting_bool_required_only);
+    EXPECT_EQ(true, setting_bool_required_only);
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "load_file_required_only"));
-    EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString(LAYER, "load_file_required_only").c_str());
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "load_file_with_optional"));
-    EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString(LAYER, "load_file_with_optional").c_str());
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "save_file_required_only"));
-    EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString(LAYER, "save_file_required_only").c_str());
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "save_file_with_optional"));
-    EXPECT_STREQ("./my_test.txt", vku::GetLayerSettingString(LAYER, "save_file_with_optional").c_str());
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "save_folder_required_only"));
-    EXPECT_STREQ("./my_test", vku::GetLayerSettingString(LAYER, "save_folder_required_only").c_str());
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "save_folder_with_optional"));
-    EXPECT_STREQ("./my_test", vku::GetLayerSettingString(LAYER, "save_folder_with_optional").c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "bool_with_optional"));
+    bool setting_bool_with_optional = false;
+    vlGetLayerSettingValue(layerSettingSet, "bool_with_optional", setting_bool_with_optional);
+    EXPECT_EQ(true, setting_bool_with_optional);
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "int_required_only"));
-    EXPECT_EQ(76, vku::GetLayerSettingInt(LAYER, "int_required_only"));
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "int_with_optional"));
-    EXPECT_EQ(82, vku::GetLayerSettingInt(LAYER, "int_with_optional"));
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "load_file_required_only"));
+    std::string setting_load_file_required_only;
+    vlGetLayerSettingValue(layerSettingSet, "load_file_required_only", setting_load_file_required_only);
+    EXPECT_STREQ("./my_test.txt", setting_load_file_required_only.c_str());
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "float_required_only"));
-    EXPECT_EQ(76.500000, vku::GetLayerSettingFloat(LAYER, "float_required_only"));
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "float_with_optional"));
-    EXPECT_EQ(76.500000, vku::GetLayerSettingFloat(LAYER, "float_with_optional"));
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "load_file_with_optional"));
+    std::string setting_load_file_with_optional;
+    vlGetLayerSettingValue(layerSettingSet, "load_file_with_optional", setting_load_file_with_optional);
+    EXPECT_STREQ("./my_test.txt", setting_load_file_with_optional.c_str());
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "frames_required_only"));
-    EXPECT_STREQ("76-82,75", vku::GetLayerSettingFrames(LAYER, "frames_required_only").c_str());
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "frames_with_optional"));
-    EXPECT_STREQ("79-82,75", vku::GetLayerSettingFrames(LAYER, "frames_with_optional").c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "save_file_required_only"));
+    std::string setting_save_file_required_only;
+    vlGetLayerSettingValue(layerSettingSet, "load_file_with_optional", setting_save_file_required_only);
+    EXPECT_STREQ("./my_test.txt", setting_save_file_required_only.c_str());
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "list_required_only"));
-    std::vector<std::pair<std::string, int>> list_required_only = vku::GetLayerSettingList(LAYER, "list_required_only");
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "save_file_with_optional"));
+    std::string setting_save_file_with_optional;
+    vlGetLayerSettingValue(layerSettingSet, "load_file_with_optional", setting_save_file_with_optional);
+    EXPECT_STREQ("./my_test.txt", setting_save_file_with_optional.c_str());
 
-    EXPECT_EQ(76, list_required_only[0].second);
-    EXPECT_EQ(82, list_required_only[1].second);
-    EXPECT_STREQ("stringB", list_required_only[2].first.c_str());
-    EXPECT_STREQ("stringD", list_required_only[3].first.c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "save_folder_required_only"));
+    std::string setting_save_folder_required_only;
+    vlGetLayerSettingValue(layerSettingSet, "load_file_with_optional", setting_save_folder_required_only);
+    EXPECT_STREQ("./my_test", setting_save_folder_required_only.c_str());
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "list_with_optional"));
-    std::vector<std::pair<std::string, int>> list_with_optional = vku::GetLayerSettingList(LAYER, "list_with_optional");
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "save_folder_with_optional"));
+    std::string setting_save_folder_with_optional;
+    vlGetLayerSettingValue(layerSettingSet, "save_folder_with_optional", setting_save_folder_with_optional);
+    EXPECT_STREQ("./my_test", setting_save_folder_with_optional.c_str());
 
-    EXPECT_EQ(76, list_with_optional[0].second);
-    EXPECT_STREQ("stringA", list_with_optional[1].first.c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "int_required_only"));
+    int setting_int_required_only = 0;
+    vlGetLayerSettingValue(layerSettingSet, "int_required_only", setting_int_required_only);
+    EXPECT_EQ(76, setting_int_required_only);
 
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "list_empty"));
-    std::vector<std::pair<std::string, int>> list_empty = vku::GetLayerSettingList(LAYER, "list_empty");
-    EXPECT_EQ(true, list_empty.empty());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "int_with_optional"));
+    int setting_int_with_optional = 0;
+    vlGetLayerSettingValue(layerSettingSet, "int_with_optional", setting_int_with_optional);
+    EXPECT_EQ(82, setting_int_with_optional);
+
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "float_required_only"));
+    float setting_float_required_only = 0.0f;
+    vlGetLayerSettingValue(layerSettingSet, "float_required_only", setting_float_required_only);
+    EXPECT_EQ(76.500000, setting_float_required_only);
+
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "float_with_optional"));
+    float setting_float_with_optional = 0.0f;
+    vlGetLayerSettingValue(layerSettingSet, "float_required_only", setting_float_with_optional);
+    EXPECT_EQ(76.500000, setting_float_with_optional);
+
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "frames_required_only"));
+    std::string setting_frames_required_only;
+    vlGetLayerSettingValue(layerSettingSet, "float_required_only", setting_frames_required_only);
+    EXPECT_STREQ("76-82,75", setting_frames_required_only.c_str());
+
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "frames_with_optional"));
+    std::string setting_frames_with_optional;
+    vlGetLayerSettingValue(layerSettingSet, "float_required_only", setting_frames_with_optional);
+    EXPECT_STREQ("79-82,75", setting_frames_with_optional.c_str());
+
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "list_required_only"));
+    std::vector<std::string> setting_list_required_only;
+    vlGetLayerSettingValues(layerSettingSet, "list_required_only", setting_list_required_only);
+    EXPECT_STREQ("76", setting_list_required_only[0].c_str());
+    EXPECT_STREQ("82", setting_list_required_only[1].c_str());
+    EXPECT_STREQ("stringB", setting_list_required_only[2].c_str());
+    EXPECT_STREQ("stringD", setting_list_required_only[3].c_str());
+
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "list_with_optional"));
+    std::vector<std::string> setting_list_with_optional;
+    vlGetLayerSettingValues(layerSettingSet, "list_with_optional", setting_list_with_optional);
+    EXPECT_STREQ("76", setting_list_with_optional[0].c_str());
+    EXPECT_STREQ("stringA", setting_list_with_optional[1].c_str());
+
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "list_empty"));
+    std::vector<std::string> setting_list_empty;
+    vlGetLayerSettingValues(layerSettingSet, "list_empty", setting_list_empty);
+    EXPECT_EQ(true, setting_list_empty.empty());
 
     EXPECT_EQ(true, SurrenderConfiguration(env));
+
+    vlDestroyLayerSettingSet(layerSettingSet, nullptr);
 
     env.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 }
@@ -218,21 +272,32 @@ TEST(test_override, env_var) {
 
     EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.available_layers, configuration));
 
-    EXPECT_EQ(false, vku::IsLayerSetting(LAYER, "env_o"));
+    VlLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
+    vlCreateLayerSettingSet(LAYER, nullptr, nullptr, nullptr, &layerSettingSet);
+
+    EXPECT_EQ(false, vlHasLayerSetting(layerSettingSet, "env_o"));
 
     qputenv("VK_LUNARG_REFERENCE_1_2_1_ENV_A", "pouet");
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "env_a"));
-    EXPECT_STREQ("pouet", vku::GetLayerSettingString(LAYER, "env_a").c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "env_a"));
+    std::string setting_env_a;
+    vlGetLayerSettingValue(layerSettingSet, "env_a", setting_env_a);
+    EXPECT_STREQ("pouet", setting_env_a.c_str());
 
     // Check support of environment variable without vendor namespace
     qputenv("VK_REFERENCE_1_2_1_ENV_B", "pouet");
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "env_b"));
-    EXPECT_STREQ("pouet", vku::GetLayerSettingString(LAYER, "env_b").c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "env_b"));
+    std::string setting_env_b;
+    vlGetLayerSettingValue(layerSettingSet, "env_b", setting_env_b);
+    EXPECT_STREQ("pouet", setting_env_b.c_str());
 
     // Check support of environment variable without full namespace
     qputenv("VK_ENV_C", "pouet");
-    EXPECT_EQ(true, vku::IsLayerSetting(LAYER, "env_c"));
-    EXPECT_STREQ("pouet", vku::GetLayerSettingString(LAYER, "env_c").c_str());
+    EXPECT_EQ(true, vlHasLayerSetting(layerSettingSet, "env_c"));
+    std::string setting_env_c;
+    vlGetLayerSettingValue(layerSettingSet, "env_c", setting_env_c);
+    EXPECT_STREQ("pouet", setting_env_c.c_str());
+
+    vlDestroyLayerSettingSet(layerSettingSet, nullptr);
 
     EXPECT_EQ(true, SurrenderConfiguration(env));
 
