@@ -1548,7 +1548,7 @@ void dump_json_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 @end function
 """
 
-POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow', 'AHardwareBuffer', 'wl_display']
+POINTER_TYPES = ['void', 'xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow', 'AHardwareBuffer', 'wl_display', '_screen_context', '_screen_window', '_screen_buffer']
 
 TRACKED_STATE = {
     'vkAllocateCommandBuffers':
