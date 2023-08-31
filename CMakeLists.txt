@@ -121,6 +121,7 @@ if(BUILD_VIA)
 endif()
 
 add_subdirectory(vku)
+
 if(BUILD_APIDUMP OR BUILD_MONITOR OR BUILD_SCREENSHOT)
     add_subdirectory(layersvt)
 endif()

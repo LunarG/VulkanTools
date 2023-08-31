@@ -84,7 +84,7 @@ if (WIN32)
             VERBATIM
         )
         add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
-        target_link_Libraries(VkLayer_${target} Vulkan::Headers Vulkan::UtilityHeaders ${VkLayer_utils_LIBRARY})
+        target_link_Libraries(VkLayer_${target} Vulkan::Headers Vulkan::UtilityHeaders Vulkan::LayerSettings ${VkLayer_utils_LIBRARY})
         set_target_properties(VkLayer_${target} PROPERTIES
             CXX_STANDARD 17
             CXX_STANDARD_REQUIRED ON
