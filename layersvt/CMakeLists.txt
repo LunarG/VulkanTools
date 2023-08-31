@@ -34,6 +34,11 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
        # TODO Add Metal Support
        add_definitions(-DVK_USE_PLATFORM_METAL_EXT)
     endif()
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    if (BUILD_METAL_SUPPORT)
+       # TODO Add Metal Support
+       add_definitions(-DVK_USE_PLATFORM_METAL_EXT)
+    endif()
 else()
     message(FATAL_ERROR "Unsupported Platform!")
 endif()
