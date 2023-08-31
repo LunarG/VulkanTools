@@ -23,6 +23,7 @@
 #include "containers/custom_containers.h"
 #include "utils/vk_layer_extension_utils.h"
 #include "vk_layer_table.h"
+#include <vulkan/layer/vk_layer_settings.hpp>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>

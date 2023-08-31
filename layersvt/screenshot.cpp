@@ -35,8 +35,8 @@
 
 using namespace std;
 
+#include <vulkan/layer/vk_layer_settings.hpp>
 #include <vulkan/vk_enum_string_helper.h>
-#include "vk_layer_config.h"
 #include "vk_layer_table.h"
 
 #include "screenshot_parsing.h"
@@ -45,21 +45,11 @@ using namespace std;
 
 #include <android/log.h>
 #include <sys/system_properties.h>
-
-const char *env_var_frames = "debug.vulkan.screenshot";
-const char *env_var_old = env_var_frames;
-const char *env_var_format = "debug.vulkan.screenshot.format";
-const char *env_var_dir = "debug.vulkan.screenshot.dir";
-#else  // Linux or Windows
-const char *env_var_old = "_VK_SCREENSHOT";
-const char *env_var_frames = "VK_SCREENSHOT_FRAMES";
-const char *env_var_format = "VK_SCREENSHOT_FORMAT";
-const char *env_var_dir = "VK_SCREENSHOT_DIR";
 #endif
 
-const char *settings_option_frames = "lunarg_screenshot.frames";
-const char *settings_option_format = "lunarg_screenshot.format";
-const char *settings_option_dir = "lunarg_screenshot.dir";
+const char *kSettingsKeyFrames = "frames";
+const char *kSettingKeyFormat = "format";
+const char *kSettingKeyDir = "dir";
 
 #ifdef ANDROID
 
@@ -114,8 +104,7 @@ namespace screenshot {
 
 std::mutex globalLock;
 
-const char *vk_screenshot_dir = nullptr;
-bool vk_screenshot_dir_used_env_var = false;
+std::string vk_screenshot_dir;
 
 bool printFormatWarning = true;
 
@@ -228,74 +217,6 @@ static bool isInScreenShotFrameRange(int frameNumber, FrameRange *pFrameRange, b
     return inRange;
 }
 
-// Get users request is specific color space format required
-void readScreenShotFormatENV(void) {
-    const char *vk_screenshot_format = getLayerOption(settings_option_format);
-    const char *env_var = local_getenv(env_var_format);
-
-    if (env_var != NULL) {
-        if (strlen(env_var) > 0) {
-            vk_screenshot_format = env_var;
-        } else if (strlen(env_var) == 0) {
-            local_free_getenv(env_var);
-            env_var = NULL;
-        }
-    }
-
-    if (vk_screenshot_format && *vk_screenshot_format) {
-        if (strcmp(vk_screenshot_format, "UNORM") == 0) {
-            userColorSpaceFormat = UNORM;
-        } else if (strcmp(vk_screenshot_format, "SRGB") == 0) {
-            userColorSpaceFormat = SRGB;
-        } else if (strcmp(vk_screenshot_format, "SNORM") == 0) {
-            userColorSpaceFormat = SNORM;
-        } else if (strcmp(vk_screenshot_format, "USCALED") == 0) {
-            userColorSpaceFormat = USCALED;
-        } else if (strcmp(vk_screenshot_format, "SSCALED") == 0) {
-            userColorSpaceFormat = SSCALED;
-        } else if (strcmp(vk_screenshot_format, "UINT") == 0) {
-            userColorSpaceFormat = UINT;
-        } else if (strcmp(vk_screenshot_format, "SINT") == 0) {
-            userColorSpaceFormat = SINT;
-        } else if (strcmp(vk_screenshot_format, "USE_SWAPCHAIN_COLORSPACE") != 0) {
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "screenshot",
-                                "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, "
-                                "SRGB\nSwapchain Colorspace will be used instead\n",
-                                vk_screenshot_format);
-#else
-            fprintf(stderr,
-                    "screenshot: Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
-                    "Swapchain Colorspace will be used instead\n",
-                    vk_screenshot_format);
-#endif
-        }
-    }
-
-    if (env_var != NULL) {
-        local_free_getenv(vk_screenshot_format);
-    }
-}
-
-void readScreenShotDir(void) {
-    vk_screenshot_dir = getLayerOption(settings_option_dir);
-    const char *env_var = local_getenv(env_var_dir);
-
-    if (env_var != NULL) {
-        if (strlen(env_var) > 0) {
-            vk_screenshot_dir = env_var;
-            vk_screenshot_dir_used_env_var = true;
-        } else if (strlen(env_var) == 0) {
-            local_free_getenv(env_var);
-        }
-    }
-#ifdef ANDROID
-    if (vk_screenshot_dir == NULL || strlen(vk_screenshot_dir) == 0) {
-        vk_screenshot_dir = "/sdcard/Android";
-    }
-#endif
-}
-
 // detect if frameNumber reach or beyond the right edge for screenshot in the range.
 // return:
 //       if frameNumber is already the last screenshot frame of the range(mean no another screenshot frame number >frameNumber and
@@ -355,31 +276,6 @@ static void populate_frame_list(const char *vk_screenshot_frames) {
     screenshotFramesReceived = true;
 }
 
-void readScreenShotFrames(void) {
-    const char *vk_screenshot_frames = getLayerOption(settings_option_frames);
-    const char *env_var = local_getenv(env_var_frames);
-
-    if (env_var != NULL && strlen(env_var) > 0) {
-        populate_frame_list(env_var);
-        local_free_getenv(env_var);
-        env_var = NULL;
-    } else if (vk_screenshot_frames && *vk_screenshot_frames) {
-        populate_frame_list(vk_screenshot_frames);
-    }
-    // Backwards compatibility
-    else {
-        const char *_vk_screenshot = local_getenv(env_var_old);
-        if (_vk_screenshot && *_vk_screenshot) {
-            populate_frame_list(_vk_screenshot);
-        }
-        local_free_getenv(_vk_screenshot);
-    }
-
-    if (env_var != NULL && strlen(env_var) == 0) {
-        local_free_getenv(env_var);
-    }
-}
-
 static bool memory_type_from_properties(VkPhysicalDeviceMemoryProperties *memory_properties, uint32_t typeBits,
                                         VkFlags requirements_mask, uint32_t *typeIndex) {
     // Search memtypes to find first index with those properties
@@ -413,10 +309,60 @@ static DeviceMapStruct *get_device_info(VkDevice dev) {
         return it->second;
 }
 
-static void init_screenshot() {
-    readScreenShotFormatENV();
-    readScreenShotDir();
-    readScreenShotFrames();
+static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
+    VlLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
+    vlCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", vlFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
+                            &layerSettingSet);
+
+    if (vlHasLayerSetting(layerSettingSet, kSettingsKeyFrames)) {
+        std::string value;
+        vlGetLayerSettingValue(layerSettingSet, kSettingsKeyFrames, value);
+        populate_frame_list(value.c_str());
+    }
+
+    if (vlHasLayerSetting(layerSettingSet, kSettingKeyFormat)) {
+        std::string value;
+        vlGetLayerSettingValue(layerSettingSet, kSettingKeyFormat, value);
+
+        if (value == "UNORM") {
+            userColorSpaceFormat = UNORM;
+        } else if (value == "SRGB") {
+            userColorSpaceFormat = SRGB;
+        } else if (value == "SNORM") {
+            userColorSpaceFormat = SNORM;
+        } else if (value == "USCALED") {
+            userColorSpaceFormat = USCALED;
+        } else if (value == "SSCALED") {
+            userColorSpaceFormat = SSCALED;
+        } else if (value == "UINT") {
+            userColorSpaceFormat = UINT;
+        } else if (value == "SINT") {
+            userColorSpaceFormat = SINT;
+        } else if (value == "USE_SWAPCHAIN_COLORSPACE") {
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "screenshot",
+                                "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, "
+                                "SRGB\nSwapchain Colorspace will be used instead\n",
+                                value.c_str());
+#else
+            fprintf(stderr,
+                    "screenshot: Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
+                    "Swapchain Colorspace will be used instead\n",
+                    value.c_str());
+#endif
+        }
+    }
+
+    if (vlHasLayerSetting(layerSettingSet, kSettingKeyDir)) {
+        vlGetLayerSettingValue(layerSettingSet, kSettingKeyDir, vk_screenshot_dir);
+    }
+#ifdef ANDROID
+    if (vk_screenshot_dir.empty()) {
+        vk_screenshot_dir = "/sdcard/Android";
+    }
+#endif
+
+    vlDestroyLayerSettingSet(layerSettingSet, pAllocator);
 }
 
 VkQueue getQueueForScreenshot(VkDevice device) {
@@ -1108,7 +1054,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 
     initInstanceTable(*pInstance, fpGetInstanceProcAddr);
 
-    init_screenshot();
+    init_screenshot(pCreateInfo, pAllocator);
 
     return result;
 }
@@ -1223,10 +1169,6 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     assert(devMap);
     VulDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     pDisp->DestroyDevice(device, pAllocator);
-
-    if (vk_screenshot_dir_used_env_var) {
-        local_free_getenv(vk_screenshot_dir);
-    }
 
     std::lock_guard<std::mutex> lg(globalLock);
     delete pDisp;
@@ -1369,7 +1311,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
             if ((inScreenShotFrames) || (inScreenShotFrameRange)) {
                 string fileName;
 
-                if (vk_screenshot_dir == NULL || strlen(vk_screenshot_dir) == 0) {
+                if (vk_screenshot_dir.empty()) {
                     fileName = to_string(frameNumber) + ".ppm";
                 } else {
                     fileName = vk_screenshot_dir;
