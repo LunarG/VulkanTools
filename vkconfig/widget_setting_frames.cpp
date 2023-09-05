@@ -40,8 +40,6 @@ WidgetSettingFrames::WidgetSettingFrames(QTreeWidget* tree, QTreeWidgetItem* ite
       field(new QLineEdit(this)),
       timer_error(new QTimer(this)),
       timer_valid(new QTimer(this)) {
-    assert(&meta);
-
     this->field->setFont(tree->font());
     this->field->setToolTip("Use list of comma separated integer ranges. Example: '0-2,16'.");
     this->field->setAlignment(Qt::AlignRight);

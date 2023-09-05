@@ -48,8 +48,6 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
       field(new QLineEdit(this)),
       add_button(new QPushButton(this)),
       list(meta.list) {
-    assert(&this->meta);
-
     std::vector<EnabledNumberOrString> value = this->data().value;
     for (std::size_t i = 0, n = value.size(); i < n; ++i) {
         ::RemoveValue(this->list, value[i]);

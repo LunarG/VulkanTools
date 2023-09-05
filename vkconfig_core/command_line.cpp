@@ -112,17 +112,6 @@ static CommandResetArg GetCommandResetId(const char* token) {
     return COMMAND_RESET_NONE;
 }
 
-static const CommandResetDesc& GetCommandReset(CommandResetArg reset_arg) {
-    assert(reset_arg != COMMAND_RESET_NONE);
-
-    for (std::size_t i = 0, n = countof(command_reset_desc); i < n; ++i) {
-        if (command_reset_desc[i].arguments == reset_arg) return command_reset_desc[i];
-    }
-
-    assert(0);
-    return command_reset_desc[0];
-}
-
 struct CommandLayersDesc {
     CommandLayersArg arguments;
     const char* token;
@@ -183,23 +172,12 @@ static CommandDocArg GetCommandDocId(const char* token) {
     return COMMAND_DOC_NONE;
 }
 
-static const CommandDocDesc& GetCommandDoc(CommandDocArg doc_arg) {
-    assert(doc_arg != COMMAND_DOC_NONE);
-
-    for (std::size_t i = 0, n = countof(command_doc_desc); i < n; ++i) {
-        if (command_doc_desc[i].arguments == doc_arg) return command_doc_desc[i];
-    }
-
-    assert(0);
-    return command_doc_desc[0];
-}
-
 CommandLine::CommandLine(int argc, char* argv[])
     : command(_command),
       command_reset_arg(_command_reset_arg),
       command_layers_arg(_command_layers_arg),
-      command_doc_arg(_command_doc_arg),
       layers_configuration_path(_layers_configuration_path),
+      command_doc_arg(_command_doc_arg),
       command_vulkan_sdk(_command_vulkan_sdk),
       doc_layer_name(_doc_layer_name),
       doc_out_dir(_doc_out_dir),

@@ -34,8 +34,6 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidge
       element(element),
       button(new QPushButton(this)),
       field(new QCheckBox(this)) {
-    assert(&meta);
-
     const std::string text = element.key.empty() ? format("%d", element.number) : element.key;
     const std::string status = meta.status == STATUS_STABLE ? "" : std::string(" (") + GetToken(this->meta.status) + ")";
 

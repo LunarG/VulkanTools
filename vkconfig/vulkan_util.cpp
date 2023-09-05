@@ -45,11 +45,6 @@ const char *GetVulkanLibrary() {
     return TABLE[VKC_PLATFORM];
 }
 
-static const char *GetPhysicalDeviceType(VkPhysicalDeviceType type) {
-    const char *translation[] = {"Other", "Integrated GPU", "Discrete GPU", "Virtual GPU", "CPU"};
-    return translation[type];
-}
-
 std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
     std::string result;
 
@@ -335,7 +330,7 @@ std::string GenerateVulkanStatus() {
                 (PFN_vkGetPhysicalDeviceProperties2)library.resolve("vkGetPhysicalDeviceProperties2");
             assert(pfnGetPhysicalDeviceProperties2);
 
-            VkPhysicalDeviceIDPropertiesKHR properties_deviceid{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES_KHR};
+            VkPhysicalDeviceIDPropertiesKHR properties_deviceid{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES_KHR, nullptr};
             VkPhysicalDeviceProperties2 properties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, &properties_deviceid};
 
             pfnGetPhysicalDeviceProperties2(devices[i], &properties2);

@@ -38,8 +38,6 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
       item_child(new QTreeWidgetItem()),
       field(new QLineEdit(this)),
       button(new QPushButton(this)) {
-    assert(&meta);
-
     this->field->show();
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
 

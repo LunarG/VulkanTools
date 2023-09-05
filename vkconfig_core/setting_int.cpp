@@ -56,7 +56,10 @@ bool SettingMetaInt::Load(const QJsonObject& json_setting) {
     return true;
 }
 
-std::string SettingMetaInt::Export(ExportMode export_mode) const { return format("%d", this->default_value); }
+std::string SettingMetaInt::Export(ExportMode export_mode) const {
+    (void)export_mode;
+    return format("%d", this->default_value);
+}
 
 bool SettingMetaInt::Equal(const SettingMeta& other) const {
     if (!SettingMeta::Equal(other)) return false;
