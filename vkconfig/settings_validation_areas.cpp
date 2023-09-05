@@ -154,8 +154,6 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
 
       meta_set(meta_set),
       data_set(data_set) {
-    assert(&meta_set);
-    assert(&data_set);
     assert(FindSetting(meta_set, "enables") != nullptr);
     assert(FindSetting(meta_set, "disables") != nullptr);
     assert(FindSetting(data_set, "enables") != nullptr);

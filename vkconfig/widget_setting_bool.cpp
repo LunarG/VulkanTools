@@ -26,8 +26,6 @@
 WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaBool& meta,
                                      SettingDataSet& data_set)
     : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new QCheckBox(this)) {
-    assert(&this->meta);
-
     this->field->setText(GetLabel(this->meta).c_str());
     this->field->setFont(this->tree->font());
     this->field->setToolTip(this->meta.description.c_str());

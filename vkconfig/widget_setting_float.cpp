@@ -37,8 +37,6 @@ WidgetSettingFloat::WidgetSettingFloat(QTreeWidget* tree, QTreeWidgetItem* item,
       field(new QLineEdit(this)),
       timer_error(new QTimer(this)),
       timer_valid(new QTimer(this)) {
-    assert(&meta);
-
     const std::string unit = meta.unit.empty() ? "" : format(" (%s)", meta.unit.c_str());
     const std::string status = meta.status == STATUS_STABLE ? "" : std::string(" (") + GetToken(this->meta.status) + ")";
 
