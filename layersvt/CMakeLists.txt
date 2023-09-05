@@ -162,17 +162,17 @@ if(BUILD_APIDUMP)
     run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_html.h)
     run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_json.h)
 
-    add_vk_layer(api_dump api_dump.cpp vk_layer_table.cpp)
+    add_vk_layer(api_dump api_dump.cpp api_dump.h vk_layer_table.cpp vk_layer_table.h VkLayer_api_dump.def api_dump_layer.md VkLayer_api_dump.json.in)
     add_dependencies(VkLayer_api_dump generate_api_cpp generate_api_text_h generate_api_html_h generate_api_json_h
         generate_api_video_text_h generate_api_video_html_h generate_api_video_json_h)
 endif ()
 
 if (NOT APPLE)
     if(BUILD_MONITOR)
-        add_vk_layer(monitor monitor.cpp vk_layer_table.cpp)
+        add_vk_layer(monitor monitor.cpp vk_layer_table.cpp vk_layer_table.h VKLayer_monitor.def monitor_layer.md VkLayer_monitor.json.in)
     endif ()
     if(BUILD_SCREENSHOT)
-        add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp vk_layer_table.cpp)
+        add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp screenshot_parsing.h vk_layer_table.cpp vk_layer_table.h VkLayer_screenshot.def screenshot_layer.md VkLayer_screenshot.json.in)
     endif ()
 endif ()
 
