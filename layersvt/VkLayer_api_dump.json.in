@@ -211,7 +211,7 @@
                     ]
                 },
                 {
-                    "key": "show_timestamp",
+                    "key": "timestamp",
                     "env": "VK_APIDUMP_TIMESTAMP",
                     "label": "Show Timestamp",
                     "description": "Show the timestamp of function calls since start in microseconds",

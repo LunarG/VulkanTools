@@ -115,6 +115,9 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCre
     if(result == VK_SUCCESS) {{
         initInstanceTable(*pInstance, fpGetInstanceProcAddr);
     }}
+    
+    ApiDumpInstance::current().initLayerSettings(pCreateInfo, pAllocator);
+    
     // Output the API dump
     if (ApiDumpInstance::current().shouldDumpOutput()) {{
         switch(ApiDumpInstance::current().settings().format())

@@ -54,7 +54,7 @@ if (BUILD_APIDUMP)
 
     set_target_properties(generate_api_cpp generate_api_text_h generate_api_html_h generate_api_json_h
         generate_api_video_text_h generate_api_video_html_h generate_api_video_json_h
-         PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
+         PROPERTIES FOLDER VkLayer_api_dump/${VULKANTOOLS_TARGET_FOLDER})
 endif()
 
 if (NOT APPLE)
@@ -90,7 +90,8 @@ if (WIN32)
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
         )
-        set_target_properties(copy-${target}-def-file PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
+        set_target_properties(copy-${target}-def-file PROPERTIES FOLDER "VkLayer_${target}")
+        set_target_properties(VkLayer_${target} PROPERTIES FOLDER "VkLayer_${target}")
     endmacro()
 else()
     macro(add_vk_layer target)
@@ -162,7 +163,7 @@ if(BUILD_APIDUMP)
     run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_html.h)
     run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_json.h)
 
-    add_vk_layer(api_dump api_dump.cpp api_dump.h vk_layer_table.cpp vk_layer_table.h VkLayer_api_dump.def api_dump_layer.md VkLayer_api_dump.json.in)
+    add_vk_layer(api_dump api_dump.cpp api_dump.h vk_layer_table.cpp vk_layer_table.h VkLayer_api_dump.def api_dump_layer.md VkLayer_api_dump.json.in ../scripts/api_dump_generator.py)
     add_dependencies(VkLayer_api_dump generate_api_cpp generate_api_text_h generate_api_html_h generate_api_json_h
         generate_api_video_text_h generate_api_video_html_h generate_api_video_json_h)
 endif ()
@@ -202,6 +203,7 @@ foreach(TARGET_NAME ${TARGET_NAMES})
         )
 
     add_custom_target(${TARGET_NAME}-json ALL COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake")
+    set_target_properties(${TARGET_NAME}-json PROPERTIES FOLDER "${TARGET_NAME}")
 
     # Add target for JSON file install.
     if(NOT WIN32)
@@ -218,3 +220,9 @@ foreach(TARGET_NAME ${TARGET_NAMES})
     endif()
 
 endforeach()
+
+if (NOT ANDROID)
+    if (BUILD_TESTS_DEBUG)
+        add_subdirectory(test)
+    endif ()
+endif ()

@@ -33,6 +33,8 @@
 #include "utils/vk_layer_utils.h"
 #include <vulkan/utility/vul_dispatch_table.h>
 
+#include <vulkan/layer/vk_layer_settings.hpp>
+
 // Include the video headers so we can print types that come from them
 #include "vk_video/vulkan_video_codecs_common.h"
 #include "vk_video/vulkan_video_codec_h264std.h"
@@ -79,13 +81,21 @@
 #define MAX_STRING_LENGTH 1024
 
 // Defines for utilized environment variables.
-#define API_DUMP_ENV_VAR_LOG_FILE "VK_APIDUMP_LOG_FILENAME"
-#define API_DUMP_ENV_VAR_OUTPUT_FMT "VK_APIDUMP_OUTPUT_FORMAT"
-#define API_DUMP_ENV_VAR_DETAILED_OUTPUT "VK_APIDUMP_DETAILED"
-#define API_DUMP_ENV_VAR_NO_ADDRESSES "VK_APIDUMP_NO_ADDR"
-#define API_DUMP_ENV_VAR_FLUSH_FILE "VK_APIDUMP_FLUSH"
-#define API_DUMP_ENV_VAR_OUTPUT_RANGE "VK_APIDUMP_OUTPUT_RANGE"
-#define API_DUMP_ENV_VAR_TIMESTAMP "VK_APIDUMP_TIMESTAMP"
+#define kSettingsKeyFile "file"
+#define kSettingsKeyLogFilename "log_filename"
+#define kSettingsKeyOutputFormat "output_format"
+#define kSettingsKeyDetailedOutput "detailed"
+#define kSettingsKeyNoAddr "no_addr"
+#define kSettingsKeyFlush "flush"
+#define kSettingsKeyOutputRange "output_range"
+#define kSettingsKeyTimestamp "timestamp"
+#define kSettingsKeyIndentSize "indent_size"
+#define kSettingsKeyShowTypes "show_types"
+#define kSettingsKeyNameSize "name_size"
+#define kSettingsKeyTypeSize "type_size"
+#define kSettingsKeyUseSpaces "use_spaces"
+#define kSettingsKeyShowShader "show_shader"
+#define kSettingsKeyShowThreadAndFrame "show_thread_and_frame"
 
 enum class ApiDumpFormat {
     Text,
@@ -333,88 +343,227 @@ class ApiDumpSettings {
         android_logcat_buf = std::make_unique<AndroidLogcatBuf<>>(std::make_unique<AndroidLogcatWriter>());
         output_stream.rdbuf(android_logcat_buf.get());
 #endif
-        std::string filename_string = "";
+    }
+
+    ~ApiDumpSettings() {
+        if (output_format == ApiDumpFormat::Html) {
+            // Close off html
+            output_stream << "</div></body></html>";
+        } else if (output_format == ApiDumpFormat::Json) {
+            // Close off json
+            output_stream << "\n]" << std::endl;
+        }
+    }
+
+    void setupInterFrameOutputFormatting(uint64_t frame_count) const /*name change? */
+    {
+        static bool hasPrintedAFrame = false;
+        switch (format()) {
+            case (ApiDumpFormat::Html):
+                if (frame_count > 0) {
+                    if (condFrameOutput.isFrameInRange(frame_count - 1)) output_stream << "</details>";
+                }
+                if (condFrameOutput.isFrameInRange(frame_count)) {
+                    output_stream << "<details class='frm'><summary>Frame ";
+                    if (show_thread_and_frame) {
+                        output_stream << frame_count;
+                    }
+                    output_stream << "</summary>";
+                }
+                break;
+
+            case (ApiDumpFormat::Json):
+
+                if (frame_count > 0) {
+                    if (condFrameOutput.isFrameInRange(frame_count - 1)) output_stream << "\n" << indentation(1) << "]\n}";
+                }
+                if (condFrameOutput.isFrameInRange(frame_count)) {
+                    if (!hasPrintedAFrame) {
+                        hasPrintedAFrame = true;
+                    } else {
+                        output_stream << ",\n";
+                    }
+                    output_stream << "{\n";
+                    if (show_thread_and_frame) {
+                        output_stream << indentation(1) << "\"frameNumber\" : \"" << frame_count << "\",\n";
+                    }
+                    output_stream << indentation(1) << "\"apiCalls\" :\n";
+                    output_stream << indentation(1) << "[\n";
+                }
+                break;
+            case (ApiDumpFormat::Text):
+                break;
+            default:
+                break;
+        }
+    }
+
+    void closeFrameOutput() const {
+        switch (format()) {
+            case (ApiDumpFormat::Html):
+                output_stream << "</details>";
+                break;
+            case (ApiDumpFormat::Json):
+                output_stream << "\n" << indentation(1) << "]\n}";
+                break;
+            case (ApiDumpFormat::Text):
+                break;
+            default:
+                break;
+        }
+    }
+
+    ApiDumpFormat format() const { return output_format; }
+
+    void formatNameType(int indents, const char *name, const char *type) const {
+        output_stream << indentation(indents) << name << ": ";
+        // We have to 'print' an empty string for the setw to actually add the desired padding.
+        if (use_spaces)
+            output_stream << std::setw(name_size - (int)strlen(name) - 2) << "";
+        else
+            output_stream << std::setw((name_size - (int)strlen(name) - 3 + tab_size) / tab_size) << "";
+
+        if (show_type) {
+            if (use_spaces)
+                output_stream << std::left << std::setw(type_size) << type << " = ";
+            else
+                output_stream << type << std::setw((type_size - (int)strlen(type) - 1 + tab_size) / tab_size) << ""
+                              << " = ";
+        } else {
+            output_stream << " = ";
+        }
+    }
+
+    inline const char *indentation(int indents) const {
+        // We have to 'print' an empty string for the setw to actually add the desired padding.
+        output_stream << std::setw(indents * indent_size) << "";
+        return "";
+    }
+
+    bool shouldFlush() const { return should_flush; }
+
+    bool showAddress() const { return show_address; }
+
+    bool showParams() const { return show_params; }
+
+    bool showShader() const { return show_shader; }
+
+    bool showType() const { return show_type; }
+
+    bool showTimestamp() const { return show_timestamp; }
+
+    bool showThreadAndFrame() const { return show_thread_and_frame; }
+
+    // The const cast is necessary because everyone who 'writes' to the stream necessarily must be able to modify it.
+    // Since basically every function in this struct is const, we have to work around that.
+    std::ostream &stream() const { return output_stream; }
+
+    bool isFrameInRange(uint64_t frame) const { return condFrameOutput.isFrameInRange(frame); }
+
+    void init(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
+        VlLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
+        vlCreateLayerSettingSet("VK_LAYER_LUNARG_api_dump", vlFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
+                                &layerSettingSet);
+
         // If the layer settings file has a flag indicating to output to a file,
         // do so, to the appropriate filename.
-        const char *file_option = getLayerOption("lunarg_api_dump.file");
-        if (file_option != NULL) {
-            std::string lowered_option = ToLowerString(std::string(file_option));
-            if (lowered_option == "true") {
-                const char *filename_option = getLayerOption("lunarg_api_dump.log_filename");
-                if (filename_option != NULL && strcmp(filename_option, "") != 0) {
-                    filename_string = filename_option;
-                } else {
-                    filename_string = "vk_apidump.txt";
+        std::string filename_string = "";
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyFile)) {
+            bool file = false;
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyFile, file);
+
+            if (file) {
+                if (vlHasLayerSetting(layerSettingSet, kSettingsKeyLogFilename)) {
+                    vlGetLayerSettingValue(layerSettingSet, kSettingsKeyLogFilename, filename_string);
+                    if (filename_string.empty()) {
+                        filename_string = "vk_apidump.txt";
+                    }
                 }
             }
         }
-        // If an environment variable is set, always output to that filename instead,
-        // whether or not the settings file enables the option.  Just assume a non-empty
-        // string is asking for the file output to the given name.
-        std::string env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_LOG_FILE);
-        if (!env_value.empty()) {
-            filename_string = env_value;
-        }
+
         // If one of the above has set a filename, open the file as an output stream.
         if (!filename_string.empty()) {
             output_file_stream.open(filename_string, std::ofstream::out | std::ostream::trunc);
             output_stream.rdbuf(output_file_stream.rdbuf());
         }
 
-        // Get the remaining settings (some we also want to provide the ability to override
-        // using environment variables).
-
-        output_format = readFormatOption("lunarg_api_dump.output_format", ApiDumpFormat::Text);
-        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_OUTPUT_FMT);
-        if (!env_value.empty()) {
-            if (ToLowerString(env_value) == "html") {
+        output_format = ApiDumpFormat::Text;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyOutputFormat)) {
+            std::string value;
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyOutputFormat, value);
+            value = ToLowerString(value);
+            if (value == "html") {
                 output_format = ApiDumpFormat::Html;
-            } else if (ToLowerString(env_value) == "json") {
+            } else if (value == "json") {
                 output_format = ApiDumpFormat::Json;
             } else {
                 output_format = ApiDumpFormat::Text;
             }
         }
 
-        show_params = readBoolOption("lunarg_api_dump.detailed", true);
-        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_DETAILED_OUTPUT);
-        if (!env_value.empty()) {
-            show_params = GetStringBooleanValue(env_value);
+        show_params = true;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyDetailedOutput)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyDetailedOutput, show_params);
         }
 
-        show_address = !readBoolOption("lunarg_api_dump.no_addr", false);
-        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_NO_ADDRESSES);
-        if (!env_value.empty()) {
-            show_address = !GetStringBooleanValue(env_value);
+        show_address = false;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyNoAddr)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyNoAddr, show_address);
         }
 
-        should_flush = readBoolOption("lunarg_api_dump.flush", true);
-        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_FLUSH_FILE);
-        if (!env_value.empty()) {
-            should_flush = !GetStringBooleanValue(env_value);
+        should_flush = true;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyFlush)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyFlush, should_flush);
         }
 
-        show_timestamp = readBoolOption("lunarg_api_dump.show_timestamp", false);
-        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_TIMESTAMP);
-        if (!env_value.empty()) {
-            show_timestamp = GetStringBooleanValue(env_value);
+        show_timestamp = false;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyTimestamp)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyTimestamp, show_timestamp);
         }
 
-        indent_size = std::max(readIntOption("lunarg_api_dump.indent_size", 4), 0);
+        indent_size = 4;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyIndentSize)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyIndentSize, indent_size);
+            indent_size = std::max(indent_size, 0);
+        }
         tab_size = indent_size;
-        show_type = readBoolOption("lunarg_api_dump.show_types", true);
-        name_size = std::max(readIntOption("lunarg_api_dump.name_size", 32), 0);
-        type_size = std::max(readIntOption("lunarg_api_dump.type_size", 0), 0);
-        use_spaces = readBoolOption("lunarg_api_dump.use_spaces", true);
-        show_shader = readBoolOption("lunarg_api_dump.show_shader", false);
-        show_thread_and_frame = readBoolOption("lunarg_api_dump.show_thread_and_frame", true);
+
+        show_type = true;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyShowTypes)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyShowTypes, show_type);
+        }
+
+        name_size = 32;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyNameSize)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyNameSize, name_size);
+            name_size = std::max(name_size, 0);
+        }
+
+        type_size = 0;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyTypeSize)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyTypeSize, type_size);
+            type_size = std::max(type_size, 0);
+        }
+
+        use_spaces = true;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyUseSpaces)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyUseSpaces, use_spaces);
+        }
+
+        show_shader = false;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyShowShader)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyShowShader, show_shader);
+        }
+
+        show_thread_and_frame = true;
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyShowThreadAndFrame)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyShowThreadAndFrame, show_thread_and_frame);
+        }
 
         std::string cond_range_string;
-        env_value = GetPlatformEnvVar(API_DUMP_ENV_VAR_OUTPUT_RANGE);
-        if (!env_value.empty()) {
-            cond_range_string = env_value;
-        } else {
-            cond_range_string = getLayerOption("lunarg_api_dump.output_range");
+        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyOutputRange)) {
+            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyOutputRange, cond_range_string);
         }
 
         if (cond_range_string == "" || cond_range_string == "0-0") {  //"0-0" is every frame, no need to check
@@ -544,122 +693,9 @@ class ApiDumpSettings {
         if (isFrameInRange(0)) {
             setupInterFrameOutputFormatting(0);
         }
+
+        vlDestroyLayerSettingSet(layerSettingSet, pAllocator);
     }
-
-    ~ApiDumpSettings() {
-        if (output_format == ApiDumpFormat::Html) {
-            // Close off html
-            output_stream << "</div></body></html>";
-        } else if (output_format == ApiDumpFormat::Json) {
-            // Close off json
-            output_stream << "\n]" << std::endl;
-        }
-    }
-
-    void setupInterFrameOutputFormatting(uint64_t frame_count) const /*name change? */
-    {
-        static bool hasPrintedAFrame = false;
-        switch (format()) {
-            case (ApiDumpFormat::Html):
-                if (frame_count > 0) {
-                    if (condFrameOutput.isFrameInRange(frame_count - 1)) output_stream << "</details>";
-                }
-                if (condFrameOutput.isFrameInRange(frame_count)) {
-                    output_stream << "<details class='frm'><summary>Frame ";
-                    if (show_thread_and_frame) {
-                        output_stream << frame_count;
-                    }
-                    output_stream << "</summary>";
-                }
-                break;
-
-            case (ApiDumpFormat::Json):
-
-                if (frame_count > 0) {
-                    if (condFrameOutput.isFrameInRange(frame_count - 1)) output_stream << "\n" << indentation(1) << "]\n}";
-                }
-                if (condFrameOutput.isFrameInRange(frame_count)) {
-                    if (!hasPrintedAFrame) {
-                        hasPrintedAFrame = true;
-                    } else {
-                        output_stream << ",\n";
-                    }
-                    output_stream << "{\n";
-                    if (show_thread_and_frame) {
-                        output_stream << indentation(1) << "\"frameNumber\" : \"" << frame_count << "\",\n";
-                    }
-                    output_stream << indentation(1) << "\"apiCalls\" :\n";
-                    output_stream << indentation(1) << "[\n";
-                }
-                break;
-            case (ApiDumpFormat::Text):
-                break;
-            default:
-                break;
-        }
-    }
-
-    void closeFrameOutput() const {
-        switch (format()) {
-            case (ApiDumpFormat::Html):
-                output_stream << "</details>";
-                break;
-            case (ApiDumpFormat::Json):
-                output_stream << "\n" << indentation(1) << "]\n}";
-                break;
-            case (ApiDumpFormat::Text):
-                break;
-            default:
-                break;
-        }
-    }
-
-    ApiDumpFormat format() const { return output_format; }
-
-    void formatNameType(int indents, const char *name, const char *type) const {
-        output_stream << indentation(indents) << name << ": ";
-        // We have to 'print' an empty string for the setw to actually add the desired padding.
-        if (use_spaces)
-            output_stream << std::setw(name_size - (int)strlen(name) - 2) << "";
-        else
-            output_stream << std::setw((name_size - (int)strlen(name) - 3 + tab_size) / tab_size) << "";
-
-        if (show_type) {
-            if (use_spaces)
-                output_stream << std::left << std::setw(type_size) << type << " = ";
-            else
-                output_stream << type << std::setw((type_size - (int)strlen(type) - 1 + tab_size) / tab_size) << ""
-                              << " = ";
-        } else {
-            output_stream << " = ";
-        }
-    }
-
-    inline const char *indentation(int indents) const {
-        // We have to 'print' an empty string for the setw to actually add the desired padding.
-        output_stream << std::setw(indents * indent_size) << "";
-        return "";
-    }
-
-    bool shouldFlush() const { return should_flush; }
-
-    bool showAddress() const { return show_address; }
-
-    bool showParams() const { return show_params; }
-
-    bool showShader() const { return show_shader; }
-
-    bool showType() const { return show_type; }
-
-    bool showTimestamp() const { return show_timestamp; }
-
-    bool showThreadAndFrame() const { return show_thread_and_frame; }
-
-    // The const cast is necessary because everyone who 'writes' to the stream necessarily must be able to modify it.
-    // Since basically every function in this struct is const, we have to work around that.
-    std::ostream &stream() const { return output_stream; }
-
-    bool isFrameInRange(uint64_t frame) const { return condFrameOutput.isFrameInRange(frame); }
 
    private:
     // Utility member to enable easier comparison by forcing a string to all lower-case
@@ -667,95 +703,6 @@ class ApiDumpSettings {
         std::string lower_value = value;
         std::transform(lower_value.begin(), lower_value.end(), lower_value.begin(), ::tolower);
         return lower_value;
-    }
-
-    // Utility member for getting a platform environment variable on various platforms.
-    std::string GetPlatformEnvVar(const std::string &var) {
-        std::string ret_string = "";
-#ifdef _WIN32
-        char temp[MAX_STRING_LENGTH];
-        int bytes = GetEnvironmentVariableA(var.c_str(), temp, MAX_STRING_LENGTH - 1);
-        if (0 < bytes) {
-            ret_string = temp;
-        }
-#elif defined(__ANDROID__)
-        std::string command = "getprop debug.";
-        std::string lower_var = ToLowerString(var);
-
-        // Remove any prefix "VK_" for Android properties
-        if (lower_var.rfind("vk_", 0) == 0) {
-            lower_var = lower_var.substr(3);
-        }
-        command += lower_var;
-
-        FILE *pipe = popen(command.c_str(), "r");
-        if (pipe != nullptr) {
-            char result[255];
-            result[0] = '\0';
-            fgets(result, 255, pipe);
-            pclose(pipe);
-            size_t count = strcspn(result, "\r\n");
-            if (count > 0) {
-                ret_string = std::string(result, count);
-            }
-        }
-#else
-        const char *ret_value = getenv(var.c_str());
-        if (nullptr != ret_value) {
-            ret_string = ret_value;
-        }
-#endif
-        return ret_string;
-    }
-
-    // Utility member to convert from string to a boolean
-    bool GetStringBooleanValue(const std::string &value) {
-        auto lower_str = ToLowerString(value);
-        if (lower_str == "true") {
-            return true;
-        }
-        if (lower_str == "on") {
-            return true;
-        }
-        if (lower_str == "1") {
-            return true;
-        }
-        return false;
-    }
-
-    static bool readBoolOption(const char *option, bool default_value) {
-        const char *string_option = getLayerOption(option);
-        if (string_option == NULL) return default_value;
-        std::string lowered_option = ToLowerString(std::string(string_option));
-        if (lowered_option == "true")
-            return true;
-        else if (lowered_option == "false")
-            return false;
-        else
-            return default_value;
-    }
-
-    static int readIntOption(const char *option, int default_value) {
-        const char *string_option = getLayerOption(option);
-        int value;
-        if (sscanf(string_option, "%d", &value) != 1) {
-            return default_value;
-        } else {
-            return value;
-        }
-    }
-
-    static ApiDumpFormat readFormatOption(const char *option, ApiDumpFormat default_value) {
-        const char *string_option = getLayerOption(option);
-        std::string lowered_option = ToLowerString(std::string(string_option));
-        if (lowered_option == "text")
-            return ApiDumpFormat::Text;
-        else if (lowered_option == "html")
-            return ApiDumpFormat::Html;
-        else if (lowered_option == "json")
-            return ApiDumpFormat::Json;
-        else
-            return default_value;
     }
 
     // The mutable is necessary because everyone who 'writes' to the stream necessarily must be able to modify it.
@@ -796,6 +743,10 @@ class ApiDumpInstance {
 
     ~ApiDumpInstance() {
         if (!first_func_call_on_frame) settings().closeFrameOutput();
+    }
+
+    void initLayerSettings(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
+        this->dump_settings.init(pCreateInfo, pAllocator);
     }
 
     uint64_t frameCount() {
