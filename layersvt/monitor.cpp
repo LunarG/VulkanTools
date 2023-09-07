@@ -20,8 +20,6 @@
  * Author: Chris Forbes <chrisforbes@google.com>
  * Author: Tony Barbour <tony@lunarg.com>
  */
-#include "containers/custom_containers.h"
-#include "utils/vk_layer_extension_utils.h"
 #include "vk_layer_table.h"
 #include <vulkan/layer/vk_layer_settings.hpp>
 #include <assert.h>

@@ -6,15 +6,15 @@
             "sub_dir": "Vulkan-Headers",
             "build_dir": "Vulkan-Headers/build",
             "install_dir": "Vulkan-Headers/build/install",
-            "commit": "v1.3.262"
+            "commit": "v1.3.264"
         },
         {
             "name": "Vulkan-Utility-Libraries",
-            "url": "https://github.com/KhronosGroup/Vulkan-Utility-Libraries.git",
+            "url": "https://github.com/KhronosGroup/Vulkan-Utility-Libraries",
             "sub_dir": "Vulkan-Utility-Libraries",
             "build_dir": "Vulkan-Utility-Libraries/build",
             "install_dir": "Vulkan-Utility-Libraries/build/install",
-            "commit": "dca404674dfb987751c3bbba3237e3d6cda55751",
+            "commit": "ba0d57a51424de68a86326e393a65b26373e1c1f",
             "deps": [
                 {
                     "var_name": "VULKAN_HEADERS_INSTALL_DIR",
@@ -28,7 +28,7 @@
             "sub_dir": "Vulkan-Loader",
             "build_dir": "Vulkan-Loader/build",
             "install_dir": "Vulkan-Loader/build/install",
-            "commit": "v1.3.262",
+            "commit": "v1.3.264",
             "deps": [
                 {
                     "var_name": "VULKAN_HEADERS_INSTALL_DIR",
@@ -47,7 +47,7 @@
             "sub_dir": "Vulkan-Tools",
             "build_dir": "Vulkan-Tools/build",
             "install_dir": "Vulkan-Tools/build/install",
-            "commit": "v1.3.261",
+            "commit": "v1.3.263",
             "deps": [
                 {
                     "var_name": "VULKAN_HEADERS_INSTALL_DIR",
@@ -64,29 +64,6 @@
             "build_platforms": [
                 "windows",
                 "linux"
-            ]
-        },
-        {
-            "name": "Vulkan-ValidationLayers",
-            "url": "https://github.com/KhronosGroup/Vulkan-ValidationLayers.git",
-            "sub_dir": "Vulkan-ValidationLayers",
-            "build_dir": "Vulkan-ValidationLayers/build",
-            "install_dir": "Vulkan-ValidationLayers/build/install",
-            "commit": "e6bdb8d71409a96a4174589ea195d0dc1e920625",
-            "deps": [
-                {
-                    "var_name": "VULKAN_HEADERS_INSTALL_DIR",
-                    "repo_name": "Vulkan-Headers"
-                },
-                {
-                    "var_name": "VULKAN_LOADER_INSTALL_DIR",
-                    "repo_name": "Vulkan-Loader"
-                }
-            ],
-            "cmake_options": [
-                "-DBUILD_LAYERS=OFF",
-                "-DBUILD_LAYER_SUPPORT_FILES=ON",
-                "-DUSE_ROBIN_HOOD_HASHING=OFF"
             ]
         },
         {
@@ -133,7 +110,6 @@
         "Vulkan-Headers": "VULKAN_HEADERS_INSTALL_DIR",
         "Vulkan-Utility-Libraries": "VULKAN_UTILITY_LIBRARIES_INSTALL_DIR",
         "Vulkan-Loader": "VULKAN_LOADER_INSTALL_DIR",
-        "Vulkan-ValidationLayers": "VULKAN_VALIDATIONLAYERS_INSTALL_DIR",
         "jsoncpp": "JSONCPP_INSTALL_DIR",
         "valijson": "VALIJSON_INSTALL_DIR",
         "googletest": "GOOGLETEST_INSTALL_DIR"
