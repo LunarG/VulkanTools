@@ -112,14 +112,12 @@ if (APPLE)
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_BINARY_DIR}
-        ${Vulkan-ValidationLayers_INCLUDE_DIR}
     )
 else ()
     include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_BINARY_DIR}
-        ${Vulkan-ValidationLayers_INCLUDE_DIR}
     )
 endif()
 

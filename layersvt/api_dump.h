@@ -29,9 +29,7 @@
 
 #include "vulkan/vk_layer.h"
 #include "vk_layer_table.h"
-#include "utils/vk_layer_extension_utils.h"
-#include "utils/vk_layer_utils.h"
-#include <vulkan/utility/vul_dispatch_table.h>
+#include <vulkan/utility/vk_dispatch_table.h>
 
 #include <vulkan/layer/vk_layer_settings.hpp>
 
@@ -45,6 +43,7 @@
 #include "vk_video/vulkan_video_codec_h265std_encode.h"
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <fstream>
 #include <mutex>
@@ -56,6 +55,7 @@
 #include <string>
 #include <type_traits>
 #include <map>
+#include <set>
 #include <thread>
 #include <unordered_map>
 #include <vector>

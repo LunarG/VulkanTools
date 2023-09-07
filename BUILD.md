@@ -203,19 +203,6 @@ to use a loader built from a repository, then you must build the
 with its install target. Take note of its install directory location and pass
 it on the CMake command line for building this repository, as described below.
 
-#### Vulkan-ValidationLayers
-The tools in this repository depend on the Vulkan validation layers.
-
-Validation layers can be used from an installed LunarG SDK, an installed Linux
-package, or from a driver installation on Windows.
-
-If the validation layers are not available from any of these methods and/or
-it is important to use the validation layers built from a repository, then you
-must build the
-[Vulkan-ValidationLayers repository](https://github.com/KhronosGroup/Vulkan-ValidationLayers.git)
-with its install target. Take note of its install directory location and pass
-it on the CMake command line for building this repository, as described below.
-
 #### Khronos Vulkan-Tools
 
 The tests in this repository depend on the Vulkan-Tools repository, which is
@@ -254,7 +241,7 @@ Visual Studio is used to build the software, and will re-run CMake as appropriat
 To build all Windows targets (e.g. in a "Developer Command Prompt for VS2017" window):
 ```
 cd VulkanTools  # cd to the root of the VulkanTools git repository
-cmake -S . -B dbuild -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio 15 2017 Win64" -DVULKAN_HEADERS_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_LOADER_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_VALIDATIONLAYERS_INSTALL_DIR=absolute_path_to_install_directory
+cmake -S . -B dbuild -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio 15 2017 Win64" -DVULKAN_HEADERS_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_LOADER_INSTALL_DIR=absolute_path_to_install_directory
 cmake --build dbuild --config Debug --target install
 ```
 
@@ -293,7 +280,7 @@ This build process builds all items in the VulkanTools repository
 Example debug build:
 ```
 cd VulkanTools  # cd to the root of the VulkanTools git repository
-cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DVULKAN_HEADERS_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_LOADER_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_VALIDATIONLAYERS_INSTALL_DIR=absolute_path_to_install_directory
+cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DVULKAN_HEADERS_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_LOADER_INSTALL_DIR=absolute_path_to_install_directory
 cd dbuild
 make -j8
 ```

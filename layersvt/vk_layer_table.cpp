@@ -25,6 +25,8 @@
 static device_table_map tableMap;
 static instance_table_map tableInstanceMap;
 
+dispatch_key get_dispatch_key(const void *object) { return (dispatch_key) * (VulDeviceDispatchTable **)object; }
+
 // Map lookup must be thread safe
 VulDeviceDispatchTable *device_dispatch_table(void *object) {
     dispatch_key key = get_dispatch_key(object);

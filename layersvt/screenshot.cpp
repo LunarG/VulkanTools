@@ -19,7 +19,7 @@
  * Author: Jon Ashburn <jon@lunarg.com>
  * Author: Tony Barbour <tony@lunarg.com>
  */
-
+#include <vulkan/utility/vk_format_utils.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -496,7 +496,7 @@ static bool writePPM(const char *filename, VkImage image1) {
     uint32_t const width = imageMap[image1]->imageExtent.width;
     uint32_t const height = imageMap[image1]->imageExtent.height;
     VkFormat const format = imageMap[image1]->format;
-    uint32_t const numChannels = FormatComponentCount(format);
+    uint32_t const numChannels = vkuFormatComponentCount(format);
 
     if ((3 != numChannels) && (4 != numChannels)) {
         assert(0);
@@ -569,34 +569,34 @@ static bool writePPM(const char *filename, VkImage image1) {
         // does not support BLIT operations on 3 Channel rendertargets.
         // So format conversion gets costly.
         if (numChannels == 4) {
-            if (FormatIsUNORM(format))
+            if (vkuFormatIsUNORM(format))
                 destformat = VK_FORMAT_R8G8B8A8_UNORM;
-            else if (FormatIsSRGB(format))
+            else if (vkuFormatIsSRGB(format))
                 destformat = VK_FORMAT_R8G8B8A8_SRGB;
-            else if (FormatIsSNORM(format))
+            else if (vkuFormatIsSNORM(format))
                 destformat = VK_FORMAT_R8G8B8A8_SNORM;
-            else if (FormatIsUSCALED(format))
+            else if (vkuFormatIsUSCALED(format))
                 destformat = VK_FORMAT_R8G8B8A8_USCALED;
-            else if (FormatIsSSCALED(format))
+            else if (vkuFormatIsSSCALED(format))
                 destformat = VK_FORMAT_R8G8B8A8_SSCALED;
-            else if (FormatIsUINT(format))
+            else if (vkuFormatIsUINT(format))
                 destformat = VK_FORMAT_R8G8B8A8_UINT;
-            else if (FormatIsSINT(format))
+            else if (vkuFormatIsSINT(format))
                 destformat = VK_FORMAT_R8G8B8A8_SINT;
         } else {  // numChannels 3
-            if (FormatIsUNORM(format))
+            if (vkuFormatIsUNORM(format))
                 destformat = VK_FORMAT_R8G8B8_UNORM;
-            else if (FormatIsSRGB(format))
+            else if (vkuFormatIsSRGB(format))
                 destformat = VK_FORMAT_R8G8B8_SRGB;
-            else if (FormatIsSNORM(format))
+            else if (vkuFormatIsSNORM(format))
                 destformat = VK_FORMAT_R8G8B8_SNORM;
-            else if (FormatIsUSCALED(format))
+            else if (vkuFormatIsUSCALED(format))
                 destformat = VK_FORMAT_R8G8B8_USCALED;
-            else if (FormatIsSSCALED(format))
+            else if (vkuFormatIsSSCALED(format))
                 destformat = VK_FORMAT_R8G8B8_SSCALED;
-            else if (FormatIsUINT(format))
+            else if (vkuFormatIsUINT(format))
                 destformat = VK_FORMAT_R8G8B8_UINT;
-            else if (FormatIsSINT(format))
+            else if (vkuFormatIsSINT(format))
                 destformat = VK_FORMAT_R8G8B8_SINT;
         }
     }
@@ -630,7 +630,7 @@ static bool writePPM(const char *filename, VkImage image1) {
     // If the destination format is not compatible, set destintation format to source format and print a warning.
     // Yes, the expression in the if stmt is correct. It makes sure that the correct signed/unsigned formats
     // are used for destformat and format.
-    if (FormatIsSINT(format) || FormatIsSINT(destformat) || FormatIsUINT(format) || FormatIsUINT(destformat)) {
+    if (vkuFormatIsSINT(format) || vkuFormatIsSINT(destformat) || vkuFormatIsUINT(format) || vkuFormatIsUINT(destformat)) {
         // Print a warning if we need to change destformat
         if (destformat != format) {
             destformat = format;
@@ -645,7 +645,7 @@ static bool writePPM(const char *filename, VkImage image1) {
         }
     }
 
-    if ((FormatCompatibilityClass(destformat) != FormatCompatibilityClass(format))) {
+    if ((vkuFormatCompatibilityClass(destformat) != vkuFormatCompatibilityClass(format))) {
         assert(0);
         return false;
     }
@@ -1384,40 +1384,6 @@ static const VkLayerProperties global_layer = {
     1,                             // implementationVersion
     "Layer: screenshot",           // description
 };
-
-VkResult util_GetExtensionProperties(const uint32_t count, const VkExtensionProperties *layer_extensions, uint32_t *pCount,
-                                     VkExtensionProperties *pProperties) {
-    if (pProperties == nullptr || layer_extensions == nullptr) {
-        *pCount = count;
-        return VK_SUCCESS;
-    }
-
-    const uint32_t copy_size = *pCount < count ? *pCount : count;
-    std::memcpy(pProperties, layer_extensions, copy_size * sizeof(VkExtensionProperties));
-    *pCount = copy_size;
-    if (copy_size < count) {
-        return VK_INCOMPLETE;
-    }
-
-    return VK_SUCCESS;
-}
-
-VkResult util_GetLayerProperties(const uint32_t count, const VkLayerProperties *layer_properties, uint32_t *pCount,
-                                 VkLayerProperties *pProperties) {
-    if (pProperties == nullptr || layer_properties == nullptr) {
-        *pCount = count;
-        return VK_SUCCESS;
-    }
-
-    const uint32_t copy_size = *pCount < count ? *pCount : count;
-    std::memcpy(pProperties, layer_properties, copy_size * sizeof(VkLayerProperties));
-    *pCount = copy_size;
-    if (copy_size < count) {
-        return VK_INCOMPLETE;
-    }
-
-    return VK_SUCCESS;
-}
 
 VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties) {
     return util_GetLayerProperties(1, &global_layer, pCount, pProperties);

@@ -20,10 +20,6 @@ endif()
 
 include(GNUInstallDirs)
 
-set(Vulkan-ValidationLayers_INCLUDE_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/include/vulkan")
-set(Vulkan-ValidationLayers_LIBRARY_DIR "${VULKAN_VALIDATIONLAYERS_INSTALL_DIR}/lib")
-find_library(VkLayer_utils_LIBRARY VkLayer_utils HINTS ${Vulkan-ValidationLayers_LIBRARY_DIR})
-
 # Enable cmake folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(VULKANTOOLS_TARGET_FOLDER vt_cmake_targets)
