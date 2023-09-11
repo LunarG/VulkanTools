@@ -110,7 +110,7 @@
             "sub_dir": "valijson",
             "build_dir": "valijson/build",
             "install_dir": "valijson/build/install",
-            "commit": "v1.0"
+            "commit": "v1.0.1"
         },
         {
             "name": "googletest",
