@@ -507,9 +507,12 @@ class ApiDumpSettings {
             vlGetLayerSettingValue(layerSettingSet, kSettingsKeyDetailedOutput, show_params);
         }
 
-        show_address = false;
+        show_address = true;
         if (vlHasLayerSetting(layerSettingSet, kSettingsKeyNoAddr)) {
             vlGetLayerSettingValue(layerSettingSet, kSettingsKeyNoAddr, show_address);
+            // must invert the setting since the setting is called "no address", which is the logical
+            // opposite of show_address
+            show_address = !show_address;
         }
 
         should_flush = true;
