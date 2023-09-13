@@ -58,7 +58,6 @@ endif()
 
 target_link_libraries(vkvia PRIVATE
     Vulkan::Headers
-    Vulkan::Vulkan
     jsoncpp_static
     valijson
     ${CMAKE_DL_LIBS}
@@ -66,5 +65,9 @@ target_link_libraries(vkvia PRIVATE
     $<TARGET_NAME_IF_EXISTS:PkgConfig::X11>
     $<TARGET_NAME_IF_EXISTS:PkgConfig::WAYlAND_CLIENT>
 )
+
+if (NOT ANDROID)
+    target_link_libraries(vkvia PRIVATE Vulkan::Loader)
+endif()
 
 install(TARGETS vkvia)

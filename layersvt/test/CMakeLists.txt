@@ -30,7 +30,7 @@ endif()
 function(LayerTest NAME)
 	set(TEST_FILENAME ./test_${NAME}.cpp)
     set(TEST_NAME test_${NAME}_layer)
-    
+
     file(GLOB TEST_JSON_FILES ${CMAKE_SOURCE_DIR}/profiles/test/data/)
 
     add_executable(${TEST_NAME}
@@ -41,7 +41,10 @@ function(LayerTest NAME)
                    layer_test_framework.cpp
                    layer_test_framework.h)
     add_dependencies(${TEST_NAME} VkLayer_${NAME})
-    target_link_libraries(${TEST_NAME} Vulkan::Headers Vulkan::Vulkan GTest::gtest GTest::gtest_main Vulkan::LayerSettings)
+    target_link_libraries(${TEST_NAME} Vulkan::Headers GTest::gtest GTest::gtest_main Vulkan::LayerSettings)
+    if (NOT ANDROID)
+        target_link_libraries(${TEST_NAME} Vulkan::Loader)
+    endif()
     target_compile_definitions(${TEST_NAME} PUBLIC TEST_BINARY_PATH="$<TARGET_FILE_DIR:VkLayer_${NAME}>")
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 
