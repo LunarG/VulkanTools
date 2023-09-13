@@ -28,7 +28,7 @@
             "sub_dir": "Vulkan-Loader",
             "build_dir": "Vulkan-Loader/build",
             "install_dir": "Vulkan-Loader/build/install",
-            "commit": "v1.3.264",
+            "commit": "d40385b1748ae5270fcab18c5aae1a2e5a301465",
             "deps": [
                 {
                     "var_name": "VULKAN_HEADERS_INSTALL_DIR",
