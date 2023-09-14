@@ -369,10 +369,15 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 }}
 @end function
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(const char* pName)
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char* pName)
 {{
     @foreach function where('{funcType}' in ['global', 'instance'] and '{funcName}' not in [ 'vkEnumerateDeviceExtensionProperties' ])
+    @if('${funcDispatchType}' == 'instance')
+    if(strcmp(pName, "{funcName}") == 0 && (!instance || instance_dispatch_table(instance)->{funcShortName}))
+    @end if
+    @if('${funcDispatchType}' != 'instance')
     if(strcmp(pName, "{funcName}") == 0)
+    @end if
         return reinterpret_cast<PFN_vkVoidFunction>({funcName});
     @end function
 
@@ -391,7 +396,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
 
 EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
 {{
-    auto instance_func = api_dump_known_instance_functions(pName);
+    auto instance_func = api_dump_known_instance_functions(instance, pName);
     if (instance_func) return instance_func;
 
     // Make sure that device functions queried through GIPA works
