@@ -379,10 +379,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(const
     return nullptr;
 }}
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(const char* pName)
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevice device, const char* pName)
 {{
     @foreach function where('{funcType}' == 'device')
-    if(strcmp(pName, "{funcName}") == 0)
+    if(strcmp(pName, "{funcName}") == 0 && (!device || device_dispatch_table(device)->{funcShortName}))
         return reinterpret_cast<PFN_vkVoidFunction>({funcName});
     @end function
 
@@ -395,7 +395,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     if (instance_func) return instance_func;
 
     // Make sure that device functions queried through GIPA works
-    auto device_func = api_dump_known_device_functions(pName);
+    auto device_func = api_dump_known_device_functions(NULL, pName);
     if (device_func) return device_func;
 
     // Haven't created an instance yet, exit now since there is no instance_dispatch_table
@@ -406,7 +406,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
 
 EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
 {{
-    auto device_func = api_dump_known_device_functions(pName);
+    auto device_func = api_dump_known_device_functions(device, pName);
     if (device_func) return device_func;
 
     // Haven't created a device yet, exit now since there is no device_dispatch_table
