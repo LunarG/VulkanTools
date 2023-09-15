@@ -123,7 +123,7 @@ colorSpaceFormat userColorSpaceFormat = UNDEFINED;
 
 // unordered map: associates Vulkan dispatchable objects to a dispatch table
 typedef struct {
-    VulDeviceDispatchTable *device_dispatch_table;
+    VkuDeviceDispatchTable *device_dispatch_table;
     PFN_vkSetDeviceLoaderData pfn_dev_init;
 } DispatchMapStruct;
 static unordered_map<VkDevice, DispatchMapStruct *> dispatchMap;
@@ -371,7 +371,7 @@ VkQueue getQueueForScreenshot(VkDevice device) {
     uint32_t count;
     VkBool32 graphicsCapable = VK_FALSE;
     VkBool32 presentCapable = VK_FALSE;
-    VulInstanceDispatchTable *pInstanceTable;
+    VkuInstanceDispatchTable *pInstanceTable;
     DeviceMapStruct *devMap = get_device_info(device);
     if (NULL == devMap) {
         assert(0);
@@ -417,7 +417,7 @@ VkQueue getQueueForScreenshot(VkDevice device) {
 // and clean them up when they go out of scope.
 struct WritePPMCleanupData {
     VkDevice device;
-    VulDeviceDispatchTable *pTableDevice;
+    VkuDeviceDispatchTable *pTableDevice;
     VkImage image2;
     VkImage image3;
     VkDeviceMemory mem2;
@@ -484,10 +484,10 @@ static bool writePPM(const char *filename, VkImage image1) {
 #endif
         return false;
     }
-    VulDeviceDispatchTable *pTableDevice = dispMap->device_dispatch_table;
-    VulDeviceDispatchTable *pTableQueue =
+    VkuDeviceDispatchTable *pTableDevice = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pTableQueue =
         get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
-    VulInstanceDispatchTable *pInstanceTable;
+    VkuInstanceDispatchTable *pInstanceTable;
     pInstanceTable = instance_dispatch_table(instance);
 
     // Gather incoming image info and check image format for compatibility with
@@ -816,7 +816,7 @@ static bool writePPM(const char *filename, VkImage image1) {
         deviceMap.erase(cmdBuf);
     }
     dispatchMap.emplace(cmdBuf, dispMap);
-    VulDeviceDispatchTable *pTableCommandBuffer;
+    VkuDeviceDispatchTable *pTableCommandBuffer;
     pTableCommandBuffer = get_dispatch_info(cmdBuf)->device_dispatch_table;
 
     // We have just created a dispatchable object, but the dispatch table has
@@ -1065,7 +1065,7 @@ static void createDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo
     uint32_t i;
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     DeviceMapStruct *devMap = get_device_info(device);
-    VulDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     PFN_vkGetDeviceProcAddr gpa = pDisp->GetDeviceProcAddr;
     pDisp->CreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)gpa(device, "vkCreateSwapchainKHR");
     pDisp->GetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)gpa(device, "vkGetSwapchainImagesKHR");
@@ -1106,8 +1106,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
     dispatchMap[*pDevice] = dispatchMapElem;
 
     // Setup device dispatch table
-    dispatchMapElem->device_dispatch_table = new VulDeviceDispatchTable;
-    vulInitDeviceDispatchTable(*pDevice, dispatchMapElem->device_dispatch_table, fpGetDeviceProcAddr);
+    dispatchMapElem->device_dispatch_table = new VkuDeviceDispatchTable;
+    vkuInitDeviceDispatchTable(*pDevice, dispatchMapElem->device_dispatch_table, fpGetDeviceProcAddr);
 
     createDeviceRegisterExtensions(pCreateInfo, *pDevice);
     // Create a mapping from a device to a physicalDevice
@@ -1127,7 +1127,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
                                                         VkPhysicalDevice *pPhysicalDevices) {
     VkResult result;
 
-    VulInstanceDispatchTable *pTable = instance_dispatch_table(instance);
+    VkuInstanceDispatchTable *pTable = instance_dispatch_table(instance);
     result = pTable->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
     if (result == VK_SUCCESS && *pPhysicalDeviceCount > 0 && pPhysicalDevices) {
         for (uint32_t i = 0; i < *pPhysicalDeviceCount; i++) {
@@ -1145,7 +1145,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(VkInstance instance, uin
 VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(VkInstance instance, uint32_t *pPhysicalDeviceGroupCount,
                                                              VkPhysicalDeviceGroupProperties *pPhysicalDeviceGroupProperties) {
     VkResult result;
-    VulInstanceDispatchTable *pTable = instance_dispatch_table(instance);
+    VkuInstanceDispatchTable *pTable = instance_dispatch_table(instance);
     result = pTable->EnumeratePhysicalDeviceGroups(instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
     if (result == VK_SUCCESS && *pPhysicalDeviceGroupCount > 0 && pPhysicalDeviceGroupProperties) {
         for (uint32_t i = 0; i < *pPhysicalDeviceGroupCount; i++) {
@@ -1167,7 +1167,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     DeviceMapStruct *devMap = get_device_info(device);
     assert(dispMap);
     assert(devMap);
-    VulDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     pDisp->DestroyDevice(device, pAllocator);
 
     std::lock_guard<std::mutex> lg(globalLock);
@@ -1181,7 +1181,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
 VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue *pQueue) {
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     assert(dispMap);
-    VulDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     pDisp->GetDeviceQueue(device, queueFamilyIndex, queueIndex, pQueue);
 
     // Save the device queue in a map if we are taking screenshots.
@@ -1216,7 +1216,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
                                                   const VkAllocationCallbacks *pAllocator, VkSwapchainKHR *pSwapchain) {
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     assert(dispMap);
-    VulDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
 
     // This layer does an image copy later on, and the copy command expects the
     // transfer src bit to be on.
@@ -1257,7 +1257,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
                                                      VkImage *pSwapchainImages) {
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     assert(dispMap);
-    VulDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     VkResult result = pDisp->GetSwapchainImagesKHR(device, swapchain, pCount, pSwapchainImages);
 
     // Save the swapchain images in a map if we are taking screenshots
@@ -1366,7 +1366,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
         }
         frameNumber++;
     }  // scope around the mutexed data
-    VulDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
     return result;
 }
@@ -1407,7 +1407,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 
     assert(physicalDevice);
 
-    VulInstanceDispatchTable *pTable = instance_dispatch_table(physicalDevice);
+    VkuInstanceDispatchTable *pTable = instance_dispatch_table(physicalDevice);
     return pTable->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pCount, pProperties);
 }
 
@@ -1429,7 +1429,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevi
         (*pToolCount)--;
     }
 
-    VulInstanceDispatchTable *pInstanceTable = instance_dispatch_table(physicalDevice);
+    VkuInstanceDispatchTable *pInstanceTable = instance_dispatch_table(physicalDevice);
     VkResult result = pInstanceTable->GetPhysicalDeviceToolPropertiesEXT(physicalDevice, pToolCount, pToolProperties);
 
     if (original_pToolProperties != nullptr) {
@@ -1460,7 +1460,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice dev, const c
 
     DispatchMapStruct *dispMap = get_dispatch_info(dev);
     assert(dispMap);
-    VulDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
 
     if (pDisp->GetDeviceProcAddr == NULL) return NULL;
     return pDisp->GetDeviceProcAddr(dev, funcName);
@@ -1476,7 +1476,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     if (!proc) proc = intercept_khr_swapchain_command(funcName, VK_NULL_HANDLE);
     if (proc) return proc;
 
-    VulInstanceDispatchTable *pTable = instance_dispatch_table(instance);
+    VkuInstanceDispatchTable *pTable = instance_dispatch_table(instance);
     if (pTable->GetInstanceProcAddr == NULL) return NULL;
     return pTable->GetInstanceProcAddr(instance, funcName);
 }
