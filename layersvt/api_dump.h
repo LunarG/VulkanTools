@@ -862,6 +862,8 @@ class ApiDumpInstance {
     uint32_t getMemoryHeapCount() { return memory_heap_count; }
     void setDescriptorType(VkDescriptorType type) { this->descriptor_type = type; }
     VkDescriptorType getDescriptorType() { return this->descriptor_type; }
+    void setIsGPLPreRasterOrFragmentShader(bool in) { this->GPLPreRasterOrFragmentShader = in; }
+    bool getIsGPLPreRasterOrFragmentShader() { return this->GPLPreRasterOrFragmentShader; }
 
     std::chrono::microseconds current_time_since_start() {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -933,7 +935,26 @@ class ApiDumpInstance {
 
     // Storage for the VkDescriptorDataEXT union to know what is the active element
     VkDescriptorType descriptor_type;
+
+    // True when creating a graphics pipeline library with VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT or
+    // VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT set in the VkGraphicsPipelineLibraryCreateInfoEXT struct.
+    bool GPLPreRasterOrFragmentShader;
 };
+
+// Helper function to determine the value of GPLPreRasterOrFragmentShader;
+bool checkForGPLPreRasterOrFragmentShader(const VkGraphicsPipelineCreateInfo &object) {
+    VkGraphicsPipelineLibraryFlagsEXT flags{};
+    const VkBaseInStructure *pNext_chain = reinterpret_cast<const VkBaseInStructure *>(object.pNext);
+    while (pNext_chain) {
+        if (pNext_chain->sType == VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT) {
+            const auto *gpl_create_info = reinterpret_cast<const VkGraphicsPipelineLibraryCreateInfoEXT *>(pNext_chain);
+            flags = gpl_create_info->flags;
+        }
+        pNext_chain = reinterpret_cast<const VkBaseInStructure *>(pNext_chain->pNext);
+    }
+    return flags &
+           (VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT | VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT);
+}
 
 // Utility to output an address.
 // If the quotes arg is true, the address is encloded in quotes.
