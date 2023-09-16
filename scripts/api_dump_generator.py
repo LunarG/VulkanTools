@@ -115,9 +115,9 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCre
     if(result == VK_SUCCESS) {{
         initInstanceTable(*pInstance, fpGetInstanceProcAddr);
     }}
-    
+
     ApiDumpInstance::current().initLayerSettings(pCreateInfo, pAllocator);
-    
+
     // Output the API dump
     if (ApiDumpInstance::current().shouldDumpOutput()) {{
         switch(ApiDumpInstance::current().settings().format())
@@ -738,8 +738,8 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
             break;
         @end if
     @end struct
-        case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
-        case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+        case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
+        case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
         default:
             settings.stream() << "NULL\\n";
             break;
@@ -758,8 +758,8 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         @end if
     @end struct
 
-    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
-    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
+    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
         if(base_struct->pNext != nullptr){{
             dump_text_pNext_trampoline(reinterpret_cast<const void*>(base_struct->pNext), settings, indents);
         }} else {{
@@ -1128,8 +1128,8 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         @end if
     @end struct
 
-    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
-    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
+    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
         if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
             dump_html_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
         }} else {{
@@ -1483,8 +1483,8 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         @end if
     @end struct
 
-    case 47: // VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO
-    case 48: // VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO
+    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
+    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
         if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){{
             dump_json_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
         }} else {{
@@ -1577,59 +1577,34 @@ TRACKED_STATE = {
 
 PARAMETER_STATE = {
     'VkPipelineViewportStateCreateInfo': {
-        'VkGraphicsPipelineCreateInfo': [
-            {
-                'name': 'is_dynamic_viewport',
-                'type': 'bool',
-                'stmt':
-                    'ApiDumpInstance::current().setIsDynamicViewport(' +
-                    'object.pDynamicState && ' +
-                    'std::count(' +
-                        'object.pDynamicState->pDynamicStates, ' +
-                        'object.pDynamicState->pDynamicStates + object.pDynamicState->dynamicStateCount, ' +
-                        'VK_DYNAMIC_STATE_VIEWPORT' +
-                    ') > 0);',
-             },
-             {
-                'name':'is_dynamic_scissor',
-                'type': 'bool',
-                'stmt':
-                    'ApiDumpInstance::current().setIsDynamicScissor(' +
-                    'object.pDynamicState && ' +
-                    'std::count(' +
-                        'object.pDynamicState->pDynamicStates, ' +
-                        'object.pDynamicState->pDynamicStates + object.pDynamicState->dynamicStateCount, ' +
-                        'VK_DYNAMIC_STATE_SCISSOR' +
-                    '));',
-            },
-        ],
+        'VkGraphicsPipelineCreateInfo':
+            'ApiDumpInstance::current().setIsDynamicViewport('
+            'object.pDynamicState && '
+            'std::count('
+                'object.pDynamicState->pDynamicStates, '
+                'object.pDynamicState->pDynamicStates + object.pDynamicState->dynamicStateCount, '
+                'VK_DYNAMIC_STATE_VIEWPORT'
+            ') > 0);'
+            'ApiDumpInstance::current().setIsDynamicScissor('
+            'object.pDynamicState && '
+            'std::count('
+                'object.pDynamicState->pDynamicStates, '
+                'object.pDynamicState->pDynamicStates + object.pDynamicState->dynamicStateCount, '
+                'VK_DYNAMIC_STATE_SCISSOR'
+            '));'
+            'ApiDumpInstance::current().setIsGPLPreRasterOrFragmentShader(checkForGPLPreRasterOrFragmentShader(object));',
     },
     'VkCommandBufferBeginInfo': {
-        'vkBeginCommandBuffer': [
-            {
-                'name': 'cmd_buffer',
-                'type': 'VkCommandBuffer',
-                'stmt': 'ApiDumpInstance::current().setCmdBuffer(commandBuffer);',
-            },
-        ],
+        'vkBeginCommandBuffer':
+            'ApiDumpInstance::current().setCmdBuffer(commandBuffer);',
     },
     'VkPhysicalDeviceMemoryProperties': {
-        'VkPhysicalDeviceMemoryProperties2': [
-            {
-                'name': 'memoryProperties',
-                'type': 'VkPhysicalDeviceMemoryProperties',
-                'stmt': 'ApiDumpInstance::current().setMemoryHeapCount(object.memoryProperties.memoryHeapCount);',
-            },
-        ],
+        'VkPhysicalDeviceMemoryProperties2':
+            'ApiDumpInstance::current().setMemoryHeapCount(object.memoryProperties.memoryHeapCount);',
     },
     'VkDescriptorDataEXT': {
-        'VkDescriptorGetInfoEXT':[
-            {
-                'name': 'type',
-                'type': 'VkDescriptorType',
-                'stmt': 'ApiDumpInstance::current().setDescriptorType(object.type);',
-            }
-        ]
+        'VkDescriptorGetInfoEXT':
+            'ApiDumpInstance::current().setDescriptorType(object.type);',
     }
 }
 
@@ -1683,6 +1658,12 @@ VALIDITY_CHECKS = {
         'pUniformBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER',
         'pStorageBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER',
         'accelerationStructure': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR',
+    },
+    'VkPipelineRenderingCreateInfo': {
+        'colorAttachmentCount': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
+        'pColorAttachmentFormats': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
+        'depthAttachmentFormat': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
+        'stencilAttachmentFormat': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
     }
 }
 
@@ -2188,8 +2169,7 @@ class VulkanVariable:
 
         self.parameterStorage = ''
         if self.typeID in PARAMETER_STATE and parentName in PARAMETER_STATE[self.typeID]:
-            for states in PARAMETER_STATE[self.typeID][parentName]:
-                self.parameterStorage += states['stmt']
+            self.parameterStorage = PARAMETER_STATE[self.typeID][parentName]
 
         self.is_struct = False
         self.is_union = False
@@ -2550,6 +2530,7 @@ class VulkanStruct:
                 for opt in enums['VkStructureType'].options:
                     if(member.structValues  == opt.name):
                         self.structureIndex = opt.value
+                        break
 
         # The xml doesn't contain the relevant information here since the struct contains 'fixed' length arrays.
         # Thus we have to fix up the variable such that the length member corresponds to the runtime length, not compile time.
