@@ -336,6 +336,14 @@ class AndroidLogcatWriter final : public AndroidLogcatBuf<>::LogWriter {
 };
 #endif
 
+static const char *GetDefaultPrefix() {
+#ifdef __ANDROID__
+    return "apidump";
+#else
+    return "APIDUMP";
+#endif
+}
+
 class ApiDumpSettings {
    public:
     ApiDumpSettings() : output_stream(std::cout.rdbuf()) {
@@ -463,7 +471,9 @@ class ApiDumpSettings {
     void init(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
         VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
         vkuCreateLayerSettingSet("VK_LAYER_LUNARG_api_dump", vkuFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
-                                &layerSettingSet);
+                                 &layerSettingSet);
+
+        vkuSetLayerSettingCompatibilityNamespace(layerSettingSet, GetDefaultPrefix());
 
         // If the layer settings file has a flag indicating to output to a file,
         // do so, to the appropriate filename.
