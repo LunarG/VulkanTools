@@ -461,20 +461,20 @@ class ApiDumpSettings {
     bool isFrameInRange(uint64_t frame) const { return condFrameOutput.isFrameInRange(frame); }
 
     void init(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
-        VlLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
-        vlCreateLayerSettingSet("VK_LAYER_LUNARG_api_dump", vlFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
+        VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
+        vkuCreateLayerSettingSet("VK_LAYER_LUNARG_api_dump", vkuFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
                                 &layerSettingSet);
 
         // If the layer settings file has a flag indicating to output to a file,
         // do so, to the appropriate filename.
         std::string filename_string = "";
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyFile)) {
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyFile)) {
             bool file = false;
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyFile, file);
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFile, file);
 
             if (file) {
-                if (vlHasLayerSetting(layerSettingSet, kSettingsKeyLogFilename)) {
-                    vlGetLayerSettingValue(layerSettingSet, kSettingsKeyLogFilename, filename_string);
+                if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyLogFilename)) {
+                    vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyLogFilename, filename_string);
                     if (filename_string.empty()) {
                         filename_string = "vk_apidump.txt";
                     }
@@ -489,9 +489,9 @@ class ApiDumpSettings {
         }
 
         output_format = ApiDumpFormat::Text;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyOutputFormat)) {
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyOutputFormat)) {
             std::string value;
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyOutputFormat, value);
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyOutputFormat, value);
             value = ToLowerString(value);
             if (value == "html") {
                 output_format = ApiDumpFormat::Html;
@@ -503,70 +503,70 @@ class ApiDumpSettings {
         }
 
         show_params = true;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyDetailedOutput)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyDetailedOutput, show_params);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyDetailedOutput)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyDetailedOutput, show_params);
         }
 
         show_address = true;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyNoAddr)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyNoAddr, show_address);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyNoAddr)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyNoAddr, show_address);
             // must invert the setting since the setting is called "no address", which is the logical
             // opposite of show_address
             show_address = !show_address;
         }
 
         should_flush = true;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyFlush)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyFlush, should_flush);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyFlush)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFlush, should_flush);
         }
 
         show_timestamp = false;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyTimestamp)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyTimestamp, show_timestamp);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyTimestamp)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyTimestamp, show_timestamp);
         }
 
         indent_size = 4;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyIndentSize)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyIndentSize, indent_size);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyIndentSize)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyIndentSize, indent_size);
             indent_size = std::max(indent_size, 0);
         }
         tab_size = indent_size;
 
         show_type = true;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyShowTypes)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyShowTypes, show_type);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyShowTypes)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyShowTypes, show_type);
         }
 
         name_size = 32;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyNameSize)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyNameSize, name_size);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyNameSize)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyNameSize, name_size);
             name_size = std::max(name_size, 0);
         }
 
         type_size = 0;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyTypeSize)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyTypeSize, type_size);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyTypeSize)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyTypeSize, type_size);
             type_size = std::max(type_size, 0);
         }
 
         use_spaces = true;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyUseSpaces)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyUseSpaces, use_spaces);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyUseSpaces)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyUseSpaces, use_spaces);
         }
 
         show_shader = false;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyShowShader)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyShowShader, show_shader);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyShowShader)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyShowShader, show_shader);
         }
 
         show_thread_and_frame = true;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyShowThreadAndFrame)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyShowThreadAndFrame, show_thread_and_frame);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyShowThreadAndFrame)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyShowThreadAndFrame, show_thread_and_frame);
         }
 
         std::string cond_range_string;
-        if (vlHasLayerSetting(layerSettingSet, kSettingsKeyOutputRange)) {
-            vlGetLayerSettingValue(layerSettingSet, kSettingsKeyOutputRange, cond_range_string);
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyOutputRange)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyOutputRange, cond_range_string);
         }
 
         if (cond_range_string == "" || cond_range_string == "0-0") {  //"0-0" is every frame, no need to check
@@ -697,7 +697,7 @@ class ApiDumpSettings {
             setupInterFrameOutputFormatting(0);
         }
 
-        vlDestroyLayerSettingSet(layerSettingSet, pAllocator);
+        vkuDestroyLayerSettingSet(layerSettingSet, pAllocator);
     }
 
    private:

@@ -310,19 +310,19 @@ static DeviceMapStruct *get_device_info(VkDevice dev) {
 }
 
 static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
-    VlLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
-    vlCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", vlFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
-                            &layerSettingSet);
+    VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
+    vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", vkuFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
+                             &layerSettingSet);
 
-    if (vlHasLayerSetting(layerSettingSet, kSettingsKeyFrames)) {
+    if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyFrames)) {
         std::string value;
-        vlGetLayerSettingValue(layerSettingSet, kSettingsKeyFrames, value);
+        vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFrames, value);
         populate_frame_list(value.c_str());
     }
 
-    if (vlHasLayerSetting(layerSettingSet, kSettingKeyFormat)) {
+    if (vkuHasLayerSetting(layerSettingSet, kSettingKeyFormat)) {
         std::string value;
-        vlGetLayerSettingValue(layerSettingSet, kSettingKeyFormat, value);
+        vkuGetLayerSettingValue(layerSettingSet, kSettingKeyFormat, value);
 
         if (value == "UNORM") {
             userColorSpaceFormat = UNORM;
@@ -353,8 +353,8 @@ static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAll
         }
     }
 
-    if (vlHasLayerSetting(layerSettingSet, kSettingKeyDir)) {
-        vlGetLayerSettingValue(layerSettingSet, kSettingKeyDir, vk_screenshot_dir);
+    if (vkuHasLayerSetting(layerSettingSet, kSettingKeyDir)) {
+        vkuGetLayerSettingValue(layerSettingSet, kSettingKeyDir, vk_screenshot_dir);
     }
 #ifdef ANDROID
     if (vk_screenshot_dir.empty()) {
@@ -362,7 +362,7 @@ static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAll
     }
 #endif
 
-    vlDestroyLayerSettingSet(layerSettingSet, pAllocator);
+    vkuDestroyLayerSettingSet(layerSettingSet, pAllocator);
 }
 
 VkQueue getQueueForScreenshot(VkDevice device) {
