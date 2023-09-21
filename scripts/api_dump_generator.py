@@ -97,6 +97,7 @@ COMMON_CODEGEN = """
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance)
 {{
     ApiDumpInstance::current().outputMutex()->lock();
+    ApiDumpInstance::current().initLayerSettings(pCreateInfo, pAllocator);
     dump_function_head(ApiDumpInstance::current(), "vkCreateInstance", "pCreateInfo, pAllocator, pInstance", "VkResult");
 
     // Get the function pointer
@@ -115,8 +116,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCre
     if(result == VK_SUCCESS) {{
         initInstanceTable(*pInstance, fpGetInstanceProcAddr);
     }}
-
-    ApiDumpInstance::current().initLayerSettings(pCreateInfo, pAllocator);
 
     // Output the API dump
     if (ApiDumpInstance::current().shouldDumpOutput()) {{
