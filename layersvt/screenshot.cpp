@@ -1186,10 +1186,6 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyI
 
     // Save the device queue in a map if we are taking screenshots.
     std::lock_guard<std::mutex> lg(globalLock);
-    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
-        // No screenshots in the list to take
-        return;
-    }
 
     // Add this queue to deviceMap[device].queues, and queueFamilyIndex to deviceMap[device].queueIndexMap
     if (deviceMap.find(device) != deviceMap.end()) {
@@ -1369,13 +1365,6 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
     VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
     return result;
-}
-
-// Unused, but this could be provided as an extension or utility to the
-// application in the future.
-VKAPI_ATTR VkResult VKAPI_CALL SpecifyScreenshotFrames(const char *frameList) {
-    populate_frame_list(frameList);
-    return VK_SUCCESS;
 }
 
 static const VkLayerProperties global_layer = {
