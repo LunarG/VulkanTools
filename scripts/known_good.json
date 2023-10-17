@@ -64,6 +64,9 @@
             "build_platforms": [
                 "windows",
                 "linux"
+            ],
+            "optional": [
+                "tests"
             ]
         },
         {
