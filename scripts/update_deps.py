@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright 2017 The Glslang Authors. All rights reserved.
 # Copyright (c) 2018-2023 Valve Corporation
@@ -141,8 +141,6 @@ to the "top" directory.
 
 The commit used to checkout the repository.  This can be a SHA-1
 object name or a refname used with the remote name "origin".
-For example, this field can be set to "origin/sdk-1.1.77" to
-select the end of the sdk-1.1.77 branch.
 
 - deps (optional)
 
@@ -236,6 +234,7 @@ option can be a relative or absolute path.
 
 import argparse
 import json
+import os
 import os.path
 import subprocess
 import sys
@@ -255,7 +254,8 @@ CONFIG_MAP = {
     'minsizerel': 'MinSizeRel'
 }
 
-VERBOSE = False
+# NOTE: CMake also uses the VERBOSE environment variable. This is intentional.
+VERBOSE = os.getenv("VERBOSE")
 
 DEVNULL = open(os.devnull, 'wb')
 
@@ -274,25 +274,40 @@ def make_or_exist_dirs(path):
     if not os.path.isdir(path):
         os.makedirs(path)
 
-def command_output(cmd, directory, fail_ok=False):
-    """Runs a command in a directory and returns its standard output stream.
-
-    Captures the standard error stream and prints it if error.
-
-    Raises a RuntimeError if the command fails to launch or otherwise fails.
-    """
+def command_output(cmd, directory):
+    # Runs a command in a directory and returns its standard output stream.
+    # Captures the standard error stream and prints it an error occurs.
+    # Raises a RuntimeError if the command fails to launch or otherwise fails.
     if VERBOSE:
         print('In {d}: {cmd}'.format(d=directory, cmd=cmd))
-    p = subprocess.Popen(
-        cmd, cwd=directory, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (stdout, stderr) = p.communicate()
-    if p.returncode != 0:
-        print('*** Error ***\nstderr contents:\n{}'.format(stderr))
-        if not fail_ok:
-            raise RuntimeError('Failed to run {} in {}'.format(cmd, directory))
+
+    result = subprocess.run(cmd, cwd=directory, capture_output=True, text=True)
+
+    if result.returncode != 0:
+        print(f'{result.stderr}', file=sys.stderr)
+        raise RuntimeError(f'Failed to run {cmd} in {directory}')
+
     if VERBOSE:
-        print(stdout)
-    return stdout
+        print(result.stdout)
+    return result.stdout
+
+def run_cmake_command(cmake_cmd):
+    # NOTE: Because CMake is an exectuable that runs executables
+    # stdout/stderr are mixed together. So this combines the outputs
+    # and prints them properly in case there is a non-zero exit code.
+    result = subprocess.run(cmake_cmd, 
+        stdout = subprocess.PIPE,
+        stderr = subprocess.STDOUT,
+        text = True
+    )
+
+    if VERBOSE:
+        print(result.stdout)
+        print(f"CMake command: {cmake_cmd} ", flush=True)
+
+    if result.returncode != 0:
+        print(result.stdout, file=sys.stderr)
+        sys.exit(result.returncode)
 
 def escape(path):
     return path.replace('\\', '/')
@@ -355,7 +370,8 @@ class GoodRepo(object):
             self.on_build_platform = True
 
     def Clone(self, retries=10, retry_seconds=60):
-        print('Cloning {n} into {d}'.format(n=self.name, d=self.repo_dir))
+        if VERBOSE:
+            print('Cloning {n} into {d}'.format(n=self.name, d=self.repo_dir))
         for retry in range(retries):
             make_or_exist_dirs(self.repo_dir)
             try:
@@ -396,7 +412,9 @@ class GoodRepo(object):
                 raise e
 
     def Checkout(self):
-        print('Checking out {n} in {d}'.format(n=self.name, d=self.repo_dir))
+        if VERBOSE:
+            print('Checking out {n} in {d}'.format(n=self.name, d=self.repo_dir))
+
         if self._args.do_clean_repo:
             if os.path.isdir(self.repo_dir):
                 shutil.rmtree(self.repo_dir, onerror = on_rm_error)
@@ -407,7 +425,9 @@ class GoodRepo(object):
             command_output(['git', 'checkout', self._args.ref], self.repo_dir)
         else:
             command_output(['git', 'checkout', self.commit], self.repo_dir)
-        print(command_output(['git', 'status'], self.repo_dir))
+
+        if VERBOSE:
+            print(command_output(['git', 'status'], self.repo_dir))
 
     def CustomPreProcess(self, cmd_str, repo_dict):
         return cmd_str.format(repo_dict, self._args, CONFIG_MAP[self._args.config])
@@ -485,12 +505,12 @@ class GoodRepo(object):
         if self._args.generator is not None:
             cmake_cmd.extend(['-G', self._args.generator])
 
-        if VERBOSE:
-            print("CMake command: " + " ".join(cmake_cmd))
+        # Removes warnings related to unused CLI
+        # EX: Setting CMAKE_CXX_COMPILER for a C project
+        if not VERBOSE:
+            cmake_cmd.append("--no-warn-unused-cli")
 
-        ret_code = subprocess.call(cmake_cmd)
-        if ret_code != 0:
-            sys.exit(ret_code)
+        run_cmake_command(cmake_cmd)
 
     def CMakeBuild(self):
         """Build CMake command for the build phase and execute it"""
@@ -498,23 +518,21 @@ class GoodRepo(object):
         if self._args.do_clean:
             cmake_cmd.append('--clean-first')
 
-        # Ninja is parallel by default
-        if self._args.generator != "Ninja":
+        # Xcode / Ninja are parallel by default.
+        if self._args.generator != "Ninja" or self._args.generator != "Xcode":
             cmake_cmd.append('--parallel')
             cmake_cmd.append(format(multiprocessing.cpu_count()))
 
-        if VERBOSE:
-            print("CMake command: " + " ".join(cmake_cmd))
-
-        ret_code = subprocess.call(cmake_cmd)
-        if ret_code != 0:
-            sys.exit(ret_code)
+        run_cmake_command(cmake_cmd)
 
     def Build(self, repos, repo_dict):
-        """Build the dependent repo"""
-        print('Building {n} in {d}'.format(n=self.name, d=self.repo_dir))
-        print('Build dir = {b}'.format(b=self.build_dir))
-        print('Install dir = {i}\n'.format(i=self.install_dir))
+        """Build the dependent repo and time how long it took"""
+        if VERBOSE:
+            print('Building {n} in {d}'.format(n=self.name, d=self.repo_dir))
+            print('Build dir = {b}'.format(b=self.build_dir))
+            print('Install dir = {i}\n'.format(i=self.install_dir))
+
+        start = time.time()
 
         # Run any prebuild commands
         self.PreBuild()
@@ -529,9 +547,12 @@ class GoodRepo(object):
         # Build and execute CMake command for the build
         self.CMakeBuild()
 
+        total_time = time.time() - start
+
+        print(f"Installed {self.name} ({self.commit}) in {total_time} seconds", flush=True)
+
     def IsOptional(self, opts):
-        if len(self.optional.intersection(opts)) > 0: return True
-        else: return False
+        return len(self.optional.intersection(opts)) > 0
 
 def GetGoodRepos(args):
     """Returns the latest list of GoodRepo objects.
@@ -773,4 +794,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
