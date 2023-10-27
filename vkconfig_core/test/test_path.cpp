@@ -160,9 +160,15 @@ TEST(test_path, get_path_vulkan_sdk) {
     }
 
     {
+#ifdef __APPLE__
+        qputenv("VULKAN_SDK", "~/VulkanSDK");
+        const std::string value = ::GetPath(BUILTIN_PATH_VULKAN_SDK);
+        EXPECT_STREQ(ConvertNativeSeparators("~/VulkanSDK/share/vulkan").c_str(), value.c_str());
+#else
         qputenv("VULKAN_SDK", "~/VulkanSDK");
         const std::string value = ::GetPath(BUILTIN_PATH_VULKAN_SDK);
         EXPECT_STREQ(ConvertNativeSeparators("~/VulkanSDK").c_str(), value.c_str());
+#endif
     }
 }
 
