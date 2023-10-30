@@ -1,3 +1,7 @@
+if (MINGW)
+    return()
+endif()
+
 file(GLOB TEXTURES
    "${PROJECT_SOURCE_DIR}/via/images/*"
 )
