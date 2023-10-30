@@ -23,50 +23,17 @@ on:
 
 jobs:
   linux:
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-        - {
-            name: "Ubuntu GCC Debug",
-            os: ubuntu-latest,
-            type: "Debug",
-            build_dir: "build",
-            cc: "gcc", cxx: "g++"
-          }
-        - {
-            name: "Ubuntu Clang Debug",
-            os: ubuntu-latest,
-            type: "Debug",
-            build_dir: "build",
-            cc: "clang", cxx: "clang++"
-          }
+    runs-on: ubuntu-latest
     steps:
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
     - name: Clone repository
       uses: actions/checkout@v3
-    - name: Install build dependencies
-      run: |
-        sudo apt-get -qq update
-        sudo apt-get install -y libxkbcommon-dev libwayland-dev libxrandr-dev qtbase5-dev\
-                              libx11-xcb-dev libxcb-randr0-dev cmake jq wget
-    - name: Build and Test VulkanTools 
-      run: python3 scripts/github_ci_linux.py --config ${{ matrix.config.type }}
-      env:
-        CC: ${{matrix.config.cc}}
-        CXX: ${{matrix.config.cxx}}
-        
+    - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
+    - run: python3 scripts/github_ci_linux.py --config Debug
+
   windows:
-    runs-on: ${{matrix.os}}
-    strategy:
-      fail-fast: false
-      matrix:
-        arch: [ x64 ]
-        config: [ Debug ]
-        os: [ windows-latest, windows-2019 ]
+    runs-on: windows-latest
     steps:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -74,11 +41,10 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.7'
-      - name: Build and Test VulkanTools
-        run: python3 scripts/github_ci_win.py --config ${{ matrix.config }} --arch ${{ matrix.arch }}
+      - run: python3 scripts/github_ci_win.py --config Debug --arch x64
 
   android-cmake:
-    runs-on: ubuntu-22.04
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -95,7 +61,46 @@ jobs:
           -D CMAKE_BUILD_TYPE=Release \
           -D UPDATE_DEPS=ON \
           -G "Ninja"
-      - name: Build
-        run: cmake --build build
-      - name: Install
-        run: cmake --install build --prefix build/install
+      - run: cmake --build build
+      - run: cmake --install build --prefix build/install
+
+  macos:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lukka/get-cmake@latest
+      - name: Configure
+        run: |
+          cmake -S . -B build/ \
+          -D CMAKE_BUILD_TYPE=Debug \
+          -D UPDATE_DEPS=ON \
+          -G "Ninja"
+      - run: cmake --build build
+      - run: cmake --install build --prefix build/install
+
+  mingw:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: mingw-ccache
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - uses: lukka/get-cmake@latest
+      - name: GCC Version
+        run: gcc --version # If this fails MINGW is not setup correctly
+      - name: Configure
+        run: cmake -S. -B build -D UPDATE_DEPS=ON -D CMAKE_BUILD_TYPE=Release
+        env:
+          LDFLAGS: -fuse-ld=lld # MINGW linking is very slow. Use llvm linker instead.
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+          CMAKE_GENERATOR: Ninja
+      - run: cmake --build build
+      - run: cmake --install build --prefix build/install
