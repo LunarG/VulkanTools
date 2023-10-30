@@ -64,8 +64,6 @@ find_package(VulkanUtilityLibraries REQUIRED CONFIG)
 
 find_package(valijson REQUIRED CONFIG)
 
-find_package(jsoncpp REQUIRED CONFIG)
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
     CMAKE_SYSTEM_NAME STREQUAL "Linux" OR
     CMAKE_SYSTEM_NAME MATCHES "BSD")
