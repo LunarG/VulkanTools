@@ -53,7 +53,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
     - name: Clone repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
     - run: python3 scripts/github_ci_linux.py --config Debug
 
@@ -62,7 +62,7 @@ jobs:
     steps:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: '3.7'
@@ -71,7 +71,7 @@ jobs:
   android-cmake:
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
