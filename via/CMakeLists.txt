@@ -19,8 +19,7 @@ else()
         set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -fno-strict-aliasing -fno-builtin-memcmp")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} -fno-rtti")
     endif()
-    # jsoncpp has intentional fallthrough
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} -std=c++11 -Wno-implicit-fallthrough")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} -std=c++11")
 
     if(APPLE)
         add_definitions(-DVIA_MACOS_TARGET)
@@ -60,9 +59,18 @@ add_executable(vkvia
                   via_system_bsd.cpp)
 endif()
 
+# https://github.com/LunarG/VulkanTools/issues/1908
+find_package(PkgConfig)
+if (PKG_CONFIG_FOUND)
+    pkg_check_modules(jsoncpp REQUIRED IMPORTED_TARGET jsoncpp)
+    target_link_libraries(vkvia PRIVATE PkgConfig::jsoncpp)
+else()
+    find_package(jsoncpp CONFIG)
+    target_link_libraries(vkvia PRIVATE jsoncpp_static)
+endif()
+
 target_link_libraries(vkvia PRIVATE
     Vulkan::Headers
-    jsoncpp_static
     valijson
     ${CMAKE_DL_LIBS}
     $<TARGET_NAME_IF_EXISTS:PkgConfig::XCB>
