@@ -57,6 +57,11 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "(GNU|Clang)")
         -fno-rtti
     )
 
+    if (APPLE)
+        # vkvia currently uses sprintf which is deprecated for security reasons
+        target_compile_options(vkvia PRIVATE -Wno-deprecated-declarations)
+    endif()
+
 elseif (MSVC)
     target_compile_definitions(vkvia PRIVATE _CRT_SECURE_NO_WARNINGS _USE_MATH_DEFINES)
 endif()

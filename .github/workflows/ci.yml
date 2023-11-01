@@ -99,6 +99,7 @@ jobs:
           cmake -S . -B build/ \
           -D CMAKE_BUILD_TYPE=Debug \
           -D UPDATE_DEPS=ON \
+          -D BUILD_WERROR=ON \
           -G "Ninja"
       - run: cmake --build build
       - run: cmake --install build --prefix build/install

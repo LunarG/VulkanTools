@@ -31,19 +31,19 @@ class ViaSystemMacOS : public ViaSystem {
     ViaResults PrintRuntimesInFolder(std::string &folder_loc, std::string &object_name, bool print_header = true);
 
    protected:
-    virtual int RunTestInDirectory(std::string path, std::string test, std::string cmd_line) override;
-    virtual ViaResults PrintSystemEnvironmentInfo();
-    virtual ViaResults PrintSystemHardwareInfo();
-    virtual ViaResults PrintSystemExecutableInfo();
-    virtual ViaResults PrintSystemDriverInfo();
-    virtual ViaResults PrintSystemLoaderInfo();
-    virtual ViaResults PrintSystemSdkInfo();
-    virtual ViaResults PrintSystemImplicitLayerInfo();
-    virtual ViaResults PrintSystemExplicitLayerInfo();
-    virtual ViaResults PrintSystemSettingsFileInfo();
-    virtual bool CheckExpiration(OverrideExpiration expiration);
-    virtual std::string GetEnvironmentalVariableValue(const std::string &env_var);
-    virtual bool ExpandPathWithEnvVar(std::string &path);
+    int RunTestInDirectory(std::string path, std::string test, std::string cmd_line) override;
+    ViaResults PrintSystemEnvironmentInfo() override;
+    ViaResults PrintSystemHardwareInfo() override;
+    ViaResults PrintSystemExecutableInfo() override;
+    ViaResults PrintSystemDriverInfo() override;
+    ViaResults PrintSystemLoaderInfo() override;
+    ViaResults PrintSystemSdkInfo() override;
+    ViaResults PrintSystemImplicitLayerInfo() override;
+    ViaResults PrintSystemExplicitLayerInfo() override;
+    ViaResults PrintSystemSettingsFileInfo() override;
+    bool CheckExpiration(OverrideExpiration expiration) override;
+    std::string GetEnvironmentalVariableValue(const std::string &env_var) override;
+    bool ExpandPathWithEnvVar(std::string &path) override;
 
    private:
     bool ReadDriverJson(std::string cur_driver_json, bool &found_lib);

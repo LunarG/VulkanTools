@@ -1212,7 +1212,6 @@ ViaSystem::ViaResults ViaSystemMacOS::PrintLayerEnvVar(const char *var) {
 
 ViaSystem::ViaResults ViaSystemMacOS::PrintSystemExplicitLayerInfo() {
     ViaResults result = VIA_SUCCESSFUL;
-    char *env_value = NULL;
     std::string explicit_layer_id;
 
     PrintBeginTable("Vulkan Explicit Layers", 4);
