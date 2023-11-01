@@ -27,11 +27,11 @@ Please see the [CONTRIBUTING](CONTRIBUTING.md) file in this repository for more 
 
 ## Version Tagging Scheme
 
-Updates to the `LunarG-VulkanTools` repository which correspond to a new Vulkan specification release are tagged using the following format: `v<`_`version`_`>` (e.g., `v1.1.96`).
+Updates to this repository which correspond to a new Vulkan specification release are tagged using the following format: `v<`_`version`_`>` (e.g., `v1.3.266`).
 
-**Note**: Marked version releases have undergone thorough testing but do not imply the same quality level as SDK tags. SDK tags follow the `sdk-<`_`version`_`>.<`_`patch`_`>` format (e.g., `sdk-1.1.92.0`).
+**Note**: Marked version releases have undergone thorough testing but do not imply the same quality level as SDK tags. SDK tags follow the `vulkan-sdk-<`_`version`_`>.<`_`patch`_`>` format (e.g., `vulkan-sdk-1.3.266.0`).
 
-This scheme was adopted following the 1.1.96 Vulkan specification release.
+This scheme was adopted following the `1.3.266` Vulkan specification release.
 
 ## License
 This work is released as open source under a [Apache-style license](LICENSE.txt) from Khronos including a Khronos copyright.
