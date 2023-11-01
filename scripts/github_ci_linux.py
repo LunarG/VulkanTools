@@ -68,7 +68,7 @@ def BuildVT(args):
     RunShellCmd(cmake_ver_cmd)
 
     print("Run CMake")
-    cmake_cmd = f'cmake -S . -B {VT_BUILD_DIR} -D UPDATE_DEPS_DIR={EXTERNAL_DIR} -DUPDATE_DEPS=ON -DBUILD_TESTS=ON'
+    cmake_cmd = f'cmake -S . -B {VT_BUILD_DIR} -D UPDATE_DEPS_DIR={EXTERNAL_DIR} -DUPDATE_DEPS=ON -DBUILD_TESTS=ON -DBUILD_WERROR=ON'
     RunShellCmd(cmake_cmd)
 
     print("Build Vulkan Tools")
