@@ -4,9 +4,9 @@ project(VULKAN_TOOLS LANGUAGES CXX)
 
 add_subdirectory(scripts)
 
-set(API_NAME "Vulkan" CACHE STRING "API name")
-add_definitions(-DAPI_NAME="${API_NAME}")
-
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
@@ -20,9 +20,7 @@ endif()
 
 include(GNUInstallDirs)
 
-# Enable cmake folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set(VULKANTOOLS_TARGET_FOLDER vt_cmake_targets)
 
 option(BUILD_WERROR "Treat compiler warnings as errors" ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD")
@@ -101,7 +99,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif()
 
 option(BUILD_TESTS "Build tests")
-option(BUILD_TESTS_DEBUG "Build tests for debugging layers" OFF)
+option(BUILD_TESTS_DEBUG "Build tests for debugging layers")
 
 if(BUILD_TESTS)
     enable_testing()

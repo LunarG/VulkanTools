@@ -5,8 +5,7 @@ if (NOT WIN32)
         add_custom_target(vt_test-dir-symlinks ALL
             COMMAND ln -sf ${CMAKE_CURRENT_SOURCE_DIR}/apidump_test.sh
             VERBATIM
-            )
-        set_target_properties(vt_test-dir-symlinks PROPERTIES FOLDER ${VULKANTOOLS_TARGET_FOLDER})
+        )
     endif()
 else()
     if (NOT (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR))
