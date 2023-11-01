@@ -219,8 +219,6 @@ foreach(TARGET_NAME ${TARGET_NAMES})
 
 endforeach()
 
-if (NOT ANDROID)
-    if (BUILD_TESTS_DEBUG)
-        add_subdirectory(test)
-    endif ()
+if (BUILD_TESTS_DEBUG)
+    add_subdirectory(test)
 endif ()

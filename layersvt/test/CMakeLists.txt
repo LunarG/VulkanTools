@@ -14,17 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ~~~
-
-if (APPLE)
-    set(LAYER_TEST_FILES
-        api_dump
-    )
-else()
-    set(LAYER_TEST_FILES
-        api_dump
-        monitor
-        screenshot
-    )
+if (ANDROID)
+    return()
 endif()
 
 function(LayerTest NAME)
@@ -41,10 +32,7 @@ function(LayerTest NAME)
                    layer_test_framework.cpp
                    layer_test_framework.h)
     add_dependencies(${TEST_NAME} VkLayer_${NAME})
-    target_link_libraries(${TEST_NAME} Vulkan::Headers GTest::gtest GTest::gtest_main Vulkan::LayerSettings)
-    if (NOT ANDROID)
-        target_link_libraries(${TEST_NAME} Vulkan::Loader)
-    endif()
+    target_link_libraries(${TEST_NAME} Vulkan::Headers Vulkan::Loader GTest::gtest GTest::gtest_main Vulkan::LayerSettings)
     target_compile_definitions(${TEST_NAME} PUBLIC TEST_BINARY_PATH="$<TARGET_FILE_DIR:VkLayer_${NAME}>")
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 
@@ -53,10 +41,13 @@ function(LayerTest NAME)
     )
 
     set_target_properties(${TEST_NAME} PROPERTIES FOLDER "VkLayer_${NAME}/Test")
-endfunction(LayerTest)
+endfunction()
 
-if (NOT ANDROID)
-    foreach(test_item ${LAYER_TEST_FILES})
-        LayerTest(${test_item})
-    endforeach()
+set(LAYER_TEST_FILES api_dump monitor screenshot)
+if (APPLE)
+    set(LAYER_TEST_FILES api_dump)
 endif()
+
+foreach(test_item ${LAYER_TEST_FILES})
+    LayerTest(${test_item})
+endforeach()
