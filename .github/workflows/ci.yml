@@ -60,13 +60,13 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.7'
-      - run: python3 scripts/github_ci_win.py --config Debug --arch x64
+      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: jurplel/install-qt-action@v3
+      - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
+      - run: cmake --build build
+      - run: ctest --output-on-failure --test-dir build
+      - run: cmake --install build --prefix build/install
 
   android-cmake:
     runs-on: macos-13
