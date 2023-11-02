@@ -104,6 +104,31 @@ jobs:
       - run: cmake --build build
       - run: cmake --install build --prefix build/install
 
+  apple-cross-compile:
+    name: iOS
+    runs-on: macos-12
+    steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-python@v4
+          with:
+            python-version: '3.7'
+        - uses: lukka/get-cmake@latest
+        - name: Generate build files
+          run: |
+            cmake -S . -B build \
+            -D CMAKE_SYSTEM_NAME=iOS \
+            -D CMAKE_OSX_ARCHITECTURES=arm64 \
+            -D CMAKE_BUILD_TYPE=Debug \
+            -D UPDATE_DEPS=ON \
+            -D BUILD_WERROR=ON
+          env:
+            LDFLAGS: -Wl,-fatal_warnings
+            CMAKE_GENERATOR: Ninja
+        - run: cmake --build build
+        - run: cmake --install build --prefix /tmp
+        # Helps verify useful details about the dylib (platform, minos, sdk)
+        - run: vtool -show-build /tmp/lib/libVkLayer_api_dump.dylib
+
   mingw:
     runs-on: windows-latest
     defaults:

@@ -97,6 +97,34 @@
 #define kSettingsKeyShowShader "show_shader"
 #define kSettingsKeyShowThreadAndFrame "show_thread_and_frame"
 
+// Ensure we are properly setting VK_USE_PLATFORM_METAL_EXT, VK_USE_PLATFORM_IOS_MVK, and VK_USE_PLATFORM_MACOS_MVK.
+#if __APPLE__
+
+// TODO: Add Metal support
+// #ifndef VK_USE_PLATFORM_METAL_EXT
+// #error "VK_USE_PLATFORM_METAL_EXT not defined!"
+// #endif
+
+#include <TargetConditionals.h>
+
+#if TARGET_OS_IOS
+
+#ifndef VK_USE_PLATFORM_IOS_MVK
+#error "VK_USE_PLATFORM_IOS_MVK not defined!"
+#endif
+
+#endif  //  TARGET_OS_IOS
+
+#if TARGET_OS_OSX
+
+#ifndef VK_USE_PLATFORM_MACOS_MVK
+#error "VK_USE_PLATFORM_MACOS_MVK not defined!"
+#endif
+
+#endif  // TARGET_OS_OSX
+
+#endif  // __APPLE__
+
 enum class ApiDumpFormat {
     Text,
     Html,

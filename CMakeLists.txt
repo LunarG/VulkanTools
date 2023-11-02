@@ -45,9 +45,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
     if (BUILD_WSI_WAYLAND_SUPPORT)
         pkg_check_modules(WAYLAND_CLIENT REQUIRED QUIET IMPORTED_TARGET wayland-client)
     endif()
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    option(BUILD_MOLTENVK_SUPPORT "Build MoltenVK WSI support" ON)
-    option(BUILD_METAL_SUPPORT "Build Metal WSI support" OFF)
 endif()
 
 find_package(VulkanHeaders REQUIRED CONFIG)
@@ -58,15 +55,13 @@ find_package(VulkanUtilityLibraries REQUIRED CONFIG)
 
 find_package(valijson REQUIRED CONFIG)
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR
-    CMAKE_SYSTEM_NAME STREQUAL "Linux" OR
-    CMAKE_SYSTEM_NAME MATCHES "BSD")
+if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux|BSD")
 
     option(BUILD_APIDUMP "Build api_dump layer" ON)
     option(BUILD_MONITOR "Build monitor layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
-    option(BUILD_VIA "Build via" ON)
 
+    option(BUILD_VIA "Build via" ON)
     option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
 
 elseif(ANDROID)
@@ -82,20 +77,20 @@ elseif(ANDROID)
     option(BUILD_APIDUMP "Build api_dump layer" ON)
     set(BUILD_MONITOR OFF)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
-    set(BUILD_DEMOS OFF)
-    set(BUILD_VKJSON OFF)
+
     set(BUILD_VIA OFF)
     set(BUILD_LAYERMGR OFF)
 
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+elseif (APPLE)
 
     option(BUILD_APIDUMP "Build api_dump layer" ON)
     option(BUILD_MONITOR "Build monitor layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
-    option(BUILD_DEMOS OFF)
-    option(BUILD_VKJSON OFF)
-    option(BUILD_VIA "Build VIA" ON)
-    option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
+
+    if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        option(BUILD_VIA "Build via" ON)
+        option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
+    endif()
 
 endif()
 
