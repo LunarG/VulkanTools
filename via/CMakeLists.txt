@@ -42,6 +42,9 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "BSD")
     target_compile_definitions(vkvia PRIVATE VIA_BSD_TARGET)
 endif()
 
+# Needed for VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+target_compile_definitions(vkvia PRIVATE VK_ENABLE_BETA_EXTENSIONS)
+
 # Disable the RPATH for VIA because we want it to use the environment setup by the user
 set_target_properties(vkvia PROPERTIES SKIP_BUILD_RPATH TRUE)
 

@@ -97,6 +97,11 @@
 #define kSettingsKeyShowShader "show_shader"
 #define kSettingsKeyShowThreadAndFrame "show_thread_and_frame"
 
+// We want to dump all extensions even beta extensions.
+#ifndef VK_ENABLE_BETA_EXTENSIONS
+#error "VK_ENABLE_BETA_EXTENSIONS not defined!"
+#endif
+
 // Ensure we are properly setting VK_USE_PLATFORM_METAL_EXT, VK_USE_PLATFORM_IOS_MVK, and VK_USE_PLATFORM_MACOS_MVK.
 #if __APPLE__
 
