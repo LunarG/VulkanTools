@@ -1,314 +1,233 @@
 # Build Instructions
-This document contains the instructions for building this repository on Linux and Windows.
 
-This repository contains *Vulkan* development tools and layers,
-supplementing the loader and validation layer core components found at https://github.com/KhronosGroup.
+1. [Requirements](#requirements)
+1. [Building Overview](#building-overview)
+1. [Dependencies](#dependencies)
+1. [Linux Build](#building-on-linux)
+1. [Windows Build](#building-on-windows)
+1. [MacOS build](#building-on-macos)
+1. [Android Build](#building-for-android)
 
-## System Requirements
+## Requirements
 
-### Windows System Requirements
+1. CMake >= 3.17.2
+1. C++17 compatible toolchain
+1. Git
+1. Python >= 3.10
 
-Windows 7+ with additional required software packages:
-
-- Microsoft Visual Studio 2017, 2019 or 2022: it is possible that lesser/older versions may work, but not guaranteed.
-- [CMake 3.10.2](https://cmake.org/files/v3.10/cmake-3.10.2-win64-x64.zip) is recommended.
-  - Tell the installer to "Add CMake to the system `PATH`" environment variable.
-- Python 3 (from https://www.python.org/downloads).  Notes:
-  - Select to install the optional sub-package to add Python to the system `PATH` environment variable.
-  - Need python3.3 or later to get the Windows `py.exe` launcher that is used to get `python3` rather than `python2` if both are installed on Windows
-- Git (from http://git-scm.com/download/win).
-  - Tell the installer to allow it to be used for "Developer Prompt" as well as "Git Bash".
-  - Tell the installer to treat line endings "as is" (i.e. both DOS and Unix-style line endings).
-
-Optional software packages:
+## Optional software packages:
 
 - *[Qt 5](https://www.qt.io/download)* is required to build *[Vulkan Configurator]*(./vkconfig/vkconfig.md).
   - The Qt `bin` directory requires to be added to the `PATH` environment variable for *Qt* to be detected and Vulkan Configurator built.
   - If `Qt` is not directed, *[Vulkan Configurator]* build will be skipped.
-  - Vulkan Configurator requires at least Qt 5.5 with the binaries corresponding to the Visual Studio toolset.
-- *Cygwin* (from https://www.cygwin.com/).
-  - *Cygwin* provides some Linux-like tools, which are valuable for obtaining the source code, and running CMake.
-    Especially valuable are the *BASH* shell and git packages.
-  - If you do not wish to use *Cygwin*, there are other shells and environments that can be used.
-    You can also use a Git package that does not come from *Cygwin*.
 
-### Ubuntu System Requirements
+## Building Overview
 
-Ubuntu 18.04 LTS and 20.04 have been tested with this repo.
+The following will be enough for most people, for more detailed instructions, see below.
 
-[CMake 3.10.2](https://cmake.org/files/v3.10/cmake-3.10.2-Linux-x86_64.tar.gz) is recommended.
+```bash
+git clone https://github.com/LunarG/VulkanTools.git
+cd VulkanTools
 
-```
-# Dependencies from included submodule components
-sudo apt-get install git build-essential bison libx11-xcb-dev libxkbcommon-dev libwayland-dev libxrandr-dev libxcb-randr0-dev
-
-# Additional dependencies for this repo:
-sudo apt-get install wget autotools-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-ewmh-dev
-
-# If performing 32-bit builds, you will also need:
-sudo apt-get install libc6-dev-i386 g++-multilib
+cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_WERROR=ON -D BUILD_TESTS=ON -D CMAKE_BUILD_TYPE=Debug
+cmake --build build --config Debug
 ```
 
-Optional software packages:
+### Warnings as errors off by default!
 
-On Ubuntu 18.04 LTS or newer, you may build [Vulkan Configurator](./vkconfig/README.md) only if you also install several
-additional Qt dependencies:
+By default `BUILD_WERROR` is `OFF`. The idiom for open source projects is to NOT enable warnings as errors.
 
+System/language package managers have to build on multiple different platforms and compilers.
+
+By defaulting to `ON` we cause issues for package managers since there is no standard way to disable warnings until CMake 3.24
+
+Add `-D BUILD_WERROR=ON` to your workflow.
+
+## Dependencies
+
+Currently this repo has a custom process for grabbing C/C++ dependencies.
+
+Keep in mind this repo predates tools like `vcpkg`, `conan`, etc. Our process is most similar to `vcpkg`.
+
+By specifying `-D UPDATE_DEPS=ON` when configuring CMake we grab dependencies listed in [known_good.json](scripts/known_good.json).
+
+All we are doing is streamlining `building`/`installing` the `known good` dependencies and helping CMake `find` the dependencies.
+
+This is done via a combination of `Python` and `CMake` scripting.
+
+Misc Useful Information:
+
+- By default `UPDATE_DEPS` is `OFF`. The intent is to be friendly by default to system/language package managers.
+- You can run `update_deps.py` manually but it isn't recommended for most users.
+
+### How to test new dependency versions
+
+Typically most developers alter `known_good.json` with the commit/branch they are testing.
+
+Alternatively you can modify `CMAKE_PREFIX_PATH` as follows.
+
+```sh
+# Delete the CMakeCache.txt which will cache find_* results
+rm build -rf/
+cmake -S . -B build/ ... -D CMAKE_PREFIX_PATH=~/foobar/my_custom_glslang_install/ ...
 ```
+
+## Building On Linux
+
+### Linux Build Requirements
+
+This repository is regularly built and tested on the two most recent Ubuntu LTS versions.
+
+```bash
+sudo apt-get install git build-essential python3 cmake
+
+# Linux WSI system libraries
+sudo apt-get install libwayland-dev xorg-dev
+
+# Qt5 for vkconfig
 sudo apt-get install qt5-default
 ```
 
-### Fedora Core System Requirements
+## Building On Windows
 
-Fedora Core 28 and 29 were tested with this repo.
+### Windows Development Environment Requirements
 
-[CMake 3.10.2](https://cmake.org/files/v3.10/cmake-3.10.2-Linux-x86_64.tar.gz) is recommended.
+- Windows 10+
+- Visual Studio
 
-Additional package dependencies include:
+### Visual Studio Generator
 
-```
-# Dependencies from included submodule components
-sudo dnf install git @development-tools glm-devel \
-                 libpng-devel wayland-devel libpciaccess-devel \
-                 libX11-devel libXpresent libxcb xcb-util libxcb-devel libXrandr-devel \
-                 xcb-util-keysyms-devel xcb-util-wm-devel
-```
+Run CMake to generate [Visual Studio project files](https://cmake.org/cmake/help/latest/guide/user-interaction/index.html#command-line-g-option).
 
-Optional software packages:
+```bash
+# NOTE: By default CMake picks the latest version of Visual Studio as the default generator.
+cmake -S . -B build
 
-You may build [Vulkan Configurator](./vkconfig/README.md) only if you also install several additional Qt dependencies:
-```
-sudo dnf install qt
+# Open the Visual Studio solution
+cmake --open build
 ```
 
-### macOS System Requirements
+See the [CMake documentation](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html#visual-studio-generators) for further information on Visual Studio generators.
 
-macOS 10.11.4 have been tested with this repo.
+NOTE: Windows developers don't have to develop in Visual Studio. Visual Studio just helps streamlining the needed C++ toolchain requirements (compilers, linker, etc).
 
-- [CMake 3.10.2](https://cmake.org/files/v3.10/cmake-3.10.2-Darwin-x86_64.tar.gz) is recommended.
+## Building on MacOS
 
-Setup Homebrew and components
+### MacOS Development Environment Requirements
 
-- Ensure Homebrew is at the beginning of your PATH:
-```
-export PATH=/usr/local/bin:$PATH
-```
+- Xcode
 
-- Add packages with the following (may need refinement)
-```
-brew install python python3 git
-```
+NOTE: MacOS developers don't have to develop in Xcode. Xcode just helps streamlining the needed C++ toolchain requirements (compilers, linker, etc). Similar to Visual Studio on Windows.
 
-## Getting Started Build Instructions
+### Xcode Generator
 
-### 64-bit Windows Build 
-```
-    git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
-    cd VulkanTools
-    mkdir build
-    cd build
-    ..\scripts\update_deps.py --arch x64
-    cmake -A x64 -C helper.cmake ..
-    cmake --build . --parallel
+To create and open an Xcode project:
+
+```bash
+# Create the Xcode project
+cmake -S . -B build -G Xcode
+
+# Open the Xcode project
+cmake --open build
 ```
 
-### 32-bit Windows Build 
-```
-    git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
-    cd VulkanTools
-    mkdir build
-    cd build
-    ..\scripts\update_deps.py --arch Win32
-    cmake -A Win32 -C helper.cmake ..
-    cmake --build . --parallel
-```
+See the [CMake documentation](https://cmake.org/cmake/help/latest/generator/Xcode.html) for further information on the Xcode generator.
 
-### Windows Unit Tests
+## Building For Android
 
-```
-ctest -C Debug --output-on-failure --parallel 16
-ctest -C Release  --output-on-failure --parallel 16
-```
+- CMake 3.21+
+- NDK r25+
+- Ninja 1.10+
 
-### Linux and macOS Build
-```
-    git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
-    cd VulkanTools
-    mkdir build
-    cd build
-    ../scripts/update_deps.py
-    cmake -C helper.cmake ..
-    cmake --build . --parallel
-```
+### Android Build Requirements
 
-### Linux and macOS Unit Tests
+- Download [Android Studio](https://developer.android.com/studio)
+- Install (https://developer.android.com/studio/install)
+- From the `Welcome to Android Studio` splash screen, add the following components using the SDK Manager:
+  - SDK Platforms > Android 8.0 and newer (API Level 26 or higher)
+  - SDK Tools > Android SDK Build-Tools
+  - SDK Tools > Android SDK Platform-Tools
+  - SDK Tools > Android SDK Tools
+  - SDK Tools > NDK
+  - SDK Tools > CMake
 
-```
-ctest --parallel 8 --output-on-failure
+#### Add Android specifics to environment
+
+NOTE: The following commands are streamlined for Linux but easily transferable to other platforms.
+The main intent is setting 1 environment variable and ensuring the NDK and build tools are in the `PATH`.
+
+```sh
+# Set environment variable
+# https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#environment-variables-2
+export ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/X.Y.Z
+
+# (Optional if you have new enough version of CMake + Ninja)
+export PATH=$ANDROID_SDK_ROOT/cmake/3.22.1/bin:$PATH
+
+# Verify CMake/Ninja are in the path
+which cmake
+which ninja
 ```
 
 ### Android Build
 
-TODO: Update android build documentation with new CMake build.
+1. Building libraries to package with your APK
 
-## The VulkanTools repository
+Invoking CMake directly to build the binary is relatively simple.
 
-### Cloning the repository and updating subcomponents
+See https://developer.android.com/ndk/guides/cmake#command-line for CMake NDK documentation.
 
-To create your local git repository of VulkanTools:
-```
-cd YOUR_DEV_DIRECTORY
+```sh
+# Build release binary for arm64-v8a
+cmake -S . -B build \
+  -D CMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+  -D ANDROID_PLATFORM=26 \
+  -D CMAKE_ANDROID_ARCH_ABI=arm64-v8a \
+  -D CMAKE_ANDROID_STL_TYPE=c++_static \
+  -D ANDROID_USE_LEGACY_TOOLCHAIN_FILE=NO \
+  -D CMAKE_BUILD_TYPE=Release \
+  -D UPDATE_DEPS=ON \
+  -G Ninja
 
-# Clone the VulkanTools repo
-git clone --recurse-submodules git@github.com:LunarG/VulkanTools.git
+cmake --build build
 
-# Enter the folder containing the cloned source
-cd VulkanTools
-```
-
-### Repository Dependencies
-This repository attempts to resolve some of its dependencies by using
-components found from the following places, in this order:
-
-1. CMake or Environment variable overrides (e.g., -DVULKAN_HEADERS_INSTALL_DIR)
-1. LunarG Vulkan SDK, located by the `VULKAN_SDK` environment variable
-1. System-installed packages, mostly applicable on Linux
-
-Dependencies that cannot be resolved by the SDK or installed packages must be
-resolved with the "install directory" override and are listed below. The
-"install directory" override can also be used to force the use of a specific
-version of that dependency.
-
-#### Vulkan-Headers
-
-This repository has a required dependency on the
-[Vulkan Headers repository](https://github.com/KhronosGroup/Vulkan-Headers).
-You must clone the headers repository and build its `install` target before
-building this repository. The Vulkan-Headers repository is required because it
-contains the Vulkan API definition files (registry) that are required to build
-the validation layers. You must also take note of the headers' install
-directory and pass it on the CMake command line for building this repository,
-as described below.
-
-#### Vulkan-Loader
-
-The tools in this repository depend on the Vulkan loader.
-
-A loader can be used from an installed LunarG SDK, an installed Linux package,
-or from a driver installation on Windows.
-
-If a loader is not available from any of these methods and/or it is important
-to use a loader built from a repository, then you must build the
-[Vulkan-Loader repository](https://github.com/KhronosGroup/Vulkan-Loader.git)
-with its install target. Take note of its install directory location and pass
-it on the CMake command line for building this repository, as described below.
-
-#### Khronos Vulkan-Tools
-
-The tests in this repository depend on the Vulkan-Tools repository, which is
-hosted under Khronos' GitHub account and differentiated in name by a hyphen.
-The tests use Vulkan Info and the mock ICD from Vulkan-Tools.
-
-You may build the
-[Vulkan-Tools repository](https://github.com/KhronosGroup/Vulkan-Tools.git)
-with its install target. Take note of its build directory location and set
-the VULKAN\_TOOLS\_BUILD\_DIR environment variable to the appropriate path.
-
-If you do not intend to run the tests, you do not need Vulkan-Tools.
-
-## Advanced Build and Install Directories
-
-A common convention is to place the build directory in the top directory of
-the repository with a name of `build` and place the install directory as a
-child of the build directory with the name `install`. The remainder of these
-instructions follow this convention, although you can use any name for these
-directories and place them in any location.
-
-### Getting Dependent Repositories using `update_deps.py` script
-
-The Python utility script, `scripts/update_deps.py`, can be use to gather and
-build the dependent repositories mentioned above. This script uses information 
-stored in the `scripts/known_good.json` file to check out dependent repository 
-revisions that are known to be compatible with the revision of this repository 
-that you currently have checked out. As such, this script is useful as a 
-quick-start tool for common use cases and default configurations.
-
-### Advanced Windows Build
-
-Cygwin is used in order to obtain a local copy of the Git repository, and to run the CMake command that creates Visual Studio files.
-Visual Studio is used to build the software, and will re-run CMake as appropriate.
-
-To build all Windows targets (e.g. in a "Developer Command Prompt for VS2017" window):
-```
-cd VulkanTools  # cd to the root of the VulkanTools git repository
-cmake -S . -B dbuild -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio 15 2017 Win64" -DVULKAN_HEADERS_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_LOADER_INSTALL_DIR=absolute_path_to_install_directory
-cmake --build dbuild --config Debug --target install
+cmake --install build --prefix build/install
 ```
 
-At this point, you can use Windows Explorer to launch Visual Studio by double-clicking on the "VULKAN.sln" file in the \build folder.
-Once Visual Studio comes up, you can select "Debug" or "Release" from a drop-down list.
-You can start a build with either the menu (Build->Build Solution), or a keyboard shortcut (Ctrl+Shift+B).
-As part of the build process, Python scripts will create additional Visual Studio files and projects,
-along with additional source files.
-All of these auto-generated files are under the "build" folder.
+Then you just package the library into your APK under the appropriate lib directory based on the ABI:
+https://en.wikipedia.org/wiki/Apk_(file_format)#Package_contents
 
-Vulkan programs must be able to find and use the Vulkan-1.dll library.
-Make sure it is either installed in the C:\Windows\System32 folder,
-or the PATH environment variable includes the folder that it is located in.
+Alternatively users can also use `scripts/android.py` to build the binaries.
 
-#### Windows 64-bit Installation Notes
-If you plan on creating a Windows Install file (done in the windowsRuntimeInstaller sub-directory) you will need to build for both 32-bit
-and 64-bit Windows since both versions of EXEs and DLLs exist simultaneously on Windows 64.
+Note: `scripts/android.py` will place the binaries in the `build-android/libs` directory.
 
-To do this, simply create and build the release versions of each target:
-```
-cd VulkanTools  # cd to the root of the Vulkan git repository
-mkdir build
-cd build
-cmake -G "Visual Studio 14 Win64" ..
-msbuild ALL_BUILD.vcxproj /p:Platform=x64 /p:Configuration=Release
-mkdir build32
-cd build32
-cmake -G "Visual Studio 14" ..
-msbuild ALL_BUILD.vcxproj /p:Platform=x86 /p:Configuration=Release
+```sh
+# Build release binary for arm64-v8a
+python3 scripts/android.py --config Release --app-abi arm64-v8a
 ```
 
-### Advanced Linux Build
+`android.py` can also streamline building for multiple ABIs:
 
-This build process builds all items in the VulkanTools repository
-
-Example debug build:
-```
-cd VulkanTools  # cd to the root of the VulkanTools git repository
-cmake -H. -Bdbuild -DCMAKE_BUILD_TYPE=Debug -DVULKAN_HEADERS_INSTALL_DIR=absolute_path_to_install_directory -DVULKAN_LOADER_INSTALL_DIR=absolute_path_to_install_directory
-cd dbuild
-make -j8
+```sh
+# Build release binaries for all ABIs
+python3 scripts/android.py --config Release --app-abi 'armeabi-v7a arm64-v8a x86 x86_64'
 ```
 
-### Notes
+Now you can upload the layer on to your Android device.
 
-- You may need to adjust some of the CMake options based on your platform. See
-  the platform-specific sections later in this document.
-- The `update_deps.py` script fetches and builds the dependent repositories in
-  the current directory when it is invoked. In this case, they are built in
-  the `build` directory.
-- The `build` directory is also being used to build this
-  (Vulkan-Tools) repository. But there shouldn't be any conflicts
-  inside the `build` directory between the dependent repositories and the
-  build files for this repository.
-- The `--dir` option for `update_deps.py` can be used to relocate the
-  dependent repositories to another arbitrary directory using an absolute or
-  relative path.
-- The `update_deps.py` script generates a file named `helper.cmake` and places
-  it in the same directory as the dependent repositories (`build` in this
-  case). This file contains CMake commands to set the CMake `*_INSTALL_DIR`
-  variables that are used to point to the install artifacts of the dependent
-  repositories. You can use this file with the `cmake -C` option to set these
-  variables when you generate your build files with CMake. This lets you avoid
-  entering several `*_INSTALL_DIR` variable settings on the CMake command line.
-- If using "MINGW" (Git For Windows), you may wish to run
-  `winpty update_deps.py` in order to avoid buffering all of the script's
-  "print" output until the end and to retain the ability to interrupt script
-  execution.
-- Please use `update_deps.py --help` to list additional options and read the
-  internal documentation in `update_deps.py` for further information.
+See Android developer documentation for more information on loading Vulkan layers:
+https://developer.android.com/ndk/guides/graphics/validation-layer#load-layers
+
+### Software Installation
+
+After you have built your project you can install using CMake's install functionality.
+
+CMake Docs:
+- [Software Installation Guide](https://cmake.org/cmake/help/latest/guide/user-interaction/index.html#software-installation)
+- [CLI for installing a project](https://cmake.org/cmake/help/latest/manual/cmake.1.html#install-a-project)
+
+```sh
+# EX: Installs Release artifacts into `build/install` directory.
+# NOTE: --config is only needed for multi-config generators (Visual Studio, Xcode, etc)
+cmake --install build/ --config Release --prefix build/install
+```
