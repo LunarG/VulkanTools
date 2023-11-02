@@ -25,20 +25,16 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD")
        # TODO Add Wayland Support
        # add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
     endif()
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    if (BUILD_MOLTENVK_SUPPORT)
-        add_definitions(-DVK_USE_PLATFORM_MACOS_MVK)
+elseif(APPLE)
+    if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        add_compile_definitions(VK_USE_PLATFORM_MACOS_MVK)
+    endif()
+    if (IOS)
+        add_compile_definitions(VK_USE_PLATFORM_IOS_MVK)
     endif()
 
-    if (BUILD_METAL_SUPPORT)
-       # TODO Add Metal Support
-       add_definitions(-DVK_USE_PLATFORM_METAL_EXT)
-    endif()
-elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    if (BUILD_METAL_SUPPORT)
-       # TODO Add Metal Support
-       add_definitions(-DVK_USE_PLATFORM_METAL_EXT)
-    endif()
+    # TODO: Add Metal support. Requires objective C/C++.
+    # add_compile_definitions(VK_USE_PLATFORM_METAL_EXT)
 else()
     message(FATAL_ERROR "Unsupported Platform!")
 endif()
