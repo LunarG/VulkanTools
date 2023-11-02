@@ -22,8 +22,6 @@ wish to coordinate further.
 Repository Issue labels:
 
 * _Bug_:          These issues refer to invalid or broken functionality and are the highest priority.
-* _Incomplete_:   These issues refer to missing validation checks that users have encountered during application
-development that would have been directly useful, and are high priority.
 * _Enhancement_:  These issues refer ideas for improving or extending functionality.
 
 It is the maintainers goal for all issues to be assigned within one business day of their submission. If you choose
@@ -39,7 +37,7 @@ to work on an issue that is assigned, simply coordinate with the current assigne
 * Please read and adhere to the style and process [guidelines ](#coding-conventions-and-formatting) enumerated below.
 * Please base your fixes on the main branch.  SDK branches are generally not updated except for critical fixes needed to repair an SDK release.
 * The resulting Pull Request will be assigned to a repository maintainer. It is the maintainer's responsibility to ensure the Pull Request
-  passes the Google/LunarG internal CI processes. Once the Pull Request has been approved and is passing internal CI, a repository maintainer
+  passes the LunarG internal CI processes. Once the Pull Request has been approved and is passing internal CI, a repository maintainer
   will merge the PR.
 
 
@@ -76,7 +74,7 @@ a good reason is "This violates the style guide, but it improves type safety."
 Strive for commits that implement a single or related set of functionality, using as many commits as is necessary (more is better).
 That said, please ensure that the repository compiles and passes tests without error for each commit in your pull request.  Note
 that to be accepted into the repository, the pull request must [pass all tests](#testing your changes) on all supported platforms
--- the automatic Github Travis and AppVeyor continuous integration features will assist in enforcing this requirement.
+-- the automatic Github continuous integration features will assist in enforcing this requirement.
 
 #### **Testing Your Changes**
 * Run the existing tests in the repository before and after each of your commits to check for any regressions.
