@@ -160,6 +160,8 @@ if(BUILD_APIDUMP)
     add_vk_layer(api_dump api_dump.cpp api_dump.h vk_layer_table.cpp vk_layer_table.h VkLayer_api_dump.def api_dump_layer.md VkLayer_api_dump.json.in ../scripts/api_dump_generator.py)
     add_dependencies(VkLayer_api_dump generate_api_cpp generate_api_text_h generate_api_html_h generate_api_json_h
         generate_api_video_text_h generate_api_video_html_h generate_api_video_json_h)
+
+    target_compile_definitions(VkLayer_api_dump PRIVATE VK_ENABLE_BETA_EXTENSIONS)
 endif ()
 
 if (NOT APPLE)

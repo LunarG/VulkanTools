@@ -11,8 +11,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
 
-add_compile_definitions(VK_ENABLE_BETA_EXTENSIONS)
-
 # TODO: Cleanup VK definitions
 if (ANDROID)
     add_compile_definitions(VK_USE_PLATFORM_ANDROID_KHR)
