@@ -68,13 +68,10 @@ jobs:
       - run: ctest --output-on-failure --test-dir build
       - run: cmake --install build --prefix build/install
 
-  android-cmake:
+  android:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'
       - uses: lukka/get-cmake@latest
       - name: Configure
         run: |
