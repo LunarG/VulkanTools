@@ -80,7 +80,8 @@
                 "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
                 "-DJSONCPP_WITH_TESTS=OFF",
                 "-DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF",
-                "-DJSONCPP_WITH_WARNING_AS_ERROR=OFF"
+                "-DJSONCPP_WITH_WARNING_AS_ERROR=OFF",
+                "-DJSONCPP_WITH_PKGCONFIG_SUPPORT=OFF"
             ]
         },
         {

@@ -45,9 +45,6 @@ endif()
 # Needed for VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
 target_compile_definitions(vkvia PRIVATE VK_ENABLE_BETA_EXTENSIONS)
 
-# Disable the RPATH for VIA because we want it to use the environment setup by the user
-set_target_properties(vkvia PROPERTIES SKIP_BUILD_RPATH TRUE)
-
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "(GNU|Clang)")
 
     target_compile_options(vkvia PRIVATE
@@ -69,14 +66,21 @@ elseif (MSVC)
     target_compile_definitions(vkvia PRIVATE _CRT_SECURE_NO_WARNINGS _USE_MATH_DEFINES)
 endif()
 
-# https://github.com/LunarG/VulkanTools/issues/1908
-find_package(PkgConfig)
-if (PKG_CONFIG_FOUND)
+find_package(jsoncpp CONFIG)
+
+if (TARGET jsoncpp_static)
+    # RPATH causes issues for the Linux SDK tarball due to absolute paths.
+    # This can be worked around with relative RPATHS but the tarball doesn't ship jsoncpp.
+    # So the easiest solution is to just the static version of jsoncpp.
+    target_link_libraries(vkvia PRIVATE jsoncpp_static)
+    set_target_properties(vkvia PROPERTIES SKIP_BUILD_RPATH TRUE)
+elseif(UNIX)
+    # https://github.com/LunarG/VulkanTools/issues/1908
+    find_package(PkgConfig REQUIRED)
     pkg_check_modules(jsoncpp REQUIRED IMPORTED_TARGET jsoncpp)
     target_link_libraries(vkvia PRIVATE PkgConfig::jsoncpp)
 else()
-    find_package(jsoncpp CONFIG)
-    target_link_libraries(vkvia PRIVATE jsoncpp_static)
+    message(FATAL_ERROR "Unable to find jsoncpp!")
 endif()
 
 target_link_libraries(vkvia PRIVATE
