@@ -88,9 +88,6 @@ target_link_libraries(vkvia PRIVATE
     valijson
     ${CMAKE_DL_LIBS}
     $<TARGET_NAME_IF_EXISTS:Vulkan::Loader>
-    $<TARGET_NAME_IF_EXISTS:PkgConfig::XCB>
-    $<TARGET_NAME_IF_EXISTS:PkgConfig::X11>
-    $<TARGET_NAME_IF_EXISTS:PkgConfig::WAYlAND_CLIENT>
 )
 
 install(TARGETS vkvia)

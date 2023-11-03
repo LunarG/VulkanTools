@@ -11,11 +11,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
 
-# TODO: Cleanup VK definitions
-if (ANDROID)
-    add_compile_definitions(VK_USE_PLATFORM_ANDROID_KHR)
-endif()
-
 include(GNUInstallDirs)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -23,26 +18,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 option(BUILD_WERROR "Treat compiler warnings as errors")
 if (BUILD_WERROR)
     add_compile_options("$<IF:$<CXX_COMPILER_ID:MSVC>,/WX,-Werror>")
-endif()
-
-if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
-    option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
-    option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
-    option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
-
-    find_package(PkgConfig REQUIRED QUIET) # Use PkgConfig to find Linux system libraries
-
-    if (BUILD_WSI_XCB_SUPPORT)
-        pkg_check_modules(XCB REQUIRED QUIET IMPORTED_TARGET xcb)
-    endif()
-
-    if (BUILD_WSI_XLIB_SUPPORT)
-        pkg_check_modules(X11 REQUIRED QUIET IMPORTED_TARGET x11)
-    endif()
-
-    if (BUILD_WSI_WAYLAND_SUPPORT)
-        pkg_check_modules(WAYLAND_CLIENT REQUIRED QUIET IMPORTED_TARGET wayland-client)
-    endif()
 endif()
 
 find_package(VulkanHeaders REQUIRED CONFIG)
