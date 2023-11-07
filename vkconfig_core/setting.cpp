@@ -29,6 +29,7 @@
 #include "setting_string.h"
 #include "util.h"
 #include "version.h"
+#include "layer.h"
 
 #include <cassert>
 
@@ -90,8 +91,23 @@ bool SettingData::Equal(const SettingData& other) const {
     return true;
 }
 
+std::string TrimPrefix(const std::string& layer_key) {
+    std::string key{};
+    if (layer_key.find("VK_LAYER_") == 0) {
+        std::size_t prefix = std::strlen("VK_LAYER_");
+        key = layer_key.substr(prefix, layer_key.size() - prefix);
+    } else {
+        key = layer_key;
+    }
+    return key;
+}
+
+static std::string GetEnv(const std::string& layer_key, const std::string& setting_key) {
+    return std::string("VK_") + ToUpperCase(TrimPrefix(layer_key)) + std::string("_") + ToUpperCase(setting_key);
+}
+
 SettingMeta::SettingMeta(Layer& layer, const std::string& key, const SettingType type)
-    : key(key), type(type), dependence_mode(DEPENDENCE_NONE), layer(layer) {
+    : key(key), type(type), env(GetEnv(layer.key, key)), dependence_mode(DEPENDENCE_NONE), layer(layer) {
     assert(!this->key.empty());
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 }
