@@ -25,6 +25,7 @@
 #include <array>
 #include <cmath>
 #include <cstdarg>
+#include <cstring>
 
 namespace layer_test {
 
