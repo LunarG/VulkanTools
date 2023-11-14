@@ -22,7 +22,6 @@
 #pragma once
 
 #if defined(_WIN32) && defined(_DEBUG)
-#define NOMINMAX
 #include <windows.h>  // For OutputDebugString
 #endif
 
