@@ -89,14 +89,13 @@ endif ()
 
 if (WIN32)
     macro(add_vk_layer target)
-        FILE(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def DEF_FILE)
-        add_custom_target(copy-${target}-def-file ALL
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEF_FILE} VkLayer_${target}.def
-            VERBATIM
-        )
-        add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
+        add_library(VkLayer_${target} SHARED ${ARGN})
+        if (MSVC)
+            target_link_options(VkLayer_${target} PRIVATE /DEF:${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def)
+        elseif(MINGW)
+            target_sources(VkLayer_${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def)
+        endif()
         target_link_Libraries(VkLayer_${target} Vulkan::Headers Vulkan::UtilityHeaders Vulkan::LayerSettings)
-        set_target_properties(copy-${target}-def-file PROPERTIES FOLDER "VkLayer_${target}")
         set_target_properties(VkLayer_${target} PROPERTIES FOLDER "VkLayer_${target}")
     endmacro()
 else()
@@ -156,7 +155,7 @@ if(BUILD_APIDUMP)
     run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_html.h)
     run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_json.h)
 
-    add_vk_layer(api_dump api_dump.cpp api_dump.h vk_layer_table.cpp vk_layer_table.h VkLayer_api_dump.def api_dump_layer.md VkLayer_api_dump.json.in ../scripts/api_dump_generator.py)
+    add_vk_layer(api_dump api_dump.cpp api_dump.h vk_layer_table.cpp vk_layer_table.h api_dump_layer.md VkLayer_api_dump.json.in ../scripts/api_dump_generator.py)
     add_dependencies(VkLayer_api_dump generate_api_cpp generate_api_text_h generate_api_html_h generate_api_json_h
         generate_api_video_text_h generate_api_video_html_h generate_api_video_json_h)
 
@@ -165,10 +164,10 @@ endif ()
 
 if (NOT APPLE)
     if(BUILD_MONITOR)
-        add_vk_layer(monitor monitor.cpp vk_layer_table.cpp vk_layer_table.h VKLayer_monitor.def monitor_layer.md VkLayer_monitor.json.in)
+        add_vk_layer(monitor monitor.cpp vk_layer_table.cpp vk_layer_table.h monitor_layer.md VkLayer_monitor.json.in)
     endif ()
     if(BUILD_SCREENSHOT)
-        add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp screenshot_parsing.h vk_layer_table.cpp vk_layer_table.h VkLayer_screenshot.def screenshot_layer.md VkLayer_screenshot.json.in)
+        add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp screenshot_parsing.h vk_layer_table.cpp vk_layer_table.h screenshot_layer.md VkLayer_screenshot.json.in)
     endif ()
 endif ()
 
