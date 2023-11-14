@@ -110,19 +110,11 @@ else()
     endmacro()
 endif()
 
-if (APPLE)
-    include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${CMAKE_BINARY_DIR}
-    )
-else ()
-    include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${CMAKE_BINARY_DIR}
-    )
-endif()
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}
+)
 
 if (WIN32)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
