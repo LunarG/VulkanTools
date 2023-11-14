@@ -96,11 +96,6 @@ if (WIN32)
         )
         add_library(VkLayer_${target} SHARED ${ARGN} VkLayer_${target}.def)
         target_link_Libraries(VkLayer_${target} Vulkan::Headers Vulkan::UtilityHeaders Vulkan::LayerSettings)
-        set_target_properties(VkLayer_${target} PROPERTIES
-            CXX_STANDARD 17
-            CXX_STANDARD_REQUIRED ON
-            CXX_EXTENSIONS OFF
-        )
         set_target_properties(copy-${target}-def-file PROPERTIES FOLDER "VkLayer_${target}")
         set_target_properties(VkLayer_${target} PROPERTIES FOLDER "VkLayer_${target}")
     endmacro()
