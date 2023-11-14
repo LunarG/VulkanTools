@@ -11,7 +11,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
-    option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
 
     find_package(PkgConfig REQUIRED QUIET) # Use PkgConfig to find Linux system libraries
 
@@ -21,10 +20,6 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
 
     if (BUILD_WSI_XLIB_SUPPORT)
         pkg_check_modules(X11 REQUIRED QUIET IMPORTED_TARGET x11)
-    endif()
-
-    if (BUILD_WSI_WAYLAND_SUPPORT)
-        pkg_check_modules(WAYLAND_CLIENT REQUIRED QUIET IMPORTED_TARGET wayland-client)
     endif()
 
     if (BUILD_WSI_XCB_SUPPORT)
@@ -38,11 +33,6 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
         endif()
         add_definitions(-DVK_USE_PLATFORM_XLIB_KHR -DVK_USE_PLATFORM_XLIB_KHX)
     endif()
-
-    if (BUILD_WSI_WAYLAND_SUPPORT)
-       # TODO Add Wayland Support
-       # add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
-    endif()
 elseif(APPLE)
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         add_compile_definitions(VK_USE_PLATFORM_MACOS_MVK)
@@ -50,9 +40,6 @@ elseif(APPLE)
     if (IOS)
         add_compile_definitions(VK_USE_PLATFORM_IOS_MVK)
     endif()
-
-    # TODO: Add Metal support. Requires objective C/C++.
-    # add_compile_definitions(VK_USE_PLATFORM_METAL_EXT)
 else()
     message(FATAL_ERROR "Unsupported Platform!")
 endif()
