@@ -1,38 +1,12 @@
-file(GLOB IMAGES
-   "${PROJECT_SOURCE_DIR}/layersvt/images/*"
-)
+file(GLOB IMAGES "${PROJECT_SOURCE_DIR}/layersvt/images/*")
 file(COPY ${IMAGES} DESTINATION ${CMAKE_BINARY_DIR}/layersvt/images)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DVK_USE_PLATFORM_WIN32_KHX -DWIN32_LEAN_AND_MEAN -DNOMINMAX)
-    set(DisplayServer Win32)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+if(WIN32)
+    add_compile_definitions(VK_USE_PLATFORM_WIN32_KHR)
+    # Minimize what Windows.h leaks
+    add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
+elseif(ANDROID)
     add_compile_definitions(VK_USE_PLATFORM_ANDROID_KHR)
-elseif(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
-    option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
-    option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
-
-    find_package(PkgConfig REQUIRED QUIET) # Use PkgConfig to find Linux system libraries
-
-    if (BUILD_WSI_XCB_SUPPORT)
-        pkg_check_modules(XCB REQUIRED QUIET IMPORTED_TARGET xcb)
-    endif()
-
-    if (BUILD_WSI_XLIB_SUPPORT)
-        pkg_check_modules(X11 REQUIRED QUIET IMPORTED_TARGET x11)
-    endif()
-
-    if (BUILD_WSI_XCB_SUPPORT)
-        add_definitions(-DVK_USE_PLATFORM_XCB_KHR -DVK_USE_PLATFORM_XCB_KHX)
-        set(DisplayServer Xcb)
-    endif()
-
-    if (BUILD_WSI_XLIB_SUPPORT)
-        if (NOT DisplayServer)
-            set(DisplayServer Xlib)
-        endif()
-        add_definitions(-DVK_USE_PLATFORM_XLIB_KHR -DVK_USE_PLATFORM_XLIB_KHX)
-    endif()
 elseif(APPLE)
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         add_compile_definitions(VK_USE_PLATFORM_MACOS_MVK)
@@ -40,67 +14,19 @@ elseif(APPLE)
     if (IOS)
         add_compile_definitions(VK_USE_PLATFORM_IOS_MVK)
     endif()
+elseif(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
+    option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
+
+    find_package(PkgConfig REQUIRED)
+
+    # TODO: The monitor layer is the only layer that requires XCB support
+    if (BUILD_WSI_XCB_SUPPORT)
+        pkg_check_modules(XCB REQUIRED QUIET IMPORTED_TARGET xcb)
+        add_compile_definitions(VK_USE_PLATFORM_XCB_KHR)
+    endif()
 else()
     message(FATAL_ERROR "Unsupported Platform!")
 endif()
-
-if (BUILD_APIDUMP)
-    add_custom_target( generate_api_cpp DEPENDS api_dump.cpp )
-    add_custom_target( generate_api_text_h DEPENDS api_dump_text.h )
-    add_custom_target( generate_api_html_h DEPENDS api_dump_html.h )
-    add_custom_target( generate_api_json_h DEPENDS api_dump_json.h )
-    add_custom_target( generate_api_video_text_h DEPENDS api_dump_video_text.h )
-    add_custom_target( generate_api_video_html_h DEPENDS api_dump_video_html.h )
-    add_custom_target( generate_api_video_json_h DEPENDS api_dump_video_json.h )
-
-    set_target_properties(generate_api_cpp generate_api_text_h generate_api_html_h generate_api_json_h
-        generate_api_video_text_h generate_api_video_html_h generate_api_video_json_h
-         PROPERTIES FOLDER VkLayer_api_dump/${VULKANTOOLS_TARGET_FOLDER})
-endif()
-
-if (NOT APPLE)
-    if(BUILD_APIDUMP)
-        set(TARGET_NAMES ${TARGET_NAMES} VkLayer_api_dump)
-    endif()
-    if(BUILD_MONITOR)
-        set(TARGET_NAMES ${TARGET_NAMES} VkLayer_monitor)
-    endif()
-    if(BUILD_SCREENSHOT)
-        set(TARGET_NAMES ${TARGET_NAMES} VkLayer_screenshot)
-    endif()
-else()
-    if(BUILD_APIDUMP)
-        set(TARGET_NAMES VkLayer_api_dump)
-    endif()
-endif ()
-
-if (WIN32)
-    macro(add_vk_layer target)
-        add_library(VkLayer_${target} SHARED ${ARGN})
-        if (MSVC)
-            target_link_options(VkLayer_${target} PRIVATE /DEF:${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def)
-        elseif(MINGW)
-            target_sources(VkLayer_${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/VkLayer_${target}.def)
-        endif()
-        target_link_Libraries(VkLayer_${target} Vulkan::Headers Vulkan::UtilityHeaders Vulkan::LayerSettings)
-        set_target_properties(VkLayer_${target} PROPERTIES FOLDER "VkLayer_${target}")
-    endmacro()
-else()
-    macro(add_vk_layer target)
-        add_library(VkLayer_${target} SHARED ${ARGN})
-        target_link_Libraries(VkLayer_${target} Vulkan::Headers Vulkan::UtilityHeaders Vulkan::LayerSettings)
-        if (ANDROID)
-            target_link_Libraries(VkLayer_${target} log)
-        endif()
-        install(TARGETS VkLayer_${target} DESTINATION ${CMAKE_INSTALL_LIBDIR})
-    endmacro()
-endif()
-
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}
-)
 
 if (WIN32)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
@@ -111,29 +37,36 @@ else()
     add_compile_options(-Wpointer-arith)
 endif()
 
-find_package(Python3 REQUIRED)
-
-set(VULKANTOOLS_SCRIPTS_DIR "${VULKAN_TOOLS_SOURCE_DIR}/scripts")
-set(VULKAN_REGISTRY "${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry")
-
-# Define macro used for building vk.xml generated files
-function(run_vulkantools_vk_xml_generate dependency output)
-    add_custom_command(OUTPUT ${output}
-        COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY}/vk.xml -scripts ${VULKAN_REGISTRY} ${output}
-        DEPENDS ${VULKAN_REGISTRY}/vk.xml ${VULKAN_REGISTRY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY}/reg.py
-    )
-endfunction()
-
-# Define macro used for building video.xml generated files
-function(run_vulkantools_video_xml_generate dependency output)
-    add_custom_command(OUTPUT ${output}
-        COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY}/video.xml -scripts ${VULKAN_REGISTRY} ${output}
-        DEPENDS ${VULKAN_REGISTRY}/video.xml ${VULKAN_REGISTRY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY}/reg.py
-    )
-endfunction()
-
-#VulkanTools layers
 if(BUILD_APIDUMP)
+    add_custom_target(generate_api_cpp DEPENDS api_dump.cpp )
+    add_custom_target(generate_api_text_h DEPENDS api_dump_text.h )
+    add_custom_target(generate_api_html_h DEPENDS api_dump_html.h )
+    add_custom_target(generate_api_json_h DEPENDS api_dump_json.h )
+    add_custom_target(generate_api_video_text_h DEPENDS api_dump_video_text.h )
+    add_custom_target(generate_api_video_html_h DEPENDS api_dump_video_html.h )
+    add_custom_target(generate_api_video_json_h DEPENDS api_dump_video_json.h )
+
+    find_package(Python3 REQUIRED)
+
+    set(VULKANTOOLS_SCRIPTS_DIR "${VULKAN_TOOLS_SOURCE_DIR}/scripts")
+    set(VULKAN_REGISTRY "${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry")
+
+    # Define macro used for building vk.xml generated files
+    function(run_vulkantools_vk_xml_generate dependency output)
+        add_custom_command(OUTPUT ${output}
+            COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY}/vk.xml -scripts ${VULKAN_REGISTRY} ${output}
+            DEPENDS ${VULKAN_REGISTRY}/vk.xml ${VULKAN_REGISTRY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY}/reg.py
+        )
+    endfunction()
+
+    # Define macro used for building video.xml generated files
+    function(run_vulkantools_video_xml_generate dependency output)
+        add_custom_command(OUTPUT ${output}
+            COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY}/video.xml -scripts ${VULKAN_REGISTRY} ${output}
+            DEPENDS ${VULKAN_REGISTRY}/video.xml ${VULKAN_REGISTRY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY}/reg.py
+        )
+    endfunction()
+
     run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump.cpp)
     run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_text.h)
     run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_html.h)
@@ -142,66 +75,143 @@ if(BUILD_APIDUMP)
     run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_html.h)
     run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_json.h)
 
-    add_vk_layer(api_dump api_dump.cpp api_dump.h vk_layer_table.cpp vk_layer_table.h api_dump_layer.md VkLayer_api_dump.json.in ../scripts/api_dump_generator.py)
-    add_dependencies(VkLayer_api_dump generate_api_cpp generate_api_text_h generate_api_html_h generate_api_json_h
-        generate_api_video_text_h generate_api_video_html_h generate_api_video_json_h)
+    add_library(VkLayer_api_dump MODULE)
+    target_sources(VkLayer_api_dump PRIVATE
+        api_dump.cpp
+        api_dump.h
+        vk_layer_table.cpp
+        vk_layer_table.h
+        api_dump_layer.md
+        json/VkLayer_api_dump.json.in
+        ../scripts/api_dump_generator.py
+    )
+
+    target_include_directories(VkLayer_api_dump PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
+    if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
+        target_compile_definitions(VkLayer_api_dump PRIVATE VK_USE_PLATFORM_XLIB_KHR)
+
+        # Add Wayland API dump support
+        # target_compile_definitions(VkLayer_api_dump PRIVATE VK_USE_PLATFORM_XLIB_KHR)
+    endif()
+
+    add_dependencies(VkLayer_api_dump
+        generate_api_cpp
+        generate_api_text_h
+        generate_api_html_h
+        generate_api_json_h
+        generate_api_video_text_h
+        generate_api_video_html_h
+        generate_api_video_json_h
+    )
 
     target_compile_definitions(VkLayer_api_dump PRIVATE VK_ENABLE_BETA_EXTENSIONS)
 endif ()
 
-if (NOT APPLE)
-    if(BUILD_MONITOR)
-        add_vk_layer(monitor monitor.cpp vk_layer_table.cpp vk_layer_table.h monitor_layer.md VkLayer_monitor.json.in)
-    endif ()
-    if(BUILD_SCREENSHOT)
-        add_vk_layer(screenshot screenshot.cpp screenshot_parsing.h screenshot_parsing.cpp screenshot_parsing.h vk_layer_table.cpp vk_layer_table.h screenshot_layer.md VkLayer_screenshot.json.in)
-    endif ()
+if(BUILD_MONITOR)
+    add_library(VkLayer_monitor MODULE)
+    target_sources(VkLayer_monitor PRIVATE
+        monitor.cpp
+        vk_layer_table.cpp
+        vk_layer_table.h
+        monitor_layer.md
+        json/VkLayer_monitor.json.in
+    )
 endif ()
 
-if (ANDROID)
-    message(DEBUG "Android doesn't use json manifests.")
-    return()
-endif()
-
-# The output file needs Unix "/" separators or Windows "\" separators
-# Windows paths need to start with ".\", Unix paths do not.
-# Windows separators actually need to be doubled because the json format uses backslash escapes
-file(TO_NATIVE_PATH "./" RELATIVE_PATH_PREFIX)
-string(REPLACE "\\" "\\\\" RELATIVE_PATH_PREFIX "${RELATIVE_PATH_PREFIX}")
-# Run each .json.in file through the generator
-# We need to create the generator.cmake script so that the generator can be run at compile time, instead of configure time
-# Running at compile time lets us use cmake generator expressions (TARGET_FILE_NAME and TARGET_FILE_DIR, specifically)
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake" "configure_file(\"\${INPUT_FILE}\" \"\${OUTPUT_FILE}\" @ONLY)")
-foreach(TARGET_NAME ${TARGET_NAMES})
-    set(CONFIG_DEFINES
-        -DINPUT_FILE="${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}.json.in"
-        -DVK_VERSION="${VulkanHeaders_VERSION}"
+if(BUILD_SCREENSHOT)
+    add_library(VkLayer_screenshot MODULE)
+    target_sources(VkLayer_screenshot PRIVATE
+        screenshot.cpp
+        screenshot_parsing.h
+        screenshot_parsing.cpp
+        screenshot_parsing.h
+        vk_layer_table.cpp
+        vk_layer_table.h
+        screenshot_layer.md
+        json/VkLayer_screenshot.json.in
     )
-    # Get the needed properties from that target
-    set(CONFIG_DEFINES ${CONFIG_DEFINES}
-        -DOUTPUT_FILE="$<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.json"
-        -DRELATIVE_LAYER_BINARY="${RELATIVE_PATH_PREFIX}$<TARGET_FILE_NAME:${TARGET_NAME}>"
-        )
-
-    add_custom_target(${TARGET_NAME}-json ALL COMMAND ${CMAKE_COMMAND} ${CONFIG_DEFINES} -P "${CMAKE_CURRENT_BINARY_DIR}/generator.cmake")
-    set_target_properties(${TARGET_NAME}-json PROPERTIES FOLDER "${TARGET_NAME}")
-
-    # Add target for JSON file install.
-    if(NOT WIN32)
-        # Add targets for JSON file install on Linux.
-        # Need to remove the "./" from the library path before installing
-        add_custom_target(${TARGET_NAME}-staging-json ALL
-            COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-            COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.json ${CMAKE_CURRENT_BINARY_DIR}/staging-json
-            COMMAND sed -i -e "/.library_path.:/s=./libVkLayer=libVkLayer=" ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${TARGET_NAME}.json
-            VERBATIM
-            DEPENDS ${TARGET_NAME}-json
-            )
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/staging-json/${TARGET_NAME}.json DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/vulkan/explicit_layer.d)
-    endif()
-
-endforeach()
+endif()
 
 if (BUILD_TESTS_DEBUG)
     add_subdirectory(test)
-endif ()
+endif()
+
+list(APPEND TOOL_LAYERS "VkLayer_api_dump" "VkLayer_screenshot" "VkLayer_monitor")
+foreach(layer ${TOOL_LAYERS})
+    if (NOT TARGET "${layer}")
+        continue()
+    endif()
+
+    target_link_Libraries(${layer} PRIVATE Vulkan::Headers Vulkan::UtilityHeaders Vulkan::LayerSettings)
+
+    if (ANDROID)
+        target_link_Libraries(${layer} PRIVATE log)
+    endif()
+
+    target_include_directories(${layer} PRIVATE .)
+
+    if (MSVC)
+        target_link_options(${layer} PRIVATE /DEF:${CMAKE_CURRENT_SOURCE_DIR}/${layer}.def)
+    elseif(MINGW)
+        target_sources(${layer} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/${layer}.def)
+    endif()
+
+    if (APPLE)
+        set_target_properties(${layer} PROPERTIES SUFFIX ".dylib")
+    endif()
+
+    if (ANDROID)
+        install(TARGETS ${layer} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+        continue()
+    endif()
+
+    set(INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/json/${layer}.json.in")
+    set(INTERMEDIATE_FILE "${CMAKE_CURRENT_BINARY_DIR}/json/intermediate-${layer}.json")
+    set(OUTPUT_FILE_FINAL_NAME "${layer}.json")
+    set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
+    if (WIN32)
+        set(LAYER_INSTALL_DIR ${CMAKE_INSTALL_BINDIR})
+    endif()
+
+    if (WIN32)
+        set(JSON_LIBRARY_PATH ".\\\\${layer}.dll")
+    elseif(APPLE)
+        set(JSON_LIBRARY_PATH "./lib${layer}.dylib")
+    else()
+        set(JSON_LIBRARY_PATH "./lib${layer}.so")
+    endif()
+
+    set(JSON_VERSION ${VulkanHeaders_VERSION})
+
+    configure_file(${INPUT_FILE} ${INTERMEDIATE_FILE} @ONLY)
+
+    add_custom_command(TARGET ${layer} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${INTERMEDIATE_FILE} $<TARGET_FILE_DIR:${layer}>/${OUTPUT_FILE_FINAL_NAME}
+    )
+
+    if (UNIX)
+        set(UNIX_INTERMEDIATE_FILE "${CMAKE_CURRENT_BINARY_DIR}/json/unix_install_${layer}.json")
+
+        if(APPLE)
+            set(JSON_LIBRARY_PATH "lib${layer}.dylib")
+        else()
+            set(JSON_LIBRARY_PATH "lib${layer}.so")
+        endif()
+
+        configure_file(${INPUT_FILE} ${UNIX_INTERMEDIATE_FILE} @ONLY)
+
+        install(FILES ${UNIX_INTERMEDIATE_FILE} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/vulkan/explicit_layer.d RENAME ${OUTPUT_FILE_FINAL_NAME})
+    endif()
+
+    if (WIN32)
+        install(FILES ${INTERMEDIATE_FILE} DESTINATION ${LAYER_INSTALL_DIR} RENAME ${OUTPUT_FILE_FINAL_NAME})
+    endif()
+    if (MSVC)
+        install(FILES $<TARGET_PDB_FILE:${layer}> DESTINATION ${LAYER_INSTALL_DIR})
+    endif()
+
+    install(TARGETS ${layer} DESTINATION ${LAYER_INSTALL_DIR})
+endforeach()

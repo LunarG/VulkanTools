@@ -28,6 +28,11 @@ find_package(VulkanUtilityLibraries REQUIRED CONFIG)
 
 find_package(valijson REQUIRED CONFIG)
 
+if (MSVC)
+    add_compile_options("$<$<CONFIG:Release>:/Zi>")
+    add_link_options("$<$<CONFIG:Release>:/DEBUG:FULL>")
+endif()
+
 if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux|BSD")
 
     option(BUILD_APIDUMP "Build api_dump layer" ON)
@@ -57,8 +62,8 @@ elseif(ANDROID)
 elseif (APPLE)
 
     option(BUILD_APIDUMP "Build api_dump layer" ON)
-    option(BUILD_MONITOR "Build monitor layer" ON)
-    option(BUILD_SCREENSHOT "Build screenshot layer" ON)
+    set(BUILD_MONITOR OFF)
+    set(BUILD_SCREENSHOT OFF)
 
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         option(BUILD_VIA "Build via" ON)

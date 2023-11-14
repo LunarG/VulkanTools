@@ -3,8 +3,8 @@
     "layer": {
         "name": "VK_LAYER_LUNARG_screenshot",
         "type": "GLOBAL",
-        "library_path": "@RELATIVE_LAYER_BINARY@",
-        "api_version": "@VK_VERSION@",
+        "library_path": "@JSON_LIBRARY_PATH@",
+        "api_version": "@JSON_VERSION@",
         "implementation_version": "1",
         "description": "LunarG image capture layer",
         "introduction": "The screenshot layer records frames to image files.",

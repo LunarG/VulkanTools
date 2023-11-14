@@ -44,10 +44,12 @@ function(LayerTest NAME)
 endfunction()
 
 set(LAYER_TEST_FILES api_dump monitor screenshot)
-if (APPLE)
-    set(LAYER_TEST_FILES api_dump)
-endif()
 
 foreach(test_item ${LAYER_TEST_FILES})
+    # If the target doesn't exist continue.
+    if (NOT TARGET "VkLayer_${test_item}")
+        continue()
+    endif()
+
     LayerTest(${test_item})
 endforeach()
