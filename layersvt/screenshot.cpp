@@ -70,7 +70,8 @@ static char *local_getenv(const char *name) {
 
 static void local_free_getenv(const char *val) { android_env_map.erase(std::string(val)); }
 
-#elif defined(__linux__) || defined(__FreeBSD__)
+#elif defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+
 static inline char *local_getenv(const char *name) { return getenv(name); }
 
 static inline void local_free_getenv(const char *val) {}
