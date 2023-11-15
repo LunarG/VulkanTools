@@ -50,7 +50,7 @@ TEST_F(ApiDumpTests, init_layer) {
     EXPECT_EQ(err, VK_SUCCESS);
 
     // check the output file is generated
-    const std::string path = std::string(TEST_BINARY_PATH) + "/../test/" + filename_string;
+    const std::string path = std::string(TEST_BINARY_PATH) + "/test/" + filename_string;
     FILE* file = fopen(path.c_str(), "r");
     ASSERT_TRUE(file != NULL);
 
