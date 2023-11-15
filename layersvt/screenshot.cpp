@@ -61,18 +61,9 @@ std::string vk_screenshot_dir;
 
 bool printFormatWarning = true;
 
-typedef enum colorSpaceFormat {
-    UNDEFINED = 0,
-    UNORM = 1,
-    SNORM = 2,
-    USCALED = 3,
-    SSCALED = 4,
-    UINT = 5,
-    SINT = 6,
-    SRGB = 7
-} colorSpaceFormat;
+enum class colorSpaceFormat { UNDEFINED, UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB };
 
-colorSpaceFormat userColorSpaceFormat = UNDEFINED;
+colorSpaceFormat userColorSpaceFormat = colorSpaceFormat::UNDEFINED;
 
 // unordered map: associates Vulkan dispatchable objects to a dispatch table
 typedef struct {
@@ -278,20 +269,20 @@ static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAll
         vkuGetLayerSettingValue(layerSettingSet, kSettingKeyFormat, value);
 
         if (value == "UNORM") {
-            userColorSpaceFormat = UNORM;
+            userColorSpaceFormat = colorSpaceFormat::UNORM;
         } else if (value == "SRGB") {
-            userColorSpaceFormat = SRGB;
+            userColorSpaceFormat = colorSpaceFormat::SRGB;
         } else if (value == "SNORM") {
-            userColorSpaceFormat = SNORM;
+            userColorSpaceFormat = colorSpaceFormat::SNORM;
         } else if (value == "USCALED") {
-            userColorSpaceFormat = USCALED;
+            userColorSpaceFormat = colorSpaceFormat::USCALED;
         } else if (value == "SSCALED") {
-            userColorSpaceFormat = SSCALED;
+            userColorSpaceFormat = colorSpaceFormat::SSCALED;
         } else if (value == "UINT") {
-            userColorSpaceFormat = UINT;
+            userColorSpaceFormat = colorSpaceFormat::UINT;
         } else if (value == "SINT") {
-            userColorSpaceFormat = SINT;
-        } else if (value == "USE_SWAPCHAIN_COLORSPACE") {
+            userColorSpaceFormat = colorSpaceFormat::SINT;
+        } else if (value != "USE_SWAPCHAIN_COLORSPACE") {
 #ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "screenshot",
                                 "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, "
@@ -460,45 +451,45 @@ static bool writePPM(const char *filename, VkImage image1) {
     VkFormat destformat = VK_FORMAT_UNDEFINED;
 
     // This variable set by readScreenShotFormatENV func during init
-    if (userColorSpaceFormat != UNDEFINED) {
+    if (userColorSpaceFormat != colorSpaceFormat::UNDEFINED) {
         switch (userColorSpaceFormat) {
-            case UNORM:
+            case colorSpaceFormat::UNORM:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_UNORM;
                 else
                     destformat = VK_FORMAT_R8G8B8_UNORM;
                 break;
-            case SRGB:
+            case colorSpaceFormat::SRGB:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_SRGB;
                 else
                     destformat = VK_FORMAT_R8G8B8_SRGB;
                 break;
-            case SNORM:
+            case colorSpaceFormat::SNORM:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_SNORM;
                 else
                     destformat = VK_FORMAT_R8G8B8_SNORM;
                 break;
-            case USCALED:
+            case colorSpaceFormat::USCALED:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_USCALED;
                 else
                     destformat = VK_FORMAT_R8G8B8_USCALED;
                 break;
-            case SSCALED:
+            case colorSpaceFormat::SSCALED:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_SSCALED;
                 else
                     destformat = VK_FORMAT_R8G8B8_SSCALED;
                 break;
-            case UINT:
+            case colorSpaceFormat::UINT:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_UINT;
                 else
                     destformat = VK_FORMAT_R8G8B8_UINT;
                 break;
-            case SINT:
+            case colorSpaceFormat::SINT:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_SINT;
                 else
