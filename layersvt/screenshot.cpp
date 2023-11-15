@@ -51,54 +51,6 @@ const char *kSettingsKeyFrames = "frames";
 const char *kSettingKeyFormat = "format";
 const char *kSettingKeyDir = "dir";
 
-#ifdef ANDROID
-
-static std::map<std::string, std::string> android_env_map;
-
-static char *local_getenv(const char *name) {
-    char env_val[PROP_VALUE_MAX];
-    char *rval = nullptr;
-    if (__system_property_get(name, env_val) > 0) {
-        android_env_map[std::string(name)] = std::string(env_val);
-        rval = const_cast<char *>(android_env_map[std::string(name)].c_str());
-        __android_log_print(ANDROID_LOG_INFO, "screenshot", "android local_getenv(\"%s\") returned \"%s\"", name, rval);
-    } else {
-        __android_log_print(ANDROID_LOG_INFO, "screenshot", "android local_getenv(\"%s\") returned nullptr", name);
-    }
-    return rval;
-}
-
-static void local_free_getenv(const char *val) { android_env_map.erase(std::string(val)); }
-
-#elif defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
-
-static inline char *local_getenv(const char *name) { return getenv(name); }
-
-static inline void local_free_getenv(const char *val) {}
-
-#elif defined(_WIN32)
-
-static inline char *local_getenv(const char *name) {
-    char *retVal;
-    DWORD valSize;
-
-    valSize = GetEnvironmentVariableA(name, NULL, 0);
-
-    // valSize DOES include the null terminator, so for any set variable
-    // will always be at least 1. If it's 0, the variable wasn't set.
-    if (valSize == 0) return NULL;
-
-    // TODO; FIXME This should be using any app defined memory allocation
-    retVal = (char *)malloc(valSize);
-
-    GetEnvironmentVariableA(name, retVal, valSize);
-
-    return retVal;
-}
-
-static inline void local_free_getenv(const char *val) { free((void *)val); }
-#endif
-
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
 namespace screenshot {
