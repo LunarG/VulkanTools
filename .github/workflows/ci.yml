@@ -106,7 +106,7 @@ jobs:
     runs-on: macos-12
     steps:
         - uses: actions/checkout@v4
-        - uses: actions/setup-python@v4
+        - uses: actions/setup-python@v5
           with:
             python-version: '3.7'
         - uses: lukka/get-cmake@latest
@@ -137,7 +137,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: mingw-ccache
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - uses: lukka/get-cmake@latest
