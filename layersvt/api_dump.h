@@ -526,12 +526,14 @@ class ApiDumpSettings {
             bool file = false;
             vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFile, file);
 
-            if (output_format == ApiDumpFormat::Html) {
-                filename_string = "vk_apidump.html";
-            } else if (output_format == ApiDumpFormat::Json) {
-                filename_string = "vk_apidump.json";
-            } else {
-                filename_string = "vk_apidump.txt";
+            if (file) {
+                if (output_format == ApiDumpFormat::Html) {
+                    filename_string = "vk_apidump.html";
+                } else if (output_format == ApiDumpFormat::Json) {
+                    filename_string = "vk_apidump.json";
+                } else {
+                    filename_string = "vk_apidump.txt";
+                }
             }
         }
 
