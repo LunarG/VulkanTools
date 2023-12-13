@@ -17,11 +17,6 @@
                         "value": "FORCE_DEVICE_WITH_NAME"
                     },
                     {
-                        "key": "force_device_uuid",
-                        "type": "STRING",
-                        "value": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-                    },
-                    {
                         "key": "force_device_name",
                         "type": "ENUM",
                         "value": "${VP_PHYSICAL_DEVICES}"
@@ -35,70 +30,6 @@
                         "key": "profile_name",
                         "type": "ENUM",
                         "value": ""
-                    },
-                    {
-                        "key": "profile_validation",
-                        "type": "BOOL",
-                        "value": false
-                    },
-                    {
-                        "key": "simulate_capabilities",
-                        "type": "FLAGS",
-                        "value": [
-                        ]
-                    },
-                    {
-                        "key": "default_feature_values",
-                        "type": "ENUM",
-                        "value": "DEFAULT_FEATURE_VALUES_DEVICE"
-                    },
-                    {
-                        "key": "emulate_portability",
-                        "type": "BOOL",
-                        "value": false
-                    },
-                    {
-                        "key": "exclude_device_extensions",
-                        "type": "LIST",
-                        "value": [
-                        ]
-                    },
-                    {
-                        "key": "exclude_formats",
-                        "type": "LIST",
-                        "value": [
-                        ]
-                    },
-                    {
-                        "key": "debug_actions",
-                        "type": "FLAGS",
-                        "value": [
-                            "DEBUG_ACTION_STDOUT_BIT"
-                        ]
-                    },
-                    {
-                        "key": "debug_filename",
-                        "type": "SAVE_FILE",
-                        "value": "profiles_layer_log.txt"
-                    },
-                    {
-                        "key": "debug_file_clear",
-                        "type": "BOOL",
-                        "value": true
-                    },
-                    {
-                        "key": "debug_fail_on_error",
-                        "type": "BOOL",
-                        "value": false
-                    },
-                    {
-                        "key": "debug_reports",
-                        "type": "FLAGS",
-                        "value": [
-                            "DEBUG_REPORT_WARNING_BIT",
-                            "DEBUG_REPORT_ERROR_BIT",
-                            "DEBUG_REPORT_NOTIFICATION_BIT"
-                        ]
                     }
                 ],
                 "state": "OVERRIDDEN"
