@@ -66,14 +66,24 @@ elseif (MSVC)
     target_compile_definitions(vkvia PRIVATE _CRT_SECURE_NO_WARNINGS _USE_MATH_DEFINES)
 endif()
 
-# https://github.com/LunarG/VulkanTools/issues/1908
-find_package(PkgConfig)
-if (PKG_CONFIG_FOUND)
-    pkg_check_modules(jsoncpp REQUIRED IMPORTED_TARGET jsoncpp)
-    target_link_libraries(vkvia PRIVATE PkgConfig::jsoncpp)
-else()
-    find_package(jsoncpp CONFIG REQUIRED)
+# NOTE: jsoncpp hasn't had updates in a bit and isn't getting fixes.
+# may be worth using nlohmann/json in the future which gets more updates
+# and has better CMake support.
+find_package(jsoncpp CONFIG)
+if (TARGET jsoncpp_static)
     target_link_libraries(vkvia PRIVATE jsoncpp_static)
+    
+# Support using jsoncpp.pc but only for UNIX platforms.
+# And only if UPDATE_DEPS is disabled.
+elseif (UNIX AND NOT UPDATE_DEPS)
+
+    # https://github.com/LunarG/VulkanTools/issues/1908
+    find_package(PkgConfig)
+    if (PKG_CONFIG_FOUND)
+        pkg_check_modules(jsoncpp REQUIRED IMPORTED_TARGET jsoncpp)
+        target_link_libraries(vkvia PRIVATE PkgConfig::jsoncpp)
+    endif()
+
 endif()
 
 target_link_libraries(vkvia PRIVATE
