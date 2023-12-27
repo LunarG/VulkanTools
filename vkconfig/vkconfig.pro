@@ -186,7 +186,7 @@ macx: {
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
 
 QMAKE_INFO_PLIST = macOS/Info.plist
-RC_FILE = macOS/Resources/LunarGIcon.icns
+RC_FILE = macOS/Resources/VulkanIcon.icns
 }
 
 # Default rules for deployment.
