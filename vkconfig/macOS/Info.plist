@@ -13,7 +13,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>VkConfig</string>
 	<key>CFBundleIconFile</key>
-	<string>LunarGIcon.icns</string>
+	<string>VulkanIcon.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.lunarg.vkconfig</string>
 	<key>CFBundleInfoDictionaryVersion</key>
