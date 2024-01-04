@@ -179,7 +179,7 @@
             "items": {
                 "oneOf": [
                     {
-                        "description": "For preset STRING, FRAMES, ENUM, LOAD_FILE, SAVE_FILE, SAVE_FOLDER setting type values",
+                        "description": "For preset STRING, FRAMES, ENUM, LOAD_FILE, SAVE_FILE, LOAD_FOLDER, SAVE_FOLDER setting type values",
                         "type": "object",
                         "required": [
                             "key",
@@ -422,7 +422,7 @@
                         ]
                     },
                     {
-                        "description": "layer setting for STRING and SAVE_FOLDER types",
+                        "description": "layer setting for STRING, LOAD_FOLDER and SAVE_FOLDER types",
                         "type": "object",
                         "required": [
                             "key",
@@ -443,7 +443,11 @@
                             },
                             "type": {
                                 "type": "string",
-                                "enum": [ "STRING", "SAVE_FOLDER" ]
+                                "enum": [ "STRING", "LOAD_FOLDER", "SAVE_FOLDER" ]
+                            },
+                            "format": {
+                                "type": "string",
+                                "enum": [ "PROFILE" ]
                             },
                             "default": {
                                 "type": "string"
@@ -493,6 +497,13 @@
                                 "type": "SAVE_FOLDER",
                                 "label": "Save folder",
                                 "description": "Save folder path",
+                                "default": "./test"
+                            },
+                            {
+                                "key": "load_folder_required_only",
+                                "type": "LOAD_FOLDER",
+                                "label": "Load folder",
+                                "description": "Load folder path",
                                 "default": "./test"
                             }
                         ]

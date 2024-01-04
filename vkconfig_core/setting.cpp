@@ -69,6 +69,7 @@ const char* GetToken(SettingType type) {
         "SAVE_FILE",     // SETTING_SAVE_FILE
         "LOAD_FILE",     // SETTING_LOAD_FILE
         "SAVE_FOLDER",   // SETTING_SAVE_FOLDER
+        "LOAD_FOLDER",   // SETTING_LOAD_FOLDER
         "BOOL",          // SETTING_BOOL
         "BOOL_NUMERIC",  // SETTING_BOOL_NUMERIC_DEPRECATED
         "ENUM",          // SETTING_ENUM
