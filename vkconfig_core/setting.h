@@ -46,6 +46,7 @@ enum SettingType {  // Enum value can't be changed
     SETTING_SAVE_FILE,
     SETTING_LOAD_FILE,
     SETTING_SAVE_FOLDER,
+    SETTING_LOAD_FOLDER,
     SETTING_BOOL,
     SETTING_BOOL_NUMERIC_DEPRECATED,  // Deprecated
     SETTING_ENUM,

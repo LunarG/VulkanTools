@@ -88,6 +88,27 @@ struct SettingDataFileSave : public SettingDataFilesystem {
     const SettingMetaFileSave* meta;
 };
 
+struct SettingMetaFolderLoad : public SettingMetaFilesystem {
+    static const SettingType TYPE;
+
+    SettingData* Instantiate() override;
+
+   private:
+    SettingMetaFolderLoad(Layer& layer, const std::string& key);
+
+    friend class Layer;
+};
+
+struct SettingDataFolderLoad : public SettingDataFilesystem {
+    SettingDataFolderLoad(const SettingMetaFolderLoad* meta);
+
+    void Copy(const SettingData* data) override;
+    void Reset() override;
+
+   private:
+    const SettingMetaFolderLoad* meta;
+};
+
 struct SettingMetaFolderSave : public SettingMetaFilesystem {
     static const SettingType TYPE;
 

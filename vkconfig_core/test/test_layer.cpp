@@ -325,6 +325,25 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_STREQ("./text.log", setting_opt->value.c_str());
     }
 
+    // Preset Load Folder
+    {
+        const std::size_t index = 4;
+
+        const SettingDataFolderLoad* setting_only =
+            static_cast<const SettingDataFolderLoad*>(FindSetting(layer.presets[index].settings, "load_folder_required_only"));
+        ASSERT_TRUE(setting_only);
+        const SettingDataFolderLoad* setting_opt =
+            static_cast<const SettingDataFolderLoad*>(FindSetting(layer.presets[index].settings, "load_folder_with_optional"));
+        ASSERT_TRUE(setting_opt);
+
+        EXPECT_STREQ("Preset Load Folder", layer.presets[index].label.c_str());
+        EXPECT_STREQ("Description Load Folder", layer.presets[index].description.c_str());
+        EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
+        EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
+        EXPECT_STREQ("./text.log", setting_only->value.c_str());
+        EXPECT_STREQ("./text.log", setting_opt->value.c_str());
+    }
+
     // Preset Save File
     {
         const std::size_t index = 5;
