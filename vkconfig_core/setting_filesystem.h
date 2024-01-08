@@ -103,7 +103,10 @@ struct SettingDataFolderLoad : public SettingDataFilesystem {
     SettingDataFolderLoad(const SettingMetaFolderLoad* meta);
 
     void Copy(const SettingData* data) override;
+    bool Load(const QJsonObject& json_setting) override;
     void Reset() override;
+
+    std::vector<std::string> profile_names;
 
    private:
     const SettingMetaFolderLoad* meta;

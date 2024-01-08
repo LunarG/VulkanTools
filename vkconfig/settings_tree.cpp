@@ -343,7 +343,8 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
 
         case SETTING_SAVE_FILE:
         case SETTING_LOAD_FILE:
-        case SETTING_SAVE_FOLDER: {
+        case SETTING_SAVE_FOLDER:
+        case SETTING_LOAD_FOLDER: {
             const SettingMetaFilesystem &meta = static_cast<const SettingMetaFilesystem &>(meta_object);
 
             WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, item, meta, parameter.settings);

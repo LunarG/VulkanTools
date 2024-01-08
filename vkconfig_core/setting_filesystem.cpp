@@ -108,7 +108,7 @@ bool SettingDataFileLoad::Load(const QJsonObject& json_setting) {
     SettingDataString::Load(json_setting);
 
     if (this->meta->format == "PROFILE") {
-        this->profile_names = GetProfileNames(this->value);
+        this->profile_names = GetProfileNamesFromFile(this->value);
     }
     return true;
 }
@@ -165,6 +165,15 @@ void SettingDataFolderLoad::Copy(const SettingData* data) {
 
     const SettingDataFolderLoad* setting_data = static_cast<const SettingDataFolderLoad*>(data);
     this->value = setting_data->value;
+}
+
+bool SettingDataFolderLoad::Load(const QJsonObject& json_setting) {
+    SettingDataString::Load(json_setting);
+
+    if (this->meta->format == "PROFILE") {
+        this->profile_names = GetProfileNamesFromDir(this->value);
+    }
+    return true;
 }
 
 void SettingDataFolderLoad::Reset() { this->value = this->meta->default_value; }

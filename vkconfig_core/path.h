@@ -79,4 +79,6 @@ QFileInfoList GetJSONFiles(const char* directory);
 
 std::string ExtractAbsoluteDir(const std::string& path);
 
-std::vector<std::string> GetProfileNames(const std::string& profile_path);
+std::vector<std::string> GetProfileNamesFromFile(const std::string& profile_path);
+
+std::vector<std::string> GetProfileNamesFromDir(const std::string& profile_path);

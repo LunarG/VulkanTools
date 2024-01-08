@@ -130,6 +130,9 @@ SettingMeta* Layer::Instantiate(SettingMetaSet& meta_set, const std::string& key
         case SETTING_SAVE_FOLDER:
             setting_meta = new SettingMetaFolderSave(*this, key);
             break;
+        case SETTING_LOAD_FOLDER:
+            setting_meta = new SettingMetaFolderLoad(*this, key);
+            break;
         case SETTING_BOOL:
             setting_meta = new SettingMetaBool(*this, key);
             break;

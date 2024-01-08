@@ -29,10 +29,20 @@
 
 static const int MIN_FIELD_WIDTH = 80;
 
-static const std::vector<std::string>& GetProfileNames(SettingDataSet& data_set) {
-    SettingDataFileLoad* data_file_load = static_cast<SettingDataFileLoad*>(FindSetting(data_set, "profile_file"));
+static std::vector<std::string> GetProfileNames(SettingDataSet& data_set) {
+    std::vector<std::string> profiles_name;
 
-    return data_file_load->profile_names;
+    SettingDataFileLoad* data_file_load = static_cast<SettingDataFileLoad*>(FindSetting(data_set, "profile_file"));
+    if (data_file_load != nullptr) {
+        profiles_name = data_file_load->profile_names;
+    }
+
+    SettingDataFolderLoad* data_folder_load = static_cast<SettingDataFolderLoad*>(FindSetting(data_set, "profile_dirs"));
+    if (data_folder_load != nullptr) {
+        profiles_name = data_folder_load->profile_names;
+    }
+
+    return profiles_name;
 }
 
 WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta,
@@ -74,7 +84,7 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         this->item->setHidden(profiles.size() <= 1 || enabled == SETTING_DEPENDENCE_HIDE);
 
         int selection = 0;
-        const std::string value = this->data().value;
+        const std::string value = this->data().GetValue();
         for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
             this->field->addItem(profiles[i].c_str());
             if (profiles[i] == value) {
@@ -96,11 +106,11 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
 
         int selection = 0;
-        const std::string value = this->data().value;
+        const std::string value = this->data().GetValue();
         for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
             this->field->addItem(devices[i].c_str());
             if (devices[i] == value || "${VP_PHYSICAL_DEVICES}" == value) {
-                this->data().value = devices[i];
+                this->data().SetValue(devices[i].c_str());
                 selection = static_cast<int>(this->enum_indexes.size());
             }
             this->enum_indexes.push_back(i);
@@ -117,7 +127,7 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         this->enum_indexes.clear();
 
         int selection = 0;
-        const std::string value = this->data().value;
+        const std::string value = this->data().GetValue();
 
         for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
             if (!IsSupported(&this->meta.enum_values[i])) continue;
@@ -164,18 +174,18 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         const std::vector<std::string>& profiles = GetProfileNames(data_set);
         assert(index >= 0 && index < static_cast<int>(profiles.size()));
 
-        this->data().value = profiles[index];
+        this->data().SetValue(profiles[index].c_str());
         this->item->setHidden(profiles.size() <= 1);
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
         const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
         assert(index >= 0 && index < static_cast<int>(devices.size()));
 
-        this->data().value = devices[index];
+        this->data().SetValue(devices[index].c_str());
     } else {
         assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 
         const std::size_t value_index = enum_indexes[static_cast<std::size_t>(index)];
-        this->data().value = this->meta.enum_values[value_index].key;
+        this->data().SetValue(this->meta.enum_values[value_index].key.c_str());
         this->field->setToolTip(this->meta.enum_values[value_index].description.c_str());
     }
 

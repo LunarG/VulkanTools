@@ -95,6 +95,10 @@ std::string SettingDataString::Export(ExportMode export_mode) const {
     }
 }
 
+const char* SettingDataString::GetValue() const { return this->value.c_str(); }
+
+void SettingDataString::SetValue(const char* value) { this->value = value; }
+
 bool SettingDataString::Equal(const SettingData& other) const {
     if (!SettingData::Equal(other)) return false;
 
