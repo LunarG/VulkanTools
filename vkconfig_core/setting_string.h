@@ -55,9 +55,9 @@ struct SettingDataString : public SettingData {
     const char* GetValue() const;
     void SetValue(const char* value);
 
-   protected:
     std::string value;
 
+   protected:
     SettingDataString(const std::string& key, const SettingType& type);
 
     bool Equal(const SettingData& other) const override;

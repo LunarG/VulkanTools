@@ -327,7 +327,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Load Folder
     {
-        const std::size_t index = 4;
+        const std::size_t index = 5;
 
         const SettingDataFolderLoad* setting_only =
             static_cast<const SettingDataFolderLoad*>(FindSetting(layer.presets[index].settings, "load_folder_required_only"));
@@ -340,13 +340,13 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_STREQ("Description Load Folder", layer.presets[index].description.c_str());
         EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
         EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-        EXPECT_STREQ("./text.log", setting_only->value.c_str());
-        EXPECT_STREQ("./text.log", setting_opt->value.c_str());
+        EXPECT_STREQ("./text", setting_only->value.c_str());
+        EXPECT_STREQ("./text", setting_opt->value.c_str());
     }
 
     // Preset Save File
     {
-        const std::size_t index = 5;
+        const std::size_t index = 6;
 
         const SettingDataFileSave* setting_only =
             static_cast<const SettingDataFileSave*>(FindSetting(layer.presets[index].settings, "save_file_required_only"));
@@ -365,7 +365,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Save Folder
     {
-        const std::size_t index = 6;
+        const std::size_t index = 7;
 
         const SettingDataFolderSave* setting_only =
             static_cast<const SettingDataFolderSave*>(FindSetting(layer.presets[index].settings, "save_folder_required_only"));
@@ -378,13 +378,13 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_STREQ("Description Save Folder", layer.presets[index].description.c_str());
         EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
         EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-        EXPECT_STREQ("./text.log", setting_only->value.c_str());
-        EXPECT_STREQ("./text.log", setting_opt->value.c_str());
+        EXPECT_STREQ("./text", setting_only->value.c_str());
+        EXPECT_STREQ("./text", setting_opt->value.c_str());
     }
 
     // Preset int
     {
-        const std::size_t index = 7;
+        const std::size_t index = 8;
 
         const SettingDataInt* setting_only =
             static_cast<const SettingDataInt*>(FindSetting(layer.presets[index].settings, "int_required_only"));
@@ -403,7 +403,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Frames
     {
-        const std::size_t index = 8;
+        const std::size_t index = 9;
 
         EXPECT_STREQ("Preset Frames", layer.presets[index].label.c_str());
         EXPECT_STREQ("Description Frames", layer.presets[index].description.c_str());
@@ -419,7 +419,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset List
     {
-        const std::size_t index = 9;
+        const std::size_t index = 10;
 
         const SettingDataList* setting_only =
             static_cast<const SettingDataList*>(FindSetting(layer.presets[index].settings, "list_required_only"));
