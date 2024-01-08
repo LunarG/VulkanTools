@@ -100,6 +100,22 @@
                     ]
                 },
                 {
+                    "label": "Preset Load Folder",
+                    "description": "Description Load Folder",
+                    "platforms": [ "WINDOWS", "MACOS" ],
+                    "status": "DEPRECATED",
+                    "settings": [
+                        {
+                            "key": "load_folder_required_only",
+                            "value": "./text"
+                        },
+                        {
+                            "key": "load_folder_with_optional",
+                            "value": "./text"
+                        }
+                    ]
+                },
+                {
                     "label": "Preset Save File",
                     "description": "Description Save File",
                     "platforms": [ "WINDOWS", "MACOS" ],
@@ -123,11 +139,11 @@
                     "settings": [
                         {
                             "key": "save_folder_required_only",
-                            "value": "./text.log"
+                            "value": "./text"
                         },
                         {
                             "key": "save_folder_with_optional",
-                            "value": "./text.log"
+                            "value": "./text"
                         }
                     ]
                 },
@@ -430,6 +446,34 @@
                     "platforms": [ "WINDOWS", "LINUX" ],
                     "filter": "*.txt",
                     "default": "./test.txt",
+                    "dependence": {
+                        "mode": "ALL",
+                        "settings": [
+                            {
+                                "key": "toogle",
+                                "value": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "load_folder_required_only",
+                    "type": "LOAD_FOLDER",
+                    "label": "Load folder",
+                    "description": "Load folder path",
+                    "default": "./test"
+                },
+                {
+                    "key": "load_folder_with_optional",
+                    "env": "VK_REF_LOAD_FOLDER",
+                    "type": "LOAD_FOLDER",
+                    "label": "Load folder",
+                    "description": "Load folder path",
+                    "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_folder",
+                    "status": "BETA",
+                    "view": "ADVANCED",
+                    "platforms": [ "WINDOWS", "LINUX" ],
+                    "default": "./test",
                     "dependence": {
                         "mode": "ALL",
                         "settings": [
