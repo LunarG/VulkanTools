@@ -29,7 +29,7 @@ static const int MIN_FIELD_WIDTH = 120;
 WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaString& meta,
                                          SettingDataSet& data_set)
     : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new QLineEdit(this)) {
-    this->field->setText(this->data().value.c_str());
+    this->field->setText(this->data().GetValue());
     QFont font = tree->font();
     if (meta.key == "force_device_uuid") {
         font.setFamily("Consolas");
@@ -64,7 +64,7 @@ void WidgetSettingString::Refresh(RefreshAreas refresh_areas) {
             this->DisplayOverride(this->field, this->meta);
         }
 
-        this->field->setText(this->data().value.c_str());
+        this->field->setText(this->data().GetValue());
     }
 }
 
@@ -82,7 +82,7 @@ void WidgetSettingString::resizeEvent(QResizeEvent* event) {
 }
 
 void WidgetSettingString::OnTextEdited(const QString& value) {
-    this->data().value = value.toStdString();
+    this->data().SetValue(value.toStdString().c_str());
     this->field->setToolTip(this->field->text());
 
     emit itemChanged();

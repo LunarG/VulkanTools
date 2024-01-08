@@ -79,7 +79,7 @@ void WidgetSettingFrames::Refresh(RefreshAreas refresh_areas) {
         }
 
         this->field->blockSignals(true);
-        this->field->setText(this->data().value.c_str());
+        this->field->setText(this->data().GetValue());
         this->field->blockSignals(false);
     }
 }
@@ -98,7 +98,7 @@ void WidgetSettingFrames::OnErrorValue() {
     if (settings.value("VKCONFIG_WIDGET_SETTING_FRAMES").toBool() == false) {
         const std::string text =
             format("The setting input '%s' is invalid. Use list of comma separated integer ranges. Example: '0-2,16'.",
-                   this->data().value.c_str());
+                   this->data().GetValue());
         const std::string info =
             format("Do you want to reset to the setting default value? '%s'", this->meta.default_value.c_str());
 
@@ -111,7 +111,7 @@ void WidgetSettingFrames::OnErrorValue() {
         alert.setIcon(QMessageBox::Critical);
         alert.setCheckBox(new QCheckBox("Do not show again."));
         if (alert.exec() == QMessageBox::Yes) {
-            this->data().value = this->meta.default_value;
+            this->data().SetValue(this->meta.default_value.c_str());
             this->field->setText(this->meta.default_value.c_str());
             this->field->setPalette(default_palette);
             this->Resize();

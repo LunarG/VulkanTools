@@ -70,10 +70,10 @@ void WidgetSettingFilesystem::Refresh(RefreshAreas refresh_areas) {
     this->button->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
 
     if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
-        LoadFile(this->data().value);
+        LoadPath(this->data().GetValue());
 
         this->field->blockSignals(true);
-        this->field->setText(ReplaceBuiltInVariable(this->data().value).c_str());
+        this->field->setText(ReplaceBuiltInVariable(this->data().GetValue()).c_str());
         this->field->blockSignals(false);
 
         if (::CheckSettingOverridden(this->meta)) {
@@ -91,21 +91,45 @@ void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
     this->button->setGeometry(button_rect);
 }
 
-void WidgetSettingFilesystem::LoadFile(const std::string& path) {
-    if (this->meta.type == SETTING_LOAD_FILE) {
-        const SettingMetaFileLoad& setting_file = static_cast<const SettingMetaFileLoad&>(this->meta);
-        if (setting_file.format == "PROFILE") {
-            if (path.empty()) return;
+void WidgetSettingFilesystem::LoadPath(const std::string& path) {
+    switch (this->meta.type) {
+        case SETTING_LOAD_FILE: {
+            const SettingMetaFileLoad& setting_meta = static_cast<const SettingMetaFileLoad&>(this->meta);
+            if (setting_meta.format == "PROFILE") {
+                if (path.empty()) return;
 
-            SettingDataFileLoad& file_setting_data = static_cast<SettingDataFileLoad&>(this->data());
-            file_setting_data.profile_names = GetProfileNames(path);
+                SettingDataFileLoad& file_setting_data = static_cast<SettingDataFileLoad&>(this->data());
+                file_setting_data.profile_names = GetProfileNamesFromFile(path);
 
-            SettingDataString* enum_setting_data = FindSetting<SettingDataString>(this->data_set, "profile_name");
-            enum_setting_data->value.clear();
-            if (!file_setting_data.profile_names.empty() && enum_setting_data != nullptr) {
-                enum_setting_data->value = file_setting_data.profile_names[0];
+                SettingDataString* enum_setting_data = FindSetting<SettingDataString>(this->data_set, "profile_name");
+                if (!file_setting_data.profile_names.empty() && enum_setting_data != nullptr) {
+                    enum_setting_data->SetValue(file_setting_data.profile_names[0].c_str());
+                } else {
+                    enum_setting_data->SetValue("");
+                }
             }
+            break;
         }
+        case SETTING_LOAD_FOLDER: {
+            const SettingMetaFolderLoad& setting_meta = static_cast<const SettingMetaFolderLoad&>(this->meta);
+            if (setting_meta.format == "PROFILE") {
+                if (path.empty()) return;
+
+                SettingDataFolderLoad& setting_data = static_cast<SettingDataFolderLoad&>(this->data());
+                setting_data.profile_names = GetProfileNamesFromDir(path);
+
+                SettingDataString* enum_setting_data = FindSetting<SettingDataString>(this->data_set, "profile_name");
+                if (enum_setting_data != nullptr) {
+                    if (std::find(setting_data.profile_names.begin(), setting_data.profile_names.end(),
+                                  enum_setting_data->GetValue()) == setting_data.profile_names.end()) {
+                        enum_setting_data->SetValue("${VP_DEFAULT}");
+                    }
+                }
+            }
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -113,7 +137,7 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     std::string file;
 
     const char* filter = this->meta.filter.c_str();
-    const std::string value = this->data().value;
+    const std::string value = this->data().GetValue();
 
     const std::string path = ReplaceBuiltInVariable(value.empty() ? "${VK_LOCAL}" : value.c_str());
 
@@ -124,6 +148,7 @@ void WidgetSettingFilesystem::browseButtonClicked() {
         case SETTING_SAVE_FILE:
             file = QFileDialog::getSaveFileName(this->button, "Select File", path.c_str(), filter).toStdString();
             break;
+        case SETTING_LOAD_FOLDER:
         case SETTING_SAVE_FOLDER:
             file = QFileDialog::getExistingDirectory(this->button, "Select Folder", path.c_str()).toStdString();
             break;
@@ -134,9 +159,9 @@ void WidgetSettingFilesystem::browseButtonClicked() {
 
     if (!file.empty()) {
         file = ConvertNativeSeparators(file);
-        this->data().value = file;
+        this->data().SetValue(file.c_str());
 
-        field->setText(this->data().value.c_str());
+        field->setText(this->data().GetValue());
 
         emit itemChanged();
     }
@@ -146,14 +171,14 @@ void WidgetSettingFilesystem::textFieldChanged(const QString& value) {
     std::string file = value.toStdString();
 
     if (!file.empty()) {
-        LoadFile(file);
+        LoadPath(file);
 
         if (VKC_ENV == VKC_ENV_WIN32) {
             file = ConvertSeparators(file, "/", GetNativeSeparator());
         }
     }
 
-    this->data().value = file;
+    this->data().SetValue(file.c_str());
     this->field->setToolTip(this->field->text());
 
     emit itemChanged();

@@ -50,7 +50,7 @@ class WidgetSettingFilesystem : public WidgetSettingBase {
 
    private:
     SettingDataString &data();
-    void LoadFile(const std::string& path);
+    void LoadPath(const std::string &path);
 
     const SettingMetaFilesystem &meta;
     SettingDataSet &data_set;
