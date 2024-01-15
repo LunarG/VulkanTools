@@ -11,7 +11,16 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.5.4](https://github.com/LunarG/VulkanTools/tree/main) - May 2023
+## [Vulkan Configurator 2.5.5](https://github.com/LunarG/VulkanTools/tree/main) - May 2024
+
+### Improvements:
+- Add `LOAD_FOLDER` setting type
+
+### Fixes:
+- Remove default settings values from built-in layer configurations
+- Fix doc generator using default environment variable names
+
+## [Vulkan Configurator 2.5.4](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.250.0) - May 2023
 
 ### Improvements:
 - Display `deviceUUID` and `driverUUID` in the "Development Status" when available for each physical device
