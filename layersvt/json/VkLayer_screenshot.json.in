@@ -10,6 +10,12 @@
         "introduction": "The screenshot layer records frames to image files.",
         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/screenshot_layer.html",
         "platforms": [ "WINDOWS", "LINUX", "MACOS", "ANDROID" ],
+        "instance_extensions": [
+            {
+                "name": "VK_EXT_layer_settings",
+                "spec_version": "2"
+            }
+        ],
         "device_extensions": [
             {
                 "name": "VK_EXT_tooling_info",
