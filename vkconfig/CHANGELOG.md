@@ -11,6 +11,11 @@
 
 # Release notes
 
+## [Vulkan Configurator 2.5.6](https://github.com/LunarG/VulkanTools/tree/main) - March 2024
+
+### Fixes:
+- Fix confusing synchronization built-in configuration
+
 ## [Vulkan Configurator 2.5.5](https://github.com/LunarG/VulkanTools/tree/main) - January 2024
 
 ### Improvements:
