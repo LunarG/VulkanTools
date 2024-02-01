@@ -66,10 +66,15 @@
                     {
                         "key": "thread_safety",
                         "type": "BOOL",
-                        "value": false
+                        "value": true
                     },
                     {
                         "key": "validate_sync",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "sync_queue_submit",
                         "type": "BOOL",
                         "value": true
                     },
