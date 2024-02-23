@@ -75,7 +75,12 @@ if(BUILD_APIDUMP)
     run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_html.h)
     run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_json.h)
 
-    add_library(VkLayer_api_dump MODULE)
+    if(IOS)
+        add_library(VkLayer_api_dump SHARED)
+    else()
+        add_library(VkLayer_api_dump MODULE)
+    endif()
+
     target_sources(VkLayer_api_dump PRIVATE
         api_dump.cpp
         api_dump.h
@@ -160,7 +165,15 @@ foreach(layer ${TOOL_LAYERS})
     endif()
 
     if (APPLE)
-        set_target_properties(${layer} PROPERTIES SUFFIX ".dylib")
+        # IOS and APPLE can both be true (FYI)
+        if(IOS)
+            set_target_properties(${layer} PROPERTIES
+		FRAMEWORK			TRUE
+		MACOSX_FRAMEWORK_IDENTIFIER 	com.khronos.${layer}
+            )
+        else()
+            set_target_properties(${layer} PROPERTIES SUFFIX ".dylib")
+        endif()
     endif()
 
     if (ANDROID)

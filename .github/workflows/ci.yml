@@ -124,7 +124,7 @@ jobs:
         - run: cmake --build build
         - run: cmake --install build --prefix /tmp
         # Helps verify useful details about the dylib (platform, minos, sdk)
-        - run: vtool -show-build /tmp/lib/libVkLayer_api_dump.dylib
+        - run: vtool -show-build /tmp/lib/VkLayer_api_dump.framework/VkLayer_api_dump
 
   mingw:
     runs-on: windows-latest
