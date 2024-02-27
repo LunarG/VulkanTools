@@ -1669,7 +1669,7 @@ VALIDITY_CHECKS = {
 # These types are defined in both video.xml and vk.xml. Because duplicate functions aren't allowed,
 # we have to prevent these from generating twice. This is done by removing the types from the non-video
 # outputs
-DUPLICATE_TYPES_IN_VIDEO_HEADER = ['uint32_t', 'uint16_t', 'uint8_t', 'int32_t', 'int8_t']
+DUPLICATE_TYPES_IN_VIDEO_HEADER = ['uint32_t', 'uint16_t', 'uint8_t', 'int32_t', 'int16_t', 'int8_t']
 
 class ApiDumpGeneratorOptions(GeneratorOptions):
     def __init__(self,
@@ -1948,7 +1948,9 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
         if groupinfo.elem.get('type') == 'bitmask':
             self.bitmasks[groupinfo.elem.get('name')] = VulkanBitmask(groupinfo.elem, self.extensions)
-        elif groupinfo.elem.get('type') == 'enum':
+
+        # workaround for video.xml not having type="enum" where it should
+        elif groupinfo.elem.get('type') == 'enum' or (self.isVideoGeneration and groupinfo.elem.get('type') is None):
             self.enums[groupinfo.elem.get('name')] = VulkanEnum(groupinfo.elem, self.extensions)
 
     def genType(self, typeinfo, name, alias):
