@@ -52,28 +52,20 @@ if(BUILD_APIDUMP)
     set(VULKAN_REGISTRY "${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry")
 
     # Define macro used for building vk.xml generated files
-    function(run_vulkantools_vk_xml_generate dependency output)
+    function(run_vulkantools_generate xml_file dependency output)
         add_custom_command(OUTPUT ${output}
-            COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY}/vk.xml -scripts ${VULKAN_REGISTRY} ${output}
-            DEPENDS ${VULKAN_REGISTRY}/vk.xml ${VULKAN_REGISTRY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY}/reg.py
+            COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY}/${xml_file} -scripts ${VULKAN_REGISTRY} ${output}
+            DEPENDS ${VULKAN_REGISTRY}/${xml_file} ${VULKAN_REGISTRY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY}/reg.py
         )
     endfunction()
 
-    # Define macro used for building video.xml generated files
-    function(run_vulkantools_video_xml_generate dependency output)
-        add_custom_command(OUTPUT ${output}
-            COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY}/video.xml -scripts ${VULKAN_REGISTRY} ${output}
-            DEPENDS ${VULKAN_REGISTRY}/video.xml ${VULKAN_REGISTRY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY}/reg.py
-        )
-    endfunction()
-
-    run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump.cpp)
-    run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_text.h)
-    run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_html.h)
-    run_vulkantools_vk_xml_generate(api_dump_generator.py api_dump_json.h)
-    run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_text.h)
-    run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_html.h)
-    run_vulkantools_video_xml_generate(api_dump_generator.py api_dump_video_json.h)
+    run_vulkantools_generate(vk.xml api_dump_generator.py api_dump.cpp)
+    run_vulkantools_generate(vk.xml api_dump_generator.py api_dump_text.h)
+    run_vulkantools_generate(vk.xml api_dump_generator.py api_dump_html.h)
+    run_vulkantools_generate(vk.xml api_dump_generator.py api_dump_json.h)
+    run_vulkantools_generate(video.xml api_dump_generator.py api_dump_video_text.h)
+    run_vulkantools_generate(video.xml api_dump_generator.py api_dump_video_html.h)
+    run_vulkantools_generate(video.xml api_dump_generator.py api_dump_video_json.h)
 
     if(IOS)
         add_library(VkLayer_api_dump SHARED)
