@@ -159,45 +159,14 @@
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
-                 <item row="1" column="0">
-                  <widget class="QRadioButton" name="radio_vulkan_configurator">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Layers controlled by Vulkan Configurator</string>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="0" column="0">
-                  <widget class="QRadioButton" name="radio_vulkan_applications">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
+                  <widget class="QLabel" name="label_19">
                    <property name="text">
-                    <string>Layers controlled by Vulkan Applications</string>
+                    <string>Layers Configuration Mode:</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
+                 <item row="0" column="1">
                   <widget class="QComboBox" name="combo_box_mode">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -207,28 +176,25 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string>While Running</string>
+                     <string>Layers Controlled by Vulkan Applications</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string>Persistent on Exit</string>
+                     <string>Layers Controlled by Vulkan Configurator while Running</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Layers Controlled by Vulkan Configurator even after Exit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Layers Disabled by Vulkan Configurator</string>
                     </property>
                    </item>
                   </widget>
-                 </item>
-                 <item row="1" column="2">
-                  <spacer name="horizontalSpacer_3">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
                  </item>
                 </layout>
                </item>
@@ -237,7 +203,32 @@
                  <property name="leftMargin">
                   <number>16</number>
                  </property>
-                 <item row="4" column="3">
+                 <item row="3" column="1">
+                  <widget class="QCheckBox" name="check_box_apply_list">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Arial</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Apply only to selected Vulkan Applications :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="3">
                   <spacer name="horizontalSpacer_2">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
@@ -250,7 +241,7 @@
                    </property>
                   </spacer>
                  </item>
-                 <item row="4" column="2">
+                 <item row="3" column="2">
                   <widget class="QPushButton" name="push_button_applications">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -278,50 +269,6 @@
                    </property>
                    <property name="text">
                     <string>...</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="1">
-                  <widget class="QCheckBox" name="check_box_disable">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Disable all Vulkan Layers</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="1">
-                  <widget class="QCheckBox" name="check_box_apply_list">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Arial</family>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Apply only to the Vulkan Applications List</string>
                    </property>
                   </widget>
                  </item>

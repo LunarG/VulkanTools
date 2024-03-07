@@ -50,7 +50,7 @@ Configurator::Configurator(const std::string &VULKAN_SDK)
 Configurator::~Configurator() {
     configurations.SaveAllConfigurations(layers.available_layers);
 
-    if (!environment.UsePersistentOverrideMode()) {
+    if (environment.GetMode() != LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT) {
         SurrenderConfiguration(environment);
     }
 }

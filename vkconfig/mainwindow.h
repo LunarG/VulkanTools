@@ -252,14 +252,14 @@ class MainWindow : public QMainWindow {
     void on_radio_vulkan_applications_clicked();
     void on_radio_vulkan_configurator_clicked();
     void on_check_box_apply_list_clicked();
-    void on_check_box_disable_clicked();
-    void on_combo_box_mode_changed(int index);
     void on_check_box_clear_on_launch_clicked();
     void on_push_button_applications_clicked();
     void on_push_button_edit_clicked();
     void on_push_button_new_clicked();
     void on_push_button_remove_clicked();
     void on_push_button_duplicate_clicked();
+
+    void OnComboBoxModeChanged(int index);
 
     void OnConfigurationItemExpanded(QTreeWidgetItem *item);
     void OnConfigurationItemClicked(bool checked);

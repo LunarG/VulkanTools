@@ -30,17 +30,9 @@
 
 const Version Version::VKCONFIG(3, 0, 0);
 const Version Version::LAYER_CONFIG(2, 2, 3);
-
-#ifdef VK_HEADER_VERSION_COMPLETE
 const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
-#elif defined(VK_VERSION_1_2)
-const Version Version::VKHEADER(1, 2, VK_HEADER_VERSION);
-#elif defined(VK_VERSION_1_1)
-const Version Version::VKHEADER(1, 1, VK_HEADER_VERSION);
-#elif defined(VK_VERSION_1_0)
-const Version Version::VKHEADER(1, 0, VK_HEADER_VERSION);
-#endif
 const Version Version::VERSION_NULL(0u);
+
 const char *VKCONFIG_NAME = "Vulkan Configurator";
 const char *VKCONFIG_SHORT_NAME = "vkconfig3";
 

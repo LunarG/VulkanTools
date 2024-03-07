@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,14 +35,6 @@
 #include <QTextStream>
 
 #include <cassert>
-
-// Saved settings for the application
-#define VKCONFIG_KEY_INITIALIZE_FILES "FirstTimeRun"
-#define VKCONFIG_KEY_OVERRIDE_MODE "OverrideMode"
-#define VKCONFIG_KEY_LOADER_MESSAGE "LoaderMessage"
-
-#define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
-#define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"
 
 static const char* GetApplicationSuffix() {
     static const char* TABLE[] = {
@@ -99,37 +91,62 @@ static const char* GetLayoutStateToken(LayoutState state) {
     return table[state];
 }
 
-LoaderMessageLevel GetLoaderDebug(const std::string& value) {
+std::string GetLoaderMessageToken(LoaderMessageType message_type) {
+    static const char* LOADER_MESSAGE_TOKENS[]{
+        "error",  // LOADER_MESSAGE_ERROR
+        "warn",   // LOADER_MESSAGE_WARN
+        "info",   // LOADER_MESSAGE_INFO
+        "debug",  // LOADER_MESSAGE_DEBUG
+        "layer",  // LOADER_MESSAGE_LAYER
+        "implem"  // LOADER_MESSAGE_IMPLEMENTATION
+    };
+
+    static_assert(countof(LOADER_MESSAGE_TOKENS) == LOADER_MESSAGE_COUNT,
+                  "The tranlation table size doesn't match the enum number of elements");
+
+    return LOADER_MESSAGE_TOKENS[message_type - LOADER_MESSAGE_FIRST];
+}
+
+std::string GetLoaderMessageTokens(int mesage_types) {
+    std::vector<std::string> results;
+
+    for (int i = LOADER_MESSAGE_FIRST, l = LOADER_MESSAGE_LAST; i <= l; ++i) {
+        if (mesage_types & (1 << i)) {
+            results.push_back(GetLoaderMessageToken(static_cast<LoaderMessageType>(i)));
+        }
+    }
+
+    return Merge(results, ",");
+}
+
+int GetLoaderMessageTypes(const std::string& values) {
+    std::vector<std::string> split_values = Split(values, ",");
+
+    int result = 0;
+
+    for (std::size_t i = 0, n = split_values.size(); i < n; ++i) {
+        const LoaderMessageType message_type = GetLoaderMessageType(split_values[i]);
+        if (message_type == LOADER_MESSAGE_NONE) {
+            continue;
+        }
+        result |= (1 << message_type);
+    }
+
+    return result;
+}
+
+LoaderMessageType GetLoaderMessageType(const std::string& value) {
     for (int i = LOADER_MESSAGE_FIRST, n = LOADER_MESSAGE_LAST; i <= n; ++i) {
-        const LoaderMessageLevel level = static_cast<LoaderMessageLevel>(i);
-        if (GetLoaderDebugToken(level) == value) return level;
+        const LoaderMessageType message_type = static_cast<LoaderMessageType>(i);
+        if (::GetLoaderMessageToken(message_type) == value) return message_type;
     }
 
     return LOADER_MESSAGE_NONE;
 }
 
-std::string GetLoaderDebugToken(LoaderMessageLevel level) {
-    static const char* LOADER_MESSAGE_LEVEL[]{
-        "",        // LOADER_MESSAGE_NONE
-        "error",   // LOADER_MESSAGE_ERROR
-        "warn",    // LOADER_MESSAGE_WARN
-        "info",    // LOADER_MESSAGE_INFO
-        "debug",   // LOADER_MESSAGE_DEBUG
-        "layer",   // LOADER_MESSAGE_LAYER
-        "implem",  // LOADER_MESSAGE_IMPLEMENTATION
-        "all"      // LOADER_MESSAGE_ALL
-    };
-
-    static_assert(countof(LOADER_MESSAGE_LEVEL) == LOADER_MESSAGE_COUNT,
-                  "The tranlation table size doesn't match the enum number of elements");
-
-    return LOADER_MESSAGE_LEVEL[level];
-}
-
 Environment::Environment(PathManager& paths, const Version& api_version)
-    : mode_disable_layers(false),
-      api_version(api_version),
-      loader_message_level(GetLoaderDebug(qgetenv("VK_LOADER_DEBUG").toStdString())),
+    : api_version(api_version),
+      loader_message_types(::GetLoaderMessageTypes(qgetenv("VK_LOADER_DEBUG").toStdString())),
       paths_manager(paths),
       paths(paths_manager) {
     const bool result = Load();
@@ -144,9 +161,10 @@ Environment::~Environment() {
 void Environment::Reset(ResetMode mode) {
     switch (mode) {
         case DEFAULT: {
-            first_run = true;
-            version = Version::LAYER_CONFIG;
-            override_state = OVERRIDE_STATE_GLOBAL_TEMPORARY;
+            this->first_run = true;
+            this->version = Version::LAYER_CONFIG;
+            this->layers_mode = LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
+            this->use_application_list = false;
 
             for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
                 actives[i] = GetActiveDefault(static_cast<Active>(i));
@@ -176,11 +194,11 @@ void Environment::Reset(ResetMode mode) {
 
             const std::string loader_debug_message(qgetenv("VK_LOADER_DEBUG"));
             if (loader_debug_message.empty()) {
-                loader_message_level = LOADER_MESSAGE_NONE;
+                this->loader_message_types = 0;
             } else {
-                loader_message_level = GetLoaderDebug(loader_debug_message);
+                this->loader_message_types = ::GetLoaderMessageTypes(loader_debug_message);
             }
-            settings.setValue(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(loader_message_level));
+            settings.setValue(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types));
             break;
         }
         case SYSTEM: {
@@ -210,11 +228,10 @@ bool Environment::Load() {
         Version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, Version::VKCONFIG.str().c_str()).toString().toStdString());
 
     // Load 'override_mode"
-    override_state = static_cast<OverrideState>(settings.value(VKCONFIG_KEY_OVERRIDE_MODE, QVariant(override_state)).toInt());
+    this->layers_mode = static_cast<LayersMode>(settings.value(VKCONFIG_KEY_LAYERS_MODE, QVariant(layers_mode)).toInt());
 
     // Load loader debug message state
-    loader_message_level = static_cast<LoaderMessageLevel>(
-        settings.value(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(loader_message_level)).toInt());
+    this->loader_message_types = settings.value(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types)).toInt();
 
     // Load active configuration
     for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
@@ -315,25 +332,25 @@ bool Environment::Save() const {
     QSettings settings;
 
     // Save 'first_run'
-    settings.setValue(VKCONFIG_KEY_INITIALIZE_FILES, first_run);
+    settings.setValue(VKCONFIG_KEY_INITIALIZE_FILES, this->first_run);
 
     // Save 'version'
     settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, Version::LAYER_CONFIG.str().c_str());
 
     // Save 'override_mode'
-    settings.setValue(VKCONFIG_KEY_OVERRIDE_MODE, override_state);
+    settings.setValue(VKCONFIG_KEY_LAYERS_MODE, this->layers_mode);
 
     // Save 'loader_message'
-    settings.setValue(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(loader_message_level));
+    settings.setValue(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types));
 
     // Save active state
     for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
-        settings.setValue(GetActiveToken(static_cast<Active>(i)), actives[i].c_str());
+        settings.setValue(GetActiveToken(static_cast<Active>(i)), this->actives[i].c_str());
     }
 
     // Save layout state
     for (std::size_t i = 0; i < LAYOUT_COUNT; ++i) {
-        settings.setValue(GetLayoutStateToken(static_cast<LayoutState>(i)), layout_states[i]);
+        settings.setValue(GetLayoutStateToken(static_cast<LayoutState>(i)), this->layout_states[i]);
     }
 
     // Save default configuration initizalized
@@ -452,37 +469,15 @@ Application& Environment::GetApplication(std::size_t application_index) {
     return applications[application_index];
 }
 
-bool Environment::UseOverride() const { return (override_state & OVERRIDE_FLAG_ACTIVE) != 0; }
-
-bool Environment::UseApplicationListOverrideMode() const { return (override_state & OVERRIDE_FLAG_SELECTED) != 0; }
-
-bool Environment::UsePersistentOverrideMode() const { return (override_state & OVERRIDE_FLAG_PERSISTENT) != 0; }
-
-void Environment::SetMode(OverrideMode mode, bool enabled) {
-    switch (mode) {
-        case OVERRIDE_MODE_ACTIVE:
-            if (enabled)
-                override_state = static_cast<OverrideState>(override_state | OVERRIDE_FLAG_ACTIVE);
-            else
-                override_state = static_cast<OverrideState>(override_state & ~OVERRIDE_FLAG_ACTIVE);
-            break;
-        case OVERRIDE_MODE_LIST:
-            if (enabled)
-                override_state = static_cast<OverrideState>(override_state | OVERRIDE_FLAG_SELECTED);
-            else
-                override_state = static_cast<OverrideState>(override_state & ~OVERRIDE_FLAG_SELECTED);
-            break;
-        case OVERRIDE_MODE_PERISTENT:
-            if (enabled)
-                override_state = static_cast<OverrideState>(override_state | OVERRIDE_FLAG_PERSISTENT);
-            else
-                override_state = static_cast<OverrideState>(override_state & ~OVERRIDE_FLAG_PERSISTENT);
-            break;
-        default:
-            assert(0);
-            break;
-    }
+bool Environment::GetUseApplicationList() const {
+    return this->use_application_list && this->layers_mode != LAYERS_MODE_BY_APPLICATIONS;
 }
+
+void Environment::SetUseApplicationList(bool enable) { this->use_application_list = enable; }
+
+LayersMode Environment::GetMode() const { return this->layers_mode; }
+
+void Environment::SetMode(LayersMode mode) { this->layers_mode = mode; }
 
 void Environment::Set(LayoutState state, const QByteArray& data) {
     assert(state >= LAYOUT_FIRST && state <= LAYOUT_LAST);

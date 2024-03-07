@@ -245,7 +245,7 @@ void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &avai
 void ConfigurationManager::RefreshConfiguration(const std::vector<Layer> &available_layers) {
     const std::string active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
 
-    if (!active_configuration_name.empty() && environment.UseOverride()) {
+    if (!active_configuration_name.empty() && environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS) {
         Configuration *active_configuration = FindByKey(available_configurations, active_configuration_name.c_str());
         if (active_configuration == nullptr) {
             environment.Set(ACTIVE_CONFIGURATION, "");
