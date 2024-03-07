@@ -118,6 +118,45 @@ class LayerWidget : public QLabel {
     QListWidgetItem *item;
 };
 
+class LayerPathWidget : public QLabel {
+    Q_OBJECT
+
+   public:
+    LayerPathWidget(const std::string &layer_path, QListWidget *list, QListWidgetItem *item) : item(item) {
+        this->button_edit = new QPushButton(this);
+        this->button_edit->setText("...");
+        this->button_edit->show();
+        this->buttom_remove = new QPushButton(this);
+        this->buttom_remove->setText("x");
+        this->buttom_remove->show();
+
+        this->setText(layer_path.c_str());
+
+        item->setSizeHint(QSize(0, ITEM_HEIGHT));
+    }
+
+    QPushButton *button_edit;
+    QPushButton *buttom_remove;
+
+   protected:
+    void resizeEvent(QResizeEvent *event) override {
+        QSize size = event->size();
+
+        const QFontMetrics fm = this->button_edit->fontMetrics();
+        const int button_width_state = 30;
+
+        const QRect edit_button_rect =
+            QRect(size.width() - button_width_state - button_width_state, 0, button_width_state, size.height());
+        this->button_edit->setGeometry(edit_button_rect);
+
+        const QRect remove_button_rect = QRect(size.width() - button_width_state, 0, button_width_state, size.height());
+        this->buttom_remove->setGeometry(remove_button_rect);
+    }
+
+   public:
+    QListWidgetItem *item;
+};
+
 class TreeWidgetItemParameter : public QListWidgetItem {
    public:
     TreeWidgetItemParameter(const char *layer_name) : widget(nullptr) { assert(layer_name != nullptr); }
@@ -179,6 +218,7 @@ class MainWindow : public QMainWindow {
     void ImportClicked(ConfigurationListItem *item);
     void ReloadDefaultClicked(ConfigurationListItem *item);
 
+    void AddLayerPathItem(const std::string &layer_path);
     void AddLayerItem(const Parameter &parameter);
 
    public Q_SLOTS:

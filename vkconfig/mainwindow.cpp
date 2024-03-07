@@ -240,6 +240,19 @@ void MainWindow::InitUI() {
     ui->radio_vulkan_applications->setChecked(!environment.UseOverride());
 }
 
+void MainWindow::AddLayerPathItem(const std::string &layer_path) {
+    TreeWidgetItemParameter *item_state = new TreeWidgetItemParameter(layer_path.c_str());
+
+    item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
+    LayerPathWidget *layer_path_widget = new LayerPathWidget(layer_path, ui->tree_layers_paths, item_state);
+
+    item_state->widget = layer_path_widget;
+
+    // Add the top level item
+    ui->tree_layers_paths->addItem(item_state);
+    ui->tree_layers_paths->setItemWidget(item_state, layer_path_widget);
+}
+
 void MainWindow::AddLayerItem(const Parameter &parameter) {
     assert(!parameter.key.empty());
 
@@ -280,8 +293,8 @@ void MainWindow::AddLayerItem(const Parameter &parameter) {
     // item_state->layer_state->addItem("Forced On");
     // item_state->layer_state->addItem("Forced Off");
 
-    const QFontMetrics fm = ui->tree_layers_list->fontMetrics();
     /*
+    const QFontMetrics fm = ui->tree_layers_list->fontMetrics();
     const QSize combo_name_size = fm.size(Qt::TextSingleLine, parameter.key.c_str()) * 1.2;
     item_state->setSizeHint(0, combo_name_size);
 
@@ -378,10 +391,10 @@ void MainWindow::UpdateUI() {
     for (std::size_t path_index = 0, count = layer_paths.size(); path_index < count; ++path_index) {
         const std::string user_defined_path(ConvertNativeSeparators(layer_paths[path_index]));
 
-        QListWidgetItem *item = new QListWidgetItem();
-        ui->tree_layers_paths->addItem(item);
-        item->setText(user_defined_path.c_str());
+        AddLayerPathItem(user_defined_path);
     }
+
+    ui->tree_layers_paths->update();
 
     // Load Layers items
     ui->tree_layers_list->setEnabled(enable_layer_ui);
@@ -939,6 +952,7 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     const QFontMetrics fm = ui->tree_layers_list->fontMetrics();
     const int combo_width = (fm.size(Qt::TextSingleLine, "Application-Controlled").width() * 1.6);
     const int width = ui->tree_layers_list->width() - combo_width;
+
     // ui->tree_layers_list->setColumnWidth(0, width);
 }
 
@@ -1765,7 +1779,7 @@ void MainWindow::on_push_button_launcher_clicked() {
 
     _launch_application->setProgram(ui->edit_executable->text());
     _launch_application->setWorkingDirectory(ui->edit_dir->text());
-    _launch_application->setEnvironment(BuildEnvVariables() + ui->edit_env->text().split(" "));
+    _launch_application->setEnvironment(BuildEnvVariables() + ui->edit_env->text().split(","));
 
     if (!active_application.arguments.empty()) {
         _launch_application->setArguments(ui->edit_arguments->text().split(" "));
