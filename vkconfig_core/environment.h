@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #pragma once
 
 #include "version.h"
+#include "environment_key.h"
 #include "application.h"
 #include "path_manager.h"
 
@@ -30,17 +31,12 @@
 #include <vector>
 #include <string>
 
-enum OverrideFlag { OVERRIDE_FLAG_ACTIVE = (1 << 0), OVERRIDE_FLAG_SELECTED = (1 << 1), OVERRIDE_FLAG_PERSISTENT = (1 << 2) };
-
-enum OverrideState {
-    OVERRIDE_STATE_DISABLED = 0,
-    OVERRIDE_STATE_GLOBAL_TEMPORARY = OVERRIDE_FLAG_ACTIVE,
-    OVERRIDE_STATE_GLOBAL_PERSISTENT = OVERRIDE_FLAG_ACTIVE | OVERRIDE_FLAG_PERSISTENT,
-    OVERRIDE_STATE_SELECTED_TEMPORARY = OVERRIDE_FLAG_ACTIVE | OVERRIDE_FLAG_SELECTED,
-    OVERRIDE_STATE_SELECTED_PERSISTENT = OVERRIDE_FLAG_ACTIVE | OVERRIDE_FLAG_SELECTED | OVERRIDE_FLAG_PERSISTENT,
+enum LayersMode {
+    LAYERS_MODE_BY_APPLICATIONS = 0,
+    LAYERS_MODE_BY_CONFIGURATOR_RUNNING,
+    LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT,
+    LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED,
 };
-
-enum OverrideMode { OVERRIDE_MODE_ACTIVE = 0, OVERRIDE_MODE_LIST, OVERRIDE_MODE_PERISTENT };
 
 enum LayoutState {
     LAYOUT_MAIN_GEOMETRY = 0,
@@ -80,7 +76,7 @@ enum UserDefinedLayersPaths {
 
 enum { USER_DEFINED_LAYERS_PATHS_COUNT = USER_DEFINED_LAYERS_PATHS_LAST - USER_DEFINED_LAYERS_PATHS_FIRST + 1 };
 
-enum LoaderMessageLevel {
+enum LoaderMessageType {
     LOADER_MESSAGE_NONE = 0,
     LOADER_MESSAGE_ERROR,
     LOADER_MESSAGE_WARN,
@@ -90,11 +86,20 @@ enum LoaderMessageLevel {
     LOADER_MESSAGE_IMPLEMENTATION,
     LOADER_MESSAGE_ALL,
 
-    LOADER_MESSAGE_FIRST = LOADER_MESSAGE_NONE,
-    LOADER_MESSAGE_LAST = LOADER_MESSAGE_ALL,
+    LOADER_MESSAGE_FIRST = LOADER_MESSAGE_ERROR,
+    LOADER_MESSAGE_LAST = LOADER_MESSAGE_IMPLEMENTATION,
 };
 
 enum { LOADER_MESSAGE_COUNT = LOADER_MESSAGE_LAST - LOADER_MESSAGE_FIRST + 1 };
+
+enum {
+    LOADER_MESSAGE_ERROR_BIT = (1 << LOADER_MESSAGE_ERROR),
+    LOADER_MESSAGE_WARN_BIT = (1 << LOADER_MESSAGE_WARN),
+    LOADER_MESSAGE_INFO_BIT = (1 << LOADER_MESSAGE_INFO),
+    LOADER_MESSAGE_DEBUG_BIT = (1 << LOADER_MESSAGE_DEBUG),
+    LOADER_MESSAGE_LAYER_BIT = (1 << LOADER_MESSAGE_LAYER),
+    LOADER_MESSAGE_IMPLEMENTATION_BIT = (1 << LOADER_MESSAGE_IMPLEMENTATION),
+};
 
 struct DefaultApplication {
     std::string name;
@@ -106,8 +111,6 @@ class Environment {
    public:
     Environment(PathManager& paths, const Version& api_version = Version::VKHEADER);
     ~Environment();
-
-    bool mode_disable_layers;
 
     enum ResetMode { DEFAULT = 0, CLEAR, SYSTEM };
 
@@ -135,14 +138,14 @@ class Environment {
     const QByteArray& Get(LayoutState state) const;
     void Set(LayoutState state, const QByteArray& data);
 
-    bool UseOverride() const;
-    bool UseApplicationListOverrideMode() const;
-    bool UsePersistentOverrideMode() const;
+    bool GetUseApplicationList() const;
+    void SetUseApplicationList(bool enable);
 
-    void SetMode(OverrideMode mode, bool enabled);
+    LayersMode GetMode() const;
+    void SetMode(LayersMode mode);
 
-    LoaderMessageLevel GetLoaderMessage() const { return this->loader_message_level; }
-    void SetLoaderMessage(LoaderMessageLevel level) { this->loader_message_level = level; }
+    int GetLoaderMessageTypes() const { return this->loader_message_types; }
+    void SetLoaderMessageTypes(int types) { this->loader_message_types = types; }
 
     bool first_run;
     const Version api_version;
@@ -170,8 +173,9 @@ class Environment {
     Environment& operator=(const Environment&) = delete;
 
     Version version;
-    OverrideState override_state;
-    LoaderMessageLevel loader_message_level;
+    LayersMode layers_mode;
+    bool use_application_list;
+    int loader_message_types;
 
     std::array<std::string, ACTIVE_COUNT> actives;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
@@ -196,5 +200,7 @@ class Environment {
 
 bool ExactExecutableFromAppBundle(std::string& path);
 
-LoaderMessageLevel GetLoaderDebug(const std::string& value);
-std::string GetLoaderDebugToken(LoaderMessageLevel level);
+LoaderMessageType GetLoaderMessageType(const std::string& value);
+int GetLoaderMessageTypes(const std::string& values);
+std::string GetLoaderMessageToken(LoaderMessageType mesage_type);
+std::string GetLoaderMessageTokens(int mesage_types);
