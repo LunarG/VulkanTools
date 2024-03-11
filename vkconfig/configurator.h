@@ -42,7 +42,9 @@ class Configurator {
     // If quiet is false, message box will be generate
     bool SupportApplicationList(Version* return_loader_version = nullptr) const;
 
-    bool HasActiveOverrideOnApplicationListOnly() const { return SupportApplicationList() && environment.GetUseApplicationList(); }
+    bool HasActiveOverrideOnApplicationListOnly() const {
+        return SupportApplicationList() && environment.HasOverriddenApplications();
+    }
 
     void ActivateConfiguration(const std::string& configuration_name);
 

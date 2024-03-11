@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-WidgetTreeFriendlyComboBox::WidgetTreeFriendlyComboBox(QListWidgetItem *item) : QComboBox(), item(item) {
+WidgetTreeFriendlyComboBox::WidgetTreeFriendlyComboBox(QTreeWidgetItem *item) : QComboBox(), item(item) {
     assert(item);
 
     setFocusPolicy(Qt::StrongFocus);

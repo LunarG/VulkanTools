@@ -1,8 +1,3 @@
-if (WIN32)
-    # Minimize what Windows.h leaks
-    add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
-endif()
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5 COMPONENTS Core Gui Widgets Network QUIET)
@@ -54,7 +49,7 @@ if(Qt5_FOUND)
     add_library(vkconfig_core STATIC ${FILES_ALL})
     target_compile_options(vkconfig_core PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/MP>)
     target_compile_definitions(vkconfig_core PRIVATE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)
-    set_target_properties(vkconfig_core PROPERTIES FOLDER "vkconfig")
+    set_target_properties(vkconfig_core PROPERTIES FOLDER "vkconfig_core")
 
     if(WIN32)
         target_compile_definitions(vkconfig_core PRIVATE _CRT_SECURE_NO_WARNINGS)

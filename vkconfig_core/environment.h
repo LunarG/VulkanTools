@@ -39,17 +39,22 @@ enum LayersMode {
 };
 
 enum LayoutState {
-    LAYOUT_MAIN_GEOMETRY = 0,
-    LAYOUT_MAIN_WINDOW_STATE,
-    LAYOUT_MAIN_SPLITTER1,
-    LAYOUT_MAIN_SPLITTER2,
-    LAYOUT_MAIN_SPLITTER3,
+    VKCONFIG2_LAYOUT_MAIN_GEOMETRY = 0,
+    VKCONFIG2_LAYOUT_MAIN_WINDOW_STATE,
+    VKCONFIG2_LAYOUT_MAIN_SPLITTER1,
+    VKCONFIG2_LAYOUT_MAIN_SPLITTER2,
+    VKCONFIG2_LAYOUT_MAIN_SPLITTER3,
+    VKCONFIG3_LAYOUT_MAIN_GEOMETRY,
+    VKCONFIG3_LAYOUT_MAIN_WINDOW_STATE,
+    VKCONFIG3_LAYOUT_MAIN_SPLITTER1,
+    VKCONFIG3_LAYOUT_MAIN_SPLITTER2,
+    VKCONFIG3_LAYOUT_MAIN_SPLITTER3,
     LAYOUT_LAYER_GEOMETRY,
     LAYOUT_LAYER_SPLITTER,
     LAYOUT_LAUNCHER_COLLAPSED,
     LAYOUT_LAUNCHER_NOT_CLEAR,
 
-    LAYOUT_FIRST = LAYOUT_MAIN_GEOMETRY,
+    LAYOUT_FIRST = VKCONFIG2_LAYOUT_MAIN_GEOMETRY,
     LAYOUT_LAST = LAYOUT_LAUNCHER_NOT_CLEAR,
 };
 
@@ -99,7 +104,54 @@ enum {
     LOADER_MESSAGE_DEBUG_BIT = (1 << LOADER_MESSAGE_DEBUG),
     LOADER_MESSAGE_LAYER_BIT = (1 << LOADER_MESSAGE_LAYER),
     LOADER_MESSAGE_IMPLEMENTATION_BIT = (1 << LOADER_MESSAGE_IMPLEMENTATION),
+    LOADER_MESSAGE_ALL_BIT = LOADER_MESSAGE_ERROR_BIT | LOADER_MESSAGE_WARN_BIT | LOADER_MESSAGE_INFO_BIT |
+                             LOADER_MESSAGE_DEBUG_BIT | LOADER_MESSAGE_LAYER_BIT | LOADER_MESSAGE_IMPLEMENTATION_BIT
 };
+
+inline int GetLoaderMessageFlags(LoaderMessageType level) {
+    int flags = 0;
+
+    switch (level) {
+        default:
+        case LOADER_MESSAGE_ALL:
+        case LOADER_MESSAGE_IMPLEMENTATION:
+            flags |= LOADER_MESSAGE_IMPLEMENTATION_BIT;
+        case LOADER_MESSAGE_LAYER:
+            flags |= LOADER_MESSAGE_LAYER_BIT;
+        case LOADER_MESSAGE_DEBUG:
+            flags |= LOADER_MESSAGE_DEBUG_BIT;
+        case LOADER_MESSAGE_INFO:
+            flags |= LOADER_MESSAGE_INFO_BIT;
+        case LOADER_MESSAGE_WARN:
+            flags |= LOADER_MESSAGE_WARN_BIT;
+        case LOADER_MESSAGE_ERROR:
+            flags |= LOADER_MESSAGE_ERROR_BIT;
+        case LOADER_MESSAGE_NONE:
+            flags |= 0;
+    }
+
+    return flags;
+}
+
+inline LoaderMessageType GetLoaderMessageType(int flags) {
+    if (flags == LOADER_MESSAGE_ALL_BIT) {
+        return LOADER_MESSAGE_ALL;
+    } else if (flags & LOADER_MESSAGE_IMPLEMENTATION_BIT) {
+        return LOADER_MESSAGE_IMPLEMENTATION;
+    } else if (flags & LOADER_MESSAGE_LAYER_BIT) {
+        return LOADER_MESSAGE_LAYER;
+    } else if (flags & LOADER_MESSAGE_DEBUG_BIT) {
+        return LOADER_MESSAGE_DEBUG;
+    } else if (flags & LOADER_MESSAGE_INFO_BIT) {
+        return LOADER_MESSAGE_INFO;
+    } else if (flags & LOADER_MESSAGE_WARN_BIT) {
+        return LOADER_MESSAGE_WARN;
+    } else if (flags & LOADER_MESSAGE_ERROR_BIT) {
+        return LOADER_MESSAGE_ERROR;
+    } else {
+        return LOADER_MESSAGE_NONE;
+    }
+}
 
 struct DefaultApplication {
     std::string name;
@@ -172,7 +224,8 @@ class Environment {
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
 
-    Version version;
+    Version vkconfig2_version;
+    Version vkconfig3_version;
     LayersMode layers_mode;
     bool use_application_list;
     int loader_message_types;

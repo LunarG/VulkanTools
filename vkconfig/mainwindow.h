@@ -51,119 +51,6 @@ class ConfigurationListItem : public QTreeWidgetItem {
     ConfigurationListItem &operator=(const ConfigurationListItem &) = delete;
 };
 
-class LayerWidget : public QLabel {
-    Q_OBJECT
-
-   public:
-    LayerWidget(const Layer *layer, const Parameter &parameter, QListWidget *list, QListWidgetItem *item) : item(item) {
-        const bool is_implicit_layer = layer->type == LAYER_TYPE_IMPLICIT;
-
-        const QFontMetrics fm = list->fontMetrics();
-        const QSize combo_version_size = fm.size(Qt::TextSingleLine, layer->api_version.str().c_str());
-
-        this->layer_version = new QComboBox(this);
-        this->layer_version->show();
-        this->layer_version->addItem(layer->api_version.str().c_str());
-        this->layer_state = new QComboBox(this);
-        this->layer_state->addItem(is_implicit_layer ? "Implicitly On" : "Application-Controlled");
-        this->layer_state->addItem("Forced On");
-        this->layer_state->addItem("Forced Off");
-        this->layer_state->setCurrentIndex(parameter.state);
-        this->layer_state->show();
-
-        std::string decorated_name(layer->key);
-
-        if (layer != nullptr) {
-            if (layer->status != STATUS_STABLE) {
-                decorated_name += format(" (%s)", GetToken(layer->status));
-            }
-
-            // if (IsDLL32Bit(layer->manifest_path)) {
-            //    decorated_name += " (32-bit)";
-            //}
-        } else {
-            // A layers configuration may have excluded layer that are misssing because they are not available on this platform
-            // We simply hide these layers to avoid confusing the Vulkan developers
-            if (parameter.state == LAYER_STATE_EXCLUDED) return;
-
-            decorated_name += " (Missing)";
-        }
-        this->setText(decorated_name.c_str());
-
-        item->setSizeHint(QSize(0, ITEM_HEIGHT));
-
-        // list->addItem(item);
-        // list->setItemWidget(item, this);
-    }
-
-    QComboBox *layer_version;
-    QComboBox *layer_state;
-
-   protected:
-    void resizeEvent(QResizeEvent *event) override {
-        QSize size = event->size();
-
-        const QFontMetrics fm = this->layer_state->fontMetrics();
-        const int width_state = std::max(HorizontalAdvance(fm, "Application-Controlled 000"), 80);
-        const int width_version = std::max(HorizontalAdvance(fm, "1.2.199 000"), 80);
-
-        const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, size.height());
-        this->layer_state->setGeometry(state_button_rect);
-
-        const QRect version_button_rect = QRect(size.width() - width_state - width_version, 0, width_version, size.height());
-        this->layer_version->setGeometry(version_button_rect);
-    }
-
-   public:
-    QListWidgetItem *item;
-};
-
-class LayerPathWidget : public QLabel {
-    Q_OBJECT
-
-   public:
-    LayerPathWidget(const std::string &layer_path, QListWidget *list, QListWidgetItem *item) : item(item) {
-        this->button_edit = new QPushButton(this);
-        this->button_edit->setText("...");
-        this->button_edit->show();
-        this->buttom_remove = new QPushButton(this);
-        this->buttom_remove->setText("x");
-        this->buttom_remove->show();
-
-        this->setText(layer_path.c_str());
-
-        item->setSizeHint(QSize(0, ITEM_HEIGHT));
-    }
-
-    QPushButton *button_edit;
-    QPushButton *buttom_remove;
-
-   protected:
-    void resizeEvent(QResizeEvent *event) override {
-        QSize size = event->size();
-
-        const QFontMetrics fm = this->button_edit->fontMetrics();
-        const int button_width_state = 30;
-
-        const QRect edit_button_rect =
-            QRect(size.width() - button_width_state - button_width_state, 0, button_width_state, size.height());
-        this->button_edit->setGeometry(edit_button_rect);
-
-        const QRect remove_button_rect = QRect(size.width() - button_width_state, 0, button_width_state, size.height());
-        this->buttom_remove->setGeometry(remove_button_rect);
-    }
-
-   public:
-    QListWidgetItem *item;
-};
-
-class TreeWidgetItemParameter : public QListWidgetItem {
-   public:
-    TreeWidgetItemParameter(const char *layer_name) : widget(nullptr) { assert(layer_name != nullptr); }
-
-    QWidget *widget;
-};
-
 enum Tool { TOOL_VULKAN_INFO, TOOL_VULKAN_INSTALL };
 
 class MainWindow : public QMainWindow {
@@ -173,7 +60,6 @@ class MainWindow : public QMainWindow {
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void InitUI();
     void UpdateUI();
     void UpdateConfiguration();
 
@@ -218,9 +104,6 @@ class MainWindow : public QMainWindow {
     void ImportClicked(ConfigurationListItem *item);
     void ReloadDefaultClicked(ConfigurationListItem *item);
 
-    void AddLayerPathItem(const std::string &layer_path);
-    void AddLayerItem(const Parameter &parameter);
-
    public Q_SLOTS:
     void toolsVulkanInfo(bool checked);
     void toolsVulkanInstallation(bool checked);
@@ -249,17 +132,16 @@ class MainWindow : public QMainWindow {
 
     void on_push_button_launcher_clicked();
     void on_push_button_clear_log_clicked();
-    void on_radio_vulkan_applications_clicked();
-    void on_radio_vulkan_configurator_clicked();
+    void on_radio_fully_clicked();
+    void on_radio_override_clicked();
     void on_check_box_apply_list_clicked();
+    void on_check_box_persistent_clicked();
     void on_check_box_clear_on_launch_clicked();
     void on_push_button_applications_clicked();
     void on_push_button_edit_clicked();
     void on_push_button_new_clicked();
     void on_push_button_remove_clicked();
     void on_push_button_duplicate_clicked();
-
-    void OnComboBoxModeChanged(int index);
 
     void OnConfigurationItemExpanded(QTreeWidgetItem *item);
     void OnConfigurationItemClicked(bool checked);
