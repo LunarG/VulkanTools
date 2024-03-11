@@ -23,6 +23,8 @@
 #include "configurator.h"
 #include "vulkan_util.h"
 
+#include "dialog_layers.h"
+
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/path.h"
 #include "../vkconfig_core/override.h"
@@ -115,8 +117,8 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
         alert.setDefaultButton(QMessageBox::Yes);
         alert.setIcon(QMessageBox::Warning);
         if (alert.exec() == QMessageBox::Yes) {
-            // LayersDialog dlg(nullptr, *configuration);
-            // dlg.exec();
+            LayersDialog dlg(nullptr, *configuration);
+            dlg.exec();
 
             ActivateConfiguration(configuration->key);
         }

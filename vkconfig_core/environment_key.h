@@ -26,4 +26,5 @@
 #define VKCONFIG_KEY_LOADER_MESSAGE "LoaderMessage"
 
 #define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
+#define VKCONFIG_KEY_VKCONFIG3_VERSION "vkConfig3Version"
 #define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"

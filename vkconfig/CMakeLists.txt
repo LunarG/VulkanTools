@@ -1,8 +1,3 @@
-if (WIN32)
-    # Minimize what Windows.h leaks
-    add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
-endif()
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)

@@ -42,7 +42,7 @@ static int RunLayersOverride(const CommandLine& command_line) {
     }
 
     // With command line, don't store the application list, it's always global, save and restore the setting
-    const bool use_application_list = environment.GetUseApplicationList();
+    const bool use_application_list = environment.HasOverriddenApplications();
     environment.SetUseApplicationList(false);
 
     const bool override_result = OverrideConfiguration(environment, layers.available_layers, configuration);

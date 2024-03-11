@@ -76,15 +76,20 @@ static const char* GetLayoutStateToken(LayoutState state) {
     assert(state >= LAYOUT_FIRST && state <= LAYOUT_LAST);
 
     static const char* table[] = {
-        "geometry",            // LAYOUT_GEOMETRY
-        "windowState",         // LAYOUT_WINDOW_STATE
-        "splitter1State",      // LAYOUT_MAIN_SPLITTER1
-        "splitter2State",      // LAYOUT_MAIN_SPLITTER2
-        "splitter3State",      // LAYOUT_MAIN_SPLITTER3
-        "layerGeometry",       // LAYOUT_GEOMETRY_SPLITTER
-        "splitterLayerState",  // LAYOUT_LAYER_SPLITTER
-        "launcherCollapsed",   // LAYOUT_LAUNCHER_COLLAPSED
-        "launcherOnClear"      // LAYOUT_LAUNCHER_CLEAR_ON
+        "geometry",                  // LAYOUT_GEOMETRY
+        "windowState",               // LAYOUT_WINDOW_STATE
+        "splitter1State",            // LAYOUT_MAIN_SPLITTER1
+        "splitter2State",            // LAYOUT_MAIN_SPLITTER2
+        "splitter3State",            // LAYOUT_MAIN_SPLITTER3
+        "vkconfig3_geometry",        // VKCONFIG3_LAYOUT_GEOMETRY
+        "vkconfig3_windowState",     // VKCONFIG3_LAYOUT_WINDOW_STATE
+        "vkconfig3_splitter1State",  // VKCONFIG3_LAYOUT_MAIN_SPLITTER1
+        "vkconfig3_splitter2State",  // VKCONFIG3_LAYOUT_MAIN_SPLITTER2
+        "vkconfig3_splitter3State",  // VKCONFIG3_LAYOUT_MAIN_SPLITTER3
+        "layerGeometry",             // LAYOUT_GEOMETRY_SPLITTER
+        "splitterLayerState",        // LAYOUT_LAYER_SPLITTER
+        "launcherCollapsed",         // LAYOUT_LAUNCHER_COLLAPSED
+        "launcherOnClear"            // LAYOUT_LAUNCHER_CLEAR_ON
     };
     static_assert(countof(table) == LAYOUT_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -162,7 +167,8 @@ void Environment::Reset(ResetMode mode) {
     switch (mode) {
         case DEFAULT: {
             this->first_run = true;
-            this->version = Version::LAYER_CONFIG;
+            this->vkconfig2_version = Version::VKCONFIG;
+            this->vkconfig3_version = Version::VKCONFIG3;
             this->layers_mode = LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
             this->use_application_list = false;
 
@@ -224,8 +230,12 @@ bool Environment::Load() {
     this->first_run = settings.value(VKCONFIG_KEY_INITIALIZE_FILES, first_run).toBool();
 
     // Load "version": If the version doesn't exist of it's an old version of vkconfig
-    this->version =
+    this->vkconfig2_version =
         Version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, Version::VKCONFIG.str().c_str()).toString().toStdString());
+
+    // Load "version": If the version doesn't exist of it's an old version of vkconfig
+    this->vkconfig3_version =
+        Version(settings.value(VKCONFIG_KEY_VKCONFIG3_VERSION, Version::VKCONFIG3.str().c_str()).toString().toStdString());
 
     // Load 'override_mode"
     this->layers_mode = static_cast<LayersMode>(settings.value(VKCONFIG_KEY_LAYERS_MODE, QVariant(layers_mode)).toInt());

@@ -15,7 +15,7 @@ DEFINES += JSON_VALIDATION_OFF
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS NOMINMAX
+DEFINES += QT_DEPRECATED_WARNINGS
 
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -83,6 +83,7 @@ SOURCES += \
     widget_tree_friendly_combobox.cpp \
     dialog_about.cpp \
     dialog_applications.cpp \
+    dialog_layers.cpp \
     dialog_vulkan_analysis.cpp \
     dialog_vulkan_info.cpp \
     main.cpp \
@@ -149,6 +150,7 @@ HEADERS += \
     widget_tree_friendly_combobox.h \
     dialog_about.h \
     dialog_applications.h \
+    dialog_layers.h \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
     main_gui.h \
@@ -164,6 +166,7 @@ HEADERS += \
 FORMS += \
     dialog_about.ui \
     dialog_applications.ui \
+    dialog_layers.ui \
     dialog_vulkan_analysis.ui \
     dialog_vulkan_info.ui \
     mainwindow.ui
