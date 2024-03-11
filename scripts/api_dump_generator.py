@@ -1949,8 +1949,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
         if groupinfo.elem.get('type') == 'bitmask':
             self.bitmasks[groupinfo.elem.get('name')] = VulkanBitmask(groupinfo.elem, self.extensions)
 
-        # workaround for video.xml not having type="enum" where it should
-        elif groupinfo.elem.get('type') == 'enum' or (self.isVideoGeneration and groupinfo.elem.get('type') is None):
+        elif groupinfo.elem.get('type') == 'enum':
             self.enums[groupinfo.elem.get('name')] = VulkanEnum(groupinfo.elem, self.extensions)
 
     def genType(self, typeinfo, name, alias):
