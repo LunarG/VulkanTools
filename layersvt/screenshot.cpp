@@ -346,7 +346,7 @@ VkQueue getQueueForScreenshot(VkDevice device) {
                 instance_dispatch_table(devMap->physicalDevice)
                     ->GetPhysicalDeviceWin32PresentationSupportKHR(devMap->physicalDevice, deviceMap[device]->queueIndexMap[queue]);
 #elif not defined(__ANDROID__)
-            // Everthing else not Windows or Android
+            // Everything else not Windows or Android
             // TODO: Make a function call to get present support from vkGetPhysicalDeviceXlibPresentationSupportKHR,
             // vkGetPhysicalDeviceXcbPresentationSupportKHR, etc
             presentCapable = graphicsCapable;
@@ -501,7 +501,7 @@ static bool writePPM(const char *filename, VkImage image1) {
         }
     }
 
-    // User did not require sepecific format so we use same colorspace with
+    // User did not require specific format so we use same colorspace with
     // swapchain format
     if (destformat == VK_FORMAT_UNDEFINED) {
         // Here we reserve swapchain color space only as RGBA swizzle will be later.
@@ -510,7 +510,7 @@ static bool writePPM(const char *filename, VkImage image1) {
         // time instead RGBA. PPM does not support Alpha channel, so we can write
         // RGB one row by row but RGBA written one pixel at a time.
         // This requires BLIT operation to get involved but current drivers (mostly)
-        // does not support BLIT operations on 3 Channel rendertargets.
+        // does not support BLIT operations on 3 Channel render targets.
         // So format conversion gets costly.
         if (numChannels == 4) {
             if (vkuFormatIsUNORM(format))
@@ -577,7 +577,37 @@ static bool writePPM(const char *filename, VkImage image1) {
     if (vkuFormatIsSINT(format) || vkuFormatIsSINT(destformat) || vkuFormatIsUINT(format) || vkuFormatIsUINT(destformat)) {
         // Print a warning if we need to change destformat
         if (destformat != format) {
-            destformat = format;
+            // format might be BGRA instead of RGBA, so just choose the RGBA equivalent of format
+            if (numChannels == 4) {
+                if (vkuFormatIsUNORM(format))
+                    destformat = VK_FORMAT_R8G8B8A8_UNORM;
+                else if (vkuFormatIsSRGB(format))
+                    destformat = VK_FORMAT_R8G8B8A8_SRGB;
+                else if (vkuFormatIsSNORM(format))
+                    destformat = VK_FORMAT_R8G8B8A8_SNORM;
+                else if (vkuFormatIsUSCALED(format))
+                    destformat = VK_FORMAT_R8G8B8A8_USCALED;
+                else if (vkuFormatIsSSCALED(format))
+                    destformat = VK_FORMAT_R8G8B8A8_SSCALED;
+                else
+                    // Conversion failed to find a suitable format, fallback on swapchain format
+                    destformat = format;
+            } else {  // numChannels 3
+                if (vkuFormatIsUNORM(format))
+                    destformat = VK_FORMAT_R8G8B8_UNORM;
+                else if (vkuFormatIsSRGB(format))
+                    destformat = VK_FORMAT_R8G8B8_SRGB;
+                else if (vkuFormatIsSNORM(format))
+                    destformat = VK_FORMAT_R8G8B8_SNORM;
+                else if (vkuFormatIsUSCALED(format))
+                    destformat = VK_FORMAT_R8G8B8_USCALED;
+                else if (vkuFormatIsSSCALED(format))
+                    destformat = VK_FORMAT_R8G8B8_SSCALED;
+                else
+                    // Conversion failed to find a suitable format, fallback on swapchain format
+                    destformat = format;
+            }
+
 #ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "screenshot",
                                 "Incompatible output format requested, changing output format to %s\n",
