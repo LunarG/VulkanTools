@@ -1270,6 +1270,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                         __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen capture file is: %s", fileName.c_str());
 #else
                         printf("screenshot: Capture file is: %s \n", fileName.c_str());
+                        fflush(stdout);
 #endif
                     }
                 } else {
