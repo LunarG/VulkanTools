@@ -291,7 +291,7 @@ void Alert::FileNotJson(const char* message) {
 
 void Alert::FileNotProfile(const char* message) {
     QMessageBox alert;
-    alert.setText(format("%s is not a JSON profile file.", message).c_str());
+    alert.setText(format("%s doesn't contain any valid JSON profile file.", message).c_str());
     alert.setStandardButtons(QMessageBox::Ok);
     alert.setDefaultButton(QMessageBox::Ok);
     alert.setIcon(QMessageBox::Warning);

@@ -136,6 +136,26 @@ TEST(test_util, format_strings_list) {
     EXPECT_EQ(0, list.size());
 }
 
+// Delimiters are spaces but path could be arguments and could contain whitespase
+/*
+TEST(test_util, split_cmd_arguments) {
+    std::vector<std::string> merged_strings;
+    merged_strings.push_back("gna gni \"gne gnu\"");
+
+    for (std::size_t i = 0, n = merged_strings.size(); i < n; ++i) {
+        const std::string merge = merged_strings[i];
+        const std::vector<std::string> split = SplitSpace(merge);
+
+        EXPECT_EQ(3, split.size());
+
+        EXPECT_STREQ("gna", split[0].c_str());
+        EXPECT_STREQ("gni", split[1].c_str());
+        EXPECT_STREQ("gne gnu", split[2].c_str());
+
+        EXPECT_STREQ(merge.c_str(), Merge(split, " ").c_str());
+    }
+}
+*/
 TEST(test_util, split_merge_delimiter) {
     std::vector<std::string> delimiters;
     delimiters.push_back(",");
