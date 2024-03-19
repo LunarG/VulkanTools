@@ -316,7 +316,6 @@ std::vector<std::string> GetProfileNamesFromFile(const std::string& profile_path
     const QJsonObject& json_root_object = doc.object();
     if (json_root_object.value("$schema").toString().toStdString().find("https://schema.khronos.org/vulkan/profiles") ==
         std::string::npos) {
-        Alert::FileNotProfile(value.c_str());
         return std::vector<std::string>();
     }
 
@@ -342,6 +341,10 @@ std::vector<std::string> GetProfileNamesFromDir(const std::string& profile_path)
     for (std::size_t i = 0, n = files.size(); i < n; ++i) {
         const std::vector<std::string>& profile_names_of_files = GetProfileNamesFromFile(files[i].toStdString());
         profile_names.insert(profile_names.end(), profile_names_of_files.begin(), profile_names_of_files.end());
+    }
+
+    if (profile_names.empty()) {
+        Alert::FileNotProfile(profile_path.c_str());
     }
 
     return profile_names;
