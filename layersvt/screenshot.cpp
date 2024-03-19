@@ -337,7 +337,6 @@ VkQueue getQueueForScreenshot(VkDevice device) {
         pInstanceTable->GetPhysicalDeviceQueueFamilyProperties(devMap->physicalDevice, &count, queueProps.data());
 
         // Iterate over all queues for this device, searching for a queue that is graphics and present capable
-        deviceMap[device]->queues.begin();
         for (auto it = deviceMap[device]->queues.begin(); it != deviceMap[device]->queues.end(); it++) {
             queue = *it;
             graphicsCapable = ((queueProps[deviceMap[device]->queueIndexMap[queue]].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0);
