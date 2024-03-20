@@ -325,26 +325,29 @@ std::vector<std::string> GetProfileNamesFromFile(const std::string& profile_path
 std::vector<std::string> GetProfileNamesFromDir(const std::string& profile_path) {
     std::vector<std::string> profile_names;
 
-    const std::string& value = ReplaceBuiltInVariable(profile_path);
+    std::string value = ReplaceBuiltInVariable(profile_path);
     if (value.empty()) {
         return std::vector<std::string>();
+    }
+
+    // Windows workaround so that the user could select C: D: etc QDir doesn't recognize it as valid path other wise
+    if (VKC_ENV == VKC_ENV_WIN32) {
+        if (!EndsWith(value, "\\")) {
+            value += "\\";
+        }
     }
 
     QDir dir(value.c_str());
     QFileInfoList file_info_list = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
 
     QStringList files;
-    for (int file_index = 0; file_index < file_info_list.size(); ++file_index) {
+    for (int file_index = 0, file_count = file_info_list.size(); file_index < file_count; ++file_index) {
         files << file_info_list[file_index].filePath();
     }
 
     for (std::size_t i = 0, n = files.size(); i < n; ++i) {
         const std::vector<std::string>& profile_names_of_files = GetProfileNamesFromFile(files[i].toStdString());
         profile_names.insert(profile_names.end(), profile_names_of_files.begin(), profile_names_of_files.end());
-    }
-
-    if (profile_names.empty()) {
-        Alert::FileNotProfile(profile_path.c_str());
     }
 
     return profile_names;

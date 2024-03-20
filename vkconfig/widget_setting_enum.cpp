@@ -47,7 +47,7 @@ static std::vector<std::string> GetProfileNames(SettingDataSet& data_set) {
 
 WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta,
                                      SettingDataSet& data_set)
-    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new ComboBox(this)) {
+    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new ComboBox(this)), last_resize(0, 0) {
     this->field->setFocusPolicy(Qt::StrongFocus);
     this->field->show();
 
@@ -81,7 +81,7 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         this->enum_indexes.clear();
 
         const std::vector<std::string>& profiles = GetProfileNames(data_set);
-        this->item->setHidden(profiles.size() <= 1 || enabled == SETTING_DEPENDENCE_HIDE);
+        this->item->setHidden(enabled == SETTING_DEPENDENCE_HIDE);
 
         int selection = 0;
         const std::string value = this->data().GetValue();
@@ -93,6 +93,10 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
             this->enum_indexes.push_back(i);
         }
         this->field->setCurrentIndex(selection);
+
+        // Ensure this->field size match the profiles names size
+        this->Resize();
+
         this->field->blockSignals(false);
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
         if (::CheckSettingOverridden(this->meta)) {
@@ -143,7 +147,12 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
     }
 }
 
-void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
+void WidgetSettingEnum::Resize() {
+    // resizeEvent was never call yet
+    if (this->last_resize.width() == 0 || this->last_resize.height() == 0) {
+        return;
+    }
+
     int width = MIN_FIELD_WIDTH;
 
     const QFontMetrics fm = this->field->fontMetrics();
@@ -153,11 +162,10 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
         for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
             width = std::max(width, HorizontalAdvance(fm, (profiles[i] + "0000").c_str()));
         }
-        this->item->setHidden(profiles.size() <= 1);
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
         const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
         for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
-            width = std::max(width, HorizontalAdvance(fm, (devices[i] + "0000").c_str()));
+            width = std::max(width, HorizontalAdvance(fm, (devices[i] + "000").c_str()));
         }
     } else {
         for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
@@ -165,8 +173,18 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
         }
     }
 
-    const QRect button_rect = QRect(event->size().width() - width, 0, width, event->size().height());
+    const int prefix_width = HorizontalAdvance(fm, this->item->text(0) + "0");
+
+    width = std::min(width, this->last_resize.width() - prefix_width);
+
+    const QRect button_rect(this->last_resize.width() - width, 0, std::max(width, MIN_FIELD_WIDTH), this->last_resize.height());
     this->field->setGeometry(button_rect);
+}
+
+void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
+    this->last_resize = event->size();
+
+    this->Resize();
 }
 
 void WidgetSettingEnum::OnIndexChanged(int index) {
@@ -175,7 +193,6 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         assert(index >= 0 && index < static_cast<int>(profiles.size()));
 
         this->data().SetValue(profiles[index].c_str());
-        this->item->setHidden(profiles.size() <= 1);
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
         const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
         assert(index >= 0 && index < static_cast<int>(devices.size()));
