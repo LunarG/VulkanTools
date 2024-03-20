@@ -40,9 +40,12 @@ class LayerManager {
     void LoadLayer(const std::string& layer_name);
     void LoadLayersFromPath(const std::string& path);
 
+    std::vector<std::string> BuildPathList() const;
+
     std::vector<Layer> available_layers;
 
     const Environment& environment;
+
    private:
     bool LoadLayerFromPath(const std::string& layer_name, const std::string& path);
 };

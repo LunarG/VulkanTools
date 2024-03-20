@@ -43,7 +43,7 @@ class Configurator {
     bool SupportApplicationList(Version* return_loader_version = nullptr) const;
 
     bool HasActiveOverrideOnApplicationListOnly() const {
-        return SupportApplicationList() && environment.UseApplicationListOverrideMode();
+        return SupportApplicationList() && environment.HasOverriddenApplications();
     }
 
     void ActivateConfiguration(const std::string& configuration_name);

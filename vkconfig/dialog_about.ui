@@ -74,7 +74,7 @@
     <enum>Qt::LeftToRight</enum>
    </property>
    <property name="text">
-    <string>Copyright (c) 2020-2023 LunarG, Inc.</string>
+    <string>Copyright (c) 2020-2024 LunarG, Inc.</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

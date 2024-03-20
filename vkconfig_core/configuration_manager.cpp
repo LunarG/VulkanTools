@@ -27,7 +27,7 @@
 #include <QMessageBox>
 #include <QFileInfoList>
 
-static const char *SUPPORTED_CONFIG_FILES[] = {"_2_2_3", "_2_2_2", "_2_2_1"};
+static const char *SUPPORTED_CONFIG_FILES[] = {"_3_0_0"};
 
 ConfigurationManager::ConfigurationManager(Environment &environment) : active_configuration(nullptr), environment(environment) {}
 
@@ -245,7 +245,7 @@ void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &avai
 void ConfigurationManager::RefreshConfiguration(const std::vector<Layer> &available_layers) {
     const std::string active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
 
-    if (!active_configuration_name.empty() && environment.UseOverride()) {
+    if (!active_configuration_name.empty() && environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS) {
         Configuration *active_configuration = FindByKey(available_configurations, active_configuration_name.c_str());
         if (active_configuration == nullptr) {
             environment.Set(ACTIVE_CONFIGURATION, "");

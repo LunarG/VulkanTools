@@ -91,6 +91,12 @@ if(BUILD_APIDUMP OR BUILD_MONITOR OR BUILD_SCREENSHOT)
 endif()
 
 if(BUILD_LAYERMGR)
+    if (WIN32)
+        # Minimize what Windows.h leaks
+        add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
+    endif()
+
     add_subdirectory(vkconfig_core)
     add_subdirectory(vkconfig)
+    add_subdirectory(vkconfig3)
 endif()

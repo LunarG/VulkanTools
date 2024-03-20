@@ -117,11 +117,11 @@ MainWindow::MainWindow(QWidget *parent)
     Environment &environment = configurator.environment;
 
     // Restore window geometry from last launch
-    restoreGeometry(environment.Get(LAYOUT_MAIN_GEOMETRY));
-    restoreState(environment.Get(LAYOUT_MAIN_WINDOW_STATE));
-    ui->splitter->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER1));
-    ui->splitter_2->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER2));
-    ui->splitter_3->restoreState(environment.Get(LAYOUT_MAIN_SPLITTER3));
+    restoreGeometry(environment.Get(VKCONFIG2_LAYOUT_MAIN_GEOMETRY));
+    restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_WINDOW_STATE));
+    ui->splitter->restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_SPLITTER1));
+    ui->splitter_2->restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_SPLITTER2));
+    ui->splitter_3->restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_SPLITTER3));
 
     LoadConfigurationList();
 
@@ -159,12 +159,14 @@ void MainWindow::UpdateUI() {
 
     ui->configuration_tree->blockSignals(true);
 
+    const bool use_override = environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS;
+
     // Mode states
-    ui->radio_override->setChecked(environment.UseOverride());
-    ui->radio_fully->setChecked(!environment.UseOverride());
+    ui->radio_override->setChecked(use_override);
+    ui->radio_fully->setChecked(!use_override);
 
     // Update configurations
-    ui->group_box_configurations->setEnabled(environment.UseOverride());
+    ui->group_box_configurations->setEnabled(use_override);
 
     ui->configuration_tree->setCurrentItem(nullptr);
     // ui->configuration_tree->setSelectionMode(has_active_configuration ? QAbstractItemView::SingleSelection
@@ -191,17 +193,17 @@ void MainWindow::UpdateUI() {
     }
 
     // Update settings
-    ui->push_button_edit->setEnabled(environment.UseOverride() && has_select_configuration);
-    ui->push_button_remove->setEnabled(environment.UseOverride() && has_select_configuration);
-    ui->push_button_duplicate->setEnabled(environment.UseOverride() && has_select_configuration);
-    ui->push_button_new->setEnabled(environment.UseOverride());
-    ui->settings_tree->setEnabled(environment.UseOverride() && has_select_configuration);
+    ui->push_button_edit->setEnabled(use_override && has_select_configuration);
+    ui->push_button_remove->setEnabled(use_override && has_select_configuration);
+    ui->push_button_duplicate->setEnabled(use_override && has_select_configuration);
+    ui->push_button_new->setEnabled(use_override);
+    ui->settings_tree->setEnabled(use_override && has_select_configuration);
     ui->group_box_settings->setTitle(has_select_configuration ? (active_contiguration_name + " Settings").c_str()
                                                               : "Configuration Settings");
 
     // Handle application lists states
-    ui->check_box_apply_list->setEnabled(!been_warned_about_old_loader && environment.UseOverride());
-    ui->check_box_apply_list->setChecked(!been_warned_about_old_loader && environment.UseApplicationListOverrideMode());
+    ui->check_box_apply_list->setEnabled(!been_warned_about_old_loader && use_override);
+    ui->check_box_apply_list->setChecked(!been_warned_about_old_loader && environment.GetUseApplicationList());
     ui->push_button_applications->setEnabled(!been_warned_about_old_loader && ui->check_box_apply_list->isChecked());
 
     _launcher_apps_combo->blockSignals(true);
@@ -229,15 +231,15 @@ void MainWindow::UpdateUI() {
     _launcher_apps_combo->blockSignals(false);
 
     // Handle persistent states
-    ui->check_box_persistent->setEnabled(environment.UseOverride());
-    ui->check_box_persistent->setChecked(environment.UsePersistentOverrideMode());
+    ui->check_box_persistent->setEnabled(use_override);
+    ui->check_box_persistent->setChecked(environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT);
 
     // Launcher states
     const bool has_application_list = !environment.GetApplications().empty();
     ui->push_button_launcher->setEnabled(has_application_list);
     ui->push_button_launcher->setText(_launch_application ? "Terminate" : "Launch");
     ui->check_box_clear_on_launch->setChecked(environment.Get(LAYOUT_LAUNCHER_NOT_CLEAR) != "true");
-    ui->launcher_loader_debug->setCurrentIndex(environment.GetLoaderMessage());
+    ui->launcher_loader_debug->setCurrentIndex(GetLoaderMessageType(environment.GetLoaderMessageTypes()));
 
     // ui->launcher_loader_debug
     if (_launcher_executable_browse_button) {
@@ -278,9 +280,9 @@ void MainWindow::UpdateUI() {
     }
 
     // Update title bar
-    setWindowTitle(GetMainWindowTitle(configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers) &&
-                                      configurator.environment.UseOverride())
-                       .c_str());
+    setWindowTitle(
+        GetMainWindowTitle(configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers) && use_override)
+            .c_str());
 
     ui->configuration_tree->blockSignals(false);
 }
@@ -346,7 +348,8 @@ ConfigurationListItem *MainWindow::GetCheckedItem() {
 void MainWindow::on_radio_override_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, true);
+    configurator.environment.SetMode(ui->check_box_persistent->isChecked() ? LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT
+                                                                           : LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
     configurator.request_vulkan_status = true;
 
@@ -357,7 +360,7 @@ void MainWindow::on_radio_override_clicked() {
 void MainWindow::on_radio_fully_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    configurator.environment.SetMode(OVERRIDE_MODE_ACTIVE, false);
+    configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
     configurator.request_vulkan_status = true;
 
@@ -381,13 +384,13 @@ void MainWindow::on_check_box_apply_list_clicked() {
         ui->check_box_apply_list->setEnabled(false);
         ui->check_box_apply_list->setChecked(false);
         ui->push_button_applications->setEnabled(false);
-        configurator.environment.SetMode(OVERRIDE_MODE_LIST, false);
+        configurator.environment.SetUseApplicationList(false);
         been_warned_about_old_loader = true;
 
         return;
     }
 
-    configurator.environment.SetMode(OVERRIDE_MODE_LIST, ui->check_box_apply_list->isChecked());
+    configurator.environment.SetUseApplicationList(ui->check_box_apply_list->isChecked());
 
     // Handle the case where no application with active override is present
     const bool application_list_requires_update = !configurator.environment.HasOverriddenApplications();
@@ -402,7 +405,10 @@ void MainWindow::on_check_box_apply_list_clicked() {
 }
 
 void MainWindow::on_check_box_persistent_clicked() {
-    Configurator::Get().environment.SetMode(OVERRIDE_MODE_PERISTENT, ui->check_box_persistent->isChecked());
+    Configurator &configurator = Configurator::Get();
+
+    configurator.environment.SetMode(ui->check_box_persistent->isChecked() ? LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT
+                                                                           : LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
 }
 
 void MainWindow::on_check_box_clear_on_launch_clicked() {
@@ -631,10 +637,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     if (!settings.value("vkconfig_override", false).toBool()) {
         std::string shut_down_state;
 
-        if (environment.UsePersistentOverrideMode()) {
+        if (environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT) {
             shut_down_state = "Vulkan Layers override will remain in effect when Vulkan Configurator closes.";
 
-            if (environment.UseApplicationListOverrideMode())
+            if (environment.GetUseApplicationList())
                 shut_down_state += " Overrides will be applied only to the application list.";
             else
                 shut_down_state += " Overrides will be applied to ALL Vulkan applications.";
@@ -666,11 +672,11 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     _settings_tree_manager.CleanupGUI();
 
-    environment.Set(LAYOUT_MAIN_GEOMETRY, saveGeometry());
-    environment.Set(LAYOUT_MAIN_WINDOW_STATE, saveState());
-    environment.Set(LAYOUT_MAIN_SPLITTER1, ui->splitter->saveState());
-    environment.Set(LAYOUT_MAIN_SPLITTER2, ui->splitter_2->saveState());
-    environment.Set(LAYOUT_MAIN_SPLITTER3, ui->splitter_3->saveState());
+    environment.Set(VKCONFIG2_LAYOUT_MAIN_GEOMETRY, saveGeometry());
+    environment.Set(VKCONFIG2_LAYOUT_MAIN_WINDOW_STATE, saveState());
+    environment.Set(VKCONFIG2_LAYOUT_MAIN_SPLITTER1, ui->splitter->saveState());
+    environment.Set(VKCONFIG2_LAYOUT_MAIN_SPLITTER2, ui->splitter_2->saveState());
+    environment.Set(VKCONFIG2_LAYOUT_MAIN_SPLITTER3, ui->splitter_3->saveState());
 
     QMainWindow::closeEvent(event);
 }
@@ -1058,7 +1064,7 @@ void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
 void MainWindow::OnLauncherLoaderMessageChanged(int level) {
     Configurator &configurator = Configurator::Get();
 
-    configurator.environment.SetLoaderMessage(static_cast<LoaderMessageLevel>(level));
+    configurator.environment.SetLoaderMessageTypes(GetLoaderMessageFlags(static_cast<LoaderMessageType>(level)));
     configurator.request_vulkan_status = true;
 
     this->UpdateUI();
@@ -1311,7 +1317,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             const Environment &environment = configurator.environment;
             const std::string &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
-            const bool active = environment.UseOverride() && !active_contiguration_name.empty();
+            const bool active = environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS && !active_contiguration_name.empty();
 
             // Create context menu here
             QMenu menu(ui->configuration_tree);
@@ -1425,7 +1431,7 @@ QStringList MainWindow::BuildEnvVariables() const {
     Configurator &configurator = Configurator::Get();
 
     QStringList env = QProcess::systemEnvironment();
-    env << (QString("VK_LOADER_DEBUG=") + GetLoaderDebugToken(configurator.environment.GetLoaderMessage()).c_str());
+    env << (QString("VK_LOADER_DEBUG=") + ::GetLoaderMessageTokens(configurator.environment.GetLoaderMessageTypes()).c_str());
     return env;
 }
 
@@ -1450,8 +1456,8 @@ void MainWindow::on_push_button_launcher_clicked() {
     } else if (HasMissingLayer(configuration->parameters, configurator.layers.available_layers, missing_layer)) {
         launch_log += format("- No layers override. The active \"%s\" configuration is missing '%s' layer.\n",
                              configuration->key.c_str(), missing_layer.c_str());
-    } else if (configurator.environment.UseOverride()) {
-        if (configurator.environment.UseApplicationListOverrideMode() && configurator.environment.HasOverriddenApplications() &&
+    } else if (configurator.environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS) {
+        if (configurator.environment.GetUseApplicationList() && configurator.environment.HasOverriddenApplications() &&
             !active_application.override_layers) {
             launch_log += "- Layers fully controlled by the application. Application excluded from layers override.\n";
         } else {

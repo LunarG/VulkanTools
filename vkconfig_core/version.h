@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ extern const char *VKCONFIG_SHORT_NAME;
 class Version {
    public:
     static const Version VKCONFIG;
+    static const Version VKCONFIG3;
     static const Version VKHEADER;
     static const Version VERSION_NULL;
     static const Version LAYER_CONFIG;

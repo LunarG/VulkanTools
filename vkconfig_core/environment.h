@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2022 Valve Corporation
+ * Copyright (c) 2020-2022 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #pragma once
 
 #include "version.h"
+#include "environment_key.h"
 #include "application.h"
 #include "path_manager.h"
 
@@ -30,30 +31,30 @@
 #include <vector>
 #include <string>
 
-enum OverrideFlag { OVERRIDE_FLAG_ACTIVE = (1 << 0), OVERRIDE_FLAG_SELECTED = (1 << 1), OVERRIDE_FLAG_PERSISTENT = (1 << 2) };
-
-enum OverrideState {
-    OVERRIDE_STATE_DISABLED = 0,
-    OVERRIDE_STATE_GLOBAL_TEMPORARY = OVERRIDE_FLAG_ACTIVE,
-    OVERRIDE_STATE_GLOBAL_PERSISTENT = OVERRIDE_FLAG_ACTIVE | OVERRIDE_FLAG_PERSISTENT,
-    OVERRIDE_STATE_SELECTED_TEMPORARY = OVERRIDE_FLAG_ACTIVE | OVERRIDE_FLAG_SELECTED,
-    OVERRIDE_STATE_SELECTED_PERSISTENT = OVERRIDE_FLAG_ACTIVE | OVERRIDE_FLAG_SELECTED | OVERRIDE_FLAG_PERSISTENT,
+enum LayersMode {
+    LAYERS_MODE_BY_APPLICATIONS = 0,
+    LAYERS_MODE_BY_CONFIGURATOR_RUNNING,
+    LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT,
+    LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED,
 };
 
-enum OverrideMode { OVERRIDE_MODE_ACTIVE = 0, OVERRIDE_MODE_LIST, OVERRIDE_MODE_PERISTENT };
-
 enum LayoutState {
-    LAYOUT_MAIN_GEOMETRY = 0,
-    LAYOUT_MAIN_WINDOW_STATE,
-    LAYOUT_MAIN_SPLITTER1,
-    LAYOUT_MAIN_SPLITTER2,
-    LAYOUT_MAIN_SPLITTER3,
+    VKCONFIG2_LAYOUT_MAIN_GEOMETRY = 0,
+    VKCONFIG2_LAYOUT_MAIN_WINDOW_STATE,
+    VKCONFIG2_LAYOUT_MAIN_SPLITTER1,
+    VKCONFIG2_LAYOUT_MAIN_SPLITTER2,
+    VKCONFIG2_LAYOUT_MAIN_SPLITTER3,
+    VKCONFIG3_LAYOUT_MAIN_GEOMETRY,
+    VKCONFIG3_LAYOUT_MAIN_WINDOW_STATE,
+    VKCONFIG3_LAYOUT_MAIN_SPLITTER1,
+    VKCONFIG3_LAYOUT_MAIN_SPLITTER2,
+    VKCONFIG3_LAYOUT_MAIN_SPLITTER3,
     LAYOUT_LAYER_GEOMETRY,
     LAYOUT_LAYER_SPLITTER,
     LAYOUT_LAUNCHER_COLLAPSED,
     LAYOUT_LAUNCHER_NOT_CLEAR,
 
-    LAYOUT_FIRST = LAYOUT_MAIN_GEOMETRY,
+    LAYOUT_FIRST = VKCONFIG2_LAYOUT_MAIN_GEOMETRY,
     LAYOUT_LAST = LAYOUT_LAUNCHER_NOT_CLEAR,
 };
 
@@ -80,7 +81,7 @@ enum UserDefinedLayersPaths {
 
 enum { USER_DEFINED_LAYERS_PATHS_COUNT = USER_DEFINED_LAYERS_PATHS_LAST - USER_DEFINED_LAYERS_PATHS_FIRST + 1 };
 
-enum LoaderMessageLevel {
+enum LoaderMessageType {
     LOADER_MESSAGE_NONE = 0,
     LOADER_MESSAGE_ERROR,
     LOADER_MESSAGE_WARN,
@@ -90,11 +91,67 @@ enum LoaderMessageLevel {
     LOADER_MESSAGE_IMPLEMENTATION,
     LOADER_MESSAGE_ALL,
 
-    LOADER_MESSAGE_FIRST = LOADER_MESSAGE_NONE,
-    LOADER_MESSAGE_LAST = LOADER_MESSAGE_ALL,
+    LOADER_MESSAGE_FIRST = LOADER_MESSAGE_ERROR,
+    LOADER_MESSAGE_LAST = LOADER_MESSAGE_IMPLEMENTATION,
 };
 
 enum { LOADER_MESSAGE_COUNT = LOADER_MESSAGE_LAST - LOADER_MESSAGE_FIRST + 1 };
+
+enum {
+    LOADER_MESSAGE_ERROR_BIT = (1 << LOADER_MESSAGE_ERROR),
+    LOADER_MESSAGE_WARN_BIT = (1 << LOADER_MESSAGE_WARN),
+    LOADER_MESSAGE_INFO_BIT = (1 << LOADER_MESSAGE_INFO),
+    LOADER_MESSAGE_DEBUG_BIT = (1 << LOADER_MESSAGE_DEBUG),
+    LOADER_MESSAGE_LAYER_BIT = (1 << LOADER_MESSAGE_LAYER),
+    LOADER_MESSAGE_IMPLEMENTATION_BIT = (1 << LOADER_MESSAGE_IMPLEMENTATION),
+    LOADER_MESSAGE_ALL_BIT = LOADER_MESSAGE_ERROR_BIT | LOADER_MESSAGE_WARN_BIT | LOADER_MESSAGE_INFO_BIT |
+                             LOADER_MESSAGE_DEBUG_BIT | LOADER_MESSAGE_LAYER_BIT | LOADER_MESSAGE_IMPLEMENTATION_BIT
+};
+
+inline int GetLoaderMessageFlags(LoaderMessageType level) {
+    int flags = 0;
+
+    switch (level) {
+        default:
+        case LOADER_MESSAGE_ALL:
+        case LOADER_MESSAGE_IMPLEMENTATION:
+            flags |= LOADER_MESSAGE_IMPLEMENTATION_BIT;
+        case LOADER_MESSAGE_LAYER:
+            flags |= LOADER_MESSAGE_LAYER_BIT;
+        case LOADER_MESSAGE_DEBUG:
+            flags |= LOADER_MESSAGE_DEBUG_BIT;
+        case LOADER_MESSAGE_INFO:
+            flags |= LOADER_MESSAGE_INFO_BIT;
+        case LOADER_MESSAGE_WARN:
+            flags |= LOADER_MESSAGE_WARN_BIT;
+        case LOADER_MESSAGE_ERROR:
+            flags |= LOADER_MESSAGE_ERROR_BIT;
+        case LOADER_MESSAGE_NONE:
+            flags |= 0;
+    }
+
+    return flags;
+}
+
+inline LoaderMessageType GetLoaderMessageType(int flags) {
+    if (flags == LOADER_MESSAGE_ALL_BIT) {
+        return LOADER_MESSAGE_ALL;
+    } else if (flags & LOADER_MESSAGE_IMPLEMENTATION_BIT) {
+        return LOADER_MESSAGE_IMPLEMENTATION;
+    } else if (flags & LOADER_MESSAGE_LAYER_BIT) {
+        return LOADER_MESSAGE_LAYER;
+    } else if (flags & LOADER_MESSAGE_DEBUG_BIT) {
+        return LOADER_MESSAGE_DEBUG;
+    } else if (flags & LOADER_MESSAGE_INFO_BIT) {
+        return LOADER_MESSAGE_INFO;
+    } else if (flags & LOADER_MESSAGE_WARN_BIT) {
+        return LOADER_MESSAGE_WARN;
+    } else if (flags & LOADER_MESSAGE_ERROR_BIT) {
+        return LOADER_MESSAGE_ERROR;
+    } else {
+        return LOADER_MESSAGE_NONE;
+    }
+}
 
 struct DefaultApplication {
     std::string name;
@@ -133,14 +190,14 @@ class Environment {
     const QByteArray& Get(LayoutState state) const;
     void Set(LayoutState state, const QByteArray& data);
 
-    bool UseOverride() const;
-    bool UseApplicationListOverrideMode() const;
-    bool UsePersistentOverrideMode() const;
+    bool GetUseApplicationList() const;
+    void SetUseApplicationList(bool enable);
 
-    void SetMode(OverrideMode mode, bool enabled);
+    LayersMode GetMode() const;
+    void SetMode(LayersMode mode);
 
-    LoaderMessageLevel GetLoaderMessage() const { return this->loader_message_level; }
-    void SetLoaderMessage(LoaderMessageLevel level) { this->loader_message_level = level; }
+    int GetLoaderMessageTypes() const { return this->loader_message_types; }
+    void SetLoaderMessageTypes(int types) { this->loader_message_types = types; }
 
     bool first_run;
     const Version api_version;
@@ -167,9 +224,11 @@ class Environment {
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
 
-    Version version;
-    OverrideState override_state;
-    LoaderMessageLevel loader_message_level;
+    Version vkconfig2_version;
+    Version vkconfig3_version;
+    LayersMode layers_mode;
+    bool use_application_list;
+    int loader_message_types;
 
     std::array<std::string, ACTIVE_COUNT> actives;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
@@ -194,5 +253,7 @@ class Environment {
 
 bool ExactExecutableFromAppBundle(std::string& path);
 
-LoaderMessageLevel GetLoaderDebug(const std::string& value);
-std::string GetLoaderDebugToken(LoaderMessageLevel level);
+LoaderMessageType GetLoaderMessageType(const std::string& value);
+int GetLoaderMessageTypes(const std::string& values);
+std::string GetLoaderMessageToken(LoaderMessageType mesage_type);
+std::string GetLoaderMessageTokens(int mesage_types);

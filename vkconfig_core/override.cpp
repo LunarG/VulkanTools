@@ -97,16 +97,22 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 
     QJsonArray json_overridden_layers;
     QJsonArray json_excluded_layers;
-    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-        const Parameter& parameter = configuration.parameters[i];
-        if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
-            continue;
+    if (environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED) {
+        for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
+            json_excluded_layers.append(available_layers[i].key.c_str());
         }
+    } else {
+        for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+            const Parameter& parameter = configuration.parameters[i];
+            if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
+                continue;
+            }
 
-        if (parameter.state == LAYER_STATE_OVERRIDDEN)
-            json_overridden_layers.append(parameter.key.c_str());
-        else if (parameter.state == LAYER_STATE_EXCLUDED)
-            json_excluded_layers.append(parameter.key.c_str());
+            if (parameter.state == LAYER_STATE_OVERRIDDEN)
+                json_overridden_layers.append(parameter.key.c_str());
+            else if (parameter.state == LAYER_STATE_EXCLUDED)
+                json_excluded_layers.append(parameter.key.c_str());
+        }
     }
 
     QJsonObject disable;
@@ -124,7 +130,7 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     layer.insert("disable_environment", disable);
 
     // This has to contain something, or it will apply globally!
-    if (environment.UseApplicationListOverrideMode() && environment.HasOverriddenApplications()) {
+    if (environment.GetUseApplicationList() && environment.HasOverriddenApplications()) {
         const std::vector<Application>& applications = environment.GetApplications();
 
         QJsonArray json_applist;

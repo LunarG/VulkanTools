@@ -52,19 +52,7 @@ typedef enum _pe_architecture {
     PE_ARCHITECTURE_x64 = 0x020B
 } PE_ARCHITECTURE;
 
-LPVOID GetOffsetFromRva(IMAGE_DOS_HEADER *pDos, IMAGE_NT_HEADERS *pNt, DWORD rva) {
-    IMAGE_SECTION_HEADER *pSecHd = IMAGE_FIRST_SECTION(pNt);
-    for (unsigned long i = 0; i < pNt->FileHeader.NumberOfSections; ++i, ++pSecHd) {
-        // Lookup which section contains this RVA so we can translate the VA to a file offset
-        if (rva >= pSecHd->VirtualAddress && rva < (pSecHd->VirtualAddress + pSecHd->Misc.VirtualSize)) {
-            DWORD delta = pSecHd->VirtualAddress - pSecHd->PointerToRawData;
-            return (LPVOID)MKPTR(pDos, rva - delta);
-        }
-    }
-    return NULL;
-}
-
-PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
+static PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
     // Parse and validate the DOS header
     IMAGE_DOS_HEADER *pDosHd = (IMAGE_DOS_HEADER *)pImageBase;
     if (IsBadReadPtr(pDosHd, sizeof(pDosHd->e_magic)) || pDosHd->e_magic != IMAGE_DOS_SIGNATURE) return PE_ARCHITECTURE_UNKNOWN;
