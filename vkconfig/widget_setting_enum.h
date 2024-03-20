@@ -45,6 +45,8 @@ class WidgetSettingEnum : public WidgetSettingBase {
    private:
     void resizeEvent(QResizeEvent* event) override;
 
+    void Resize();
+
     SettingDataEnum& data();
 
     const SettingMetaEnum& meta;
@@ -52,4 +54,5 @@ class WidgetSettingEnum : public WidgetSettingBase {
 
     ComboBox* field;
     std::vector<std::size_t> enum_indexes;
+    QSize last_resize;
 };

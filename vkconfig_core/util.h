@@ -111,6 +111,11 @@ std::string ToLowerCase(const std::string& value);
 
 std::string ToUpperCase(const std::string& value);
 
+inline bool EndsWith(std::string const& value, std::string const& ending) {
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
 struct NumberOrString {
     NumberOrString() : number(0) {}
     NumberOrString(int value) : number(value) {}
