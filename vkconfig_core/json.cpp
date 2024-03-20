@@ -36,7 +36,8 @@ QJsonDocument ParseJsonFile(const char* file) {
         QJsonParseError json_parse_error;
         const QJsonDocument& json_document = QJsonDocument::fromJson(data.toUtf8(), &json_parse_error);
         if (json_document.isNull() || json_document.isEmpty()) {
-            Alert::FileNotJson(file);
+            // Alert::FileNotJson(file);
+            return QJsonDocument();
         }
         return json_document;
     } else {
