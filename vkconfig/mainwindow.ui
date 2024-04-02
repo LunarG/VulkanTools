@@ -422,7 +422,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Clear log at launch</string>
+            <string>Clear log on action</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -705,7 +705,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">

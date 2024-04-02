@@ -1065,9 +1065,12 @@ void MainWindow::OnLauncherLoaderMessageChanged(int level) {
     Configurator &configurator = Configurator::Get();
 
     configurator.environment.SetLoaderMessageTypes(GetLoaderMessageFlags(static_cast<LoaderMessageType>(level)));
-    configurator.request_vulkan_status = true;
 
-    this->UpdateUI();
+    if (ui->check_box_clear_on_launch->isChecked()) {
+        configurator.request_vulkan_status = true;
+
+        this->UpdateUI();
+    }
 }
 
 void MainWindow::launchSetExecutable() {
