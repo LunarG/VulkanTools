@@ -1756,7 +1756,8 @@ void MainWindow::on_push_button_launcher_clicked() {
     _launch_application->setEnvironment(BuildEnvVariables() + ui->edit_env->text().split(","));
 
     if (!active_application.arguments.empty()) {
-        _launch_application->setArguments(ui->edit_arguments->text().split(" "));
+        const QStringList args = ConvertString(SplitSpace(active_application.arguments));
+        _launch_application->setArguments(args);
     }
 
     _launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);

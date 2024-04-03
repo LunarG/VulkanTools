@@ -136,26 +136,48 @@ TEST(test_util, format_strings_list) {
     EXPECT_EQ(0, list.size());
 }
 
-// Delimiters are spaces but path could be arguments and could contain whitespase
-/*
-TEST(test_util, split_cmd_arguments) {
+TEST(test_util, trim_whitepace) {
+    std::vector<std::string> strings;
+    strings.push_back("gna gni");
+    strings.push_back(" gna gni");
+    strings.push_back("gna gni ");
+    strings.push_back(" gna gni ");
+    strings.push_back("  gna gni");
+    strings.push_back("gna gni  ");
+    strings.push_back("  gna gni  ");
+    strings.push_back("  gna gni ");
+    strings.push_back(" gna gni  ");
+
+    for (std::size_t i = 0, n = strings.size(); i < n; ++i) {
+        std::string trimed_string = TrimString(strings[i]);
+
+        EXPECT_STREQ("gna gni", trimed_string.c_str());
+    }
+}
+
+TEST(test_util, split_space) {
     std::vector<std::string> merged_strings;
-    merged_strings.push_back("gna gni \"gne gnu\"");
+    merged_strings.push_back(" \" gna \" \" gni \" \" gne gnu \" \" gny \" \" gno \" ");
+    merged_strings.push_back("gna gni \"gne gnu\" gny gno");
+    merged_strings.push_back("gna gni\"gne gnu\"gny gno");
+    merged_strings.push_back(" gna gni \"gne gnu\" gny gno ");
+    merged_strings.push_back(" \"gna\" \"gni\" \"gne gnu\" \"gny\" \"gno\" ");
+    merged_strings.push_back("\"gna\"\"gni\"\"gne gnu\"\"gny\"\"gno\"");
 
     for (std::size_t i = 0, n = merged_strings.size(); i < n; ++i) {
         const std::string merge = merged_strings[i];
         const std::vector<std::string> split = SplitSpace(merge);
 
-        EXPECT_EQ(3, split.size());
-
         EXPECT_STREQ("gna", split[0].c_str());
         EXPECT_STREQ("gni", split[1].c_str());
         EXPECT_STREQ("gne gnu", split[2].c_str());
+        EXPECT_STREQ("gny", split[3].c_str());
+        EXPECT_STREQ("gno", split[4].c_str());
 
-        EXPECT_STREQ(merge.c_str(), Merge(split, " ").c_str());
+        EXPECT_EQ(5, split.size());
     }
 }
-*/
+
 TEST(test_util, split_merge_delimiter) {
     std::vector<std::string> delimiters;
     delimiters.push_back(",");
