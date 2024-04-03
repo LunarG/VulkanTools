@@ -1512,7 +1512,7 @@ void MainWindow::on_push_button_launcher_clicked() {
     _launch_application->setEnvironment(BuildEnvVariables());
 
     if (!active_application.arguments.empty()) {
-        const QStringList args = QString(active_application.arguments.c_str()).split(" ");
+        const QStringList args = ConvertString(SplitSpace(active_application.arguments));
         _launch_application->setArguments(args);
     }
 

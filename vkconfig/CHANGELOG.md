@@ -15,6 +15,7 @@
 
 ### Fixes:
 - Fix clear log when changing `Vulkan Kiader Messages` type when `Clear log on action` is unchecked
+- Fix spaces in application launcher command-line 'path' arguments
 
 ## [Vulkan Configurator 2.5.6](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.280.0) - March 2024
 
