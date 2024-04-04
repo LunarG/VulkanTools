@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include <gtest/gtest.h>
 
 TEST(test_environment, remove_missing_applications) {
-    PathManager path_manager("");
+    PathManager path_manager("", std::vector<std::string>());
     Environment environment(path_manager);
 
     QFile file("my_exciting_executable");

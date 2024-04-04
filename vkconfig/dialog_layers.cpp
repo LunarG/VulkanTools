@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -676,7 +676,9 @@ void LayersDialog::accept() {
         configurator.configurations.RemoveConfigurationFile(saved_configuration->key);
     }
 
-    const std::string active_configuration_name = saved_configuration->key = ui->lineEditName->text().toStdString();
+    const std::string active_configuration_name = ui->lineEditName->text().toStdString();
+
+    saved_configuration->key = active_configuration_name;
     saved_configuration->description = ui->lineEditDescription->text().toStdString();
     saved_configuration->parameters = this->configuration.parameters;
     saved_configuration->user_defined_paths = this->configuration.user_defined_paths;

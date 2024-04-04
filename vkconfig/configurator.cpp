@@ -47,7 +47,11 @@ Configurator &Configurator::Get(const std::string &VULKAN_SDK) {
 }
 
 Configurator::Configurator(const std::string &VULKAN_SDK)
-    : path(VULKAN_SDK), environment(path), layers(environment), configurations(environment), request_vulkan_status(true) {}
+    : path(VULKAN_SDK, SUPPORTED_CONFIG_FILES),
+      environment(path),
+      layers(environment),
+      configurations(environment),
+      request_vulkan_status(true) {}
 
 Configurator::~Configurator() {
     configurations.SaveAllConfigurations(layers.available_layers);

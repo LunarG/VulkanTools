@@ -39,8 +39,6 @@
 #include <string>
 #include <algorithm>
 
-static const char* SUPPORTED_CONFIG_FILES[] = {"_3_0_0"};
-
 Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_DESKTOP_BIT), view_advanced_settings(false) {}
 
 bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object) {
@@ -261,7 +259,9 @@ void Configuration::Reset(const std::vector<Layer>& available_layers, const Path
     // Case 2: reset using configuration files using saved configurations
     const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
+    const std::vector<std::string>& SUPPORTED_CONFIG_FILES = path_manager.SUPPORTED_CONFIG_FILES;
+
+    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
         const std::string path = base_config_path + SUPPORTED_CONFIG_FILES[i] + "/" + this->key + ".json";
 
         std::FILE* file = std::fopen(path.c_str(), "r");

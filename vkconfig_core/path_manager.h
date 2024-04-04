@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ enum { PATH_COUNT = PATH_LAST - PATH_FIRST + 1 };
 
 class PathManager {
    public:
-    PathManager(const std::string& VULKAN_SDK);
+    PathManager(const std::string& VULKAN_SDK, const std::vector<std::string>& SUPPORTED_CONFIG_FILES);
     ~PathManager();
 
     bool Load();
@@ -66,6 +66,8 @@ class PathManager {
 
     void Clear();
     void Reset();
+
+    const std::vector<std::string> SUPPORTED_CONFIG_FILES;
 
    private:
     PathManager(const PathManager&) = delete;

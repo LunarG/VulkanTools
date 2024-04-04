@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,11 @@ Configurator &Configurator::Get(const std::string &VULKAN_SDK) {
 }
 
 Configurator::Configurator(const std::string &VULKAN_SDK)
-    : path(VULKAN_SDK), environment(path), layers(environment), configurations(environment), request_vulkan_status(true) {}
+    : path(VULKAN_SDK, SUPPORTED_CONFIG_FILES),
+      environment(path),
+      layers(environment),
+      configurations(environment),
+      request_vulkan_status(true) {}
 
 Configurator::~Configurator() {
     configurations.SaveAllConfigurations(layers.available_layers);

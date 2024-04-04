@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include "../vkconfig_core/layer_manager.h"
 
 #include "main_signal.h"
+#include "configurator.h"
 
 #include <QSettings>
 
@@ -36,7 +37,7 @@ void SurrenderConfiguration(int signal) {
         settings.setValue("crashed", true);
     }
 
-    PathManager paths("");
+    PathManager paths("", SUPPORTED_CONFIG_FILES);
     Environment environment(paths);
 
     SurrenderConfiguration(environment);

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 #include "main_layers.h"
+#include "configurator.h"
 
 #include "../vkconfig_core/configuration.h"
 #include "../vkconfig_core/override.h"
@@ -27,7 +28,7 @@
 #include <cassert>
 
 static int RunLayersOverride(const CommandLine& command_line) {
-    PathManager paths(command_line.command_vulkan_sdk);
+    PathManager paths(command_line.command_vulkan_sdk, SUPPORTED_CONFIG_FILES);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
@@ -69,7 +70,7 @@ static int RunLayersOverride(const CommandLine& command_line) {
 }
 
 static int RunLayersSurrender(const CommandLine& command_line) {
-    PathManager paths(command_line.command_vulkan_sdk);
+    PathManager paths(command_line.command_vulkan_sdk, SUPPORTED_CONFIG_FILES);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
@@ -93,7 +94,7 @@ static int RunLayersSurrender(const CommandLine& command_line) {
 }
 
 static int RunLayersList(const CommandLine& command_line) {
-    PathManager paths(command_line.command_vulkan_sdk);
+    PathManager paths(command_line.command_vulkan_sdk, SUPPORTED_CONFIG_FILES);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
@@ -114,7 +115,7 @@ static int RunLayersList(const CommandLine& command_line) {
 }
 
 static int RunLayersVerbose(const CommandLine& command_line) {
-    PathManager paths(command_line.command_vulkan_sdk);
+    PathManager paths(command_line.command_vulkan_sdk, SUPPORTED_CONFIG_FILES);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
