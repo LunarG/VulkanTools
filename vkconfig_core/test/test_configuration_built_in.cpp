@@ -27,6 +27,8 @@
 
 #include <gtest/gtest.h>
 
+static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3", "_2_2_2", "_2_2_1"};
+
 static bool operator==(const Configuration& a, const Configuration& b) {
     if (a.key != b.key)
         return false;
@@ -61,7 +63,7 @@ static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parame
 
 struct TestBuilin {
     TestBuilin(const char* layers_version, const char* configurations_version)
-        : paths(""),
+        : paths("", SUPPORTED_CONFIG_FILES),
           layers_version(layers_version),
           configurations_version(configurations_version),
           environment(paths),

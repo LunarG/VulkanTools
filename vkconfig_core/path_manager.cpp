@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,8 @@ static const DirectoryDesc& GetDesc(PathType directory) {
     return table[directory];
 }
 
-PathManager::PathManager(const std::string& VULKAN_SDK) {
+PathManager::PathManager(const std::string& VULKAN_SDK, const std::vector<std::string>& SUPPORTED_CONFIG_FILES)
+    : SUPPORTED_CONFIG_FILES(SUPPORTED_CONFIG_FILES) {
     const bool result = Load();
 
     const std::string path = VULKAN_SDK.empty() ? qgetenv("VULKAN_SDK").toStdString() : VULKAN_SDK;

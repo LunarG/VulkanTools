@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ static std::string InitPath(const char* tail) {
 
 TEST(test_path_manager, init_first) {
     const std::string path_value = InitPath("init_first");
-    PathManager paths("");
+    PathManager paths("", std::vector<std::string>());
     Init(paths, path_value);
 
     EXPECT_STREQ(path_value.c_str(), paths.GetPath(PATH_FIRST).c_str());
@@ -50,14 +50,14 @@ TEST(test_path_manager, init_first) {
 
 TEST(test_path_manager, init_last) {
     const std::string path_value = InitPath("init_last");
-    PathManager paths("");
+    PathManager paths("", std::vector<std::string>());
     Init(paths, path_value);
 
     EXPECT_STREQ(path_value.c_str(), paths.GetPath(PATH_LAST).c_str());
 }
 
 TEST(test_path_manager, init_all) {
-    PathManager paths("");
+    PathManager paths("", std::vector<std::string>());
     paths.Clear();
 
     for (int i = PATH_FIRST, n = PATH_LAST; i <= n; ++i) {
@@ -79,7 +79,7 @@ TEST(test_path_manager, path_format) {
         "\\vkconfig\\test/path\\format", "/vkconfig/test/path/format/",   "\\vkconfig\\test/path\\format\\"};
 
     for (std::size_t i = 0, n = countof(table); i < n; ++i) {
-        PathManager paths("");
+        PathManager paths("", std::vector<std::string>());
         paths.Clear();
         paths.SetPath(PATH_EXPORT_CONFIGURATION, QDir::homePath().toStdString() + table[i]);
 
@@ -96,7 +96,7 @@ TEST(test_path_manager, path_format) {
 
 // Test that export path is used as an alternative to import path when import path is empty
 TEST(test_path_manager, empty_import) {
-    PathManager paths("");
+    PathManager paths("", std::vector<std::string>());
     paths.Clear();
     paths.SetPath(PATH_EXPORT_CONFIGURATION, InitPath("empty_import"));
 
@@ -106,7 +106,7 @@ TEST(test_path_manager, empty_import) {
 
 // Test that import path is used as an alternative to export path when export path is empty
 TEST(test_path_manager, empty_export) {
-    PathManager paths("");
+    PathManager paths("", std::vector<std::string>());
     paths.Clear();
     paths.SetPath(PATH_IMPORT_CONFIGURATION, InitPath("empty_export"));
 
@@ -117,7 +117,7 @@ TEST(test_path_manager, empty_export) {
 }
 
 TEST(test_path_manager, check_missing_dir) {
-    PathManager paths("");
+    PathManager paths("", std::vector<std::string>());
     paths.Clear();
     paths.SetPath(PATH_EXPORT_CONFIGURATION, InitPath("check_missing_dir"));
 
@@ -127,7 +127,7 @@ TEST(test_path_manager, check_missing_dir) {
 }
 
 TEST(test_path_manager, check_default_suffix) {
-    PathManager paths("");
+    PathManager paths("", std::vector<std::string>());
     paths.Clear();
 
     const QString string = paths.GetFullPath(PATH_EXPORT_CONFIGURATION, "my_configuration").c_str();
@@ -138,7 +138,7 @@ TEST(test_path_manager, check_default_suffix) {
 }
 
 TEST(test_path_manager, check_with_suffix) {
-    PathManager paths("");
+    PathManager paths("", std::vector<std::string>());
     paths.Clear();
 
     const QString string = paths.GetFullPath(PATH_EXPORT_CONFIGURATION, "my_configuration.json").c_str();

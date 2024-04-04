@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@
 #include "../vkconfig_core/environment.h"
 #include "../vkconfig_core/configuration_manager.h"
 #include "../vkconfig_core/platform.h"
+
+static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3", "_2_2_2", "_2_2_1"};
 
 class Configurator {
    public:

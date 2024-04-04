@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2022 Valve Corporation
- * Copyright (c) 2022 LunarG, Inc.
+ * Copyright (c) 2022-2024 Valve Corporation
+ * Copyright (c) 2022-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
  */
 
 #include "main_doc.h"
+#include "configurator.h"
+
 #include "../vkconfig_core/layer_manager.h"
 #include "../vkconfig_core/doc.h"
 #include "../vkconfig_core/configuration_manager.h"
@@ -26,7 +28,7 @@
 #include <cassert>
 
 int run_doc_html(const CommandLine& command_line) {
-    PathManager paths(command_line.command_vulkan_sdk);
+    PathManager paths(command_line.command_vulkan_sdk, SUPPORTED_CONFIG_FILES);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
@@ -47,7 +49,7 @@ int run_doc_html(const CommandLine& command_line) {
 }
 
 int run_doc_markdown(const CommandLine& command_line) {
-    PathManager paths(command_line.command_vulkan_sdk);
+    PathManager paths(command_line.command_vulkan_sdk, SUPPORTED_CONFIG_FILES);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
@@ -69,7 +71,7 @@ int run_doc_markdown(const CommandLine& command_line) {
 
 int run_doc_settings(const CommandLine& command_line) {
     int rval = 0;
-    PathManager paths(command_line.command_vulkan_sdk);
+    PathManager paths(command_line.command_vulkan_sdk, SUPPORTED_CONFIG_FILES);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
     ConfigurationManager configuration_manager(environment);

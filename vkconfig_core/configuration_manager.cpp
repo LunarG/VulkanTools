@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,6 @@
 #include <QMessageBox>
 #include <QFileInfoList>
 
-static const char *SUPPORTED_CONFIG_FILES[] = {"_3_0_0"};
-
 ConfigurationManager::ConfigurationManager(Environment &environment) : active_configuration(nullptr), environment(environment) {}
 
 ConfigurationManager::~ConfigurationManager() {}
@@ -48,7 +46,9 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
 
     const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
+    const std::vector<std::string> &SUPPORTED_CONFIG_FILES = environment.paths.SUPPORTED_CONFIG_FILES;
+
+    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
         const std::string path = base_config_path + SUPPORTED_CONFIG_FILES[i];
         LoadConfigurationsPath(available_layers, path.c_str());
     }
@@ -145,7 +145,9 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
 bool ConfigurationManager::HasFile(const Configuration &configuration) const {
     const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
+    const std::vector<std::string> &SUPPORTED_CONFIG_FILES = environment.paths.SUPPORTED_CONFIG_FILES;
+
+    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
         const std::string path = base_path + SUPPORTED_CONFIG_FILES[i] + "/" + configuration.key + ".json";
 
         std::FILE *file = std::fopen(path.c_str(), "r");
@@ -160,7 +162,9 @@ bool ConfigurationManager::HasFile(const Configuration &configuration) const {
 void ConfigurationManager::RemoveConfigurationFiles() {
     const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
+    const std::vector<std::string> &SUPPORTED_CONFIG_FILES = environment.paths.SUPPORTED_CONFIG_FILES;
+
+    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
         const std::string path = base_path + SUPPORTED_CONFIG_FILES[i];
 
         const QFileInfoList &configuration_files = GetJSONFiles(path.c_str());
@@ -173,7 +177,9 @@ void ConfigurationManager::RemoveConfigurationFiles() {
 void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
     const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    for (std::size_t i = 0, n = countof(SUPPORTED_CONFIG_FILES); i < n; ++i) {
+    const std::vector<std::string> &SUPPORTED_CONFIG_FILES = environment.paths.SUPPORTED_CONFIG_FILES;
+
+    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
         const std::string path = base_path + SUPPORTED_CONFIG_FILES[i];
 
         const QFileInfoList &configuration_files = GetJSONFiles(path.c_str());

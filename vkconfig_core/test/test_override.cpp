@@ -30,6 +30,8 @@
 
 #include <cstdlib>
 
+static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3", "_2_2_2", "_2_2_1"};
+
 extern bool WriteLayersOverride(const Environment& environment, const std::vector<Layer>& available_layers,
                                 const Configuration& configuration, const std::string& layers_path);
 
@@ -44,7 +46,7 @@ TEST(test_override, write_erase_2_2_2) {
     const std::string LAYERS("/override_layers_2_2_2_schema_1_2_1.json");
     const std::string SETTINGS("/override_settings_2_2_2_schema_1_2_1.txt");
 
-    PathManager paths("");
+    PathManager paths("", SUPPORTED_CONFIG_FILES);
     Environment env(paths, Version(1, 2, 170));
     env.Reset(Environment::DEFAULT);
 
@@ -101,7 +103,7 @@ TEST(test_override, write_erase_2_2_2) {
 TEST(test_override, vk_layer_settings_txt) {
     const char* LAYER = "VK_LAYER_LUNARG_reference_1_2_1";
 
-    PathManager paths("");
+    PathManager paths("", SUPPORTED_CONFIG_FILES);
     Environment env(paths, Version(1, 2, 162));
     env.Reset(Environment::DEFAULT);
 
@@ -256,7 +258,7 @@ TEST(test_override, vk_layer_settings_txt) {
 TEST(test_override, env_var) {
     const char* LAYER = "VK_LAYER_LUNARG_reference_1_2_1";
 
-    PathManager paths("");
+    PathManager paths("", SUPPORTED_CONFIG_FILES);
     Environment env(paths, Version(1, 2, 162));
     env.Reset(Environment::DEFAULT);
 

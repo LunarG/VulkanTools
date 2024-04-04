@@ -22,8 +22,10 @@
 
 #include <gtest/gtest.h>
 
+static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3", "_2_2_2", "_2_2_1"};
+
 TEST(test_configuration_manager, create_remove) {
-    PathManager path_manager("");
+    PathManager path_manager("", SUPPORTED_CONFIG_FILES);
     Environment environment(path_manager);
     environment.Reset(Environment::DEFAULT);
 
