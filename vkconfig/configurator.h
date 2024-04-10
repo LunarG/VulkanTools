@@ -71,5 +71,4 @@ class Configurator {
     LayerManager layers;
     ConfigurationManager configurations;
     std::vector<std::string> device_names;
-    bool request_vulkan_status;
 };

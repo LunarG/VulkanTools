@@ -429,85 +429,6 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="4">
-          <widget class="QComboBox" name="launcher_loader_debug">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan loader debug messages level used by the VK_LOADER_DEBUG environment variable on launch. &lt;br/&gt;&lt;br/&gt;Levels are:&lt;br/&gt;- error&lt;br/&gt;- warn (warnings)&lt;br/&gt;- info (information)&lt;br/&gt;- debug&lt;br/&gt;- layer (layer information)&lt;br/&gt;- implem (implementation/icd information)&lt;br/&gt;- all (report out all messages)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <item>
-            <property name="text">
-             <string>none</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string extracomment="Only Errors">error</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>warn</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>info</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>debug</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>layer</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>implem</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>all</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="5">
-          <widget class="QPushButton" name="push_button_launcher">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Launch</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QPushButton" name="push_button_clear_log">
            <property name="font">
@@ -521,7 +442,7 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0" colspan="6">
+         <item row="0" column="0" colspan="7">
           <widget class="QTreeWidget" name="launcher_tree">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -582,14 +503,20 @@
            </column>
           </widget>
          </item>
-         <item row="1" column="3">
-          <widget class="QLabel" name="label_5">
+         <item row="1" column="6">
+          <widget class="QPushButton" name="push_button_launcher">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
-            <string>Vulkan Loader Messages:</string>
+            <string>Launch</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="6">
+         <item row="2" column="0" colspan="7">
           <widget class="QPlainTextEdit" name="log_browser">
            <property name="font">
             <font>
@@ -599,6 +526,86 @@
            </property>
            <property name="acceptDrops">
             <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Vulkan Loader Messages:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="5">
+          <widget class="QComboBox" name="launcher_loader_debug">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan loader debug messages level used by the VK_LOADER_DEBUG environment variable on launch. &lt;br/&gt;&lt;br/&gt;Levels are:&lt;br/&gt;- error&lt;br/&gt;- warn (warnings)&lt;br/&gt;- info (information)&lt;br/&gt;- debug&lt;br/&gt;- layer (layer information)&lt;br/&gt;- implem (implementation/icd information)&lt;br/&gt;- all (report out all messages)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>none</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string extracomment="Only Errors">error</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>warn</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>info</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>debug</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>layer</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>implem</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>all</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="push_button_status">
+           <property name="text">
+            <string>Status</string>
            </property>
           </widget>
          </item>

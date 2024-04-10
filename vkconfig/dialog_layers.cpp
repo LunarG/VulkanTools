@@ -204,7 +204,6 @@ void LayersDialog::Reload() {
     this->configuration.user_defined_paths = user_defined_paths;
 
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
-    configurator.request_vulkan_status = true;
 }
 
 void LayersDialog::UpdateUI() {
