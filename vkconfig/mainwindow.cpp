@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022 Valve Corporation
- * Copyright (c) 2020-2022 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,11 +132,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->log_browser->document()->setMaximumBlockCount(2048);
     ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
-    if (configurator.configurations.HasSelectConfiguration()) {
-        _settings_tree_manager.CreateGUI(ui->settings_tree);
-    }
-
-    UpdateUI();
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 MainWindow::~MainWindow() { ResetLaunchApplication(); }
@@ -152,6 +149,10 @@ static std::string GetMainWindowTitle(bool active) {
 }
 
 void MainWindow::UpdateUI() {
+    static int check_recurse = 0;
+    ++check_recurse;
+    assert(check_recurse == 1);
+
     Configurator &configurator = Configurator::Get();
     const Environment &environment = Configurator::Get().environment;
     const bool has_select_configuration = configurator.configurations.HasSelectConfiguration();
@@ -239,7 +240,9 @@ void MainWindow::UpdateUI() {
     ui->push_button_launcher->setEnabled(has_application_list);
     ui->push_button_launcher->setText(_launch_application ? "Terminate" : "Launch");
     ui->check_box_clear_on_launch->setChecked(environment.Get(LAYOUT_LAUNCHER_NOT_CLEAR) != "true");
+    ui->launcher_loader_debug->blockSignals(true);  // avoid calling again UpdateUI
     ui->launcher_loader_debug->setCurrentIndex(GetLoaderMessageType(environment.GetLoaderMessageTypes()));
+    ui->launcher_loader_debug->blockSignals(false);
 
     // ui->launcher_loader_debug
     if (_launcher_executable_browse_button) {
@@ -267,16 +270,10 @@ void MainWindow::UpdateUI() {
         _launcher_log_file_edit->setEnabled(has_application_list);
     }
 
-    if (configurator.request_vulkan_status) {
-        ui->log_browser->clear();
-
-        ui->log_browser->setPlainText(("Vulkan Development Status:\n" + GenerateVulkanStatus()).c_str());
-        ui->push_button_clear_log->setEnabled(true);
-        configurator.request_vulkan_status = false;
-
-        if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-            _settings_tree_manager.CreateGUI(ui->settings_tree);
-        }
+    if (has_select_configuration) {
+        _settings_tree_manager.CreateGUI(ui->settings_tree);
+    } else {
+        _settings_tree_manager.CleanupGUI();
     }
 
     // Update title bar
@@ -285,6 +282,8 @@ void MainWindow::UpdateUI() {
             .c_str());
 
     ui->configuration_tree->blockSignals(false);
+
+    --check_recurse;
 }
 
 void MainWindow::UpdateConfiguration() {}
@@ -322,9 +321,6 @@ void MainWindow::LoadConfigurationList() {
     ui->configuration_tree->blockSignals(false);
     ui->configuration_tree->resizeColumnToContents(0);
     ui->configuration_tree->resizeColumnToContents(1);
-
-    configurator.request_vulkan_status = true;
-    this->UpdateUI();
 }
 
 /// Okay, because we are using custom controls, some of
@@ -351,9 +347,9 @@ void MainWindow::on_radio_override_clicked() {
     configurator.environment.SetMode(ui->check_box_persistent->isChecked() ? LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT
                                                                            : LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
-    configurator.request_vulkan_status = true;
 
-    UpdateUI();
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 // No override at all, fully controlled by the application
@@ -362,9 +358,9 @@ void MainWindow::on_radio_fully_clicked() {
 
     configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
-    configurator.request_vulkan_status = true;
 
-    UpdateUI();
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 // We want to apply to just the app list... hang on there. Doe we have the new loader?
@@ -443,7 +439,8 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
 
     Configurator::Get().ActivateConfiguration(item->configuration_name);
 
-    UpdateUI();
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
@@ -454,7 +451,8 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
         Configurator::Get().ActivateConfiguration(configuration_item->configuration_name);
     }
 
-    UpdateUI();
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 /// An item has been changed. Check for edit of the items name (configuration name)
@@ -514,9 +512,9 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             LoadConfigurationList();
             SelectConfigurationItem(new_name.c_str());
         }
-    }
 
-    UpdateUI();
+        // UpdateUI();
+    }
 }
 
 /// This gets called with keyboard selections and clicks that do not necessarily
@@ -535,14 +533,14 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
         if (configurator.configurations.GetActiveConfiguration()->key == configuration_item->configuration_name) return;
     }
 
-    _settings_tree_manager.CleanupGUI();
+    //_settings_tree_manager.CleanupGUI();
 
     configuration_item->radio_button->setChecked(true);
     configurator.ActivateConfiguration(configuration_item->configuration_name);
 
-    _settings_tree_manager.CreateGUI(ui->settings_tree);
+    // _settings_tree_manager.CreateGUI(ui->settings_tree);
 
-    ui->settings_tree->resizeColumnToContents(0);
+    // ui->settings_tree->resizeColumnToContents(0);
 }
 
 // Unused flag, just display the about Qt dialog
@@ -726,6 +724,9 @@ void MainWindow::on_push_button_duplicate_clicked() {
     configurator.ActivateConfiguration(duplicated_configuration.key);
 
     LoadConfigurationList();
+
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 void MainWindow::on_push_button_edit_clicked() {
@@ -738,6 +739,9 @@ void MainWindow::on_push_button_edit_clicked() {
     LayersDialog dlg(this, *configuration);
     if (dlg.exec() == QDialog::Accepted) {
         LoadConfigurationList();
+
+        this->UpdateUI();
+        this->UpdateStatus();
     }
 }
 
@@ -754,6 +758,9 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
     LayersDialog dlg(this, *configuration);
     if (dlg.exec() == QDialog::Accepted) {
         LoadConfigurationList();
+
+        this->UpdateUI();
+        this->UpdateStatus();
     }
 }
 
@@ -778,6 +785,9 @@ void MainWindow::NewClicked() {
     }
 
     LoadConfigurationList();
+
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
@@ -793,12 +803,11 @@ void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
     alert.setIcon(QMessageBox::Warning);
     if (alert.exec() == QMessageBox::No) return;
 
-    _settings_tree_manager.CleanupGUI();
-
     Configurator &configurator = Configurator::Get();
     configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, configuration_name);
-    configurator.request_vulkan_status = true;
     LoadConfigurationList();
+
+    this->UpdateUI();
 }
 
 void MainWindow::RemoveClicked(ConfigurationListItem *item) {
@@ -839,6 +848,9 @@ void MainWindow::ResetClicked(ConfigurationListItem *item) {
     configuration->Reset(configurator.layers.available_layers, configurator.path);
 
     LoadConfigurationList();
+
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 void MainWindow::RenameClicked(ConfigurationListItem *item) {
@@ -873,6 +885,9 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
     }
     assert(new_item);
     ui->configuration_tree->editItem(new_item, 1);
+
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 void MainWindow::ImportClicked(ConfigurationListItem *item) {
@@ -885,6 +900,9 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
 
     configurator.configurations.ImportConfiguration(configurator.layers.available_layers, full_import_path);
     LoadConfigurationList();
+
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 void MainWindow::ExportClicked(ConfigurationListItem *item) {
@@ -910,6 +928,9 @@ void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
         configurator.configurations.ReloadDefaultsConfigurations(configurator.layers.available_layers);
 
         LoadConfigurationList();
+
+        this->UpdateUI();
+        this->UpdateStatus();
     }
 }
 
@@ -1067,9 +1088,8 @@ void MainWindow::OnLauncherLoaderMessageChanged(int level) {
     configurator.environment.SetLoaderMessageTypes(GetLoaderMessageFlags(static_cast<LoaderMessageType>(level)));
 
     if (ui->check_box_clear_on_launch->isChecked()) {
-        configurator.request_vulkan_status = true;
-
         this->UpdateUI();
+        this->UpdateStatus();
     }
 }
 
@@ -1172,6 +1192,20 @@ void MainWindow::on_push_button_clear_log_clicked() {
     ui->log_browser->clear();
     ui->log_browser->update();
     ui->push_button_clear_log->setEnabled(false);
+}
+
+void MainWindow::on_push_button_status_clicked() { this->UpdateStatus(); }
+
+void MainWindow::UpdateStatus() {
+    ui->push_button_clear_log->setEnabled(true);
+
+    QString text = ("Vulkan Development Status:\n" + GenerateVulkanStatus() + "\n").c_str();
+
+    if (!ui->check_box_clear_on_launch->isChecked()) {
+        text += ui->log_browser->toPlainText();
+    }
+
+    ui->log_browser->setPlainText(text);
 }
 
 const Layer *GetLayer(QTreeWidget *tree, QTreeWidgetItem *item) {
@@ -1285,11 +1319,11 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                         break;
                 }
                 configuration->setting_tree_state.clear();
-                _settings_tree_manager.CreateGUI(ui->settings_tree);
+                //_settings_tree_manager.CreateGUI(ui->settings_tree);
             } else if (action == show_advanced_setting_action) {
                 configuration->view_advanced_settings = action->isChecked();
                 configuration->setting_tree_state.clear();
-                _settings_tree_manager.CreateGUI(ui->settings_tree);
+                //_settings_tree_manager.CreateGUI(ui->settings_tree);
             } else if (action == export_html_action) {
                 const std::string path = format("%s/%s.html", GetPath(BUILTIN_PATH_APPDATA).c_str(), layer->key.c_str());
                 ExportHtmlDoc(*layer, path);

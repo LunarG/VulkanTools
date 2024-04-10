@@ -132,6 +132,7 @@ class MainWindow : public QMainWindow {
 
     void on_push_button_launcher_clicked();
     void on_push_button_clear_log_clicked();
+    void on_push_button_status_clicked();
     void on_radio_fully_clicked();
     void on_radio_override_clicked();
     void on_check_box_apply_list_clicked();
@@ -164,6 +165,7 @@ class MainWindow : public QMainWindow {
     void ResetLaunchApplication();
     void StartTool(Tool tool);
     QStringList BuildEnvVariables() const;
+    void UpdateStatus();
 
     std::unique_ptr<Ui::MainWindow> ui;
     bool been_warned_about_old_loader;

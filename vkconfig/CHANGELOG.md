@@ -13,6 +13,9 @@
 
 ## [Vulkan Configurator 2.5.7](https://github.com/LunarG/VulkanTools/tree/main) - May 2024
 
+### Improvements:
+- Add 'status' to give an explicit control to print the Vulkan status log
+
 ### Fixes:
 - Fix clear log when changing `Vulkan Kiader Messages` type when `Clear log on action` is unchecked
 - Fix spaces in application launcher command-line 'path' arguments
