@@ -73,7 +73,8 @@ void WidgetSettingFilesystem::Refresh(RefreshAreas refresh_areas) {
         LoadPath(this->data().GetValue());
 
         this->field->blockSignals(true);
-        this->field->setText(ReplaceBuiltInVariable(this->data().GetValue()).c_str());
+        this->field->setText(this->data().GetValue());
+        this->field->setToolTip(ReplaceBuiltInVariable(this->data().GetValue()).c_str());
         this->field->blockSignals(false);
 
         if (::CheckSettingOverridden(this->meta)) {

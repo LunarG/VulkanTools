@@ -223,10 +223,7 @@ void MainWindow::UpdateUI() {
         _launcher_apps_combo->setCurrentIndex(environment.GetActiveApplicationIndex());
 
         const Application &application = environment.GetActiveApplication();
-        _launcher_executable->setText(application.executable_path.c_str());
-        _launcher_arguments->setText(application.arguments.c_str());
-        _launcher_working->setText(application.working_folder.c_str());
-        _launcher_log_file_edit->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
+        this->UpdateApplicationUI(application);
     }
 
     _launcher_apps_combo->blockSignals(false);
@@ -1163,6 +1160,16 @@ void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
     application.working_folder = working_folder.toStdString();
 }
 
+void MainWindow::UpdateApplicationUI(const Application &application) {
+    _launcher_executable->setText(application.executable_path.c_str());
+    _launcher_executable->setToolTip(ReplaceBuiltInVariable(application.executable_path.c_str()).c_str());
+    _launcher_arguments->setText(application.arguments.c_str());
+    _launcher_working->setText(application.working_folder.c_str());
+    _launcher_working->setToolTip(ReplaceBuiltInVariable(application.working_folder.c_str()).c_str());
+    _launcher_log_file_edit->setText(application.log_file.c_str());
+    _launcher_log_file_edit->setToolTip(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
+}
+
 // Launch app change
 void MainWindow::launchItemChanged(int application_index) {
     if (application_index < 0) return;
@@ -1171,11 +1178,8 @@ void MainWindow::launchItemChanged(int application_index) {
 
     environment.SelectActiveApplication(application_index);
 
-    Application &application = environment.GetApplication(application_index);
-    _launcher_executable->setText(application.executable_path.c_str());
-    _launcher_working->setText(application.working_folder.c_str());
-    _launcher_arguments->setText(application.arguments.c_str());
-    _launcher_log_file_edit->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
+    const Application &application = environment.GetApplication(application_index);
+    this->UpdateApplicationUI(application);
 }
 
 /// New command line arguments. Update them.
@@ -1507,9 +1511,9 @@ void MainWindow::on_push_button_launcher_clicked() {
     assert(!active_application.app_name.empty());
     launch_log += format("- Application: %s\n", active_application.app_name.c_str());
     assert(!active_application.executable_path.empty());
-    launch_log += format("- Executable: %s\n", active_application.executable_path.c_str());
+    launch_log += format("- Executable: %s\n", ReplaceBuiltInVariable(active_application.executable_path.c_str()).c_str());
     assert(!active_application.working_folder.empty());
-    launch_log += format("- Working Directory: %s\n", active_application.working_folder.c_str());
+    launch_log += format("- Working Directory: %s\n", ReplaceBuiltInVariable(active_application.working_folder.c_str()).c_str());
     if (!active_application.arguments.empty())
         launch_log += format("- Command-line Arguments: %s\n", active_application.arguments.c_str());
     if (!actual_log_file.empty()) launch_log += format("- Log file: %s\n", actual_log_file.c_str());
@@ -1541,8 +1545,8 @@ void MainWindow::on_push_button_launcher_clicked() {
     connect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
             SLOT(processClosed(int, QProcess::ExitStatus)));
 
-    _launch_application->setProgram(active_application.executable_path.c_str());
-    _launch_application->setWorkingDirectory(active_application.working_folder.c_str());
+    _launch_application->setProgram(ReplaceBuiltInVariable(active_application.executable_path.c_str()).c_str());
+    _launch_application->setWorkingDirectory(ReplaceBuiltInVariable(active_application.working_folder.c_str()).c_str());
     _launch_application->setEnvironment(BuildEnvVariables());
 
     if (!active_application.arguments.empty()) {
@@ -1559,7 +1563,8 @@ void MainWindow::on_push_button_launcher_clicked() {
         _launch_application->deleteLater();
         _launch_application = nullptr;
 
-        const std::string failed_log = std::string("Failed to launch ") + active_application.executable_path.c_str() + "!\n";
+        const std::string failed_log =
+            std::string("Failed to launch ") + ReplaceBuiltInVariable(active_application.executable_path.c_str()).c_str() + "!\n";
         Log(failed_log);
     }
 

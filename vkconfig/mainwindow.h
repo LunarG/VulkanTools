@@ -61,6 +61,7 @@ class MainWindow : public QMainWindow {
     ~MainWindow();
 
     void UpdateUI();
+    void UpdateApplicationUI(const Application &application);
     void UpdateConfiguration();
 
    private:

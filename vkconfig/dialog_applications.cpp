@@ -217,9 +217,12 @@ void ApplicationsDialog::selectedPathChanged(QTreeWidgetItem *current_item, QTre
 
     ui->lineEditAppName->setText(application.app_name.c_str());
     ui->lineEditExecutable->setText(application.executable_path.c_str());
+    ui->lineEditExecutable->setToolTip(ReplaceBuiltInVariable(application.executable_path.c_str()).c_str());
     ui->lineEditWorkingFolder->setText(application.working_folder.c_str());
+    ui->lineEditWorkingFolder->setToolTip(ReplaceBuiltInVariable(application.working_folder.c_str()).c_str());
     ui->lineEditCmdArgs->setText(application.arguments.c_str());
-    ui->lineEditLogFile->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
+    ui->lineEditLogFile->setText(application.log_file.c_str());
+    ui->lineEditLogFile->setToolTip(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
 }
 
 void ApplicationsDialog::itemChanged(QTreeWidgetItem *item, int column) {
