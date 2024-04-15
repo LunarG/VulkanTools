@@ -28,6 +28,10 @@
 
 #include <cassert>
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 int main(int argc, char* argv[]) {
     ::vkconfig_version = "vkconfig3";
 
@@ -40,6 +44,15 @@ int main(int argc, char* argv[]) {
         command_line.usage();
         return -1;
     }
+
+#ifdef _WIN32
+    if (command_line.command != COMMAND_GUI || command_line.command != COMMAND_VULKAN_SDK) {
+        if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+            freopen("CONOUT$", "w", stdout);
+            freopen("CONOUT$", "w", stderr);
+        }
+    }
+#endif
 
     switch (command_line.command) {
         case COMMAND_SHOW_USAGE: {
