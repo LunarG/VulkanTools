@@ -117,7 +117,10 @@ static void WriteSettingsOverviewMarkdown(std::string& text, const Layer& layer,
 }
 
 static const std::string GetLayerSettingsDocURL(const Layer& layer) {
-    if (layer.api_version > Version(1, 7, 182)) {
+    if (layer.api_version >= Version(1, 3, 268)) {
+        return format("https://github.com/LunarG/VulkanTools/tree/sdk-%s.0/vkconfig#vulkan-layers-settings",
+                      layer.api_version.str().c_str());
+    } else if (layer.api_version > Version(1, 2, 182)) {
         return format("https://github.com/LunarG/VulkanTools/tree/sdk-%s.0/vkconfig#vulkan-layers-settings",
                       layer.api_version.str().c_str());
     } else {
@@ -156,7 +159,8 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
             }
 
             text += format(
-                "\t<li>Setting Type: <span class=\"code\">%s</span></li>\n\t<li>Setting Default Value: <span class=\"code\">%s</span></li>\n",
+                "\t<li>Setting Type: <span class=\"code\">%s</span></li>\n\t<li>Setting Default Value: <span "
+                "class=\"code\">%s</span></li>\n",
                 GetToken(setting->type), setting->Export(EXPORT_MODE_DOC).c_str());
 
             text += "</ul>\n";

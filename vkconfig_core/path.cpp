@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@
 
 #include <cassert>
 #include <cstring>
+
+std::string vkconfig_version = "vkconfig";
 
 Path::Path() {}
 
@@ -77,9 +79,9 @@ std::string GetPath(BuiltinPath path) {
             break;
         }
         case BUILTIN_PATH_CONFIG_REF: {
-            static const char* TABLE[] = {
-                "/vkconfig3/configurations",        // ENVIRONMENT_WIN32
-                "/lunarg-vkconfig3/configurations"  // ENVIRONMENT_UNIX
+            static const std::string TABLE[] = {
+                "/" + vkconfig_version + "/configurations",        // ENVIRONMENT_WIN32
+                "/lunarg-" + vkconfig_version + "/configurations"  // ENVIRONMENT_UNIX
             };
             static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");
@@ -99,9 +101,9 @@ std::string GetPath(BuiltinPath path) {
             break;
         }
         case BUILTIN_PATH_OVERRIDE_SETTINGS: {
-            static const char* TABLE[] = {
-                "/vkconfig3/override",  // ENVIRONMENT_WIN32
-                "/settings.d"           // ENVIRONMENT_UNIX
+            static const std::string TABLE[] = {
+                "/" + vkconfig_version + "/override",  // ENVIRONMENT_WIN32
+                "/settings.d"                          // ENVIRONMENT_UNIX
             };
             static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");
@@ -116,9 +118,9 @@ std::string GetPath(BuiltinPath path) {
             break;
         }
         case BUILTIN_PATH_OVERRIDE_LAYERS: {
-            static const char* TABLE[] = {
-                "/vkconfig3/override",  // ENVIRONMENT_WIN32
-                "/implicit_layer.d"     // ENVIRONMENT_UNIX
+            static const std::string TABLE[] = {
+                "/" + vkconfig_version + "/override",  // ENVIRONMENT_WIN32
+                "/implicit_layer.d"                    // ENVIRONMENT_UNIX
             };
             static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");
