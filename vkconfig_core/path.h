@@ -44,6 +44,8 @@ enum BuiltinPath {
 
 enum { BUILTIN_PATH_COUNT = BUILTIN_PATH_LAST - BUILTIN_PATH_FIRST + 1 };
 
+extern std::string vkconfig_version;
+
 class Path {
    public:
     Path();

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022 Valve Corporation
- * Copyright (c) 2020-2022 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,13 @@
 #include "main_doc.h"
 #include "main_signal.h"
 
+#include "../vkconfig_core/path.h"
+
 #include <cassert>
 
 int main(int argc, char* argv[]) {
+    ::vkconfig_version = "vkconfig3";
+
     InitSignals();
 
     const CommandLine command_line(argc, argv);
