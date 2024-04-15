@@ -576,7 +576,7 @@ std::string Environment::GetDefaultExecutablePath(const std::string& executable_
     static const char* DEFAULT_PATH = VKC_PLATFORM == VKC_PLATFORM_MACOS ? "/../.." : "";
 
     // Using VULKAN_SDK environement variable
-    const std::string env(paths_manager.GetPath(PATH_VULKAN_SDK));
+    const std::string env("${VULKAN_SDK}");
     if (!env.empty()) {
         static const char* TABLE[] = {
             "/Bin",  // ENVIRONMENT_WIN32
@@ -585,39 +585,41 @@ std::string Environment::GetDefaultExecutablePath(const std::string& executable_
         static_assert(countof(TABLE) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
         const std::string search_path = env + TABLE[VKC_ENV] + DEFAULT_PATH + executable_name.c_str();
-        const QFileInfo file_info(search_path.c_str());
+        const QFileInfo file_info(ReplaceBuiltInVariable(search_path).c_str());
         if (file_info.exists()) {
-            return file_info.absoluteFilePath().toStdString();
+            return search_path;
         }
     }
 
     // Such the default applications from package installation (Linux)
     if (VKC_PLATFORM == VKC_PLATFORM_LINUX) {
         const std::string search_path = std::string("/usr/bin") + DEFAULT_PATH + executable_name.c_str();
-        const QFileInfo file_info(search_path.c_str());
+        const QFileInfo file_info(ReplaceBuiltInVariable(search_path).c_str());
         if (file_info.exists()) {
-            return file_info.absoluteFilePath().toStdString();
+            return search_path;
         }
     } else if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
-        std::string search_path = std::string("/Applications") + executable_name.c_str();
+        const std::string search_path = std::string("/Applications") + executable_name.c_str();
+        std::string replaced_string = ReplaceBuiltInVariable(search_path);
         const QFileInfo file_info(search_path.c_str());
-        if (file_info.exists() && ExactExecutableFromAppBundle(search_path)) {
-            return search_path;
+        if (file_info.exists() && ExactExecutableFromAppBundle(replaced_string)) {
+            return replaced_string;
         }
     }
 
     // Using relative path to vkconfig in case SDK is not "installed"
     if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
-        std::string search_path = std::string("..") + DEFAULT_PATH + executable_name.c_str();
-        const QFileInfo file_info(search_path.c_str());
-        if (file_info.exists() && ExactExecutableFromAppBundle(search_path)) {
-            return search_path;
+        const std::string search_path = std::string("..") + DEFAULT_PATH + executable_name.c_str();
+        std::string replaced_string = ReplaceBuiltInVariable(search_path);
+        const QFileInfo file_info(replaced_string.c_str());
+        if (file_info.exists() && ExactExecutableFromAppBundle(replaced_string)) {
+            return replaced_string;
         }
     } else {
-        const QString search_path = QString(".") + DEFAULT_PATH + executable_name.c_str();
-        const QFileInfo file_info(search_path);
+        const std::string search_path = std::string(".") + DEFAULT_PATH + executable_name.c_str();
+        const QFileInfo file_info(ReplaceBuiltInVariable(search_path).c_str());
         if (file_info.exists()) {
-            return file_info.absoluteFilePath().toStdString();
+            return search_path;
         }
     }
 
