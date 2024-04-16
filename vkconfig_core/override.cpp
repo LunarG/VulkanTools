@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022 Valve Corporation
- * Copyright (c) 2020-2022 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,10 +137,12 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
         for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
             if (!applications[i].override_layers) continue;
 
-            const std::string& executable_path(
-                ConvertNativeSeparators(QFileInfo(applications[i].executable_path.c_str()).absoluteFilePath().toStdString()));
-            assert(QFileInfo(executable_path.c_str()).exists());
-            json_applist.append(executable_path.c_str());
+            const std::string& executable_path =
+                ConvertNativeSeparators(ReplaceBuiltInVariable(applications[i].executable_path.c_str()));
+
+            const std::string& absolute_path(QFileInfo(executable_path.c_str()).absoluteFilePath().toStdString());
+            assert(QFileInfo(absolute_path.c_str()).exists());
+            json_applist.append(absolute_path.c_str());
         }
 
         layer.insert("app_keys", json_applist);

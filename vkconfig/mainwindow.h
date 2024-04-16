@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@
 #include <QShowEvent>
 #include <QResizeEvent>
 #include <QProcess>
+#include <QSystemTrayIcon>
 
 #include <memory>
 #include <string>
@@ -94,6 +95,10 @@ class MainWindow : public QMainWindow {
     QPushButton *_launcher_executable_browse_button;
     QPushButton *_launcher_working_browse_button;
     QPushButton *_launcher_log_file_browse_button;
+    QSystemTrayIcon *_tray_icon;
+    QMenu *_tray_icon_menu;
+    QAction *_tray_restore_action;
+    QAction *_tray_quit_action;
 
     void RemoveClicked(ConfigurationListItem *item);
     void ResetClicked(ConfigurationListItem *item);
@@ -104,6 +109,9 @@ class MainWindow : public QMainWindow {
     void ExportClicked(ConfigurationListItem *item);
     void ImportClicked(ConfigurationListItem *item);
     void ReloadDefaultClicked(ConfigurationListItem *item);
+
+   private slots:
+    void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
    public Q_SLOTS:
     void toolsVulkanInfo(bool checked);
@@ -134,8 +142,6 @@ class MainWindow : public QMainWindow {
     void on_push_button_launcher_clicked();
     void on_push_button_clear_log_clicked();
     void on_push_button_status_clicked();
-    void on_radio_fully_clicked();
-    void on_radio_override_clicked();
     void on_check_box_apply_list_clicked();
     void on_check_box_persistent_clicked();
     void on_check_box_clear_on_launch_clicked();
@@ -145,6 +151,7 @@ class MainWindow : public QMainWindow {
     void on_push_button_remove_clicked();
     void on_push_button_duplicate_clicked();
 
+    void OnComboBoxModeChanged(int index);
     void OnConfigurationItemExpanded(QTreeWidgetItem *item);
     void OnConfigurationItemClicked(bool checked);
     void OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
@@ -160,6 +167,9 @@ class MainWindow : public QMainWindow {
    private:
     MainWindow(const MainWindow &) = delete;
     MainWindow &operator=(const MainWindow &) = delete;
+
+    void InitTray();
+    void UpdateTray();
 
     void RemoveConfiguration(const std::string &configuration_name);
     bool SelectConfigurationItem(const std::string &configuration_name);

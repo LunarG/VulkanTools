@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@
 #include <QShowEvent>
 #include <QResizeEvent>
 #include <QProcess>
+#include <QSystemTrayIcon>
 
 #include <memory>
 #include <string>
@@ -207,6 +208,10 @@ class MainWindow : public QMainWindow {
     QPushButton *_launcher_executable_browse_button;
     QPushButton *_launcher_working_browse_button;
     QPushButton *_launcher_log_file_browse_button;
+    QSystemTrayIcon *_tray_icon;
+    QMenu *_tray_icon_menu;
+    QAction *_tray_restore_action;
+    QAction *_tray_quit_action;
 
     void RemoveClicked(ConfigurationListItem *item);
     void ResetClicked(ConfigurationListItem *item);
@@ -220,6 +225,9 @@ class MainWindow : public QMainWindow {
 
     void AddLayerPathItem(const std::string &layer_path);
     void AddLayerItem(const Parameter &parameter);
+
+   private slots:
+    void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
    public Q_SLOTS:
     void toolsVulkanInfo(bool checked);
@@ -275,6 +283,8 @@ class MainWindow : public QMainWindow {
    private:
     MainWindow(const MainWindow &) = delete;
     MainWindow &operator=(const MainWindow &) = delete;
+
+    void InitTray();
 
     void RemoveConfiguration(const std::string &configuration_name);
     bool SelectConfigurationItem(const std::string &configuration_name);

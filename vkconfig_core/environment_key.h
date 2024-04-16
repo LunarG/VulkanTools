@@ -23,6 +23,8 @@
 // Saved settings for the application
 #define VKCONFIG_KEY_INITIALIZE_FILES "FirstTimeRun"
 #define VKCONFIG_KEY_LAYERS_MODE "LayersMode"
+#define VKCONFIG_KEY_USE_APPLICATION_LIST "UseApplicationlist"
+#define VKCONFIG_KEY_USE_SYSTEM_TRAY "UseSystemTray"
 #define VKCONFIG_KEY_LOADER_MESSAGE "LoaderMessage"
 
 #define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"

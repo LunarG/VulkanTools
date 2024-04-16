@@ -3,6 +3,8 @@
         <file>resourcefiles/vulkan_configurator.png</file>
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
+        <file>resourcefiles/vkconfig-off.png</file>
+        <file>resourcefiles/vkconfig-on.png</file>
     </qresource>
 
     <qresource prefix="/configurations">
