@@ -11,7 +11,10 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.5.7](https://github.com/LunarG/VulkanTools/tree/main) - May 2024
+## [Vulkan Configurator 2.6.0](https://github.com/LunarG/VulkanTools/tree/main) - May 2024
+
+### Features:
+- Add system tray
 
 ### Improvements:
 - Add 'status' to give an explicit control to print the Vulkan status log
@@ -21,13 +24,15 @@
 ### Fixes:
 - Fix clear log when changing `Vulkan Kiader Messages` type when `Clear log on action` is unchecked
 - Fix spaces in application launcher command-line 'path' arguments
+- Fix 'Use of application list' check box not being saved
+- Clean up UI update
 
-## [Vulkan Configurator 2.5.6](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.280.0) - March 2024
+## [Vulkan Configurator 2.5.6](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.280.0) - March 2024
 
 ### Fixes:
 - Fix confusing synchronization built-in configuration
 
-## [Vulkan Configurator 2.5.5](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.275.0) - January 2024
+## [Vulkan Configurator 2.5.5](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.275.0) - January 2024
 
 ### Improvements:
 - Add `LOAD_FOLDER` setting type

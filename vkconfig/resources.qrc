@@ -2,6 +2,9 @@
     <qresource prefix="/">
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
+        <file>resourcefiles/vulkan.ico</file>
+        <file>resourcefiles/vkconfig-off.png</file>
+        <file>resourcefiles/vkconfig-on.png</file>
     </qresource>
 
     <qresource prefix="/configurations">

@@ -70,6 +70,10 @@ int run_gui(int argc, char* argv[], const CommandLine& command_line) {
 
     if (!configurator.Init()) return -1;
 
+    if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        QApplication::setQuitOnLastWindowClosed(false);
+    }
+
     // The main GUI is driven here
     MainWindow main_window;
     main_window.show();

@@ -34,8 +34,8 @@
 enum LayersMode {
     LAYERS_MODE_BY_APPLICATIONS = 0,
     LAYERS_MODE_BY_CONFIGURATOR_RUNNING,
-    LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT,
-    LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED,
+    // LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT,
+    LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED
 };
 
 enum LayoutState {
@@ -193,6 +193,9 @@ class Environment {
     bool GetUseApplicationList() const;
     void SetUseApplicationList(bool enable);
 
+    bool GetUseSystemTray() const { return this->use_system_tray; }
+    void SetUseSystemTray(bool enable) { this->use_system_tray = enable; }
+
     LayersMode GetMode() const;
     void SetMode(LayersMode mode);
 
@@ -228,6 +231,7 @@ class Environment {
     Version vkconfig3_version;
     LayersMode layers_mode;
     bool use_application_list;
+    bool use_system_tray;
     int loader_message_types;
 
     std::array<std::string, ACTIVE_COUNT> actives;

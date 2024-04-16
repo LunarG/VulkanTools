@@ -134,6 +134,10 @@ MainWindow::MainWindow(QWidget *parent)
       _launcher_executable_browse_button(nullptr),
       _launcher_working_browse_button(nullptr),
       _launcher_log_file_browse_button(nullptr),
+      _tray_icon(nullptr),
+      _tray_icon_menu(nullptr),
+      _tray_restore_action(nullptr),
+      _tray_quit_action(nullptr),
       ui(new Ui::MainWindow),
       been_warned_about_old_loader(false) {
     ui->setupUi(this);
@@ -207,10 +211,76 @@ MainWindow::MainWindow(QWidget *parent)
         _settings_tree_manager.CreateGUI(ui->settings_tree);
     }
 
-    UpdateUI();
+    this->InitTray();
+    this->UpdateUI();
 }
 
 MainWindow::~MainWindow() { ResetLaunchApplication(); }
+
+void MainWindow::InitTray() {
+    if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        QApplication::setQuitOnLastWindowClosed(true);
+    }
+
+    this->_tray_quit_action = new QAction(tr("&Quit"), this);
+    connect(this->_tray_quit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
+
+    this->_tray_restore_action = new QAction(tr("Open &Vulkan Configurator"), this);
+    connect(this->_tray_restore_action, &QAction::triggered, this, &QWidget::showNormal);
+
+    this->_tray_icon_menu = new QMenu(this);
+    this->_tray_icon_menu->addAction(this->_tray_restore_action);
+    this->_tray_icon_menu->addAction(this->_tray_quit_action);
+
+    this->_tray_icon = new QSystemTrayIcon(this);
+    this->_tray_icon->setContextMenu(this->_tray_icon_menu);
+    this->_tray_icon->setVisible(true);
+    this->_tray_icon->setToolTip("Vulkan Configurator");
+    this->_tray_icon->show();
+
+    this->connect(this->_tray_icon, &QSystemTrayIcon::activated, this, &MainWindow::iconActivated);
+}
+
+void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
+    Configurator &configurator = Configurator::Get();
+
+    switch (reason) {
+        case QSystemTrayIcon::Trigger:
+        case QSystemTrayIcon::MiddleClick:
+            if (configurator.environment.GetMode() == LAYERS_MODE_BY_APPLICATIONS) {
+                configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
+            } else {
+                configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+            }
+
+            if (configurator.environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS) {
+                const QIcon icon(":/resourcefiles/vkconfig-on.png");
+
+                this->setWindowIcon(icon);
+                this->_tray_icon->setIcon(icon);
+            } else {
+                const QIcon icon(":/resourcefiles/vkconfig-off.png");
+
+                this->setWindowIcon(icon);
+                this->_tray_icon->setIcon(icon);
+            }
+
+            configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+
+            this->UpdateUI();
+            break;
+        default:
+        case QSystemTrayIcon::DoubleClick:
+            /*
+            if (this->isVisible()) {
+                QWidget::hide();
+            } else {
+                QWidget::showNormal();
+            }
+            */
+            break;
+    }
+}
 
 static std::string GetMainWindowTitle(bool active) {
 #if VKCONFIG_DATE
@@ -324,9 +394,27 @@ void MainWindow::UpdateUI() {
 
     ui->combo_box_mode->setCurrentIndex(environment.GetMode());
 
-    const bool enable_layer_ui = (ui->combo_box_mode->currentIndex() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING ||
-                                  ui->combo_box_mode->currentIndex() == LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT) &&
-                                 has_select_configuration;
+    const bool enable_layer_ui =
+        (ui->combo_box_mode->currentIndex() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING) && has_select_configuration;
+
+    // System tray update
+    QApplication::setQuitOnLastWindowClosed(false);
+
+    if (true) {
+        if (environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS) {
+            const QIcon icon(":/resourcefiles/vkconfig-on.png");
+
+            this->setWindowIcon(icon);
+            this->_tray_icon->setIcon(icon);
+            this->_tray_icon->setToolTip("Layers controlled by the Vulkan Configurator");
+        } else {
+            const QIcon icon(":/resourcefiles/vkconfig-off.png");
+
+            this->setWindowIcon(icon);
+            this->_tray_icon->setIcon(icon);
+            this->_tray_icon->setToolTip("Layers controlled by the Vulkan Applications");
+        }
+    }
 
     // ui->tree_layers_paths->blockSignals(true);
 
@@ -567,9 +655,6 @@ void MainWindow::LoadConfigurationList() {
     // ui->tree_configurations->blockSignals(false);
     // ui->tree_configurations->resizeColumnToContents(0);
     // ui->tree_configurations->resizeColumnToContents(1);
-
-    configurator.request_vulkan_status = true;
-    this->UpdateUI();
 }
 
 /// Okay, because we are using custom controls, some of
@@ -870,35 +955,34 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     // Alert the user to the current state of the vulkan configurator and
     // give them the option to not shutdown.
-    QSettings settings;
-    if (!settings.value("vkconfig_override", false).toBool()) {
-        std::string shut_down_state;
+    if (environment.GetUseSystemTray()) {
+        QSettings settings;
+        if (!settings.value("vkconfig_system_tray", false).toBool()) {
+            std::string shut_down_state;
 
-        if (environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_PERSISTENT) {
-            shut_down_state = "Vulkan Layers override will remain in effect when Vulkan Configurator closes.";
+            if (environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING) {
+                shut_down_state =
+                    "Vulkan Layers override will remain in effect while Vulkan Configurator remain active in the system tray.";
+            } else {
+                shut_down_state =
+                    "No Vulkan layers override will be active when Vulkan Configurator remain active in the system tray.";
+            }
 
-            if (environment.GetUseApplicationList())
-                shut_down_state += " Overrides will be applied only to the application list.";
-            else
-                shut_down_state += " Overrides will be applied to ALL Vulkan applications.";
-        } else {
-            shut_down_state = "No Vulkan layers override will be active when Vulkan Configurator closes.";
-        }
+            QMessageBox alert(this);
+            alert.setWindowTitle("Vulkan Configurator will remain in the system tray");
+            alert.setText(shut_down_state.c_str());
+            alert.setIcon(QMessageBox::Question);
+            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            alert.setCheckBox(new QCheckBox("Do not show again."));
+            alert.setInformativeText("Are you still ready to move Vulkan Configurator in the system tray?");
 
-        QMessageBox alert(this);
-        alert.setWindowTitle("Vulkan Layers configuration state on exit");
-        alert.setText(shut_down_state.c_str());
-        alert.setIcon(QMessageBox::Question);
-        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        alert.setCheckBox(new QCheckBox("Do not show again."));
-        alert.setInformativeText("Are you still ready to close Vulkan Configurator?");
+            int ret_val = alert.exec();
+            settings.setValue("vkconfig_system_tray", alert.checkBox()->isChecked());
 
-        int ret_val = alert.exec();
-        settings.setValue("vkconfig_override", alert.checkBox()->isChecked());
-
-        if (ret_val == QMessageBox::No) {
-            event->ignore();
-            return;
+            if (ret_val == QMessageBox::No) {
+                event->ignore();
+                return;
+            }
         }
     }
 

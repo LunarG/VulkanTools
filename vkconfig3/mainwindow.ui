@@ -181,12 +181,7 @@
                    </item>
                    <item>
                     <property name="text">
-                     <string>Layers Controlled by Vulkan Configurator while Running</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Layers Controlled by Vulkan Configurator even after Exit</string>
+                     <string>Layers Controlled by Vulkan Configurator</string>
                     </property>
                    </item>
                    <item>

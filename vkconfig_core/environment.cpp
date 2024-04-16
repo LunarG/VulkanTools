@@ -171,6 +171,7 @@ void Environment::Reset(ResetMode mode) {
             this->vkconfig3_version = Version::VKCONFIG3;
             this->layers_mode = LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
             this->use_application_list = false;
+            this->use_system_tray = true;
 
             for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
                 actives[i] = GetActiveDefault(static_cast<Active>(i));
@@ -239,6 +240,11 @@ bool Environment::Load() {
 
     // Load 'override_mode"
     this->layers_mode = static_cast<LayersMode>(settings.value(VKCONFIG_KEY_LAYERS_MODE, QVariant(layers_mode)).toInt());
+
+    this->use_application_list =
+        static_cast<LayersMode>(settings.value(VKCONFIG_KEY_USE_APPLICATION_LIST, this->use_application_list).toBool());
+
+    this->use_system_tray = static_cast<LayersMode>(settings.value(VKCONFIG_KEY_USE_SYSTEM_TRAY, this->use_system_tray).toBool());
 
     // Load loader debug message state
     this->loader_message_types = settings.value(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types)).toInt();
@@ -347,8 +353,9 @@ bool Environment::Save() const {
     // Save 'version'
     settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, Version::LAYER_CONFIG.str().c_str());
 
-    // Save 'override_mode'
     settings.setValue(VKCONFIG_KEY_LAYERS_MODE, this->layers_mode);
+    settings.setValue(VKCONFIG_KEY_USE_APPLICATION_LIST, this->use_application_list);
+    settings.setValue(VKCONFIG_KEY_USE_SYSTEM_TRAY, this->use_system_tray);
 
     // Save 'loader_message'
     settings.setValue(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types));

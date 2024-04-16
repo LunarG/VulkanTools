@@ -231,19 +231,18 @@ void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &avai
     this->active_configuration = active_configuration;
 
     bool surrender = false;
-    if (this->active_configuration != nullptr) {
+    if (active_configuration != nullptr) {
         assert(!this->active_configuration->key.empty());
         environment.Set(ACTIVE_CONFIGURATION, this->active_configuration->key.c_str());
         surrender = !this->active_configuration->HasOverride();
     } else {
-        this->active_configuration = nullptr;
         surrender = true;
     }
 
-    if (surrender) {
+    if (surrender || environment.GetMode() == LAYERS_MODE_BY_APPLICATIONS) {
         SurrenderConfiguration(environment);
     } else {
-        assert(this->active_configuration != nullptr);
+        assert(active_configuration != nullptr);
         OverrideConfiguration(environment, available_layers, *active_configuration);
     }
 }
@@ -251,14 +250,15 @@ void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &avai
 void ConfigurationManager::RefreshConfiguration(const std::vector<Layer> &available_layers) {
     const std::string active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
 
-    if (!active_configuration_name.empty() && environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS) {
+    if (active_configuration_name.empty()) {
+        environment.Set(ACTIVE_CONFIGURATION, "");
+        SetActiveConfiguration(available_layers, nullptr);
+    } else {
         Configuration *active_configuration = FindByKey(available_configurations, active_configuration_name.c_str());
         if (active_configuration == nullptr) {
             environment.Set(ACTIVE_CONFIGURATION, "");
         }
         SetActiveConfiguration(available_layers, active_configuration);
-    } else {
-        SetActiveConfiguration(available_layers, nullptr);
     }
 }
 
