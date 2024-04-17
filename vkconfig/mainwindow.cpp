@@ -1459,33 +1459,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             // Create context menu here
             QMenu menu(ui->configuration_tree);
 
-            QAction *edit_action = new QAction("Edit...", nullptr);
-            edit_action->setEnabled(active && item != nullptr);
-            menu.addAction(edit_action);
-
-            menu.addSeparator();
-
-            QAction *new_action = new QAction("New...", nullptr);
-            new_action->setEnabled(active);
-            menu.addAction(new_action);
-
-            menu.addSeparator();
-
-            QAction *duplicate_action = new QAction("Duplicate", nullptr);
-            duplicate_action->setEnabled(active && item != nullptr);
-            menu.addAction(duplicate_action);
-
             QAction *rename_action = new QAction("Rename", nullptr);
             rename_action->setEnabled(active && item != nullptr);
             menu.addAction(rename_action);
-
-            QAction *remove_action = new QAction("Remove", nullptr);
-            remove_action->setEnabled(active && item != nullptr);
-            menu.addAction(remove_action);
-
-            QAction *reset_action = new QAction("Reset", nullptr);
-            reset_action->setEnabled(active && item != nullptr);
-            menu.addAction(reset_action);
 
             menu.addSeparator();
 
@@ -1499,6 +1475,12 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
+            QAction *reset_action = new QAction("Reset", nullptr);
+            reset_action->setEnabled(active && item != nullptr);
+            menu.addAction(reset_action);
+
+            menu.addSeparator();
+
             QAction *reload_default_action = new QAction("Reload Default Configurations", nullptr);
             reload_default_action->setEnabled(true);
             menu.addAction(reload_default_action);
@@ -1506,15 +1488,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QPoint point(right_click->globalX(), right_click->globalY());
             QAction *action = menu.exec(point);
 
-            if (action == edit_action) {
-                EditClicked(item);
-            } else if (action == new_action) {
-                NewClicked();
-            } else if (action == duplicate_action) {
-                DuplicateClicked(item);
-            } else if (action == remove_action) {
-                RemoveClicked(item);
-            } else if (action == rename_action) {
+            if (action == rename_action) {
                 RenameClicked(item);
             } else if (action == reset_action) {
                 ResetClicked(item);
