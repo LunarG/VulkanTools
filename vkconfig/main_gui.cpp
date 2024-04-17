@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,10 +69,6 @@ int run_gui(int argc, char* argv[], const CommandLine& command_line) {
     Configurator& configurator = Configurator::Get(command_line.command_vulkan_sdk);
 
     if (!configurator.Init()) return -1;
-
-    if (QSystemTrayIcon::isSystemTrayAvailable()) {
-        QApplication::setQuitOnLastWindowClosed(false);
-    }
 
     // The main GUI is driven here
     MainWindow main_window;

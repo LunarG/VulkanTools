@@ -269,10 +269,8 @@ void MainWindow::UpdateUI() {
 
     // Update configurations
     ui->group_box_configurations->setEnabled(environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
-
     ui->configuration_tree->setCurrentItem(nullptr);
-    // ui->configuration_tree->setSelectionMode(has_active_configuration ? QAbstractItemView::SingleSelection
-    //                                                                  : QAbstractItemView::NoSelection);
+
     for (int i = 0, n = ui->configuration_tree->topLevelItemCount(); i < n; ++i) {
         ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configuration_tree->topLevelItem(i));
         assert(item);
@@ -1419,11 +1417,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                         break;
                 }
                 configuration->setting_tree_state.clear();
-                //_settings_tree_manager.CreateGUI(ui->settings_tree);
             } else if (action == show_advanced_setting_action) {
                 configuration->view_advanced_settings = action->isChecked();
                 configuration->setting_tree_state.clear();
-                //_settings_tree_manager.CreateGUI(ui->settings_tree);
             } else if (action == export_html_action) {
                 const std::string path = format("%s/%s.html", GetPath(BUILTIN_PATH_APPDATA).c_str(), layer->key.c_str());
                 ExportHtmlDoc(*layer, path);
