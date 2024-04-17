@@ -253,6 +253,19 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
         this->url = ReadStringValue(json_layer_object, "url");
     }
 
+    if (json_layer_object.value("disable_environment") != QJsonValue::Undefined) {
+        const QJsonObject& json_env_object = json_layer_object.value("disable_environment").toObject();
+        const QStringList keys = json_env_object.keys();
+        this->disable_env = keys[0].toStdString();
+        this->disable_value = ReadStringValue(json_env_object, this->disable_env.c_str()) == "1";
+    }
+    if (json_layer_object.value("enable_environment") != QJsonValue::Undefined) {
+        const QJsonObject& json_env_object = json_layer_object.value("enable_environment").toObject();
+        const QStringList keys = json_env_object.keys();
+        this->enable_env = keys[0].toStdString();
+        this->enable_value = ReadStringValue(json_env_object, this->enable_env.c_str()) == "1";
+    }
+
     if (!is_valid && this->key != "VK_LAYER_LUNARG_override") {
         if (!is_builtin_layer_file || (is_builtin_layer_file && this->api_version >= Version(1, 2, 170))) {
             Alert::LayerInvalid(full_path_to_file.c_str(), validator.message.toStdString().c_str());

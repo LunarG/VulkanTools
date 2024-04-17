@@ -66,6 +66,10 @@ class Layer {
     std::string manifest_path;
     LayerType type;
     QJsonDocument profile;
+    std::string disable_env;
+    std::string enable_env;
+    bool disable_value;
+    bool enable_value;
 
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
