@@ -116,6 +116,11 @@
                 <string>Layers Controlled by the Vulkan Configurator</string>
                </property>
               </item>
+              <item>
+               <property name="text">
+                <string>All Layers Disabled by the Vulkan Configurator</string>
+               </property>
+              </item>
              </widget>
             </item>
             <item row="2" column="0">

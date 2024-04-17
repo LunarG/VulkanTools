@@ -215,6 +215,7 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
     std::swap(updated_configurations, available_configurations);
 
     SetActiveConfiguration(available_layers, nullptr);
+    this->active_configuration = nullptr;
 }
 
 void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &available_layers,
@@ -228,20 +229,32 @@ void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &avai
 }
 
 void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &available_layers, Configuration *active_configuration) {
-    this->active_configuration = active_configuration;
-
     bool surrender = false;
-    if (active_configuration != nullptr) {
-        assert(!this->active_configuration->key.empty());
-        environment.Set(ACTIVE_CONFIGURATION, this->active_configuration->key.c_str());
-        surrender = !this->active_configuration->HasOverride();
-    } else {
-        surrender = true;
+
+    if (environment.GetMode() != LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED) {
+        if (active_configuration != nullptr) {
+            assert(!active_configuration->key.empty());
+            environment.Set(ACTIVE_CONFIGURATION, active_configuration->key.c_str());
+            surrender = !active_configuration->HasOverride();
+        } else {
+            surrender = true;
+        }
     }
 
     if (surrender || environment.GetMode() == LAYERS_MODE_BY_APPLICATIONS) {
         SurrenderConfiguration(environment);
+    } else if (environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED) {
+        Configuration temp_configuration;
+        temp_configuration.key = "_TempConfiguration";
+        temp_configuration.parameters = GatherParameters(temp_configuration.parameters, available_layers);
+
+        for (std::size_t i = 0, n = temp_configuration.parameters.size(); i < n; ++i) {
+            temp_configuration.parameters[i].state = LAYER_STATE_EXCLUDED;
+        }
+
+        OverrideConfiguration(environment, available_layers, temp_configuration);
     } else {
+        this->active_configuration = active_configuration;
         assert(active_configuration != nullptr);
         OverrideConfiguration(environment, available_layers, *active_configuration);
     }
