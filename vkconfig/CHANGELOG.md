@@ -21,6 +21,7 @@
 - Add 'status' to give an explicit control to print the Vulkan status log
 - Add support for command line outputs on Windows when using 'Command Prompt'
 - Add support for using Vulkan Configurator environment variables in the UI
+- Better present implicit layers, showing "Implicitly On" or "Implicitly Off" depending on the environment variable
 
 ### Fixes:
 - Fix clear log when changing `Vulkan Kiader Messages` type when `Clear log on action` is unchecked
