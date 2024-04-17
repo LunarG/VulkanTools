@@ -15,6 +15,7 @@
 
 ### Features:
 - Add system tray
+- Add mode to disable all Vulkan layers
 
 ### Improvements:
 - Add 'status' to give an explicit control to print the Vulkan status log

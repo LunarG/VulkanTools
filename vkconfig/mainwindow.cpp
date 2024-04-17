@@ -140,7 +140,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->log_browser->document()->setMaximumBlockCount(2048);
     ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, environment.Get(ACTIVE_CONFIGURATION));
+    const std::string configuration_name = environment.Get(ACTIVE_CONFIGURATION);
+    if (!configuration_name.empty()) {
+        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configuration_name);
+    }
 
     this->InitTray();
     this->UpdateTray();
@@ -265,7 +268,7 @@ void MainWindow::UpdateUI() {
     this->UpdateTray();
 
     // Update configurations
-    ui->group_box_configurations->setEnabled(use_override);
+    ui->group_box_configurations->setEnabled(environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
 
     ui->configuration_tree->setCurrentItem(nullptr);
     // ui->configuration_tree->setSelectionMode(has_active_configuration ? QAbstractItemView::SingleSelection
@@ -366,10 +369,12 @@ void MainWindow::UpdateUI() {
         _launcher_log_file_edit->setEnabled(has_application_list);
     }
 
-    if (active) {
-        _settings_tree_manager.CreateGUI(ui->settings_tree);
-    } else {
-        _settings_tree_manager.CleanupGUI();
+    if (ui->settings_tree->isEnabled()) {
+        if (active) {
+            _settings_tree_manager.CreateGUI(ui->settings_tree);
+        } else {
+            _settings_tree_manager.CleanupGUI();
+        }
     }
 
     // Update title bar
@@ -893,6 +898,7 @@ void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
     configurator.environment.Set(ACTIVE_CONFIGURATION, "");
 
     LoadConfigurationList();
+    _settings_tree_manager.CleanupGUI();
 
     this->UpdateUI();
 }
