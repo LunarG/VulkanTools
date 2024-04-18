@@ -22,6 +22,7 @@
 - Add support for command line outputs on Windows when using 'Command Prompt'
 - Add support for using Vulkan Configurator environment variables in the UI
 - Better present implicit layers, showing "Implicitly On" or "Implicitly Off" depending on the environment variable
+- Add double click on configuration name to edit a layers configuration
 
 ### Fixes:
 - Fix clear log when changing `Vulkan Loader Messages` type when `Clear log on action` is unchecked

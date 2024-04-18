@@ -156,6 +156,7 @@ class MainWindow : public QMainWindow {
     void OnConfigurationItemClicked(bool checked);
     void OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void OnConfigurationItemChanged(QTreeWidgetItem *item, int column);
+    void OnConfigurationItemDoubleClicked(QTreeWidgetItem *item, int column);
     void OnConfigurationTreeClicked(QTreeWidgetItem *item, int column);
     void OnSettingsTreeClicked(QTreeWidgetItem *item, int column);
     void OnLauncherLoaderMessageChanged(int level);
