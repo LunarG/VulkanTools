@@ -103,6 +103,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->configuration_tree, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
             SLOT(OnConfigurationItemChanged(QTreeWidgetItem *, int)));
+    connect(ui->configuration_tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this,
+            SLOT(OnConfigurationItemDoubleClicked(QTreeWidgetItem *, int)));
     connect(ui->configuration_tree, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,
             SLOT(OnConfigurationTreeChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     connect(ui->configuration_tree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
@@ -535,6 +537,13 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
 
     this->UpdateUI();
     this->UpdateStatus();
+}
+
+void MainWindow::OnConfigurationItemDoubleClicked(QTreeWidgetItem *item, int column) {
+    ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
+    if (configuration_item == nullptr) return;
+
+    EditClicked(configuration_item);
 }
 
 /// An item has been changed. Check for edit of the items name (configuration name)
