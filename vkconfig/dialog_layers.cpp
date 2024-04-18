@@ -301,29 +301,33 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
     WidgetTreeFriendlyComboBox *widget = new WidgetTreeFriendlyComboBox(item);
     ui->layerTree->setItemWidget(item, 1, widget);
 
-    const QFontMetrics fm = ui->layerTree->fontMetrics();
-    const QSize combo_size = fm.size(Qt::TextSingleLine, "Application-Controlled") * 1.6;
-    item->setSizeHint(1, combo_size);
+    std::string tooltip;
 
     bool disable_value = false;
     if (!layer->disable_env.empty()) {
         disable_value = !qgetenv(layer->disable_env.c_str()).isEmpty();
+
+        tooltip += layer->disable_env + format(": %s", disable_value ? "true" : "false");
     }
 
     bool enable_value = false;
     if (!layer->enable_env.empty()) {
         enable_value = qgetenv(layer->enable_env.c_str()).toStdString() == layer->enable_value;
+
+        tooltip += "; " + layer->enable_env + format(": %s", enable_value ? "true" : "false");
     }
 
-    const std::string implicit_string =
-        !disable_value || (!layer->enable_env.empty() && enable_value) ? "Implicitly On" : "Implicitly Off";
+    const std::string implicit_string = !disable_value || (!layer->enable_env.empty() && enable_value)
+                                            ? "Env Variables Controlled: On"
+                                            : "Env Variables Controlled: Off";
 
     widget->addItem(is_implicit_layer ? implicit_string.c_str() : "Application-Controlled");
     widget->addItem("Overridden / Forced On");
     widget->addItem("Excluded / Forced Off");
     widget->setCurrentIndex(parameter.state);
+    widget->setToolTip(tooltip.c_str());
 
-    connect(widget, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
+    this->connect(widget, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
 }
 
 void LayersDialog::LoadAvailableLayersUI() {
@@ -407,7 +411,7 @@ void LayersDialog::resizeEvent(QResizeEvent *event) {
     (void)event;
 
     const QFontMetrics fm = ui->layerTree->fontMetrics();
-    const int combo_width = (fm.size(Qt::TextSingleLine, "Application-Controlled").width() * 1.6);
+    const int combo_width = (fm.size(Qt::TextSingleLine, "Env Variables Controlled: Off").width() * 1.5);
     const int width = ui->layerTree->width() - combo_width;
     ui->layerTree->setColumnWidth(0, width);
 }

@@ -53,6 +53,8 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
         LoadConfigurationsPath(available_layers, path.c_str());
     }
 
+    this->SortConfigurations();
+
     RefreshConfiguration(available_layers);
 }
 
@@ -213,6 +215,7 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
     }
 
     std::swap(updated_configurations, available_configurations);
+    this->SortConfigurations();
 
     SetActiveConfiguration(available_layers, nullptr);
     this->active_configuration = nullptr;
@@ -235,7 +238,7 @@ void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &avai
         if (active_configuration != nullptr) {
             assert(!active_configuration->key.empty());
             environment.Set(ACTIVE_CONFIGURATION, active_configuration->key.c_str());
-            surrender = !active_configuration->HasOverride();
+            surrender = false;  //! active_configuration->HasOverride();
         } else {
             surrender = true;
         }
