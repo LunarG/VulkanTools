@@ -297,7 +297,7 @@ void MainWindow::UpdateUI() {
     ui->push_button_remove->setEnabled(use_override && has_select_configuration);
     ui->push_button_duplicate->setEnabled(use_override && has_select_configuration);
     ui->push_button_new->setEnabled(use_override);
-    ui->settings_tree->setEnabled(use_override && has_select_configuration);
+    ui->settings_tree->setEnabled(environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
     ui->group_box_settings->setTitle(active_contiguration_name.empty() ? "Configuration Settings"
                                                                        : (active_contiguration_name + " Settings").c_str());
 
@@ -862,6 +862,7 @@ void MainWindow::NewClicked() {
     LayersDialog dlg(this, new_configuration);
     switch (dlg.exec()) {
         case QDialog::Accepted:
+            configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, new_configuration.key);
             break;
         case QDialog::Rejected:
             configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, new_configuration.key);

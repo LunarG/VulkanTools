@@ -24,7 +24,7 @@
 - Better present implicit layers, showing "Implicitly On" or "Implicitly Off" depending on the environment variable
 
 ### Fixes:
-- Fix clear log when changing `Vulkan Kiader Messages` type when `Clear log on action` is unchecked
+- Fix clear log when changing `Vulkan Loader Messages` type when `Clear log on action` is unchecked
 - Fix spaces in application launcher command-line 'path' arguments
 - Fix 'Use of application list' check box not being saved
 - Clean up UI update
