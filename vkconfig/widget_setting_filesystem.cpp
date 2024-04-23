@@ -136,39 +136,58 @@ void WidgetSettingFilesystem::LoadPath(const std::string& path) {
 }
 
 void WidgetSettingFilesystem::browseButtonClicked() {
-    std::string new_path;
+    std::string path = field->text().toStdString();
+    if (path.empty()) {
+        path = "${VK_LOCAL}";
+    }
+    if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).exists()) {
+        path = this->data().GetValue();
+    }
+    if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).exists()) {
+        path.clear();
+    }
+
+    const std::string replaced_path = ReplaceBuiltInVariable(path);
 
     const char* filter = this->meta.filter.c_str();
-    const std::string value = this->data().GetValue();
-
-    const std::string cur_path = ReplaceBuiltInVariable(value.empty() ? "${VK_LOCAL}" : value.c_str());
+    std::string new_path;
 
     switch (this->meta.type) {
         case SETTING_LOAD_FILE:
-            new_path = QFileDialog::getOpenFileName(this->button, "Select file", cur_path.c_str(), filter).toStdString();
+            new_path = QFileDialog::getOpenFileName(this->button, "Select file", replaced_path.c_str(), filter).toStdString();
             break;
         case SETTING_SAVE_FILE:
-            new_path = QFileDialog::getSaveFileName(this->button, "Select File", cur_path.c_str(), filter).toStdString();
+            new_path = QFileDialog::getSaveFileName(this->button, "Select File", replaced_path.c_str(), filter).toStdString();
             break;
         case SETTING_LOAD_FOLDER:
         case SETTING_SAVE_FOLDER:
-            new_path = QFileDialog::getExistingDirectory(this->button, "Select Folder", cur_path.c_str()).toStdString();
+            new_path = QFileDialog::getExistingDirectory(this->button, "Select Folder", replaced_path.c_str()).toStdString();
             break;
         default:
             assert(0);
             break;
     }
 
-    if (!new_path.empty()) {
-        new_path = ConvertNativeSeparators(new_path);
-        this->data().SetValue(new_path.c_str());
-
-        field->setText(this->data().GetValue());
-
-        LoadPath(new_path);
-
-        emit itemChanged();
+    // The user has cancel the operation
+    if (new_path.empty()) {
+        return;
     }
+
+    new_path = ConvertNativeSeparators(new_path);
+
+    // The path didn't change, preserve the built-in variables
+    if (replaced_path == new_path) {
+        return;
+    }
+
+    this->data().SetValue(new_path.c_str());
+
+    this->field->setText(this->data().GetValue());
+    this->field->setToolTip(ReplaceBuiltInVariable(this->field->text().toStdString()).c_str());
+
+    LoadPath(new_path);
+
+    emit itemChanged();
 }
 
 void WidgetSettingFilesystem::textFieldChanged(const QString& value) {
@@ -178,12 +197,14 @@ void WidgetSettingFilesystem::textFieldChanged(const QString& value) {
         LoadPath(file);
 
         if (VKC_ENV == VKC_ENV_WIN32) {
-            file = ConvertSeparators(file, "/", GetNativeSeparator());
+            file = ConvertNativeSeparators(file);
         }
     }
 
-    this->data().SetValue(file.c_str());
-    this->field->setToolTip(ReplaceBuiltInVariable(this->field->text().toStdString()).c_str());
+    if (QFileInfo(ReplaceBuiltInVariable(file).c_str()).exists()) {
+        this->data().SetValue(file.c_str());
+        this->field->setToolTip(ReplaceBuiltInVariable(file.c_str()).c_str());
+    }
 
     emit itemChanged();
 }

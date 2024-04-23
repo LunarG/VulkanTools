@@ -36,6 +36,8 @@ struct Alert {
     static QMessageBox::Button LayerImplicitExcluded(const char* layer_name);
     static QMessageBox::Button LayerProfiles();
 
+    static void PathInvalid(const char* path, const char* message);
+
     static QMessageBox::Button ConfiguratorSingleton();
     static void ConfiguratorRestart();
     static QMessageBox::Button ConfiguratorResetAll();
