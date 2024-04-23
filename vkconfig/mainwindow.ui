@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>640</height>
+    <width>1200</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>1024</width>
-    <height>640</height>
+    <width>1200</width>
+    <height>720</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -140,7 +140,26 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Keep Vulkan Configurator running in system tray when closing the main window</string>
+                 <string>Keep Vulkan Configurator running in system tray</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="check_box_apply_list">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>24</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Apply only to the Vulkan Applications List</string>
                 </property>
                </widget>
               </item>
@@ -172,25 +191,6 @@
                 </property>
                 <property name="text">
                  <string>Edit Applications...</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QCheckBox" name="check_box_apply_list">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>24</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Arial</family>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Apply only to the Vulkan Applications List</string>
                 </property>
                </widget>
               </item>
@@ -385,37 +385,8 @@
         <property name="title">
          <string>Vulkan Application Launcher</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="check_box_clear_on_launch">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Clear log on action</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="push_button_clear_log">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Clear</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0" colspan="7">
+        <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,0,0,0,0,0,0,0,0,0,0,0" columnminimumwidth="0,0,0,0,0,0,0,0,0,0,0,0">
+         <item row="0" column="0" colspan="12">
           <widget class="QTreeWidget" name="launcher_tree">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -476,20 +447,7 @@
            </column>
           </widget>
          </item>
-         <item row="1" column="6">
-          <widget class="QPushButton" name="push_button_launcher">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Launch</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="7">
+         <item row="2" column="0" colspan="12">
           <widget class="QPlainTextEdit" name="log_browser">
            <property name="font">
             <font>
@@ -502,15 +460,47 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="4">
-          <widget class="QLabel" name="label_5">
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="check_box_clear_on_launch">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string extracomment="Automatic clean log on action, eg on Launch"/>
+           </property>
            <property name="text">
-            <string>Vulkan Loader Messages:</string>
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="push_button_clear_log">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Clear</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="push_button_status">
+           <property name="text">
+            <string>Status</string>
            </property>
           </widget>
          </item>
          <item row="1" column="3">
-          <spacer name="horizontalSpacer">
+          <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -522,7 +512,20 @@
            </property>
           </spacer>
          </item>
-         <item row="1" column="5">
+         <item row="1" column="11">
+          <widget class="QPushButton" name="push_button_launcher">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Launch</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="10">
           <widget class="QComboBox" name="launcher_loader_debug">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -575,10 +578,10 @@
            </item>
           </widget>
          </item>
-         <item row="1" column="2">
-          <widget class="QPushButton" name="push_button_status">
+         <item row="1" column="9">
+          <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Status</string>
+            <string>Vulkan Loader:</string>
            </property>
           </widget>
          </item>
@@ -629,6 +632,12 @@
          </property>
          <item row="1" column="0">
           <widget class="QTreeWidget" name="settings_tree">
+           <property name="minimumSize">
+            <size>
+             <width>300</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <family>Arial</family>
@@ -684,7 +693,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
+     <width>1200</width>
      <height>25</height>
     </rect>
    </property>

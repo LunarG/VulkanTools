@@ -75,13 +75,14 @@ void WidgetSettingFilesystem::Refresh(RefreshAreas refresh_areas) {
         this->field->blockSignals(true);
         this->field->setText(this->data().GetValue());
         this->field->setToolTip(ReplaceBuiltInVariable(this->data().GetValue()).c_str());
-        this->field->blockSignals(false);
 
         if (::CheckSettingOverridden(this->meta)) {
             this->DisplayOverride(this->field, this->meta);
         } else {
-            this->field->setToolTip(this->field->text());
+            this->field->setToolTip(ReplaceBuiltInVariable(this->field->text().toStdString()).c_str());
         }
+
+        this->field->blockSignals(false);
     }
 }
 
@@ -182,7 +183,7 @@ void WidgetSettingFilesystem::textFieldChanged(const QString& value) {
     }
 
     this->data().SetValue(file.c_str());
-    this->field->setToolTip(this->field->text());
+    this->field->setToolTip(ReplaceBuiltInVariable(this->field->text().toStdString()).c_str());
 
     emit itemChanged();
 }

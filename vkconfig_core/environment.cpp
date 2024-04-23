@@ -76,20 +76,20 @@ static const char* GetLayoutStateToken(LayoutState state) {
     assert(state >= LAYOUT_FIRST && state <= LAYOUT_LAST);
 
     static const char* table[] = {
-        "geometry",                  // LAYOUT_GEOMETRY
-        "windowState",               // LAYOUT_WINDOW_STATE
-        "splitter1State",            // LAYOUT_MAIN_SPLITTER1
-        "splitter2State",            // LAYOUT_MAIN_SPLITTER2
-        "splitter3State",            // LAYOUT_MAIN_SPLITTER3
-        "vkconfig3_geometry",        // VKCONFIG3_LAYOUT_GEOMETRY
-        "vkconfig3_windowState",     // VKCONFIG3_LAYOUT_WINDOW_STATE
-        "vkconfig3_splitter1State",  // VKCONFIG3_LAYOUT_MAIN_SPLITTER1
-        "vkconfig3_splitter2State",  // VKCONFIG3_LAYOUT_MAIN_SPLITTER2
-        "vkconfig3_splitter3State",  // VKCONFIG3_LAYOUT_MAIN_SPLITTER3
-        "layerGeometry",             // LAYOUT_GEOMETRY_SPLITTER
-        "splitterLayerState",        // LAYOUT_LAYER_SPLITTER
-        "launcherCollapsed",         // LAYOUT_LAUNCHER_COLLAPSED
-        "launcherOnClear"            // LAYOUT_LAUNCHER_CLEAR_ON
+        "geometry",                    // LAYOUT_GEOMETRY
+        "windowState",                 // LAYOUT_WINDOW_STATE
+        "splitter1State",              // LAYOUT_MAIN_SPLITTER1
+        "splitter2State",              // LAYOUT_MAIN_SPLITTER2
+        "splitter3State",              // LAYOUT_MAIN_SPLITTER3
+        "vkconfig2_6_geometry",        // VKCONFIG3_LAYOUT_GEOMETRY
+        "vkconfig2_6_windowState",     // VKCONFIG3_LAYOUT_WINDOW_STATE
+        "vkconfig2_6_splitter1State",  // VKCONFIG3_LAYOUT_MAIN_SPLITTER1
+        "vkconfig2_6_splitter2State",  // VKCONFIG3_LAYOUT_MAIN_SPLITTER2
+        "vkconfig2_6_splitter3State",  // VKCONFIG3_LAYOUT_MAIN_SPLITTER3
+        "layerGeometry",               // LAYOUT_GEOMETRY_SPLITTER
+        "splitterLayerState",          // LAYOUT_LAYER_SPLITTER
+        "launcherCollapsed",           // LAYOUT_LAUNCHER_COLLAPSED
+        "launcherOnClear"              // LAYOUT_LAUNCHER_CLEAR_ON
     };
     static_assert(countof(table) == LAYOUT_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

@@ -121,6 +121,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->launcher_loader_debug, SIGNAL(currentIndexChanged(int)), this, SLOT(OnLauncherLoaderMessageChanged(int)));
 
+    ui->check_box_persistent->setToolTip("Keep Vulkan Configurator running in system tray when closing the main window");
+
     Configurator &configurator = Configurator::Get();
     Environment &environment = configurator.environment;
 

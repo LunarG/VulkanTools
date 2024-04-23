@@ -66,6 +66,9 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
 void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
     const SettingDependenceMode enabled = ::CheckDependence(this->meta, data_set);
 
+    this->blockSignals(true);
+    this->field->blockSignals(true);
+
     this->item->setHidden(enabled == SETTING_DEPENDENCE_HIDE);
     this->item->setDisabled(enabled != SETTING_DEPENDENCE_ENABLE);
     this->field->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
@@ -76,7 +79,6 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
             this->DisplayOverride(this->field, this->meta);
         }
 
-        this->field->blockSignals(true);
         this->field->clear();
         this->enum_indexes.clear();
 
@@ -93,17 +95,17 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
             this->enum_indexes.push_back(i);
         }
         this->field->setCurrentIndex(selection);
+        if (!profiles.empty()) {
+            OnIndexChanged(selection);
+        }
 
         // Ensure this->field size match the profiles names size
         this->Resize();
-
-        this->field->blockSignals(false);
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
         if (::CheckSettingOverridden(this->meta)) {
             this->DisplayOverride(this->field, this->meta);
         }
 
-        this->field->blockSignals(true);
         this->field->clear();
         this->enum_indexes.clear();
 
@@ -120,13 +122,14 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
             this->enum_indexes.push_back(i);
         }
         this->field->setCurrentIndex(selection);
-        this->field->blockSignals(false);
+        if (!devices.empty()) {
+            OnIndexChanged(selection);
+        }
     } else if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
         if (::CheckSettingOverridden(this->meta)) {
             this->DisplayOverride(this->field, this->meta);
         }
 
-        this->field->blockSignals(true);
         this->field->clear();
         this->enum_indexes.clear();
 
@@ -143,8 +146,10 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
             this->enum_indexes.push_back(i);
         }
         this->field->setCurrentIndex(selection);
-        this->field->blockSignals(false);
     }
+
+    this->blockSignals(false);
+    this->field->blockSignals(false);
 }
 
 void WidgetSettingEnum::Resize() {
@@ -177,7 +182,7 @@ void WidgetSettingEnum::Resize() {
 
     width = std::min(width, this->last_resize.width() - prefix_width);
 
-    const QRect button_rect(this->last_resize.width() - width, 0, std::max(width, MIN_FIELD_WIDTH), this->last_resize.height());
+    const QRect button_rect(this->last_resize.width() - width, 0, width, this->last_resize.height());
     this->field->setGeometry(button_rect);
 }
 
@@ -193,17 +198,19 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         assert(index >= 0 && index < static_cast<int>(profiles.size()));
 
         this->data().SetValue(profiles[index].c_str());
+        this->setToolTip(profiles[index].c_str());
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
         const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
         assert(index >= 0 && index < static_cast<int>(devices.size()));
 
         this->data().SetValue(devices[index].c_str());
+        this->setToolTip(devices[index].c_str());
     } else {
         assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 
         const std::size_t value_index = enum_indexes[static_cast<std::size_t>(index)];
         this->data().SetValue(this->meta.enum_values[value_index].key.c_str());
-        this->field->setToolTip(this->meta.enum_values[value_index].description.c_str());
+        this->setToolTip(this->meta.enum_values[value_index].description.c_str());
     }
 
     emit itemChanged();
