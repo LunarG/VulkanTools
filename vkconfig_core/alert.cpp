@@ -77,6 +77,17 @@ void Alert::LayerInvalid(const char* path, const char* message) {
     alert.exec();
 }
 
+void Alert::PathInvalid(const char* path, const char* message) {
+    const std::string text = format("'%s' is not a valid path.", path);
+
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle("The select path doesn't exist...");
+    alert.setText(text.c_str());
+    alert.setInformativeText(message);
+    alert.setIcon(QMessageBox::Critical);
+    alert.exec();
+}
+
 QMessageBox::Button Alert::LayerImplicitExcluded(const char* layer_name) {
     const char* text = "%s was excluded but it is an implicit layer. This may cause undefined behavior, including crashes.";
 

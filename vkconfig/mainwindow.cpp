@@ -1202,13 +1202,25 @@ void MainWindow::launchSetExecutable() {
 
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
-    const std::string exe = configurator.path.SelectPath(this, PATH_EXECUTABLE, application.executable_path.c_str());
+    std::string new_path = _launcher_executable->text().toStdString();
+    if (!QFileInfo(ReplaceBuiltInVariable(new_path).c_str()).exists()) {
+        new_path = application.executable_path.c_str();
+    }
+
+    const std::string selected_path = configurator.path.SelectPath(this, PATH_EXECUTABLE, ReplaceBuiltInVariable(new_path));
 
     // The user has cancel the operation
-    if (exe.empty()) return;
+    if (selected_path.empty()) {
+        return;
+    }
 
-    application.executable_path = exe;
-    _launcher_executable->setText(exe.c_str());
+    // The path didn't change, preserve the built-in variables
+    if (ReplaceBuiltInVariable(new_path) == selected_path) {
+        return;
+    }
+
+    application.executable_path = selected_path;
+    _launcher_executable->setText(selected_path.c_str());
 }
 
 void MainWindow::launchSetLogFile() {
@@ -1217,13 +1229,25 @@ void MainWindow::launchSetLogFile() {
 
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
-    const std::string path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application.log_file.c_str());
+    std::string new_path = _launcher_log_file_edit->text().toStdString();
+    if (!QFileInfo(ReplaceBuiltInVariable(new_path).c_str()).exists()) {
+        new_path = application.log_file.c_str();
+    }
+
+    const std::string selected_path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, ReplaceBuiltInVariable(new_path));
 
     // The user has cancel the operation
-    if (path.empty()) return;
+    if (selected_path.empty()) {
+        return;
+    }
 
-    application.log_file = path;
-    _launcher_log_file_edit->setText(path.c_str());
+    // The path didn't change, preserve the built-in variables
+    if (ReplaceBuiltInVariable(new_path) == selected_path) {
+        return;
+    }
+
+    application.log_file = selected_path;
+    _launcher_log_file_edit->setText(selected_path.c_str());
 }
 
 void MainWindow::launchSetWorkingFolder() {
@@ -1232,13 +1256,25 @@ void MainWindow::launchSetWorkingFolder() {
 
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
-    const std::string path = configurator.path.SelectPath(this, PATH_WORKING_DIR, application.working_folder.c_str());
+    std::string new_path = _launcher_working->text().toStdString();
+    if (!QFileInfo(ReplaceBuiltInVariable(new_path).c_str()).exists()) {
+        new_path = application.working_folder.c_str();
+    }
+
+    const std::string selected_path = configurator.path.SelectPath(this, PATH_WORKING_DIR, ReplaceBuiltInVariable(new_path));
 
     // The user has cancel the operation
-    if (path.empty()) return;
+    if (selected_path.empty()) {
+        return;
+    }
 
-    application.working_folder = path;
-    _launcher_working->setText(path.c_str());
+    // The path didn't change, preserve the built-in variables
+    if (ReplaceBuiltInVariable(new_path) == selected_path) {
+        return;
+    }
+
+    application.working_folder = selected_path;
+    _launcher_working->setText(selected_path.c_str());
 }
 
 // Log file path edited manually.
@@ -1246,24 +1282,36 @@ void MainWindow::launchChangeLogFile(const QString &log_file) {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
-    Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    application.log_file = log_file.toStdString();
+    const std::string replaced_path = ReplaceBuiltInVariable(log_file.toStdString());
+
+    if (QFileInfo(replaced_path.c_str()).exists()) {
+        Application &application = Configurator::Get().environment.GetApplication(current_application_index);
+        application.log_file = log_file.toStdString();
+    }
 }
 
-void MainWindow::launchChangeExecutable(const QString &exe) {
+void MainWindow::launchChangeExecutable(const QString &exe_path) {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
-    Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    application.executable_path = exe.toStdString();
+    const std::string replaced_path = ReplaceBuiltInVariable(exe_path.toStdString());
+
+    if (QFileInfo(replaced_path.c_str()).exists()) {
+        Application &application = Configurator::Get().environment.GetApplication(current_application_index);
+        application.executable_path = exe_path.toStdString();
+    }
 }
 
 void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
 
-    Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    application.working_folder = working_folder.toStdString();
+    const std::string replaced_path = ReplaceBuiltInVariable(working_folder.toStdString());
+
+    if (QFileInfo(replaced_path.c_str()).exists()) {
+        Application &application = Configurator::Get().environment.GetApplication(current_application_index);
+        application.working_folder = working_folder.toStdString();
+    }
 }
 
 void MainWindow::UpdateApplicationUI(const Application &application) {
@@ -1584,17 +1632,30 @@ void MainWindow::on_push_button_launcher_clicked() {
         }
     }
 
-    const std::string actual_log_file = ReplaceBuiltInVariable(active_application.log_file.c_str());
-
     assert(!active_application.app_name.empty());
     launch_log += format("- Application: %s\n", active_application.app_name.c_str());
     assert(!active_application.executable_path.empty());
-    launch_log += format("- Executable: %s\n", ReplaceBuiltInVariable(active_application.executable_path.c_str()).c_str());
-    assert(!active_application.working_folder.empty());
-    launch_log += format("- Working Directory: %s\n", ReplaceBuiltInVariable(active_application.working_folder.c_str()).c_str());
-    if (!active_application.arguments.empty())
-        launch_log += format("- Command-line Arguments: %s\n", active_application.arguments.c_str());
-    if (!actual_log_file.empty()) launch_log += format("- Log file: %s\n", actual_log_file.c_str());
+
+    launch_log += format("- Executable: %s\n", ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str());
+    if (!QFileInfo(ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str()).exists()) {
+        Alert::PathInvalid(ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str(),
+                           format("The '%s' application will fail to launch.", active_application.app_name.c_str()).c_str());
+    }
+
+    launch_log += format("- Working Directory: %s\n", ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str());
+    if (!QFileInfo(ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str()).exists()) {
+        Alert::PathInvalid(ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str(),
+                           format("The '%s' application will fail to launch.", active_application.app_name.c_str()).c_str());
+    }
+
+    if (!_launcher_arguments->text().isEmpty()) {
+        launch_log += format("- Command-line Arguments: %s\n", _launcher_arguments->text().toStdString().c_str());
+    }
+
+    const std::string actual_log_file = ReplaceBuiltInVariable(_launcher_log_file_edit->text().toStdString());
+    if (!actual_log_file.empty()) {
+        launch_log += format("- Log file: %s\n", actual_log_file.c_str());
+    }
 
     if (!actual_log_file.empty()) {
         // Start logging
@@ -1623,12 +1684,12 @@ void MainWindow::on_push_button_launcher_clicked() {
     connect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
             SLOT(processClosed(int, QProcess::ExitStatus)));
 
-    _launch_application->setProgram(ReplaceBuiltInVariable(active_application.executable_path.c_str()).c_str());
-    _launch_application->setWorkingDirectory(ReplaceBuiltInVariable(active_application.working_folder.c_str()).c_str());
+    _launch_application->setProgram(ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str());
+    _launch_application->setWorkingDirectory(ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str());
     _launch_application->setEnvironment(BuildEnvVariables());
 
-    if (!active_application.arguments.empty()) {
-        const QStringList args = ConvertString(SplitSpace(active_application.arguments));
+    if (!_launcher_arguments->text().isEmpty()) {
+        const QStringList args = ConvertString(SplitSpace(_launcher_arguments->text().toStdString()));
         _launch_application->setArguments(args);
     }
 
@@ -1642,7 +1703,7 @@ void MainWindow::on_push_button_launcher_clicked() {
         _launch_application = nullptr;
 
         const std::string failed_log =
-            std::string("Failed to launch ") + ReplaceBuiltInVariable(active_application.executable_path.c_str()).c_str() + "!\n";
+            std::string("Failed to launch ") + ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str() + "!\n";
         Log(failed_log);
     }
 
