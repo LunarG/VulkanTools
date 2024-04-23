@@ -73,7 +73,8 @@ elseif (APPLE)
 endif()
 
 option(BUILD_TESTS "Build tests")
-option(BUILD_TESTS_DEBUG "Build tests for debugging layers")
+option(BUILD_TESTS_DEBUG "Build tests for debugging layers" OFF)
+option(BUILD_EXPERIMENTAL "Build tests for debugging layers" OFF)
 
 if(BUILD_TESTS)
     enable_testing()
@@ -98,5 +99,7 @@ if(BUILD_LAYERMGR)
 
     add_subdirectory(vkconfig_core)
     add_subdirectory(vkconfig)
-    add_subdirectory(vkconfig3)
+    if(BUILD_EXPERIMENTAL)
+        add_subdirectory(vkconfig3)
+    endif()
 endif()
