@@ -87,12 +87,14 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 
     // First add override paths so that they take precedent over system paths
     for (int i = 0, n = layer_override_paths.count(); i < n; ++i) {
-        json_paths.append(ConvertNativeSeparators(layer_override_paths[i].toStdString()).c_str());
+        const std::string& path = ConvertNativeSeparators(layer_override_paths[i].toStdString());
+        json_paths.append(path.c_str());
     }
 
     // Second add system paths, so that a layers configuration can run with both system and user-defined layers
     for (int i = 0, n = layer_system_paths.count(); i < n; ++i) {
-        json_paths.append(ConvertNativeSeparators(layer_system_paths[i].toStdString()).c_str());
+        const std::string& path = ConvertNativeSeparators(layer_system_paths[i].toStdString());
+        json_paths.append(path.c_str());
     }
 
     QJsonArray json_overridden_layers;
