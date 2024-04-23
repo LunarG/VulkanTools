@@ -87,12 +87,12 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 
     // First add override paths so that they take precedent over system paths
     for (int i = 0, n = layer_override_paths.count(); i < n; ++i) {
-        json_paths.append(layer_override_paths[i].toStdString().c_str());
+        json_paths.append(ConvertNativeSeparators(layer_override_paths[i].toStdString()).c_str());
     }
 
     // Second add system paths, so that a layers configuration can run with both system and user-defined layers
     for (int i = 0, n = layer_system_paths.count(); i < n; ++i) {
-        json_paths.append(layer_system_paths[i].toStdString().c_str());
+        json_paths.append(ConvertNativeSeparators(layer_system_paths[i].toStdString()).c_str());
     }
 
     QJsonArray json_overridden_layers;
@@ -140,7 +140,8 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
             const std::string& executable_path =
                 ConvertNativeSeparators(ReplaceBuiltInVariable(applications[i].executable_path.c_str()));
 
-            const std::string& absolute_path(QFileInfo(executable_path.c_str()).absoluteFilePath().toStdString());
+            const std::string& absolute_path(
+                ConvertNativeSeparators(QFileInfo(executable_path.c_str()).absoluteFilePath().toStdString()));
             assert(QFileInfo(absolute_path.c_str()).exists());
             json_applist.append(absolute_path.c_str());
         }
