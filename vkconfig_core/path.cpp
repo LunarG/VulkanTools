@@ -75,7 +75,10 @@ std::string GetPath(BuiltinPath path) {
         }
         case BUILTIN_PATH_LOCAL_LEGACY:
         case BUILTIN_PATH_LOCAL: {
-            result = GetPath(BUILTIN_PATH_HOME) + "/VulkanSDK";
+            result = qgetenv("VK_LOCAL").toStdString();
+            if (result.empty()) {
+                result = GetPath(BUILTIN_PATH_HOME) + "/VulkanSDK";
+            }
             break;
         }
         case BUILTIN_PATH_CONFIG_REF: {

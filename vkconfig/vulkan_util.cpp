@@ -167,6 +167,12 @@ std::string GenerateVulkanStatus() {
     else
         log += "- VULKAN_SDK environment variable not set\n";
 
+    // Check VK_LOCAL path
+    const std::string vk_local_path(GetPath(BUILTIN_PATH_LOCAL));
+    if (!vk_local_path.empty()) {
+        log += format("- VK_LOCAL environment variable: %s\n", vk_local_path.c_str());
+    }
+
     const Version loader_version = GetVulkanLoaderVersion();
 
     if (loader_version == Version::VERSION_NULL) {
