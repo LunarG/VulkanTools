@@ -191,6 +191,7 @@ void MainWindow::InitTray() {
 
         this->_tray_icon = new QSystemTrayIcon(this);
         this->_tray_icon->setContextMenu(this->_tray_icon_menu);
+        this->UpdateTray();
         this->_tray_icon->show();
 
         this->connect(this->_tray_icon, &QSystemTrayIcon::activated, this, &MainWindow::iconActivated);
