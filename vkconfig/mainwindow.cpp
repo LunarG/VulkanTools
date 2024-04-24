@@ -644,13 +644,11 @@ void MainWindow::OnHelpAbout(bool checked) {
 }
 
 void MainWindow::StartTool(Tool tool) {
-    std::string active_configuration;
-
     Configurator &configurator = Configurator::Get();
-    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        active_configuration = configurator.configurations.GetActiveConfiguration()->key;
-        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, nullptr);
-    }
+    LayersMode saved_mode = configurator.environment.GetMode();
+
+    configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     switch (tool) {
         case TOOL_VULKAN_INFO:
@@ -661,9 +659,8 @@ void MainWindow::StartTool(Tool tool) {
             break;
     }
 
-    if (!active_configuration.empty()) {
-        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, active_configuration);
-    }
+    configurator.environment.SetMode(saved_mode);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 }
 
 /// Create the VulkanInfo dialog if it doesn't already exits & show it.
