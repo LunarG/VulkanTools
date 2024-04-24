@@ -12,6 +12,11 @@
                 "name": "VK_LAYER_LUNARG_gfxreconstruct",
                 "rank": 0,
                 "settings": [
+                    {
+                        "key": "capture_file",
+                        "type": "SAVE_FILE",
+                        "value": "${VK_LOCAL}/gfxrecon_capture.gfxr"
+                    }
                 ],
                 "state": "OVERRIDDEN"
             }
