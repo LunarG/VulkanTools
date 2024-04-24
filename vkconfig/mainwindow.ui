@@ -118,7 +118,7 @@
               </item>
               <item>
                <property name="text">
-                <string>All Layers Disabled by the Vulkan Configurator</string>
+                <string>Layers Disabled by the Vulkan Configurator</string>
                </property>
               </item>
              </widget>

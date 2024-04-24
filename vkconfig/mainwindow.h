@@ -98,6 +98,9 @@ class MainWindow : public QMainWindow {
     QSystemTrayIcon *_tray_icon;
     QMenu *_tray_icon_menu;
     QAction *_tray_restore_action;
+    QAction *_tray_layers_controlled_by_applications;
+    QAction *_tray_layers_controlled_by_configurator;
+    QAction *_tray_layers_disabled_by_configurator;
     QAction *_tray_quit_action;
 
     void RemoveClicked(ConfigurationListItem *item);
@@ -111,6 +114,10 @@ class MainWindow : public QMainWindow {
     void ReloadDefaultClicked(ConfigurationListItem *item);
 
    private slots:
+    void trayActionRestore();
+    void trayActionControlledByApplications();
+    void trayActionControlledByConfigurator();
+    void trayActionDisabledByApplications();
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
    public Q_SLOTS:

@@ -159,14 +159,34 @@ MainWindow::~MainWindow() { ResetLaunchApplication(); }
 
 void MainWindow::InitTray() {
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
-        this->_tray_quit_action = new QAction(tr("&Quit"), this);
+        this->_tray_quit_action = new QAction("&Quit", this);
         connect(this->_tray_quit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
 
-        this->_tray_restore_action = new QAction(tr("Open &Vulkan Configurator"), this);
-        connect(this->_tray_restore_action, &QAction::triggered, this, &QWidget::showNormal);
+        this->_tray_restore_action = new QAction("Open &Vulkan Configurator", this);
+        connect(this->_tray_restore_action, &QAction::triggered, this, &MainWindow::trayActionRestore);
+
+        this->_tray_layers_controlled_by_applications = new QAction("Layers Controlled by the Vulkan Applications", this);
+        this->_tray_layers_controlled_by_applications->setCheckable(true);
+        connect(this->_tray_layers_controlled_by_applications, &QAction::triggered, this,
+                &MainWindow::trayActionControlledByApplications);
+
+        this->_tray_layers_controlled_by_configurator = new QAction("Layers Controlled by the Vulkan Configurator", this);
+        this->_tray_layers_controlled_by_configurator->setCheckable(true);
+        connect(this->_tray_layers_controlled_by_configurator, &QAction::triggered, this,
+                &MainWindow::trayActionControlledByConfigurator);
+
+        this->_tray_layers_disabled_by_configurator = new QAction("Layers Disabled by the Vulkan Configurator", this);
+        this->_tray_layers_disabled_by_configurator->setCheckable(true);
+        connect(this->_tray_layers_disabled_by_configurator, &QAction::triggered, this,
+                &MainWindow::trayActionDisabledByApplications);
 
         this->_tray_icon_menu = new QMenu(this);
         this->_tray_icon_menu->addAction(this->_tray_restore_action);
+        this->_tray_icon_menu->addSeparator();
+        this->_tray_icon_menu->addAction(this->_tray_layers_controlled_by_applications);
+        this->_tray_icon_menu->addAction(this->_tray_layers_controlled_by_configurator);
+        this->_tray_icon_menu->addAction(this->_tray_layers_disabled_by_configurator);
+        this->_tray_icon_menu->addSeparator();
         this->_tray_icon_menu->addAction(this->_tray_quit_action);
 
         this->_tray_icon = new QSystemTrayIcon(this);
@@ -189,6 +209,25 @@ void MainWindow::UpdateTray() {
         const bool active =
             configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers) && use_override;
 
+        switch (environment.GetMode()) {
+            default:
+            case LAYERS_MODE_BY_APPLICATIONS:
+                this->_tray_layers_controlled_by_applications->setChecked(true);
+                this->_tray_layers_controlled_by_configurator->setChecked(false);
+                this->_tray_layers_disabled_by_configurator->setChecked(false);
+                break;
+            case LAYERS_MODE_BY_CONFIGURATOR_RUNNING:
+                this->_tray_layers_controlled_by_applications->setChecked(false);
+                this->_tray_layers_controlled_by_configurator->setChecked(true);
+                this->_tray_layers_disabled_by_configurator->setChecked(false);
+                break;
+            case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED:
+                this->_tray_layers_controlled_by_applications->setChecked(false);
+                this->_tray_layers_controlled_by_configurator->setChecked(false);
+                this->_tray_layers_disabled_by_configurator->setChecked(true);
+                break;
+        }
+
         if (active) {
             const QIcon icon(":/resourcefiles/vkconfig-on.png");
 
@@ -206,35 +245,53 @@ void MainWindow::UpdateTray() {
 }
 
 void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
-    if (QSystemTrayIcon::isSystemTrayAvailable()) {
-        Configurator &configurator = Configurator::Get();
-
-        switch (reason) {
-            case QSystemTrayIcon::Trigger:
-            case QSystemTrayIcon::MiddleClick:
-                if (configurator.environment.GetMode() == LAYERS_MODE_BY_APPLICATIONS) {
-                    configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
-                } else {
-                    configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
-                }
-
-                configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
-
-                this->UpdateUI();
-                this->UpdateTray();
-                break;
-            default:
-            case QSystemTrayIcon::DoubleClick:
-                /*
-                if (this->isVisible()) {
-                    QWidget::hide();
-                } else {
-                    QWidget::showNormal();
-                }
-                */
-                break;
-        }
+    switch (reason) {
+        default:
+            break;
+        case QSystemTrayIcon::Context:
+            break;
+        case QSystemTrayIcon::DoubleClick:
+            this->hide();
+            this->showNormal();
+            this->UpdateUI();
+            this->UpdateTray();
+            break;
     }
+}
+
+void MainWindow::trayActionRestore() {
+    this->hide();
+    this->showNormal();
+
+    this->UpdateUI();
+    this->UpdateTray();
+}
+
+void MainWindow::trayActionControlledByApplications() {
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+
+    this->UpdateUI();
+    this->UpdateTray();
+}
+
+void MainWindow::trayActionControlledByConfigurator() {
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+
+    this->UpdateUI();
+    this->UpdateTray();
+}
+
+void MainWindow::trayActionDisabledByApplications() {
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+
+    this->UpdateUI();
+    this->UpdateTray();
 }
 
 static std::string GetMainWindowTitle(bool active) {
