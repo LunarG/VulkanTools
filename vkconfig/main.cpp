@@ -28,9 +28,11 @@
 
 #include <cassert>
 
+#ifdef COMMAND_PROMPT_OUTPUT
 #ifdef _WIN32
 #include <Windows.h>
 #endif
+#endif  // COMMAND_PROMPT_OUTPUT
 
 int main(int argc, char* argv[]) {
     ::vkconfig_version = "vkconfig";
@@ -45,6 +47,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+#ifdef COMMAND_PROMPT_OUTPUT
 #ifdef _WIN32
     if (command_line.command != COMMAND_GUI || command_line.command != COMMAND_VULKAN_SDK) {
         if (AttachConsole(ATTACH_PARENT_PROCESS)) {
@@ -52,6 +55,7 @@ int main(int argc, char* argv[]) {
             freopen("CONOUT$", "w", stderr);
         }
     }
+#endif
 #endif
 
     switch (command_line.command) {
