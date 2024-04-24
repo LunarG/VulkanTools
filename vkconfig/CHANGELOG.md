@@ -19,7 +19,6 @@
 
 ### Improvements:
 - Add 'status' to give an explicit control to print the Vulkan status log
-- Add support for command line outputs on Windows when using 'Command Prompt'
 - Add support for using Vulkan Configurator environment variables in the UI
 - Better present implicit layers, showing "Implicitly On" or "Implicitly Off" depending on the environment variable
 - Add double click on configuration name to edit a layers configuration
