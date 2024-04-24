@@ -1522,7 +1522,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             menu.addSeparator();
 
             QAction *import_action = new QAction("Import...", nullptr);
-            import_action->setEnabled(active);
+            import_action->setEnabled(true);
             menu.addAction(import_action);
 
             QAction *export_action = new QAction("Export...", nullptr);
