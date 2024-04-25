@@ -778,33 +778,36 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     // Alert the user to the current state of the vulkan configurator and
     // give them the option to not shutdown.
-    if (environment.GetUseSystemTray() && environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS) {
-        QSettings settings;
-        if (!settings.value("vkconfig_system_tray", false).toBool()) {
-            const QPalette saved_palette = ui->check_box_persistent->palette();
-            QPalette modified_palette = saved_palette;
-            modified_palette.setColor(QPalette::ColorRole::WindowText, QColor(255, 0, 0, 255));
-            ui->check_box_persistent->setPalette(modified_palette);
+    if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        if (environment.GetUseSystemTray() && environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS) {
+            QSettings settings;
+            if (!settings.value("vkconfig_system_tray", false).toBool()) {
+                const QPalette saved_palette = ui->check_box_persistent->palette();
+                QPalette modified_palette = saved_palette;
+                modified_palette.setColor(QPalette::ColorRole::WindowText, QColor(255, 0, 0, 255));
+                ui->check_box_persistent->setPalette(modified_palette);
 
-            const std::string message = "Vulkan Layers remains controlled by Vulkan Configurator while active in the system tray.";
+                const std::string message =
+                    "Vulkan Layers remains controlled by Vulkan Configurator while active in the system tray.";
 
-            QMessageBox alert(this);
-            alert.setWindowTitle("Vulkan Configurator will remain active in the system tray");
-            alert.setText(message.c_str());
-            alert.setIcon(QMessageBox::Warning);
-            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-            alert.setDefaultButton(QMessageBox::No);
-            alert.setCheckBox(new QCheckBox("Do not show again."));
-            alert.setInformativeText("Are you still ready to move Vulkan Configurator in the system tray?");
+                QMessageBox alert(this);
+                alert.setWindowTitle("Vulkan Configurator will remain active in the system tray");
+                alert.setText(message.c_str());
+                alert.setIcon(QMessageBox::Warning);
+                alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                alert.setDefaultButton(QMessageBox::No);
+                alert.setCheckBox(new QCheckBox("Do not show again."));
+                alert.setInformativeText("Are you still ready to move Vulkan Configurator in the system tray?");
 
-            int ret_val = alert.exec();
-            settings.setValue("vkconfig_system_tray", alert.checkBox()->isChecked());
+                int ret_val = alert.exec();
+                settings.setValue("vkconfig_system_tray", alert.checkBox()->isChecked());
 
-            ui->check_box_persistent->setPalette(saved_palette);
+                ui->check_box_persistent->setPalette(saved_palette);
 
-            if (ret_val == QMessageBox::No) {
-                event->ignore();
-                return;
+                if (ret_val == QMessageBox::No) {
+                    event->ignore();
+                    return;
+                }
             }
         }
     }
@@ -824,10 +827,12 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     environment.Save();
 
-    if (environment.GetUseSystemTray()) {
+    if (QSystemTrayIcon::isSystemTrayAvailable() && environment.GetUseSystemTray()) {
+        QGuiApplication::setQuitOnLastWindowClosed(false);
         hide();
         event->ignore();
     } else {
+        QGuiApplication::setQuitOnLastWindowClosed(true);
         QMainWindow::closeEvent(event);
     }
 }
