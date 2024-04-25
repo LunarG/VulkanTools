@@ -474,6 +474,7 @@ void MainWindow::LoadConfigurationList() {
         ui->configuration_tree->addTopLevelItem(item);
         ui->configuration_tree->setItemWidget(item, 0, item->radio_button);
         connect(item->radio_button, SIGNAL(clicked(bool)), this, SLOT(OnConfigurationItemClicked(bool)));
+        connect(item->radio_button, SIGNAL(toggled(bool)), this, SLOT(OnConfigurationItemClicked(bool)));
     }
 
     ui->configuration_tree->blockSignals(false);
@@ -564,7 +565,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     LoadConfigurationList();
 
-    UpdateUI();
+    this->UpdateUI();
 }
 
 // Thist signal actually comes from the radio button
@@ -580,7 +581,9 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     // to ensure the new item is "selected"
     ui->configuration_tree->setCurrentItem(item);
 
-    Configurator::Get().ActivateConfiguration(item->configuration_name);
+    Configurator &configurator = Configurator::Get();
+
+    configurator.ActivateConfiguration(item->configuration_name);
 
     this->UpdateUI();
     this->UpdateStatus();
@@ -589,9 +592,11 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
 void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     (void)column;
 
-    ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
-    if (configuration_item != nullptr) {
-        Configurator::Get().ActivateConfiguration(configuration_item->configuration_name);
+    Configurator &configurator = Configurator::Get();
+
+    ConfigurationListItem *config_item = dynamic_cast<ConfigurationListItem *>(item);
+    if (item != nullptr) {
+        configurator.ActivateConfiguration(config_item->configuration_name);
     }
 
     this->UpdateUI();
@@ -663,7 +668,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             SelectConfigurationItem(new_name.c_str());
         }
 
-        // UpdateUI();
+        this->UpdateUI();
     }
 }
 
