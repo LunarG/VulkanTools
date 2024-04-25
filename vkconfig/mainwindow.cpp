@@ -308,13 +308,14 @@ static std::string GetMainWindowTitle(bool active) {
 void MainWindow::UpdateUI() {
     static int check_recurse = 0;
     ++check_recurse;
-    assert(check_recurse == 1);
+    assert(check_recurse <= 2);
 
     Configurator &configurator = Configurator::Get();
     const Environment &environment = Configurator::Get().environment;
     const bool has_select_configuration = configurator.configurations.HasSelectConfiguration();
     const std::string &active_contiguration_name = environment.Get(ACTIVE_CONFIGURATION);
 
+    this->blockSignals(true);
     ui->configuration_tree->blockSignals(true);
 
     ui->combo_box_layers_controlled->blockSignals(true);
@@ -344,13 +345,16 @@ void MainWindow::UpdateUI() {
         item->setText(1, item->configuration_name.c_str());
         item->setToolTip(1, configuration->description.c_str());
         item->radio_button->setToolTip(configuration->description.c_str());
+        item->radio_button->blockSignals(true);
 
         if (item->configuration_name == active_contiguration_name) {
-            ui->configuration_tree->setCurrentItem(item);
             item->radio_button->setChecked(true);
+            ui->configuration_tree->setCurrentItem(item);
         } else {
-            item->radio_button->setChecked(false);
+            // item->radio_button->setChecked(false);
         }
+
+        item->radio_button->blockSignals(false);
     }
 
     // Update settings
@@ -440,6 +444,7 @@ void MainWindow::UpdateUI() {
     setWindowTitle(GetMainWindowTitle(use_override && active).c_str());
 
     ui->configuration_tree->blockSignals(false);
+    this->blockSignals(false);
 
     --check_recurse;
 }
