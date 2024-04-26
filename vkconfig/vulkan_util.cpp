@@ -150,14 +150,22 @@ VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_
 std::string GenerateVulkanStatus() {
     std::string log;
 
-    const Configurator &configurator = Configurator::Get();
+    Configurator &configurator = Configurator::Get();
 
     // Layers override configuration
-    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        log +=
-            format("- Layers override: \"%s\" configuration\n", configurator.configurations.GetActiveConfiguration()->key.c_str());
-    } else {
-        log += "- Layers override: None\n";
+    switch (configurator.environment.GetMode()) {
+        default:
+        case LAYERS_MODE_BY_APPLICATIONS:
+            log += "- Vulkan Layers Controlled by Vulkan Applications\n";
+            break;
+        case LAYERS_MODE_BY_CONFIGURATOR_RUNNING:
+            if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers))
+                log += format("- Vulkan Layers Controlled by Vulkan Configurator using \"%s\" configuration\n",
+                              configurator.environment.Get(ACTIVE_CONFIGURATION).c_str());
+            break;
+        case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED:
+            log += "- Vulkan Layers Disabled by Vulkan Configurator\n";
+            break;
     }
 
     // Check Vulkan SDK path
@@ -212,10 +220,9 @@ std::string GenerateVulkanStatus() {
         return log;
     }
 
-    Configuration *active_configuration = configurator.configurations.GetActiveConfiguration();
-    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        SurrenderConfiguration(configurator.environment);
-    }
+    LayersMode saved_mode = configurator.environment.GetMode();
+    configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     QLibrary library(GetVulkanLibrary());
     PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =
@@ -353,9 +360,8 @@ std::string GenerateVulkanStatus() {
 
     vkDestroyInstance(inst, NULL);
 
-    if (active_configuration != nullptr) {
-        OverrideConfiguration(configurator.environment, configurator.layers.available_layers, *active_configuration);
-    }
+    configurator.environment.SetMode(saved_mode);
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     return log;
 }

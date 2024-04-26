@@ -144,10 +144,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->log_browser->document()->setMaximumBlockCount(2048);
     ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
-    const std::string configuration_name = environment.Get(ACTIVE_CONFIGURATION);
-    if (!configuration_name.empty()) {
-        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, configuration_name);
-    }
+    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
     this->InitTray();
     this->UpdateTray();
@@ -509,7 +506,8 @@ void MainWindow::OnComboBoxModeChanged(int index) {
     configurator.environment.SetMode(static_cast<LayersMode>(ui->combo_box_layers_controlled->currentIndex()));
     configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
 
-    UpdateUI();
+    this->UpdateUI();
+    this->UpdateStatus();
 }
 
 // We want to apply to just the app list... hang on there. Doe we have the new loader?

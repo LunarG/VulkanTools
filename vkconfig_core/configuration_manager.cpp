@@ -277,11 +277,22 @@ void ConfigurationManager::RefreshConfiguration(const std::vector<Layer> &availa
 }
 
 bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &available_layers) const {
-    std::string missing_layer;
-    if (this->active_configuration != nullptr)
-        return !HasMissingLayer(this->active_configuration->parameters, available_layers, missing_layer);
-    else
-        return false;
+    switch (environment.GetMode()) {
+        case LAYERS_MODE_BY_APPLICATIONS:
+            return false;
+        case LAYERS_MODE_BY_CONFIGURATOR_RUNNING: {
+            if (this->active_configuration != nullptr) {
+                std::string missing_layer;
+                return !HasMissingLayer(this->active_configuration->parameters, available_layers, missing_layer);
+            } else {
+                return false;
+            }
+        }
+        case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED:
+            return true;
+    }
+
+    return false;
 }
 
 void ConfigurationManager::ImportConfiguration(const std::vector<Layer> &available_layers, const std::string &full_import_path) {
