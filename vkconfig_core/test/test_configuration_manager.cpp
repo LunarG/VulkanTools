@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ TEST(test_configuration_manager, create_remove) {
     ConfigurationManager configuration_manager(environment);
 
     // No active configuration by default
-    EXPECT_EQ(nullptr, configuration_manager.GetActiveConfiguration());
+    EXPECT_EQ(nullptr, configuration_manager.FindActiveConfiguration());
     EXPECT_EQ(false, configuration_manager.HasActiveConfiguration(available_layers));
 
     // Create configuration

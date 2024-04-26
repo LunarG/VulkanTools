@@ -41,17 +41,17 @@ class ConfigurationManager {
 
     void RemoveConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
 
-    void ImportConfiguration(const std::vector<Layer>& available_layers, const std::string& full_import_path);
+    std::string ImportConfiguration(const std::vector<Layer>& available_layers, const std::string& full_import_path);
     void ExportConfiguration(const std::vector<Layer>& available_layers, const std::string& full_export_path,
                              const std::string& configuration_name);
+    Configuration* FindActiveConfiguration();
 
-    Configuration* GetActiveConfiguration() const { return active_configuration; }
-    void SetActiveConfiguration(const std::vector<Layer>& available_layers, Configuration* active_configuration);
-    void SetActiveConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
     bool HasActiveConfiguration(const std::vector<Layer>& available_layers) const;
-    bool HasSelectConfiguration() const { return this->active_configuration != nullptr; }
 
-    void RefreshConfiguration(const std::vector<Layer>& available_layers);
+    // The only function that actually configure the system, the Vulkan Loader, the Vulkan layer settings, creating and deleting
+    // system files
+    void Configure(const std::vector<Layer>& available_layers, const std::string& configuration_name);
+    void Configure(const std::vector<Layer>& available_layers);
 
     void ResetDefaultsConfigurations(const std::vector<Layer>& available_layers);
 
@@ -82,6 +82,5 @@ class ConfigurationManager {
     void LoadConfigurationsPath(const std::vector<Layer>& available_layers, const char* path);
     void LoadDefaultConfigurations(const std::vector<Layer>& available_layers);
 
-    Configuration* active_configuration;
     Environment& environment;
 };

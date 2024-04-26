@@ -159,26 +159,32 @@ std::string GenerateVulkanStatus() {
             log += "- Vulkan Layers Controlled by Vulkan Applications\n";
             break;
         case LAYERS_MODE_BY_CONFIGURATOR_RUNNING:
-            if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers))
-                log += format("- Vulkan Layers Controlled by Vulkan Configurator using \"%s\" configuration\n",
-                              configurator.environment.Get(ACTIVE_CONFIGURATION).c_str());
+            if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
+                log += format("- Vulkan Layers Controlled by \"%s\" configuration\n",
+                              configurator.environment.GetActiveConfiguration().c_str());
+            } else {
+                log += format("- Vulkan Layers Controlled by Vulkan Configurator but no configuration selected\n",
+                              configurator.environment.GetActiveConfiguration().c_str());
+            }
             break;
         case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED:
             log += "- Vulkan Layers Disabled by Vulkan Configurator\n";
             break;
     }
 
+    log += "- Environment variables:\n";
+
     // Check Vulkan SDK path
     const std::string search_path(configurator.path.GetPath(PATH_VULKAN_SDK));
     if (!search_path.empty())
-        log += format("- VULKAN_SDK environment variable: %s\n", search_path.c_str());
+        log += format("    - VULKAN_SDK: %s\n", search_path.c_str());
     else
-        log += "- VULKAN_SDK environment variable not set\n";
+        log += "    - VULKAN_SDK not set\n";
 
     // Check VK_LOCAL path
     const std::string vk_local_path(GetPath(BUILTIN_PATH_LOCAL));
     if (!vk_local_path.empty()) {
-        log += format("- VK_LOCAL environment variable: %s\n", vk_local_path.c_str());
+        log += format("    - VK_LOCAL: %s\n", vk_local_path.c_str());
     }
 
     const Version loader_version = GetVulkanLoaderVersion();
@@ -222,7 +228,7 @@ std::string GenerateVulkanStatus() {
 
     LayersMode saved_mode = configurator.environment.GetMode();
     configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.available_layers);
 
     QLibrary library(GetVulkanLibrary());
     PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =
@@ -361,7 +367,7 @@ std::string GenerateVulkanStatus() {
     vkDestroyInstance(inst, NULL);
 
     configurator.environment.SetMode(saved_mode);
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.available_layers);
 
     return log;
 }

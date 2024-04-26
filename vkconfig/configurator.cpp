@@ -77,48 +77,59 @@ bool Configurator::Init() {
         configurations.FirstDefaultsConfigurations(layers.available_layers);
     }
 
-    const std::string configuration_name = this->environment.Get(ACTIVE_CONFIGURATION);
-    this->environment.Set(ACTIVE_CONFIGURATION, "");  // Force ActivateConfiguration
-    this->ActivateConfiguration(configuration_name);
-
     return true;
 }
 
 void Configurator::ActivateConfiguration(const std::string &configuration_name) {
-    const std::string name = configuration_name;
-
-    if (this->environment.Get(ACTIVE_CONFIGURATION) == name) return;
-
-    Configuration *configuration = FindByKey(this->configurations.available_configurations, name.c_str());
-    if (configuration == nullptr) return;
-
-    this->environment.Set(ACTIVE_CONFIGURATION, configuration->key.c_str());
-
-    // If the layers paths are differents, we need to reload the layers and the configurations
-    const std::vector<std::string> paths = this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
-    if (configuration->user_defined_paths != paths) {
-        this->environment.SetPerConfigUserDefinedLayersPaths(configuration->user_defined_paths);
-        this->layers.LoadAllInstalledLayers();
-        this->configurations.LoadAllConfigurations(this->layers.available_layers);
+    Configuration *configuration = nullptr;
+    if (!configuration_name.empty()) {
+        configuration = FindByKey(this->configurations.available_configurations, configuration_name.c_str());
     }
-    this->configurations.RefreshConfiguration(this->layers.available_layers);
 
-    std::string missing_layer;
-    if (HasMissingLayer(configuration->parameters, layers.available_layers, missing_layer)) {
+    if (configuration_name.empty()) {
+        this->environment.SetActiveConfiguration("");
+        this->configurations.Configure(this->layers.available_layers);
+    } else if (configuration == nullptr) {
         QMessageBox alert;
-        alert.QDialog::setWindowTitle("Vulkan layer missing...");
-        alert.setText(format("%s couldn't find '%s' layer required by '%s' configuration:", VKCONFIG_NAME, missing_layer.c_str(),
-                             configuration->key.c_str())
-                          .c_str());
-        alert.setInformativeText("Do you want to edit the configuration to locate the layer?");
-        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        alert.setDefaultButton(QMessageBox::Yes);
-        alert.setIcon(QMessageBox::Warning);
-        if (alert.exec() == QMessageBox::Yes) {
-            LayersDialog dlg(nullptr, *configuration);
-            dlg.exec();
+        alert.QDialog::setWindowTitle("Vulkan layers configuration is missing...");
+        const std::string text = format("%s couldn't find '%s' layers configuration.", VKCONFIG_NAME, configuration_name.c_str());
+        alert.setText(text.c_str());
+        alert.setInformativeText("Vulkan Configurator is switching to Layers Controlled by Vulkan Application mode");
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
 
-            ActivateConfiguration(configuration->key);
+        this->environment.SetActiveConfiguration("");
+        this->environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+        this->configurations.Configure(this->layers.available_layers);
+    } else {
+        // If the layers paths are differents, we need to reload the layers and the configurations
+        const std::vector<std::string> paths = this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
+        if (configuration->user_defined_paths != paths) {
+            this->environment.SetPerConfigUserDefinedLayersPaths(configuration->user_defined_paths);
+            this->layers.LoadAllInstalledLayers();
+            this->configurations.LoadAllConfigurations(this->layers.available_layers);
+        }
+
+        std::string missing_layer;
+        if (HasMissingLayer(configuration->parameters, layers.available_layers, missing_layer)) {
+            QMessageBox alert;
+            alert.QDialog::setWindowTitle("Vulkan layer missing...");
+            alert.setText(format("%s couldn't find '%s' layer required by '%s' configuration:", VKCONFIG_NAME,
+                                 missing_layer.c_str(), configuration->key.c_str())
+                              .c_str());
+            alert.setInformativeText("Do you want to edit the configuration to locate the layer?");
+            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            alert.setDefaultButton(QMessageBox::Yes);
+            alert.setIcon(QMessageBox::Warning);
+            if (alert.exec() == QMessageBox::Yes) {
+                LayersDialog dlg(nullptr, *configuration);
+                dlg.exec();
+
+                ActivateConfiguration(configuration->key);
+            }
+        } else {
+            this->environment.SetActiveConfiguration(configuration_name.c_str());
+            this->configurations.Configure(this->layers.available_layers);
         }
     }
 }
@@ -150,17 +161,12 @@ bool Configurator::SupportApplicationList(Version *return_loader_version) const 
 void Configurator::ResetToDefault(bool hard) {
     if (hard) {
         this->environment.Reset(Environment::CLEAR);
-
-        const std::string configuration_name = this->environment.Get(ACTIVE_CONFIGURATION);
-        this->environment.Set(ACTIVE_CONFIGURATION, "");  // Force ActivateConfiguration
-        this->ActivateConfiguration(configuration_name);
-
         this->configurations.ResetDefaultsConfigurations(this->layers.available_layers);
+
+        this->ActivateConfiguration(this->environment.GetActiveConfiguration());
     } else {
         this->configurations.ReloadDefaultsConfigurations(this->layers.available_layers);
     }
-
-    this->configurations.RefreshConfiguration(this->layers.available_layers);
 }
 
 std::vector<std::string> Configurator::GetDeviceNames() const { return device_names; }

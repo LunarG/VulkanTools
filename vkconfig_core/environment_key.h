@@ -27,6 +27,9 @@
 #define VKCONFIG_KEY_USE_SYSTEM_TRAY "UseSystemTray"
 #define VKCONFIG_KEY_LOADER_MESSAGE "LoaderMessage"
 
+#define VKCONFIG_KEY_ACTIVE_CONFIGURATION "ActiveConfiguration"
+#define VKCONFIG_KEY_ACTIVE_APPLICATION "ActiveApplication"
+
 #define VKCONFIG_KEY_VKCONFIG_VERSION "vkConfigVersion"
 #define VKCONFIG_KEY_VKCONFIG3_VERSION "vkConfig3Version"
 #define VKCONFIG_KEY_CUSTOM_PATHS "customPaths"

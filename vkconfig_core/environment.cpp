@@ -48,30 +48,6 @@ static const char* GetApplicationSuffix() {
     return TABLE[VKC_PLATFORM];
 }
 
-static const char* GetActiveToken(Active active) {
-    assert(active >= ACTIVE_FIRST && active <= ACTIVE_LAST);
-
-    static const char* table[] = {
-        "activeProfile",  // ACTIVE_CONFIGURATION
-        "launchApp"       // ACTIVE_EXECUTABLE
-    };
-    static_assert(countof(table) == ACTIVE_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    return table[active];
-}
-
-static const char* GetActiveDefault(Active active) {
-    assert(active >= ACTIVE_FIRST && active <= ACTIVE_LAST);
-
-    static const char* table[] = {
-        "Validation",  // ACTIVE_CONFIGURATION
-        ""             // ACTIVE_EXECUTABLE
-    };
-    static_assert(countof(table) == ACTIVE_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    return table[active];
-}
-
 static const char* GetLayoutStateToken(LayoutState state) {
     assert(state >= LAYOUT_FIRST && state <= LAYOUT_LAST);
 
@@ -173,14 +149,10 @@ void Environment::Reset(ResetMode mode) {
             this->layers_mode = LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
             this->use_application_list = false;
             this->use_system_tray = false;
-
-            for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
-                actives[i] = GetActiveDefault(static_cast<Active>(i));
-            }
+            this->active_configuration = "Validation";
+            this->active_application.clear();
 
             applications = CreateDefaultApplications();
-
-            Set(ACTIVE_CONFIGURATION, "Validation");
             break;
         }
         case CLEAR: {
@@ -193,9 +165,11 @@ void Environment::Reset(ResetMode mode) {
             settings.setValue("VKCONFIG_WARN_MISSING_LAYERS_IGNORE", false);
             settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", false);
 
+            settings.setValue("vkconfig_restart", false);
             settings.setValue("overrideActive", false);
             settings.setValue("applyOnlyToList", false);
             settings.setValue("keepActiveOnExit", false);
+            settings.setValue("vkconfig_system_tray_stay_on_close", false);
 
             settings.setValue("restartWarning", false);
             settings.setValue("warnAboutShutdownState", false);
@@ -251,9 +225,11 @@ bool Environment::Load() {
     this->loader_message_types = settings.value(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types)).toInt();
 
     // Load active configuration
-    for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
-        actives[i] = settings.value(GetActiveToken(static_cast<Active>(i)), actives[i].c_str()).toString().toStdString();
-    }
+    this->active_configuration =
+        settings.value(VKCONFIG_KEY_ACTIVE_CONFIGURATION, this->active_configuration.c_str()).toString().toStdString();
+
+    this->active_application =
+        settings.value(VKCONFIG_KEY_ACTIVE_APPLICATION, this->active_application.c_str()).toString().toStdString();
 
     // Load layout state
     for (std::size_t i = 0; i < LAYOUT_COUNT; ++i) {
@@ -361,10 +337,11 @@ bool Environment::Save() const {
     // Save 'loader_message'
     settings.setValue(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types));
 
-    // Save active state
-    for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
-        settings.setValue(GetActiveToken(static_cast<Active>(i)), this->actives[i].c_str());
-    }
+    // Save active configuration
+    settings.setValue(VKCONFIG_KEY_ACTIVE_CONFIGURATION, this->active_configuration.c_str());
+
+    // Save active application
+    settings.setValue(VKCONFIG_KEY_ACTIVE_APPLICATION, this->active_application.c_str());
 
     // Save layout state
     for (std::size_t i = 0; i < LAYOUT_COUNT; ++i) {
@@ -416,12 +393,12 @@ bool Environment::SaveApplications() const {
 void Environment::SelectActiveApplication(std::size_t application_index) {
     assert(application_index < applications.size());
 
-    Set(ACTIVE_APPLICATION, applications[application_index].app_name.c_str());
+    this->SetActiveApplication(applications[application_index].app_name);
 }
 
 int Environment::GetActiveApplicationIndex() const {
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        if (applications[i].app_name.c_str() == Get(ACTIVE_APPLICATION)) {
+        if (applications[i].app_name == this->active_application) {
             return static_cast<int>(i);
         }
     }
@@ -467,7 +444,7 @@ const Application& Environment::GetActiveApplication() const {
     assert(!applications.empty());
 
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        if (applications[i].app_name.c_str() == Get(ACTIVE_APPLICATION)) {
+        if (applications[i].app_name == this->active_application) {
             return applications[i];
         }
     }
@@ -506,10 +483,6 @@ const QByteArray& Environment::Get(LayoutState state) const {
     assert(state >= LAYOUT_FIRST && state <= LAYOUT_LAST);
     return layout_states[state];
 }
-
-const std::string& Environment::Get(Active active) const { return actives[active]; }
-
-void Environment::Set(Active active, const std::string& key) { actives[active] = key; }
 
 bool Environment::IsDefaultConfigurationInit(const std::string& default_configuration_filename) const {
     for (std::size_t i = 0, n = default_configuration_filenames.size(); i < n; ++i) {

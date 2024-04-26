@@ -55,16 +55,6 @@ enum LayoutState {
 
 enum { LAYOUT_COUNT = LAYOUT_LAST - LAYOUT_FIRST + 1 };
 
-enum Active {
-    ACTIVE_CONFIGURATION = 0,
-    ACTIVE_APPLICATION,
-
-    ACTIVE_FIRST = ACTIVE_CONFIGURATION,
-    ACTIVE_LAST = ACTIVE_APPLICATION,
-};
-
-enum { ACTIVE_COUNT = ACTIVE_LAST - ACTIVE_FIRST + 1 };
-
 enum UserDefinedLayersPaths {
     USER_DEFINED_LAYERS_PATHS_ENV_SET = 0,  // VK_LAYER_PATH
     USER_DEFINED_LAYERS_PATHS_ENV_ADD,      // VK_ADD_LAYER_PATH
@@ -174,13 +164,14 @@ class Environment {
     bool AppendApplication(const Application& application);
     bool RemoveApplication(std::size_t application_index);
 
+    void SetActiveApplication(const std::string& name) { this->active_application = name; }
     const std::vector<Application>& GetApplications() const { return applications; }
     const Application& GetActiveApplication() const;
     const Application& GetApplication(std::size_t application_index) const;
     Application& GetApplication(std::size_t application_index);
 
-    const std::string& Get(Active active) const;
-    void Set(Active active, const std::string& key);
+    const std::string& GetActiveConfiguration() const { return this->active_configuration; }
+    void SetActiveConfiguration(const std::string& name) { this->active_configuration = name; }
 
     const QByteArray& Get(LayoutState state) const;
     void Set(LayoutState state, const QByteArray& data);
@@ -229,7 +220,8 @@ class Environment {
     bool use_system_tray;
     int loader_message_types;
 
-    std::array<std::string, ACTIVE_COUNT> actives;
+    std::string active_configuration;
+    std::string active_application;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
     std::array<std::vector<std::string>, USER_DEFINED_LAYERS_PATHS_COUNT> user_defined_layers_paths;
     std::vector<Application> applications;

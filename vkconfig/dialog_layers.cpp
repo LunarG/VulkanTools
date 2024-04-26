@@ -203,7 +203,8 @@ void LayersDialog::Reload() {
     RestoreParameterStates(this->configuration.parameters, ParameterStates);
     this->configuration.user_defined_paths = user_defined_paths;
 
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.environment.SetActiveConfiguration(configuration_name);
+    configurator.configurations.Configure(configurator.layers.available_layers);
 }
 
 void LayersDialog::UpdateUI() {
@@ -665,6 +666,11 @@ void LayersDialog::accept() {
         return;
     }
 
+    if (ui->lineEditName->text().contains(QRegularExpression(QStringLiteral("[^\\x{0000}-\\x{007F}]")))) {
+        Alert::ConfigurationNameASCII();
+        return;
+    }
+
     Configurator &configurator = Configurator::Get();
     if (this->configuration.key != ui->lineEditName->text().toStdString() &&
         IsFound(configurator.configurations.available_configurations, ui->lineEditName->text().toStdString().c_str())) {
@@ -699,11 +705,8 @@ void LayersDialog::accept() {
     saved_configuration->parameters = this->configuration.parameters;
     saved_configuration->user_defined_paths = this->configuration.user_defined_paths;
     saved_configuration->setting_tree_state.clear();
-
     configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
-    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
 
-    configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, active_configuration_name.c_str());
     QDialog::accept();
 }
 

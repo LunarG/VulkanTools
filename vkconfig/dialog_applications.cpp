@@ -133,7 +133,9 @@ void ApplicationsDialog::on_pushButtonAdd_clicked()  // Pick the test applicatio
 
         QTreeWidgetItem *item = CreateApplicationItem(new_application);
 
-        configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+        // To update the application list configuration
+        configurator.configurations.Configure(configurator.layers.available_layers);
+
         ui->treeWidget->setCurrentItem(item);
         configurator.environment.SelectActiveApplication(ui->treeWidget->indexOfTopLevelItem(item));
     }
@@ -178,7 +180,9 @@ void ApplicationsDialog::on_pushButtonRemove_clicked() {
     ui->lineEditWorkingFolder->setText("");
     ui->lineEditLogFile->setText("");
 
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    // Update the application list configuration
+    configurator.configurations.Configure(configurator.layers.available_layers);
+
     ui->treeWidget->update();
 }
 
