@@ -153,7 +153,8 @@ Environment::Environment(PathManager& paths, const Version& api_version)
     : api_version(api_version),
       loader_message_types(::GetLoaderMessageTypes(qgetenv("VK_LOADER_DEBUG").toStdString())),
       paths_manager(paths),
-      paths(paths_manager) {
+      paths(paths_manager),
+      use_system_tray(false) {
     const bool result = Load();
     assert(result);
 }
@@ -171,7 +172,7 @@ void Environment::Reset(ResetMode mode) {
             this->vkconfig3_version = Version::VKCONFIG3;
             this->layers_mode = LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
             this->use_application_list = false;
-            this->use_system_tray = true;
+            this->use_system_tray = false;
 
             for (std::size_t i = 0; i < ACTIVE_COUNT; ++i) {
                 actives[i] = GetActiveDefault(static_cast<Active>(i));
