@@ -63,7 +63,6 @@ class MainWindow : public QMainWindow {
 
     void UpdateUI();
     void UpdateApplicationUI(const Application &application);
-    void UpdateConfiguration();
 
    private:
     SettingsTreeManager _settings_tree_manager;
@@ -107,7 +106,6 @@ class MainWindow : public QMainWindow {
     void ResetClicked(ConfigurationListItem *item);
     void RenameClicked(ConfigurationListItem *item);
     void EditClicked(ConfigurationListItem *item);
-    void NewClicked();
     void DuplicateClicked(ConfigurationListItem *item);
     void ExportClicked(ConfigurationListItem *item);
     void ImportClicked(ConfigurationListItem *item);
@@ -185,6 +183,8 @@ class MainWindow : public QMainWindow {
     void StartTool(Tool tool);
     QStringList BuildEnvVariables() const;
     void UpdateStatus();
+
+    void ClearLog();
 
     std::unique_ptr<Ui::MainWindow> ui;
     bool been_warned_about_old_loader;

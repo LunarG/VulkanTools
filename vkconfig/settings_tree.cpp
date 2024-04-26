@@ -62,7 +62,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
     this->tree = build_tree;
 
-    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
     assert(configuration != nullptr);
 
     this->tree->blockSignals(true);
@@ -210,7 +210,7 @@ void SettingsTreeManager::CleanupGUI() {
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
     if (configuration != nullptr) {
         configuration->setting_tree_state.clear();
         GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
@@ -230,7 +230,7 @@ void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
     configuration->setting_tree_state.clear();
     GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
 
@@ -245,7 +245,7 @@ void SettingsTreeManager::OnCollapsedChanged(const QModelIndex &index) {
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
     configuration->setting_tree_state.clear();
     GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
 
@@ -298,7 +298,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
     if (!IsPlatformSupported(meta_object.platform_flags)) return;
     if (meta_object.view == SETTING_VIEW_HIDDEN) return;
     if (meta_object.view == SETTING_VIEW_ADVANCED &&
-        !Configurator::Get().configurations.GetActiveConfiguration()->view_advanced_settings)
+        !Configurator::Get().configurations.FindActiveConfiguration()->view_advanced_settings)
         return;
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -477,7 +477,7 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
 
     // Refresh layer configuration
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.available_layers);
 }
 
 void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent) {

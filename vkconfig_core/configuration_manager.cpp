@@ -27,35 +27,32 @@
 #include <QMessageBox>
 #include <QFileInfoList>
 
-ConfigurationManager::ConfigurationManager(Environment &environment) : active_configuration(nullptr), environment(environment) {}
+ConfigurationManager::ConfigurationManager(Environment &environment) : environment(environment) {}
 
 ConfigurationManager::~ConfigurationManager() {}
 
 void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &available_layers) {
     this->available_configurations.clear();
-    this->active_configuration = nullptr;
 
     // If this is the first time, we need to create the initial set of
     // configuration files.
-    if (environment.first_run) {
-        RemoveConfigurationFiles();
-        LoadDefaultConfigurations(available_layers);
+    if (this->environment.first_run) {
+        this->RemoveConfigurationFiles();
+        this->LoadDefaultConfigurations(available_layers);
 
-        environment.first_run = false;
+        this->environment.first_run = false;
     }
 
     const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    const std::vector<std::string> &SUPPORTED_CONFIG_FILES = environment.paths.SUPPORTED_CONFIG_FILES;
+    const std::vector<std::string> &SUPPORTED_CONFIG_FILES = this->environment.paths.SUPPORTED_CONFIG_FILES;
 
     for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
         const std::string path = base_config_path + SUPPORTED_CONFIG_FILES[i];
-        LoadConfigurationsPath(available_layers, path.c_str());
+        this->LoadConfigurationsPath(available_layers, path.c_str());
     }
 
     this->SortConfigurations();
-
-    RefreshConfiguration(available_layers);
 }
 
 void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &available_layers) {
@@ -80,8 +77,6 @@ void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &a
 }
 
 void ConfigurationManager::SortConfigurations() {
-    this->active_configuration = nullptr;
-
     struct Compare {
         bool operator()(const Configuration &a, const Configuration &b) const {
             const bool result = a.key < b.key;
@@ -195,85 +190,84 @@ void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
 void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &available_layers, const std::string &configuration_name) {
     assert(!configuration_name.empty());
 
-    // Not the active configuration
-    if (active_configuration != nullptr) {
-        if (active_configuration->key == configuration_name.c_str()) {
-            SetActiveConfiguration(available_layers, nullptr);
-        }
-    }
+    LayersMode saved_mode = this->environment.GetMode();
+    this->environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+    this->Configure(available_layers);
 
     RemoveConfigurationFile(configuration_name.c_str());
 
     // Update the configuration in the list
     std::vector<Configuration> updated_configurations;
 
-    for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
-        if (available_configurations[i].key == configuration_name) continue;
-        updated_configurations.push_back(available_configurations[i]);
+    for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
+        if (this->available_configurations[i].key == configuration_name) {
+            continue;
+        }
+        updated_configurations.push_back(this->available_configurations[i]);
     }
 
-    std::swap(updated_configurations, available_configurations);
+    std::swap(updated_configurations, this->available_configurations);
     this->SortConfigurations();
 
-    SetActiveConfiguration(available_layers, nullptr);
-    this->active_configuration = nullptr;
+    this->environment.SetActiveConfiguration("");
+    this->environment.SetMode(saved_mode);
+    this->Configure(available_layers);
 }
 
-void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &available_layers,
-                                                  const std::string &configuration_name) {
-    assert(!configuration_name.empty());
-
-    Configuration *configuration = FindByKey(available_configurations, configuration_name.c_str());
-    assert(configuration != nullptr);
-
-    SetActiveConfiguration(available_layers, configuration);
-}
-
-void ConfigurationManager::SetActiveConfiguration(const std::vector<Layer> &available_layers, Configuration *active_configuration) {
-    bool surrender = false;
-
-    if (environment.GetMode() != LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED) {
-        if (active_configuration != nullptr) {
-            assert(!active_configuration->key.empty());
-            environment.Set(ACTIVE_CONFIGURATION, active_configuration->key.c_str());
-            surrender = false;  //! active_configuration->HasOverride();
-        } else {
-            surrender = true;
-        }
-    }
-
-    if (surrender || environment.GetMode() == LAYERS_MODE_BY_APPLICATIONS) {
-        SurrenderConfiguration(environment);
-    } else if (environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED) {
-        Configuration temp_configuration;
-        temp_configuration.key = "_TempConfiguration";
-        temp_configuration.parameters = GatherParameters(temp_configuration.parameters, available_layers);
-
-        for (std::size_t i = 0, n = temp_configuration.parameters.size(); i < n; ++i) {
-            temp_configuration.parameters[i].state = LAYER_STATE_EXCLUDED;
-        }
-
-        OverrideConfiguration(environment, available_layers, temp_configuration);
-    } else {
-        this->active_configuration = active_configuration;
-        assert(active_configuration != nullptr);
-        OverrideConfiguration(environment, available_layers, *active_configuration);
-    }
-}
-
-void ConfigurationManager::RefreshConfiguration(const std::vector<Layer> &available_layers) {
-    const std::string active_configuration_name = environment.Get(ACTIVE_CONFIGURATION);
+void ConfigurationManager::Configure(const std::vector<Layer> &available_layers) {
+    const std::string active_configuration_name = this->environment.GetActiveConfiguration();
 
     if (active_configuration_name.empty()) {
-        environment.Set(ACTIVE_CONFIGURATION, "");
-        SetActiveConfiguration(available_layers, nullptr);
+        this->environment.SetActiveConfiguration("");
+        this->Configure(available_layers, "");
     } else {
-        Configuration *active_configuration = FindByKey(available_configurations, active_configuration_name.c_str());
+        Configuration *active_configuration = FindByKey(this->available_configurations, active_configuration_name.c_str());
         if (active_configuration == nullptr) {
-            environment.Set(ACTIVE_CONFIGURATION, "");
+            environment.SetActiveConfiguration("");
         }
-        SetActiveConfiguration(available_layers, active_configuration);
+        this->Configure(available_layers, this->environment.GetActiveConfiguration());
     }
+}
+
+void ConfigurationManager::Configure(const std::vector<Layer> &available_layers, const std::string &configuration_name) {
+    switch (this->environment.GetMode()) {
+        default:
+        case LAYERS_MODE_BY_APPLICATIONS: {
+            SurrenderConfiguration(this->environment);
+        } break;
+        case LAYERS_MODE_BY_CONFIGURATOR_RUNNING: {
+            if (configuration_name.empty()) {
+                ::SurrenderConfiguration(this->environment);
+            } else {
+                Configuration *active_configuration = FindByKey(this->available_configurations, configuration_name.c_str());
+                std::string missing_layer;
+                if (::HasMissingLayer(active_configuration->parameters, available_layers, missing_layer)) {
+                    ::SurrenderConfiguration(this->environment);
+                } else {
+                    ::OverrideConfiguration(this->environment, available_layers, *active_configuration);
+                }
+            }
+        } break;
+        case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED: {
+            Configuration temp_configuration;
+            temp_configuration.key = "_TempConfiguration";
+            temp_configuration.parameters = GatherParameters(temp_configuration.parameters, available_layers);
+
+            for (std::size_t i = 0, n = temp_configuration.parameters.size(); i < n; ++i) {
+                temp_configuration.parameters[i].state = LAYER_STATE_EXCLUDED;
+            }
+
+            ::OverrideConfiguration(environment, available_layers, temp_configuration);
+        } break;
+    }
+}
+
+Configuration *ConfigurationManager::FindActiveConfiguration() {
+    if (this->environment.GetActiveConfiguration().empty()) {
+        return nullptr;
+    }
+
+    return FindByKey(this->available_configurations, this->environment.GetActiveConfiguration().c_str());
 }
 
 bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &available_layers) const {
@@ -281,11 +275,17 @@ bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &avai
         case LAYERS_MODE_BY_APPLICATIONS:
             return false;
         case LAYERS_MODE_BY_CONFIGURATOR_RUNNING: {
-            if (this->active_configuration != nullptr) {
-                std::string missing_layer;
-                return !HasMissingLayer(this->active_configuration->parameters, available_layers, missing_layer);
-            } else {
+            const std::string configuration_name = this->environment.GetActiveConfiguration();
+            if (configuration_name.empty()) {
                 return false;
+            } else {
+                const Configuration *active_configuration = FindByKey(this->available_configurations, configuration_name.c_str());
+                if (active_configuration != nullptr) {
+                    std::string missing_layer;
+                    return !::HasMissingLayer(active_configuration->parameters, available_layers, missing_layer);
+                } else {
+                    return false;
+                }
             }
         }
         case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED:
@@ -295,7 +295,8 @@ bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &avai
     return false;
 }
 
-void ConfigurationManager::ImportConfiguration(const std::vector<Layer> &available_layers, const std::string &full_import_path) {
+std::string ConfigurationManager::ImportConfiguration(const std::vector<Layer> &available_layers,
+                                                      const std::string &full_import_path) {
     assert(!full_import_path.empty());
 
     Configuration configuration;
@@ -306,13 +307,14 @@ void ConfigurationManager::ImportConfiguration(const std::vector<Layer> &availab
         msg.setText("Cannot access the source configuration file.");
         msg.setInformativeText(full_import_path.c_str());
         msg.exec();
-        return;
+        return "";
     }
 
     configuration.key = MakeConfigurationName(this->available_configurations, configuration.key + " (Imported)");
     this->available_configurations.push_back(configuration);
     this->SortConfigurations();
-    SetActiveConfiguration(available_layers, configuration.key.c_str());
+
+    return configuration.key;
 }
 
 void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &available_layers, const std::string &full_export_path,
@@ -334,23 +336,17 @@ void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &availab
 }
 
 void ConfigurationManager::ResetDefaultsConfigurations(const std::vector<Layer> &available_layers) {
-    // Clear the current configuration as we may be about to remove it.
-    SetActiveConfiguration(available_layers, nullptr);
-
     environment.Reset(Environment::DEFAULT);
 
     // Now we need to kind of restart everything
-    LoadAllConfigurations(available_layers);
+    this->LoadAllConfigurations(available_layers);
 }
 
 void ConfigurationManager::ReloadDefaultsConfigurations(const std::vector<Layer> &available_layers) {
-    // Clear the current configuration as we may be about to remove it.
-    SetActiveConfiguration(available_layers, nullptr);
-
     // Now we need to kind of restart everything
     LoadDefaultConfigurations(available_layers);
 
-    RefreshConfiguration(available_layers);
+    this->Configure(available_layers);
 }
 
 void ConfigurationManager::FirstDefaultsConfigurations(const std::vector<Layer> &available_layers) {
@@ -378,8 +374,6 @@ void ConfigurationManager::FirstDefaultsConfigurations(const std::vector<Layer> 
         OrderParameter(configuration.parameters, available_layers);
         available_configurations.push_back(configuration);
     }
-
-    RefreshConfiguration(available_layers);
 }
 
 bool ConfigurationManager::CheckApiVersions(const std::vector<Layer> &available_layers, Configuration *active_configuration,

@@ -209,6 +209,17 @@ void Alert::ConfigurationNameInvalid() {
     alert.exec();
 }
 
+void Alert::ConfigurationNameASCII() {
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle("Invalid name for a configuration...");
+    alert.setText("The configuration name requires ASCII characters only.");
+    alert.setInformativeText("The name can't contain any of the following characters: \\ / : * \" < > |.");
+    alert.setStandardButtons(QMessageBox::Ok);
+    alert.setDefaultButton(QMessageBox::Ok);
+    alert.setIcon(QMessageBox::Warning);
+    alert.exec();
+}
+
 static std::string BuildPropertiesLog(const Layer& layer) {
     std::string description;
     if (!layer.description.empty()) {
