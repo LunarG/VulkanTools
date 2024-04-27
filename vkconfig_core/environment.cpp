@@ -149,7 +149,7 @@ void Environment::Reset(ResetMode mode) {
             this->layers_mode = LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
             this->use_application_list = false;
             this->use_system_tray = false;
-            this->active_configuration = "Validation";
+            this->selected_configuration = "Validation";
             this->active_application.clear();
 
             applications = CreateDefaultApplications();
@@ -225,8 +225,8 @@ bool Environment::Load() {
     this->loader_message_types = settings.value(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types)).toInt();
 
     // Load active configuration
-    this->active_configuration =
-        settings.value(VKCONFIG_KEY_ACTIVE_CONFIGURATION, this->active_configuration.c_str()).toString().toStdString();
+    this->selected_configuration =
+        settings.value(VKCONFIG_KEY_ACTIVE_CONFIGURATION, this->selected_configuration.c_str()).toString().toStdString();
 
     this->active_application =
         settings.value(VKCONFIG_KEY_ACTIVE_APPLICATION, this->active_application.c_str()).toString().toStdString();
@@ -338,7 +338,7 @@ bool Environment::Save() const {
     settings.setValue(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types));
 
     // Save active configuration
-    settings.setValue(VKCONFIG_KEY_ACTIVE_CONFIGURATION, this->active_configuration.c_str());
+    settings.setValue(VKCONFIG_KEY_ACTIVE_CONFIGURATION, this->selected_configuration.c_str());
 
     // Save active application
     settings.setValue(VKCONFIG_KEY_ACTIVE_APPLICATION, this->active_application.c_str());

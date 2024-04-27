@@ -161,10 +161,10 @@ std::string GenerateVulkanStatus() {
         case LAYERS_MODE_BY_CONFIGURATOR_RUNNING:
             if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
                 log += format("- Vulkan Layers Controlled by \"%s\" configuration\n",
-                              configurator.environment.GetActiveConfiguration().c_str());
+                              configurator.environment.GetSelectedConfiguration().c_str());
             } else {
                 log += format("- Vulkan Layers Controlled by Vulkan Configurator but no configuration selected\n",
-                              configurator.environment.GetActiveConfiguration().c_str());
+                              configurator.environment.GetSelectedConfiguration().c_str());
             }
             break;
         case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED:

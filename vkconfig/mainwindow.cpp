@@ -306,8 +306,8 @@ void MainWindow::UpdateUI() {
 
     Configurator &configurator = Configurator::Get();
     const Environment &environment = Configurator::Get().environment;
-    const std::string &active_contiguration_name = environment.GetActiveConfiguration();
-    const bool has_active_configuration = !active_contiguration_name.empty();
+    const std::string &selected_contiguration_name = environment.GetSelectedConfiguration();
+    const bool has_selected_configuration = !selected_contiguration_name.empty();
 
     this->blockSignals(true);
     this->ClearLog();
@@ -318,9 +318,7 @@ void MainWindow::UpdateUI() {
     ui->combo_box_layers_controlled->setCurrentIndex(environment.GetMode());
     ui->combo_box_layers_controlled->blockSignals(false);
 
-    const bool use_override = environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS;
-
-    const bool active = configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers);
+    const bool has_active_configuration = configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers);
 
     // Mode states
     this->UpdateTray();
@@ -343,7 +341,7 @@ void MainWindow::UpdateUI() {
         item->radio_button->setToolTip(configuration->description.c_str());
         item->radio_button->blockSignals(true);
 
-        if (item->configuration_name == active_contiguration_name) {
+        if (item->configuration_name == selected_contiguration_name) {
             item->radio_button->setChecked(true);
             ui->configuration_tree->setCurrentItem(item);
         } else {
@@ -354,13 +352,15 @@ void MainWindow::UpdateUI() {
     }
 
     // Update settings
-    ui->push_button_edit->setEnabled(use_override && has_active_configuration);
-    ui->push_button_remove->setEnabled(use_override && has_active_configuration);
-    ui->push_button_duplicate->setEnabled(use_override && has_active_configuration);
-    ui->push_button_new->setEnabled(use_override);
-    ui->settings_tree->setEnabled(environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING && has_active_configuration);
-    ui->group_box_settings->setTitle(active_contiguration_name.empty() ? "Configuration Settings"
-                                                                       : (active_contiguration_name + " Settings").c_str());
+    ui->push_button_edit->setEnabled(has_selected_configuration);
+    ui->push_button_remove->setEnabled(has_selected_configuration);
+    ui->push_button_duplicate->setEnabled(has_selected_configuration);
+    ui->push_button_new->setEnabled(true);
+    if (has_selected_configuration) {
+        ui->group_box_settings->setTitle((selected_contiguration_name + " Settings").c_str());
+    } else {
+        ui->group_box_settings->setTitle("Configuration Settings");
+    }
 
     // Handle application lists states
     ui->check_box_apply_list->setEnabled(!been_warned_about_old_loader &&
@@ -428,16 +428,15 @@ void MainWindow::UpdateUI() {
         _launcher_log_file_edit->setEnabled(has_application_list);
     }
 
-    if (ui->settings_tree->isEnabled()) {
-        if (active) {
-            _settings_tree_manager.CreateGUI(ui->settings_tree);
-        } else {
-            _settings_tree_manager.CleanupGUI();
-        }
+    ui->settings_tree->setEnabled(environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING && has_selected_configuration);
+    if (has_selected_configuration) {
+        _settings_tree_manager.CreateGUI(ui->settings_tree);
+    } else {
+        _settings_tree_manager.CleanupGUI();
     }
 
     // Update title bar
-    setWindowTitle(GetMainWindowTitle(use_override && active).c_str());
+    setWindowTitle(GetMainWindowTitle(has_active_configuration).c_str());
 
     ui->configuration_tree->blockSignals(false);
     this->blockSignals(false);
@@ -617,7 +616,7 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     ui->configuration_tree->setCurrentItem(configuration_item);
 
     Configurator &configurator = Configurator::Get();
-    if (configurator.environment.GetActiveConfiguration() != configuration_item->configuration_name) {
+    if (configurator.environment.GetSelectedConfiguration() != configuration_item->configuration_name) {
         configurator.ActivateConfiguration(configuration_item->configuration_name);
         this->UpdateUI();
     }
@@ -632,7 +631,7 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     }
 
     Configurator &configurator = Configurator::Get();
-    if (configurator.environment.GetActiveConfiguration() != configuration_item->configuration_name) {
+    if (configurator.environment.GetSelectedConfiguration() != configuration_item->configuration_name) {
         configurator.ActivateConfiguration(configuration_item->configuration_name);
         this->UpdateUI();
     }
@@ -653,7 +652,7 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
     configuration_item->radio_button->setChecked(true);
 
     Configurator &configurator = Configurator::Get();
-    if (configurator.environment.GetActiveConfiguration() != configuration_item->configuration_name) {
+    if (configurator.environment.GetSelectedConfiguration() != configuration_item->configuration_name) {
         configurator.ActivateConfiguration(configuration_item->configuration_name);
         this->UpdateUI();
     }
@@ -871,20 +870,20 @@ void MainWindow::on_push_button_applications_clicked() {
 
 void MainWindow::on_push_button_new_clicked() {
     Configurator &configurator = Configurator::Get();
-    const std::string active_configuration = configurator.environment.GetActiveConfiguration();
+    const std::string selected_configuration = configurator.environment.GetSelectedConfiguration();
 
     Configuration &new_configuration =
         configurator.configurations.CreateConfiguration(configurator.layers.available_layers, "New Configuration");
 
-    std::string selected_configuration;
+    std::string activate_configuration;
 
     LayersDialog dlg(this, new_configuration);
     switch (dlg.exec()) {
         case QDialog::Accepted:
-            selected_configuration = new_configuration.key;
+            activate_configuration = new_configuration.key;
             break;
         case QDialog::Rejected:
-            selected_configuration = active_configuration;
+            activate_configuration = selected_configuration;
             configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, new_configuration.key);
             break;
         default:
@@ -892,7 +891,7 @@ void MainWindow::on_push_button_new_clicked() {
             break;
     }
 
-    configurator.ActivateConfiguration(selected_configuration);
+    configurator.ActivateConfiguration(activate_configuration);
 
     LoadConfigurationList();
 
@@ -902,7 +901,7 @@ void MainWindow::on_push_button_new_clicked() {
 void MainWindow::on_push_button_remove_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    this->RemoveConfiguration(configurator.environment.GetActiveConfiguration());
+    this->RemoveConfiguration(configurator.environment.GetSelectedConfiguration());
 }
 
 void MainWindow::on_push_button_duplicate_clicked() {
@@ -948,6 +947,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
 
     LayersDialog dlg(this, *configuration);
     if (dlg.exec() == QDialog::Accepted) {
+        configurator.configurations.SortConfigurations();
         configurator.ActivateConfiguration(configuration->key);
 
         LoadConfigurationList();
@@ -973,7 +973,7 @@ void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
 
     Configurator &configurator = Configurator::Get();
     configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, configuration_name);
-    configurator.environment.SetActiveConfiguration("");
+    configurator.environment.SetSelectedConfiguration("");
 
     LoadConfigurationList();
 
@@ -1105,7 +1105,7 @@ void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
         Configurator &configurator = Configurator::Get();
         configurator.configurations.ReloadDefaultsConfigurations(configurator.layers.available_layers);
 
-        configurator.ActivateConfiguration(configurator.environment.GetActiveConfiguration());
+        configurator.ActivateConfiguration(configurator.environment.GetSelectedConfiguration());
 
         LoadConfigurationList();
 
@@ -1487,11 +1487,19 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     if (target == ui->settings_tree) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
         if (right_click) {
+            bool require_update_ui = false;
+
             QTreeWidgetItem *setting_item = ui->settings_tree->itemAt(right_click->pos());
 
+            std::string layer_name = setting_item->toolTip(0).toStdString();
+
             const Layer *layer = GetLayer(ui->settings_tree, setting_item);
-            if (layer == nullptr) {
+            if (layer == nullptr && layer_name.empty()) {
                 return false;  // Unhandled action
+            }
+
+            if (layer != nullptr) {
+                layer_name = layer->key;
             }
 
             // Create context menu here
@@ -1499,21 +1507,25 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QFont subtitle_font = menu.font();
             subtitle_font.setBold(true);
 
-            QAction *title_action = new QAction(layer->key.c_str(), nullptr);
+            QAction *title_action = new QAction(setting_item->text(0).toStdString().c_str(), nullptr);
+            title_action->setEnabled(layer != nullptr);
             title_action->setFont(subtitle_font);
             menu.addAction(title_action);
 
             QAction *visit_layer_website_action = new QAction("Visit Layer Website...", nullptr);
-            visit_layer_website_action->setEnabled(!layer->url.empty());
+            visit_layer_website_action->setEnabled(layer != nullptr ? !layer->url.empty() : false);
             menu.addAction(visit_layer_website_action);
 
             QAction *export_html_action = new QAction("Open Layer HTML Documentation...", nullptr);
+            export_html_action->setEnabled(layer != nullptr);
             menu.addAction(export_html_action);
 
             QAction *export_markdown_action = new QAction("Open Layer Markdown Documentation...", nullptr);
+            export_markdown_action->setEnabled(layer != nullptr);
             menu.addAction(export_markdown_action);
 
             QAction *export_settings_action = new QAction("Open Layer vk_layers_settings.txt...", nullptr);
+            export_settings_action->setEnabled(layer != nullptr);
             menu.addAction(export_settings_action);
 
             static const char *table[] = {
@@ -1525,15 +1537,18 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                           "The tranlation table size doesn't match the enum number of elements");
 
             Configuration *configuration = configurator.configurations.FindActiveConfiguration();
-            Parameter *parameter = FindByKey(configuration->parameters, layer->key.c_str());
+            Parameter *parameter = FindByKey(configuration->parameters, layer_name.c_str());
 
-            QAction *layer_state_action = new QAction(table[parameter->state], nullptr);
+            QAction *layer_state_action = new QAction(layer != nullptr ? table[parameter->state] : "Remove Layer", nullptr);
+            if (layer == nullptr) {
+                layer_state_action->setFont(subtitle_font);
+            }
             menu.addAction(layer_state_action);
 
             menu.addSeparator();
 
             QAction *show_advanced_setting_action = new QAction("View Advanced Settings", nullptr);
-            show_advanced_setting_action->setEnabled(true);
+            show_advanced_setting_action->setEnabled(layer != nullptr);
             show_advanced_setting_action->setCheckable(true);
             show_advanced_setting_action->setChecked(configuration->view_advanced_settings);
             menu.addAction(show_advanced_setting_action);
@@ -1558,6 +1573,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                         break;
                 }
                 configuration->setting_tree_state.clear();
+                require_update_ui = true;
             } else if (action == show_advanced_setting_action) {
                 configuration->view_advanced_settings = action->isChecked();
                 configuration->setting_tree_state.clear();
@@ -1578,6 +1594,10 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                 return false;  // Unknown action
             }
 
+            if (require_update_ui) {
+                this->UpdateUI();
+            }
+
             // Do not pass on
             return true;
         }
@@ -1589,7 +1609,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(configuration_item);
 
             const Environment &environment = configurator.environment;
-            const std::string &active_contiguration_name = environment.GetActiveConfiguration();
+            const std::string &active_contiguration_name = environment.GetSelectedConfiguration();
 
             const bool active = environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS && !active_contiguration_name.empty();
 

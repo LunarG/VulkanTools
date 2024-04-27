@@ -87,7 +87,7 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
     }
 
     if (configuration_name.empty()) {
-        this->environment.SetActiveConfiguration("");
+        this->environment.SetSelectedConfiguration("");
         this->configurations.Configure(this->layers.available_layers);
     } else if (configuration == nullptr) {
         QMessageBox alert;
@@ -98,7 +98,7 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
         alert.setIcon(QMessageBox::Critical);
         alert.exec();
 
-        this->environment.SetActiveConfiguration("");
+        this->environment.SetSelectedConfiguration("");
         this->environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
         this->configurations.Configure(this->layers.available_layers);
     } else {
@@ -128,9 +128,10 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
                 ActivateConfiguration(configuration->key);
             }
         } else {
-            this->environment.SetActiveConfiguration(configuration_name.c_str());
             this->configurations.Configure(this->layers.available_layers);
         }
+
+        this->environment.SetSelectedConfiguration(configuration_name.c_str());
     }
 }
 
@@ -163,7 +164,7 @@ void Configurator::ResetToDefault(bool hard) {
         this->environment.Reset(Environment::CLEAR);
         this->configurations.ResetDefaultsConfigurations(this->layers.available_layers);
 
-        this->ActivateConfiguration(this->environment.GetActiveConfiguration());
+        this->ActivateConfiguration(this->environment.GetSelectedConfiguration());
     } else {
         this->configurations.ReloadDefaultsConfigurations(this->layers.available_layers);
     }

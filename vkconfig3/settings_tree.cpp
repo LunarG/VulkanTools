@@ -62,7 +62,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
     this->tree = build_tree;
 
-    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
     assert(configuration != nullptr);
 
     this->tree->blockSignals(true);
@@ -210,7 +210,7 @@ void SettingsTreeManager::CleanupGUI() {
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
     if (configuration == nullptr) return;
 
     configuration->setting_tree_state.clear();
@@ -230,7 +230,7 @@ void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
     configuration->setting_tree_state.clear();
     GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
 
@@ -245,7 +245,7 @@ void SettingsTreeManager::OnCollapsedChanged(const QModelIndex &index) {
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
     configuration->setting_tree_state.clear();
     GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
 
@@ -298,7 +298,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
     if (!IsPlatformSupported(meta_object.platform_flags)) return;
     if (meta_object.view == SETTING_VIEW_HIDDEN) return;
     if (meta_object.view == SETTING_VIEW_ADVANCED &&
-        !Configurator::Get().configurations.GetActiveConfiguration()->view_advanced_settings)
+        !Configurator::Get().configurations.GetSelectedConfiguration()->view_advanced_settings)
         return;
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
