@@ -862,7 +862,7 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
 
     Configurator &configurator = Configurator::Get();
     if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        if (configurator.configurations.GetActiveConfiguration()->key == configuration_item->configuration_name) return;
+        if (configurator.configurations.GetSelectedConfiguration()->key == configuration_item->configuration_name) return;
     }
 
     _settings_tree_manager.CleanupGUI();
@@ -876,12 +876,12 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
 }
 
 void MainWindow::StartTool(Tool tool) {
-    std::string active_configuration;
+    std::string selected_configuration;
 
     Configurator &configurator = Configurator::Get();
     if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        active_configuration = configurator.configurations.GetActiveConfiguration()->key;
-        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, nullptr);
+        selected_configuration = configurator.configurations.GetSelectedConfiguration()->key;
+        configurator.configurations.SetSelectedConfiguration(configurator.layers.available_layers, nullptr);
     }
 
     switch (tool) {
@@ -893,8 +893,8 @@ void MainWindow::StartTool(Tool tool) {
             break;
     }
 
-    if (!active_configuration.empty()) {
-        configurator.configurations.SetActiveConfiguration(configurator.layers.available_layers, active_configuration);
+    if (!selected_configuration.empty()) {
+        configurator.configurations.SetSelectedConfiguration(configurator.layers.available_layers, selected_configuration);
     }
 }
 
@@ -1038,13 +1038,13 @@ void MainWindow::on_push_button_new_clicked() { this->NewClicked(); }
 void MainWindow::on_push_button_remove_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    this->RemoveConfiguration(configurator.configurations.GetActiveConfiguration()->key);
+    this->RemoveConfiguration(configurator.configurations.GetSelectedConfiguration()->key);
 }
 
 void MainWindow::on_push_button_duplicate_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configutation = configurator.configurations.GetActiveConfiguration();
+    Configuration *configutation = configurator.configurations.GetSelectedConfiguration();
     assert(configutation != nullptr);
 
     const Configuration &duplicated_configuration =
@@ -1057,7 +1057,7 @@ void MainWindow::on_push_button_duplicate_clicked() {
 
 void MainWindow::on_push_button_edit_clicked() {
     Configurator &configurator = Configurator::Get();
-    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
     assert(configuration != nullptr);
 
     const std::string configuration_name = configuration->key;
@@ -1088,7 +1088,7 @@ void MainWindow::EditClicked(ConfigurationListItem *item) {
 
 void MainWindow::NewClicked() {
     Configurator &configurator = Configurator::Get();
-    const std::string active_configuration = configurator.environment.Get(ACTIVE_CONFIGURATION);
+    const std::string selected_configuration = configurator.environment.Get(ACTIVE_CONFIGURATION);
 
     Configuration &new_configuration =
         configurator.configurations.CreateConfiguration(configurator.layers.available_layers, "New Configuration");
@@ -1579,7 +1579,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             static_assert(countof(table) == LAYER_STATE_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");
 
-            Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+            Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
             Parameter *parameter = FindByKey(configuration->parameters, layer->key.c_str());
 
             QAction *layer_state_action = new QAction(table[parameter->state], nullptr);
@@ -1779,7 +1779,7 @@ void MainWindow::on_push_button_launcher_clicked() {
     Configurator &configurator = Configurator::Get();
     const Application &active_application = configurator.environment.GetActiveApplication();
 
-    Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
 
     std::string missing_layer;
     if (configuration == nullptr) {

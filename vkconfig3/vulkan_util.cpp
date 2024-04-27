@@ -154,8 +154,8 @@ std::string GenerateVulkanStatus() {
 
     // Layers override configuration
     if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        log +=
-            format("- Layers override: \"%s\" configuration\n", configurator.configurations.GetActiveConfiguration()->key.c_str());
+        log += format("- Layers override: \"%s\" configuration\n",
+                      configurator.configurations.GetSelectedConfiguration()->key.c_str());
     } else {
         log += "- Layers override: None\n";
     }
@@ -206,7 +206,7 @@ std::string GenerateVulkanStatus() {
         return log;
     }
 
-    Configuration *active_configuration = configurator.configurations.GetActiveConfiguration();
+    Configuration *selected_configuration = configurator.configurations.GetSelectedConfiguration();
     if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
         SurrenderConfiguration(configurator.environment);
     }
@@ -347,8 +347,8 @@ std::string GenerateVulkanStatus() {
 
     vkDestroyInstance(inst, NULL);
 
-    if (active_configuration != nullptr) {
-        OverrideConfiguration(configurator.environment, configurator.layers.available_layers, *active_configuration);
+    if (selected_configuration != nullptr) {
+        OverrideConfiguration(configurator.environment, configurator.layers.available_layers, *selected_configuration);
     }
 
     return log;

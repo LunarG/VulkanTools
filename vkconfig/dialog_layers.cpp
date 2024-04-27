@@ -203,7 +203,7 @@ void LayersDialog::Reload() {
     RestoreParameterStates(this->configuration.parameters, ParameterStates);
     this->configuration.user_defined_paths = user_defined_paths;
 
-    configurator.environment.SetActiveConfiguration(configuration_name);
+    configurator.environment.SetSelectedConfiguration(configuration_name);
     configurator.configurations.Configure(configurator.layers.available_layers);
 }
 
@@ -291,7 +291,9 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
     TreeWidgetItemParameter *item = new TreeWidgetItemParameter(parameter.key.c_str());
 
     item->setText(0, decorated_name.c_str());
-    if (layer != nullptr) item->setToolTip(0, layer->manifest_path.c_str());
+    if (layer != nullptr) {
+        item->setToolTip(0, layer->manifest_path.c_str());
+    }
     item->setFlags(item->flags() | Qt::ItemIsSelectable);
     item->setDisabled(layer == nullptr);
 
@@ -302,31 +304,38 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
     WidgetTreeFriendlyComboBox *widget = new WidgetTreeFriendlyComboBox(item);
     ui->layerTree->setItemWidget(item, 1, widget);
 
-    std::string tooltip;
+    if (layer != nullptr) {
+        std::string tooltip;
 
-    bool disable_value = false;
-    if (!layer->disable_env.empty()) {
-        disable_value = !qgetenv(layer->disable_env.c_str()).isEmpty();
+        bool disable_value = false;
+        bool enable_value = false;
 
-        tooltip += layer->disable_env + format(": %s", disable_value ? "true" : "false");
+        if (!layer->disable_env.empty()) {
+            disable_value = !qgetenv(layer->disable_env.c_str()).isEmpty();
+
+            tooltip += layer->disable_env + format(": %s", disable_value ? "true" : "false");
+        }
+
+        if (!layer->enable_env.empty()) {
+            enable_value = qgetenv(layer->enable_env.c_str()).toStdString() == layer->enable_value;
+
+            tooltip += "; " + layer->enable_env + format(": %s", enable_value ? "true" : "false");
+        }
+
+        const std::string implicit_string = !disable_value || (!layer->enable_env.empty() && enable_value)
+                                                ? "Env Variables Controlled: On"
+                                                : "Env Variables Controlled: Off";
+
+        widget->setToolTip(tooltip.c_str());
+        widget->addItem(is_implicit_layer ? implicit_string.c_str() : "Application-Controlled");
+    } else {
+        widget->addItem("Application-Controlled");
+        widget->setCurrentIndex(LAYER_STATE_APPLICATION_CONTROLLED);
     }
 
-    bool enable_value = false;
-    if (!layer->enable_env.empty()) {
-        enable_value = qgetenv(layer->enable_env.c_str()).toStdString() == layer->enable_value;
-
-        tooltip += "; " + layer->enable_env + format(": %s", enable_value ? "true" : "false");
-    }
-
-    const std::string implicit_string = !disable_value || (!layer->enable_env.empty() && enable_value)
-                                            ? "Env Variables Controlled: On"
-                                            : "Env Variables Controlled: Off";
-
-    widget->addItem(is_implicit_layer ? implicit_string.c_str() : "Application-Controlled");
     widget->addItem("Overridden / Forced On");
     widget->addItem("Excluded / Forced Off");
     widget->setCurrentIndex(parameter.state);
-    widget->setToolTip(tooltip.c_str());
 
     this->connect(widget, SIGNAL(selectionMade(QTreeWidgetItem *, int)), this, SLOT(layerUseChanged(QTreeWidgetItem *, int)));
 }

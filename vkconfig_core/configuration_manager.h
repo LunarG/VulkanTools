@@ -61,9 +61,9 @@ class ConfigurationManager {
 
     void SortConfigurations();
 
-    bool CheckLayersVersions(const std::vector<Layer>& available_layers, Configuration* active_configuration,
+    bool CheckLayersVersions(const std::vector<Layer>& available_layers, Configuration* selected_configuration,
                              std::string& log_versions) const;
-    bool CheckApiVersions(const std::vector<Layer>& available_layers, Configuration* active_configuration,
+    bool CheckApiVersions(const std::vector<Layer>& available_layers, Configuration* selected_configuration,
                           std::string& log_versions) const;
 
     bool Empty() const { return available_configurations.empty(); }
@@ -74,7 +74,7 @@ class ConfigurationManager {
     std::vector<Configuration> available_configurations;
 
    private:
-    bool CompareLayersVersions(const std::vector<Layer>& available_layers, Configuration* active_configuration,
+    bool CompareLayersVersions(const std::vector<Layer>& available_layers, Configuration* selected_configuration,
                                const Version& version, std::string& log_versions, bool is_less) const;
 
     void RemoveConfigurationFiles();

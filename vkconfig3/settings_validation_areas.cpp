@@ -169,7 +169,7 @@ WidgetSettingValidation::WidgetSettingValidation(QTreeWidget *tree, QTreeWidgetI
         this->connect(this->widget_core, SIGNAL(clicked(bool)), this, SLOT(OnCoreChecked(bool)));
 
         Configurator &configurator = Configurator::Get();
-        Configuration *configuration = configurator.configurations.GetActiveConfiguration();
+        Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
 
         if (configuration->view_advanced_settings) {
             this->widget_core_layout = this->CreateWidget(this->item_core, &this->item_core_layout, "disables", TOKEN_CORE_LAYOUT);

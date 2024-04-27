@@ -109,11 +109,11 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             std::string layer_text = parameter.key;
             if (layer == nullptr) {
                 layer_text += " (Missing)";
-                layer_item->setDisabled(true);
             } else if (layer->status != STATUS_STABLE) {
                 layer_text += std::string(" (") + GetToken(layer->status) + ")";
             }
 
+            layer_item->setToolTip(0, parameter.key.c_str());  // Hack for the context menu to find the layer
             layer_item->setText(0, layer_text.c_str());
             layer_item->setFont(0, font_layer);
             layer_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));

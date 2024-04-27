@@ -170,8 +170,8 @@ class Environment {
     const Application& GetApplication(std::size_t application_index) const;
     Application& GetApplication(std::size_t application_index);
 
-    const std::string& GetActiveConfiguration() const { return this->active_configuration; }
-    void SetActiveConfiguration(const std::string& name) { this->active_configuration = name; }
+    const std::string& GetSelectedConfiguration() const { return this->selected_configuration; }
+    void SetSelectedConfiguration(const std::string& name) { this->selected_configuration = name; }
 
     const QByteArray& Get(LayoutState state) const;
     void Set(LayoutState state, const QByteArray& data);
@@ -220,7 +220,7 @@ class Environment {
     bool use_system_tray;
     int loader_message_types;
 
-    std::string active_configuration;
+    std::string selected_configuration;
     std::string active_application;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
     std::array<std::vector<std::string>, USER_DEFINED_LAYERS_PATHS_COUNT> user_defined_layers_paths;
