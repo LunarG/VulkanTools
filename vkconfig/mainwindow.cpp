@@ -602,6 +602,8 @@ void MainWindow::on_check_box_clear_on_launch_clicked() {
 void MainWindow::toolsResetToDefault(bool checked) {
     (void)checked;
 
+    ResetLaunchApplication();
+
     if (Alert::ConfiguratorResetAll() == QMessageBox::No) return;
 
     Configurator &configurator = Configurator::Get();
@@ -1818,7 +1820,7 @@ void MainWindow::on_push_button_launcher_clicked() {
             std::string("Failed to launch ") + ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str() + "!\n";
         Log(failed_log);
     } else {
-        _settings_tree_manager.launched_application = false;
+        _settings_tree_manager.launched_application = true;
     }
 }
 
