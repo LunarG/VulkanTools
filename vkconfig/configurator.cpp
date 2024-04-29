@@ -105,6 +105,7 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
         // If the layers paths are differents, we need to reload the layers and the configurations
         const std::vector<std::string> paths = this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
         if (configuration->user_defined_paths != paths) {
+            this->configurations.SaveAllConfigurations(this->layers.available_layers);
             this->environment.SetPerConfigUserDefinedLayersPaths(configuration->user_defined_paths);
             this->layers.LoadAllInstalledLayers();
             this->configurations.LoadAllConfigurations(this->layers.available_layers);
