@@ -40,6 +40,8 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QJsonArray>
+#include <QSettings>
+#include <QDateTime>
 
 #include <cassert>
 #include <string>
@@ -209,6 +211,11 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
 
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
+    std::string current_last_modified = QFileInfo(full_path_to_file.c_str()).lastModified().toString(Qt::ISODate).toStdString();
+
+    QSettings settings;
+    std::string cached_last_modified = settings.value(full_path_to_file.c_str()).toString().toStdString();
+
     this->key = ReadStringValue(json_layer_object, "name");
 
     if (this->key == "VK_LAYER_LUNARG_override") {
@@ -226,12 +233,13 @@ bool Layer::Load(const std::vector<Layer>& available_layers, const std::string& 
         full_path_to_file.rfind(":/") == 0;  // Check whether the path start with ":/" for resource file paths.
 
     JsonValidator validator;
-#if defined(_DEBUG)
-    const bool should_validate = (this->api_version >= Version(1, 2, 170) && is_builtin_layer_file) || !is_builtin_layer_file;
-#else
-    const bool should_validate = !is_builtin_layer_file;
-#endif
+
+    const bool should_validate = current_last_modified != cached_last_modified;
     const bool is_valid = should_validate ? validator.Check(json_text) : true;
+
+    if (should_validate && is_valid) {
+        settings.setValue(full_path_to_file.c_str(), current_last_modified.c_str());
+    }
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
