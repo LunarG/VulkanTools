@@ -675,10 +675,12 @@ void LayersDialog::accept() {
         return;
     }
 
+    /* ANSI character are allowed
     if (ui->lineEditName->text().contains(QRegularExpression(QStringLiteral("[^\\x{0000}-\\x{007F}]")))) {
         Alert::ConfigurationNameASCII();
         return;
     }
+    */
 
     Configurator &configurator = Configurator::Get();
     if (this->configuration.key != ui->lineEditName->text().toStdString() &&

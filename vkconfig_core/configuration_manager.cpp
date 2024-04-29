@@ -172,7 +172,7 @@ void ConfigurationManager::RemoveConfigurationFiles() {
 
         const QFileInfoList &configuration_files = GetJSONFiles(path.c_str());
         for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-            std::remove(configuration_files[i].filePath().toStdString().c_str());
+            QFile::remove(configuration_files[i].filePath());
         }
     }
 }
@@ -189,7 +189,7 @@ void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
         for (int j = 0, o = configuration_files.size(); j < o; ++j) {
             const QString filename = configuration_files[j].fileName();
             if (filename.toStdString() == key + ".json") {
-                std::remove(configuration_files[j].filePath().toStdString().c_str());
+                QFile::remove(configuration_files[j].filePath());
             }
         }
     }
@@ -348,6 +348,7 @@ void ConfigurationManager::ResetDefaultsConfigurations(const std::vector<Layer> 
 
     // Now we need to kind of restart everything
     this->LoadAllConfigurations(available_layers);
+    this->SaveAllConfigurations(available_layers);
 }
 
 void ConfigurationManager::ReloadDefaultsConfigurations(const std::vector<Layer> &available_layers) {
