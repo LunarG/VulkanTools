@@ -162,6 +162,7 @@ bool Configurator::SupportApplicationList(Version *return_loader_version) const 
 void Configurator::ResetToDefault(bool hard) {
     if (hard) {
         this->environment.Reset(Environment::CLEAR);
+        this->layers.LoadAllInstalledLayers();
         this->configurations.ResetDefaultsConfigurations(this->layers.available_layers);
 
         this->ActivateConfiguration(this->environment.GetSelectedConfiguration());
