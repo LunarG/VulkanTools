@@ -695,11 +695,13 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
                 valid_new_name = false;
                 Alert::ConfigurationNameInvalid();
             }
+            /* ANSI character are allowed
             if (valid_new_name &&
                 configuration_item->text(1).contains(QRegularExpression(QStringLiteral("[^\\x{0000}-\\x{007F}]")))) {
                 valid_new_name = false;
                 Alert::ConfigurationNameASCII();
             }
+            */
         }
 
         Configuration *duplicate_configuration = FindByKey(configurator.configurations.available_configurations, new_name.c_str());
