@@ -187,6 +187,7 @@ void LayersDialog::Reload() {
     std::vector<std::string> user_defined_paths = this->configuration.user_defined_paths;
 
     Configurator &configurator = Configurator::Get();
+    configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
     configurator.configurations.available_configurations.clear();
     configurator.environment.SetPerConfigUserDefinedLayersPaths(this->configuration.user_defined_paths);
 
