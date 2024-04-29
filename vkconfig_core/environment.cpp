@@ -151,6 +151,7 @@ void Environment::Reset(ResetMode mode) {
             this->use_system_tray = false;
             this->selected_configuration = "Validation";
             this->active_application.clear();
+            this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI].clear();
 
             applications = CreateDefaultApplications();
             break;

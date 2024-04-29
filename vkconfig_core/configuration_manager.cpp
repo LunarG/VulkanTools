@@ -344,7 +344,7 @@ void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &availab
 }
 
 void ConfigurationManager::ResetDefaultsConfigurations(const std::vector<Layer> &available_layers) {
-    environment.Reset(Environment::DEFAULT);
+    this->environment.Reset(Environment::DEFAULT);
 
     // Now we need to kind of restart everything
     this->LoadAllConfigurations(available_layers);
