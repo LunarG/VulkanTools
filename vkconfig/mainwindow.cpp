@@ -1706,6 +1706,8 @@ void MainWindow::ResetLaunchApplication() {
         _launch_application.reset();
 
         ui->push_button_launcher->setText("Launch");
+
+        _settings_tree_manager.launched_application = false;
     }
 }
 
@@ -1815,6 +1817,8 @@ void MainWindow::on_push_button_launcher_clicked() {
         const std::string failed_log =
             std::string("Failed to launch ") + ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str() + "!\n";
         Log(failed_log);
+    } else {
+        _settings_tree_manager.launched_application = false;
     }
 }
 

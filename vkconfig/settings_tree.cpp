@@ -50,7 +50,7 @@
 static const char *TOOLTIP_ORDER =
     "Layers are executed between the Vulkan application and driver in the specific order represented here";
 
-SettingsTreeManager::SettingsTreeManager() : tree(nullptr) {}
+SettingsTreeManager::SettingsTreeManager() : launched_application(false), tree(nullptr) {}
 
 void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     assert(build_tree);
@@ -470,11 +470,13 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
 
     this->tree->blockSignals(false);
 
-    QSettings settings;
-    if (!settings.value("vkconfig_restart", false).toBool()) {
-        settings.setValue("vkconfig_restart", true);
+    if (this->launched_application) {
+        QSettings settings;
+        if (!settings.value("vkconfig_restart", false).toBool()) {
+            settings.setValue("vkconfig_restart", true);
 
-        Alert::ConfiguratorRestart();
+            Alert::ConfiguratorRestart();
+        }
     }
 
     // Refresh layer configuration
