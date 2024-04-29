@@ -47,6 +47,7 @@
 #include <QLineEdit>
 #include <QSettings>
 #include <QDesktopServices>
+#include <QPropertyAnimation>
 
 #if VKC_PLATFORM == VKC_PLATFORM_LINUX || VKC_PLATFORM == VKC_PLATFORM_MACOS
 #include <unistd.h>
@@ -246,9 +247,20 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
         case QSystemTrayIcon::Context:
             break;
         case QSystemTrayIcon::DoubleClick:
-            this->hide();
-            this->showNormal();
-            this->UpdateUI();
+            Qt::WindowStates window_states = this->windowState();
+
+            const bool is_minimized = this->isMinimized();
+            const bool is_visible = this->isVisible();
+            const bool is_hidden = this->isHidden();
+
+            if (this->isMinimized() || this->isHidden()) {
+                this->setVisible(true);
+                this->showNormal();
+                this->setWindowState(Qt::WindowState::WindowActive);
+            } else {
+                this->hide();
+            }
+
             this->UpdateTray();
             break;
     }
@@ -835,7 +847,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     if (QSystemTrayIcon::isSystemTrayAvailable() && environment.GetUseSystemTray()) {
         QGuiApplication::setQuitOnLastWindowClosed(false);
-        hide();
+        this->hide();
         event->ignore();
     } else {
         QGuiApplication::setQuitOnLastWindowClosed(true);
