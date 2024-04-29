@@ -63,7 +63,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     this->tree = build_tree;
 
     Configuration *configuration = configurator.configurations.FindActiveConfiguration();
-    assert(configuration != nullptr);
+    if (configuration == nullptr) {
+        return;
+    }
 
     this->tree->blockSignals(true);
     this->tree->clear();
