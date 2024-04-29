@@ -1801,9 +1801,12 @@ class ApiDumpOutputGenerator(OutputGenerator):
                 and "vk_video" not in node.get('requires'):
                 sysTypeNames.add(node.get('name'))
 
+        # Sort sysTypes to ensure consistency across generated source runs
+        sortedSysTypeNames = sorted(sysTypeNames)
+
         # Look through the set of sysTypeName to find all of the extensions that use the system types, then add it to sysTypes
         self.sysTypes = {}
-        for sysTypeName in sysTypeNames:
+        for sysTypeName in sortedSysTypeNames:
             for extension in self.extTypes.values():
                 for typeName in extension.vktypes:
                     if typeName not in self.structs:
