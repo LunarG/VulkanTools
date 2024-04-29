@@ -39,6 +39,8 @@ class SettingsTreeManager : QObject {
    public:
     SettingsTreeManager();
 
+    bool launched_application;
+
     void CreateGUI(QTreeWidget *build_tree);
     void CleanupGUI();
 
