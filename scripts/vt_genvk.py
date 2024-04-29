@@ -330,57 +330,6 @@ def makeGenOpts(args):
             isVideoGeneration = True)
     ]
 
-
-    # Helper file generator options for vk_struct_size_helper.h
-    genOpts['vk_struct_size_helper.h'] = [
-          ToolHelperFileOutputGenerator,
-          ToolHelperFileOutputGeneratorOptions(
-            conventions       = conventions,
-            filename          = 'vk_struct_size_helper.h',
-            directory         = directory,
-            apiname           = 'vulkan',
-            genpath           = None,
-            profile           = None,
-            versions          = featuresPat,
-            emitversions      = featuresPat,
-            defaultExtensions = 'vulkan',
-            addExtensions     = addExtensionsPat,
-            removeExtensions  = removeExtensionsPat,
-            emitExtensions    = emitExtensionsPat,
-            prefixText        = prefixStrings + vkPrefixStrings,
-            protectFeature    = False,
-            apicall           = 'VKAPI_ATTR ',
-            apientry          = 'VKAPI_CALL ',
-            apientryp         = 'VKAPI_PTR *',
-            alignFuncParam    = 48,
-            helper_file_type  = 'struct_size_header')
-        ]
-
-    # Helper file generator options for vk_struct_size_helper.c
-    genOpts['vk_struct_size_helper.c'] = [
-          ToolHelperFileOutputGenerator,
-          ToolHelperFileOutputGeneratorOptions(
-            conventions       = conventions,
-            filename          = 'vk_struct_size_helper.c',
-            directory         = directory,
-            apiname           = 'vulkan',
-            genpath           = None,
-            profile           = None,
-            versions          = featuresPat,
-            emitversions      = featuresPat,
-            defaultExtensions = 'vulkan',
-            addExtensions     = addExtensionsPat,
-            removeExtensions  = removeExtensionsPat,
-            emitExtensions    = emitExtensionsPat,
-            prefixText        = prefixStrings + vkPrefixStrings,
-            protectFeature    = False,
-            apicall           = 'VKAPI_ATTR ',
-            apientry          = 'VKAPI_CALL ',
-            apientryp         = 'VKAPI_PTR *',
-            alignFuncParam    = 48,
-            helper_file_type  = 'struct_size_source')
-        ]
-
 # Create an API generator and corresponding generator options based on
 # the requested target and command line options.
 # This is encapsulated in a function so it can be profiled and/or timed.
@@ -489,7 +438,6 @@ if __name__ == '__main__':
     from cgenerator import CGeneratorOptions, COutputGenerator
 
     # VulkanTools generator additions
-    from tool_helper_file_generator import ToolHelperFileOutputGenerator, ToolHelperFileOutputGeneratorOptions
     from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN, HTML_CODEGEN, JSON_CODEGEN
     from vkconventions import VulkanConventions
 
