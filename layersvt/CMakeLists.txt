@@ -38,34 +38,10 @@ else()
 endif()
 
 if(BUILD_APIDUMP)
-    add_custom_target(generate_api_cpp DEPENDS api_dump.cpp )
-    add_custom_target(generate_api_text_h DEPENDS api_dump_text.h )
-    add_custom_target(generate_api_html_h DEPENDS api_dump_html.h )
-    add_custom_target(generate_api_json_h DEPENDS api_dump_json.h )
-    add_custom_target(generate_api_video_text_h DEPENDS api_dump_video_text.h )
-    add_custom_target(generate_api_video_html_h DEPENDS api_dump_video_html.h )
-    add_custom_target(generate_api_video_json_h DEPENDS api_dump_video_json.h )
-
     find_package(Python3 REQUIRED)
 
     set(VULKANTOOLS_SCRIPTS_DIR "${VULKAN_TOOLS_SOURCE_DIR}/scripts")
     set(VULKAN_REGISTRY "${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry")
-
-    # Define macro used for building vk.xml generated files
-    function(run_vulkantools_generate xml_file dependency output)
-        add_custom_command(OUTPUT ${output}
-            COMMAND Python3::Interpreter -B ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py -registry ${VULKAN_REGISTRY}/${xml_file} -scripts ${VULKAN_REGISTRY} ${output}
-            DEPENDS ${VULKAN_REGISTRY}/${xml_file} ${VULKAN_REGISTRY}/generator.py ${VULKANTOOLS_SCRIPTS_DIR}/${dependency} ${VULKANTOOLS_SCRIPTS_DIR}/vt_genvk.py ${VULKAN_REGISTRY}/reg.py
-        )
-    endfunction()
-
-    run_vulkantools_generate(vk.xml api_dump_generator.py api_dump.cpp)
-    run_vulkantools_generate(vk.xml api_dump_generator.py api_dump_text.h)
-    run_vulkantools_generate(vk.xml api_dump_generator.py api_dump_html.h)
-    run_vulkantools_generate(vk.xml api_dump_generator.py api_dump_json.h)
-    run_vulkantools_generate(video.xml api_dump_generator.py api_dump_video_text.h)
-    run_vulkantools_generate(video.xml api_dump_generator.py api_dump_video_html.h)
-    run_vulkantools_generate(video.xml api_dump_generator.py api_dump_video_json.h)
 
     if(IOS)
         add_library(VkLayer_api_dump SHARED)
@@ -74,7 +50,13 @@ if(BUILD_APIDUMP)
     endif()
 
     target_sources(VkLayer_api_dump PRIVATE
-        api_dump.cpp
+        generated/api_dump.cpp
+        generated/api_dump_html.h
+        generated/api_dump_json.h
+        generated/api_dump_text.h
+        generated/api_dump_video_html.h
+        generated/api_dump_video_json.h
+        generated/api_dump_video_text.h
         api_dump.h
         vk_layer_table.cpp
         vk_layer_table.h
@@ -93,16 +75,6 @@ if(BUILD_APIDUMP)
         # Add Wayland API dump support
         # target_compile_definitions(VkLayer_api_dump PRIVATE VK_USE_PLATFORM_XLIB_KHR)
     endif()
-
-    add_dependencies(VkLayer_api_dump
-        generate_api_cpp
-        generate_api_text_h
-        generate_api_html_h
-        generate_api_json_h
-        generate_api_video_text_h
-        generate_api_video_html_h
-        generate_api_video_json_h
-    )
 
     target_compile_definitions(VkLayer_api_dump PRIVATE VK_ENABLE_BETA_EXTENSIONS)
 endif ()
