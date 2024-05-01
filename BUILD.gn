@@ -1,0 +1,174 @@
+# Copyright (C) 2018-2024 The ANGLE Project Authors.
+# Copyright (C) 2019-2024 LunarG, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build_overrides/lunarg_vulkantools.gni")
+
+# This is not currently implemented for Fuchsia
+assert(!is_fuchsia)
+
+vulkan_undefine_configs = []
+if (is_win) {
+  vulkan_undefine_configs += [ "//build/config/win:unicode" ]
+}
+
+config("generated_layers_config") {
+  if (is_clang) {
+    cflags = [
+      "-Wno-conversion",
+      "-Wno-deprecated-copy",
+      "-Wno-extra-semi",
+      "-Wno-implicit-fallthrough",
+      "-Wno-missing-field-initializers",
+      "-Wno-newline-eof",
+      "-Wno-sign-compare",
+      "-Wno-unused-const-variable",
+    ]
+  }
+}
+
+config("vulkan_internal_config") {
+  defines = [ "VK_ENABLE_BETA_EXTENSIONS" ]
+
+  cflags = []
+  if (is_clang || !is_win) {
+    cflags += [ "-Wno-unused-function" ]
+  }
+  if (is_clang && is_mac) {
+    cflags += [ "-Wno-unguarded-availability-new" ]
+  }
+
+  # Suppress warnings the vulkan code doesn't comply with.
+  if (is_clang) {
+    cflags += [ "-Wno-extra-semi" ]
+  }
+}
+
+# The vulkantools layers
+# ----------------------
+
+config("vulkan_layer_config") {
+  include_dirs = [
+    "layersvt",
+    "layersvt/generated",
+  ]
+  if (is_clang) {
+    cflags = [ "-Wno-extra-semi" ]
+  }
+}
+
+vt_sources = [
+  "layersvt/generated/api_dump.cpp",
+  "layersvt/generated/api_dump_html.h",
+  "layersvt/generated/api_dump_json.h",
+  "layersvt/generated/api_dump_text.h",
+  "layersvt/generated/api_dump_video_html.h",
+  "layersvt/generated/api_dump_video_json.h",
+  "layersvt/generated/api_dump_video_text.h",
+  "layersvt/api_dump.h",
+  "layersvt/vk_layer_table.cpp",
+  "layersvt/vk_layer_table.h",
+]
+
+if (!is_android) {
+  vulkan_data_dir = "$root_out_dir/$vulkan_data_subdir"
+  action("vulkan_gen_json_files") {
+    script = "scripts/gn/generate_vulkantools_layers_json.py"
+
+    deps = [ "$vulkan_headers_dir:vulkan_headers" ]
+
+    sources = [ "layersvt/json/VkLayer_api_dump.json.in" ]
+    outputs = [ "$vulkan_data_dir/VkLayer_lunarg_api_dump.json" ]
+
+    if (is_linux) {
+      _platform = "Linux"
+    } else if (is_win) {
+      _platform = "Windows"
+    } else if (is_mac) {
+      _platform = "Darwin"
+    } else {
+      _platform = "Other"
+    }
+
+    args = [
+             "--platform",
+             _platform,
+             rebase_path("layersvt/json/", root_build_dir),
+             rebase_path(vulkan_data_dir, root_build_dir),
+           ] + rebase_path(sources, root_build_dir)
+
+    # The layer JSON files are part of the necessary data deps.
+    data = outputs
+  }
+}
+
+source_set("vulkan_layer_utils") {
+  include_dirs = [
+    "layers",
+    "layers/external",
+    "layers/vulkan",
+  ]
+  sources = [
+    "$vulkan_headers_dir/include/vulkan/vk_layer.h",
+    "$vulkan_headers_dir/include/vulkan/vulkan.h",
+  ]
+  public_configs = [
+    ":vulkan_internal_config",
+  ]
+  public_deps = [
+    "$vulkan_headers_dir:vulkan_headers",
+    "$vulkan_utility_libraries_dir:vulkan_layer_settings",
+  ]
+
+  configs -= vulkan_undefine_configs
+}
+
+library_type = "shared_library"
+
+target(library_type, "VkLayer_lunarg_api_dump") {
+  defines = []
+  ldflags = []
+  configs -= [ "//build/config/compiler:chromium_code" ]
+  configs += [ "//build/config/compiler:no_chromium_code" ]
+  configs -= [ "//build/config/compiler:no_rtti" ]
+  configs += [ "//build/config/compiler:rtti" ]
+  configs -= vulkan_undefine_configs
+  configs += [ ":generated_layers_config" ]
+  public_configs = [ ":vulkan_layer_config" ]
+  deps = [
+    ":vulkan_layer_utils",
+    "$vulkan_utility_libraries_dir:vulkan_layer_settings",
+  ]
+  sources = vt_sources
+  if (is_win) {
+    defines += [ "NOMINMAX" ]
+    sources += [ "layers/VkLayer_lunarg_api_dump.def" ]
+  }
+  if (defined(ozone_platform_x11) && ozone_platform_x11) {
+    defines += [ "VK_USE_PLATFORM_XLIB_KHR" ]
+  }
+  if (is_android) {
+    libs = [
+      "log",
+      "nativewindow",
+    ]
+    configs -= [ "//build/config/android:hide_all_but_jni_onload" ]
+  }
+}
+
+group("lunarg_vulkantools") {
+  public_deps = []
+  data_deps = []
+  data_deps += [ ":VkLayer_lunarg_api_dump" ]
+}
