@@ -127,10 +127,10 @@ LoaderMessageType GetLoaderMessageType(const std::string& value) {
 
 Environment::Environment(PathManager& paths, const Version& api_version)
     : api_version(api_version),
+      use_system_tray(false),
       loader_message_types(::GetLoaderMessageTypes(qgetenv("VK_LOADER_DEBUG").toStdString())),
       paths_manager(paths),
-      paths(paths_manager),
-      use_system_tray(false) {
+      paths(paths_manager) {
     const bool result = Load();
     assert(result);
 }
