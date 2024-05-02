@@ -49,6 +49,8 @@ if(Qt5_FOUND)
     add_library(vkconfig_core STATIC ${FILES_ALL})
     target_compile_options(vkconfig_core PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/MP>)
     target_compile_definitions(vkconfig_core PRIVATE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)
+    target_compile_definitions(vkconfig_core PRIVATE INSTALL_FULL_SYSCONFDIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}")
+    target_compile_definitions(vkconfig_core PRIVATE INSTALL_FULL_DATAROOTDIR="${CMAKE_INSTALL_FULL_DATAROOTDIR}")
     set_target_properties(vkconfig_core PROPERTIES FOLDER "vkconfig_core")
 
     if(WIN32)
