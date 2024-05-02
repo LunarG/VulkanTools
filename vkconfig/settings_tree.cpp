@@ -102,8 +102,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
-            const std::vector<Layer> &available_layers = configurator.layers.available_layers;
-            const Layer *layer = FindByKey(available_layers, parameter.key.c_str());
+            const std::vector<Layer> &selected_layers = configurator.layers.selected_layers;
+            const Layer *layer = FindByKey(selected_layers, parameter.key.c_str());
 
             QTreeWidgetItem *layer_item = new QTreeWidgetItem();
             this->tree->addTopLevelItem(layer_item);
@@ -157,7 +157,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         }
 
         const std::size_t excluded_layer_count =
-            CountExcludedLayers(configuration->parameters, configurator.layers.available_layers);
+            CountExcludedLayers(configuration->parameters, configurator.layers.selected_layers);
 
         if (excluded_layer_count > 0) {
             // The last item is just the excluded layers
@@ -175,7 +175,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
                 if (parameter.state != LAYER_STATE_EXCLUDED) continue;
 
-                const Layer *layer = FindByKey(configurator.layers.available_layers, parameter.key.c_str());
+                const Layer *layer = FindByKey(configurator.layers.selected_layers, parameter.key.c_str());
                 if (layer == nullptr) continue;  // Do not display missing excluded layers
 
                 QTreeWidgetItem *layer_item = new QTreeWidgetItem();
@@ -256,8 +256,8 @@ void SettingsTreeManager::OnCollapsedChanged(const QModelIndex &index) {
 
 void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter) {
     Configurator &configurator = Configurator::Get();
-    std::vector<Layer> &available_layers = configurator.layers.available_layers;
-    Layer *validation_layer = FindByKey(available_layers, "VK_LAYER_KHRONOS_validation");
+    std::vector<Layer> &selected_layers = configurator.layers.selected_layers;
+    Layer *validation_layer = FindByKey(selected_layers, "VK_LAYER_KHRONOS_validation");
     assert(validation_layer != nullptr);
 
     QTreeWidgetItem *validation_areas_item = new QTreeWidgetItem();
@@ -422,9 +422,9 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
 }
 
 void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
-    std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
+    std::vector<Layer> &selected_layers = Configurator::Get().layers.selected_layers;
 
-    const SettingMetaSet &settings = FindByKey(available_layers, parameter.key.c_str())->settings;
+    const SettingMetaSet &settings = FindByKey(selected_layers, parameter.key.c_str())->settings;
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         this->BuildTreeItem(parent, parameter, *settings[i]);
     }
@@ -472,8 +472,8 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
 
     if (this->launched_application) {
         QSettings settings;
-        if (!settings.value("vkconfig_restart", false).toBool()) {
-            settings.setValue("vkconfig_restart", true);
+        if (!settings.value(VKCONFIG_KEY_MESSAGE_NEED_APPLICATION_RESTART, false).toBool()) {
+            settings.setValue(VKCONFIG_KEY_MESSAGE_NEED_APPLICATION_RESTART, true);
 
             Alert::ConfiguratorRestart();
         }
@@ -481,7 +481,7 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
 
     // Refresh layer configuration
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 }
 
 void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent) {

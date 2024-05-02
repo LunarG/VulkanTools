@@ -42,7 +42,7 @@ class LayerManager {
 
     std::vector<std::string> BuildPathList() const;
 
-    std::vector<Layer> available_layers;
+    std::vector<Layer> selected_layers;
 
     const Environment& environment;
 

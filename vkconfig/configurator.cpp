@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ Configurator::Configurator(const std::string &VULKAN_SDK)
     : path(VULKAN_SDK, SUPPORTED_CONFIG_FILES), environment(path), layers(environment), configurations(environment) {}
 
 Configurator::~Configurator() {
-    configurations.SaveAllConfigurations(layers.available_layers);
+    configurations.SaveAllConfigurations(layers.selected_layers);
 
     SurrenderConfiguration(environment);
 }
@@ -70,16 +70,16 @@ bool Configurator::Init() {
         settings.setValue("crashed", false);
 
         if (Alert::ConfiguratorCrashed() == QMessageBox::No) {
-            this->configurations.LoadAllConfigurations(this->layers.available_layers);
+            this->configurations.LoadAllConfigurations(this->layers.selected_layers);
         }
     } else {
-        this->configurations.LoadAllConfigurations(this->layers.available_layers);
+        this->configurations.LoadAllConfigurations(this->layers.selected_layers);
     }
 
     if (this->configurations.Empty()) {
-        this->configurations.ResetDefaultsConfigurations(layers.available_layers);
+        this->configurations.ResetDefaultsConfigurations(layers.selected_layers);
     } else {
-        this->configurations.FirstDefaultsConfigurations(layers.available_layers);
+        this->configurations.FirstDefaultsConfigurations(layers.selected_layers);
     }
 
     this->ActivateConfiguration(selected_configuration);
@@ -95,7 +95,7 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
 
     if (configuration_name.empty()) {
         this->environment.SetSelectedConfiguration("");
-        this->configurations.Configure(this->layers.available_layers);
+        this->configurations.Configure(this->layers.selected_layers);
     } else if (configuration == nullptr) {
         QMessageBox alert;
         alert.QDialog::setWindowTitle("Vulkan layers configuration is missing...");
@@ -107,21 +107,21 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
 
         this->environment.SetSelectedConfiguration("");
         this->environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
-        this->configurations.Configure(this->layers.available_layers);
+        this->configurations.Configure(this->layers.selected_layers);
     } else {
         // If the layers paths are differents, we need to reload the layers and the configurations
         const std::vector<std::string> paths = this->environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_GUI);
         if (configuration->user_defined_paths != paths) {
-            this->configurations.SaveAllConfigurations(this->layers.available_layers);
+            this->configurations.SaveAllConfigurations(this->layers.selected_layers);
             this->environment.SetPerConfigUserDefinedLayersPaths(configuration->user_defined_paths);
             this->layers.LoadAllInstalledLayers();
-            this->configurations.LoadAllConfigurations(this->layers.available_layers);
+            this->configurations.LoadAllConfigurations(this->layers.selected_layers);
         }
 
         this->environment.SetSelectedConfiguration(configuration_name.c_str());
 
         std::string missing_layer;
-        if (HasMissingLayer(configuration->parameters, layers.available_layers, missing_layer)) {
+        if (::HasMissingLayer(configuration->parameters, layers.selected_layers, missing_layer)) {
             QMessageBox alert;
             alert.QDialog::setWindowTitle("Vulkan layer missing...");
             alert.setText(format("%s couldn't find '%s' layer required by '%s' configuration:", VKCONFIG_NAME,
@@ -138,7 +138,7 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
                 ActivateConfiguration(configuration->key);
             }
         } else {
-            this->configurations.Configure(this->layers.available_layers);
+            this->configurations.Configure(this->layers.selected_layers);
         }
     }
 }
@@ -217,11 +217,11 @@ void Configurator::ResetToDefault(bool hard) {
     if (hard) {
         this->environment.Reset(Environment::CLEAR);
         this->layers.LoadAllInstalledLayers();
-        this->configurations.ResetDefaultsConfigurations(this->layers.available_layers);
+        this->configurations.ResetDefaultsConfigurations(this->layers.selected_layers);
 
         this->ActivateConfiguration(this->environment.GetSelectedConfiguration());
     } else {
-        this->configurations.ReloadDefaultsConfigurations(this->layers.available_layers);
+        this->configurations.ReloadDefaultsConfigurations(this->layers.selected_layers);
     }
 }
 

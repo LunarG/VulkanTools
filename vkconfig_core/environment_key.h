@@ -21,10 +21,15 @@
 #pragma once
 
 // Saved settings for the application
+#define VKCONFIG_KEY_STATE_PER_APPLICATION "STATE_PerApplication"
+#define VKCONFIG_KEY_STATE_APPLICATION_LIST "STATE_Applicationlist"
+#define VKCONFIG_KEY_STATE_SYSTEM_TRAY "STATE_SystemTray"
+
+#define VKCONFIG_KEY_MESSAGE_SYSTEM_TRAY "MESSAGE_SystemTray"
+#define VKCONFIG_KEY_MESSAGE_NEED_APPLICATION_RESTART "MESSAGE_NeedApplicationRestart"
+
 #define VKCONFIG_KEY_INITIALIZE_FILES "FirstTimeRun"
 #define VKCONFIG_KEY_LAYERS_MODE "LayersMode"
-#define VKCONFIG_KEY_USE_APPLICATION_LIST "UseApplicationlist"
-#define VKCONFIG_KEY_USE_SYSTEM_TRAY "UseSystemTray"
 #define VKCONFIG_KEY_LOADER_MESSAGE "LoaderMessage"
 
 #define VKCONFIG_KEY_ACTIVE_CONFIGURATION "ActiveConfiguration"

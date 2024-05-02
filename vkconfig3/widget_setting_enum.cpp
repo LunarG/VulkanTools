@@ -47,7 +47,7 @@ static std::vector<std::string> GetProfileNames(SettingDataSet& data_set) {
 
 WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta,
                                      SettingDataSet& data_set)
-    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new ComboBox(this)) {
+    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new ComboBox(this)), last_resize(0, 0) {
     this->field->setFocusPolicy(Qt::StrongFocus);
     this->field->show();
 
@@ -66,6 +66,9 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
 void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
     const SettingDependenceMode enabled = ::CheckDependence(this->meta, data_set);
 
+    this->blockSignals(true);
+    this->field->blockSignals(true);
+
     this->item->setHidden(enabled == SETTING_DEPENDENCE_HIDE);
     this->item->setDisabled(enabled != SETTING_DEPENDENCE_ENABLE);
     this->field->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
@@ -76,12 +79,11 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
             this->DisplayOverride(this->field, this->meta);
         }
 
-        this->field->blockSignals(true);
         this->field->clear();
         this->enum_indexes.clear();
 
         const std::vector<std::string>& profiles = GetProfileNames(data_set);
-        this->item->setHidden(profiles.size() <= 1 || enabled == SETTING_DEPENDENCE_HIDE);
+        this->item->setHidden(enabled == SETTING_DEPENDENCE_HIDE);
 
         int selection = 0;
         const std::string value = this->data().GetValue();
@@ -93,13 +95,17 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
             this->enum_indexes.push_back(i);
         }
         this->field->setCurrentIndex(selection);
-        this->field->blockSignals(false);
+        if (!profiles.empty()) {
+            OnIndexChanged(selection);
+        }
+
+        // Ensure this->field size match the profiles names size
+        this->Resize();
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
         if (::CheckSettingOverridden(this->meta)) {
             this->DisplayOverride(this->field, this->meta);
         }
 
-        this->field->blockSignals(true);
         this->field->clear();
         this->enum_indexes.clear();
 
@@ -116,13 +122,14 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
             this->enum_indexes.push_back(i);
         }
         this->field->setCurrentIndex(selection);
-        this->field->blockSignals(false);
+        if (!devices.empty()) {
+            OnIndexChanged(selection);
+        }
     } else if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
         if (::CheckSettingOverridden(this->meta)) {
             this->DisplayOverride(this->field, this->meta);
         }
 
-        this->field->blockSignals(true);
         this->field->clear();
         this->enum_indexes.clear();
 
@@ -139,11 +146,18 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
             this->enum_indexes.push_back(i);
         }
         this->field->setCurrentIndex(selection);
-        this->field->blockSignals(false);
     }
+
+    this->blockSignals(false);
+    this->field->blockSignals(false);
 }
 
-void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
+void WidgetSettingEnum::Resize() {
+    // resizeEvent was never call yet
+    if (this->last_resize.width() == 0 || this->last_resize.height() == 0) {
+        return;
+    }
+
     int width = MIN_FIELD_WIDTH;
 
     const QFontMetrics fm = this->field->fontMetrics();
@@ -153,11 +167,10 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
         for (std::size_t i = 0, n = profiles.size(); i < n; ++i) {
             width = std::max(width, HorizontalAdvance(fm, (profiles[i] + "0000").c_str()));
         }
-        this->item->setHidden(profiles.size() <= 1);
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
         const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
         for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
-            width = std::max(width, HorizontalAdvance(fm, (devices[i] + "0000").c_str()));
+            width = std::max(width, HorizontalAdvance(fm, (devices[i] + "000").c_str()));
         }
     } else {
         for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
@@ -165,8 +178,18 @@ void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
         }
     }
 
-    const QRect button_rect = QRect(event->size().width() - width, 0, width, event->size().height());
+    const int prefix_width = HorizontalAdvance(fm, this->item->text(0) + "0");
+
+    width = std::min(width, this->last_resize.width() - prefix_width);
+
+    const QRect button_rect(this->last_resize.width() - width, 0, width, this->last_resize.height());
     this->field->setGeometry(button_rect);
+}
+
+void WidgetSettingEnum::resizeEvent(QResizeEvent* event) {
+    this->last_resize = event->size();
+
+    this->Resize();
 }
 
 void WidgetSettingEnum::OnIndexChanged(int index) {
@@ -175,18 +198,19 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         assert(index >= 0 && index < static_cast<int>(profiles.size()));
 
         this->data().SetValue(profiles[index].c_str());
-        this->item->setHidden(profiles.size() <= 1);
+        this->setToolTip(profiles[index].c_str());
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
         const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
         assert(index >= 0 && index < static_cast<int>(devices.size()));
 
         this->data().SetValue(devices[index].c_str());
+        this->setToolTip(devices[index].c_str());
     } else {
         assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 
         const std::size_t value_index = enum_indexes[static_cast<std::size_t>(index)];
         this->data().SetValue(this->meta.enum_values[value_index].key.c_str());
-        this->field->setToolTip(this->meta.enum_values[value_index].description.c_str());
+        this->setToolTip(this->meta.enum_values[value_index].description.c_str());
     }
 
     emit itemChanged();

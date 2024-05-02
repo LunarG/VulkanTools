@@ -76,6 +76,8 @@ class Layer {
 
     bool Load(const std::vector<Layer>& available_layers, const std::string& full_path_to_file, LayerType layer_type);
 
+    bool Load(const std::string& full_path_to_file, LayerType layer_type);
+
    private:
     Layer& operator=(const Layer&) = delete;
 

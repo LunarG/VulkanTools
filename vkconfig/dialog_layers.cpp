@@ -108,7 +108,7 @@ LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
+    configurator.configurations.SaveAllConfigurations(configurator.layers.selected_layers);
 
     ui->lineEditName->setText(configuration.key.c_str());
     ui->lineEditName->setFocus();
@@ -188,12 +188,12 @@ void LayersDialog::Reload() {
     std::vector<std::string> user_defined_paths = this->configuration.user_defined_paths;
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
+    configurator.configurations.SaveAllConfigurations(configurator.layers.selected_layers);
     configurator.configurations.available_configurations.clear();
     configurator.environment.SetPerConfigUserDefinedLayersPaths(this->configuration.user_defined_paths);
 
     configurator.layers.LoadAllInstalledLayers();
-    configurator.configurations.LoadAllConfigurations(configurator.layers.available_layers);
+    configurator.configurations.LoadAllConfigurations(configurator.layers.selected_layers);
 
     Configuration *saved_configuration =
         FindByKey(configurator.configurations.available_configurations, configuration_name.c_str());
@@ -206,7 +206,7 @@ void LayersDialog::Reload() {
     this->configuration.user_defined_paths = user_defined_paths;
 
     configurator.environment.SetSelectedConfiguration(configuration_name);
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 }
 
 void LayersDialog::UpdateUI() {
@@ -260,7 +260,7 @@ void LayersDialog::OnLayerTreeSortedClicked(QTreeWidgetItem *item, int column) {
 void LayersDialog::AddLayerItem(const Parameter &parameter) {
     assert(!parameter.key.empty());
 
-    std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
+    std::vector<Layer> &available_layers = Configurator::Get().layers.selected_layers;
 
     const Layer *layer = FindByKey(available_layers, parameter.key.c_str());
 
@@ -389,8 +389,8 @@ void LayersDialog::LoadUserDefinedPaths() {
         item->setExpanded(true);
 
         // Look for layers that are loaded that are also from this folder
-        for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; ++i) {
-            const Layer &layer = configurator.layers.available_layers[i];
+        for (std::size_t i = 0, n = configurator.layers.selected_layers.size(); i < n; ++i) {
+            const Layer &layer = configurator.layers.selected_layers[i];
 
             const QFileInfo file_info(layer.manifest_path.c_str());
             const std::string path(ConvertNativeSeparators(file_info.path().toStdString()));
@@ -429,23 +429,23 @@ void LayersDialog::resizeEvent(QResizeEvent *event) {
 }
 
 void LayersDialog::on_button_properties_clicked() {
-    const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
-    const Layer *layer = FindByKey(available_layers, this->selected_available_layer_name.c_str());
+    const std::vector<Layer> &selected_layers = Configurator::Get().layers.selected_layers;
+    const Layer *layer = FindByKey(selected_layers, this->selected_available_layer_name.c_str());
 
     Alert::LayerProperties(layer);
 }
 
 void LayersDialog::on_button_doc_clicked() {
-    const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
-    const Layer *layer = FindByKey(available_layers, this->selected_available_layer_name.c_str());
+    const std::vector<Layer> &selected_layers = Configurator::Get().layers.selected_layers;
+    const Layer *layer = FindByKey(selected_layers, this->selected_available_layer_name.c_str());
     const std::string path = format("%s/%s.html", GetPath(BUILTIN_PATH_APPDATA).c_str(), layer->key.c_str());
     ExportHtmlDoc(*layer, path);
     QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
 }
 
 void LayersDialog::on_button_website_clicked() {
-    const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
-    const Layer *layer = FindByKey(available_layers, this->selected_available_layer_name.c_str());
+    const std::vector<Layer> &selected_layers = Configurator::Get().layers.selected_layers;
+    const Layer *layer = FindByKey(selected_layers, this->selected_available_layer_name.c_str());
     QDesktopServices::openUrl(QUrl(layer->url.c_str()));
 }
 
@@ -475,7 +475,7 @@ void LayersDialog::on_button_reset_clicked() {
     selected_available_layer_name.clear();
     selected_sorted_layer_name.clear();
 
-    configuration.Reset(configurator.layers.available_layers, configurator.path);
+    configuration.Reset(configurator.layers.selected_layers, configurator.path);
 
     this->Reinit();
 
@@ -496,7 +496,7 @@ void LayersDialog::OverrideOrder(const std::string layer_name, const TreeWidgetI
 
     std::swap(below_parameter->overridden_rank, above_parameter->overridden_rank);
 
-    OrderParameter(configuration.parameters, Configurator::Get().layers.available_layers);
+    OrderParameter(configuration.parameters, Configurator::Get().layers.selected_layers);
     LoadAvailableLayersUI();
     LoadSortedLayersUI();
     LoadUserDefinedPaths();
@@ -552,7 +552,7 @@ void LayersDialog::UpdateButtons() {
     bool enabled_url = false;
 
     if (enabled) {
-        std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
+        std::vector<Layer> &available_layers = Configurator::Get().layers.selected_layers;
         const Layer *layer = FindByKey(available_layers, selected_available_layer_name.c_str());
         assert(layer != nullptr);
         if (!layer->url.empty()) enabled_url = true;
@@ -568,7 +568,7 @@ void LayersDialog::OverrideAllExplicitLayers() {
         if (it->state != LAYER_STATE_APPLICATION_CONTROLLED) continue;
 
         Configurator &configurator = Configurator::Get();
-        std::vector<Layer> &available_layers = configurator.layers.available_layers;
+        std::vector<Layer> &available_layers = configurator.layers.selected_layers;
 
         const Layer *layer = FindByKey(available_layers, it->key.c_str());
         if (layer == nullptr) continue;
@@ -601,8 +601,8 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
             OverrideAllExplicitLayers();
         }
     } else if (layer_state == LAYER_STATE_EXCLUDED) {
-        const std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
-        const Layer *layer = FindByKey(available_layers, tree_layer_item->layer_name.c_str());
+        const std::vector<Layer> &selected_layers = Configurator::Get().layers.selected_layers;
+        const Layer *layer = FindByKey(selected_layers, tree_layer_item->layer_name.c_str());
 
         if (layer != nullptr) {
             if (layer->type == LAYER_TYPE_IMPLICIT) {
@@ -616,7 +616,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
     current_parameter->state = layer_state;
     current_parameter->overridden_rank = Parameter::NO_RANK;
 
-    OrderParameter(this->configuration.parameters, Configurator::Get().layers.available_layers);
+    OrderParameter(this->configuration.parameters, Configurator::Get().layers.selected_layers);
 
     ui->button_reset->setEnabled(true);
 
@@ -694,7 +694,7 @@ void LayersDialog::accept() {
     Version loader_version;
     if (!configurator.SupportDifferentLayerVersions(&loader_version)) {
         std::string log_versions;
-        if (!configurator.configurations.CheckLayersVersions(configurator.layers.available_layers, &this->configuration,
+        if (!configurator.configurations.CheckLayersVersions(configurator.layers.selected_layers, &this->configuration,
                                                              log_versions)) {
             Alert::LayerIncompatibleVersions(log_versions.c_str(), loader_version);
             return;
@@ -718,7 +718,7 @@ void LayersDialog::accept() {
     saved_configuration->parameters = this->configuration.parameters;
     saved_configuration->user_defined_paths = this->configuration.user_defined_paths;
     saved_configuration->setting_tree_state.clear();
-    configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
+    configurator.configurations.SaveAllConfigurations(configurator.layers.selected_layers);
 
     QDialog::accept();
 }
@@ -740,5 +740,5 @@ void LayersDialog::reject() {
 
 void LayersDialog::BuildParameters() {
     Configurator &configurator = Configurator::Get();
-    this->configuration.parameters = GatherParameters(this->configuration.parameters, configurator.layers.available_layers);
+    this->configuration.parameters = GatherParameters(this->configuration.parameters, configurator.layers.selected_layers);
 }

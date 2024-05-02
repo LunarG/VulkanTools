@@ -54,12 +54,12 @@ TEST(test_override, write_erase_2_2_2) {
     layer_manager.LoadLayersFromPath(":/");
 
     Configuration configuration;
-    const bool load = configuration.Load(layer_manager.available_layers, ":/Configuration 2.2.2.json");
+    const bool load = configuration.Load(layer_manager.selected_layers, ":/Configuration 2.2.2.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
-    EXPECT_EQ(true, WriteLayersOverride(env, layer_manager.available_layers, configuration, "." + LAYERS));
-    EXPECT_EQ(true, WriteSettingsOverride(layer_manager.available_layers, configuration, "." + SETTINGS));
+    EXPECT_EQ(true, WriteLayersOverride(env, layer_manager.selected_layers, configuration, "." + LAYERS));
+    EXPECT_EQ(true, WriteSettingsOverride(layer_manager.selected_layers, configuration, "." + SETTINGS));
 
     QFile file_layers_override_ref((":" + LAYERS).c_str());
     const bool result_layers_override_ref = file_layers_override_ref.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -111,11 +111,11 @@ TEST(test_override, vk_layer_settings_txt) {
     layer_manager.LoadLayersFromPath(":/");
 
     Configuration configuration;
-    const bool load = configuration.Load(layer_manager.available_layers, ":/Configuration 2.2.2.json");
+    const bool load = configuration.Load(layer_manager.selected_layers, ":/Configuration 2.2.2.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
-    EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.available_layers, configuration));
+    EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.selected_layers, configuration));
 
     VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
     vkuCreateLayerSettingSet(LAYER, nullptr, nullptr, nullptr, &layerSettingSet);
@@ -266,13 +266,13 @@ TEST(test_override, env_var) {
     layer_manager.LoadLayersFromPath(":/");
 
     Configuration configuration;
-    const bool load = configuration.Load(layer_manager.available_layers, ":/Configuration 2.2.2.json");
+    const bool load = configuration.Load(layer_manager.selected_layers, ":/Configuration 2.2.2.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
     qputenv("VK_LAYER_SETTINGS_PATH", "./vk_layer_settings.txt");
 
-    EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.available_layers, configuration));
+    EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.selected_layers, configuration));
 
     VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
     vkuCreateLayerSettingSet(LAYER, nullptr, nullptr, nullptr, &layerSettingSet);

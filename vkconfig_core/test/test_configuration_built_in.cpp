@@ -69,7 +69,7 @@ struct TestBuilin {
           environment(paths),
           layer_manager(environment) {
         this->layer_manager.LoadLayersFromPath(format(":/layers/%s", layers_version).c_str());
-        EXPECT_TRUE(!this->layer_manager.available_layers.empty());
+        EXPECT_TRUE(!this->layer_manager.selected_layers.empty());
     }
 
     ~TestBuilin() {
@@ -79,18 +79,18 @@ struct TestBuilin {
     Configuration Load(const char* configuration_name) {
         Configuration configuration_loaded;
         const bool result = configuration_loaded.Load(
-            layer_manager.available_layers,
+            layer_manager.selected_layers,
             format(":/configurations/%s/%s.json", configurations_version.c_str(), configuration_name).c_str());
         return result ? configuration_loaded : Configuration();
     }
 
     Configuration Restore(const Configuration& configuration_loaded) {
         const std::string filename = format("test_%s_layers_%s.json", configuration_loaded.key.c_str(), layers_version.c_str());
-        const bool saved = configuration_loaded.Save(this->layer_manager.available_layers, filename.c_str());
+        const bool saved = configuration_loaded.Save(this->layer_manager.selected_layers, filename.c_str());
         EXPECT_TRUE(saved);
 
         Configuration configuration_saved;
-        EXPECT_TRUE(configuration_saved.Load(this->layer_manager.available_layers, filename.c_str()));
+        EXPECT_TRUE(configuration_saved.Load(this->layer_manager.selected_layers, filename.c_str()));
         return configuration_saved;
     }
 
@@ -107,7 +107,7 @@ static const char* CONFIGURATION_VERSION = "2.2.2";
 
 TEST(test_built_in_load, layers_130_with_configuration) {
     TestBuilin test("130", CONFIGURATION_VERSION);
-    EXPECT_EQ(4, test.layer_manager.available_layers.size());
+    EXPECT_EQ(4, test.layer_manager.selected_layers.size());
 
     {
         Configuration load_api_dump = test.Load("API dump");
@@ -149,7 +149,7 @@ TEST(test_built_in_load, layers_130_with_configuration) {
 
 TEST(test_built_in_load, layers_135_with_configuration) {
     TestBuilin test("135", CONFIGURATION_VERSION);
-    EXPECT_EQ(4, test.layer_manager.available_layers.size());
+    EXPECT_EQ(4, test.layer_manager.selected_layers.size());
 
     {
         Configuration load_api_dump = test.Load("API dump");
@@ -191,7 +191,7 @@ TEST(test_built_in_load, layers_135_with_configuration) {
 
 TEST(test_built_in_load, layers_141_with_configuration) {
     TestBuilin test("141", CONFIGURATION_VERSION);
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
+    EXPECT_EQ(5, test.layer_manager.selected_layers.size());
 
     {
         Configuration load_api_dump = test.Load("API dump");
@@ -233,7 +233,7 @@ TEST(test_built_in_load, layers_141_with_configuration) {
 
 TEST(test_built_in_load, layers_148_with_configuration) {
     TestBuilin test("148", CONFIGURATION_VERSION);
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
+    EXPECT_EQ(5, test.layer_manager.selected_layers.size());
 
     {
         Configuration load_api_dump = test.Load("API dump");
@@ -275,7 +275,7 @@ TEST(test_built_in_load, layers_148_with_configuration) {
 
 TEST(test_built_in_load, layers_154_with_configuration) {
     TestBuilin test("154", CONFIGURATION_VERSION);
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
+    EXPECT_EQ(5, test.layer_manager.selected_layers.size());
 
     {
         Configuration load_api_dump = test.Load("API dump");
@@ -317,7 +317,7 @@ TEST(test_built_in_load, layers_154_with_configuration) {
 
 TEST(test_built_in_load, layers_162_with_configuration) {
     TestBuilin test("162", CONFIGURATION_VERSION);
-    EXPECT_EQ(5, test.layer_manager.available_layers.size());
+    EXPECT_EQ(5, test.layer_manager.selected_layers.size());
 
     {
         Configuration load_api_dump = test.Load("API dump");
@@ -359,7 +359,7 @@ TEST(test_built_in_load, layers_162_with_configuration) {
 
 TEST(test_built_in_load, layers_170_with_configuration) {
     TestBuilin test("170", CONFIGURATION_VERSION);
-    EXPECT_EQ(6, test.layer_manager.available_layers.size());
+    EXPECT_EQ(6, test.layer_manager.selected_layers.size());
 
     {
         Configuration load_api_dump = test.Load("API dump");

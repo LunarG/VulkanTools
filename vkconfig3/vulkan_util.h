@@ -22,7 +22,13 @@
 
 #include "../vkconfig_core/version.h"
 
+#include <vulkan/vulkan.h>
+
+#include <QLibrary>
+
 #include <string>
 
 Version GetVulkanLoaderVersion();
 std::string GenerateVulkanStatus();
+const char *GetVulkanLibrary();
+VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_portability);

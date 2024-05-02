@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "settings_validation_areas.h"
 #include "widget_setting_flags.h"
 #include "widget_setting_filesystem.h"
 #include "widget_preset.h"
@@ -38,6 +37,8 @@ class SettingsTreeManager : QObject {
     Q_OBJECT
    public:
     SettingsTreeManager();
+
+    bool launched_application;
 
     void CreateGUI(QTreeWidget *build_tree);
     void CleanupGUI();
@@ -57,12 +58,10 @@ class SettingsTreeManager : QObject {
     SettingsTreeManager(const SettingsTreeManager &) = delete;
     SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
 
-    void BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter);
     void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
     void BuildTreeItem(QTreeWidgetItem *parent, Parameter &parameter, const SettingMeta &meta);
 
     void RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent);
 
     QTreeWidget *tree;
-    std::unique_ptr<WidgetSettingValidation> validation;
 };

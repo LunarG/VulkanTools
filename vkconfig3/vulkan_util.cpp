@@ -150,22 +150,42 @@ VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_
 std::string GenerateVulkanStatus() {
     std::string log;
 
-    const Configurator &configurator = Configurator::Get();
+    Configurator &configurator = Configurator::Get();
 
     // Layers override configuration
-    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        log += format("- Layers override: \"%s\" configuration\n",
-                      configurator.configurations.GetSelectedConfiguration()->key.c_str());
-    } else {
-        log += "- Layers override: None\n";
+    switch (configurator.environment.GetMode()) {
+        default:
+        case LAYERS_MODE_BY_APPLICATIONS:
+            log += "- Vulkan Layers Controlled by Vulkan Applications\n";
+            break;
+        case LAYERS_MODE_BY_CONFIGURATOR_RUNNING:
+            if (configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers)) {
+                log += format("- Vulkan Layers Controlled by \"%s\" configuration\n",
+                              configurator.environment.GetSelectedConfiguration().c_str());
+            } else {
+                log += format("- Vulkan Layers Controlled by Vulkan Configurator but no configuration selected\n",
+                              configurator.environment.GetSelectedConfiguration().c_str());
+            }
+            break;
+        case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED:
+            log += "- Vulkan Layers Disabled by Vulkan Configurator\n";
+            break;
     }
 
+    log += "- Environment variables:\n";
+
     // Check Vulkan SDK path
-    const std::string search_path(configurator.path.GetPath(PATH_VULKAN_SDK));
-    if (!search_path.empty())
-        log += format("- VULKAN_SDK environment variable: %s\n", search_path.c_str());
+    const std::string vk_sdk_path(qgetenv("VULKAN_SDK"));
+    if (!vk_sdk_path.empty())
+        log += format("    - VULKAN_SDK: %s\n", vk_sdk_path.c_str());
     else
-        log += "- VULKAN_SDK environment variable not set\n";
+        log += "    - VULKAN_SDK not set\n";
+
+    // Check VK_LOCAL path
+    const std::string vk_local_path(GetPath(BUILTIN_PATH_LOCAL));
+    if (!vk_local_path.empty()) {
+        log += format("    - VK_LOCAL: %s\n", vk_local_path.c_str());
+    }
 
     const Version loader_version = GetVulkanLoaderVersion();
 
@@ -177,7 +197,7 @@ std::string GenerateVulkanStatus() {
     } else {
         log += format("- Vulkan Loader version: %s\n", loader_version.str().c_str());
         const int loader_message_types = configurator.environment.GetLoaderMessageTypes();
-        if (loader_message_types != 0) {
+        if (loader_message_types != LOADER_MESSAGE_NONE) {
             log += format("    - VK_LOADER_DEBUG=%s\n", GetLoaderMessageTokens(loader_message_types).c_str());
         }
     }
@@ -206,10 +226,9 @@ std::string GenerateVulkanStatus() {
         return log;
     }
 
-    Configuration *selected_configuration = configurator.configurations.GetSelectedConfiguration();
-    if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
-        SurrenderConfiguration(configurator.environment);
-    }
+    LayersMode saved_mode = configurator.environment.GetMode();
+    configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     QLibrary library(GetVulkanLibrary());
     PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =
@@ -228,7 +247,7 @@ std::string GenerateVulkanStatus() {
 
     log += "- Available Layers:\n";
     for (std::size_t i = 0, n = layers_properties.size(); i < n; ++i) {
-        const Layer *layer = FindByKey(configurator.layers.available_layers, layers_properties[i].layerName);
+        const Layer *layer = FindByKey(configurator.layers.selected_layers, layers_properties[i].layerName);
 
         std::string status;
         if (layer != nullptr) {
@@ -347,9 +366,8 @@ std::string GenerateVulkanStatus() {
 
     vkDestroyInstance(inst, NULL);
 
-    if (selected_configuration != nullptr) {
-        OverrideConfiguration(configurator.environment, configurator.layers.available_layers, *selected_configuration);
-    }
+    configurator.environment.SetMode(saved_mode);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     return log;
 }

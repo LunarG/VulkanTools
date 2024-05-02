@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-WidgetTreeFriendlyComboBox::WidgetTreeFriendlyComboBox(QListWidgetItem *item) : QComboBox(), item(item) {
+WidgetTreeFriendlyComboBox::WidgetTreeFriendlyComboBox(QTreeWidgetItem *item) : QComboBox(), item(item) {
     assert(item);
 
     setFocusPolicy(Qt::StrongFocus);
