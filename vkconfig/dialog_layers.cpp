@@ -606,7 +606,7 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
         if (layer != nullptr) {
             if (layer->type == LAYER_TYPE_IMPLICIT) {
                 if (Alert::LayerImplicitExcluded(tree_layer_item->layer_name.c_str()) == QMessageBox::No) {
-                    current_parameter->state = LAYER_STATE_APPLICATION_CONTROLLED;
+                    layer_state = LAYER_STATE_APPLICATION_CONTROLLED;
                 }
             }
         }
