@@ -58,24 +58,26 @@ Configurator::~Configurator() {
 bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
     // override app list.
-    layers.LoadAllInstalledLayers();
+    this->layers.LoadAllInstalledLayers();
 
     QSettings settings;
     if (settings.value("crashed", QVariant(false)).toBool()) {
         settings.setValue("crashed", false);
 
         if (Alert::ConfiguratorCrashed() == QMessageBox::No) {
-            configurations.LoadAllConfigurations(layers.available_layers);
+            this->configurations.LoadAllConfigurations(this->layers.available_layers);
         }
     } else {
-        configurations.LoadAllConfigurations(layers.available_layers);
+        this->configurations.LoadAllConfigurations(this->layers.available_layers);
     }
 
-    if (configurations.Empty()) {
-        configurations.ResetDefaultsConfigurations(layers.available_layers);
+    if (this->configurations.Empty()) {
+        this->configurations.ResetDefaultsConfigurations(layers.available_layers);
     } else {
-        configurations.FirstDefaultsConfigurations(layers.available_layers);
+        this->configurations.FirstDefaultsConfigurations(layers.available_layers);
     }
+
+    this->ActivateConfiguration(this->environment.GetSelectedConfiguration());
 
     return true;
 }
