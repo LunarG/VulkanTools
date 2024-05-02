@@ -80,6 +80,9 @@ MainWindow::MainWindow(QWidget *parent)
       _tray_icon(nullptr),
       _tray_icon_menu(nullptr),
       _tray_restore_action(nullptr),
+      _tray_layers_controlled_by_applications(nullptr),
+      _tray_layers_controlled_by_configurator(nullptr),
+      _tray_layers_disabled_by_configurator(nullptr),
       _tray_quit_action(nullptr),
       ui(new Ui::MainWindow),
       been_warned_about_old_loader(false) {
@@ -129,9 +132,9 @@ MainWindow::MainWindow(QWidget *parent)
     // Restore window geometry from last launch
     restoreGeometry(environment.Get(VKCONFIG2_LAYOUT_MAIN_GEOMETRY));
     restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_WINDOW_STATE));
-    ui->splitter->restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_SPLITTER1));
-    ui->splitter_2->restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_SPLITTER2));
-    ui->splitter_3->restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_SPLITTER3));
+    ui->splitter_settings->restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_SPLITTER1));
+    ui->splitter_configurations->restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_SPLITTER2));
+    ui->splitter_main->restoreState(environment.Get(VKCONFIG2_LAYOUT_MAIN_SPLITTER3));
 
     ui->check_box_persistent->setToolTip("Keep Vulkan Configurator running in system tray when closing the main window");
     ui->check_box_persistent->setVisible(QSystemTrayIcon::isSystemTrayAvailable());
@@ -200,8 +203,7 @@ void MainWindow::UpdateTray() {
         const Environment &environment = configurator.environment;
 
         const bool use_override = environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS;
-        const bool active =
-            configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers) && use_override;
+        const bool active = configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers) && use_override;
 
         switch (environment.GetMode()) {
             default:
@@ -277,7 +279,7 @@ void MainWindow::trayActionRestore() {
 void MainWindow::trayActionControlledByApplications() {
     Configurator &configurator = Configurator::Get();
     configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     this->UpdateUI();
     this->UpdateTray();
@@ -286,7 +288,7 @@ void MainWindow::trayActionControlledByApplications() {
 void MainWindow::trayActionControlledByConfigurator() {
     Configurator &configurator = Configurator::Get();
     configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     this->UpdateUI();
     this->UpdateTray();
@@ -295,7 +297,7 @@ void MainWindow::trayActionControlledByConfigurator() {
 void MainWindow::trayActionDisabledByApplications() {
     Configurator &configurator = Configurator::Get();
     configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED);
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     this->UpdateUI();
     this->UpdateTray();
@@ -330,7 +332,7 @@ void MainWindow::UpdateUI() {
     ui->combo_box_layers_controlled->setCurrentIndex(environment.GetMode());
     ui->combo_box_layers_controlled->blockSignals(false);
 
-    const bool has_active_configuration = configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers);
+    const bool has_active_configuration = configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers);
 
     // Mode states
     this->UpdateTray();
@@ -442,9 +444,9 @@ void MainWindow::UpdateUI() {
 
     ui->settings_tree->setEnabled(environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING && has_selected_configuration);
     if (has_selected_configuration) {
-        _settings_tree_manager.CreateGUI(ui->settings_tree);
+        this->_settings_tree_manager.CreateGUI(ui->settings_tree);
     } else {
-        _settings_tree_manager.CleanupGUI();
+        this->_settings_tree_manager.CleanupGUI();
     }
 
     // Update title bar
@@ -548,7 +550,7 @@ void MainWindow::on_check_box_apply_list_clicked() {
         dialog.exec();
     }
 
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     UpdateUI();
 }
@@ -563,7 +565,7 @@ void MainWindow::on_check_box_persistent_clicked() {
     // Alert the user to the current state of the vulkan configurator and
     // give them the option to not shutdown.
     QSettings settings;
-    if (ui->check_box_persistent->isChecked() && !settings.value("vkconfig_system_tray_stay_on_close", false).toBool()) {
+    if (ui->check_box_persistent->isChecked() && !settings.value(VKCONFIG_KEY_MESSAGE_SYSTEM_TRAY, false).toBool()) {
         const QPalette saved_palette = ui->check_box_persistent->palette();
         QPalette modified_palette = saved_palette;
         modified_palette.setColor(QPalette::ColorRole::WindowText, QColor(255, 0, 0, 255));
@@ -582,7 +584,7 @@ void MainWindow::on_check_box_persistent_clicked() {
             "Do you want to keep Vulkan Configurator running in the system tray when closing the main window?");
 
         int ret_val = alert.exec();
-        settings.setValue("vkconfig_system_tray_stay_on_close", alert.checkBox()->isChecked());
+        settings.setValue(VKCONFIG_KEY_MESSAGE_SYSTEM_TRAY, alert.checkBox()->isChecked());
 
         ui->check_box_persistent->setPalette(saved_palette);
 
@@ -711,13 +713,6 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
                 valid_new_name = false;
                 Alert::ConfigurationNameInvalid();
             }
-            /* ANSI character are allowed
-            if (valid_new_name &&
-                configuration_item->text(1).contains(QRegularExpression(QStringLiteral("[^\\x{0000}-\\x{007F}]")))) {
-                valid_new_name = false;
-                Alert::ConfigurationNameASCII();
-            }
-            */
         }
 
         Configuration *duplicate_configuration = FindByKey(configurator.configurations.available_configurations, new_name.c_str());
@@ -734,7 +729,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             // Rename configuration ; Remove old configuration file ; change the name of the configuration
             configurator.configurations.RemoveConfigurationFile(old_name);
             configuration->key = configuration_item->configuration_name = new_name;
-            configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
+            configurator.configurations.SaveAllConfigurations(configurator.layers.selected_layers);
 
             configurator.ActivateConfiguration(new_name);
 
@@ -766,7 +761,7 @@ void MainWindow::StartTool(Tool tool) {
 
     LayersMode saved_mode = configurator.environment.GetMode();
     configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     switch (tool) {
         case TOOL_VULKAN_INFO:
@@ -778,7 +773,7 @@ void MainWindow::StartTool(Tool tool) {
     }
 
     configurator.environment.SetMode(saved_mode);
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 }
 
 /// Create the VulkanInfo dialog if it doesn't already exits & show it.
@@ -845,9 +840,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     environment.Set(VKCONFIG2_LAYOUT_MAIN_GEOMETRY, saveGeometry());
     environment.Set(VKCONFIG2_LAYOUT_MAIN_WINDOW_STATE, saveState());
-    environment.Set(VKCONFIG2_LAYOUT_MAIN_SPLITTER1, ui->splitter->saveState());
-    environment.Set(VKCONFIG2_LAYOUT_MAIN_SPLITTER2, ui->splitter_2->saveState());
-    environment.Set(VKCONFIG2_LAYOUT_MAIN_SPLITTER3, ui->splitter_3->saveState());
+    environment.Set(VKCONFIG2_LAYOUT_MAIN_SPLITTER1, ui->splitter_settings->saveState());
+    environment.Set(VKCONFIG2_LAYOUT_MAIN_SPLITTER2, ui->splitter_configurations->saveState());
+    environment.Set(VKCONFIG2_LAYOUT_MAIN_SPLITTER3, ui->splitter_main->saveState());
 
     environment.Save();
 
@@ -881,7 +876,7 @@ void MainWindow::on_push_button_applications_clicked() {
     dlg.exec();
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     UpdateUI();
 }
@@ -891,7 +886,7 @@ void MainWindow::on_push_button_new_clicked() {
     const std::string selected_configuration = configurator.environment.GetSelectedConfiguration();
 
     Configuration &new_configuration =
-        configurator.configurations.CreateConfiguration(configurator.layers.available_layers, "New Configuration");
+        configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, "New Configuration");
 
     std::string activate_configuration;
 
@@ -902,7 +897,7 @@ void MainWindow::on_push_button_new_clicked() {
             break;
         case QDialog::Rejected:
             activate_configuration = selected_configuration;
-            configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, new_configuration.key);
+            configurator.configurations.RemoveConfiguration(configurator.layers.selected_layers, new_configuration.key);
             break;
         default:
             assert(0);
@@ -929,7 +924,7 @@ void MainWindow::on_push_button_duplicate_clicked() {
     assert(configutation != nullptr);
 
     const Configuration &duplicated_configuration =
-        configurator.configurations.CreateConfiguration(configurator.layers.available_layers, configutation->key, true);
+        configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, configutation->key, true);
 
     configurator.ActivateConfiguration(duplicated_configuration.key);
 
@@ -990,7 +985,7 @@ void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
     }
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.RemoveConfiguration(configurator.layers.available_layers, configuration_name);
+    configurator.configurations.RemoveConfiguration(configurator.layers.selected_layers, configuration_name);
     configurator.environment.SetSelectedConfiguration("");
 
     LoadConfigurationList();
@@ -1035,7 +1030,7 @@ void MainWindow::ResetClicked(ConfigurationListItem *item) {
         return;
     }
 
-    configuration->Reset(configurator.layers.available_layers, configurator.path);
+    configuration->Reset(configurator.layers.selected_layers, configurator.path);
 
     configurator.ActivateConfiguration(configuration->key);
 
@@ -1056,7 +1051,7 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     Configurator &configurator = Configurator::Get();
     const Configuration &duplicated_configuration =
-        configurator.configurations.CreateConfiguration(configurator.layers.available_layers, item->configuration_name, true);
+        configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, item->configuration_name, true);
 
     item->configuration_name = duplicated_configuration.key;
 
@@ -1089,7 +1084,7 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
     if (full_import_path.empty()) return;
 
     const std::string imported_configuration =
-        configurator.configurations.ImportConfiguration(configurator.layers.available_layers, full_import_path);
+        configurator.configurations.ImportConfiguration(configurator.layers.selected_layers, full_import_path);
     if (imported_configuration.empty()) {
         return;
     }
@@ -1110,7 +1105,7 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
     const std::string full_export_path = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, full_suggested_path);
     if (full_export_path.empty()) return;
 
-    configurator.configurations.ExportConfiguration(configurator.layers.available_layers, full_export_path,
+    configurator.configurations.ExportConfiguration(configurator.layers.selected_layers, full_export_path,
                                                     item->configuration_name);
 }
 
@@ -1121,7 +1116,7 @@ void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
         _settings_tree_manager.CleanupGUI();
 
         Configurator &configurator = Configurator::Get();
-        configurator.configurations.ReloadDefaultsConfigurations(configurator.layers.available_layers);
+        configurator.configurations.ReloadDefaultsConfigurations(configurator.layers.selected_layers);
 
         configurator.ActivateConfiguration(configurator.environment.GetSelectedConfiguration());
 
@@ -1147,7 +1142,7 @@ void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
     (void)item;
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     // Don't update UI here. It's not useful and cause setting tree rebuild
 }
@@ -1473,8 +1468,8 @@ const Layer *GetLayer(QTreeWidget *tree, QTreeWidgetItem *item) {
     if (!text.empty()) {
         Configurator &configurator = Configurator::Get();
 
-        for (std::size_t i = 0, n = configurator.layers.available_layers.size(); i < n; ++i) {
-            const Layer &layer = configurator.layers.available_layers[i];
+        for (std::size_t i = 0, n = configurator.layers.selected_layers.size(); i < n; ++i) {
+            const Layer &layer = configurator.layers.selected_layers[i];
             if (text.find(layer.key) != std::string::npos) return &layer;
         }
     }

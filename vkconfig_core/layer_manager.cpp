@@ -92,11 +92,11 @@ static const char *SEARCH_PATHS[] = {
 };
 #endif
 
-LayerManager::LayerManager(const Environment &environment) : environment(environment) { available_layers.reserve(10); }
+LayerManager::LayerManager(const Environment &environment) : environment(environment) { this->selected_layers.reserve(10); }
 
-void LayerManager::Clear() { available_layers.clear(); }
+void LayerManager::Clear() { this->selected_layers.clear(); }
 
-bool LayerManager::Empty() const { return available_layers.empty(); }
+bool LayerManager::Empty() const { return this->selected_layers.empty(); }
 
 std::vector<std::string> LayerManager::BuildPathList() const {
     std::vector<std::string> list;
@@ -142,7 +142,7 @@ std::vector<std::string> LayerManager::BuildPathList() const {
 
 // Find all installed layers on the system.
 void LayerManager::LoadAllInstalledLayers() {
-    available_layers.clear();
+    this->selected_layers.clear();
 
     // FIRST: If VK_LAYER_PATH is set it has precedence over other layers.
     const std::vector<std::string> &env_user_defined_layers_paths_set =
@@ -178,7 +178,7 @@ void LayerManager::LoadAllInstalledLayers() {
 
 // Load a single layer
 void LayerManager::LoadLayer(const std::string &layer_name) {
-    available_layers.clear();
+    this->selected_layers.clear();
 
     // FIRST: If VK_LAYER_PATH is set it has precedence over other layers.
     const std::vector<std::string> &env_user_defined_layers_paths_set =
@@ -228,7 +228,7 @@ void LayerManager::LoadLayersFromPath(const std::string &path) {
     if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) {
         if (QString(path.c_str()).contains("...")) {
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
-            LoadRegistryLayers(path.c_str(), available_layers, type);
+            LoadRegistryLayers(path.c_str(), this->selected_layers, type);
 #endif
             return;
         }
@@ -248,12 +248,12 @@ void LayerManager::LoadLayersFromPath(const std::string &path) {
 
     for (int i = 0, n = file_list.FileCount(); i < n; ++i) {
         Layer layer;
-        if (layer.Load(available_layers, file_list.GetFileName(i).c_str(), type)) {
+        if (layer.Load(this->selected_layers, file_list.GetFileName(i).c_str(), type)) {
             // Make sure this layer name has not already been added
-            if (FindByKey(available_layers, layer.key.c_str()) != nullptr) continue;
+            if (FindByKey(this->selected_layers, layer.key.c_str()) != nullptr) continue;
 
             // Good to go, add the layer
-            available_layers.push_back(layer);
+            this->selected_layers.push_back(layer);
         }
     }
 }
@@ -279,10 +279,10 @@ bool LayerManager::LoadLayerFromPath(const std::string &layer_name, const std::s
 
     for (int i = 0, n = file_list.FileCount(); i < n; ++i) {
         Layer layer;
-        if (layer.Load(available_layers, file_list.GetFileName(i).c_str(), type)) {
+        if (layer.Load(this->selected_layers, file_list.GetFileName(i).c_str(), type)) {
             // Add this layer if the layer name matches, then return
             if (layer_name == layer.key) {
-                available_layers.push_back(layer);
+                this->selected_layers.push_back(layer);
                 return true;
             }
         }

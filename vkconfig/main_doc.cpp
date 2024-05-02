@@ -36,8 +36,8 @@ int run_doc_html(const CommandLine& command_line) {
     LayerManager layers(environment);
     layers.LoadAllInstalledLayers();
 
-    for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
-        const Layer& layer = layers.available_layers[i];
+    for (std::size_t i = 0, n = layers.selected_layers.size(); i < n; ++i) {
+        const Layer& layer = layers.selected_layers[i];
         if (layer.key == command_line.doc_layer_name) {
             const std::string path = format("%s/%s.html", command_line.doc_out_dir.c_str(), layer.key.c_str());
             ExportHtmlDoc(layer, path);
@@ -57,8 +57,8 @@ int run_doc_markdown(const CommandLine& command_line) {
     LayerManager layers(environment);
     layers.LoadAllInstalledLayers();
 
-    for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
-        const Layer& layer = layers.available_layers[i];
+    for (std::size_t i = 0, n = layers.selected_layers.size(); i < n; ++i) {
+        const Layer& layer = layers.selected_layers[i];
         if (layer.key == command_line.doc_layer_name) {
             const std::string path = format("%s/%s.md", command_line.doc_out_dir.c_str(), layer.key.c_str());
             ExportMarkdownDoc(layer, path);
@@ -81,16 +81,16 @@ int run_doc_settings(const CommandLine& command_line) {
     Layer* layer;
 
     layers.LoadLayer(command_line.doc_layer_name);
-    layer = FindByKey(layers.available_layers, command_line.doc_layer_name.c_str());
+    layer = FindByKey(layers.selected_layers, command_line.doc_layer_name.c_str());
     if (!layer) {
         fprintf(stderr, "vkconfig: Could not load layer %s\n", command_line.doc_layer_name.c_str());
         fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
         return -1;
     }
-    config = configuration_manager.CreateConfiguration(layers.available_layers, "Config");
-    config.parameters = GatherParameters(config.parameters, layers.available_layers);
+    config = configuration_manager.CreateConfiguration(layers.selected_layers, "Config");
+    config.parameters = GatherParameters(config.parameters, layers.selected_layers);
     config.parameters[0].state = LAYER_STATE_OVERRIDDEN;
-    ExportSettingsDoc(layers.available_layers, config, command_line.doc_out_dir + "/vk_layer_settings.txt");
+    ExportSettingsDoc(layers.selected_layers, config, command_line.doc_out_dir + "/vk_layer_settings.txt");
 
     return rval;
 }

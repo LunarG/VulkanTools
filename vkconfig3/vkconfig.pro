@@ -77,7 +77,6 @@ SOURCES += \
     widget_setting_list_element.cpp \
     widget_setting_list.cpp \
     widget_tree_friendly_combobox.cpp \
-    dialog_about.cpp \
     dialog_applications.cpp \
     dialog_vulkan_analysis.cpp \
     dialog_vulkan_info.cpp \
@@ -89,7 +88,6 @@ SOURCES += \
     main_doc.cpp \
     mainwindow.cpp \
     settings_tree.cpp \
-    settings_validation_areas.cpp \
     configurator.cpp
 
 HEADERS += \
@@ -143,7 +141,6 @@ HEADERS += \
     widget_setting_list_element.h \
     widget_setting_list.h \
     widget_tree_friendly_combobox.h \
-    dialog_about.h \
     dialog_applications.h \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
@@ -153,12 +150,10 @@ HEADERS += \
     main_layers.h \
     main_doc.h \
     mainwindow.h \
-    settings_validation_areas.h \
     settings_tree.h \
     configurator.h
 
 FORMS += \
-    dialog_about.ui \
     dialog_applications.ui \
     dialog_vulkan_analysis.ui \
     dialog_vulkan_info.ui \
@@ -171,6 +166,7 @@ TRANSLATIONS += \
 win32: {
   LIBS += Advapi32.lib
   LIBS += Cfgmgr32.lib
+  LIBS += User32.lib
   RC_ICONS = resourcefiles/vulkan.ico
 }
 

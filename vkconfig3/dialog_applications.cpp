@@ -133,7 +133,9 @@ void ApplicationsDialog::on_pushButtonAdd_clicked()  // Pick the test applicatio
 
         QTreeWidgetItem *item = CreateApplicationItem(new_application);
 
-        configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+        // To update the application list configuration
+        configurator.configurations.Configure(configurator.layers.selected_layers);
+
         ui->treeWidget->setCurrentItem(item);
         configurator.environment.SelectActiveApplication(ui->treeWidget->indexOfTopLevelItem(item));
     }
@@ -178,7 +180,9 @@ void ApplicationsDialog::on_pushButtonRemove_clicked() {
     ui->lineEditWorkingFolder->setText("");
     ui->lineEditLogFile->setText("");
 
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    // Update the application list configuration
+    configurator.configurations.Configure(configurator.layers.selected_layers);
+
     ui->treeWidget->update();
 }
 
@@ -217,9 +221,12 @@ void ApplicationsDialog::selectedPathChanged(QTreeWidgetItem *current_item, QTre
 
     ui->lineEditAppName->setText(application.app_name.c_str());
     ui->lineEditExecutable->setText(application.executable_path.c_str());
+    ui->lineEditExecutable->setToolTip(ReplaceBuiltInVariable(application.executable_path.c_str()).c_str());
     ui->lineEditWorkingFolder->setText(application.working_folder.c_str());
+    ui->lineEditWorkingFolder->setToolTip(ReplaceBuiltInVariable(application.working_folder.c_str()).c_str());
     ui->lineEditCmdArgs->setText(application.arguments.c_str());
-    ui->lineEditLogFile->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
+    ui->lineEditLogFile->setText(application.log_file.c_str());
+    ui->lineEditLogFile->setToolTip(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
 }
 
 void ApplicationsDialog::itemChanged(QTreeWidgetItem *item, int column) {

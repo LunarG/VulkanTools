@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@
 static const char *TOOLTIP_ORDER =
     "Layers are executed between the Vulkan application and driver in the specific order represented here";
 
-SettingsTreeManager::SettingsTreeManager() : tree(nullptr) {}
+SettingsTreeManager::SettingsTreeManager() : launched_application(false), tree(nullptr) {}
 
 void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     assert(build_tree);
@@ -62,8 +62,10 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
     this->tree = build_tree;
 
-    Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
-    assert(configuration != nullptr);
+    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
+    if (configuration == nullptr) {
+        return;
+    }
 
     this->tree->blockSignals(true);
     this->tree->clear();
@@ -83,16 +85,6 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     } else {
         const std::size_t overridden_layer_count = CountOverriddenLayers(configuration->parameters);
 
-        if (overridden_layer_count > 1) {
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(0, "Vulkan Applications");
-            item->setToolTip(0, TOOLTIP_ORDER);
-            item->setTextAlignment(0, Qt::AlignCenter);
-            item->setFont(0, font_section);
-            item->setDisabled(true);
-            this->tree->addTopLevelItem(item);
-        }
-
         // There will be one top level item for each layer
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
@@ -100,8 +92,8 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
             if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
 
-            const std::vector<Layer> &available_layers = configurator.layers.available_layers;
-            const Layer *layer = FindByKey(available_layers, parameter.key.c_str());
+            const std::vector<Layer> &selected_layers = configurator.layers.selected_layers;
+            const Layer *layer = FindByKey(selected_layers, parameter.key.c_str());
 
             QTreeWidgetItem *layer_item = new QTreeWidgetItem();
             this->tree->addTopLevelItem(layer_item);
@@ -109,11 +101,11 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             std::string layer_text = parameter.key;
             if (layer == nullptr) {
                 layer_text += " (Missing)";
-                layer_item->setDisabled(true);
             } else if (layer->status != STATUS_STABLE) {
                 layer_text += std::string(" (") + GetToken(layer->status) + ")";
             }
 
+            layer_item->setToolTip(0, parameter.key.c_str());  // Hack for the context menu to find the layer
             layer_item->setText(0, layer_text.c_str());
             layer_item->setFont(0, font_layer);
             layer_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -137,58 +129,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
                 this->connect(presets_combobox, SIGNAL(itemChanged()), this, SLOT(OnPresetChanged()));
             }
 
-            if (UseBuiltinValidationSettings(parameter)) {
-                BuildValidationTree(layer_item, parameter);
-            } else {
-                BuildGenericTree(layer_item, parameter);
-            }
-        }
-
-        if (overridden_layer_count > 1) {
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(0, "Vulkan Drivers");
-            item->setToolTip(0, TOOLTIP_ORDER);
-            item->setTextAlignment(0, Qt::AlignCenter);
-            item->setFont(0, font_section);
-            item->setDisabled(true);
-            this->tree->addTopLevelItem(item);
-        }
-
-        const std::size_t excluded_layer_count =
-            CountExcludedLayers(configuration->parameters, configurator.layers.available_layers);
-
-        if (excluded_layer_count > 0) {
-            // The last item is just the excluded layers
-            QTreeWidgetItem *excluded_layers = new QTreeWidgetItem();
-            this->tree->addTopLevelItem(excluded_layers);
-            excluded_layers->setText(0, "Excluded Layers:");
-            excluded_layers->setToolTip(0, "The following layers won't be executed.");
-            excluded_layers->setFont(0, font_section);
-            excluded_layers->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            excluded_layers->setExpanded(true);
-
-            for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
-                Parameter &parameter = configuration->parameters[i];
-                if (!IsPlatformSupported(parameter.platform_flags)) continue;
-
-                if (parameter.state != LAYER_STATE_EXCLUDED) continue;
-
-                const Layer *layer = FindByKey(configurator.layers.available_layers, parameter.key.c_str());
-                if (layer == nullptr) continue;  // Do not display missing excluded layers
-
-                QTreeWidgetItem *layer_item = new QTreeWidgetItem();
-                layer_item->setText(0, parameter.key.c_str());
-                layer_item->setFont(0, font_layer);
-                layer_item->setToolTip(0, layer->description.c_str());
-                excluded_layers->addChild(layer_item);
-            }
-
-            // None excluded layer were found
-            if (excluded_layers->childCount() == 0) {
-                QTreeWidgetItem *child = new QTreeWidgetItem();
-                child->setText(0, "None");
-                excluded_layers->addChild(child);
-            }
+            BuildGenericTree(layer_item, parameter);
         }
     }
 
@@ -210,13 +151,11 @@ void SettingsTreeManager::CleanupGUI() {
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
-    if (configuration == nullptr) return;
-
-    configuration->setting_tree_state.clear();
-    GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
-
-    this->validation.reset();
+    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
+    if (configuration != nullptr) {
+        configuration->setting_tree_state.clear();
+        GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
+    }
 
     this->tree->clear();
     this->tree = nullptr;
@@ -230,7 +169,7 @@ void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
+    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
     configuration->setting_tree_state.clear();
     GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
 
@@ -245,60 +184,18 @@ void SettingsTreeManager::OnCollapsedChanged(const QModelIndex &index) {
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.GetSelectedConfiguration();
+    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
     configuration->setting_tree_state.clear();
     GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
 
     return;
 }
 
-void SettingsTreeManager::BuildValidationTree(QTreeWidgetItem *parent, Parameter &parameter) {
-    Configurator &configurator = Configurator::Get();
-    std::vector<Layer> &available_layers = configurator.layers.available_layers;
-    Layer *validation_layer = FindByKey(available_layers, "VK_LAYER_KHRONOS_validation");
-    assert(validation_layer != nullptr);
-
-    QTreeWidgetItem *validation_areas_item = new QTreeWidgetItem();
-    parent->addChild(validation_areas_item);
-
-    // This just finds the enables and disables
-    this->validation.reset(
-        new WidgetSettingValidation(this->tree, validation_areas_item, validation_layer->settings, parameter.settings));
-    this->connect(this->validation.get(), SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
-
-    SettingMetaSet &settings = validation_layer->settings;
-    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
-        this->BuildTreeItem(parent, parameter, *settings[i]);
-    }
-}
-
-static bool IsBuiltinValidationSetting(const Parameter &parameter, const std::string &key) {
-    if (parameter.key != "VK_LAYER_KHRONOS_validation") return false;
-
-    std::vector<std::string> keys;
-    keys.push_back("enables");
-    keys.push_back("disables");
-
-    if (parameter.api_version.GetPatch() < 242) {
-        keys.push_back("printf_to_stdout");
-        keys.push_back("printf_verbose");
-        keys.push_back("printf_buffer_size");
-        keys.push_back("gpuav_buffer_oob");
-        keys.push_back("warn_on_robust_oob");
-        keys.push_back("validate_draw_indirect");
-        keys.push_back("vma_linear_output");
-        keys.push_back("fine_grained_locking");
-    }
-
-    return IsStringFound(keys, key);
-}
-
 void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &parameter, const SettingMeta &meta_object) {
-    if (IsBuiltinValidationSetting(parameter, meta_object.key)) return;
     if (!IsPlatformSupported(meta_object.platform_flags)) return;
     if (meta_object.view == SETTING_VIEW_HIDDEN) return;
     if (meta_object.view == SETTING_VIEW_ADVANCED &&
-        !Configurator::Get().configurations.GetSelectedConfiguration()->view_advanced_settings)
+        !Configurator::Get().configurations.FindActiveConfiguration()->view_advanced_settings)
         return;
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -420,7 +317,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
 }
 
 void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
-    std::vector<Layer> &available_layers = Configurator::Get().layers.available_layers;
+    std::vector<Layer> &available_layers = Configurator::Get().layers.selected_layers;
 
     const SettingMetaSet &settings = FindByKey(available_layers, parameter.key.c_str())->settings;
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
@@ -468,16 +365,18 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
 
     this->tree->blockSignals(false);
 
-    QSettings settings;
-    if (!settings.value("vkconfig_restart", false).toBool()) {
-        settings.setValue("vkconfig_restart", true);
+    if (this->launched_application) {
+        QSettings settings;
+        if (!settings.value(VKCONFIG_KEY_MESSAGE_NEED_APPLICATION_RESTART, false).toBool()) {
+            settings.setValue(VKCONFIG_KEY_MESSAGE_NEED_APPLICATION_RESTART, true);
 
-        Alert::ConfiguratorRestart();
+            Alert::ConfiguratorRestart();
+        }
     }
 
     // Refresh layer configuration
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.RefreshConfiguration(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 }
 
 void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent) {

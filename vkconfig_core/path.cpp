@@ -103,6 +103,10 @@ std::string GetPath(BuiltinPath path) {
             result = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/../applist.json";
             break;
         }
+        case BUILTIN_PATH_VKCONFIG_SETTINGS: {
+            result = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/../vkconfig.json";
+            break;
+        }
         case BUILTIN_PATH_OVERRIDE_SETTINGS: {
             static const std::string TABLE[] = {
                 "/" + vkconfig_version + "/override",  // ENVIRONMENT_WIN32

@@ -159,7 +159,7 @@ std::string GenerateVulkanStatus() {
             log += "- Vulkan Layers Controlled by Vulkan Applications\n";
             break;
         case LAYERS_MODE_BY_CONFIGURATOR_RUNNING:
-            if (configurator.configurations.HasActiveConfiguration(configurator.layers.available_layers)) {
+            if (configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers)) {
                 log += format("- Vulkan Layers Controlled by \"%s\" configuration\n",
                               configurator.environment.GetSelectedConfiguration().c_str());
             } else {
@@ -228,7 +228,7 @@ std::string GenerateVulkanStatus() {
 
     LayersMode saved_mode = configurator.environment.GetMode();
     configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     QLibrary library(GetVulkanLibrary());
     PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties =
@@ -247,7 +247,7 @@ std::string GenerateVulkanStatus() {
 
     log += "- Available Layers:\n";
     for (std::size_t i = 0, n = layers_properties.size(); i < n; ++i) {
-        const Layer *layer = FindByKey(configurator.layers.available_layers, layers_properties[i].layerName);
+        const Layer *layer = FindByKey(configurator.layers.selected_layers, layers_properties[i].layerName);
 
         std::string status;
         if (layer != nullptr) {
@@ -367,7 +367,7 @@ std::string GenerateVulkanStatus() {
     vkDestroyInstance(inst, NULL);
 
     configurator.environment.SetMode(saved_mode);
-    configurator.configurations.Configure(configurator.layers.available_layers);
+    configurator.configurations.Configure(configurator.layers.selected_layers);
 
     return log;
 }

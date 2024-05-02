@@ -28,16 +28,23 @@
 
 #include <cassert>
 
-#ifdef COMMAND_PROMPT_OUTPUT
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-#endif  // COMMAND_PROMPT_OUTPUT
+
+#include <QApplication>
+#include <QtCore>
 
 int main(int argc, char* argv[]) {
-    ::vkconfig_version = "vkconfig3";
+#ifdef _WIN32
+    DWORD procId;
+    DWORD count = GetConsoleProcessList(&procId, 1);
+    if (count < 2) {
+        ::ShowWindow(::GetConsoleWindow(), SW_HIDE);  // hide console window
+    }
+#endif
 
-    InitSignals();
+    ::vkconfig_version = "vkconfig";
 
     const CommandLine command_line(argc, argv);
 
@@ -47,16 +54,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-#ifdef COMMAND_PROMPT_OUTPUT
-#ifdef _WIN32
-    if (command_line.command != COMMAND_GUI || command_line.command != COMMAND_VULKAN_SDK) {
-        if (AttachConsole(ATTACH_PARENT_PROCESS)) {
-            freopen("CONOUT$", "w", stdout);
-            freopen("CONOUT$", "w", stderr);
-        }
-    }
-#endif
-#endif
+    InitSignals();
 
     switch (command_line.command) {
         case COMMAND_SHOW_USAGE: {

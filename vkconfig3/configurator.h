@@ -29,7 +29,7 @@
 #include "../vkconfig_core/configuration_manager.h"
 #include "../vkconfig_core/platform.h"
 
-static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_3_0_0"};
+static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3", "_2_2_2", "_2_2_1"};
 
 class Configurator {
    public:
@@ -44,7 +44,9 @@ class Configurator {
     // If quiet is false, message box will be generate
     bool SupportApplicationList(Version* return_loader_version = nullptr) const;
 
-    bool HasActiveOverrideOnApplicationListOnly() const { return SupportApplicationList() && environment.GetUseApplicationList(); }
+    bool HasActiveOverrideOnApplicationListOnly() const {
+        return SupportApplicationList() && environment.HasOverriddenApplications();
+    }
 
     void ActivateConfiguration(const std::string& configuration_name);
 
@@ -62,6 +64,7 @@ class Configurator {
     Configurator& operator=(const Configurator&) = delete;
 
     void CopyResourceFiles();
+    void UpdateDevices();
 
    public:
     PathManager path;
@@ -69,5 +72,4 @@ class Configurator {
     LayerManager layers;
     ConfigurationManager configurations;
     std::vector<std::string> device_names;
-    bool request_vulkan_status;
 };

@@ -128,6 +128,7 @@ LoaderMessageType GetLoaderMessageType(const std::string& value) {
 Environment::Environment(PathManager& paths, const Version& api_version)
     : api_version(api_version),
       use_system_tray(false),
+      use_per_application_configuration(false),
       loader_message_types(::GetLoaderMessageTypes(qgetenv("VK_LOADER_DEBUG").toStdString())),
       paths_manager(paths),
       paths(paths_manager) {
@@ -147,6 +148,7 @@ void Environment::Reset(ResetMode mode) {
             this->vkconfig2_version = Version::VKCONFIG;
             this->vkconfig3_version = Version::VKCONFIG3;
             this->layers_mode = LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
+            this->use_per_application_configuration = false;
             this->use_application_list = false;
             this->use_system_tray = false;
             this->selected_configuration = "Validation";
@@ -166,11 +168,10 @@ void Environment::Reset(ResetMode mode) {
             settings.setValue("VKCONFIG_WARN_MISSING_LAYERS_IGNORE", false);
             settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", false);
 
-            settings.setValue("vkconfig_restart", false);
+            settings.setValue(VKCONFIG_KEY_MESSAGE_NEED_APPLICATION_RESTART, false);
             settings.setValue("overrideActive", false);
-            settings.setValue("applyOnlyToList", false);
+            settings.setValue("applyPerApplication", false);
             settings.setValue("keepActiveOnExit", false);
-            settings.setValue("vkconfig_system_tray_stay_on_close", false);
 
             settings.setValue("restartWarning", false);
             settings.setValue("warnAboutShutdownState", false);
@@ -217,10 +218,11 @@ bool Environment::Load() {
     // Load 'override_mode"
     this->layers_mode = static_cast<LayersMode>(settings.value(VKCONFIG_KEY_LAYERS_MODE, QVariant(layers_mode)).toInt());
 
+    this->use_per_application_configuration =
+        static_cast<LayersMode>(settings.value(VKCONFIG_KEY_STATE_PER_APPLICATION, this->use_application_list).toBool());
     this->use_application_list =
-        static_cast<LayersMode>(settings.value(VKCONFIG_KEY_USE_APPLICATION_LIST, this->use_application_list).toBool());
-
-    this->use_system_tray = static_cast<LayersMode>(settings.value(VKCONFIG_KEY_USE_SYSTEM_TRAY, this->use_system_tray).toBool());
+        static_cast<LayersMode>(settings.value(VKCONFIG_KEY_STATE_APPLICATION_LIST, this->use_application_list).toBool());
+    this->use_system_tray = static_cast<LayersMode>(settings.value(VKCONFIG_KEY_STATE_SYSTEM_TRAY, this->use_system_tray).toBool());
 
     // Load loader debug message state
     this->loader_message_types = settings.value(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types)).toInt();
@@ -332,8 +334,9 @@ bool Environment::Save() const {
     settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, Version::LAYER_CONFIG.str().c_str());
 
     settings.setValue(VKCONFIG_KEY_LAYERS_MODE, this->layers_mode);
-    settings.setValue(VKCONFIG_KEY_USE_APPLICATION_LIST, this->use_application_list);
-    settings.setValue(VKCONFIG_KEY_USE_SYSTEM_TRAY, this->use_system_tray);
+    settings.setValue(VKCONFIG_KEY_STATE_PER_APPLICATION, this->use_per_application_configuration);
+    settings.setValue(VKCONFIG_KEY_STATE_APPLICATION_LIST, this->use_application_list);
+    settings.setValue(VKCONFIG_KEY_STATE_SYSTEM_TRAY, this->use_system_tray);
 
     // Save 'loader_message'
     settings.setValue(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types));
@@ -464,6 +467,10 @@ Application& Environment::GetApplication(std::size_t application_index) {
 
     return applications[application_index];
 }
+
+bool Environment::GetPerApplicationConfig() const { return this->use_per_application_configuration; }
+
+void Environment::SetPerApplicationConfig(bool enable) { this->use_per_application_configuration = enable; }
 
 bool Environment::GetUseApplicationList() const {
     return this->use_application_list && this->layers_mode != LAYERS_MODE_BY_APPLICATIONS;

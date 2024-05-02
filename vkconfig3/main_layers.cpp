@@ -36,17 +36,17 @@ static int RunLayersOverride(const CommandLine& command_line) {
     layers.LoadAllInstalledLayers();
 
     Configuration configuration;
-    const bool load_result = configuration.Load(layers.available_layers, command_line.layers_configuration_path.c_str());
+    const bool load_result = configuration.Load(layers.selected_layers, command_line.layers_configuration_path.c_str());
     if (!load_result) {
         printf("\nFailed to load the layers configuration file...\n");
         return -1;
     }
 
     // With command line, don't store the application list, it's always global, save and restore the setting
-    const bool use_application_list = environment.GetUseApplicationList();
+    const bool use_application_list = environment.HasOverriddenApplications();
     environment.SetUseApplicationList(false);
 
-    const bool override_result = OverrideConfiguration(environment, layers.available_layers, configuration);
+    const bool override_result = OverrideConfiguration(environment, layers.selected_layers, configuration);
 
     environment.SetUseApplicationList(use_application_list);
 
@@ -101,11 +101,11 @@ static int RunLayersList(const CommandLine& command_line) {
     LayerManager layers(environment);
     layers.LoadAllInstalledLayers();
 
-    if (layers.available_layers.empty()) {
+    if (layers.selected_layers.empty()) {
         printf("No Vulkan layer found\n");
     } else {
-        for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
-            const Layer& layer = layers.available_layers[i];
+        for (std::size_t i = 0, n = layers.selected_layers.size(); i < n; ++i) {
+            const Layer& layer = layers.selected_layers[i];
 
             printf("%s\n", layer.key.c_str());
         }
@@ -122,8 +122,8 @@ static int RunLayersVerbose(const CommandLine& command_line) {
     LayerManager layers(environment);
     layers.LoadAllInstalledLayers();
 
-    for (std::size_t i = 0, n = layers.available_layers.size(); i < n; ++i) {
-        const Layer& layer = layers.available_layers[i];
+    for (std::size_t i = 0, n = layers.selected_layers.size(); i < n; ++i) {
+        const Layer& layer = layers.selected_layers[i];
 
         printf("%s (%s) %s-%s\n", layer.key.c_str(), GetLayerTypeLabel(layer.type), layer.api_version.str().c_str(),
                layer.implementation_version.c_str());

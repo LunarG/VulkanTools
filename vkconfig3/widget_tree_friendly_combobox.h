@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,13 @@
 
 #pragma once
 
-#include <QWidget>
 #include <QComboBox>
-#include <QListWidgetItem>
+#include <QTreeWidgetItem>
 
 class WidgetTreeFriendlyComboBox : public QComboBox {
     Q_OBJECT
    public:
-    WidgetTreeFriendlyComboBox(QListWidgetItem *item);
+    WidgetTreeFriendlyComboBox(QTreeWidgetItem *item);
 
     void wheelEvent(QWheelEvent *e) {
         if (hasFocus()) QComboBox::wheelEvent(e);
@@ -38,11 +37,11 @@ class WidgetTreeFriendlyComboBox : public QComboBox {
     void indexChanged(int nIndex);
 
    Q_SIGNALS:
-    void selectionMade(QListWidgetItem *tree_item, int index);
+    void selectionMade(QTreeWidgetItem *tree_item, int index);
 
    private:
     WidgetTreeFriendlyComboBox(const WidgetTreeFriendlyComboBox &) = delete;
     WidgetTreeFriendlyComboBox &operator=(const WidgetTreeFriendlyComboBox &) = delete;
 
-    QListWidgetItem *item;
+    QTreeWidgetItem *item;
 };
