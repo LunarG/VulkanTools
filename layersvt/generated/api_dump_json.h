@@ -4847,7 +4847,7 @@ void dump_json_VkFormat(VkFormat object, const ApiDumpSettings& settings, int in
         settings.stream() << "\"VK_FORMAT_ASTC_6x6x6_SFLOAT_BLOCK_EXT\"";
         break;
     case 1000464000:
-        settings.stream() << "\"VK_FORMAT_R16G16_S10_5_NV\"";
+        settings.stream() << "\"VK_FORMAT_R16G16_SFIXED5_NV\"";
         break;
     case 1000470000:
         settings.stream() << "\"VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR\"";
@@ -10087,9 +10087,6 @@ void dump_json_VkRenderingFlagBits(VkRenderingFlagBits object, const ApiDumpSett
     if(object & 8) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT"; is_first = false;
     }
-    if(object & 8) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT"; is_first = false;
-    }
     if(!is_first)
         settings.stream() << ')';
     settings.stream() << "\"";
@@ -11668,6 +11665,9 @@ void dump_json_VkPipelineCreateFlagBits2KHR(VkPipelineCreateFlagBits2KHR object,
     if(object & 8589934592) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_33_BIT_KHR"; is_first = false;
     }
+    if(object & 17179869184) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT"; is_first = false;
+    }
     if(object & 8) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR"; is_first = false;
     }
@@ -11757,6 +11757,9 @@ void dump_json_VkPipelineCreateFlagBits2KHR(VkPipelineCreateFlagBits2KHR object,
     }
     if(object & 2147483648) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_31_BIT_KHR"; is_first = false;
+    }
+    if(object & 34359738368) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_35_BIT_KHR"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
