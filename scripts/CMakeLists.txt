@@ -61,6 +61,7 @@ if (UPDATE_DEPS)
     endif()
 
     list(APPEND cmake_vars "CMAKE_TOOLCHAIN_FILE")
+    list(APPEND cmake_vars "CMAKE_SYSTEM_PROCESSOR")
 
     # Avoids manually setting CMAKE_SYSTEM_NAME unless it's needed:
     # https://cmake.org/cmake/help/latest/variable/CMAKE_CROSSCOMPILING.html
