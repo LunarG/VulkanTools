@@ -32,7 +32,6 @@
 
 #include <QDir>
 #include <QSettings>
-#include <QLibrary>
 #include <QTextStream>
 #include <QMessageBox>
 #include <QCheckBox>
@@ -135,7 +134,53 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
         }
 
         this->environment.SetSelectedConfiguration(configuration_name.c_str());
+
+        this->UpdateDevices();
     }
+}
+
+void Configurator::UpdateDevices() {
+    QLibrary library(GetVulkanLibrary());
+
+    VkInstance instance = VK_NULL_HANDLE;
+    VkResult err = CreateInstance(library, instance, false);
+
+    if (err != VK_SUCCESS) {
+        err = CreateInstance(library, instance, true);
+        if (err != VK_SUCCESS) {
+            return;
+        }
+    }
+
+    PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices =
+        (PFN_vkEnumeratePhysicalDevices)library.resolve("vkEnumeratePhysicalDevices");
+    assert(vkEnumeratePhysicalDevices);
+
+    PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
+    assert(vkDestroyInstance);
+
+    PFN_vkGetPhysicalDeviceProperties pfnGetPhysicalDeviceProperties =
+        (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
+    assert(pfnGetPhysicalDeviceProperties);
+
+    uint32_t gpu_count = 0;
+    err = vkEnumeratePhysicalDevices(instance, &gpu_count, NULL);
+
+    std::vector<VkPhysicalDevice> devices;
+    devices.resize(gpu_count);
+
+    err = vkEnumeratePhysicalDevices(instance, &gpu_count, &devices[0]);
+    assert(!err);
+
+    this->device_names.clear();
+    for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
+        VkPhysicalDeviceProperties properties;
+        pfnGetPhysicalDeviceProperties(devices[i], &properties);
+
+        this->device_names.push_back(properties.deviceName);
+    }
+
+    vkDestroyInstance(instance, NULL);
 }
 
 bool Configurator::SupportDifferentLayerVersions(Version *return_loader_version) const {

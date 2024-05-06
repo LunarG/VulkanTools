@@ -32,9 +32,6 @@
 #include <Windows.h>
 #endif
 
-#include <QApplication>
-#include <QtCore>
-
 int main(int argc, char* argv[]) {
 #ifdef _WIN32
     DWORD procId;
