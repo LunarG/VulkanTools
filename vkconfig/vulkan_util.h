@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,13 @@
 
 #include "../vkconfig_core/version.h"
 
+#include <vulkan/vulkan.h>
+
+#include <QLibrary>
+
 #include <string>
 
 Version GetVulkanLoaderVersion();
 std::string GenerateVulkanStatus();
+const char *GetVulkanLibrary();
+VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_portability);

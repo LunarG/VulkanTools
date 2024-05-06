@@ -63,6 +63,7 @@ class Configurator {
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
+    void UpdateDevices();
     void CopyResourceFiles();
 
    public:

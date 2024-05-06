@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,8 +88,6 @@ static std::string GetUserDefinedLayersPathsLog(const char *label, UserDefinedLa
 }
 
 VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_portability) {
-    if (!enumerate_portability) return VK_ERROR_INCOMPATIBLE_DRIVER;
-
     PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties =
         (PFN_vkEnumerateInstanceExtensionProperties)library.resolve("vkEnumerateInstanceExtensionProperties");
     assert(vkEnumerateInstanceExtensionProperties);
@@ -105,13 +103,15 @@ VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_
     // Handle Portability Enumeration requirements
     std::vector<const char *> instance_extensions;
 
-    for (std::size_t i = 0, n = instance_properties.size(); i < n && enumerate_portability; ++i) {
+    for (std::size_t i = 0, n = instance_properties.size(); i < n; ++i) {
         if (instance_properties[i].extensionName == std::string(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME)) {
             instance_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
         }
 #if VK_KHR_portability_enumeration
-        else if (instance_properties[i].extensionName == std::string(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
-            instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+        if (enumerate_portability) {
+            if (instance_properties[i].extensionName == std::string(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
+                instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+            }
         }
 #endif
     }
@@ -130,7 +130,7 @@ VkResult CreateInstance(QLibrary &library, VkInstance &instance, bool enumerate_
     VkInstanceCreateInfo inst_info = {};
     inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 #if VK_KHR_portability_enumeration
-    if (!instance_extensions.empty()) {
+    if (enumerate_portability) {
         inst_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
     }
 #endif
