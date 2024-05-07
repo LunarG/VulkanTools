@@ -154,3 +154,10 @@ jobs:
           CMAKE_GENERATOR: Ninja
       - run: cmake --build build
       - run: cmake --install build --prefix build/install
+
+  chromium:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
+      - run: python scripts/gn/gn.py
