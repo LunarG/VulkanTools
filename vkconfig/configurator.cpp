@@ -55,6 +55,8 @@ Configurator::~Configurator() {
 }
 
 bool Configurator::Init() {
+    this->UpdateDevices();
+
     // Load simple app settings, the additional search paths, and the
     // override app list.
     this->layers.LoadAllInstalledLayers();
@@ -134,8 +136,6 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
         }
 
         this->environment.SetSelectedConfiguration(configuration_name.c_str());
-
-        this->UpdateDevices();
     }
 }
 
@@ -152,25 +152,27 @@ void Configurator::UpdateDevices() {
         }
     }
 
-    PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices =
+    PFN_vkEnumeratePhysicalDevices pfnEnumeratePhysicalDevices =
         (PFN_vkEnumeratePhysicalDevices)library.resolve("vkEnumeratePhysicalDevices");
-    assert(vkEnumeratePhysicalDevices);
-
-    PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
-    assert(vkDestroyInstance);
-
+    PFN_vkDestroyInstance pfnDestroyInstance = (PFN_vkDestroyInstance)library.resolve("vkDestroyInstance");
     PFN_vkGetPhysicalDeviceProperties pfnGetPhysicalDeviceProperties =
         (PFN_vkGetPhysicalDeviceProperties)library.resolve("vkGetPhysicalDeviceProperties");
-    assert(pfnGetPhysicalDeviceProperties);
+
+    if (pfnEnumeratePhysicalDevices == nullptr || pfnDestroyInstance == nullptr || pfnGetPhysicalDeviceProperties == nullptr) {
+        return;
+    }
 
     uint32_t gpu_count = 0;
-    err = vkEnumeratePhysicalDevices(instance, &gpu_count, NULL);
+    err = pfnEnumeratePhysicalDevices(instance, &gpu_count, NULL);
+    assert(!err);
 
     std::vector<VkPhysicalDevice> devices;
-    devices.resize(gpu_count);
+    if (gpu_count > 0) {
+        devices.resize(gpu_count);
 
-    err = vkEnumeratePhysicalDevices(instance, &gpu_count, &devices[0]);
-    assert(!err);
+        err = pfnEnumeratePhysicalDevices(instance, &gpu_count, &devices[0]);
+        assert(!err);
+    }
 
     this->device_names.clear();
     for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
@@ -180,7 +182,7 @@ void Configurator::UpdateDevices() {
         this->device_names.push_back(properties.deviceName);
     }
 
-    vkDestroyInstance(instance, NULL);
+    pfnDestroyInstance(instance, NULL);
 }
 
 bool Configurator::SupportDifferentLayerVersions(Version *return_loader_version) const {
