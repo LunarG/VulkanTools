@@ -1507,12 +1507,20 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             QTreeWidgetItem *setting_item = ui->settings_tree->itemAt(right_click->pos());
 
-            std::string layer_name = setting_item->toolTip(0).toStdString();
+            // std::string layer_name = setting_item->toolTip(0).toStdString();
+            std::string setting_text = setting_item->text(0).toStdString();
+            if (setting_text == "Vulkan Applications") {
+                return false;
+            }
+            if (setting_text == "Vulkan Drivers") {
+                return false;
+            }
+            if (setting_text == "Excluded Layers") {
+                return false;
+            }
 
             const Layer *layer = GetLayer(ui->settings_tree, setting_item);
-            if (layer == nullptr && layer_name.empty()) {
-                return false;  // Unhandled action
-            }
+            std::string layer_name = setting_text;
 
             if (layer != nullptr) {
                 layer_name = layer->key;
@@ -1523,7 +1531,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QFont subtitle_font = menu.font();
             subtitle_font.setBold(true);
 
-            QAction *title_action = new QAction(setting_item->text(0).toStdString().c_str(), nullptr);
+            QAction *title_action = new QAction(layer_name.c_str(), nullptr);
             title_action->setEnabled(layer != nullptr);
             title_action->setFont(subtitle_font);
             menu.addAction(title_action);
@@ -1540,10 +1548,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             export_markdown_action->setEnabled(layer != nullptr);
             menu.addAction(export_markdown_action);
 
-            QAction *export_settings_action = new QAction("Open Layer vk_layers_settings.txt...", nullptr);
-            export_settings_action->setEnabled(layer != nullptr);
-            menu.addAction(export_settings_action);
-
             static const char *table[] = {
                 "N/A",            // LAYER_STATE_APPLICATION_CONTROLLED
                 "Exclude Layer",  // LAYER_STATE_OVERRIDDEN
@@ -1554,6 +1558,10 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             Configuration *configuration = configurator.configurations.FindActiveConfiguration();
             Parameter *parameter = FindByKey(configuration->parameters, layer_name.c_str());
+
+            QAction *export_settings_action = new QAction("Open Layer vk_layers_settings.txt...", nullptr);
+            export_settings_action->setEnabled(layer != nullptr ? parameter->state == LAYER_STATE_OVERRIDDEN : false);
+            menu.addAction(export_settings_action);
 
             QAction *layer_state_action = new QAction(layer != nullptr ? table[parameter->state] : "Remove Layer", nullptr);
             if (layer == nullptr) {
