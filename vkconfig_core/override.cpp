@@ -45,15 +45,17 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     const QStringList& path_env_add = ConvertString(environment.GetUserDefinedLayersPaths(USER_DEFINED_LAYERS_PATHS_ENV_ADD));
 
     QStringList layer_system_paths;
+    QStringList layer_override_paths = path_gui;
 
-    QStringList layer_override_paths;
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
         const Parameter& parameter = configuration.parameters[i];
         if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
             continue;
         }
 
-        if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
+        if (parameter.state != LAYER_STATE_OVERRIDDEN) {
+            continue;
+        }
 
         const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
         if (layer == nullptr) {
@@ -69,12 +71,16 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
             !path_env_set.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str()) &&
             !path_env_add.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str())) {
             // Make sure the path is not already in the system path list
-            if (layer_system_paths.contains(absolute_path.c_str())) continue;
+            if (layer_system_paths.contains(absolute_path.c_str())) {
+                continue;
+            }
 
             layer_system_paths << absolute_path.c_str();
         } else {
             // Make sure the path is not already in the override path list
-            if (layer_override_paths.contains(absolute_path.c_str())) continue;
+            if (layer_override_paths.contains(ConvertNativeSeparators(absolute_path.c_str()).c_str())) {
+                continue;
+            }
 
             // Okay, add to the list
             layer_override_paths << absolute_path.c_str();
