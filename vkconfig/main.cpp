@@ -28,20 +28,10 @@
 
 #include <cassert>
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 int main(int argc, char* argv[]) {
-#ifdef _WIN32
-    DWORD procId;
-    DWORD count = GetConsoleProcessList(&procId, 1);
-    if (count < 2) {
-        ::ShowWindow(::GetConsoleWindow(), SW_HIDE);  // hide console window
-    }
-#endif
-
     ::vkconfig_version = "vkconfig";
+
+    InitSignals();
 
     const CommandLine command_line(argc, argv);
 
@@ -50,8 +40,6 @@ int main(int argc, char* argv[]) {
         command_line.usage();
         return -1;
     }
-
-    InitSignals();
 
     switch (command_line.command) {
         case COMMAND_SHOW_USAGE: {

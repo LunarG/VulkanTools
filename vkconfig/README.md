@@ -46,6 +46,9 @@ The tool is distributed differently, depending on the platform:
 
 Vulkan Configurator may be used with command line arguments to override layers. Use `vkconfig --help` in the console for more information.
 
+On Windows 10, Vulkan Configurator can't output to 'Command Prompt' without a redirection to a file because it's a win32 application.
+As a workaround, we can run Vulkan Configurator from 'MSYS'.
+
 ![Vulkan Configurator Animated Presentation](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/images/presentation.gif)
 
 
