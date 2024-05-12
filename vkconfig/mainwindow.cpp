@@ -674,7 +674,9 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
 
 void MainWindow::OnConfigurationItemDoubleClicked(QTreeWidgetItem *item, int column) {
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
-    if (configuration_item == nullptr) return;
+    if (configuration_item == nullptr) {
+        return;
+    }
 
     EditClicked(configuration_item);
 }
@@ -1604,6 +1606,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                         break;
                 }
                 configuration->setting_tree_state.clear();
+
+                configurator.ActivateConfiguration(configuration->key);
+
                 require_update_ui = true;
             } else if (action == show_advanced_setting_action) {
                 configuration->view_advanced_settings = action->isChecked();
