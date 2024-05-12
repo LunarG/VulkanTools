@@ -111,6 +111,7 @@ LayersDialog::LayersDialog(QWidget *parent, const Configuration &configuration)
     configurator.configurations.SaveAllConfigurations(configurator.layers.available_layers);
 
     ui->lineEditName->setText(configuration.key.c_str());
+    ui->lineEditName->setFocus();
     ui->lineEditDescription->setText(configuration.description.c_str());
     ui->buttonBox->setEnabled(!configurator.layers.Empty());
     ui->pushButtonRemove->setEnabled(false);
