@@ -1557,7 +1557,14 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
                           "The tranlation table size doesn't match the enum number of elements");
 
             Configuration *configuration = configurator.configurations.FindActiveConfiguration();
-            Parameter *parameter = FindByKey(configuration->parameters, layer_name.c_str());
+
+            Parameter *parameter = nullptr;
+            for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+                if (layer_name.find(configuration->parameters[i].key) != std::string::npos) {
+                    parameter = &configuration->parameters[i];
+                    break;
+                }
+            }
 
             QAction *export_settings_action = new QAction("Open Layer vk_layers_settings.txt...", nullptr);
             export_settings_action->setEnabled(layer != nullptr ? parameter->state == LAYER_STATE_OVERRIDDEN : false);
