@@ -114,6 +114,8 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
             this->configurations.LoadAllConfigurations(this->layers.available_layers);
         }
 
+        this->environment.SetSelectedConfiguration(configuration_name.c_str());
+
         std::string missing_layer;
         if (HasMissingLayer(configuration->parameters, layers.available_layers, missing_layer)) {
             QMessageBox alert;
@@ -134,8 +136,6 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
         } else {
             this->configurations.Configure(this->layers.available_layers);
         }
-
-        this->environment.SetSelectedConfiguration(configuration_name.c_str());
     }
 }
 
