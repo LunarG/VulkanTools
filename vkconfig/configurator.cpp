@@ -55,6 +55,10 @@ Configurator::~Configurator() {
 }
 
 bool Configurator::Init() {
+    std::string selected_configuration = this->environment.GetSelectedConfiguration();
+
+    this->ActivateConfiguration("");
+
     this->UpdateDevices();
 
     // Load simple app settings, the additional search paths, and the
@@ -78,7 +82,7 @@ bool Configurator::Init() {
         this->configurations.FirstDefaultsConfigurations(layers.available_layers);
     }
 
-    this->ActivateConfiguration(this->environment.GetSelectedConfiguration());
+    this->ActivateConfiguration(selected_configuration);
 
     return true;
 }
