@@ -71,14 +71,6 @@ static const char *SEARCH_PATHS[] = {"HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vul
                                      "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers"};
 #else
 static const char *SEARCH_PATHS[] = {
-#ifdef INSTALL_FULL_DATAROOTDIR
-    INSTALL_FULL_DATAROOTDIR "/vulkan/explicit_layer.d",
-    INSTALL_FULL_DATAROOTDIR "/vulkan/implicit_layer.d",
-#endif
-#ifdef INSTALL_FULL_SYSCONFDIR
-    INSTALL_FULL_SYSCONFDIR "/vulkan/explicit_layer.d",
-    INSTALL_FULL_SYSCONFDIR "/vulkan/implicit_layer.d",
-#endif
     "/usr/local/etc/vulkan/explicit_layer.d",  // Not used on macOS, okay to just ignore
     "/usr/local/etc/vulkan/implicit_layer.d",  // Not used on macOS, okay to just ignore
     "/usr/local/share/vulkan/explicit_layer.d",
@@ -88,7 +80,16 @@ static const char *SEARCH_PATHS[] = {
     "/usr/share/vulkan/explicit_layer.d",
     "/usr/share/vulkan/implicit_layer.d",
     ".local/share/vulkan/explicit_layer.d",
-    ".local/share/vulkan/implicit_layer.d"};
+    ".local/share/vulkan/implicit_layer.d",
+#ifdef INSTALL_FULL_DATAROOTDIR
+    INSTALL_FULL_DATAROOTDIR "/vulkan/explicit_layer.d",
+    INSTALL_FULL_DATAROOTDIR "/vulkan/implicit_layer.d",
+#endif
+#ifdef INSTALL_FULL_SYSCONFDIR
+    INSTALL_FULL_SYSCONFDIR "/vulkan/explicit_layer.d",
+    INSTALL_FULL_SYSCONFDIR "/vulkan/implicit_layer.d",
+#endif
+};
 #endif
 
 LayerManager::LayerManager(const Environment &environment) : environment(environment) { available_layers.reserve(10); }
