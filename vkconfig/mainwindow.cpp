@@ -1517,7 +1517,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             if (setting_text == "Vulkan Drivers") {
                 return false;
             }
-            if (setting_text == "Excluded Layers") {
+            if (setting_text == "Excluded Layers:") {
                 return false;
             }
 
