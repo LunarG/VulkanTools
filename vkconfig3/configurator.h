@@ -29,7 +29,7 @@
 #include "../vkconfig_core/configuration_manager.h"
 #include "../vkconfig_core/platform.h"
 
-static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3", "_2_2_2", "_2_2_1"};
+static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3"};
 
 class Configurator {
    public:
@@ -38,21 +38,11 @@ class Configurator {
 
     // The list of applications affected
    public:
-    bool SupportDifferentLayerVersions(Version* return_loader_version = nullptr) const;
-
-    // If return_loader_version is not null, the function will return the loader version
-    // If quiet is false, message box will be generate
-    bool SupportApplicationList(Version* return_loader_version = nullptr) const;
-
-    bool HasActiveOverrideOnApplicationListOnly() const {
-        return SupportApplicationList() && environment.HasOverriddenApplications();
-    }
+    bool SupportLoaderSettings(Version* return_loader_version = nullptr) const;
 
     void ActivateConfiguration(const std::string& configuration_name);
 
     void ResetToDefault(bool hard);
-
-    std::string profile_file;
 
     std::vector<std::string> GetDeviceNames() const;
 
@@ -63,7 +53,6 @@ class Configurator {
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
-    void CopyResourceFiles();
     void UpdateDevices();
 
    public:

@@ -63,28 +63,34 @@ class LayerWidget : public QLabel {
         : item(item), layer_version(nullptr), layer_state(nullptr) {
         const bool is_implicit_layer = layers.empty() ? false : layers[0]->type == LAYER_TYPE_IMPLICIT;
 
-        this->layer_version = new QComboBox(this);
-        this->layer_version->addItem(layers.empty() ? "0.0.000" : layers[0]->api_version.str().c_str());
-        this->layer_version->setToolTip(layers[0]->manifest_path.c_str());
-        // this->layer_version->setEnabled(layers.size() > 1);
-        this->layer_version->installEventFilter(this);
+        if (parameter.control != LAYER_CONTROL_APPLICATIONS && parameter.control != LAYER_CONTROL_UNORDERED) {
+            this->layer_version = new QComboBox(this);
+            this->layer_version->addItem(layers.empty() ? "0.0.000" : layers[0]->api_version.str().c_str());
+            if (!layers.empty()) {
+                this->layer_version->setToolTip(layers[0]->manifest_path.c_str());
+            }
+            // this->layer_version->setEnabled(layers.size() > 1);
+            this->layer_version->installEventFilter(this);
 
-        this->layer_state = new QComboBox(this);
-        this->layer_state->addItem(is_implicit_layer ? "Implicitly On" : "Application-Controlled");
-        this->layer_state->addItem("Forced On");
-        this->layer_state->addItem("Forced Off");
-        this->layer_state->setEnabled(!layers.empty());
-        this->layer_state->setCurrentIndex(parameter.state);
-        this->layer_state->installEventFilter(this);
+            this->layer_state = new QComboBox(this);
+            this->layer_state->addItem("Auto");
+            this->layer_state->addItem("On");
+            this->layer_state->addItem("Off");
+            this->layer_state->setEnabled(!layers.empty());
+            this->layer_state->setCurrentIndex(parameter.state);
+            this->layer_state->installEventFilter(this);
+        }
 
-        std::string decorated_name(!layers.empty() ? parameter.key : layers[0]->key);
+        std::string decorated_name(layers.empty() ? parameter.key : layers[0]->key);
 
         if (layers.empty()) {
             // A layers configuration may have excluded layer that are misssing because they are not available on this platform
             // We simply hide these layers to avoid confusing the Vulkan developers
             if (parameter.state == LAYER_STATE_EXCLUDED) return;
 
-            decorated_name += " (Missing)";
+            if (parameter.control != LAYER_CONTROL_APPLICATIONS && parameter.control != LAYER_CONTROL_UNORDERED) {
+                decorated_name += " (Missing)";
+            }
         } else {
             if (layers[0]->status != STATUS_STABLE) {
                 decorated_name += format(" (%s)", GetToken(layers[0]->status));
@@ -114,15 +120,17 @@ class LayerWidget : public QLabel {
     void resizeEvent(QResizeEvent *event) override {
         QSize size = event->size();
 
-        const QFontMetrics fm = this->layer_state->fontMetrics();
-        const int width_state = std::max(HorizontalAdvance(fm, "Application-Controlled 000"), 80);
-        const int width_version = std::max(HorizontalAdvance(fm, "1.2.199 000"), 80);
+        if (this->layer_state != nullptr) {
+            const QFontMetrics fm = this->layer_state->fontMetrics();
+            const int width_state = std::max(HorizontalAdvance(fm, "Auto 000"), 80);
+            const int width_version = std::max(HorizontalAdvance(fm, "1.2.199 000"), 80);
 
-        const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, size.height());
-        this->layer_state->setGeometry(state_button_rect);
+            const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, size.height());
+            this->layer_state->setGeometry(state_button_rect);
 
-        const QRect version_button_rect = QRect(size.width() - width_state - width_version, 0, width_version, size.height());
-        this->layer_version->setGeometry(version_button_rect);
+            const QRect version_button_rect = QRect(size.width() - width_state - width_version, 0, width_version, size.height());
+            this->layer_version->setGeometry(version_button_rect);
+        }
     }
 
    public:
@@ -280,14 +288,15 @@ class MainWindow : public QMainWindow {
     void on_push_button_clear_log_clicked();
     // void on_check_box_apply_list_clicked();
     void on_check_box_clear_on_launch_clicked();
-    void on_check_box_per_application_clicked();
     void on_push_button_applications_clicked();
     void on_push_button_new_clicked();
     void on_push_button_rename_clicked();
     void on_push_button_remove_clicked();
     void on_push_button_duplicate_clicked();
 
-    void OnComboBoxModeChanged(int index);
+    void on_check_box_per_application_toggled(bool checked);
+    void on_combo_box_mode_currentIndexChanged(int index);
+    void on_combo_box_applications_currentIndexChanged(int index);
 
     void OnConfigurationItemExpanded(QTreeWidgetItem *item);
     void OnConfigurationItemClicked(bool checked);

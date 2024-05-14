@@ -35,8 +35,8 @@ static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3", "_2_2_
 extern bool WriteLayersOverride(const Environment& environment, const std::vector<Layer>& available_layers,
                                 const Configuration& configuration, const std::string& layers_path);
 
-extern bool WriteSettingsOverride(const std::vector<Layer>& available_layers, const Configuration& configuration,
-                                  const std::string& settings_path);
+extern bool WriteLayersSettings(const std::vector<Layer>& available_layers, const Configuration& configuration,
+                                const std::string& settings_path);
 
 extern bool EraseLayersOverride(const std::string& layers_path);
 
@@ -59,7 +59,7 @@ TEST(test_override, write_erase_2_2_2) {
     EXPECT_TRUE(!configuration.parameters.empty());
 
     EXPECT_EQ(true, WriteLayersOverride(env, layer_manager.selected_layers, configuration, "." + LAYERS));
-    EXPECT_EQ(true, WriteSettingsOverride(layer_manager.selected_layers, configuration, "." + SETTINGS));
+    EXPECT_EQ(true, WriteLayersSettings(layer_manager.selected_layers, configuration, "." + SETTINGS));
 
     QFile file_layers_override_ref((":" + LAYERS).c_str());
     const bool result_layers_override_ref = file_layers_override_ref.open(QIODevice::ReadOnly | QIODevice::Text);

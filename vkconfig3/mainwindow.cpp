@@ -184,8 +184,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->configurations_tree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
             SLOT(OnConfigurationTreeClicked(QTreeWidgetItem *, int)));
 
-    connect(ui->combo_box_mode, SIGNAL(currentIndexChanged(int)), this, SLOT(OnComboBoxModeChanged(int)));
-
     connect(ui->settings_tree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(editorExpanded(QTreeWidgetItem *)));
     connect(ui->settings_tree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
             SLOT(OnSettingsTreeClicked(QTreeWidgetItem *, int)));
@@ -215,6 +213,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->edit_env->setText(application.env.c_str());
     ui->edit_log->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
 
+    ui->execute_closer_application_label->setVisible(true);
+    ui->execute_closer_driver_label->setVisible(true);
+
     // ui->check_box_persistent->setToolTip("Keep Vulkan Configurator running in system tray when closing the main window");
     // ui->check_box_persistent->setVisible(QSystemTrayIcon::isSystemTrayAvailable());
 
@@ -226,6 +227,8 @@ MainWindow::MainWindow(QWidget *parent)
     // insufficinet.
     ui->log_browser->document()->setMaximumBlockCount(2048);
     // ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
+
+    ui->check_box_per_application->setChecked(configurator.environment.GetPerApplicationConfig());
 
     this->InitTray();
     this->UpdateTray();
@@ -437,7 +440,9 @@ void MainWindow::AddLayerItem(const Parameter &parameter) {
         // We simply hide these layers to avoid confusing the Vulkan developers
         if (parameter.state == LAYER_STATE_EXCLUDED) return;
 
-        decorated_name += " (Missing)";
+        if (parameter.control != LAYER_STATE_APPLICATION_CONTROLLED && parameter.control != LAYER_CONTROL_UNORDERED) {
+            decorated_name += " (Missing)";
+        }
     }
 
     TreeWidgetItemParameter *item_state = new TreeWidgetItemParameter(parameter.key.c_str());
@@ -507,24 +512,15 @@ void MainWindow::UpdateUI() {
     this->blockSignals(true);
     ui->configurations_tree->blockSignals(true);
 
-    ui->combo_box_mode->blockSignals(true);
-    ui->combo_box_mode->setCurrentIndex(environment.GetMode());
-    ui->combo_box_mode->blockSignals(false);
-
     // Add applications
-    ui->combo_box_applications->blockSignals(true);
     ui->combo_box_applications->setEnabled(ui->check_box_per_application->isChecked());
     const std::vector<Application> &applications = environment.GetApplications();
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        ui->combo_box_applications->addItem(applications[i].app_name.c_str());
+        ui->combo_box_applications->addItem(ReplaceBuiltInVariable(applications[i].executable_path.c_str()).c_str());
     }
     ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
-    ui->combo_box_applications->blockSignals(false);
 
     const bool has_active_configuration = configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers);
-
-    const bool enable_layer_ui =
-        (ui->combo_box_mode->currentIndex() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING) && has_selected_configuration;
 
     // Mode states
     this->UpdateTray();
@@ -575,7 +571,6 @@ void MainWindow::UpdateUI() {
     */
 
     // Update configurations
-    ui->group_box_configurations->setEnabled(environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
     ui->configurations_tree->setCurrentItem(nullptr);
 
     for (int i = 0, n = ui->configurations_tree->topLevelItemCount(); i < n; ++i) {
@@ -608,7 +603,7 @@ void MainWindow::UpdateUI() {
     // Load Layers paths
     std::vector<std::string> layer_paths = configurator.layers.BuildPathList();
 
-    ui->tree_layers_paths->setEnabled(enable_layer_ui);
+    // ui->tree_layers_paths->setEnabled(enable_layer_ui);
     ui->tree_layers_paths->clear();
 
     for (std::size_t path_index = 0, count = layer_paths.size(); path_index < count; ++path_index) {
@@ -620,7 +615,7 @@ void MainWindow::UpdateUI() {
     ui->tree_layers_paths->update();
 
     // Load Layers items
-    ui->layers_tree->setEnabled(enable_layer_ui);
+    // ui->layers_tree->setEnabled(enable_layer_ui);
     ui->layers_tree->clear();
 
     if (has_selected_configuration) {
@@ -628,35 +623,37 @@ void MainWindow::UpdateUI() {
             FindByKey(configurator.configurations.available_configurations, selected_contiguration_name.c_str());
         if (configuration != nullptr) {
             std::vector<Parameter> parameters = GatherParameters(configuration->parameters, configurator.layers.selected_layers);
-
+            /*
             {
                 QListWidgetItem *item = new QListWidgetItem();
                 ui->layers_tree->addItem(item);
                 item->setText(TEXT_EXECUTE_CLOSER_APPLICATION);
-                item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+                //item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+                item->setFlags(0);
                 item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
                 QFont font = item->font();
                 font.setItalic(true);
                 item->setFont(font);
                 // item->setDisabled(true);
             }
-
+            */
             for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
                 AddLayerItem(parameters[i]);
             }
-
+            /*
             {
                 QListWidgetItem *item = new QListWidgetItem();
                 ui->layers_tree->addItem(item);
                 item->setText(TEXT_EXECUTE_CLOSER_DRIVER);
-                item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+                //item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+                item->setFlags(0);
                 item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
                 QFont font = item->font();
                 font.setItalic(true);
                 item->setFont(font);
                 // item->setDisabled(true);
             }
-
+            */
             resizeEvent(nullptr);
 
             ui->layers_tree->update();
@@ -907,17 +904,44 @@ void MainWindow::on_check_box_apply_list_clicked() {
 }
 */
 
-void MainWindow::OnComboBoxModeChanged(int index) {
+void MainWindow::on_combo_box_mode_currentIndexChanged(int index) {
     Configurator &configurator = Configurator::Get();
-    configurator.environment.SetMode(static_cast<LayersMode>(ui->combo_box_mode->currentIndex()));
-    configurator.ActivateConfiguration(configurator.environment.GetSelectedConfiguration());
-    UpdateUI();
+
+    if (configurator.environment.GetPerApplicationConfig()) {
+        Application &application = configurator.environment.GetApplication(configurator.environment.GetActiveApplicationIndex());
+        application.layers_mode = static_cast<LayersMode>(index);
+    } else {
+        configurator.environment.SetMode(static_cast<LayersMode>(index));
+        configurator.ActivateConfiguration(configurator.environment.GetSelectedConfiguration());
+    }
+
+    const bool enabled_ui = index == LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
+
+    ui->group_box_configurations->setEnabled(enabled_ui);
+    ui->group_box_settings->setEnabled(enabled_ui);
+    ui->group_box_layers->setEnabled(enabled_ui);
 }
 
-void MainWindow::on_check_box_per_application_clicked() {
-    ui->combo_box_applications->setEnabled(ui->check_box_per_application->isChecked());
+void MainWindow::on_combo_box_applications_currentIndexChanged(int index) {
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.SelectActiveApplication(index);
 
-    Configurator::Get().environment.SetPerApplicationConfig(ui->check_box_per_application->isChecked());
+    Application &application = configurator.environment.GetApplication(configurator.environment.GetActiveApplicationIndex());
+    ui->combo_box_applications->setToolTip(ReplaceBuiltInVariable(application.executable_path.c_str()).c_str());
+    ui->combo_box_mode->setCurrentIndex(application.layers_mode);
+}
+
+void MainWindow::on_check_box_per_application_toggled(bool checked) {
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.SetPerApplicationConfig(checked);
+
+    ui->combo_box_applications->setEnabled(configurator.environment.GetPerApplicationConfig());
+    if (checked) {
+        Application &application = configurator.environment.GetApplication(configurator.environment.GetActiveApplicationIndex());
+        ui->combo_box_mode->setCurrentIndex(application.layers_mode);
+    } else {
+        ui->combo_box_mode->setCurrentIndex(configurator.environment.GetMode());
+    }
 }
 
 void MainWindow::on_check_box_clear_on_launch_clicked() {
@@ -943,14 +967,16 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     // Someone just got checked, they are now the current profile
     // This pointer will only be valid if it's one of the elements with
     // the radio button
-    ConfigurationListItem *item = GetCheckedItem();
-    if (item == nullptr) return;
+    ConfigurationListItem *configuration_item = GetCheckedItem();
+    if (configuration_item == nullptr) {
+        return;
+    }
 
     // This appears redundant on Windows, but under linux it is needed
     // to ensure the new item is "selected"
     // ui->tree_configurations->setCurrentItem(item);
 
-    Configurator::Get().ActivateConfiguration(item->configuration_name);
+    Configurator::Get().ActivateConfiguration(configuration_item->configuration_name);
 
     UpdateUI();
 }
@@ -1181,7 +1207,7 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
     if (event != nullptr) event->accept();
 
     const QFontMetrics fm = ui->layers_tree->fontMetrics();
-    const int combo_width = (fm.size(Qt::TextSingleLine, "Application-Controlled").width() * 1.6);
+    const int combo_width = (fm.size(Qt::TextSingleLine, "Auto").width() * 1.6);
     const int width = ui->layers_tree->width() - combo_width;
 
     // ui->tree_layers_list->setColumnWidth(0, width);
@@ -1726,15 +1752,10 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         if (right_click) {
             QListWidgetItem *item = ui->layers_tree->itemAt(right_click->pos());
 
-            const std::string text = item->text().toStdString();
-            if (text == TEXT_EXECUTE_CLOSER_APPLICATION) {
-                return false;
-            }
-            if (text == TEXT_EXECUTE_CLOSER_DRIVER) {
-                return false;
-            }
-
             const Layer *layer = GetLayer(ui->layers_tree, item);
+            if (layer == nullptr) {
+                return false;
+            }
 
             QMenu menu(ui->layers_tree);
             QFont subtitle_font = menu.font();
