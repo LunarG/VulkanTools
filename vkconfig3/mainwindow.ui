@@ -72,7 +72,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_diagnostic">
        <attribute name="title">
@@ -588,8 +588,14 @@
         <property name="bottomMargin">
          <number>0</number>
         </property>
+        <property name="verticalSpacing">
+         <number>0</number>
+        </property>
         <item row="0" column="0">
          <widget class="QSplitter" name="splitter_main">
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -603,6 +609,9 @@
            <bool>false</bool>
           </property>
           <widget class="QSplitter" name="splitter_configurations">
+           <property name="lineWidth">
+            <number>0</number>
+           </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -745,6 +754,12 @@
                     </property>
                     <property name="frameShadow">
                      <enum>QFrame::Sunken</enum>
+                    </property>
+                    <property name="lineWidth">
+                     <number>0</number>
+                    </property>
+                    <property name="verticalScrollBarPolicy">
+                     <enum>Qt::ScrollBarAlwaysOn</enum>
                     </property>
                     <property name="editTriggers">
                      <set>QAbstractItemView::NoEditTriggers</set>
@@ -907,11 +922,11 @@
              </item>
             </layout>
            </widget>
-           <widget class="QGroupBox" name="group_box_layers_list">
+           <widget class="QGroupBox" name="group_box_layers">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
-              <verstretch>1</verstretch>
+              <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <layout class="QGridLayout" name="gridLayout_3">
@@ -927,7 +942,39 @@
              <property name="bottomMargin">
               <number>0</number>
              </property>
-             <item row="0" column="0">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item row="2" column="0" alignment="Qt::AlignBottom">
+              <widget class="QLabel" name="execute_closer_application_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>9</pointsize>
+                 <italic>true</italic>
+                </font>
+               </property>
+               <property name="autoFillBackground">
+                <bool>true</bool>
+               </property>
+               <property name="lineWidth">
+                <number>0</number>
+               </property>
+               <property name="text">
+                <string>Execute Closer to the Vulkan Application</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
               <widget class="QListWidget" name="layers_tree">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -948,10 +995,13 @@
                 <enum>QFrame::Sunken</enum>
                </property>
                <property name="lineWidth">
-                <number>1</number>
+                <number>0</number>
                </property>
                <property name="verticalScrollBarPolicy">
                 <enum>Qt::ScrollBarAlwaysOn</enum>
+               </property>
+               <property name="autoScrollMargin">
+                <number>0</number>
                </property>
                <property name="editTriggers">
                 <set>QAbstractItemView::NoEditTriggers</set>
@@ -970,6 +1020,38 @@
                </property>
               </widget>
              </item>
+             <item row="4" column="0" alignment="Qt::AlignTop">
+              <widget class="QLabel" name="execute_closer_driver_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>9</pointsize>
+                 <italic>true</italic>
+                </font>
+               </property>
+               <property name="autoFillBackground">
+                <bool>true</bool>
+               </property>
+               <property name="lineWidth">
+                <number>0</number>
+               </property>
+               <property name="text">
+                <string>Execute Closer to the Vulkan Driver</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+               </property>
+               <property name="margin">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </widget>
@@ -979,6 +1061,9 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -1045,16 +1130,19 @@
                 <enum>QFrame::Box</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Sunken</enum>
+                <enum>QFrame::Plain</enum>
                </property>
                <property name="lineWidth">
-                <number>1</number>
+                <number>0</number>
                </property>
                <property name="horizontalScrollBarPolicy">
                 <enum>Qt::ScrollBarAlwaysOff</enum>
                </property>
                <property name="sizeAdjustPolicy">
                 <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+               </property>
+               <property name="autoScrollMargin">
+                <number>0</number>
                </property>
                <property name="editTriggers">
                 <set>QAbstractItemView::NoEditTriggers</set>

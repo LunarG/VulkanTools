@@ -32,6 +32,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <vector>
 #include <cstdio>
 
 // Create and write VkLayer_override.json file
@@ -143,7 +144,7 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 
         QJsonArray json_applist;
         for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-            if (!applications[i].override_layers) continue;
+            if (applications[i].layers_mode == LAYERS_MODE_BY_APPLICATIONS) continue;
 
             const std::string& executable_path =
                 ConvertNativeSeparators(ReplaceBuiltInVariable(applications[i].executable_path.c_str()));
@@ -171,9 +172,178 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     return result_layers_file;
 }
 
+const char* GetString(LayerControl control) {
+    static const char* table[] = {"on", "off", "auto", "application_enabled_layers", "unordered_layer_location"};
+
+    return table[control];
+}
+
+struct LayerSettings {
+    std::string name;
+    std::string path;
+    LayerControl control;
+    bool implicit;
+};
+
+enum LogType {
+    LOG_ERROR = 0,
+    LOG_WARN,
+    LOG_INFO,
+    LOG_DEBUG,
+
+    LOG_FIRST = LOG_ERROR,
+    LOG_LAST = LOG_DEBUG,
+};
+
+enum { LOG_COUNT = LOG_LAST - LOG_FIRST + 1 };
+
+enum LogFlag {
+    LOG_ERROR_BIT = 1 << LOG_ERROR,
+    LOG_WARN_BIT = 1 << LOG_WARN,
+    LOG_INFO_BIT = 1 << LOG_INFO,
+    LOG_DEBUG_BIT = 1 << LOG_DEBUG,
+
+    LOG_DEBUG_ALL = LOG_ERROR_BIT | LOG_WARN_BIT | LOG_INFO_BIT | LOG_DEBUG_BIT
+};
+
+struct LoaderSettings {
+    std::string executable_path;
+    std::vector<LayerSettings> layers;
+    int stderr_log_flags;
+};
+
+static std::vector<std::string> GetStderrLogStrings(int stderr_log_flags) {
+    static const char* table[] = {"error", "warn", "info", "debug"};
+    static_assert(countof(table) == LOG_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    std::vector<std::string> result;
+
+    for (int i = LOG_FIRST, n = LOG_COUNT; i < n; ++i) {
+        if (stderr_log_flags & (1 << i)) {
+            result.push_back(table[i]);
+        }
+    }
+
+    return result;
+}
+
+static QJsonObject CreateJsonSettingObject(const LoaderSettings& loader_settings) {
+    QJsonArray json_app_keys;
+    json_app_keys.append(loader_settings.executable_path.c_str());
+
+    QJsonArray json_layers;
+    for (std::size_t j = 0, o = loader_settings.layers.size(); j < o; ++j) {
+        const LayerSettings& layer = loader_settings.layers[j];
+
+        QJsonObject json_layer;
+        json_layer.insert("name", layer.name.c_str());
+        json_layer.insert("path", layer.path.c_str());
+        json_layer.insert("control", GetString(layer.control));
+        json_layer.insert("treat_as_implicit_manifest", layer.implicit);
+        json_layers.append(json_layer);
+    }
+
+    QJsonArray json_stderr_log;
+    const std::vector<std::string>& stderr_log = GetStderrLogStrings(loader_settings.stderr_log_flags);
+    for (std::size_t i = 0, n = stderr_log.size(); i < n; ++i) {
+        json_stderr_log.append(stderr_log[i].c_str());
+    }
+
+    QJsonObject json_settings;
+    json_settings.insert("app_keys", json_app_keys);
+    json_settings.insert("layers", json_layers);
+    json_settings.insert("stderr_log", json_stderr_log);
+    return json_settings;
+}
+
+// Create and write vk_loader_settings.json file
+bool WriteLoaderSettings(const Environment& environment, const std::vector<Layer>& available_layers,
+                         const Configuration& configuration, const std::string& layers_path) {
+    assert(!layers_path.empty());
+    assert(QFileInfo(layers_path.c_str()).absoluteDir().exists());
+
+    std::vector<LoaderSettings> loader_settings_array;
+
+    if (environment.GetPerApplicationConfig()) {
+        for (std::size_t i = 0, n = environment.GetApplications().size(); i < n; ++i) {
+            LoaderSettings loader_settings;
+
+            const Application& application = environment.GetApplication(i);
+
+            switch (application.layers_mode) {
+                case LAYERS_MODE_BY_APPLICATIONS: {
+                } break;
+                case LAYERS_MODE_BY_CONFIGURATOR_RUNNING: {
+                } break;
+                case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED: {
+                } break;
+            }
+
+            loader_settings_array.push_back(loader_settings);
+        }
+    } else {
+        const std::string& selected_configuration = environment.GetSelectedConfiguration();
+
+        LoaderSettings loader_settings;
+        loader_settings.stderr_log_flags = 0;
+
+        if (environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS) {
+            for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+                LayerSettings layer_settings;
+
+                const Parameter& parameter = configuration.parameters[i];
+                if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
+                    continue;
+                }
+
+                if (parameter.state != LAYER_STATE_OVERRIDDEN) {
+                    continue;
+                }
+
+                const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
+                if (layer == nullptr) {
+                    continue;
+                }
+
+                // Extract just the path
+                assert(!layer->manifest_path.empty());
+                layer_settings.name = layer->key;
+                layer_settings.path = QFileInfo(layer->manifest_path.c_str()).absolutePath().toStdString();
+                layer_settings.control = LAYER_CONTROL_AUTO;  // TODO
+                layer_settings.implicit = layer->type == LAYER_TYPE_IMPLICIT;
+
+                loader_settings.layers.push_back(layer_settings);
+            }
+        }
+
+        loader_settings_array.push_back(loader_settings);
+    }
+
+    QJsonObject root;
+    root.insert("file_format_version", "1.0.0");
+    if (loader_settings_array.size() > 1) {
+        QJsonArray json_settings_array;
+        for (std::size_t i = 0, n = loader_settings_array.size(); i < n; ++i) {
+            json_settings_array.append(CreateJsonSettingObject(loader_settings_array[i]));
+        }
+        root.insert("settings_array", json_settings_array);
+    } else {
+        root.insert("settings", CreateJsonSettingObject(loader_settings_array[0]));
+    }
+    QJsonDocument doc(root);
+
+    QFile json_file(layers_path.c_str());
+    const bool result_layers_file = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
+    assert(result_layers_file);
+    json_file.write(doc.toJson());
+    json_file.close();
+
+    return result_layers_file;
+}
+
 // Create and write vk_layer_settings.txt file
-bool WriteSettingsOverride(const std::vector<Layer>& available_layers, const Configuration& configuration,
-                           const std::string& settings_path) {
+bool WriteLayersSettings(const std::vector<Layer>& available_layers, const Configuration& configuration,
+                         const std::string& settings_path) {
     if (settings_path.empty() || !QFileInfo(settings_path.c_str()).absoluteDir().exists()) {
         fprintf(stderr, "Cannot open file %s\n", settings_path.c_str());
         exit(1);
@@ -294,7 +464,7 @@ bool OverrideConfiguration(const Environment& environment, const std::vector<Lay
     const bool result_layers = WriteLayersOverride(environment, available_layers, configuration, layers_path);
 
     // vk_layer_settings.txt
-    const bool result_settings = WriteSettingsOverride(available_layers, configuration, settings_path);
+    const bool result_settings = WriteLayersSettings(available_layers, configuration, settings_path);
 
     // On Windows only, we need to write these values to the registry
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS

@@ -464,7 +464,7 @@ void ExportMarkdownDoc(const Layer& layer, const std::string& path) {
 }
 
 void ExportSettingsDoc(const std::vector<Layer>& available_layers, const Configuration& configuration, const std::string& path) {
-    if (WriteSettingsOverride(available_layers, configuration, path))
+    if (WriteLayersSettings(available_layers, configuration, path))
         printf("vkconfig: settings written to %s\n", path.c_str());
     else
         printf("vkconfig: could not write %s\n", path.c_str());

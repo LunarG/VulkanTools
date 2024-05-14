@@ -35,6 +35,19 @@ enum ParameterRank {
     PARAMETER_RANK_EXPLICIT_AVAILABLE
 };
 
+enum LayerControl {
+    LAYER_CONTROL_OFF = 0,
+    LAYER_CONTROL_ON,
+    LAYER_CONTROL_AUTO,
+    LAYER_CONTROL_APPLICATIONS,
+    LAYER_CONTROL_UNORDERED,
+
+    LAYER_CONTROL_FIRST = LAYER_CONTROL_OFF,
+    LAYER_CONTROL_LAST = LAYER_CONTROL_UNORDERED
+};
+
+enum { LAYER_CONTROL_COUNT = LAYER_CONTROL_LAST - LAYER_CONTROL_FIRST + 1 };
+
 struct Parameter {
     static const int NO_RANK = -1;
 
@@ -43,7 +56,7 @@ struct Parameter {
     }
 
     Parameter(const std::string& key, const LayerState state)
-        : key(key), state(state), platform_flags(PLATFORM_DESKTOP_BIT), overridden_rank(NO_RANK) {
+        : key(key), state(state), control(LAYER_CONTROL_AUTO), platform_flags(PLATFORM_DESKTOP_BIT), overridden_rank(NO_RANK) {
         assert(true);
     }
 
@@ -51,6 +64,7 @@ struct Parameter {
 
     std::string key;
     LayerState state;
+    LayerControl control;
     int platform_flags;
     SettingDataSet settings;
     int overridden_rank;

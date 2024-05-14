@@ -32,4 +32,4 @@ Application::Application(const std::string& name, const std::string& executable_
                 QFileInfo(executable_full_path.c_str()).baseName() + ".txt")
                    .toStdString()
                    .c_str()),
-      override_layers(true) {}
+      layers_mode(LAYERS_MODE_BY_CONFIGURATOR_RUNNING) {}

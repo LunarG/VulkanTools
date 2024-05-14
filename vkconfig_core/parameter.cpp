@@ -197,7 +197,13 @@ std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const 
 
 std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const std::vector<Layer>& available_layers) {
     std::vector<Parameter> gathered_parameters;
-
+    /*
+        Parameter application_enabled_layers;
+        application_enabled_layers.key = "Application Enabled Layers";
+        application_enabled_layers.control = LAYER_CONTROL_APPLICATIONS;
+        application_enabled_layers.overridden_rank = Parameter::NO_RANK;
+        gathered_parameters.push_back(application_enabled_layers);
+    */
     // Loop through the layers. They are expected to be in order
     for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
         const Parameter& parameter = parameters[i];
@@ -222,7 +228,13 @@ std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters
     }
 
     OrderParameter(gathered_parameters, available_layers);
-
+    /*
+        Parameter unordered_layer_location;
+        unordered_layer_location.key = "Unordered Layers";
+        unordered_layer_location.control = LAYER_CONTROL_UNORDERED;
+        unordered_layer_location.overridden_rank = 999;
+        gathered_parameters.push_back(unordered_layer_location);
+    */
     return gathered_parameters;
 }
 

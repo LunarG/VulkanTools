@@ -175,7 +175,7 @@ void Configurator::UpdateDevices() {
     pfnDestroyInstance(instance, NULL);
 }
 
-bool Configurator::SupportDifferentLayerVersions(Version *return_loader_version) const {
+bool Configurator::SupportLoaderSettings(Version *return_loader_version) const {
     // Check loader version
     const Version version = GetVulkanLoaderVersion();
     assert(version != Version::VERSION_NULL);
@@ -184,19 +184,7 @@ bool Configurator::SupportDifferentLayerVersions(Version *return_loader_version)
         *return_loader_version = version;
     }
 
-    return version >= Version("1.3.212");
-}
-
-bool Configurator::SupportApplicationList(Version *return_loader_version) const {
-    // Check loader version
-    const Version version = GetVulkanLoaderVersion();
-    assert(version != Version::VERSION_NULL);
-
-    if (return_loader_version) {
-        *return_loader_version = version;
-    }
-
-    return version >= Version("1.2.141");
+    return version >= Version("1.3.261");
 }
 
 void Configurator::ResetToDefault(bool hard) {

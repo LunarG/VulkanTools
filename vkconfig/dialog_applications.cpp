@@ -149,7 +149,7 @@ QTreeWidgetItem *ApplicationsDialog::CreateApplicationItem(const Application &ap
 
     if (configurator.environment.GetUseApplicationList()) {
         QCheckBox *check_box = new QCheckBox(application.app_name.c_str());
-        check_box->setChecked(application.override_layers);
+        check_box->setChecked(application.layers_mode != LAYERS_MODE_BY_APPLICATIONS);
         ui->treeWidget->setItemWidget(item, 0, check_box);
         connect(check_box, SIGNAL(stateChanged(int)), this, SLOT(OnStateChanged(int)));
     } else {
@@ -233,7 +233,8 @@ void ApplicationsDialog::itemChanged(QTreeWidgetItem *item, int column) {
     _last_selected_application_index = ui->treeWidget->indexOfTopLevelItem(item);
     QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, column));
     if (check_box != nullptr) {
-        Configurator::Get().environment.GetApplication(_last_selected_application_index).override_layers = check_box->isChecked();
+        Configurator::Get().environment.GetApplication(_last_selected_application_index).layers_mode =
+            check_box->isChecked() ? LAYERS_MODE_BY_CONFIGURATOR_RUNNING : LAYERS_MODE_BY_APPLICATIONS;
     }
 }
 
@@ -252,7 +253,8 @@ void ApplicationsDialog::OnStateChanged(int) {
         QTreeWidgetItem *item = ui->treeWidget->topLevelItem(i);
         QCheckBox *check_box = dynamic_cast<QCheckBox *>(ui->treeWidget->itemWidget(item, 0));
         assert(check_box != nullptr);
-        environment.GetApplication(i).override_layers = check_box->isChecked();
+        environment.GetApplication(i).layers_mode =
+            check_box->isChecked() ? LAYERS_MODE_BY_CONFIGURATOR_RUNNING : LAYERS_MODE_BY_APPLICATIONS;
     }
 }
 
