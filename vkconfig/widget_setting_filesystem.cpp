@@ -139,25 +139,45 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     std::string path = field->text().toStdString();
     if (path.empty()) {
         path = "${VK_LOCAL}";
+        this->data().SetValue(path.c_str());
     }
-    if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).exists()) {
-        path = this->data().GetValue();
-    }
-    if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).exists()) {
-        path.clear();
+
+    switch (this->meta.type) {
+        case SETTING_LOAD_FILE:
+        case SETTING_SAVE_FILE:
+            if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).absoluteDir().exists()) {
+                path = this->data().GetValue();
+            }
+            if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).absoluteDir().exists()) {
+                path.clear();
+            }
+            break;
+        case SETTING_LOAD_FOLDER:
+        case SETTING_SAVE_FOLDER:
+            if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).exists()) {
+                path = this->data().GetValue();
+            }
+            if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).exists()) {
+                path.clear();
+            }
+            break;
+        default:
+            assert(0);
+            break;
     }
 
     const std::string replaced_path = ReplaceBuiltInVariable(path);
+    const std::string dir = QFileInfo(replaced_path.c_str()).absoluteDir().absolutePath().toStdString();
 
     const char* filter = this->meta.filter.c_str();
     std::string new_path;
 
     switch (this->meta.type) {
         case SETTING_LOAD_FILE:
-            new_path = QFileDialog::getOpenFileName(this->button, "Select file", replaced_path.c_str(), filter).toStdString();
+            new_path = QFileDialog::getOpenFileName(this->button, "Select file", dir.c_str(), filter).toStdString();
             break;
         case SETTING_SAVE_FILE:
-            new_path = QFileDialog::getSaveFileName(this->button, "Select File", replaced_path.c_str(), filter).toStdString();
+            new_path = QFileDialog::getSaveFileName(this->button, "Select File", dir.c_str(), filter).toStdString();
             break;
         case SETTING_LOAD_FOLDER:
         case SETTING_SAVE_FOLDER:
@@ -176,11 +196,9 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     new_path = ConvertNativeSeparators(new_path);
 
     // The path didn't change, preserve the built-in variables
-    if (replaced_path == new_path) {
-        return;
+    if (replaced_path != new_path) {
+        this->data().SetValue(new_path.c_str());
     }
-
-    this->data().SetValue(new_path.c_str());
 
     this->field->setText(this->data().GetValue());
     this->field->setToolTip(ReplaceBuiltInVariable(this->field->text().toStdString()).c_str());
