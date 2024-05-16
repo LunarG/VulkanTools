@@ -142,6 +142,8 @@ foreach(layer ${TOOL_LAYERS})
         endif()
     endif()
 
+    set_target_properties(${layer} PROPERTIES FOLDER "layers")
+
     if (ANDROID)
         install(TARGETS ${layer} DESTINATION ${CMAKE_INSTALL_LIBDIR})
         continue()
