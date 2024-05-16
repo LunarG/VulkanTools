@@ -23,7 +23,7 @@
 #include "util.h"
 #include "path.h"
 #include "json.h"
-#include "platform.h"
+#include "type_platform.h"
 #include "version.h"
 
 #include <QFile>
@@ -39,11 +39,26 @@
 #include <string>
 #include <algorithm>
 
-Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_DESKTOP_BIT), view_advanced_settings(false) {}
+Configuration::Configuration()
+    : key("New Configuration"), version(1), platform_flags(PLATFORM_DESKTOP_BIT), view_advanced_settings(false) {}
 
-bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object) {
+Configuration Configuration::CreateDisabled(const std::vector<Layer>& available_layers) {
+    Configuration result;
+    result.key = "_DisablingConfiguration";
+    result.parameters = GatherParameters(result.parameters, available_layers);
+
+    for (std::size_t i = 0, n = result.parameters.size(); i < n; ++i) {
+        result.parameters[i].control = LAYER_CONTROL_OFF;
+    }
+
+    return result;
+}
+
+bool Configuration::Load3_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object) {
     const QJsonValue& json_configuration_value = json_root_object.value("configuration");
-    if (json_configuration_value == QJsonValue::Undefined) return false;  // Not a configuration file
+    if (json_configuration_value == QJsonValue::Undefined) {
+        return false;  // Not a configuration file
+    }
 
     const QJsonObject& json_configuration_object = json_configuration_value.toObject();
 
@@ -52,6 +67,10 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
     this->description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
+    if (json_configuration_object.value("version") != QJsonValue::Undefined) {
+        this->version = json_configuration_object.value("version").toVariant().toInt();
+    }
+
     if (json_configuration_object.value("expanded_states") != QJsonValue::Undefined) {
         this->setting_tree_state = json_configuration_object.value("expanded_states").toVariant().toByteArray();
     }
@@ -69,7 +88,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
         for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
             const QFileInfo info(paths[i].c_str());
             if (info.exists()) {
-                this->user_defined_paths.push_back(paths[i]);
+                this->user_defined_paths.push_back(Path(paths[i]));
             } else {
                 QMessageBox alert;
                 alert.QDialog::setWindowTitle("User-defined layer path doesn't exist");
@@ -93,7 +112,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
         Parameter parameter;
         parameter.key = ReadStringValue(json_layer_object, "name").c_str();
         parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
-        parameter.state = GetLayerState(ReadStringValue(json_layer_object, "state").c_str());
+        parameter.control = GetLayerControl(ReadStringValue(json_layer_object, "control").c_str());
 
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
@@ -129,37 +148,42 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
     return true;
 }
 
-bool Configuration::Load(const std::vector<Layer>& available_layers, const std::string& full_path) {
-    assert(!full_path.empty());
+bool Configuration::Load(const std::vector<Layer>& available_layers, const Path& full_path) {
+    assert(!full_path.Empty());
 
     this->parameters.clear();
 
-    QFile file(full_path.c_str());
+    QFile file(full_path.AbsolutePath().c_str());
     const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result);
-    QString json_text = file.readAll();
+    std::string json_text = file.readAll().toStdString();
     file.close();
 
     QJsonParseError parse_error;
-    QJsonDocument json_doc = QJsonDocument::fromJson(json_text.toUtf8(), &parse_error);
+    QJsonDocument json_doc = QJsonDocument::fromJson(json_text.c_str(), &parse_error);
 
     if (parse_error.error != QJsonParseError::NoError) {
         return false;
     }
 
-    return Load2_2(available_layers, json_doc.object());
+    Version version(json_doc.object().value("file_format_version").toString().toStdString());
+    if (version < (Version(3, 0, 0))) {
+        return false;  // Unsupported version
+    }
+
+    return Load3_0(available_layers, json_doc.object());
 }
 
-bool Configuration::Save(const std::vector<Layer>& available_layers, const std::string& full_path, bool exporter) const {
-    assert(!full_path.empty());
+bool Configuration::Save(const std::vector<Layer>& available_layers, const Path& full_path, bool exporter) const {
+    assert(!full_path.Empty());
 
     QJsonObject root;
-    root.insert("file_format_version", Version::LAYER_CONFIG.str().c_str());
+    root.insert("file_format_version", Version::VKCONFIG.str().c_str());
 
     // Build the json document
     QJsonArray excluded_list;
     for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
-        if (this->parameters[i].state != LAYER_STATE_EXCLUDED) {
+        if (this->parameters[i].control != LAYER_CONTROL_OFF) {
             continue;
         }
         excluded_list.append(this->parameters[i].key.c_str());
@@ -169,14 +193,14 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
 
     for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
         const Parameter& parameter = this->parameters[i];
-        if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED) {
+        if (parameter.control == LAYER_CONTROL_AUTO) {
             continue;
         }
 
         QJsonObject json_layer;
         json_layer.insert("name", parameter.key.c_str());
         json_layer.insert("rank", parameter.overridden_rank);
-        json_layer.insert("state", GetToken(parameter.state));
+        json_layer.insert("control", GetToken(parameter.control));
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
 
         QJsonArray json_settings;
@@ -203,6 +227,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
 
     QJsonObject json_configuration;
     json_configuration.insert("name", this->key.c_str());
+    json_configuration.insert("version", this->version);
     json_configuration.insert("description", this->description.c_str());
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
     if (!exporter && !this->setting_tree_state.isEmpty()) {
@@ -213,7 +238,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
 
     QJsonArray json_paths;
     for (std::size_t i = 0, n = user_defined_paths.size(); i < n; ++i) {
-        json_paths.append(user_defined_paths[i].c_str());
+        json_paths.append(user_defined_paths[i].AbsolutePath().c_str());
     }
     json_configuration.insert("layers_paths", json_paths);
 
@@ -221,7 +246,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
 
     QJsonDocument doc(root);
 
-    QFile json_file(full_path.c_str());
+    QFile json_file(full_path.AbsolutePath().c_str());
     const bool result = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
     assert(result);
 
@@ -239,16 +264,14 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     }
 }
 
-void Configuration::Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager) {
-    (void)path_manager;
-
+void Configuration::Reset(const std::vector<Layer>& available_layers) {
     // Case 1: reset using built-in configuration files
-    const QFileInfoList& builtin_configuration_files = GetJSONFiles(":/configurations/");
+    const std::vector<Path>& builtin_configuration_files = CollectFilePaths(":/configurations/");
     for (int i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
-        const std::string& basename = builtin_configuration_files[i].baseName().toStdString();
+        const std::string& basename = builtin_configuration_files[i].Basename();
 
         if (this->key == basename) {
-            const bool result = this->Load(available_layers, builtin_configuration_files[i].absoluteFilePath().toStdString());
+            const bool result = this->Load(available_layers, builtin_configuration_files[i]);
             assert(result);
 
             OrderParameter(this->parameters, available_layers);
@@ -257,28 +280,22 @@ void Configuration::Reset(const std::vector<Layer>& available_layers, const Path
     }
 
     // Case 2: reset using configuration files using saved configurations
-    const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
+    const Path full_path(Get(Path::CONFIGS) + "/" + this->key + ".json");
 
-    const std::vector<std::string>& SUPPORTED_CONFIG_FILES = path_manager.SUPPORTED_CONFIG_FILES;
+    std::FILE* file = std::fopen(full_path.AbsolutePath().c_str(), "r");
+    if (file) {
+        std::fclose(file);
+        const bool result = this->Load(available_layers, full_path);
+        assert(result);
 
-    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
-        const std::string path = base_config_path + SUPPORTED_CONFIG_FILES[i] + "/" + this->key + ".json";
-
-        std::FILE* file = std::fopen(path.c_str(), "r");
-        if (file) {
-            std::fclose(file);
-            const bool result = this->Load(available_layers, path);
-            assert(result);
-
-            OrderParameter(this->parameters, available_layers);
-            return;
-        }
+        OrderParameter(this->parameters, available_layers);
+        return;
     }
 
     // Case 3: reset to default values
     {
         for (auto it = this->parameters.begin(); it != this->parameters.end(); ++it) {
-            it->state = LAYER_STATE_APPLICATION_CONTROLLED;
+            it->control = LAYER_CONTROL_AUTO;
             it->overridden_rank = Parameter::NO_RANK;
             for (std::size_t i = 0, n = it->settings.size(); i < n; ++i) {
                 it->settings[i]->Reset();
@@ -295,7 +312,7 @@ bool Configuration::HasOverride() const {
             continue;
         }
 
-        if (this->parameters[i].state != LAYER_STATE_APPLICATION_CONTROLLED) {
+        if (this->parameters[i].control != LAYER_CONTROL_AUTO) {
             return true;
         }
     }
@@ -304,9 +321,9 @@ bool Configuration::HasOverride() const {
 }
 
 bool Configuration::IsBuiltIn() const {
-    const QFileInfoList& builtin_configuration_files = GetJSONFiles(":/configurations/");
+    const std::vector<Path>& builtin_configuration_files = CollectFilePaths(":/configurations/");
     for (int i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
-        const std::string& basename = builtin_configuration_files[i].baseName().toStdString();
+        const std::string& basename = builtin_configuration_files[i].Basename();
 
         if (basename == this->key) {
             return true;

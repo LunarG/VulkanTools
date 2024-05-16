@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022 Valve Corporation
- * Copyright (c) 2020-2022 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,31 +21,46 @@
 #pragma once
 
 #include "layer.h"
-#include "environment.h"
-
-#include <QStringList>
+#include "path.h"
 
 #include <string>
 #include <vector>
 #include <memory>
 
+enum LayersPaths {
+    LAYERS_PATHS_IMPLICIT = 0,
+    LAYERS_PATHS_EXPLICIT,
+    LAYERS_PATHS_ENV_SET,  // From $VK_LAYER_PATH
+    LAYERS_PATHS_ENV_ADD,  // from $VK_ADD_LAYER_PATH
+    LAYERS_PATHS_GUI,
+    LAYERS_PATHS_SDK,
+
+    LAYERS_PATHS_FIRST = LAYERS_PATHS_IMPLICIT,
+    LAYERS_PATHS_LAST = LAYERS_PATHS_SDK,
+};
+
+enum { LAYERS_PATHS_COUNT = LAYERS_PATHS_LAST - LAYERS_PATHS_FIRST + 1 };
+
+LayerType GetLayerType(LayersPaths Layers_paths_type);
+
 class LayerManager {
    public:
-    LayerManager(const Environment& environment);
+    LayerManager(const std::vector<Path>& user_defined_paths = std::vector<Path>());
 
     void Clear();
     bool Empty() const;
+    std::size_t Size() const;
+
+    Layer* Find(const std::string& layer_name);
+    const Layer* Find(const std::string& layer_name) const;
 
     void LoadAllInstalledLayers();
-    void LoadLayer(const std::string& layer_name);
-    void LoadLayersFromPath(const std::string& path);
-
-    std::vector<std::string> BuildPathList() const;
+    void LoadLayersFromPath(const Path& layers_path, LayerType type = LAYER_TYPE_EXPLICIT);
 
     std::vector<Layer> selected_layers;
 
-    const Environment& environment;
-
    private:
-    bool LoadLayerFromPath(const std::string& layer_name, const std::string& path);
+    bool IsAvailable(const Layer& layer) const;
+
+    std::array<std::vector<Path>, LAYERS_PATHS_COUNT> paths;
 };
