@@ -11,18 +11,42 @@
 
 # Release notes
 
-## [Vulkan Configurator 3.0.0](https://github.com/LunarG/VulkanTools/tree/main) - ??? 202?
+## [Vulkan Configurator 3.0.0](https://github.com/LunarG/VulkanTools/tree/main) - ??? 2024
 
 ### Features:
 - Redesign main window UI around tabs
-- Add check box to disable all Vulkan Layers
+- Per-Application layers configurations
+- Full ordering of Vulkan layers
+- Split GUI and command line tool
 
-## [Vulkan Configurator 2.5.6](https://github.com/LunarG/VulkanTools/tree/main) - March 2024
+### Deprecation:
+- Requires Vulkan Loader 1.3.261 or newer.
+- Highly recommand Validation layer 1.3.250 or newer.
+
+## [Vulkan Configurator 2.6.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.283.0) - May 2024
+
+### Features:
+- Add system tray
+- Add mode to disable all Vulkan layers
+
+### Improvements:
+- Add 'status' to give an explicit control to print the Vulkan status log
+- Add support for using Vulkan Configurator environment variables in the UI
+- Better present implicit layers, showing "Implicitly On" or "Implicitly Off" depending on the environment variable
+- Add double click on configuration name to edit a layers configuration
+
+### Fixes:
+- Fix clear log when changing `Vulkan Loader Messages` type when `Clear log on action` is unchecked
+- Fix spaces in application launcher command-line 'path' arguments
+- Fix 'Use of application list' check box not being saved
+- Clean up UI update
+
+## [Vulkan Configurator 2.5.6](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.280.0) - March 2024
 
 ### Fixes:
 - Fix confusing synchronization built-in configuration
 
-## [Vulkan Configurator 2.5.5](https://github.com/LunarG/VulkanTools/tree/main) - January 2024
+## [Vulkan Configurator 2.5.5](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.275.0) - January 2024
 
 ### Improvements:
 - Add `LOAD_FOLDER` setting type
