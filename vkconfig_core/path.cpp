@@ -22,8 +22,7 @@
 #include "json.h"
 #include "alert.h"
 #include "path.h"
-#include "path_manager.h"
-#include "platform.h"
+#include "type_platform.h"
 
 #include <QDir>
 #include <QJsonDocument>
@@ -31,204 +30,9 @@
 #include <cassert>
 #include <cstring>
 
-std::string vkconfig_version = "vkconfig";
+static const std::string VKCONFIG_VERSION("vkconfig");
 
-Path::Path() {}
-
-Path::Path(const char* path) : data(ConvertNativeSeparators(path)) {}
-
-Path::Path(const std::string& path) : data(ConvertNativeSeparators(path)) {}
-
-Path& Path::operator=(const std::string& path) {
-    data = ConvertNativeSeparators(path);
-    return *this;
-}
-
-const char* Path::c_str() const {
-    assert(ConvertNativeSeparators(data) == data);
-
-    return data.c_str();
-}
-
-void CheckPathsExist(const std::string& path, bool is_full_path) {
-    QString tmp_path(ConvertNativeSeparators(path).c_str());
-
-    if (is_full_path) {
-        QFileInfo file_info(tmp_path);
-        tmp_path = file_info.absoluteDir().absolutePath();
-    }
-
-    QDir dir;
-    if (!dir.exists(tmp_path)) {
-        dir.mkpath(tmp_path);
-        assert(dir.exists(tmp_path));
-    }
-}
-
-std::string GetPath(BuiltinPath path) {
-    std::string result;
-
-    switch (path) {
-        case BUILTIN_PATH_HOME: {
-            result = QDir().homePath().toStdString();
-            break;
-        }
-        case BUILTIN_PATH_LOCAL_LEGACY:
-        case BUILTIN_PATH_LOCAL: {
-            result = qgetenv("VK_LOCAL").toStdString();
-            if (result.empty()) {
-                result = GetPath(BUILTIN_PATH_HOME) + "/VulkanSDK";
-            }
-            break;
-        }
-        case BUILTIN_PATH_CONFIG_REF: {
-            static const std::string TABLE[] = {
-                "/" + vkconfig_version + "/configurations",        // ENVIRONMENT_WIN32
-                "/lunarg-" + vkconfig_version + "/configurations"  // ENVIRONMENT_UNIX
-            };
-            static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
-                          "The tranlation table size doesn't match the enum number of elements");
-
-            result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_ENV];
-            break;
-        }
-        case BUILTIN_PATH_CONFIG_LAST: {
-            const std::string config = format("_%d_%d_%d", Version::LAYER_CONFIG.GetMajor(), Version::LAYER_CONFIG.GetMinor(),
-                                              Version::LAYER_CONFIG.GetPatch());
-
-            result = GetPath(BUILTIN_PATH_CONFIG_REF) + config;
-            break;
-        }
-        case BUILTIN_PATH_APPLIST: {
-            result = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/../applist.json";
-            break;
-        }
-        case BUILTIN_PATH_VKCONFIG_SETTINGS: {
-            result = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/../vkconfig.json";
-            break;
-        }
-        case BUILTIN_PATH_OVERRIDE_SETTINGS: {
-            static const std::string TABLE[] = {
-                "/" + vkconfig_version + "/override",  // ENVIRONMENT_WIN32
-                "/settings.d"                          // ENVIRONMENT_UNIX
-            };
-            static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
-                          "The tranlation table size doesn't match the enum number of elements");
-
-            result = qgetenv("VK_LAYER_SETTINGS_PATH").toStdString();
-            if (result.empty()) {
-                result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_ENV];
-            }
-            if (result.find("vk_layer_settings.txt") == std::string::npos) {
-                result += "/vk_layer_settings.txt";
-            }
-            break;
-        }
-        case BUILTIN_PATH_OVERRIDE_LAYERS: {
-            static const std::string TABLE[] = {
-                "/" + vkconfig_version + "/override",  // ENVIRONMENT_WIN32
-                "/implicit_layer.d"                    // ENVIRONMENT_UNIX
-            };
-            static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
-                          "The tranlation table size doesn't match the enum number of elements");
-
-            result = GetPath(BUILTIN_PATH_APPDATA) + TABLE[VKC_ENV];
-            result += "/VkLayer_override.json";
-            break;
-        }
-        case BUILTIN_PATH_APPDATA: {
-            static const char* TABLE[] = {
-                "/AppData/Local/LunarG",  // ENVIRONMENT_WIN32
-                "/.local/share/vulkan"    // ENVIRONMENT_UNIX
-            };
-            static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
-                          "The tranlation table size doesn't match the enum number of elements");
-
-            result = GetPath(BUILTIN_PATH_HOME) + TABLE[VKC_ENV];
-            break;
-        }
-        case BUILTIN_PATH_EXPLICIT_LAYERS: {
-            static const char* TABLE[] = {
-                "/Bin",                         // ENVIRONMENT_WIN32
-                "/etc/vulkan/explicit_layer.d"  // ENVIRONMENT_UNIX
-            };
-            static_assert(countof(TABLE) == ENVIRONMENT_COUNT,
-                          "The tranlation table size doesn't match the enum number of elements");
-
-            result = GetPath(BUILTIN_PATH_VULKAN_SDK) + TABLE[VKC_ENV];
-            break;
-        }
-        case BUILTIN_PATH_VULKAN_SDK: {
-            static const char* TABLE[] = {
-                "N/A",                      // PLATFORM_WINDOWS
-                "/usr",                     // PLATFORM_LINUX
-                "/usr/local/share/vulkan",  // PLATFORM_MACOS
-                "N/A"                       // PLATFORM_ANDROID
-            };
-            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-            result = qgetenv("VULKAN_SDK").toStdString();
-            if (result.empty()) {
-                if (VKC_PLATFORM != VKC_PLATFORM_WINDOWS) {
-                    result = TABLE[VKC_PLATFORM];
-                } else {
-                    result = GetPath(BUILTIN_PATH_LOCAL);
-                }
-            } else {  // VULKAN_SDK may be set on macOS
-                if (VKC_PLATFORM == VKC_PLATFORM_MACOS) result += "/share/vulkan";
-            }
-
-            break;
-        }
-        case BUILTIN_PATH_VULKAN_CONTENT: {
-            static const char* TABLE[] = {
-                "/Config",               // PLATFORM_WINDOWS
-                "/share/vulkan/config",  // PLATFORM_LINUX
-                "/config",               // PLATFORM_MACOS
-                "N/A"                    // PLATFORM_ANDROID
-            };
-            static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-            result = GetPath(BUILTIN_PATH_VULKAN_SDK) + TABLE[VKC_PLATFORM];
-            break;
-        }
-        default: {
-            assert(0);
-            return "";
-        }
-    }
-
-    return ConvertNativeSeparators(result);
-}
-
-struct BuiltinDesc {
-    BuiltinPath type;
-    const char* name;
-};
-
-std::string ReplaceBuiltInVariable(const std::string& path) {
-    static const BuiltinDesc VARIABLES[] = {{BUILTIN_PATH_HOME, "${HOME}"},
-                                            {BUILTIN_PATH_LOCAL_LEGACY, "${LOCAL}"},
-                                            {BUILTIN_PATH_LOCAL, "${VK_LOCAL}"},
-                                            {BUILTIN_PATH_APPDATA, "${VK_APPDATA}"},
-                                            {BUILTIN_PATH_VULKAN_SDK, "${VULKAN_SDK}"},
-                                            {BUILTIN_PATH_VULKAN_CONTENT, "${VULKAN_CONTENT}"}};
-
-    for (std::size_t i = 0, n = countof(VARIABLES); i < n; ++i) {
-        const std::size_t found = path.find(VARIABLES[i].name);
-        if (found < path.size()) {
-            assert(found == 0);  // The builtin variable must be first part of the path
-            const std::size_t offset = found + std::strlen(VARIABLES[i].name);
-            const std::string replaced_path = GetPath(VARIABLES[i].type) + path.substr(found + offset, path.size() - offset);
-            return ConvertNativeSeparators(replaced_path);
-        }
-    }
-
-    // No built-in variable found, return unchanged
-    return path;
-}
-
-std::string ConvertSeparators(const std::string& path, const char* native_separator, const char* alien_separator) {
+static std::string ConvertSeparators(const std::string& path, const char* native_separator, const char* alien_separator) {
     const std::size_t native_separator_size = std::strlen(native_separator);
     const std::size_t alien_separator_size = std::strlen(alien_separator);
 
@@ -247,56 +51,331 @@ std::string ConvertSeparators(const std::string& path, const char* native_separa
     // Remove trailing native separator
     const std::size_t found = current_path.find_last_of(native_separator);
     const std::size_t size = current_path.size();
-    if (found == size - native_separator_size) current_path = current_path.substr(0, found);
+    if (found == size - native_separator_size) {
+        current_path = current_path.substr(0, found);
+    }
 
     return current_path;
 }
 
-const char* GetNativeSeparator() {
+static const char* GetNativeSeparator() {
     static const char* native_separator = VKC_ENV == VKC_ENV_WIN32 ? "\\" : "/";
     return native_separator;
 }
 
-std::string ConvertNativeSeparators(const std::string& path) {
+static std::string ConvertNativeSeparators(const std::string& path) {
     const char* native_separator = GetNativeSeparator();
     const char* alien_separator = VKC_ENV != VKC_ENV_WIN32 ? "\\" : "/";
 
     return ConvertSeparators(path, native_separator, alien_separator);
 }
 
-static bool IsPortableChar(char c) {
-    if (c == '\\' || c == '/') return false;
-    if (c == '|' || c == '<' || c == '>') return false;
-    if (c == ':' || c == '*' || c == '?') return false;
+Path::Path() {}
 
-    return true;
+Path::Path(const Path& path) : data(path.data) {}
+
+Path::Path(const char* path) : data(path) {}
+
+Path::Path(const std::string& path) : data(path) {}
+
+bool Path::IsFile() const { return QFileInfo(this->data.c_str()).isFile(); }
+
+bool Path::IsDir() const { return QFileInfo(this->data.c_str()).isDir(); }
+
+Path& Path::operator=(const Path& path) {
+    this->data = path.data;
+    return *this;
 }
 
-bool IsPortableFilename(const std::string& path) {
-    if (path.empty()) return false;
+Path& Path::operator=(const char* path) {
+    this->data = path;
+    return *this;
+}
 
-    if (path == ".") return false;
+Path& Path::operator=(const std::string& path) {
+    this->data = path;
+    return *this;
+}
 
-    if (path.find("..") != std::string::npos) return false;
+Path& Path::operator+=(const std::string& extend) {
+    this->data += extend;
+    return *this;
+}
 
-    for (std::size_t i = 0, n = path.size(); i < n; ++i) {
-        if (!IsPortableChar(path[i])) return false;
+void Path::Clear() { this->data.clear(); }
+
+bool Path::Exists() const { return QFileInfo(this->AbsolutePath().c_str()).exists(); }
+
+bool Path::Create(bool as_file) const {
+    if (this->data.empty()) {
+        return false;
+    }
+
+    if (as_file) {
+        QFile file(this->AbsolutePath().c_str());
+        if (!file.exists()) {
+            return file.open(QFile::WriteOnly);
+        }
+    } else {
+        QDir dir;
+        std::string actual_path = this->AbsolutePath();
+        if (!dir.exists(actual_path.c_str())) {
+            return dir.mkpath(actual_path.c_str());
+        }
     }
 
     return true;
 }
 
-QFileInfoList GetJSONFiles(const char* directory) {
-    QDir dir(directory);
-    dir.setFilter(QDir::Files | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.json");
-    return dir.entryInfoList();
+bool Path::Remove() const {
+    if (!this->Exists()) {
+        return false;
+    }
+
+    if (this->IsFile()) {
+        return QFile::remove(this->AbsolutePath().c_str());
+    } else {
+        return QDir(this->AbsolutePath().c_str()).removeRecursively();
+    }
 }
 
-std::string ExtractAbsoluteDir(const std::string& path) {
-    assert(!path.empty());
+std::string Path::Filename() const {
+    QFileInfo info(this->AbsolutePath().c_str());
+    return info.fileName().toStdString();
+}
 
-    return ConvertNativeSeparators(QFileInfo(path.c_str()).absoluteDir().path().toStdString());
+std::string Path::Basename() const {
+    QFileInfo info(this->AbsolutePath().c_str());
+    return info.baseName().toStdString();
+}
+
+std::string Path::AbsoluteDir() const {
+    QFileInfo info(this->AbsolutePath().c_str());
+    return ConvertNativeSeparators(info.absoluteDir().path().toStdString());
+}
+
+std::string Path::AbsolutePath() const {
+    struct BuiltinDesc {
+        const char* key;
+        const Path::Builtin path;
+    };
+
+    static const BuiltinDesc VARIABLES[] = {{"${VK_HOME}", Path::HOME},
+                                            {"${VK_APPDATA}", Path::APPDATA},
+                                            {"${VULKAN_SDK}", Path::SDK},
+                                            {"${VULKAN_CONTENT}", Path::CONTENT}};
+
+    for (std::size_t i = 0, n = std::size(VARIABLES); i < n; ++i) {
+        const std::size_t found = this->data.find(VARIABLES[i].key);
+        if (found < this->data.size()) {
+            assert(found == 0);  // The builtin variable must be first part of the path
+            const std::size_t offset = found + std::strlen(VARIABLES[i].key);
+            const std::string replaced_path =
+                Get(VARIABLES[i].path).RelativePath() + this->data.substr(found + offset, this->data.size() - offset);
+            return ConvertNativeSeparators(replaced_path);
+        }
+    }
+
+    // No built-in variable found, return unchanged
+    return ConvertNativeSeparators(this->data);
+}
+
+std::string Path::RelativePath() const {
+    // Store trailing separator to enable operator + and +=
+    return ConvertNativeSeparators(this->data);
+}
+
+std::string Path::LastModified() const { return QFileInfo(this->data.c_str()).lastModified().toString(Qt::ISODate).toStdString(); }
+
+bool operator==(const Path& a, const Path& b) { return a.AbsolutePath() == b.AbsolutePath(); }
+
+Path operator+(const Path& path, const std::string& extend) { return Path(path.data + extend); }
+
+static const Path GetHomePath() {
+    std::string result = qgetenv("VK_HOME").toStdString();
+
+    if (result.empty()) {  // Defaukt path
+        result = QDir().homePath().toStdString() + "/VulkanSDK";
+    }
+
+    Path path(result);
+
+    if (!path.Exists()) {
+        path.Create();
+    }
+
+    return path;
+}
+
+static const Path GetAppDataPath() {
+    static const char* TABLE[] = {
+        "/AppData/Local/LunarG",  // ENVIRONMENT_WIN32
+        "/.local/share/vulkan"    // ENVIRONMENT_UNIX
+    };
+    static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
+
+    return QDir().homePath().toStdString() + TABLE[VKC_ENV];
+}
+
+static const Path GetInitPath() {
+    static const std::string TABLE[] = {
+        "/" + VKCONFIG_VERSION + "/vkconfig.json",        // ENVIRONMENT_WIN32
+        "/lunarg-" + VKCONFIG_VERSION + "/vkconfig.json"  // ENVIRONMENT_UNIX
+    };
+    static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
+
+    return GetAppDataPath().RelativePath() + TABLE[VKC_ENV];
+}
+
+static const Path GetConfigsPath() {
+    static const std::string TABLE[] = {
+        "/" + VKCONFIG_VERSION + "/configurations",        // ENVIRONMENT_WIN32
+        "/lunarg-" + VKCONFIG_VERSION + "/configurations"  // ENVIRONMENT_UNIX
+    };
+    static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
+
+    Path path(GetAppDataPath().RelativePath() + TABLE[VKC_ENV]);
+
+    if (!path.Exists()) {
+        path.Create();
+    }
+
+    return path;
+}
+
+static const Path GetLayersSettingsPath() {
+#if VKC_ENV == VKC_ENV_WIN32
+    const std::string layers_settings_path = "/" + VKCONFIG_VERSION + "/override";
+#elif VKC_ENV == VKC_ENV_UNIX
+    const std::string layers_settings_path = "/settings.d";
+#else
+#error Unknown platform
+#endif
+
+    std::string result = qgetenv("VK_LAYER_SETTINGS_PATH").toStdString();
+    if (result.empty()) {
+        result = GetAppDataPath().RelativePath() + layers_settings_path;
+    }
+    if (result.find("vk_layer_settings.txt") == std::string::npos) {
+        result += "/vk_layer_settings.txt";
+    }
+
+    Path path(result);
+
+    Path folder(path.AbsoluteDir());
+    if (!folder.Exists()) {
+        folder.Create();
+    }
+
+    return path;
+}
+
+static const Path GetLoaderSettingsPath() {
+#if VKC_ENV == VKC_ENV_WIN32
+    const std::string loader_settings_path = "/vulkan";
+#elif VKC_ENV == VKC_ENV_UNIX
+    const std::string loader_settings_path = "/loader_settings.d";
+#else
+#error Unknown platform
+#endif
+
+    std::string result = GetAppDataPath().RelativePath() + loader_settings_path;
+    if (result.find("vk_loader_settings.json") == std::string::npos) {
+        result += "/vk_loader_settings.json";
+    }
+
+    Path path(result);
+
+    Path folder(path.AbsoluteDir());
+    if (!folder.Exists()) {
+        folder.Create();
+    }
+
+    return path;
+}
+
+static const Path GetSDKPath() {
+    static const char* TABLE[] = {
+        "",                         // PLATFORM_WINDOWS
+        "/usr",                     // PLATFORM_LINUX
+        "/usr/local/share/vulkan",  // PLATFORM_MACOS
+        ""                          // PLATFORM_ANDROID
+    };
+    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    std::string result = qgetenv("VULKAN_SDK").toStdString();
+    if (result.empty()) {
+        result = TABLE[VKC_PLATFORM];
+    } else {  // VULKAN_SDK may be set on macOS
+        if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
+            result += "/share/vulkan";
+        }
+    }
+
+    return result;
+}
+
+static const Path GetExplicitLayersPath() {
+    static const std::string TABLE[] = {
+        "/Bin",                         // ENVIRONMENT_WIN32
+        "/etc/vulkan/explicit_layer.d"  // ENVIRONMENT_UNIX
+    };
+    static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
+
+    return GetSDKPath().RelativePath() + TABLE[VKC_ENV];
+}
+
+static const Path GetVulkanContentPath() {
+    static const std::string TABLE[] = {
+        "/Config",               // PLATFORM_WINDOWS
+        "/share/vulkan/config",  // PLATFORM_LINUX
+        "/config",               // PLATFORM_MACOS
+        "N/A"                    // PLATFORM_ANDROID
+    };
+    static_assert(std::size(TABLE) == PLATFORM_COUNT);
+
+    return GetSDKPath().RelativePath() + TABLE[VKC_PLATFORM];
+}
+
+Path Get(Path::Builtin path) {
+    switch (path) {
+        default:
+            assert(0);
+            return "";
+        case Path::HOME:
+            return ::GetHomePath();
+        case Path::APPDATA:
+            return ::GetAppDataPath();
+        case Path::INIT:
+            return ::GetInitPath();
+        case Path::CONFIGS:
+            return ::GetConfigsPath();
+        case Path::LAYERS_SETTINGS:
+            return ::GetLayersSettingsPath();
+        case Path::LOADER_SETTINGS:
+            return ::GetLoaderSettingsPath();
+        case Path::SDK:
+            return ::GetSDKPath();
+        case Path::EXPLICIT_LAYERS:
+            return ::GetExplicitLayersPath();
+        case Path::CONTENT:
+            return ::GetVulkanContentPath();
+    }
+}
+
+std::string AbsolutePath(Path::Builtin path) { return Get(path).AbsolutePath(); }
+
+std::string RelativePath(Path::Builtin path) { return Get(path).RelativePath(); }
+
+std::vector<Path> CollectFilePaths(const Path& directory, const char* filter) {
+    const QDir dir(directory.AbsolutePath().c_str());
+    const QFileInfoList& list = dir.entryInfoList(QStringList() << filter, QDir::Files | QDir::NoSymLinks);
+
+    std::vector<Path> result;
+    for (int i = 0, n = list.size(); i < n; ++i) {
+        result.push_back(list[i].absoluteFilePath().toStdString());
+    }
+    return result;
 }
 
 static std::vector<std::string> LoadProfiles(const QJsonDocument& doc) {
@@ -310,13 +389,12 @@ static std::vector<std::string> LoadProfiles(const QJsonDocument& doc) {
     return ConvertString(ReadObject(json_root_object, "profiles").keys());
 }
 
-std::vector<std::string> GetProfileNamesFromFile(const std::string& profile_path) {
-    const std::string& value = ReplaceBuiltInVariable(profile_path);
-    if (value.empty()) {
+std::vector<std::string> CollectProfileNamesFromFile(const Path& profile_path) {
+    if (profile_path.Empty()) {
         return std::vector<std::string>();
     }
 
-    const QJsonDocument& doc = ParseJsonFile(value.c_str());
+    const QJsonDocument& doc = ParseJsonFile(profile_path.AbsolutePath().c_str());
 
     if (doc.isNull() || doc.isEmpty()) {
         return std::vector<std::string>();
@@ -331,33 +409,57 @@ std::vector<std::string> GetProfileNamesFromFile(const std::string& profile_path
     return LoadProfiles(doc);
 }
 
-std::vector<std::string> GetProfileNamesFromDir(const std::string& profile_path) {
-    std::vector<std::string> profile_names;
-
-    std::string value = ReplaceBuiltInVariable(profile_path);
-    if (value.empty()) {
+std::vector<std::string> CollectProfileNamesFromDir(const Path& profile_path) {
+    if (profile_path.Empty()) {
         return std::vector<std::string>();
     }
 
+    Path path = profile_path;
+
     // Windows workaround so that the user could select C: D: etc QDir doesn't recognize it as valid path other wise
     if (VKC_ENV == VKC_ENV_WIN32) {
-        if (!EndsWith(value, "\\")) {
-            value += "\\";
+        if (!EndsWith(path.AbsolutePath().c_str(), "\\")) {
+            path += "\\";
         }
     }
 
-    QDir dir(value.c_str());
-    QFileInfoList file_info_list = dir.entryInfoList(QStringList() << "*.json", QDir::Files);
+    const std::vector<Path>& files = CollectFilePaths(path.AbsolutePath().c_str());
 
-    QStringList files;
-    for (int file_index = 0, file_count = file_info_list.size(); file_index < file_count; ++file_index) {
-        files << file_info_list[file_index].filePath();
-    }
-
+    std::vector<std::string> profile_names;
     for (std::size_t i = 0, n = files.size(); i < n; ++i) {
-        const std::vector<std::string>& profile_names_of_files = GetProfileNamesFromFile(files[i].toStdString());
+        const std::vector<std::string>& profile_names_of_files = CollectProfileNamesFromFile(files[i]);
         profile_names.insert(profile_names.end(), profile_names_of_files.begin(), profile_names_of_files.end());
     }
 
     return profile_names;
+}
+
+static bool IsPortableChar(char c) {
+    if (c == '\\' || c == '/') return false;
+    if (c == '|' || c == '<' || c == '>') return false;
+    if (c == ':' || c == '*' || c == '?') return false;
+
+    return true;
+}
+
+bool IsPortableFilename(const std::string& s) {
+    if (s.empty()) {
+        return false;
+    }
+
+    if (s == ".") {
+        return false;
+    }
+
+    if (s.find("..") != std::string::npos) {
+        return false;
+    }
+
+    for (std::size_t i = 0, n = s.size(); i < n; ++i) {
+        if (!IsPortableChar(s[i])) {
+            return false;
+        }
+    }
+
+    return true;
 }

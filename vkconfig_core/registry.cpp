@@ -31,13 +31,13 @@
 
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
-void AppendRegistryEntriesForLayers(QString override_file, QString settings_file) {
+void AppendRegistryEntriesForLayers(QString loader_settings_file, QString layers_settings_file) {
     // Layer override json file
     HKEY key;
     const HKEY userKey = IsUserAnAdmin() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 
     REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE,
+    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\LoaderSettings"), 0, NULL, REG_OPTION_NON_VOLATILE,
                                  access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
@@ -45,7 +45,7 @@ void AppendRegistryEntriesForLayers(QString override_file, QString settings_file
     DWORD value_count;
     DWORD value = 0;
     RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    RegSetValueExW(key, (LPCWSTR)override_file.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
+    RegSetValueExW(key, (LPCWSTR)loader_settings_file.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
     RegCloseKey(key);
 
     // Layer settings file
@@ -54,23 +54,23 @@ void AppendRegistryEntriesForLayers(QString override_file, QString settings_file
     if (err != ERROR_SUCCESS) return;
 
     RegQueryInfoKeyW(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    RegSetValueExW(key, (LPCWSTR)settings_file.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
+    RegSetValueExW(key, (LPCWSTR)layers_settings_file.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
     RegCloseKey(key);
 }
 
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
-void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file) {
+void RemoveRegistryEntriesForLayers(QString loader_settings_file, QString layers_settings_file) {
     // Layer override json file
     HKEY key;
     HKEY userKey = IsUserAnAdmin() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 
     REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE,
+    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\LoaderSettings"), 0, NULL, REG_OPTION_NON_VOLATILE,
                                  access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
-    RegDeleteValueW(key, (LPCWSTR)override_file.utf16());
+    RegDeleteValueW(key, (LPCWSTR)loader_settings_file.utf16());
     RegCloseKey(key);
 
     // Layer settings file
@@ -78,7 +78,7 @@ void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file
                          NULL);
     if (err != ERROR_SUCCESS) return;
 
-    RegDeleteValueW(key, (LPCWSTR)settings_file.utf16());
+    RegDeleteValueW(key, (LPCWSTR)layers_settings_file.utf16());
     RegCloseKey(key);
 }
 
@@ -104,7 +104,7 @@ static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Lay
     if (data_type == REG_SZ || data_type == REG_MULTI_SZ) {
         for (wchar_t *curr_filename = path; curr_filename[0] != '\0'; curr_filename += wcslen(curr_filename) + 1) {
             Layer layer;
-            if (layer.Load(layers, QString::fromWCharArray(curr_filename).toStdString(), type)) {
+            if (layer.Load(Path(QString::fromWCharArray(curr_filename).toStdString()), type)) {
                 layers.push_back(layer);
             }
 
