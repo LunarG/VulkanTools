@@ -28,11 +28,9 @@ enum CommandType {
     COMMAND_NONE = 0,
     COMMAND_SHOW_USAGE,
     COMMAND_VERSION,
-    COMMAND_GUI,
     COMMAND_RESET,
     COMMAND_LAYERS,
-    COMMAND_DOC,
-    COMMAND_VULKAN_SDK
+    COMMAND_DOC
 };
 
 enum CommandLayersArg {
@@ -71,7 +69,6 @@ class CommandLine {
     const CommandLayersArg& command_layers_arg;
     const std::string& layers_configuration_path;
     const CommandDocArg& command_doc_arg;
-    const std::string& command_vulkan_sdk;
     const std::string& doc_layer_name;
     const std::string& doc_out_dir;
 
@@ -87,7 +84,6 @@ class CommandLine {
     CommandLayersArg _command_layers_arg;
     std::string _layers_configuration_path;
     CommandDocArg _command_doc_arg;
-    std::string _command_vulkan_sdk;
     std::string _doc_layer_name;
     std::string _doc_out_dir;
 

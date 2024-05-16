@@ -266,9 +266,8 @@ ViaSystem::~ViaSystem() {
         HWND consoleWnd = GetConsoleWindow();
         DWORD dwProcessId;
         GetWindowThreadProcessId(consoleWnd, &dwProcessId);
-        if (GetCurrentProcessId()==dwProcessId)
-        {
-            std::cout <<std::endl << "Press enter to close this window" << std::endl;
+        if (GetCurrentProcessId() == dwProcessId) {
+            std::cout << std::endl << "Press enter to close this window" << std::endl;
             std::cin.get();
         }
     }
@@ -466,7 +465,7 @@ ViaSystem::ViaResults ViaSystem::GenerateInstanceInfo(void) {
     // Also need to specify the VK_KHR_get_physical_device_properties2 extension because we will be
     // be using the VK_KHR_portability_subset extension in vkCreateDevice.
 
-    std::vector<const char *> portability_instance_extension_list;
+    std::vector<const char*> portability_instance_extension_list;
     inst_info.flags = 0;
     inst_info.enabledExtensionCount = 0;
     inst_info.ppEnabledExtensionNames = NULL;
@@ -1114,7 +1113,7 @@ ViaSystem::ViaResults ViaSystem::GenerateLogicalDeviceInfo() {
             device_create_info.queueCreateInfoCount = 1;
             device_create_info.pQueueCreateInfos = &queue_create_info;
 
-            std::vector<const char *> portability_device_extension_list;
+            std::vector<const char*> portability_device_extension_list;
             std::vector<VkExtensionProperties> ext_props;
             uint32_t prop_count = 0;
             status = vkEnumerateDeviceExtensionProperties(phys_devices[dev].vk_phys_dev, NULL, &prop_count, NULL);
@@ -1137,8 +1136,8 @@ ViaSystem::ViaResults ViaSystem::GenerateLogicalDeviceInfo() {
                         device_create_info.ppEnabledExtensionNames = portability_device_extension_list.data();
                         device_create_info.enabledExtensionCount++;
                         break;
-                     }
-                 }
+                    }
+                }
             }
 
             PrintBeginTableRow();
