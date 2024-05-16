@@ -440,7 +440,7 @@ void MainWindow::AddLayerItem(const Parameter &parameter) {
         // We simply hide these layers to avoid confusing the Vulkan developers
         if (parameter.state == LAYER_STATE_EXCLUDED) return;
 
-        if (parameter.control != LAYER_STATE_APPLICATION_CONTROLLED && parameter.control != LAYER_CONTROL_UNORDERED) {
+        if (parameter.control != LAYER_CONTROL_APPLICATIONS && parameter.control != LAYER_CONTROL_UNORDERED) {
             decorated_name += " (Missing)";
         }
     }
