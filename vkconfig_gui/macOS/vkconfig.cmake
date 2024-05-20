@@ -28,7 +28,7 @@ set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/macOS/Resources/VulkanIc
                             PROPERTIES
                             MACOSX_PACKAGE_LOCATION
                             "Resources")
-target_link_libraries(vkconfig-gui vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+target_link_libraries(vkconfig-gui vkconfig-core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
 target_link_libraries(vkconfig-gui "-framework Cocoa -framework QuartzCore")
 
 get_target_property(QMAKE_EXE Qt5::qmake IMPORTED_LOCATION)
@@ -51,8 +51,8 @@ add_custom_command(TARGET vkconfig-gui POST_BUILD
     COMMENT "Copying Info.plist to vkconfig-gui.app..."
 )
 
-set_target_properties(vkconfig PROPERTIES SKIP_BUILD_RPATH FALSE)
-set_target_properties(vkconfig PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
-set_target_properties(vkconfig PROPERTIES INSTALL_RPATH "")
-set_target_properties(vkconfig PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+set_target_properties(vkconfig-gui PROPERTIES SKIP_BUILD_RPATH FALSE)
+set_target_properties(vkconfig-gui PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
+set_target_properties(vkconfig-gui PROPERTIES INSTALL_RPATH "")
+set_target_properties(vkconfig-gui PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 install(TARGETS vkconfig-gui BUNDLE DESTINATION "bin")
