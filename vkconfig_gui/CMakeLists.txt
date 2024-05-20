@@ -36,7 +36,7 @@ else()
             add_executable(vkconfig-gui ${FILES_ALL} ${FILES_UI})
         endif()
 
-        target_link_libraries(vkconfig-gui Vulkan::Headers vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+        target_link_libraries(vkconfig-gui Vulkan::Headers vkconfig-core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
         target_compile_definitions(vkconfig-gui PRIVATE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)
         set_target_properties(vkconfig-gui PROPERTIES FOLDER "vkconfig")
 

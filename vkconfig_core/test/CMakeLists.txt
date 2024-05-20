@@ -14,7 +14,7 @@ function(vkConfigTest NAME)
 
     add_executable(${TEST_NAME} ${TEST_FILE} ${FILES_JSON} ${FILES_TEXT} resources.qrc)
     set_target_properties(${TEST_NAME} PROPERTIES FOLDER "vkconfig/tests")
-    target_link_libraries(${TEST_NAME} vkconfig_core
+    target_link_libraries(${TEST_NAME} vkconfig-core
         Vulkan::LayerSettings
         GTest::gtest
         GTest::gtest_main

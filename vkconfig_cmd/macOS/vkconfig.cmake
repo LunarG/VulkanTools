@@ -17,7 +17,7 @@
 
 
 
-add_executable(vkconfig
+add_executable(vkconfig-cmd
     MACOSX_BUNDLE
     ${FILES_ALL}
     ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Resources/VulkanIcon.icns
@@ -28,14 +28,14 @@ set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/macOS/Resources/VulkanIc
                             PROPERTIES
                             MACOSX_PACKAGE_LOCATION
                             "Resources")
-target_link_libraries(vkconfig vkconfig_core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
-target_link_libraries(vkconfig "-framework Cocoa -framework QuartzCore")
+target_link_libraries(vkconfig-cmd vkconfig-core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+target_link_libraries(vkconfig-cmd "-framework Cocoa -framework QuartzCore")
 
 get_target_property(QMAKE_EXE Qt5::qmake IMPORTED_LOCATION)
 get_filename_component(QT_BIN_DIR "${QMAKE_EXE}" DIRECTORY)
 find_program(MACDEPLOYQT_EXE macdeployqt HINTS "${QT_BIN_DIR}")
 
-add_custom_command(TARGET vkconfig POST_BUILD
+add_custom_command(TARGET vkconfig-cmd POST_BUILD
     COMMAND "${MACDEPLOYQT_EXE}"
         "${CMAKE_CURRENT_BINARY_DIR}/vkconfig.app/"
         -always-overwrite
@@ -44,15 +44,16 @@ add_custom_command(TARGET vkconfig POST_BUILD
     COMMENT "Running macdeployqt..."
     )
 
-add_custom_command(TARGET vkconfig POST_BUILD
+add_custom_command(TARGET vkconfig-cmd POST_BUILD
     COMMAND cp
     "${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist"
     "${CMAKE_CURRENT_BINARY_DIR}/vkconfig.app/Contents/"
     COMMENT "Copying Info.plist to vkconfig.app..."
 )
 
-set_target_properties(vkconfig PROPERTIES SKIP_BUILD_RPATH FALSE)
-set_target_properties(vkconfig PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
-set_target_properties(vkconfig PROPERTIES INSTALL_RPATH "")
-set_target_properties(vkconfig PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
-install(TARGETS vkconfig BUNDLE DESTINATION "bin")
+set_target_properties(vkconfig-cmd PROPERTIES OUTPUT_NAME "vkconfig")
+set_target_properties(vkconfig-cmd PROPERTIES SKIP_BUILD_RPATH FALSE)
+set_target_properties(vkconfig-cmd PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
+set_target_properties(vkconfig-cmd PROPERTIES INSTALL_RPATH "")
+set_target_properties(vkconfig-cmd PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+install(TARGETS vkconfig-cmd BUNDLE DESTINATION "bin")

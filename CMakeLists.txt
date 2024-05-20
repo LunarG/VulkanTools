@@ -87,7 +87,6 @@ endif()
 
 option(BUILD_TESTS "Build tests")
 option(BUILD_TESTS_DEBUG "Build tests for debugging layers" OFF)
-option(BUILD_EXPERIMENTAL "Build tests for debugging layers" OFF)
 
 if(BUILD_TESTS)
     enable_testing()
