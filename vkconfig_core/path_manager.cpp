@@ -61,8 +61,7 @@ static const DirectoryDesc& GetDesc(PathType directory) {
     return table[directory];
 }
 
-PathManager::PathManager(const std::string& VULKAN_SDK, const std::vector<std::string>& SUPPORTED_CONFIG_FILES)
-    : SUPPORTED_CONFIG_FILES(SUPPORTED_CONFIG_FILES) {
+PathManager::PathManager(const std::string& VULKAN_SDK) {
     const bool result = Load();
 
     const std::string path = VULKAN_SDK.empty() ? qgetenv("VULKAN_SDK").toStdString() : VULKAN_SDK;
@@ -82,7 +81,9 @@ bool PathManager::Load() {
     QSettings settings;
     for (std::size_t i = 0; i < PATH_COUNT; ++i) {
         const PathType type = static_cast<PathType>(i);
-        if (GetDesc(type).setting_data == nullptr) continue;
+        if (GetDesc(type).setting_data == nullptr) {
+            continue;
+        }
         paths[type] = settings.value(GetDesc(type).setting_data).toString().toStdString();
     }
 

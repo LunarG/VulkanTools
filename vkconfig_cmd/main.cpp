@@ -25,26 +25,7 @@
 
 #include "../vkconfig_core/path.h"
 
-#include <cassert>
-
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
-#include <QApplication>
-#include <QtCore>
-
 int main(int argc, char* argv[]) {
-#ifdef _WIN32
-    DWORD procId;
-    DWORD count = GetConsoleProcessList(&procId, 1);
-    if (count < 2) {
-        ::ShowWindow(::GetConsoleWindow(), SW_HIDE);  // hide console window
-    }
-#endif
-
-    ::vkconfig_version = "vkconfig";
-
     const CommandLine command_line(argc, argv);
 
     if (command_line.error != ERROR_NONE) {

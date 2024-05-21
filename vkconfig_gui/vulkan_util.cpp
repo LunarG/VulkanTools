@@ -155,10 +155,10 @@ std::string GenerateVulkanStatus() {
     // Layers override configuration
     switch (configurator.environment.GetMode()) {
         default:
-        case LAYERS_MODE_BY_APPLICATIONS:
+        case LAYERS_CONTROLLED_BY_APPLICATIONS:
             log += "- Vulkan Layers Controlled by Vulkan Applications\n";
             break;
-        case LAYERS_MODE_BY_CONFIGURATOR_RUNNING:
+        case LAYERS_CONTROLLED_BY_CONFIGURATOR:
             if (configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers)) {
                 log += format("- Vulkan Layers Controlled by \"%s\" configuration\n",
                               configurator.environment.GetSelectedConfiguration().c_str());
@@ -167,7 +167,7 @@ std::string GenerateVulkanStatus() {
                               configurator.environment.GetSelectedConfiguration().c_str());
             }
             break;
-        case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED:
+        case LAYERS_DISABLED_BY_CONFIGURATOR:
             log += "- Vulkan Layers Disabled by Vulkan Configurator\n";
             break;
     }
@@ -227,7 +227,7 @@ std::string GenerateVulkanStatus() {
     }
 
     LayersMode saved_mode = configurator.environment.GetMode();
-    configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+    configurator.environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
     configurator.configurations.Configure(configurator.layers.selected_layers);
 
     QLibrary library(GetVulkanLibrary());

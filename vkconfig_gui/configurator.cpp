@@ -29,7 +29,6 @@
 #include "../vkconfig_core/alert.h"
 
 #include <QDir>
-#include <QSettings>
 #include <QTextStream>
 #include <QMessageBox>
 #include <QCheckBox>
@@ -44,7 +43,7 @@ Configurator &Configurator::Get(const std::string &VULKAN_SDK) {
 }
 
 Configurator::Configurator(const std::string &VULKAN_SDK)
-    : path(VULKAN_SDK, SUPPORTED_CONFIG_FILES), environment(path), layers(environment), configurations(environment) {}
+    : path(VULKAN_SDK), environment(path), layers(environment), configurations(environment) {}
 
 Configurator::~Configurator() {
     configurations.SaveAllConfigurations(layers.selected_layers);
@@ -59,9 +58,8 @@ bool Configurator::Init() {
     // override app list.
     this->layers.LoadAllInstalledLayers();
 
-    QSettings settings;
-    if (settings.value("crashed", QVariant(false)).toBool()) {
-        settings.setValue("crashed", false);
+    if (this->environment.has_crashed) {
+        this->environment.has_crashed = false;
 
         if (Alert::ConfiguratorCrashed() == QMessageBox::No) {
             this->configurations.LoadAllConfigurations(this->layers.selected_layers);
@@ -100,7 +98,7 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
         alert.exec();
 
         this->environment.SetSelectedConfiguration("");
-        this->environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+        this->environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
         this->configurations.Configure(this->layers.selected_layers);
     } else {
         // If the layers paths are differents, we need to reload the layers and the configurations

@@ -17,37 +17,3 @@
  * Authors:
  * - Christophe Riccio <christophe@lunarg.com>
  */
-
-#include "../vkconfig_core/override.h"
-#include "../vkconfig_core/layer_manager.h"
-
-#include "main_signal.h"
-#include "configurator.h"
-
-#include <QSettings>
-
-#include <csignal>
-
-void SurrenderConfiguration(int signal) {
-    (void)signal;
-
-    // Indicate that Vulkan Configurator crashed to handle it on next run
-    {
-        QSettings settings;
-        settings.setValue("crashed", true);
-    }
-
-    PathManager paths("", SUPPORTED_CONFIG_FILES);
-    Environment environment(paths);
-
-    SurrenderConfiguration(environment);
-}
-
-void InitSignals() {
-    std::signal(SIGINT, SurrenderConfiguration);
-    std::signal(SIGTERM, SurrenderConfiguration);
-    std::signal(SIGSEGV, SurrenderConfiguration);
-    std::signal(SIGABRT, SurrenderConfiguration);
-    std::signal(SIGILL, SurrenderConfiguration);
-    std::signal(SIGFPE, SurrenderConfiguration);
-}

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@
 #include <string>
 
 #include <gtest/gtest.h>
-
-static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3", "_2_2_2", "_2_2_1"};
 
 static bool operator==(const Configuration& a, const Configuration& b) {
     if (a.key != b.key)
@@ -63,7 +61,7 @@ static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parame
 
 struct TestBuilin {
     TestBuilin(const char* layers_version, const char* configurations_version)
-        : paths("", SUPPORTED_CONFIG_FILES),
+        : paths(""),
           layers_version(layers_version),
           configurations_version(configurations_version),
           environment(paths),

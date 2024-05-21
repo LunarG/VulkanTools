@@ -23,7 +23,6 @@
 #include "setting.h"
 #include "util.h"
 
-#include <QSettings>
 #include <QMessageBox>
 #include <QCheckBox>
 #include <QJsonDocument>
@@ -72,6 +71,28 @@ static const char* GetLayoutStateToken(LayoutState state) {
     return table[state];
 }
 
+static const char* GetLayersModeToken(LayersMode mode) {
+    static const char* TOKENS[]{
+        "controlled_by_applications",  // LAYERS_MODE_BY_APPLICATIONS
+        "controlled_by_configurator",  // LAYERS_MODE_BY_CONFIGURATOR_RUNNING
+        "disabled_by_configurator"     // LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED
+    };
+    static_assert(countof(TOKENS) == LAYERS_MODE_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TOKENS[mode];
+}
+
+LayersMode GetLayersMode(const std::string& token) {
+    for (int i = LAYERS_MODE_FIRST, l = LAYERS_MODE_LAST; i <= l; ++i) {
+        LayersMode layers_mode = static_cast<LayersMode>(i);
+        if (GetLayersModeToken(layers_mode) == token) {
+            return layers_mode;
+        }
+    }
+
+    return LAYERS_CONTROLLED_BY_APPLICATIONS;
+}
+
 std::string GetLoaderMessageToken(LoaderMessageType message_type) {
     static const char* LOADER_MESSAGE_TOKENS[]{
         "error",  // LOADER_MESSAGE_ERROR
@@ -116,20 +137,73 @@ int GetLoaderMessageTypes(const std::string& values) {
     return result;
 }
 
-LoaderMessageType GetLoaderMessageType(const std::string& value) {
+LoaderMessageType GetLoaderMessageType(const std::string& token) {
     for (int i = LOADER_MESSAGE_FIRST, n = LOADER_MESSAGE_LAST; i <= n; ++i) {
-        const LoaderMessageType message_type = static_cast<LoaderMessageType>(i);
-        if (::GetLoaderMessageToken(message_type) == value) return message_type;
+        const LoaderMessageType type = static_cast<LoaderMessageType>(i);
+        if (::GetLoaderMessageToken(type) == token) {
+            return type;
+        }
     }
 
     return LOADER_MESSAGE_NONE;
 }
 
+std::string GetHideMessageBoxesToken(HideMessageType type) {
+    static const char* TOKENS[]{
+        "need_application_restart",  // HIDE_MESSAGE_NEED_APPLICATION_RESTART
+        "use_system_tray",           // HIDE_MESSAGE_USE_SYSTEM_TRAY
+    };
+
+    static_assert(countof(TOKENS) == HIDE_MESSAGE_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TOKENS[type - HIDE_MESSAGE_FIRST];
+}
+
+HideMessageType GetHideMessageBoxes(const std::string& token) {
+    for (int i = HIDE_MESSAGE_FIRST, n = HIDE_MESSAGE_LAST; i <= n; ++i) {
+        const HideMessageType type = static_cast<HideMessageType>(i);
+        if (::GetHideMessageBoxesToken(type) == token) {
+            return type;
+        }
+    }
+
+    return HIDE_MESSAGE_NONE;
+}
+
+std::string GetTabToken(TabType type) {
+    static const char* TOKENS[]{
+        "diagnostic",      // TAB_DIAGNOSTIC
+        "applications",    // TAB_APPLICATIONS
+        "layers",          // TAB_LAYERS
+        "configurations",  // TAB_CONFIGURATIONS
+        "preferences",     // TAB_PREFERENCES
+        "help"             // TAB_HELP
+    };
+
+    static_assert(countof(TOKENS) == TAB_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TOKENS[type - TAB_FIRST];
+}
+
+TabType GetTabType(const std::string& token) {
+    for (int i = TAB_FIRST, n = TAB_LAST; i <= n; ++i) {
+        const TabType type = static_cast<TabType>(i);
+        if (::GetTabToken(type) == token) {
+            return type;
+        }
+    }
+
+    return TAB_DIAGNOSTIC;
+}
+
 Environment::Environment(PathManager& paths, const Version& api_version)
-    : api_version(api_version),
+    : active_tab(TAB_DIAGNOSTIC),
+      first_run(false),
+      has_crashed(false),
       use_system_tray(false),
       use_per_application_configuration(false),
-      loader_message_types(::GetLoaderMessageTypes(qgetenv("VK_LOADER_DEBUG").toStdString())),
+      loader_message_types_flags(::GetLoaderMessageTypes(qgetenv("VK_LOADER_DEBUG").toStdString())),
+      hide_message_boxes_flags(0),
       paths_manager(paths),
       paths(paths_manager) {
     const bool result = Load();
@@ -144,45 +218,19 @@ Environment::~Environment() {
 void Environment::Reset(ResetMode mode) {
     switch (mode) {
         case DEFAULT: {
-            this->first_run = true;
-            this->vkconfig2_version = Version::VKCONFIG;
-            this->vkconfig3_version = Version::VKCONFIG3;
-            this->layers_mode = LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
+            this->layers_mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
             this->use_per_application_configuration = false;
-            this->use_application_list = false;
             this->use_system_tray = false;
             this->selected_configuration = "Validation";
-            this->active_application.clear();
+            this->active_executable_index = 0;
             this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI].clear();
 
-            applications = CreateDefaultApplications();
+            this->applications = CreateDefaultApplications();
             break;
         }
         case CLEAR: {
             this->Reset(DEFAULT);
 
-            QSettings settings;
-            settings.setValue("VKCONFIG_WIDGET_SETTING_INT", false);
-            settings.setValue("VKCONFIG_WIDGET_SETTING_FLOAT", false);
-            settings.setValue("VKCONFIG_WIDGET_SETTING_FRAMES", false);
-            settings.setValue("VKCONFIG_WARN_MISSING_LAYERS_IGNORE", false);
-            settings.setValue("VKCONFIG_WARN_CORE_SHADER_IGNORE", false);
-
-            settings.setValue(VKCONFIG_KEY_MESSAGE_NEED_APPLICATION_RESTART, false);
-            settings.setValue("overrideActive", false);
-            settings.setValue("applyPerApplication", false);
-            settings.setValue("keepActiveOnExit", false);
-
-            settings.setValue("restartWarning", false);
-            settings.setValue("warnAboutShutdownState", false);
-
-            const std::string loader_debug_message(qgetenv("VK_LOADER_DEBUG"));
-            if (loader_debug_message.empty()) {
-                this->loader_message_types = 0;
-            } else {
-                this->loader_message_types = ::GetLoaderMessageTypes(loader_debug_message);
-            }
-            settings.setValue(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types));
             break;
         }
         case SYSTEM: {
@@ -199,49 +247,120 @@ void Environment::Reset(ResetMode mode) {
     }
 }
 
+std::string GetPath() {
+    static const char* TABLE[] = {
+        "/AppData/Local/LunarG",  // ENVIRONMENT_WIN32
+        "/.local/share/vulkan"    // ENVIRONMENT_UNIX
+    };
+    static_assert(countof(TABLE) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    const std::string home = QDir().homePath().toStdString();
+    return home + TABLE[VKC_ENV];
+}
+
 bool Environment::Load() {
     Reset(DEFAULT);
 
-    QSettings settings;
+    const std::string& vkconfig_init_path = GetPath(BUILTIN_PATH_VKCONFIG_INIT);
+    QFile file(vkconfig_init_path.c_str());
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {  // if applist.json exist, load saved applications
+        QString data = file.readAll();
+        file.close();
 
-    // Load "first_run"
-    this->first_run = settings.value(VKCONFIG_KEY_INITIALIZE_FILES, first_run).toBool();
+        const QJsonDocument& json_doc = QJsonDocument::fromJson(data.toLocal8Bit());
+        const QJsonObject& json_root_object = json_doc.object();
 
-    // Load "version": If the version doesn't exist of it's an old version of vkconfig
-    this->vkconfig2_version =
-        Version(settings.value(VKCONFIG_KEY_VKCONFIG_VERSION, Version::VKCONFIG.str().c_str()).toString().toStdString());
+        const Version file_format_version = Version(json_root_object.value("file_format_version").toString().toStdString());
+        if (file_format_version > Version::VKCONFIG) {
+            return false;  // Vulkan Configurator needs to be updated
+        }
 
-    // Load "version": If the version doesn't exist of it's an old version of vkconfig
-    this->vkconfig3_version =
-        Version(settings.value(VKCONFIG_KEY_VKCONFIG3_VERSION, Version::VKCONFIG3.str().c_str()).toString().toStdString());
+        // interface json object
+        const QJsonObject& json_interface_object = json_root_object.value("interface").toObject();
+        this->active_tab = GetTabType(json_interface_object.value("active_tab").toString().toStdString());
+        this->has_crashed = json_interface_object.value("has_crashed").toBool();
 
-    // Load 'override_mode"
-    this->layers_mode = static_cast<LayersMode>(settings.value(VKCONFIG_KEY_LAYERS_MODE, QVariant(layers_mode)).toInt());
+        // diagnostic json object
+        const QJsonObject& json_diagnostic_object = json_root_object.value("diagnostic").toObject();
+        const QJsonArray& json_loader_messages_array = json_diagnostic_object.value("loader_messages").toArray();
+        this->loader_message_types_flags = 0;
+        for (int i = 0, n = json_loader_messages_array.size(); i < n; ++i) {
+            const std::string& token = json_loader_messages_array[i].toString().toStdString();
+            this->loader_message_types_flags |= (1 << GetLoaderMessageType(token));
+        }
 
-    this->use_per_application_configuration =
-        static_cast<LayersMode>(settings.value(VKCONFIG_KEY_STATE_PER_APPLICATION, this->use_application_list).toBool());
-    this->use_application_list =
-        static_cast<LayersMode>(settings.value(VKCONFIG_KEY_STATE_APPLICATION_LIST, this->use_application_list).toBool());
-    this->use_system_tray = static_cast<LayersMode>(settings.value(VKCONFIG_KEY_STATE_SYSTEM_TRAY, this->use_system_tray).toBool());
+        // applications json object
+        const QJsonObject& json_applications_object = json_root_object.value("applications").toObject();
 
-    // Load loader debug message state
-    this->loader_message_types = settings.value(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types)).toInt();
+        this->active_executable_index = json_applications_object.value("active_executable_index").toInt();
 
-    // Load active configuration
-    this->selected_configuration =
-        settings.value(VKCONFIG_KEY_ACTIVE_CONFIGURATION, this->selected_configuration.c_str()).toString().toStdString();
+        const QJsonObject& json_list_object = json_applications_object.value("list").toObject();
 
-    this->active_application =
-        settings.value(VKCONFIG_KEY_ACTIVE_APPLICATION, this->active_application.c_str()).toString().toStdString();
+        const QStringList& json_list_keys = json_list_object.keys();
 
+        this->applications.clear();
+        for (int i = 0, n = json_list_keys.length(); i < n; ++i) {
+            Application application;
+
+            const QJsonObject& json_application_object = json_list_object.value(json_list_keys[i]).toObject();
+            application.executable_path = json_list_keys[i].toStdString();
+            application.layers_mode = ::GetLayersMode(json_application_object.value("mode").toString().toStdString());
+            application.layers_configuration = json_application_object.value("configuration").toString().toStdString();
+            application.active_option_index = json_application_object.value("active_option_index").toInt();
+
+            const QJsonArray& json_options_array = json_application_object.value("options").toArray();
+            for (int j = 0, o = json_options_array.size(); j < o; ++j) {
+                const QJsonObject& json_options_object = json_options_array[j].toObject();
+
+                ApplicationOptions application_options;
+
+                application_options.label = json_options_object.value("label").toString().toStdString();
+                application_options.working_folder = json_options_object.value("working_folder").toString().toStdString();
+
+                const QJsonArray& json_command_lines_array = json_options_object.value("arguments").toArray();
+                for (int k = 0, p = json_command_lines_array.size(); k < p; ++k) {
+                    application_options.arguments.push_back(json_command_lines_array[k].toString().toStdString());
+                }
+
+                const QJsonArray& json_environment_variables_array = json_options_object.value("environment_variables").toArray();
+                for (int k = 0, p = json_environment_variables_array.size(); k < p; ++k) {
+                    application_options.environment_variables.push_back(
+                        json_environment_variables_array[k].toString().toStdString());
+                }
+
+                application_options.log_file = json_options_array[j].toObject().value("log_file").toString().toStdString();
+
+                application.options.push_back(application_options);
+            }
+
+            this->applications.push_back(application);
+        }
+
+        // configurations json object
+        const QJsonObject& json_configurations_object = json_root_object.value("configurations").toObject();
+        this->use_per_application_configuration = json_configurations_object.value("use_per_application").toBool();
+        this->layers_mode = ::GetLayersMode(json_configurations_object.value("mode").toString().toStdString());
+        this->selected_configuration = json_configurations_object.value("configuration").toString().toStdString();
+
+        // preferences json object
+        const QJsonObject& json_preferences_object = json_root_object.value("preferences").toObject();
+        this->use_system_tray = json_preferences_object.value("use_system_tray").toBool();
+        this->home_sdk_path = json_preferences_object.value("VK_LOCAL").toString().toStdString();
+
+        const QJsonArray& json_hide_message_boxes_array = json_preferences_object.value("hide_message_boxes").toArray();
+        this->hide_message_boxes_flags = 0;
+        for (int i = 0, n = json_hide_message_boxes_array.size(); i < n; ++i) {
+            const std::string& token = json_hide_message_boxes_array[i].toString().toStdString();
+            this->hide_message_boxes_flags |= (1 << GetHideMessageBoxes(token));
+        }
+    }
+
+    /*
     // Load layout state
     for (std::size_t i = 0; i < LAYOUT_COUNT; ++i) {
         this->layout_states[i] = settings.value(GetLayoutStateToken(static_cast<LayoutState>(i))).toByteArray();
     }
-
-    // Load default configuration already init
-    this->default_configuration_filenames = ConvertString(settings.value("default_configuration_files").toStringList());
-
+    */
     const char* SEPARATOR = GetToken(PARSE_ENV_VAR);
 
     // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
@@ -264,132 +383,109 @@ bool Environment::Load() {
         this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].clear();
     }
 
-    // Load application list
-    const bool result = LoadApplications();
-    assert(result);
-
-    return result;
-}
-
-bool Environment::LoadApplications() {
-    const std::string& application_list_json = GetPath(BUILTIN_PATH_APPLIST);
-    QFile file(application_list_json.c_str());
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {  // if applist.json exist, load saved applications
-        QString data = file.readAll();
-        file.close();
-
-        applications.clear();
-
-        if (!data.isEmpty()) {
-            const QJsonDocument& json_doc = QJsonDocument::fromJson(data.toLocal8Bit());
-            assert(json_doc.isObject());
-            if (!json_doc.isEmpty()) {
-                // Get the list of apps
-                const QJsonObject& json_doc_object = json_doc.object();
-                const QStringList& app_keys = json_doc_object.keys();
-
-                for (int i = 0, n = app_keys.length(); i < n; ++i) {
-                    const QJsonValue& app_value = json_doc_object.value(app_keys[i]);
-                    const QJsonObject& app_object = app_value.toObject();
-
-                    Application application;
-                    application.app_name = app_object.value("app_name").toString().toStdString();
-                    application.executable_path = app_object.value("app_path").toString().toStdString();
-                    application.working_folder = app_object.value("app_folder").toString().toStdString();
-                    application.layers_mode = app_object.value("exclude_override").toBool() ? LAYERS_MODE_BY_APPLICATIONS
-                                                                                            : LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
-                    application.log_file = app_object.value("log_file").toString().toStdString();
-                    if (application.app_name.length() == 0) {
-                        std::string path = application.executable_path.c_str();
-                        if (path.find(GetNativeSeparator()) != std::string::npos) {
-                            application.app_name = path.substr(path.rfind(GetNativeSeparator()) + 1);
-                        } else {
-                            application.app_name = path;
-                        }
-                    }
-
-                    // Arguments are in an array to make room for adding more in a future version
-                    const QJsonArray& args = app_object.value("command_lines").toArray();
-                    application.arguments = args[0].toString().toStdString();
-
-                    applications.push_back(application);
-                }
-            }
-        }
-
-        applications = RemoveMissingApplications(applications);
-        applications = UpdateDefaultApplications(applications);
-        if (applications.empty()) applications = CreateDefaultApplications();
-    }
-
     return true;
 }
 
 bool Environment::Save() const {
-    QSettings settings;
+    const std::string& vkconfig_init_path = GetPath(BUILTIN_PATH_VKCONFIG_INIT);
 
-    // Save 'first_run'
-    settings.setValue(VKCONFIG_KEY_INITIALIZE_FILES, this->first_run);
-
-    // Save 'version'
-    settings.setValue(VKCONFIG_KEY_VKCONFIG_VERSION, Version::LAYER_CONFIG.str().c_str());
-
-    settings.setValue(VKCONFIG_KEY_LAYERS_MODE, this->layers_mode);
-    settings.setValue(VKCONFIG_KEY_STATE_PER_APPLICATION, this->use_per_application_configuration);
-    settings.setValue(VKCONFIG_KEY_STATE_APPLICATION_LIST, this->use_application_list);
-    settings.setValue(VKCONFIG_KEY_STATE_SYSTEM_TRAY, this->use_system_tray);
-
-    // Save 'loader_message'
-    settings.setValue(VKCONFIG_KEY_LOADER_MESSAGE, static_cast<int>(this->loader_message_types));
-
-    // Save active configuration
-    settings.setValue(VKCONFIG_KEY_ACTIVE_CONFIGURATION, this->selected_configuration.c_str());
-
-    // Save active application
-    settings.setValue(VKCONFIG_KEY_ACTIVE_APPLICATION, this->active_application.c_str());
-
-    // Save layout state
-    for (std::size_t i = 0; i < LAYOUT_COUNT; ++i) {
-        settings.setValue(GetLayoutStateToken(static_cast<LayoutState>(i)), this->layout_states[i]);
-    }
-
-    // Save default configuration initizalized
-    settings.setValue("default_configuration_files", ConvertString(this->default_configuration_filenames));
-
-    const bool result = SaveApplications();
-    assert(result);
-
-    return true;
-}
-
-bool Environment::SaveApplications() const {
-    QJsonObject root;
-
-    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        // Build an array of appnames with associated data
-        QJsonObject application_object;
-        application_object.insert("app_name", applications[i].app_name.c_str());
-        application_object.insert("app_path", applications[i].executable_path.c_str());
-        application_object.insert("app_folder", applications[i].working_folder.c_str());
-        application_object.insert("exclude_override", applications[i].layers_mode == LAYERS_MODE_BY_APPLICATIONS);
-        application_object.insert("log_file", applications[i].log_file.c_str());
-
-        // Ground work for mulitiple sets of command line arguments
-        QJsonArray argsArray;
-        argsArray.append(QJsonValue(applications[i].arguments.c_str()));
-
-        application_object.insert("command_lines", argsArray);
-        root.insert(QFileInfo(applications[i].app_name.c_str()).fileName(), application_object);
-    }
-
-    const std::string& app_list_json = GetPath(BUILTIN_PATH_APPLIST);
-    assert(QFileInfo(app_list_json.c_str()).absoluteDir().exists());
-
-    QFile file(app_list_json.c_str());
+    QFile file(vkconfig_init_path.c_str());
     const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
     assert(result);
-    QJsonDocument doc(root);
-    file.write(doc.toJson());
+
+    QJsonObject json_root_object;
+    json_root_object.insert("file_format_version", Version::VKCONFIG.str().c_str());
+
+    QJsonObject json_interface_object;
+    json_interface_object.insert("active_tab", GetTabToken(this->active_tab).c_str());
+    json_interface_object.insert("has_crashed", this->has_crashed);
+    json_root_object.insert("interface", json_interface_object);
+
+    QJsonObject json_diagnostic_object;
+
+    QJsonArray json_loader_messages_array;
+    for (int i = LOADER_MESSAGE_FIRST, n = LOADER_MESSAGE_LAST; i < n; ++i) {
+        LoaderMessageType type = static_cast<LoaderMessageType>(i);
+        if (this->loader_message_types_flags & (1 << i)) {
+            json_loader_messages_array.append(GetLoaderMessageToken(type).c_str());
+        }
+    }
+    json_diagnostic_object.insert("loader_messages", json_loader_messages_array);
+
+    json_root_object.insert("diagnostic", json_diagnostic_object);
+
+    QJsonObject json_applications_object;
+    json_applications_object.insert("active_executable", this->active_executable_index);
+    QJsonObject json_applications_list_object;
+
+    for (std::size_t i = 0, n = this->applications.size(); i < n; ++i) {
+        const Application& application = this->applications[i];
+
+        QJsonObject json_application_object;
+        json_application_object.insert("mode", ::GetLayersModeToken(application.layers_mode));
+        json_application_object.insert("configuration", application.layers_configuration.c_str());
+        json_application_object.insert("active_option", application.active_option_index);
+
+        QJsonArray json_options_array;
+        for (std::size_t j = 0, o = application.options.size(); j < o; ++j) {
+            const ApplicationOptions& options = application.options[j];
+
+            QJsonArray json_arg_array;
+            for (std::size_t k = 0, p = options.arguments.size(); k < p; ++k) {
+                json_arg_array.append(options.arguments[k].c_str());
+            }
+
+            QJsonArray json_env_array;
+            for (std::size_t k = 0, p = options.environment_variables.size(); k < p; ++k) {
+                json_env_array.append(options.environment_variables[k].c_str());
+            }
+
+            QJsonObject json_option_object;
+            json_option_object.insert("label", options.label.c_str());
+            json_option_object.insert("working_folder", options.working_folder.c_str());
+            json_option_object.insert("arguments", json_arg_array);
+            json_option_object.insert("environment_variables", json_env_array);
+            json_option_object.insert("log_file", options.log_file.c_str());
+
+            json_options_array.append(json_option_object);
+        }
+        json_application_object.insert("options", json_options_array);
+
+        json_applications_list_object.insert(application.executable_path.c_str(), json_application_object);
+    }
+
+    json_applications_object.insert("list", json_applications_list_object);
+
+    json_root_object.insert("applications", json_applications_object);
+
+    QJsonObject json_layers_object;
+
+    json_root_object.insert("layers", json_layers_object);
+
+    QJsonObject json_configurations_object;
+    json_configurations_object.insert("use_per_application", this->use_per_application_configuration);
+    json_configurations_object.insert("mode", ::GetLayersModeToken(this->layers_mode));
+    json_configurations_object.insert("configuration", this->selected_configuration.c_str());
+
+    json_root_object.insert("configurations", json_configurations_object);
+
+    QJsonObject json_preferences_object;
+    json_preferences_object.insert("use_system_tray", this->use_system_tray);
+    json_preferences_object.insert("VK_LOCAL", this->home_sdk_path.c_str());
+
+    QJsonArray json_hide_message_boxes_array;
+    for (int i = HIDE_MESSAGE_FIRST, n = HIDE_MESSAGE_LAST; i < n; ++i) {
+        HideMessageType hide_message_type = static_cast<HideMessageType>(i);
+        if (this->hide_message_boxes_flags & (1 << i)) {
+            json_hide_message_boxes_array.append(GetHideMessageBoxesToken(hide_message_type).c_str());
+        }
+    }
+    json_preferences_object.insert("hide_message_boxes", json_hide_message_boxes_array);
+
+    json_root_object.insert("preferences", json_preferences_object);
+
+    QJsonDocument json_doc(json_root_object);
+    file.write(json_doc.toJson());
     file.close();
 
     return true;
@@ -397,23 +493,16 @@ bool Environment::SaveApplications() const {
 
 void Environment::SelectActiveApplication(std::size_t application_index) {
     assert(application_index < this->applications.size());
-
-    this->SetActiveApplication(this->applications[application_index].app_name);
+    this->active_executable_index = application_index;
 }
 
 int Environment::GetActiveApplicationIndex() const {
-    for (std::size_t i = 0, n = this->applications.size(); i < n; ++i) {
-        if (this->applications[i].app_name == this->active_application) {
-            return static_cast<int>(i);
-        }
-    }
-
-    return 0;  // Not found, but the list is present, so return the first item.
+    return this->active_executable_index;  // Not found, but the list is present, so return the first item.
 }
 
 bool Environment::HasOverriddenApplications() const {
     for (std::size_t i = 0, n = this->applications.size(); i < n; ++i) {
-        if (this->applications[i].layers_mode != LAYERS_MODE_BY_APPLICATIONS) {
+        if (this->applications[i].layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
             return true;
         }
     }
@@ -450,13 +539,7 @@ bool Environment::RemoveApplication(std::size_t application_index) {
 const Application& Environment::GetActiveApplication() const {
     assert(!this->applications.empty());
 
-    for (std::size_t i = 0, n = this->applications.size(); i < n; ++i) {
-        if (this->applications[i].app_name == this->active_application) {
-            return this->applications[i];
-        }
-    }
-
-    return this->applications[0];  // Not found, but the list is present, so return the first item.
+    return this->applications[this->active_executable_index];  // Not found, but the list is present, so return the first item.
 }
 
 const Application& Environment::GetApplication(std::size_t application_index) const {
@@ -474,12 +557,6 @@ Application& Environment::GetApplication(std::size_t application_index) {
 bool Environment::GetPerApplicationConfig() const { return this->use_per_application_configuration; }
 
 void Environment::SetPerApplicationConfig(bool enable) { this->use_per_application_configuration = enable; }
-
-bool Environment::GetUseApplicationList() const {
-    return this->use_application_list && this->layers_mode != LAYERS_MODE_BY_APPLICATIONS;
-}
-
-void Environment::SetUseApplicationList(bool enable) { this->use_application_list = enable; }
 
 LayersMode Environment::GetMode() const { return this->layers_mode; }
 
@@ -627,14 +704,15 @@ Application Environment::CreateDefaultApplication(const DefaultApplication& defa
     const std::string executable_path = GetDefaultExecutablePath((default_application.key + GetApplicationSuffix()).c_str());
     if (executable_path.empty()) Application();  // application could not be found..
 
-    Application application(default_application.name, executable_path, default_application.arguments);
+    Application application;  //(default_application.name, executable_path, default_application.arguments);
+    application.executable_path = executable_path;
 
     // On all operating systems, but Windows we keep running into problems with this ending up
     // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
     // initially will be set to the users home folder across all OS's. This is highly visible
     // in the application launcher and should not present a usability issue. The developer can
     // easily change this later to anywhere they like.
-    application.log_file = std::string("${VK_LOCAL}") + default_application.key + ".txt";
+    // application.log_file = std::string("${VK_LOCAL}") + default_application.key + ".txt";
 
     return application;
 }

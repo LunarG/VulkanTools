@@ -29,7 +29,7 @@
 #include <cassert>
 
 int run_doc_html(const CommandLine& command_line) {
-    PathManager paths(command_line.command_vulkan_sdk, SUPPORTED_CONFIG_FILES);
+    PathManager paths(command_line.command_vulkan_sdk);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
@@ -50,7 +50,7 @@ int run_doc_html(const CommandLine& command_line) {
 }
 
 int run_doc_markdown(const CommandLine& command_line) {
-    PathManager paths(command_line.command_vulkan_sdk, SUPPORTED_CONFIG_FILES);
+    PathManager paths(command_line.command_vulkan_sdk);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 
@@ -72,7 +72,7 @@ int run_doc_markdown(const CommandLine& command_line) {
 
 int run_doc_settings(const CommandLine& command_line) {
     int rval = 0;
-    PathManager paths(command_line.command_vulkan_sdk, SUPPORTED_CONFIG_FILES);
+    PathManager paths(command_line.command_vulkan_sdk);
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
     ConfigurationManager configuration_manager(environment);

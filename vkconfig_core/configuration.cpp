@@ -154,7 +154,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     assert(!full_path.empty());
 
     QJsonObject root;
-    root.insert("file_format_version", Version::LAYER_CONFIG.str().c_str());
+    root.insert("file_format_version", Version::VKCONFIG.str().c_str());
 
     // Build the json document
     QJsonArray excluded_list;
@@ -259,20 +259,16 @@ void Configuration::Reset(const std::vector<Layer>& available_layers, const Path
     // Case 2: reset using configuration files using saved configurations
     const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    const std::vector<std::string>& SUPPORTED_CONFIG_FILES = path_manager.SUPPORTED_CONFIG_FILES;
+    const std::string full_path = base_config_path + "/" + this->key + ".json";
 
-    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
-        const std::string path = base_config_path + SUPPORTED_CONFIG_FILES[i] + "/" + this->key + ".json";
+    std::FILE* file = std::fopen(full_path.c_str(), "r");
+    if (file) {
+        std::fclose(file);
+        const bool result = this->Load(available_layers, full_path);
+        assert(result);
 
-        std::FILE* file = std::fopen(path.c_str(), "r");
-        if (file) {
-            std::fclose(file);
-            const bool result = this->Load(available_layers, path);
-            assert(result);
-
-            OrderParameter(this->parameters, available_layers);
-            return;
-        }
+        OrderParameter(this->parameters, available_layers);
+        return;
     }
 
     // Case 3: reset to default values

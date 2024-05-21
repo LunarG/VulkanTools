@@ -23,7 +23,6 @@
 
 #include "dialog_vulkan_analysis.h"
 #include "dialog_vulkan_info.h"
-#include "dialog_applications.h"
 
 #include "configurator.h"
 #include "vulkan_util.h"
@@ -44,15 +43,12 @@
 #include <QVariant>
 #include <QContextMenuEvent>
 #include <QLineEdit>
-#include <QSettings>
 #include <QDesktopServices>
 
 #include <cassert>
 
 static const char *TEXT_EXECUTE_CLOSER_APPLICATION = "Execute Closer to the Vulkan Application";
 static const char *TEXT_EXECUTE_CLOSER_DRIVER = "Execute Closer to the Vulkan Driver";
-
-enum Tab { TAB_DIAGNOSTIC = 0, TAB_APPLICATIONS, TAB_LAYERS, TAB_CONFIGURATIONS, TAB_PREFERENCES, TAB_HELP };
 
 #if VKC_PLATFORM == VKC_PLATFORM_LINUX || VKC_PLATFORM == VKC_PLATFORM_MACOS
 #include <unistd.h>
@@ -206,13 +202,23 @@ MainWindow::MainWindow(QWidget *parent)
     // ui->splitter_settings->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER3));
 
     // Update launcher
-    const Application &application = configurator.environment.GetApplication(0);
-    ui->edit_executable->setText(application.executable_path.c_str());
-    ui->edit_dir->setText(application.working_folder.c_str());
-    ui->edit_arguments->setText(application.arguments.c_str());
-    ui->edit_env->setText(application.env.c_str());
-    ui->edit_log->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
+    if (!environment.GetApplications().empty()) {
+        ui->combo_box_applications->clear();
+        for (std::size_t i = 0, n = environment.GetApplications().size(); i < n; ++i) {
+            const Application &application = environment.GetApplications()[i];
 
+            ui->combo_box_applications->addItem(ReplaceBuiltInVariable(application.executable_path.c_str()).c_str());
+        }
+        ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
+    }
+
+    // ui->edit_executable->setText(application.executable_path.c_str());
+    /*
+        ui->edit_dir->setText(application.working_folder.c_str());
+        ui->edit_arguments->setText(application.arguments.c_str());
+        ui->edit_env->setText(application.env.c_str());
+        ui->edit_log->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
+    */
     ui->execute_closer_application_label->setVisible(true);
     ui->execute_closer_driver_label->setVisible(true);
 
@@ -286,22 +292,22 @@ void MainWindow::UpdateTray() {
 
         const Environment &environment = configurator.environment;
 
-        const bool use_override = environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS;
+        const bool use_override = environment.GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS;
         const bool active = configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers) && use_override;
 
         switch (environment.GetMode()) {
             default:
-            case LAYERS_MODE_BY_APPLICATIONS:
+            case LAYERS_CONTROLLED_BY_APPLICATIONS:
                 this->_tray_layers_controlled_by_applications->setChecked(true);
                 this->_tray_layers_controlled_by_configurator->setChecked(false);
                 this->_tray_layers_disabled_by_configurator->setChecked(false);
                 break;
-            case LAYERS_MODE_BY_CONFIGURATOR_RUNNING:
+            case LAYERS_CONTROLLED_BY_CONFIGURATOR:
                 this->_tray_layers_controlled_by_applications->setChecked(false);
                 this->_tray_layers_controlled_by_configurator->setChecked(true);
                 this->_tray_layers_disabled_by_configurator->setChecked(false);
                 break;
-            case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED:
+            case LAYERS_DISABLED_BY_CONFIGURATOR:
                 this->_tray_layers_controlled_by_applications->setChecked(false);
                 this->_tray_layers_controlled_by_configurator->setChecked(false);
                 this->_tray_layers_disabled_by_configurator->setChecked(true);
@@ -360,7 +366,7 @@ void MainWindow::trayActionRestore() {
 
 void MainWindow::trayActionControlledByApplications() {
     Configurator &configurator = Configurator::Get();
-    configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+    configurator.environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
     configurator.configurations.Configure(configurator.layers.selected_layers);
 
     this->UpdateUI();
@@ -369,7 +375,7 @@ void MainWindow::trayActionControlledByApplications() {
 
 void MainWindow::trayActionControlledByConfigurator() {
     Configurator &configurator = Configurator::Get();
-    configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
+    configurator.environment.SetMode(LAYERS_CONTROLLED_BY_CONFIGURATOR);
     configurator.configurations.Configure(configurator.layers.selected_layers);
 
     this->UpdateUI();
@@ -378,7 +384,7 @@ void MainWindow::trayActionControlledByConfigurator() {
 
 void MainWindow::trayActionDisabledByApplications() {
     Configurator &configurator = Configurator::Get();
-    configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED);
+    configurator.environment.SetMode(LAYERS_DISABLED_BY_CONFIGURATOR);
     configurator.configurations.Configure(configurator.layers.selected_layers);
 
     this->UpdateUI();
@@ -387,9 +393,9 @@ void MainWindow::trayActionDisabledByApplications() {
 
 static std::string GetMainWindowTitle(bool active) {
 #if VKCONFIG_DATE
-    std::string title = format("%s %s-%s", VKCONFIG_NAME, Version::VKCONFIG3.str().c_str(), GetBuildDate().c_str());
+    std::string title = format("%s %s-%s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
 #else
-    std::string title = format("%s %s", VKCONFIG_NAME, Version::VKCONFIG3.str().c_str());
+    std::string title = format("%s %s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
 #endif
     if (active) title += " <ACTIVE>";
     return title;
@@ -513,12 +519,15 @@ void MainWindow::UpdateUI() {
     ui->configurations_tree->blockSignals(true);
 
     // Add applications
+    ui->combo_box_applications->blockSignals(true);
+    ui->combo_box_applications->clear();
     ui->combo_box_applications->setEnabled(ui->check_box_per_application->isChecked());
     const std::vector<Application> &applications = environment.GetApplications();
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
         ui->combo_box_applications->addItem(ReplaceBuiltInVariable(applications[i].executable_path.c_str()).c_str());
     }
     ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
+    ui->combo_box_applications->blockSignals(false);
 
     const bool has_active_configuration = configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers);
 
@@ -670,7 +679,7 @@ void MainWindow::UpdateUI() {
     */
     _launcher_apps_combo->blockSignals(true);
     _launcher_apps_combo->clear();
-
+    /*
     if (applications.empty()) {
         _launcher_executable->setText("");
         _launcher_arguments->setText("");
@@ -688,7 +697,7 @@ void MainWindow::UpdateUI() {
         _launcher_working->setText(application.working_folder.c_str());
         _launcher_log_file_edit->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
     }
-
+    */
     _launcher_apps_combo->blockSignals(false);
 
     // Handle persistent states
@@ -734,7 +743,7 @@ void MainWindow::UpdateUI() {
         _launcher_log_file_edit->setEnabled(has_application_list);
     }
 
-    ui->settings_tree->setEnabled(environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING && has_selected_configuration);
+    // ui->settings_tree->setEnabled(environment.GetMode() == LAYERS_MODE_CONTROLLED_BY_CONFIGURATOR && has_selected_configuration);
     if (has_selected_configuration) {
         this->_settings_tree_manager.CreateGUI(ui->settings_tree);
     } else {
@@ -915,7 +924,7 @@ void MainWindow::on_combo_box_mode_currentIndexChanged(int index) {
         configurator.ActivateConfiguration(configurator.environment.GetSelectedConfiguration());
     }
 
-    const bool enabled_ui = index == LAYERS_MODE_BY_CONFIGURATOR_RUNNING;
+    const bool enabled_ui = index == LAYERS_CONTROLLED_BY_CONFIGURATOR;
 
     ui->group_box_configurations->setEnabled(enabled_ui);
     ui->group_box_settings->setEnabled(enabled_ui);
@@ -1081,7 +1090,7 @@ void MainWindow::StartTool(Tool tool) {
     Configurator &configurator = Configurator::Get();
 
     LayersMode saved_mode = configurator.environment.GetMode();
-    configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+    configurator.environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
     configurator.configurations.Configure(configurator.layers.selected_layers);
 
     switch (tool) {
@@ -1155,11 +1164,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     // Alert the user to the current state of the vulkan configurator and
     // give them the option to not shutdown.
     if (environment.GetUseSystemTray()) {
-        QSettings settings;
-        if (!settings.value("vkconfig_system_tray", false).toBool()) {
+        if (environment.hide_message_boxes_flags & HIDE_MESSAGE_USE_SYSTEM_TRAY_BIT) {
             std::string shut_down_state;
 
-            if (environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_RUNNING) {
+            if (environment.GetMode() == LAYERS_CONTROLLED_BY_CONFIGURATOR) {
                 shut_down_state =
                     "Vulkan Layers override will remain in effect while Vulkan Configurator remain active in the system tray.";
             } else {
@@ -1176,7 +1184,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             alert.setInformativeText("Are you still ready to move Vulkan Configurator in the system tray?");
 
             int ret_val = alert.exec();
-            settings.setValue("vkconfig_system_tray", alert.checkBox()->isChecked());
+            if (alert.checkBox()->isChecked()) {
+                environment.hide_message_boxes_flags |= HIDE_MESSAGE_USE_SYSTEM_TRAY_BIT;
+            }
 
             if (ret_val == QMessageBox::No) {
                 event->ignore();
@@ -1223,8 +1233,8 @@ void MainWindow::showEvent(QShowEvent *event) {
 
 /// Edit the list of apps that can be filtered.
 void MainWindow::on_push_button_applications_clicked() {
-    ApplicationsDialog dlg(this);
-    dlg.exec();
+    // ApplicationsDialog dlg(this);
+    // dlg.exec();
 
     Configurator &configurator = Configurator::Get();
     configurator.configurations.Configure(configurator.layers.selected_layers);
@@ -1592,12 +1602,13 @@ void MainWindow::launchSetLogFile() {
 
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
-    const std::string path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, application.log_file.c_str());
+    ApplicationOptions &options = application.GetActiveOptions();
+    const std::string path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, options.log_file.c_str());
 
     // The user has cancel the operation
     if (path.empty()) return;
 
-    application.log_file = path;
+    options.log_file = path;
     _launcher_log_file_edit->setText(path.c_str());
 }
 
@@ -1607,12 +1618,13 @@ void MainWindow::launchSetWorkingFolder() {
 
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
-    const std::string path = configurator.path.SelectPath(this, PATH_WORKING_DIR, application.working_folder.c_str());
+    ApplicationOptions &options = application.GetActiveOptions();
+    const std::string path = configurator.path.SelectPath(this, PATH_WORKING_DIR, options.working_folder.c_str());
 
     // The user has cancel the operation
     if (path.empty()) return;
 
-    application.working_folder = path;
+    options.working_folder = path;
     _launcher_working->setText(path.c_str());
 }
 
@@ -1622,7 +1634,8 @@ void MainWindow::launchChangeLogFile(const QString &log_file) {
     assert(current_application_index >= 0);
 
     Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    application.log_file = log_file.toStdString();
+    ApplicationOptions &options = application.GetActiveOptions();
+    options.log_file = log_file.toStdString();
 }
 
 void MainWindow::launchChangeExecutable(const QString &exe) {
@@ -1638,7 +1651,8 @@ void MainWindow::launchChangeWorkingFolder(const QString &working_folder) {
     assert(current_application_index >= 0);
 
     Application &application = Configurator::Get().environment.GetApplication(current_application_index);
-    application.working_folder = working_folder.toStdString();
+    ApplicationOptions &options = application.GetActiveOptions();
+    options.working_folder = working_folder.toStdString();
 }
 
 // Launch app change
@@ -1650,10 +1664,12 @@ void MainWindow::launchItemChanged(int application_index) {
     environment.SelectActiveApplication(application_index);
 
     Application &application = environment.GetApplication(application_index);
+    ApplicationOptions &options = application.GetActiveOptions();
+
     _launcher_executable->setText(application.executable_path.c_str());
-    _launcher_working->setText(application.working_folder.c_str());
-    _launcher_arguments->setText(application.arguments.c_str());
-    _launcher_log_file_edit->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
+    _launcher_working->setText(options.working_folder.c_str());
+    _launcher_arguments->setText(Merge(options.arguments, " ").c_str());
+    _launcher_log_file_edit->setText(ReplaceBuiltInVariable(options.log_file.c_str()).c_str());
 }
 
 /// New command line arguments. Update them.
@@ -1662,7 +1678,8 @@ void MainWindow::launchArgsEdited(const QString &arguments) {
     if (application_index < 0) return;
 
     Application &application = Configurator::Get().environment.GetApplication(application_index);
-    application.arguments = arguments.toStdString();
+    ApplicationOptions &options = application.GetActiveOptions();
+    options.arguments = SplitSpace(arguments.toStdString());
 }
 
 // Clear the browser window
@@ -1848,27 +1865,27 @@ void MainWindow::on_push_button_launcher_clicked() {
     Configurator &configurator = Configurator::Get();
     const Application &active_application = configurator.environment.GetActiveApplication();
 
-    assert(!active_application.app_name.empty());
-    launch_log += format("- Application: %s\n", active_application.app_name.c_str());
     assert(!active_application.executable_path.empty());
+    launch_log += format("- Application: %s\n", active_application.executable_path.c_str());
 
     launch_log += format("- Executable: %s\n", ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str());
     if (!QFileInfo(ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str()).exists()) {
         Alert::PathInvalid(ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str(),
-                           format("The '%s' application will fail to launch.", active_application.app_name.c_str()).c_str());
+                           format("The '%s' application will fail to launch.", active_application.executable_path.c_str()).c_str());
     }
 
     launch_log += format("- Working Directory: %s\n", ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str());
     if (!QFileInfo(ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str()).exists()) {
         Alert::PathInvalid(ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str(),
-                           format("The '%s' application will fail to launch.", active_application.app_name.c_str()).c_str());
+                           format("The '%s' application will fail to launch.", active_application.executable_path.c_str()).c_str());
     }
 
     if (!_launcher_arguments->text().isEmpty()) {
         launch_log += format("- Command-line Arguments: %s\n", _launcher_arguments->text().toStdString().c_str());
     }
 
-    const std::string actual_log_file = ReplaceBuiltInVariable(active_application.log_file.c_str());
+    const ApplicationOptions &options = active_application.GetActiveOptions();
+    const std::string actual_log_file = ReplaceBuiltInVariable(options.log_file.c_str());
     if (!actual_log_file.empty()) {
         launch_log += format("- Log file: %s\n", actual_log_file.c_str());
     }
@@ -1904,8 +1921,8 @@ void MainWindow::on_push_button_launcher_clicked() {
     _launch_application->setWorkingDirectory(ui->edit_dir->text());
     _launch_application->setEnvironment(BuildEnvVariables() + ui->edit_env->text().split(","));
 
-    if (!active_application.arguments.empty()) {
-        const QStringList args = ConvertString(SplitSpace(active_application.arguments));
+    if (!options.arguments.empty()) {
+        const QStringList args = ConvertString(options.arguments);
         _launch_application->setArguments(args);
     }
 

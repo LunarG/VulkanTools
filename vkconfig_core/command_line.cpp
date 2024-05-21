@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022 Valve Corporation
- * Copyright (c) 2020-2022 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,6 @@ static const ModeDesc mode_desc[] = {
     {COMMAND_VERSION, "-v", HELP_VERSION},          // COMMAND_VERSION
     {COMMAND_VERSION, "--version", HELP_VERSION},   // COMMAND_VERSION
     {COMMAND_VERSION, "version", HELP_VERSION},     // COMMAND_VERSION
-    {COMMAND_GUI, "gui", HELP_GUI},                 // COMMAND_GUI
     {COMMAND_LAYERS, "layers", HELP_LAYERS},        // COMMAND_LAYERS
     {COMMAND_DOC, "doc", HELP_DOC},                 // COMMAND_DOC
     {COMMAND_RESET, "reset", HELP_RESET},           // COMMAND_RESET
@@ -183,7 +182,6 @@ CommandLine::CommandLine(int argc, char* argv[])
       doc_out_dir(_doc_out_dir),
       error(_error),
       error_args(_error_args),
-      _command(COMMAND_GUI),
       _command_reset_arg(COMMAND_RESET_NONE),
       _command_layers_arg(COMMAND_LAYERS_NONE),
       _command_doc_arg(COMMAND_DOC_NONE),
@@ -297,7 +295,6 @@ CommandLine::CommandLine(int argc, char* argv[])
             _error_args.push_back(argv[arg_offset + 0]);
             break;
         }
-        case COMMAND_GUI:
         case COMMAND_VERSION: {
             break;
         }

@@ -21,7 +21,6 @@
 #pragma once
 
 #include "version.h"
-#include "environment_key.h"
 #include "application.h"
 #include "path_manager.h"
 
@@ -72,7 +71,6 @@ enum LoaderMessageType {
     LOADER_MESSAGE_DEBUG,
     LOADER_MESSAGE_LAYER,
     LOADER_MESSAGE_IMPLEMENTATION,
-    LOADER_MESSAGE_ALL,
 
     LOADER_MESSAGE_FIRST = LOADER_MESSAGE_ERROR,
     LOADER_MESSAGE_LAST = LOADER_MESSAGE_IMPLEMENTATION,
@@ -96,7 +94,6 @@ inline int GetLoaderMessageFlags(LoaderMessageType level) {
 
     switch (level) {
         default:
-        case LOADER_MESSAGE_ALL:
         case LOADER_MESSAGE_IMPLEMENTATION:
             flags |= LOADER_MESSAGE_IMPLEMENTATION_BIT;
         case LOADER_MESSAGE_LAYER:
@@ -109,17 +106,13 @@ inline int GetLoaderMessageFlags(LoaderMessageType level) {
             flags |= LOADER_MESSAGE_WARN_BIT;
         case LOADER_MESSAGE_ERROR:
             flags |= LOADER_MESSAGE_ERROR_BIT;
-        case LOADER_MESSAGE_NONE:
-            flags |= 0;
     }
 
     return flags;
 }
 
 inline LoaderMessageType GetLoaderMessageType(int flags) {
-    if (flags == LOADER_MESSAGE_ALL_BIT) {
-        return LOADER_MESSAGE_ALL;
-    } else if (flags & LOADER_MESSAGE_IMPLEMENTATION_BIT) {
+    if (flags & LOADER_MESSAGE_IMPLEMENTATION_BIT) {
         return LOADER_MESSAGE_IMPLEMENTATION;
     } else if (flags & LOADER_MESSAGE_LAYER_BIT) {
         return LOADER_MESSAGE_LAYER;
@@ -131,10 +124,51 @@ inline LoaderMessageType GetLoaderMessageType(int flags) {
         return LOADER_MESSAGE_WARN;
     } else if (flags & LOADER_MESSAGE_ERROR_BIT) {
         return LOADER_MESSAGE_ERROR;
-    } else {
-        return LOADER_MESSAGE_NONE;
     }
 }
+
+enum HideMessageType {
+    HIDE_MESSAGE_NONE = 0,
+
+    HIDE_MESSAGE_NEED_APPLICATION_RESTART,
+    HIDE_MESSAGE_USE_SYSTEM_TRAY,
+    HIDE_MESSAGE_WIDGET_SETTING_FLOAT,
+    HIDE_MESSAGE_WIDGET_SETTING_INT,
+    HIDE_MESSAGE_WIDGET_SETTING_FRAMES,
+    HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE,
+    HIDE_MESSAGE_WARN_CORE_SHADER_IGNORE,
+
+    HIDE_MESSAGE_FIRST = HIDE_MESSAGE_NEED_APPLICATION_RESTART,
+    HIDE_MESSAGE_LAST = HIDE_MESSAGE_USE_SYSTEM_TRAY
+};
+
+enum {
+    HIDE_MESSAGE_NEED_APPLICATION_RESTART_BIT = 1 << HIDE_MESSAGE_NEED_APPLICATION_RESTART,
+    HIDE_MESSAGE_USE_SYSTEM_TRAY_BIT = 1 << HIDE_MESSAGE_USE_SYSTEM_TRAY,
+    HIDE_MESSAGE_WIDGET_SETTING_FLOAT_BIT = 1 << HIDE_MESSAGE_WIDGET_SETTING_FLOAT,
+    HIDE_MESSAGE_WIDGET_SETTING_INT_BIT = 1 << HIDE_MESSAGE_WIDGET_SETTING_INT,
+    HIDE_MESSAGE_WIDGET_SETTING_FRAMES_BIT = 1 << HIDE_MESSAGE_WIDGET_SETTING_FRAMES,
+    HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE_BIT = 1 << HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE,
+    HIDE_MESSAGE_WARN_CORE_SHADER_IGNORE_BIT = 1 << HIDE_MESSAGE_WARN_CORE_SHADER_IGNORE,
+};
+
+enum { HIDE_MESSAGE_COUNT = HIDE_MESSAGE_LAST - HIDE_MESSAGE_FIRST + 1 };
+
+HideMessageType GetHideMessageBoxes(const std::string& token);
+
+enum TabType {
+    TAB_DIAGNOSTIC = 0,
+    TAB_APPLICATIONS,
+    TAB_LAYERS,
+    TAB_CONFIGURATIONS,
+    TAB_PREFERENCES,
+    TAB_HELP,
+
+    TAB_FIRST = TAB_DIAGNOSTIC,
+    TAB_LAST = TAB_HELP
+};
+
+enum { TAB_COUNT = TAB_LAST - TAB_FIRST + 1 };
 
 struct DefaultApplication {
     std::string name;
@@ -152,9 +186,7 @@ class Environment {
     void Reset(ResetMode mode);
 
     bool Load();
-    bool LoadApplications();
     bool Save() const;
-    bool SaveApplications() const;
 
     void SelectActiveApplication(std::size_t application_index);
     int GetActiveApplicationIndex() const;
@@ -162,7 +194,6 @@ class Environment {
     bool AppendApplication(const Application& application);
     bool RemoveApplication(std::size_t application_index);
 
-    void SetActiveApplication(const std::string& name) { this->active_application = name; }
     const std::vector<Application>& GetApplications() const { return applications; }
     const Application& GetActiveApplication() const;
     const Application& GetApplication(std::size_t application_index) const;
@@ -177,20 +208,14 @@ class Environment {
     bool GetPerApplicationConfig() const;
     void SetPerApplicationConfig(bool enable);
 
-    bool GetUseApplicationList() const;
-    void SetUseApplicationList(bool enable);
-
     bool GetUseSystemTray() const { return this->use_system_tray; }
     void SetUseSystemTray(bool enable) { this->use_system_tray = enable; }
 
     LayersMode GetMode() const;
     void SetMode(LayersMode mode);
 
-    int GetLoaderMessageTypes() const { return this->loader_message_types; }
-    void SetLoaderMessageTypes(int types) { this->loader_message_types = types; }
-
-    bool first_run;
-    const Version api_version;
+    int GetLoaderMessageTypes() const { return this->loader_message_types_flags; }
+    void SetLoaderMessageTypes(int types) { this->loader_message_types_flags = types; }
 
     void SetPerConfigUserDefinedLayersPaths(const std::vector<std::string>& paths) {
         std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI];
@@ -201,7 +226,7 @@ class Environment {
     }
 
     const std::vector<std::string>& GetUserDefinedLayersPaths(UserDefinedLayersPaths user_defined_layers_paths_id) const {
-        return user_defined_layers_paths[user_defined_layers_paths_id];
+        return this->user_defined_layers_paths[user_defined_layers_paths_id];
     }
 
     bool IsDefaultConfigurationInit(const std::string& configuration_filename) const;
@@ -210,20 +235,23 @@ class Environment {
     // Search for all the applications in the list, an remove the application which executable can't be found
     std::vector<Application> RemoveMissingApplications(const std::vector<Application>& applications) const;
 
+    bool first_run;
+    bool has_crashed;
+    int hide_message_boxes_flags;
+
    private:
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
 
-    Version vkconfig2_version;
-    Version vkconfig3_version;
+    TabType active_tab;
     LayersMode layers_mode;
-    bool use_application_list;
     bool use_system_tray;
     bool use_per_application_configuration;
-    int loader_message_types;
+    int loader_message_types_flags;
+    std::string home_sdk_path;
 
     std::string selected_configuration;
-    std::string active_application;
+    int active_executable_index;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
     std::array<std::vector<std::string>, USER_DEFINED_LAYERS_PATHS_COUNT> user_defined_layers_paths;
     std::vector<Application> applications;
