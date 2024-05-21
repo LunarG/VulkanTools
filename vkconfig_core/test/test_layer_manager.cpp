@@ -22,10 +22,8 @@
 
 #include <gtest/gtest.h>
 
-static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_1_0_0"};
-
 TEST(test_layer_manager, load_only_layer_json) {
-    PathManager paths("", SUPPORTED_CONFIG_FILES);
+    PathManager paths("");
     Environment environment(paths);
     environment.Reset(Environment::DEFAULT);
 

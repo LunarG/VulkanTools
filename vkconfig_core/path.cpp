@@ -93,8 +93,8 @@ std::string GetPath(BuiltinPath path) {
             break;
         }
         case BUILTIN_PATH_CONFIG_LAST: {
-            const std::string config = format("_%d_%d_%d", Version::LAYER_CONFIG.GetMajor(), Version::LAYER_CONFIG.GetMinor(),
-                                              Version::LAYER_CONFIG.GetPatch());
+            const std::string config =
+                format("_%d_%d_%d", Version::VKCONFIG.GetMajor(), Version::VKCONFIG.GetMinor(), Version::VKCONFIG.GetPatch());
 
             result = GetPath(BUILTIN_PATH_CONFIG_REF) + config;
             break;
@@ -103,7 +103,7 @@ std::string GetPath(BuiltinPath path) {
             result = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/../applist.json";
             break;
         }
-        case BUILTIN_PATH_VKCONFIG_SETTINGS: {
+        case BUILTIN_PATH_VKCONFIG_INIT: {
             result = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/../vkconfig.json";
             break;
         }

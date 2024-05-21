@@ -23,19 +23,37 @@
 #include "path.h"
 
 #include <string>
+#include <vector>
 
-enum LayersMode { LAYERS_MODE_BY_APPLICATIONS = 0, LAYERS_MODE_BY_CONFIGURATOR_RUNNING, LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED };
+enum LayersMode {
+    LAYERS_CONTROLLED_BY_APPLICATIONS = 0,
+    LAYERS_CONTROLLED_BY_CONFIGURATOR,
+    LAYERS_DISABLED_BY_CONFIGURATOR,
+
+    LAYERS_MODE_FIRST = LAYERS_CONTROLLED_BY_APPLICATIONS,
+    LAYERS_MODE_LAST = LAYERS_DISABLED_BY_CONFIGURATOR
+};
+
+enum { LAYERS_MODE_COUNT = LAYERS_MODE_LAST - LAYERS_MODE_FIRST + 1 };
+
+struct ApplicationOptions {
+    std::string label;
+    std::string working_folder;
+    std::vector<std::string> arguments;
+    std::vector<std::string> environment_variables;
+    std::string log_file;
+};
 
 struct Application {
-    Application() {}
-    Application(const std::string& name, const std::string& executable_full_path, const std::string& arguments);
+    Application() : layers_mode(LAYERS_CONTROLLED_BY_APPLICATIONS) {}
 
-    std::string app_name;
     Path executable_path;
-    Path working_folder;
-    std::string arguments;
-    std::string env;
-    Path log_file;
     LayersMode layers_mode;
     std::string layers_configuration;
+    int active_option_index;
+    std::vector<ApplicationOptions> options;
+
+    ApplicationOptions& GetActiveOptions() { return this->options[active_option_index]; }
+
+    const ApplicationOptions& GetActiveOptions() const { return this->options[active_option_index]; }
 };

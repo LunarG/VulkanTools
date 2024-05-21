@@ -88,7 +88,7 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
         }
     }
 
-    const Version version = ComputeMinApiVersion(environment.api_version, configuration.parameters, available_layers);
+    const Version version = ComputeMinApiVersion(Version::VKHEADER, configuration.parameters, available_layers);
 
     QJsonArray json_paths;
 
@@ -106,7 +106,7 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 
     QJsonArray json_overridden_layers;
     QJsonArray json_excluded_layers;
-    if (environment.GetMode() == LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED) {
+    if (environment.GetMode() == LAYERS_DISABLED_BY_CONFIGURATOR) {
         for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
             json_excluded_layers.append(available_layers[i].key.c_str());
         }
@@ -137,14 +137,14 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
     layer.insert("component_layers", json_overridden_layers);
     layer.insert("blacklisted_layers", json_excluded_layers);
     layer.insert("disable_environment", disable);
-
+    /*
     // This has to contain something, or it will apply globally!
     if (environment.GetUseApplicationList() && environment.HasOverriddenApplications()) {
         const std::vector<Application>& applications = environment.GetApplications();
 
         QJsonArray json_applist;
         for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-            if (applications[i].layers_mode == LAYERS_MODE_BY_APPLICATIONS) continue;
+            if (applications[i].layers_mode == LAYERS_MODE_CONTROLLED_BY_APPLICATIONS) continue;
 
             const std::string& executable_path =
                 ConvertNativeSeparators(ReplaceBuiltInVariable(applications[i].executable_path.c_str()));
@@ -157,7 +157,7 @@ bool WriteLayersOverride(const Environment& environment, const std::vector<Layer
 
         layer.insert("app_keys", json_applist);
     }
-
+    */
     QJsonObject root;
     root.insert("file_format_version", "1.1.2");
     root.insert("layer", layer);
@@ -271,11 +271,11 @@ bool WriteLoaderSettings(const Environment& environment, const std::vector<Layer
             const Application& application = environment.GetApplication(i);
 
             switch (application.layers_mode) {
-                case LAYERS_MODE_BY_APPLICATIONS: {
+                case LAYERS_CONTROLLED_BY_APPLICATIONS: {
                 } break;
-                case LAYERS_MODE_BY_CONFIGURATOR_RUNNING: {
+                case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
                 } break;
-                case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED: {
+                case LAYERS_DISABLED_BY_CONFIGURATOR: {
                 } break;
             }
 
@@ -287,7 +287,7 @@ bool WriteLoaderSettings(const Environment& environment, const std::vector<Layer
         LoaderSettings loader_settings;
         loader_settings.stderr_log_flags = 0;
 
-        if (environment.GetMode() != LAYERS_MODE_BY_APPLICATIONS) {
+        if (environment.GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS) {
             for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
                 LayerSettings layer_settings;
 

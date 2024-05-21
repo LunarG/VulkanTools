@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@
  */
 
 #include "widget_setting_int.h"
+#include "configurator.h"
 
 #include <QMessageBox>
 #include <QFontMetrics>
 #include <QCheckBox>
-#include <QSettings>
 
 #include <cassert>
 
@@ -93,8 +93,9 @@ void WidgetSettingInt::OnErrorValue() {
     palette.setColor(QPalette::Base, QColor(255, 192, 192));
     this->field->setPalette(palette);
 
-    QSettings settings;
-    if (settings.value("VKCONFIG_WIDGET_SETTING_INT").toBool() == false) {
+    Environment& environment = Configurator::Get().environment;
+
+    if (!(environment.hide_message_boxes_flags & HIDE_MESSAGE_WIDGET_SETTING_INT_BIT)) {
         const std::string info = format("Do you want to reset to the setting default value? '%d'", this->meta.default_value);
         const std::string range = format("Enter a number in the range [%d, %d].", this->meta.min_value, this->meta.max_value);
 
@@ -134,7 +135,7 @@ void WidgetSettingInt::OnErrorValue() {
             this->Resize();
         }
         if (alert.checkBox()->isChecked()) {
-            settings.setValue("VKCONFIG_WIDGET_SETTING_INT", true);
+            environment.hide_message_boxes_flags |= HIDE_MESSAGE_WIDGET_SETTING_INT_BIT;
         }
     }
 

@@ -43,7 +43,7 @@ enum { PATH_COUNT = PATH_LAST - PATH_FIRST + 1 };
 
 class PathManager {
    public:
-    PathManager(const std::string& VULKAN_SDK, const std::vector<std::string>& SUPPORTED_CONFIG_FILES);
+    PathManager(const std::string& VULKAN_SDK);
     ~PathManager();
 
     bool Load();
@@ -66,8 +66,6 @@ class PathManager {
 
     void Clear();
     void Reset();
-
-    const std::vector<std::string> SUPPORTED_CONFIG_FILES;
 
    private:
     PathManager(const PathManager&) = delete;

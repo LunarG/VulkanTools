@@ -27,7 +27,7 @@
 #include <gtest/gtest.h>
 
 TEST(test_environment, remove_missing_applications) {
-    PathManager path_manager("", std::vector<std::string>());
+    PathManager path_manager("");
     Environment environment(path_manager);
 
     QFile file("my_exciting_executable");
@@ -35,8 +35,13 @@ TEST(test_environment, remove_missing_applications) {
     ASSERT_TRUE(result);
 
     std::vector<Application> applications;
-    applications.push_back(Application("missing", "my_missing_executable", ""));
-    applications.push_back(Application("exciting", "my_exciting_executable", ""));
+    Application application;
+
+    application.executable_path = "my_missing_executable";
+    applications.push_back(application);
+
+    application.executable_path = "my_exciting_executable";
+    applications.push_back(application);
 
     EXPECT_EQ(1, environment.RemoveMissingApplications(applications).size());
 }

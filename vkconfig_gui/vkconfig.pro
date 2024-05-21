@@ -77,15 +77,9 @@ SOURCES += \
     widget_setting_list_element.cpp \
     widget_setting_list.cpp \
     widget_tree_friendly_combobox.cpp \
-    dialog_applications.cpp \
     dialog_vulkan_analysis.cpp \
     dialog_vulkan_info.cpp \
     main.cpp \
-    main_gui.cpp \
-    main_signal.cpp \
-    main_reset.cpp \
-    main_layers.cpp \
-    main_doc.cpp \
     mainwindow.cpp \
     settings_tree.cpp \
     configurator.cpp
@@ -141,20 +135,13 @@ HEADERS += \
     widget_setting_list_element.h \
     widget_setting_list.h \
     widget_tree_friendly_combobox.h \
-    dialog_applications.h \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
-    main_gui.h \
-    main_signal.h \
-    main_reset.h \
-    main_layers.h \
-    main_doc.h \
     mainwindow.h \
     settings_tree.h \
     configurator.h
 
 FORMS += \
-    dialog_applications.ui \
     dialog_vulkan_analysis.ui \
     dialog_vulkan_info.ui \
     mainwindow.ui

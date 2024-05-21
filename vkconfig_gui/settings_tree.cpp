@@ -43,7 +43,6 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QApplication>
-#include <QSettings>
 
 #include <cassert>
 
@@ -356,6 +355,8 @@ void SettingsTreeManager::OnPresetChanged() { this->Refresh(REFRESH_ENABLE_AND_S
 void SettingsTreeManager::OnSettingChanged() { this->Refresh(REFRESH_ENABLE_ONLY); }
 
 void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
+    Configurator &configurator = Configurator::Get();
+
     this->tree->blockSignals(true);
 
     QTreeWidgetItem *root_item = this->tree->invisibleRootItem();
@@ -366,16 +367,14 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     this->tree->blockSignals(false);
 
     if (this->launched_application) {
-        QSettings settings;
-        if (!settings.value(VKCONFIG_KEY_MESSAGE_NEED_APPLICATION_RESTART, false).toBool()) {
-            settings.setValue(VKCONFIG_KEY_MESSAGE_NEED_APPLICATION_RESTART, true);
+        if (!(configurator.environment.hide_message_boxes_flags & HIDE_MESSAGE_NEED_APPLICATION_RESTART_BIT)) {
+            configurator.environment.hide_message_boxes_flags |= HIDE_MESSAGE_NEED_APPLICATION_RESTART_BIT;
 
             Alert::ConfiguratorRestart();
         }
     }
 
     // Refresh layer configuration
-    Configurator &configurator = Configurator::Get();
     configurator.configurations.Configure(configurator.layers.selected_layers);
 }
 

@@ -29,8 +29,6 @@
 #include "../vkconfig_core/configuration_manager.h"
 #include "../vkconfig_core/platform.h"
 
-static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3"};
-
 class Configurator {
    public:
     static Configurator& Get(const std::string& VULKAN_SDK = "");

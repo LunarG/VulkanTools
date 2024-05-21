@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@
  */
 
 #include "widget_setting_frames.h"
-#include "widget_setting.h"
+#include "configurator.h"
 
 #include "../vkconfig_core/util.h"
 
 #include <QMessageBox>
 #include <QFontMetrics>
 #include <QCheckBox>
-#include <QSettings>
 
 #include <cassert>
 
@@ -94,8 +93,9 @@ void WidgetSettingFrames::OnErrorValue() {
     palette.setColor(QPalette::Base, QColor(255, 192, 192));
     this->field->setPalette(palette);
 
-    QSettings settings;
-    if (settings.value("VKCONFIG_WIDGET_SETTING_FRAMES").toBool() == false) {
+    Environment& environment = Configurator::Get().environment;
+
+    if (!(environment.hide_message_boxes_flags & HIDE_MESSAGE_WIDGET_SETTING_FRAMES_BIT)) {
         const std::string text =
             format("The setting input '%s' is invalid. Use list of comma separated integer ranges. Example: '0-2,16'.",
                    this->data().GetValue());
@@ -117,7 +117,7 @@ void WidgetSettingFrames::OnErrorValue() {
             this->Resize();
         }
         if (alert.checkBox()->isChecked()) {
-            settings.setValue("VKCONFIG_WIDGET_SETTING_FRAMES", true);
+            environment.hide_message_boxes_flags |= HIDE_MESSAGE_WIDGET_SETTING_FRAMES_BIT;
         }
     }
 

@@ -19,27 +19,22 @@
  */
 
 #include "../vkconfig_core/override.h"
-#include "../vkconfig_core/layer_manager.h"
+#include "../vkconfig_core/environment.h"
 
 #include "main_signal.h"
-#include "configurator.h"
-
-#include <QSettings>
 
 #include <csignal>
 
 void SurrenderConfiguration(int signal) {
     (void)signal;
 
-    // Indicate that Vulkan Configurator crashed to handle it on next run
-    {
-        QSettings settings;
-        settings.setValue("crashed", true);
-    }
-
-    PathManager paths("", SUPPORTED_CONFIG_FILES);
+    PathManager paths("");
     Environment environment(paths);
 
+    // Indicate that Vulkan Configurator crashed to handle it on next run
+    environment.has_crashed = true;
+
+    // Delete the layers configurations files
     SurrenderConfiguration(environment);
 }
 

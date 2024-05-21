@@ -45,12 +45,7 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
 
     const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    const std::vector<std::string> &SUPPORTED_CONFIG_FILES = this->environment.paths.SUPPORTED_CONFIG_FILES;
-
-    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
-        const std::string path = base_config_path + SUPPORTED_CONFIG_FILES[i];
-        this->LoadConfigurationsPath(available_layers, path.c_str());
-    }
+    this->LoadConfigurationsPath(available_layers, base_config_path.c_str());
 
     this->SortConfigurations();
 }
@@ -148,49 +143,34 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
 bool ConfigurationManager::HasFile(const Configuration &configuration) const {
     const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    const std::vector<std::string> &SUPPORTED_CONFIG_FILES = environment.paths.SUPPORTED_CONFIG_FILES;
+    const std::string path = base_path + "/" + configuration.key + ".json";
 
-    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
-        const std::string path = base_path + SUPPORTED_CONFIG_FILES[i] + "/" + configuration.key + ".json";
-
-        std::FILE *file = std::fopen(path.c_str(), "r");
-        if (file) {
-            std::fclose(file);
-            return true;
-        }
+    std::FILE *file = std::fopen(path.c_str(), "r");
+    if (file) {
+        std::fclose(file);
+        return true;
     }
+
     return false;
 }
 
 void ConfigurationManager::RemoveConfigurationFiles() {
     const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    const std::vector<std::string> &SUPPORTED_CONFIG_FILES = environment.paths.SUPPORTED_CONFIG_FILES;
-
-    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
-        const std::string path = base_path + SUPPORTED_CONFIG_FILES[i];
-
-        const QFileInfoList &configuration_files = GetJSONFiles(path.c_str());
-        for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-            QFile::remove(configuration_files[i].filePath());
-        }
+    const QFileInfoList &configuration_files = GetJSONFiles(base_path.c_str());
+    for (int i = 0, n = configuration_files.size(); i < n; ++i) {
+        QFile::remove(configuration_files[i].filePath());
     }
 }
 
 void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
     const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
 
-    const std::vector<std::string> &SUPPORTED_CONFIG_FILES = environment.paths.SUPPORTED_CONFIG_FILES;
-
-    for (std::size_t i = 0, n = SUPPORTED_CONFIG_FILES.size(); i < n; ++i) {
-        const std::string path = base_path + SUPPORTED_CONFIG_FILES[i];
-
-        const QFileInfoList &configuration_files = GetJSONFiles(path.c_str());
-        for (int j = 0, o = configuration_files.size(); j < o; ++j) {
-            const QString filename = configuration_files[j].fileName();
-            if (filename.toStdString() == key + ".json") {
-                QFile::remove(configuration_files[j].filePath());
-            }
+    const QFileInfoList &configuration_files = GetJSONFiles(base_path.c_str());
+    for (int j = 0, o = configuration_files.size(); j < o; ++j) {
+        const QString filename = configuration_files[j].fileName();
+        if (filename.toStdString() == key + ".json") {
+            QFile::remove(configuration_files[j].filePath());
         }
     }
 }
@@ -199,7 +179,7 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
     assert(!configuration_name.empty());
 
     LayersMode saved_mode = this->environment.GetMode();
-    this->environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+    this->environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
     this->Configure(available_layers);
 
     RemoveConfigurationFile(configuration_name.c_str());
@@ -240,10 +220,10 @@ void ConfigurationManager::Configure(const std::vector<Layer> &available_layers)
 void ConfigurationManager::Configure(const std::vector<Layer> &available_layers, const std::string &configuration_name) {
     switch (this->environment.GetMode()) {
         default:
-        case LAYERS_MODE_BY_APPLICATIONS: {
+        case LAYERS_CONTROLLED_BY_APPLICATIONS: {
             SurrenderConfiguration(this->environment);
         } break;
-        case LAYERS_MODE_BY_CONFIGURATOR_RUNNING: {
+        case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
             if (configuration_name.empty()) {
                 ::SurrenderConfiguration(this->environment);
             } else {
@@ -256,7 +236,7 @@ void ConfigurationManager::Configure(const std::vector<Layer> &available_layers,
                 }
             }
         } break;
-        case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED: {
+        case LAYERS_DISABLED_BY_CONFIGURATOR: {
             Configuration temp_configuration;
             temp_configuration.key = "_TempConfiguration";
             temp_configuration.parameters = GatherParameters(temp_configuration.parameters, available_layers);
@@ -280,9 +260,9 @@ Configuration *ConfigurationManager::FindActiveConfiguration() {
 
 bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &available_layers) const {
     switch (environment.GetMode()) {
-        case LAYERS_MODE_BY_APPLICATIONS:
+        case LAYERS_CONTROLLED_BY_APPLICATIONS:
             return false;
-        case LAYERS_MODE_BY_CONFIGURATOR_RUNNING: {
+        case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
             const std::string configuration_name = this->environment.GetSelectedConfiguration();
             if (configuration_name.empty()) {
                 return false;
@@ -296,7 +276,7 @@ bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &avai
                 }
             }
         }
-        case LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED:
+        case LAYERS_DISABLED_BY_CONFIGURATOR:
             return true;
     }
 
@@ -387,7 +367,7 @@ void ConfigurationManager::FirstDefaultsConfigurations(const std::vector<Layer> 
 
 bool ConfigurationManager::CheckApiVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,
                                             std::string &log_versions) const {
-    return CompareLayersVersions(available_layers, selected_configuration, environment.api_version, log_versions, true);
+    return CompareLayersVersions(available_layers, selected_configuration, Version::VKCONFIG, log_versions, true);
 }
 
 bool ConfigurationManager::CheckLayersVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,
