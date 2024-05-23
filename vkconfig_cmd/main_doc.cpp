@@ -20,8 +20,8 @@
  */
 
 #include "main_doc.h"
-#include "configurator.h"
 
+#include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/layer_manager.h"
 #include "../vkconfig_core/doc.h"
 #include "../vkconfig_core/configuration_manager.h"
@@ -29,8 +29,7 @@
 #include <cassert>
 
 int run_doc_html(const CommandLine& command_line) {
-    PathManager paths(command_line.command_vulkan_sdk);
-    Environment environment(paths);
+    Environment environment;
     environment.Reset(Environment::DEFAULT);
 
     LayerManager layers(environment);
@@ -50,8 +49,7 @@ int run_doc_html(const CommandLine& command_line) {
 }
 
 int run_doc_markdown(const CommandLine& command_line) {
-    PathManager paths(command_line.command_vulkan_sdk);
-    Environment environment(paths);
+    Environment environment;
     environment.Reset(Environment::DEFAULT);
 
     LayerManager layers(environment);
@@ -72,8 +70,8 @@ int run_doc_markdown(const CommandLine& command_line) {
 
 int run_doc_settings(const CommandLine& command_line) {
     int rval = 0;
-    PathManager paths(command_line.command_vulkan_sdk);
-    Environment environment(paths);
+
+    Environment environment;
     environment.Reset(Environment::DEFAULT);
     ConfigurationManager configuration_manager(environment);
     Configuration config;
@@ -89,7 +87,7 @@ int run_doc_settings(const CommandLine& command_line) {
     }
     config = configuration_manager.CreateConfiguration(layers.selected_layers, "Config");
     config.parameters = GatherParameters(config.parameters, layers.selected_layers);
-    config.parameters[0].state = LAYER_STATE_OVERRIDDEN;
+    config.parameters[0].control = LAYER_CONTROL_ON;
     ExportSettingsDoc(layers.selected_layers, config, command_line.doc_out_dir + "/vk_layer_settings.txt");
 
     return rval;

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@
 
 #include "widget_setting_enum.h"
 #include "widget_setting.h"
-#include "configurator.h"
 
+#include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/setting_filesystem.h"
 
 #include <cassert>
@@ -109,20 +109,20 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         this->field->clear();
         this->enum_indexes.clear();
 
-        const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
+        const std::vector<VulkanPhysicalDeviceInfo>& physical_device_infos = Configurator::Get().vulkan_system_info.physicalDevices;
 
         int selection = 0;
         const std::string value = this->data().GetValue();
-        for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
-            this->field->addItem(devices[i].c_str());
-            if (devices[i] == value || "${VP_PHYSICAL_DEVICES}" == value) {
-                this->data().SetValue(devices[i].c_str());
+        for (std::size_t i = 0, n = physical_device_infos.size(); i < n; ++i) {
+            this->field->addItem(physical_device_infos[i].deviceName.c_str());
+            if (physical_device_infos[i].deviceName == value || "${VP_PHYSICAL_DEVICES}" == value) {
+                this->data().SetValue(physical_device_infos[i].deviceName.c_str());
                 selection = static_cast<int>(this->enum_indexes.size());
             }
             this->enum_indexes.push_back(i);
         }
         this->field->setCurrentIndex(selection);
-        if (!devices.empty()) {
+        if (!physical_device_infos.empty()) {
             OnIndexChanged(selection);
         }
     } else if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
@@ -137,7 +137,9 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         const std::string value = this->data().GetValue();
 
         for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
-            if (!IsSupported(&this->meta.enum_values[i])) continue;
+            if (!IsSupported(&this->meta.enum_values[i])) {
+                continue;
+            }
 
             this->field->addItem(this->meta.enum_values[i].label.c_str());
             if (this->meta.enum_values[i].key == value) {
@@ -168,9 +170,9 @@ void WidgetSettingEnum::Resize() {
             width = std::max(width, HorizontalAdvance(fm, (profiles[i] + "0000").c_str()));
         }
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
-        const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
-        for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
-            width = std::max(width, HorizontalAdvance(fm, (devices[i] + "000").c_str()));
+        const std::vector<VulkanPhysicalDeviceInfo>& physical_device_infos = Configurator::Get().vulkan_system_info.physicalDevices;
+        for (std::size_t i = 0, n = physical_device_infos.size(); i < n; ++i) {
+            width = std::max(width, HorizontalAdvance(fm, (physical_device_infos[i].deviceName + std::string("000")).c_str()));
         }
     } else {
         for (std::size_t i = 0, n = this->meta.enum_values.size(); i < n; ++i) {
@@ -200,11 +202,11 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         this->data().SetValue(profiles[index].c_str());
         this->setToolTip(profiles[index].c_str());
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
-        const std::vector<std::string>& devices = Configurator::Get().GetDeviceNames();
-        assert(index >= 0 && index < static_cast<int>(devices.size()));
+        const std::vector<VulkanPhysicalDeviceInfo>& physical_device_infos = Configurator::Get().vulkan_system_info.physicalDevices;
+        assert(index >= 0 && index < static_cast<int>(physical_device_infos.size()));
 
-        this->data().SetValue(devices[index].c_str());
-        this->setToolTip(devices[index].c_str());
+        this->data().SetValue(physical_device_infos[index].deviceName.c_str());
+        this->setToolTip(physical_device_infos[index].deviceName.c_str());
     } else {
         assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 

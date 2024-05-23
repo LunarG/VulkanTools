@@ -19,7 +19,9 @@
  */
 
 #include "widget_setting_int.h"
-#include "configurator.h"
+
+#include "../vkconfig_core/configurator.h"
+#include "../vkconfig_core/type_hide_message.h"
 
 #include <QMessageBox>
 #include <QFontMetrics>
@@ -95,7 +97,7 @@ void WidgetSettingInt::OnErrorValue() {
 
     Environment& environment = Configurator::Get().environment;
 
-    if (!(environment.hide_message_boxes_flags & HIDE_MESSAGE_WIDGET_SETTING_INT_BIT)) {
+    if (!(environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_WIDGET_SETTING_INT))) {
         const std::string info = format("Do you want to reset to the setting default value? '%d'", this->meta.default_value);
         const std::string range = format("Enter a number in the range [%d, %d].", this->meta.min_value, this->meta.max_value);
 
@@ -135,7 +137,7 @@ void WidgetSettingInt::OnErrorValue() {
             this->Resize();
         }
         if (alert.checkBox()->isChecked()) {
-            environment.hide_message_boxes_flags |= HIDE_MESSAGE_WIDGET_SETTING_INT_BIT;
+            environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_WIDGET_SETTING_INT);
         }
     }
 

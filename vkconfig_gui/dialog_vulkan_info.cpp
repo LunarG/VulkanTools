@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include "dialog_vulkan_info.h"
 
 #include "../vkconfig_core/util.h"
-#include "../vkconfig_core/platform.h"
+#include "../vkconfig_core/type_platform.h"
 
 #include <QProcess>
 #include <QFile>
@@ -54,7 +54,7 @@ void VulkanInfoDialog::Run() {
         "/usr/local/bin/vulkaninfo",  // PLATFORM_MACOS
         "N/A",                        // PLATFORM_ANDROID
     };
-    static_assert(countof(VULKAN_INFO_PATH) == PLATFORM_COUNT,
+    static_assert(std::size(VULKAN_INFO_PATH) == PLATFORM_COUNT,
                   "The tranlation table size doesn't match the enum number of elements");
 
     ui->treeWidget->clear();

@@ -19,7 +19,6 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "configurator.h"
 #include "settings_tree.h"
 
 #include "widget_setting.h"
@@ -34,10 +33,12 @@
 #include "widget_setting_list_element.h"
 #include "widget_setting_list.h"
 
+#include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/version.h"
-#include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/util.h"
+#include "../vkconfig_core/type_platform.h"
+#include "../vkconfig_core/type_hide_message.h"
 
 #include <QLineEdit>
 #include <QPushButton>
@@ -87,10 +88,14 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         // There will be one top level item for each layer
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
-            if (!IsPlatformSupported(parameter.platform_flags)) continue;
-
-            if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
-
+            if (!IsPlatformSupported(parameter.platform_flags)) {
+                continue;
+            }
+            /*
+            if (parameter.control != LAYER_STATE_OVERRIDDEN) {
+                continue;
+            }
+            */
             const std::vector<Layer> &selected_layers = configurator.layers.selected_layers;
             const Layer *layer = FindByKey(selected_layers, parameter.key.c_str());
 
@@ -367,15 +372,15 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     this->tree->blockSignals(false);
 
     if (this->launched_application) {
-        if (!(configurator.environment.hide_message_boxes_flags & HIDE_MESSAGE_NEED_APPLICATION_RESTART_BIT)) {
-            configurator.environment.hide_message_boxes_flags |= HIDE_MESSAGE_NEED_APPLICATION_RESTART_BIT;
+        if (!(configurator.environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_NEED_APPLICATION_RESTART))) {
+            configurator.environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_NEED_APPLICATION_RESTART);
 
             Alert::ConfiguratorRestart();
         }
     }
 
     // Refresh layer configuration
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+    configurator.Override();
 }
 
 void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent) {

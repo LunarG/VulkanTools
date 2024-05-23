@@ -22,7 +22,8 @@
 
 #include "version.h"
 #include "application.h"
-#include "path_manager.h"
+#include "type_tab.h"
+#include "type_log.h"
 
 #include <QByteArray>
 
@@ -63,113 +64,6 @@ enum UserDefinedLayersPaths {
 
 enum { USER_DEFINED_LAYERS_PATHS_COUNT = USER_DEFINED_LAYERS_PATHS_LAST - USER_DEFINED_LAYERS_PATHS_FIRST + 1 };
 
-enum LoaderMessageType {
-    LOADER_MESSAGE_NONE = 0,
-    LOADER_MESSAGE_ERROR,
-    LOADER_MESSAGE_WARN,
-    LOADER_MESSAGE_INFO,
-    LOADER_MESSAGE_DEBUG,
-    LOADER_MESSAGE_LAYER,
-    LOADER_MESSAGE_IMPLEMENTATION,
-
-    LOADER_MESSAGE_FIRST = LOADER_MESSAGE_ERROR,
-    LOADER_MESSAGE_LAST = LOADER_MESSAGE_IMPLEMENTATION,
-};
-
-enum { LOADER_MESSAGE_COUNT = LOADER_MESSAGE_LAST - LOADER_MESSAGE_FIRST + 1 };
-
-enum {
-    LOADER_MESSAGE_ERROR_BIT = (1 << LOADER_MESSAGE_ERROR),
-    LOADER_MESSAGE_WARN_BIT = (1 << LOADER_MESSAGE_WARN),
-    LOADER_MESSAGE_INFO_BIT = (1 << LOADER_MESSAGE_INFO),
-    LOADER_MESSAGE_DEBUG_BIT = (1 << LOADER_MESSAGE_DEBUG),
-    LOADER_MESSAGE_LAYER_BIT = (1 << LOADER_MESSAGE_LAYER),
-    LOADER_MESSAGE_IMPLEMENTATION_BIT = (1 << LOADER_MESSAGE_IMPLEMENTATION),
-    LOADER_MESSAGE_ALL_BIT = LOADER_MESSAGE_ERROR_BIT | LOADER_MESSAGE_WARN_BIT | LOADER_MESSAGE_INFO_BIT |
-                             LOADER_MESSAGE_DEBUG_BIT | LOADER_MESSAGE_LAYER_BIT | LOADER_MESSAGE_IMPLEMENTATION_BIT
-};
-
-inline int GetLoaderMessageFlags(LoaderMessageType level) {
-    int flags = 0;
-
-    switch (level) {
-        default:
-        case LOADER_MESSAGE_IMPLEMENTATION:
-            flags |= LOADER_MESSAGE_IMPLEMENTATION_BIT;
-        case LOADER_MESSAGE_LAYER:
-            flags |= LOADER_MESSAGE_LAYER_BIT;
-        case LOADER_MESSAGE_DEBUG:
-            flags |= LOADER_MESSAGE_DEBUG_BIT;
-        case LOADER_MESSAGE_INFO:
-            flags |= LOADER_MESSAGE_INFO_BIT;
-        case LOADER_MESSAGE_WARN:
-            flags |= LOADER_MESSAGE_WARN_BIT;
-        case LOADER_MESSAGE_ERROR:
-            flags |= LOADER_MESSAGE_ERROR_BIT;
-    }
-
-    return flags;
-}
-
-inline LoaderMessageType GetLoaderMessageType(int flags) {
-    if (flags & LOADER_MESSAGE_IMPLEMENTATION_BIT) {
-        return LOADER_MESSAGE_IMPLEMENTATION;
-    } else if (flags & LOADER_MESSAGE_LAYER_BIT) {
-        return LOADER_MESSAGE_LAYER;
-    } else if (flags & LOADER_MESSAGE_DEBUG_BIT) {
-        return LOADER_MESSAGE_DEBUG;
-    } else if (flags & LOADER_MESSAGE_INFO_BIT) {
-        return LOADER_MESSAGE_INFO;
-    } else if (flags & LOADER_MESSAGE_WARN_BIT) {
-        return LOADER_MESSAGE_WARN;
-    } else if (flags & LOADER_MESSAGE_ERROR_BIT) {
-        return LOADER_MESSAGE_ERROR;
-    }
-}
-
-enum HideMessageType {
-    HIDE_MESSAGE_NONE = 0,
-
-    HIDE_MESSAGE_NEED_APPLICATION_RESTART,
-    HIDE_MESSAGE_USE_SYSTEM_TRAY,
-    HIDE_MESSAGE_WIDGET_SETTING_FLOAT,
-    HIDE_MESSAGE_WIDGET_SETTING_INT,
-    HIDE_MESSAGE_WIDGET_SETTING_FRAMES,
-    HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE,
-    HIDE_MESSAGE_WARN_CORE_SHADER_IGNORE,
-
-    HIDE_MESSAGE_FIRST = HIDE_MESSAGE_NEED_APPLICATION_RESTART,
-    HIDE_MESSAGE_LAST = HIDE_MESSAGE_USE_SYSTEM_TRAY
-};
-
-enum {
-    HIDE_MESSAGE_NEED_APPLICATION_RESTART_BIT = 1 << HIDE_MESSAGE_NEED_APPLICATION_RESTART,
-    HIDE_MESSAGE_USE_SYSTEM_TRAY_BIT = 1 << HIDE_MESSAGE_USE_SYSTEM_TRAY,
-    HIDE_MESSAGE_WIDGET_SETTING_FLOAT_BIT = 1 << HIDE_MESSAGE_WIDGET_SETTING_FLOAT,
-    HIDE_MESSAGE_WIDGET_SETTING_INT_BIT = 1 << HIDE_MESSAGE_WIDGET_SETTING_INT,
-    HIDE_MESSAGE_WIDGET_SETTING_FRAMES_BIT = 1 << HIDE_MESSAGE_WIDGET_SETTING_FRAMES,
-    HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE_BIT = 1 << HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE,
-    HIDE_MESSAGE_WARN_CORE_SHADER_IGNORE_BIT = 1 << HIDE_MESSAGE_WARN_CORE_SHADER_IGNORE,
-};
-
-enum { HIDE_MESSAGE_COUNT = HIDE_MESSAGE_LAST - HIDE_MESSAGE_FIRST + 1 };
-
-HideMessageType GetHideMessageBoxes(const std::string& token);
-
-enum TabType {
-    TAB_DIAGNOSTIC = 0,
-    TAB_APPLICATIONS,
-    TAB_LAYERS,
-    TAB_CONFIGURATIONS,
-    TAB_PREFERENCES,
-    TAB_HELP,
-
-    TAB_FIRST = TAB_DIAGNOSTIC,
-    TAB_LAST = TAB_HELP
-};
-
-enum { TAB_COUNT = TAB_LAST - TAB_FIRST + 1 };
-
 struct DefaultApplication {
     std::string name;
     std::string key;
@@ -178,7 +72,7 @@ struct DefaultApplication {
 
 class Environment {
    public:
-    Environment(PathManager& paths, const Version& api_version = Version::VKHEADER);
+    Environment();
     ~Environment();
 
     enum ResetMode { DEFAULT = 0, CLEAR, SYSTEM };
@@ -194,13 +88,14 @@ class Environment {
     bool AppendApplication(const Application& application);
     bool RemoveApplication(std::size_t application_index);
 
+    const ConfigurationInfo& GetActiveConfigurationInfo() const;
+    ConfigurationInfo& GetActiveConfigurationInfo();
+
     const std::vector<Application>& GetApplications() const { return applications; }
     const Application& GetActiveApplication() const;
+    Application& GetActiveApplication();
     const Application& GetApplication(std::size_t application_index) const;
     Application& GetApplication(std::size_t application_index);
-
-    const std::string& GetSelectedConfiguration() const { return this->selected_configuration; }
-    void SetSelectedConfiguration(const std::string& name) { this->selected_configuration = name; }
 
     const QByteArray& Get(LayoutState state) const;
     void Set(LayoutState state, const QByteArray& data);
@@ -211,21 +106,12 @@ class Environment {
     bool GetUseSystemTray() const { return this->use_system_tray; }
     void SetUseSystemTray(bool enable) { this->use_system_tray = enable; }
 
-    LayersMode GetMode() const;
-    void SetMode(LayersMode mode);
+    LogFlags GetLoaderMessageFlags() const { return this->loader_message_types_flags; }
+    void SetLoaderMessageFlags(LogFlags flags) { this->loader_message_types_flags = flags; }
 
-    int GetLoaderMessageTypes() const { return this->loader_message_types_flags; }
-    void SetLoaderMessageTypes(int types) { this->loader_message_types_flags = types; }
+    void SetPerConfigUserDefinedLayersPaths(const std::vector<Path>& paths);
 
-    void SetPerConfigUserDefinedLayersPaths(const std::vector<std::string>& paths) {
-        std::vector<std::string>& custom_layer_paths_gui = user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI];
-        custom_layer_paths_gui.clear();
-        for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
-            custom_layer_paths_gui.push_back(ConvertNativeSeparators(paths[i]).c_str());
-        }
-    }
-
-    const std::vector<std::string>& GetUserDefinedLayersPaths(UserDefinedLayersPaths user_defined_layers_paths_id) const {
+    const std::vector<Path>& GetUserDefinedLayersPaths(UserDefinedLayersPaths user_defined_layers_paths_id) const {
         return this->user_defined_layers_paths[user_defined_layers_paths_id];
     }
 
@@ -235,28 +121,28 @@ class Environment {
     // Search for all the applications in the list, an remove the application which executable can't be found
     std::vector<Application> RemoveMissingApplications(const std::vector<Application>& applications) const;
 
-    bool first_run;
     bool has_crashed;
     int hide_message_boxes_flags;
+
+    Path path_export;
+    Path path_import;
+
+    ConfigurationInfo global_configuration;
 
    private:
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
 
     TabType active_tab;
-    LayersMode layers_mode;
     bool use_system_tray;
     bool use_per_application_configuration;
-    int loader_message_types_flags;
-    std::string home_sdk_path;
+    LogFlags loader_message_types_flags;
+    Path home_sdk_path;
 
-    std::string selected_configuration;
     int active_executable_index;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
-    std::array<std::vector<std::string>, USER_DEFINED_LAYERS_PATHS_COUNT> user_defined_layers_paths;
+    std::array<std::vector<Path>, USER_DEFINED_LAYERS_PATHS_COUNT> user_defined_layers_paths;
     std::vector<Application> applications;
-
-    PathManager& paths_manager;
 
     std::vector<std::string> default_configuration_filenames;
 
@@ -266,15 +152,7 @@ class Environment {
     // Create a list of default applications, eg vkcube
     std::vector<Application> CreateDefaultApplications() const;
     Application CreateDefaultApplication(const DefaultApplication& default_application) const;
-    std::string GetDefaultExecutablePath(const std::string& executable_name) const;
-
-   public:
-    const PathManager& paths;
+    Path GetDefaultExecutablePath(const std::string& executable_name) const;
 };
 
-bool ExactExecutableFromAppBundle(std::string& path);
-
-LoaderMessageType GetLoaderMessageType(const std::string& value);
-int GetLoaderMessageTypes(const std::string& values);
-std::string GetLoaderMessageToken(LoaderMessageType mesage_type);
-std::string GetLoaderMessageTokens(int mesage_types);
+bool ExactExecutableFromAppBundle(Path& path);

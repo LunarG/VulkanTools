@@ -44,7 +44,7 @@ static const CommandHelpDesc command_help_desc[] = {
 static HelpType GetCommandHelpId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = countof(command_help_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(command_help_desc); i < n; ++i) {
         if (std::strcmp(command_help_desc[i].token, token) == 0) return command_help_desc[i].arguments;
     }
 
@@ -67,14 +67,13 @@ static const ModeDesc mode_desc[] = {
     {COMMAND_VERSION, "version", HELP_VERSION},     // COMMAND_VERSION
     {COMMAND_LAYERS, "layers", HELP_LAYERS},        // COMMAND_LAYERS
     {COMMAND_DOC, "doc", HELP_DOC},                 // COMMAND_DOC
-    {COMMAND_RESET, "reset", HELP_RESET},           // COMMAND_RESET
-    {COMMAND_VULKAN_SDK, "VULKAN_SDK", HELP_RESET}  // COMMAND_VULKAN_SDK
+    {COMMAND_RESET, "reset", HELP_RESET}            // COMMAND_RESET
 };
 
 static CommandType GetModeId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = countof(mode_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(mode_desc); i < n; ++i) {
         if (std::strcmp(mode_desc[i].token, token) == 0) return mode_desc[i].mode;
     }
 
@@ -82,7 +81,7 @@ static CommandType GetModeId(const char* token) {
 }
 
 static const ModeDesc& GetModeDesc(CommandType command_type) {
-    for (std::size_t i = 0, n = countof(mode_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(mode_desc); i < n; ++i) {
         if (mode_desc[i].mode == command_type) return mode_desc[i];
     }
 
@@ -104,7 +103,7 @@ static const CommandResetDesc command_reset_desc[] = {{COMMAND_RESET_SOFT, "--so
 static CommandResetArg GetCommandResetId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = countof(command_reset_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(command_reset_desc); i < n; ++i) {
         if (std::strcmp(command_reset_desc[i].token, token) == 0) return command_reset_desc[i].arguments;
     }
 
@@ -143,7 +142,7 @@ static const CommandDocDesc command_doc_desc[] = {
 static CommandLayersArg GetCommandLayersId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = countof(command_layers_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(command_layers_desc); i < n; ++i) {
         if (std::strcmp(command_layers_desc[i].token, token) == 0) return command_layers_desc[i].arguments;
     }
 
@@ -153,7 +152,7 @@ static CommandLayersArg GetCommandLayersId(const char* token) {
 static const CommandLayersDesc& GetCommandLayers(CommandLayersArg layers_arg) {
     assert(layers_arg != COMMAND_LAYERS_NONE);
 
-    for (std::size_t i = 0, n = countof(command_layers_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(command_layers_desc); i < n; ++i) {
         if (command_layers_desc[i].arguments == layers_arg) return command_layers_desc[i];
     }
 
@@ -164,7 +163,7 @@ static const CommandLayersDesc& GetCommandLayers(CommandLayersArg layers_arg) {
 static CommandDocArg GetCommandDocId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = countof(command_doc_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(command_doc_desc); i < n; ++i) {
         if (std::strcmp(command_doc_desc[i].token, token) == 0) return command_doc_desc[i].arguments;
     }
 
@@ -177,7 +176,6 @@ CommandLine::CommandLine(int argc, char* argv[])
       command_layers_arg(_command_layers_arg),
       layers_configuration_path(_layers_configuration_path),
       command_doc_arg(_command_doc_arg),
-      command_vulkan_sdk(_command_vulkan_sdk),
       doc_layer_name(_doc_layer_name),
       doc_out_dir(_doc_out_dir),
       error(_error),
@@ -193,9 +191,6 @@ CommandLine::CommandLine(int argc, char* argv[])
     int arg_offset = 1;
 
     switch (_command = GetModeId(argv[arg_offset + 0])) {
-        case COMMAND_VULKAN_SDK: {
-            _command_vulkan_sdk = argv[arg_offset + 1];
-        } break;
         case COMMAND_LAYERS: {
             if (argc <= arg_offset + 1) {
                 _error = ERROR_MISSING_COMMAND_ARGUMENT;
