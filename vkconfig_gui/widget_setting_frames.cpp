@@ -19,9 +19,10 @@
  */
 
 #include "widget_setting_frames.h"
-#include "configurator.h"
 
+#include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/util.h"
+#include "../vkconfig_core/type_hide_message.h"
 
 #include <QMessageBox>
 #include <QFontMetrics>
@@ -95,7 +96,7 @@ void WidgetSettingFrames::OnErrorValue() {
 
     Environment& environment = Configurator::Get().environment;
 
-    if (!(environment.hide_message_boxes_flags & HIDE_MESSAGE_WIDGET_SETTING_FRAMES_BIT)) {
+    if (!(environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_WIDGET_SETTING_FRAMES))) {
         const std::string text =
             format("The setting input '%s' is invalid. Use list of comma separated integer ranges. Example: '0-2,16'.",
                    this->data().GetValue());
@@ -117,7 +118,7 @@ void WidgetSettingFrames::OnErrorValue() {
             this->Resize();
         }
         if (alert.checkBox()->isChecked()) {
-            environment.hide_message_boxes_flags |= HIDE_MESSAGE_WIDGET_SETTING_FRAMES_BIT;
+            environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_WIDGET_SETTING_FRAMES);
         }
     }
 

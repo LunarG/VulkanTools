@@ -19,7 +19,6 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../path_manager.h"
 #include "../environment.h"
 
 #include <QFile>
@@ -27,8 +26,7 @@
 #include <gtest/gtest.h>
 
 TEST(test_environment, remove_missing_applications) {
-    PathManager path_manager("");
-    Environment environment(path_manager);
+    Environment environment;
 
     QFile file("my_exciting_executable");
     const bool result = file.open(QIODevice::WriteOnly);

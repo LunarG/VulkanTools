@@ -1,0 +1,21 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "API dump",
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "description": "A Simple API dump configuration",
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_api_dump",
+                "rank": 0,
+                "settings": [
+                ],
+                "control": "on"
+            }
+        ]
+    }
+}

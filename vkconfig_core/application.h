@@ -20,37 +20,25 @@
 
 #pragma once
 
+#include "type_layers_mode.h"
 #include "path.h"
+#include "configuration_info.h"
 
 #include <string>
 #include <vector>
 
-enum LayersMode {
-    LAYERS_CONTROLLED_BY_APPLICATIONS = 0,
-    LAYERS_CONTROLLED_BY_CONFIGURATOR,
-    LAYERS_DISABLED_BY_CONFIGURATOR,
-
-    LAYERS_MODE_FIRST = LAYERS_CONTROLLED_BY_APPLICATIONS,
-    LAYERS_MODE_LAST = LAYERS_DISABLED_BY_CONFIGURATOR
-};
-
-enum { LAYERS_MODE_COUNT = LAYERS_MODE_LAST - LAYERS_MODE_FIRST + 1 };
-
 struct ApplicationOptions {
     std::string label;
-    std::string working_folder;
+    Path working_folder;
     std::vector<std::string> arguments;
     std::vector<std::string> environment_variables;
-    std::string log_file;
+    Path log_file;
 };
 
 struct Application {
-    Application() : layers_mode(LAYERS_CONTROLLED_BY_APPLICATIONS) {}
-
     Path executable_path;
-    LayersMode layers_mode;
-    std::string layers_configuration;
-    int active_option_index;
+    ConfigurationInfo configuration;
+    int active_option_index = 0;
     std::vector<ApplicationOptions> options;
 
     ApplicationOptions& GetActiveOptions() { return this->options[active_option_index]; }

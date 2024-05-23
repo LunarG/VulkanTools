@@ -20,11 +20,11 @@
 
 #include "main_reset.h"
 
-#include "configurator.h"
-
-#include <cassert>
+#include "../vkconfig_core/configurator.h"
 
 #include <QApplication>
+
+#include <cassert>
 
 static int RunReset(int argc, char* argv[], bool hard) {
     QCoreApplication::setOrganizationName("LunarG");

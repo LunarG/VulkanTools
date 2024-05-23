@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "configurator.h"
 #include "settings_tree.h"
 
 #include "ui_mainwindow.h"
@@ -67,7 +66,7 @@ class LayerWidget : public QLabel {
             this->layer_version = new QComboBox(this);
             this->layer_version->addItem(layers.empty() ? "0.0.000" : layers[0]->api_version.str().c_str());
             if (!layers.empty()) {
-                this->layer_version->setToolTip(layers[0]->manifest_path.c_str());
+                this->layer_version->setToolTip(layers[0]->manifest_path.AbsolutePath().c_str());
             }
             // this->layer_version->setEnabled(layers.size() > 1);
             this->layer_version->installEventFilter(this);
@@ -77,7 +76,7 @@ class LayerWidget : public QLabel {
             this->layer_state->addItem("On");
             this->layer_state->addItem("Off");
             this->layer_state->setEnabled(!layers.empty());
-            this->layer_state->setCurrentIndex(parameter.state);
+            this->layer_state->setCurrentIndex(parameter.control);
             this->layer_state->installEventFilter(this);
         }
 
@@ -86,7 +85,9 @@ class LayerWidget : public QLabel {
         if (layers.empty()) {
             // A layers configuration may have excluded layer that are misssing because they are not available on this platform
             // We simply hide these layers to avoid confusing the Vulkan developers
-            if (parameter.state == LAYER_STATE_EXCLUDED) return;
+            if (parameter.control == LAYER_CONTROL_OFF) {
+                return;
+            }
 
             if (parameter.control != LAYER_CONTROL_APPLICATIONS && parameter.control != LAYER_CONTROL_UNORDERED) {
                 decorated_name += " (Missing)";
@@ -286,7 +287,6 @@ class MainWindow : public QMainWindow {
 
     void on_push_button_launcher_clicked();
     void on_push_button_clear_log_clicked();
-    // void on_check_box_apply_list_clicked();
     void on_check_box_clear_on_launch_clicked();
     void on_push_button_applications_clicked();
     void on_push_button_new_clicked();
@@ -323,7 +323,4 @@ class MainWindow : public QMainWindow {
     QStringList BuildEnvVariables() const;
 
     std::unique_ptr<Ui::MainWindow> ui;
-    bool been_warned_about_old_loader;
 };
-
-int run_gui(int argc, char *argv[]);

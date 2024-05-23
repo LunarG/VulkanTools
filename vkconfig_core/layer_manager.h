@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022 Valve Corporation
- * Copyright (c) 2020-2022 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@
 #pragma once
 
 #include "layer.h"
+#include "path.h"
 #include "environment.h"
-
-#include <QStringList>
 
 #include <string>
 #include <vector>
@@ -38,14 +37,14 @@ class LayerManager {
 
     void LoadAllInstalledLayers();
     void LoadLayer(const std::string& layer_name);
-    void LoadLayersFromPath(const std::string& path);
+    void LoadLayersFromPath(const Path& path);
 
-    std::vector<std::string> BuildPathList() const;
+    std::vector<Path> BuildPathList() const;
 
     std::vector<Layer> selected_layers;
 
     const Environment& environment;
 
    private:
-    bool LoadLayerFromPath(const std::string& layer_name, const std::string& path);
+    bool LoadLayerFromPath(const std::string& layer_name, const Path& path);
 };

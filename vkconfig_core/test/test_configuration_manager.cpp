@@ -23,8 +23,7 @@
 #include <gtest/gtest.h>
 
 TEST(test_configuration_manager, create_remove) {
-    PathManager path_manager("");
-    Environment environment(path_manager);
+    Environment environment;
     environment.Reset(Environment::DEFAULT);
 
     std::vector<Layer> available_layers;

@@ -19,13 +19,9 @@
  */
 
 #include "util.h"
-#include "path_manager.h"
 #include "configuration_manager.h"
-#include "override.h"
+#include "configurator.h"
 #include "alert.h"
-
-#include <QMessageBox>
-#include <QFileInfoList>
 
 ConfigurationManager::ConfigurationManager(Environment &environment) : environment(environment) {}
 
@@ -34,31 +30,28 @@ ConfigurationManager::~ConfigurationManager() {}
 void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &available_layers) {
     this->available_configurations.clear();
 
-    // If this is the first time, we need to create the initial set of
-    // configuration files.
-    if (this->environment.first_run) {
-        this->RemoveConfigurationFiles();
+    this->LoadConfigurationsPath(available_layers);
+
+    // If no configuration were found, we reset with the built-in configuration, eg for first launch
+    if (this->available_configurations.empty()) {
+        this->environment.Reset(Environment::DEFAULT);
         this->LoadDefaultConfigurations(available_layers);
-
-        this->environment.first_run = false;
     }
-
-    const std::string base_config_path = GetPath(BUILTIN_PATH_CONFIG_REF);
-
-    this->LoadConfigurationsPath(available_layers, base_config_path.c_str());
 
     this->SortConfigurations();
 }
 
 void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &available_layers) {
-    const QFileInfoList &configuration_files = GetJSONFiles(":/configurations/");
+    const std::vector<Path> &configuration_files = CollectFilePaths(":/configurations/");
 
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
         Configuration configuration;
-        const bool result = configuration.Load(available_layers, configuration_files[i].absoluteFilePath().toStdString());
+        const bool result = configuration.Load(available_layers, configuration_files[i]);
         assert(result);
 
-        if (!IsPlatformSupported(configuration.platform_flags)) continue;
+        if (!IsPlatformSupported(configuration.platform_flags)) {
+            continue;
+        }
 
         OrderParameter(configuration.parameters, available_layers);
 
@@ -82,19 +75,11 @@ void ConfigurationManager::SortConfigurations() {
     std::sort(this->available_configurations.begin(), this->available_configurations.end(), Compare());
 }
 
-void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &available_layers, const char *path) {
-    const QFileInfoList &configuration_files = GetJSONFiles(path);
+void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &available_layers) {
+    const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-        const QFileInfo &info = configuration_files[i];
-
         Configuration configuration;
-        std::string path = info.absoluteFilePath().toStdString();
-
-        // Skip "2_2_1/Portability.json" because we replaced the devsim layer by the profiles layer
-        if (path.find("2_2_1/Portability.json") != std::string::npos) {
-            path = ":/configurations/Portability.json";
-        }
-        const bool result = configuration.Load(available_layers, path);
+        const bool result = configuration.Load(available_layers, configuration_files[i]);
         if (!result) {
             continue;
         }
@@ -112,10 +97,12 @@ void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &avai
     }
 }
 
+static Path MakeConfigurationPath(const std::string &key) { return (Get(Path::CONFIGS) + "/" + key + ".json").AbsolutePath(); }
+
 void ConfigurationManager::SaveAllConfigurations(const std::vector<Layer> &available_layers) {
     for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
-        const std::string path = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/" + available_configurations[i].key + ".json";
-        available_configurations[i].Save(available_layers, path.c_str());
+        const Path &path(MakeConfigurationPath(available_configurations[i].key));
+        available_configurations[i].Save(available_layers, path);
     }
 }
 
@@ -126,12 +113,12 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
     Configuration new_configuration = duplicate_configuration != nullptr && duplicate ? *duplicate_configuration : Configuration();
     new_configuration.key = MakeConfigurationName(available_configurations, configuration_name);
 
-    const std::string path = GetPath(BUILTIN_PATH_CONFIG_LAST) + "/" + new_configuration.key + ".json";
-    new_configuration.Save(available_layers, path.c_str());
+    const Path &path(MakeConfigurationPath(new_configuration.key));
+    new_configuration.Save(available_layers, path);
 
     // Reload from file to workaround the lack of SettingSet copy support
     Configuration configuration;
-    const bool result = configuration.Load(available_layers, path.c_str());
+    const bool result = configuration.Load(available_layers, path);
     assert(result);
 
     this->available_configurations.push_back(configuration);
@@ -141,7 +128,7 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
 }
 
 bool ConfigurationManager::HasFile(const Configuration &configuration) const {
-    const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
+    const std::string base_path = AbsolutePath(Path::CONFIGS);
 
     const std::string path = base_path + "/" + configuration.key + ".json";
 
@@ -155,32 +142,23 @@ bool ConfigurationManager::HasFile(const Configuration &configuration) const {
 }
 
 void ConfigurationManager::RemoveConfigurationFiles() {
-    const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
-
-    const QFileInfoList &configuration_files = GetJSONFiles(base_path.c_str());
+    const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-        QFile::remove(configuration_files[i].filePath());
+        configuration_files[i].Remove();
     }
 }
 
 void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
-    const std::string base_path = GetPath(BUILTIN_PATH_CONFIG_REF);
-
-    const QFileInfoList &configuration_files = GetJSONFiles(base_path.c_str());
+    const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
     for (int j = 0, o = configuration_files.size(); j < o; ++j) {
-        const QString filename = configuration_files[j].fileName();
-        if (filename.toStdString() == key + ".json") {
-            QFile::remove(configuration_files[j].filePath());
+        if (configuration_files[j].Basename() == key) {
+            configuration_files[j].Remove();
         }
     }
 }
 
 void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &available_layers, const std::string &configuration_name) {
     assert(!configuration_name.empty());
-
-    LayersMode saved_mode = this->environment.GetMode();
-    this->environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
-    this->Configure(available_layers);
 
     RemoveConfigurationFile(configuration_name.c_str());
 
@@ -196,74 +174,42 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
 
     std::swap(updated_configurations, this->available_configurations);
     this->SortConfigurations();
-
-    this->environment.SetSelectedConfiguration("");
-    this->environment.SetMode(saved_mode);
-    this->Configure(available_layers);
 }
 
-void ConfigurationManager::Configure(const std::vector<Layer> &available_layers) {
-    const std::string active_configuration_name = this->environment.GetSelectedConfiguration();
-
-    if (active_configuration_name.empty()) {
-        this->environment.SetSelectedConfiguration("");
-        this->Configure(available_layers, "");
-    } else {
-        Configuration *selected_configuration = FindByKey(this->available_configurations, active_configuration_name.c_str());
-        if (selected_configuration == nullptr) {
-            environment.SetSelectedConfiguration("");
-        }
-        this->Configure(available_layers, this->environment.GetSelectedConfiguration());
-    }
-}
-
-void ConfigurationManager::Configure(const std::vector<Layer> &available_layers, const std::string &configuration_name) {
-    switch (this->environment.GetMode()) {
-        default:
-        case LAYERS_CONTROLLED_BY_APPLICATIONS: {
-            SurrenderConfiguration(this->environment);
-        } break;
-        case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
-            if (configuration_name.empty()) {
-                ::SurrenderConfiguration(this->environment);
-            } else {
-                Configuration *selected_configuration = FindByKey(this->available_configurations, configuration_name.c_str());
-                std::string missing_layer;
-                if (::HasMissingLayer(selected_configuration->parameters, available_layers, missing_layer)) {
-                    ::SurrenderConfiguration(this->environment);
-                } else {
-                    ::OverrideConfiguration(this->environment, available_layers, *selected_configuration);
-                }
-            }
-        } break;
-        case LAYERS_DISABLED_BY_CONFIGURATOR: {
-            Configuration temp_configuration;
-            temp_configuration.key = "_TempConfiguration";
-            temp_configuration.parameters = GatherParameters(temp_configuration.parameters, available_layers);
-
-            for (std::size_t i = 0, n = temp_configuration.parameters.size(); i < n; ++i) {
-                temp_configuration.parameters[i].state = LAYER_STATE_EXCLUDED;
-            }
-
-            ::OverrideConfiguration(environment, available_layers, temp_configuration);
-        } break;
-    }
-}
-
-Configuration *ConfigurationManager::FindActiveConfiguration() {
-    if (this->environment.GetSelectedConfiguration().empty()) {
+Configuration *ConfigurationManager::FindConfiguration(const std::string &configuration_name) {
+    if (configuration_name.empty()) {
         return nullptr;
     }
 
-    return FindByKey(this->available_configurations, this->environment.GetSelectedConfiguration().c_str());
+    if (this->available_configurations.empty()) {
+        return nullptr;
+    }
+
+    return FindByKey(this->available_configurations, configuration_name.c_str());
+}
+
+const Configuration *ConfigurationManager::FindConfiguration(const std::string &configuration_name) const {
+    if (configuration_name.empty()) {
+        return nullptr;
+    }
+
+    if (this->available_configurations.empty()) {
+        return nullptr;
+    }
+
+    return FindByKey(this->available_configurations, configuration_name.c_str());
+}
+
+Configuration *ConfigurationManager::FindActiveConfiguration() {
+    return FindConfiguration(this->environment.global_configuration.GetName());
 }
 
 bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &available_layers) const {
-    switch (environment.GetMode()) {
+    switch (this->environment.global_configuration.GetMode()) {
         case LAYERS_CONTROLLED_BY_APPLICATIONS:
             return false;
         case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
-            const std::string configuration_name = this->environment.GetSelectedConfiguration();
+            const std::string configuration_name = this->environment.global_configuration.GetName();
             if (configuration_name.empty()) {
                 return false;
             } else {
@@ -283,9 +229,8 @@ bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &avai
     return false;
 }
 
-std::string ConfigurationManager::ImportConfiguration(const std::vector<Layer> &available_layers,
-                                                      const std::string &full_import_path) {
-    assert(!full_import_path.empty());
+std::string ConfigurationManager::ImportConfiguration(const std::vector<Layer> &available_layers, const Path &full_import_path) {
+    assert(!full_import_path.Empty());
 
     Configuration configuration;
     if (!configuration.Load(available_layers, full_import_path)) {
@@ -293,7 +238,7 @@ std::string ConfigurationManager::ImportConfiguration(const std::vector<Layer> &
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");
         msg.setText("Cannot access the source configuration file.");
-        msg.setInformativeText(full_import_path.c_str());
+        msg.setInformativeText(full_import_path.AbsolutePath().c_str());
         msg.exec();
         return "";
     }
@@ -305,10 +250,10 @@ std::string ConfigurationManager::ImportConfiguration(const std::vector<Layer> &
     return configuration.key;
 }
 
-void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &available_layers, const std::string &full_export_path,
+void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &available_layers, const Path &full_export_path,
                                                const std::string &configuration_name) {
     assert(!configuration_name.empty());
-    assert(!full_export_path.empty());
+    assert(!full_export_path.Empty());
 
     Configuration *configuration = FindByKey(available_configurations, configuration_name.c_str());
     assert(configuration);
@@ -318,7 +263,7 @@ void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &availab
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");
         msg.setText("Cannot create the destination configuration file.");
-        msg.setInformativeText(full_export_path.c_str());
+        msg.setInformativeText(full_export_path.AbsolutePath().c_str());
         msg.exec();
     }
 }
@@ -334,22 +279,20 @@ void ConfigurationManager::ResetDefaultsConfigurations(const std::vector<Layer> 
 void ConfigurationManager::ReloadDefaultsConfigurations(const std::vector<Layer> &available_layers) {
     // Now we need to kind of restart everything
     LoadDefaultConfigurations(available_layers);
-
-    this->Configure(available_layers);
 }
 
 void ConfigurationManager::FirstDefaultsConfigurations(const std::vector<Layer> &available_layers) {
-    const QFileInfoList &configuration_files = GetJSONFiles(":/configurations/");
+    const std::vector<Path> &configuration_files = CollectFilePaths(":/configurations/");
 
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-        if (environment.IsDefaultConfigurationInit(configuration_files[i].baseName().toStdString())) {
+        if (environment.IsDefaultConfigurationInit(configuration_files[i].Basename())) {
             continue;
         }
 
-        environment.InitDefaultConfiguration(configuration_files[i].baseName().toStdString());
+        environment.InitDefaultConfiguration(configuration_files[i].Basename());
 
         Configuration configuration;
-        const bool result = configuration.Load(available_layers, configuration_files[i].absoluteFilePath().toStdString());
+        const bool result = configuration.Load(available_layers, configuration_files[i].AbsolutePath());
         assert(result);
 
         if (!IsPlatformSupported(configuration.platform_flags)) {
@@ -387,7 +330,9 @@ bool ConfigurationManager::CompareLayersVersions(const std::vector<Layer> &avail
          ++param_index) {
         const Parameter &parameter = selected_configuration->parameters[param_index];
 
-        if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
+        if (parameter.control != LAYER_CONTROL_ON) {
+            continue;
+        }
 
         for (std::size_t layer_index = 0, layer_count = available_layers.size(); layer_index < layer_count; ++layer_index) {
             const Layer &layer = available_layers[layer_index];

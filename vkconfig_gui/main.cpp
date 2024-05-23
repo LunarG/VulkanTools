@@ -20,39 +20,24 @@
 
 #include "mainwindow.h"
 
-#include "../vkconfig_core/path.h"
+#include "../vkconfig_core/vulkan_util.h"
+#include "../vkconfig_core/vulkan_util.h"
 #include "../vkconfig_core/alert.h"
-#include "../vkconfig_core/version.h"
 #include "../vkconfig_core/application_singleton.h"
-#include "../vkconfig_core/override.h"
-#include "../vkconfig_core/environment.h"
+#include "../vkconfig_core/configurator.h"
+#include "../vkconfig_core/configurator_signal.h"
 
 #include <QApplication>
 
-#include <csignal>
 #include <cassert>
 
-static void SurrenderConfiguration(int signal) {
-    (void)signal;
-
-    PathManager paths("");
-    Environment environment(paths);
-
-    // Indicate that Vulkan Configurator crashed to handle it on next run
-    environment.has_crashed = true;
-
-    // Remove the system layers configuration files
-    SurrenderConfiguration(environment);
-}
-
-static void InitSignals() {
-    std::signal(SIGINT, SurrenderConfiguration);
-    std::signal(SIGTERM, SurrenderConfiguration);
-    std::signal(SIGSEGV, SurrenderConfiguration);
-    std::signal(SIGABRT, SurrenderConfiguration);
-    std::signal(SIGILL, SurrenderConfiguration);
-    std::signal(SIGFPE, SurrenderConfiguration);
-}
+// TODO, until Loader 284 release...
+#if true || VKC_ENV == VKC_ENV_UNIX
+static const Version REQUIRED_LOADER_VERSION(1, 3, 261);
+#elif VKC_ENV == VKC_ENV_WIN32
+static const Version REQUIRED_LOADER_VERSION(1, 3, 284);
+#else
+#endif
 
 int main(int argc, char* argv[]) {
     InitSignals();
@@ -67,33 +52,41 @@ int main(int argc, char* argv[]) {
     // settings from the previous version (assuming that's ever an issue)
     QCoreApplication::setApplicationName(VKCONFIG_SHORT_NAME);
 
-    // Older Qt versions do not have this. Dynamically check the version
-    // of Qt since it's just an enumerant. Versions 5.6.0 and later have
-    // high dpi support. We really don't need to check the 5, but for
-    // the sake of completeness and mabye compatibility with qt 6.
-    // Also ignoring the trailing point releases
-    const char* version = qVersion();
-    int version_major, version_minor;
-    sscanf(version, "%d.%d", &version_major, &version_minor);
-    if (version_major >= 5 && version_minor >= 6) {
-        // Qt::AA_EnableHighDpiScaling = 20  from qnamespace.h in Qt 5.6 or later
-        QCoreApplication::setAttribute((Qt::ApplicationAttribute)20);
-    }
+    // Qt::AA_EnableHighDpiScaling = 20  from qnamespace.h in Qt 5.6 or later
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication app(argc, argv);
 
     // This has to go after the construction of QApplication in
     // order to use a QMessageBox and avoid some QThread warnings.
     ApplicationSingleton singleton("vkconfig_single_instance");
-
     while (!singleton.IsFirstInstance()) {
-        if (Alert::ConfiguratorSingleton() == QMessageBox::Cancel) {
+        if (Alert::StartSingleton() == QMessageBox::Cancel) {
             return -1;
         }
     }
 
-    // We simply cannot run without any layers
-    Configurator& configurator = Configurator::Get("");
+    Configurator& configurator = Configurator::Get();
+
+    // Make sure layers configuration is deleted otherwise BuildVulkanSystemInfo() will crash... (unexplained)
+    configurator.Surrender();
+
+    const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
+
+    if (vulkan_info.loaderVersion == Version::VERSION_NULL) {
+        Alert::StartLoaderFailure();
+        return -1;
+    }
+
+    if (vulkan_info.loaderVersion < REQUIRED_LOADER_VERSION) {
+        Alert::StartLoaderIncompatibleVersions(vulkan_info.loaderVersion, REQUIRED_LOADER_VERSION);
+        return -1;
+    }
+
+    if (vulkan_info.physicalDevices.empty()) {
+        Alert::StartPhysicalDeviceFailure();
+        return -1;
+    }
 
     if (!configurator.Init()) {
         return -1;

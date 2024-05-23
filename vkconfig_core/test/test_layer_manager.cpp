@@ -23,12 +23,11 @@
 #include <gtest/gtest.h>
 
 TEST(test_layer_manager, load_only_layer_json) {
-    PathManager paths("");
-    Environment environment(paths);
+    Environment environment;
     environment.Reset(Environment::DEFAULT);
 
     LayerManager layer_manager(environment);
-    layer_manager.LoadLayersFromPath(":/");
+    layer_manager.LoadLayersFromPath(":/layers");
 
     EXPECT_EQ(10, layer_manager.selected_layers.size());
 

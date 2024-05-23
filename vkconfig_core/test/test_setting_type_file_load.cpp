@@ -69,6 +69,6 @@ TEST(test_setting_type_file_load, value) {
 
     SettingDataFileLoad* data = Instantiate<SettingDataFileLoad>(meta);
     data->value = "${VULKAN_CONTENT}/value";
-    EXPECT_STREQ("${VULKAN_CONTENT}/value", data->Export(EXPORT_MODE_DOC).c_str());
-    EXPECT_STRNE("${VULKAN_CONTENT}/value", data->Export(EXPORT_MODE_OVERRIDE).c_str());
+    EXPECT_STREQ(Path("${VULKAN_CONTENT}/value").RelativePath().c_str(), data->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STRNE(Path("${VULKAN_CONTENT}/value").RelativePath().c_str(), data->Export(EXPORT_MODE_OVERRIDE).c_str());
 }

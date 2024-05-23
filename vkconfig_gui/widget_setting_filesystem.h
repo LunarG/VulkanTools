@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../vkconfig_core/setting_filesystem.h"
+#include "../vkconfig_core/path.h"
 
 #include "widget_setting.h"
 
@@ -49,8 +50,8 @@ class WidgetSettingFilesystem : public WidgetSettingBase {
     void resizeEvent(QResizeEvent *event) override;
 
    private:
-    SettingDataString &data();
-    void LoadPath(const std::string &path);
+    SettingDataFilesystem &data();
+    void LoadPath(const Path &path);
 
     const SettingMetaFilesystem &meta;
     SettingDataSet &data_set;

@@ -24,7 +24,7 @@
 
 #include "../vkconfig_core/path.h"
 #include "../vkconfig_core/alert.h"
-#include "configurator.h"
+#include "../vkconfig_core/configurator.h"
 
 #include <QFileDialog>
 
@@ -73,13 +73,11 @@ void WidgetSettingFilesystem::Refresh(RefreshAreas refresh_areas) {
         LoadPath(this->data().GetValue());
 
         this->field->blockSignals(true);
-        this->field->setText(this->data().GetValue());
-        this->field->setToolTip(ReplaceBuiltInVariable(this->data().GetValue()).c_str());
+        this->field->setText(this->data().GetValue().RelativePath().c_str());
+        this->field->setToolTip(this->data().GetValue().AbsolutePath().c_str());
 
         if (::CheckSettingOverridden(this->meta)) {
             this->DisplayOverride(this->field, this->meta);
-        } else {
-            this->field->setToolTip(ReplaceBuiltInVariable(this->field->text().toStdString()).c_str());
         }
 
         this->field->blockSignals(false);
@@ -93,15 +91,17 @@ void WidgetSettingFilesystem::resizeEvent(QResizeEvent* event) {
     this->button->setGeometry(button_rect);
 }
 
-void WidgetSettingFilesystem::LoadPath(const std::string& path) {
+void WidgetSettingFilesystem::LoadPath(const Path& path) {
     switch (this->meta.type) {
         case SETTING_LOAD_FILE: {
             const SettingMetaFileLoad& setting_meta = static_cast<const SettingMetaFileLoad&>(this->meta);
             if (setting_meta.format == "PROFILE") {
-                if (path.empty()) return;
+                if (path.Empty()) {
+                    return;
+                }
 
                 SettingDataFileLoad& file_setting_data = static_cast<SettingDataFileLoad&>(this->data());
-                file_setting_data.profile_names = GetProfileNamesFromFile(path);
+                file_setting_data.profile_names = CollectProfileNamesFromFile(path);
 
                 SettingDataString* enum_setting_data = FindSetting<SettingDataString>(this->data_set, "profile_name");
                 if (!file_setting_data.profile_names.empty() && enum_setting_data != nullptr) {
@@ -115,10 +115,12 @@ void WidgetSettingFilesystem::LoadPath(const std::string& path) {
         case SETTING_LOAD_FOLDER: {
             const SettingMetaFolderLoad& setting_meta = static_cast<const SettingMetaFolderLoad&>(this->meta);
             if (setting_meta.format == "PROFILE") {
-                if (path.empty()) return;
+                if (path.Empty()) {
+                    return;
+                }
 
                 SettingDataFolderLoad& setting_data = static_cast<SettingDataFolderLoad&>(this->data());
-                setting_data.profile_names = GetProfileNamesFromDir(path);
+                setting_data.profile_names = CollectProfileNamesFromDir(path);
 
                 SettingDataString* enum_setting_data = FindSetting<SettingDataString>(this->data_set, "profile_name");
                 if (enum_setting_data != nullptr) {
@@ -136,29 +138,29 @@ void WidgetSettingFilesystem::LoadPath(const std::string& path) {
 }
 
 void WidgetSettingFilesystem::browseButtonClicked() {
-    std::string path = field->text().toStdString();
-    if (path.empty()) {
-        path = "${VK_LOCAL}";
-        this->data().SetValue(path.c_str());
+    Path path(this->field->text().toStdString());
+    if (path.Empty()) {
+        path = Path("${VK_HOME}");
+        this->data().SetValue(path);
     }
 
     switch (this->meta.type) {
         case SETTING_LOAD_FILE:
         case SETTING_SAVE_FILE:
-            if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).absoluteDir().exists()) {
+            if (!path.Exists()) {
                 path = this->data().GetValue();
             }
-            if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).absoluteDir().exists()) {
-                path.clear();
+            if (!path.Exists()) {
+                path.Clear();
             }
             break;
         case SETTING_LOAD_FOLDER:
         case SETTING_SAVE_FOLDER:
-            if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).exists()) {
+            if (!path.Exists()) {
                 path = this->data().GetValue();
             }
-            if (!QFileInfo(ReplaceBuiltInVariable(path).c_str()).exists()) {
-                path.clear();
+            if (!path.Exists()) {
+                path.Clear();
             }
             break;
         default:
@@ -166,22 +168,22 @@ void WidgetSettingFilesystem::browseButtonClicked() {
             break;
     }
 
-    const std::string replaced_path = ReplaceBuiltInVariable(path);
-    const std::string dir = QFileInfo(replaced_path.c_str()).absoluteDir().absolutePath().toStdString();
+    const std::string replaced_path = path.AbsolutePath();
+    const std::string dir = path.AbsoluteDir();
 
     const char* filter = this->meta.filter.c_str();
-    std::string new_path;
+    Path new_path;
 
     switch (this->meta.type) {
         case SETTING_LOAD_FILE:
-            new_path = QFileDialog::getOpenFileName(this->button, "Select file", dir.c_str(), filter).toStdString();
+            new_path = Path(QFileDialog::getOpenFileName(this->button, "Select file", dir.c_str(), filter).toStdString());
             break;
         case SETTING_SAVE_FILE:
-            new_path = QFileDialog::getSaveFileName(this->button, "Select File", dir.c_str(), filter).toStdString();
+            new_path = Path(QFileDialog::getSaveFileName(this->button, "Select File", dir.c_str(), filter).toStdString());
             break;
         case SETTING_LOAD_FOLDER:
         case SETTING_SAVE_FOLDER:
-            new_path = QFileDialog::getExistingDirectory(this->button, "Select Folder", replaced_path.c_str()).toStdString();
+            new_path = Path(QFileDialog::getExistingDirectory(this->button, "Select Folder", replaced_path.c_str()).toStdString());
             break;
         default:
             assert(0);
@@ -189,19 +191,17 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     }
 
     // The user has cancel the operation
-    if (new_path.empty()) {
+    if (new_path.Empty()) {
         return;
     }
 
-    new_path = ConvertNativeSeparators(new_path);
-
     // The path didn't change, preserve the built-in variables
-    if (replaced_path != new_path) {
-        this->data().SetValue(new_path.c_str());
+    if (replaced_path != new_path.AbsolutePath().c_str()) {
+        this->data().SetValue(new_path);
     }
 
-    this->field->setText(this->data().GetValue());
-    this->field->setToolTip(ReplaceBuiltInVariable(this->field->text().toStdString()).c_str());
+    this->field->setText(this->data().GetValue().RelativePath().c_str());
+    this->field->setToolTip(new_path.AbsolutePath().c_str());
 
     LoadPath(new_path);
 
@@ -209,26 +209,22 @@ void WidgetSettingFilesystem::browseButtonClicked() {
 }
 
 void WidgetSettingFilesystem::textFieldChanged(const QString& value) {
-    std::string file = value.toStdString();
+    Path file(value.toStdString());
 
-    if (!file.empty()) {
+    if (!file.Empty()) {
         LoadPath(file);
-
-        if (VKC_ENV == VKC_ENV_WIN32) {
-            file = ConvertNativeSeparators(file);
-        }
     }
 
-    if (QFileInfo(ReplaceBuiltInVariable(file).c_str()).exists()) {
-        this->data().SetValue(file.c_str());
-        this->field->setToolTip(ReplaceBuiltInVariable(file.c_str()).c_str());
+    if (file.Exists()) {
+        this->data().SetValue(file);
+        this->field->setToolTip(file.AbsolutePath().c_str());
     }
 
     emit itemChanged();
 }
 
-SettingDataString& WidgetSettingFilesystem::data() {
-    SettingDataString* data = FindSetting<SettingDataString>(this->data_set, this->meta.key.c_str());
+SettingDataFilesystem& WidgetSettingFilesystem::data() {
+    SettingDataFilesystem* data = FindSetting<SettingDataFilesystem>(this->data_set, this->meta.key.c_str());
     assert(data != nullptr);
     return *data;
 }
