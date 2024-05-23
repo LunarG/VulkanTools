@@ -1404,11 +1404,11 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevi
     return result;
 }
 
-static PFN_vkVoidFunction intercept_core_instance_command(const char *name);
+static PFN_vkVoidFunction intercept_core_instance_command(const char *key);
 
-static PFN_vkVoidFunction intercept_core_device_command(const char *name);
+static PFN_vkVoidFunction intercept_core_device_command(const char *key);
 
-static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name, VkDevice dev);
+static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *key, VkDevice dev);
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice dev, const char *funcName) {
     PFN_vkVoidFunction proc = intercept_core_device_command(funcName);
@@ -1444,9 +1444,9 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     return pTable->GetInstanceProcAddr(instance, funcName);
 }
 
-static PFN_vkVoidFunction intercept_core_instance_command(const char *name) {
+static PFN_vkVoidFunction intercept_core_instance_command(const char *key) {
     static const struct {
-        const char *name;
+        const char *key;
         PFN_vkVoidFunction proc;
     } core_instance_commands[] = {
         {"vkGetInstanceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetInstanceProcAddr)},
@@ -1461,15 +1461,15 @@ static PFN_vkVoidFunction intercept_core_instance_command(const char *name) {
         {"vkGetPhysicalDeviceToolPropertiesEXT", reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceToolPropertiesEXT)}};
 
     for (size_t i = 0; i < ARRAY_SIZE(core_instance_commands); i++) {
-        if (!strcmp(core_instance_commands[i].name, name)) return core_instance_commands[i].proc;
+        if (!strcmp(core_instance_commands[i].key, key)) return core_instance_commands[i].proc;
     }
 
     return nullptr;
 }
 
-static PFN_vkVoidFunction intercept_core_device_command(const char *name) {
+static PFN_vkVoidFunction intercept_core_device_command(const char *key) {
     static const struct {
-        const char *name;
+        const char *key;
         PFN_vkVoidFunction proc;
     } core_device_commands[] = {
         {"vkGetDeviceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceProcAddr)},
@@ -1479,15 +1479,15 @@ static PFN_vkVoidFunction intercept_core_device_command(const char *name) {
     };
 
     for (size_t i = 0; i < ARRAY_SIZE(core_device_commands); i++) {
-        if (!strcmp(core_device_commands[i].name, name)) return core_device_commands[i].proc;
+        if (!strcmp(core_device_commands[i].key, key)) return core_device_commands[i].proc;
     }
 
     return nullptr;
 }
 
-static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name, VkDevice dev) {
+static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *key, VkDevice dev) {
     static const struct {
-        const char *name;
+        const char *key;
         PFN_vkVoidFunction proc;
     } khr_swapchain_commands[] = {
         {"vkCreateSwapchainKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateSwapchainKHR)},
@@ -1501,7 +1501,7 @@ static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name, VkDe
     }
 
     for (size_t i = 0; i < ARRAY_SIZE(khr_swapchain_commands); i++) {
-        if (!strcmp(khr_swapchain_commands[i].name, name)) return khr_swapchain_commands[i].proc;
+        if (!strcmp(khr_swapchain_commands[i].key, key)) return khr_swapchain_commands[i].proc;
     }
 
     return nullptr;

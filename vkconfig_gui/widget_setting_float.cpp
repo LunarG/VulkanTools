@@ -19,7 +19,9 @@
  */
 
 #include "widget_setting_float.h"
-#include "configurator.h"
+
+#include "../vkconfig_core/configurator.h"
+#include "../vkconfig_core/type_hide_message.h"
 
 #include <QMessageBox>
 #include <QFontMetrics>
@@ -98,7 +100,7 @@ void WidgetSettingFloat::OnErrorValue() {
 
     Environment& environment = Configurator::Get().environment;
 
-    if (!(environment.hide_message_boxes_flags & HIDE_MESSAGE_WIDGET_SETTING_FLOAT_BIT)) {
+    if (!(environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_WIDGET_SETTING_FLOAT))) {
         const std::string float_format = this->meta.GetFloatFormat();
         const std::string info = format("Do you want to reset to the setting default value? '%s'", float_format.c_str());
         const std::string range = this->meta.HasRange()
@@ -146,7 +148,7 @@ void WidgetSettingFloat::OnErrorValue() {
             this->Resize();
         }
         if (alert.checkBox()->isChecked()) {
-            environment.hide_message_boxes_flags |= HIDE_MESSAGE_WIDGET_SETTING_FLOAT_BIT;
+            environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_WIDGET_SETTING_FLOAT);
         }
     }
 

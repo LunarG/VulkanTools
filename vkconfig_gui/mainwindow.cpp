@@ -24,16 +24,16 @@
 #include "dialog_vulkan_analysis.h"
 #include "dialog_vulkan_info.h"
 
-#include "configurator.h"
-#include "vulkan_util.h"
-
+#include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/version.h"
-#include "../vkconfig_core/platform.h"
 #include "../vkconfig_core/help.h"
 #include "../vkconfig_core/doc.h"
 #include "../vkconfig_core/date.h"
+#include "../vkconfig_core/type_platform.h"
+#include "../vkconfig_core/type_log.h"
+#include "../vkconfig_core/type_hide_message.h"
 
 #include <QMenu>
 #include <QProcess>
@@ -122,6 +122,94 @@ static const int LAUNCH_ROW_HEIGHT = 26;
 static const int LAUNCH_ROW_HEIGHT = 28;
 #endif
 
+/* TODO
+
+Path PathManager::SelectPathImpl(QWidget* parent, PathType path, const Path& suggested_path) {
+    assert(parent);
+    assert(path >= PATH_FIRST && path <= PATH_LAST);
+    assert(!suggested_path.Empty());
+
+    switch (path) {
+        case PATH_LAUNCHER_LOG_FILE: {
+            const std::string selected_path =
+                QFileDialog::getSaveFileName(parent, "Set Log File To...", suggested_path.AbsolutePath().c_str(), "Log text(*.txt)")
+                    .toStdString();
+            if (selected_path.empty())  // The user cancelled
+                return Path("");
+
+            SetPath(path, QFileInfo(selected_path.c_str()).absolutePath().toStdString());
+            return GetFullPath(path, QFileInfo(selected_path.c_str()).baseName().toStdString());
+        } break;
+        case PATH_EXECUTABLE: {
+            static const char* TABLE[] = {
+                "Applications (*.exe)",     // PLATFORM_WINDOWS
+                "Applications (*)",         // PLATFORM_LINUX
+                "Applications (*.app, *)",  // PLATFORM_MACOS
+                "N/A"                       // PLATFORM_ANDROID
+            };
+            static_assert(std::size(TABLE) == PLATFORM_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
+
+            const std::string filter = TABLE[VKC_PLATFORM];
+            const std::string selected_path = QFileDialog::getOpenFileName(parent, "Select a Vulkan Executable...",
+                                                                           suggested_path.AbsolutePath().c_str(), filter.c_str())
+                                                  .toStdString();
+            if (selected_path.empty())  // The user cancelled
+                return Path("");
+
+            SetPath(path, QFileInfo(selected_path.c_str()).absolutePath().toStdString());
+            return GetFullPath(path, QFileInfo(selected_path.c_str()).fileName().toStdString());
+        }
+        case PATH_WORKING_DIR: {
+            const std::string selected_path =
+                QFileDialog::getExistingDirectory(parent, "Set Working Folder To...", suggested_path.AbsolutePath().c_str())
+                    .toStdString();
+            if (selected_path.empty())  // The user cancelled
+                return Path("");
+
+            SetPath(path, selected_path);
+            return Path(GetPath(path));
+        }
+        case PATH_USER_DEFINED_LAYERS_GUI: {
+            const std::string selected_path =
+                QFileDialog::getExistingDirectory(parent, "Add User-Defined Layers Folder...",
+                                                  suggested_path.AbsolutePath().c_str(), QFileDialog::DontUseNativeDialog)
+                    .toStdString();
+            if (selected_path.empty())  // The user cancelled
+                return Path("");
+
+            SetPath(path, selected_path);
+            return Path(GetPath(path));
+        }
+        case PATH_IMPORT_CONFIGURATION: {
+            const std::string selected_path =
+                QFileDialog::getOpenFileName(parent, "Import Layers Configuration File", suggested_path.AbsolutePath().c_str(),
+                                             "JSON configuration(*.json)")
+                    .toStdString();
+            if (selected_path.empty())  // The user cancelled
+                return Path("");
+
+            SetPath(path, QFileInfo(selected_path.c_str()).absolutePath().toStdString());
+            return Path(selected_path);
+        }
+        case PATH_EXPORT_CONFIGURATION: {
+            const std::string selected_path =
+                QFileDialog::getSaveFileName(parent, "Export Layers Configuration File", suggested_path.AbsolutePath().c_str(),
+                                             "JSON configuration(*.json)")
+                    .toStdString();
+            if (selected_path.empty())  // The user cancelled
+                return Path("");
+
+            SetPath(path, QFileInfo(selected_path.c_str()).absolutePath().toStdString());
+            return Path(selected_path);
+        }
+        default:
+            assert(0);
+            return Path("");
+    }
+}
+*/
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       _launch_application(nullptr),
@@ -142,8 +230,7 @@ MainWindow::MainWindow(QWidget *parent)
       _tray_layers_controlled_by_configurator(nullptr),
       _tray_layers_disabled_by_configurator(nullptr),
       _tray_quit_action(nullptr),
-      ui(new Ui::MainWindow),
-      been_warned_about_old_loader(false) {
+      ui(new Ui::MainWindow) {
     ui->setupUi(this);
     ui->launcher_tree->installEventFilter(this);
     ui->configurations_tree->installEventFilter(this);
@@ -201,16 +288,21 @@ MainWindow::MainWindow(QWidget *parent)
     // ui->splitter_configurations->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER2));
     // ui->splitter_settings->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER3));
 
-    // Update launcher
+    // Update configuration application area
+
     if (!environment.GetApplications().empty()) {
+        ui->combo_box_applications->blockSignals(true);
         ui->combo_box_applications->clear();
         for (std::size_t i = 0, n = environment.GetApplications().size(); i < n; ++i) {
             const Application &application = environment.GetApplications()[i];
 
-            ui->combo_box_applications->addItem(ReplaceBuiltInVariable(application.executable_path.c_str()).c_str());
+            ui->combo_box_applications->addItem(application.executable_path.RelativePath().c_str());
         }
-        ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
+        ui->combo_box_applications->blockSignals(false);
     }
+    this->on_check_box_per_application_toggled(environment.GetPerApplicationConfig());
+    this->on_combo_box_applications_currentIndexChanged(environment.GetActiveApplicationIndex());
+    ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
 
     // ui->edit_executable->setText(application.executable_path.c_str());
     /*
@@ -233,8 +325,6 @@ MainWindow::MainWindow(QWidget *parent)
     // insufficinet.
     ui->log_browser->document()->setMaximumBlockCount(2048);
     // ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
-
-    ui->check_box_per_application->setChecked(configurator.environment.GetPerApplicationConfig());
 
     this->InitTray();
     this->UpdateTray();
@@ -367,7 +457,7 @@ void MainWindow::trayActionRestore() {
 void MainWindow::trayActionControlledByApplications() {
     Configurator &configurator = Configurator::Get();
     configurator.environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+    configurator.Configure(configurator.layers.selected_layers);
 
     this->UpdateUI();
     this->UpdateTray();
@@ -376,7 +466,7 @@ void MainWindow::trayActionControlledByApplications() {
 void MainWindow::trayActionControlledByConfigurator() {
     Configurator &configurator = Configurator::Get();
     configurator.environment.SetMode(LAYERS_CONTROLLED_BY_CONFIGURATOR);
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+    configurator.Configure(configurator.layers.selected_layers);
 
     this->UpdateUI();
     this->UpdateTray();
@@ -385,7 +475,7 @@ void MainWindow::trayActionControlledByConfigurator() {
 void MainWindow::trayActionDisabledByApplications() {
     Configurator &configurator = Configurator::Get();
     configurator.environment.SetMode(LAYERS_DISABLED_BY_CONFIGURATOR);
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+    configurator.Configure(configurator.layers.selected_layers);
 
     this->UpdateUI();
     this->UpdateTray();
@@ -438,13 +528,15 @@ void MainWindow::AddLayerItem(const Parameter &parameter) {
             decorated_name += format(" (%s)", GetToken(layer->status));
         }
 
-        if (IsDLL32Bit(layer->manifest_path)) {
+        if (IsDLL32Bit(layer->manifest_path.AbsolutePath())) {
             decorated_name += " (32-bit)";
         }
     } else {
         // A layers configuration may have excluded layer that are misssing because they are not available on this platform
         // We simply hide these layers to avoid confusing the Vulkan developers
-        if (parameter.state == LAYER_STATE_EXCLUDED) return;
+        if (parameter.control == LAYER_CONTROL_OFF) {
+            return;
+        }
 
         if (parameter.control != LAYER_CONTROL_APPLICATIONS && parameter.control != LAYER_CONTROL_UNORDERED) {
             decorated_name += " (Missing)";
@@ -524,7 +616,7 @@ void MainWindow::UpdateUI() {
     ui->combo_box_applications->setEnabled(ui->check_box_per_application->isChecked());
     const std::vector<Application> &applications = environment.GetApplications();
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        ui->combo_box_applications->addItem(ReplaceBuiltInVariable(applications[i].executable_path.c_str()).c_str());
+        ui->combo_box_applications->addItem(applications[i].executable_path.AbsolutePath().c_str());
     }
     ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
     ui->combo_box_applications->blockSignals(false);
@@ -610,13 +702,13 @@ void MainWindow::UpdateUI() {
     ui->push_button_export->setEnabled(has_selected_configuration);
 
     // Load Layers paths
-    std::vector<std::string> layer_paths = configurator.layers.BuildPathList();
+    std::vector<Path> layer_paths = configurator.layers.BuildPathList();
 
     // ui->tree_layers_paths->setEnabled(enable_layer_ui);
     ui->tree_layers_paths->clear();
 
     for (std::size_t path_index = 0, count = layer_paths.size(); path_index < count; ++path_index) {
-        const std::string user_defined_path(ConvertNativeSeparators(layer_paths[path_index]));
+        const std::string user_defined_path(layer_paths[path_index].RelativePath().c_str());
 
         AddLayerPathItem(user_defined_path);
     }
@@ -935,8 +1027,8 @@ void MainWindow::on_combo_box_applications_currentIndexChanged(int index) {
     Configurator &configurator = Configurator::Get();
     configurator.environment.SelectActiveApplication(index);
 
-    Application &application = configurator.environment.GetApplication(configurator.environment.GetActiveApplicationIndex());
-    ui->combo_box_applications->setToolTip(ReplaceBuiltInVariable(application.executable_path.c_str()).c_str());
+    Application &application = configurator.environment.GetApplication(index);
+    ui->combo_box_applications->setToolTip(application.executable_path.AbsolutePath().c_str());
     ui->combo_box_mode->setCurrentIndex(application.layers_mode);
 }
 
@@ -1091,7 +1183,7 @@ void MainWindow::StartTool(Tool tool) {
 
     LayersMode saved_mode = configurator.environment.GetMode();
     configurator.environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+    configurator.Configure(configurator.layers.selected_layers);
 
     switch (tool) {
         case TOOL_VULKAN_INFO:
@@ -1103,7 +1195,7 @@ void MainWindow::StartTool(Tool tool) {
     }
 
     configurator.environment.SetMode(saved_mode);
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+    configurator.Configure(configurator.layers.selected_layers);
 }
 
 /// Create the VulkanInfo dialog if it doesn't already exits & show it.
@@ -1164,7 +1256,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     // Alert the user to the current state of the vulkan configurator and
     // give them the option to not shutdown.
     if (environment.GetUseSystemTray()) {
-        if (environment.hide_message_boxes_flags & HIDE_MESSAGE_USE_SYSTEM_TRAY_BIT) {
+        if (environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_USE_SYSTEM_TRAY)) {
             std::string shut_down_state;
 
             if (environment.GetMode() == LAYERS_CONTROLLED_BY_CONFIGURATOR) {
@@ -1185,7 +1277,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
             int ret_val = alert.exec();
             if (alert.checkBox()->isChecked()) {
-                environment.hide_message_boxes_flags |= HIDE_MESSAGE_USE_SYSTEM_TRAY_BIT;
+                environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_USE_SYSTEM_TRAY);
             }
 
             if (ret_val == QMessageBox::No) {
@@ -1237,7 +1329,7 @@ void MainWindow::on_push_button_applications_clicked() {
     // dlg.exec();
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+    configurator.Configure(configurator.layers.selected_layers);
 
     UpdateUI();
 }
@@ -1262,7 +1354,7 @@ void MainWindow::on_push_button_remove_clicked() {
 void MainWindow::on_push_button_duplicate_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configutation = configurator.configurations.FindActiveConfiguration();
+    const Configuration *configutation = configurator.configurations.FindActiveConfiguration();
     assert(configutation != nullptr);
 
     const Configuration &duplicated_configuration =
@@ -1345,7 +1437,7 @@ void MainWindow::ResetClicked(ConfigurationListItem *item) {
     alert.setIcon(QMessageBox::Warning);
     if (alert.exec() == QMessageBox::No) return;
 
-    configuration->Reset(configurator.layers.selected_layers, configurator.path);
+    configuration->Reset(configurator.layers.selected_layers);
 
     LoadConfigurationList();
 }
@@ -1391,10 +1483,15 @@ void MainWindow::ImportClicked(ConfigurationListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    const std::string full_import_path = configurator.path.SelectPath(this, PATH_IMPORT_CONFIGURATION);
-    if (full_import_path.empty()) return;
+    const Path &path_import = configurator.environment.path_import;
+    /*
+    const Path full_import_path = configurator.path.SelectPath(this, PATH_IMPORT_CONFIGURATION);
+    if (full_import_path.Empty()) {
+        return;
+    }
 
     configurator.configurations.ImportConfiguration(configurator.layers.selected_layers, full_import_path);
+    */
     LoadConfigurationList();
 }
 
@@ -1403,12 +1500,16 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    const std::string full_suggested_path = configurator.path.GetFullPath(PATH_EXPORT_CONFIGURATION, item->configuration_name);
-    const std::string full_export_path = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, full_suggested_path);
-    if (full_export_path.empty()) return;
+    const Path &path_export = configurator.environment.path_export;
+    /* TODO
+    const Path full_export_path = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, full_suggested_path);
+    if (full_export_path.Empty()) {
+        return;
+    }
 
     configurator.configurations.ExportConfiguration(configurator.layers.selected_layers, full_export_path,
                                                     item->configuration_name);
+    */
 }
 
 void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
@@ -1440,7 +1541,7 @@ void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
     (void)item;
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+    configurator.Configure(configurator.layers.selected_layers);
 }
 
 void MainWindow::SetupLauncherTree() {
@@ -1574,7 +1675,7 @@ void MainWindow::OnLauncherLoaderMessageChanged(int level) {
     Configurator &configurator = Configurator::Get();
 
     // configurator.environment.SetLoaderMessage(static_cast<LoaderMessageLevel>(level));
-    configurator.environment.SetLoaderMessageTypes(GetLoaderMessageFlags(static_cast<LoaderMessageType>(level)));
+    // configurator.environment.SetLoaderMessageFlags(GetBit(static_cast<LogBit>(level)));
 
     if (ui->check_box_clear_on_launch->isChecked()) {
         this->UpdateUI();
@@ -1587,13 +1688,17 @@ void MainWindow::launchSetExecutable() {
 
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
-    const std::string exe = configurator.path.SelectPath(this, PATH_EXECUTABLE, application.executable_path.c_str());
+    /* TODO
+    const Path exe = configurator.path.SelectPath(this, PATH_EXECUTABLE, application.executable_path);
 
     // The user has cancel the operation
-    if (exe.empty()) return;
+    if (exe.Empty()) {
+        return;
+    }
 
     application.executable_path = exe;
-    _launcher_executable->setText(exe.c_str());
+    */
+    _launcher_executable->setText(application.executable_path.RelativePath().c_str());
 }
 
 void MainWindow::launchSetLogFile() {
@@ -1603,13 +1708,17 @@ void MainWindow::launchSetLogFile() {
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
     ApplicationOptions &options = application.GetActiveOptions();
-    const std::string path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, options.log_file.c_str());
+    /* TODO
+    const Path &path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, options.log_file);
 
     // The user has cancel the operation
-    if (path.empty()) return;
+    if (path.Empty()) {
+        return;
+    }
 
     options.log_file = path;
-    _launcher_log_file_edit->setText(path.c_str());
+    */
+    _launcher_log_file_edit->setText(options.log_file.RelativePath().c_str());
 }
 
 void MainWindow::launchSetWorkingFolder() {
@@ -1619,13 +1728,18 @@ void MainWindow::launchSetWorkingFolder() {
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
     ApplicationOptions &options = application.GetActiveOptions();
-    const std::string path = configurator.path.SelectPath(this, PATH_WORKING_DIR, options.working_folder.c_str());
+
+    /* TODO
+    const Path path = configurator.path.SelectPath(this, PATH_WORKING_DIR, options.working_folder);
 
     // The user has cancel the operation
-    if (path.empty()) return;
+    if (path.Empty()) {
+        return;
+    }
 
     options.working_folder = path;
-    _launcher_working->setText(path.c_str());
+    */
+    _launcher_working->setText(options.working_folder.RelativePath().c_str());
 }
 
 // Log file path edited manually.
@@ -1666,10 +1780,10 @@ void MainWindow::launchItemChanged(int application_index) {
     Application &application = environment.GetApplication(application_index);
     ApplicationOptions &options = application.GetActiveOptions();
 
-    _launcher_executable->setText(application.executable_path.c_str());
-    _launcher_working->setText(options.working_folder.c_str());
+    _launcher_executable->setText(application.executable_path.RelativePath().c_str());
+    _launcher_working->setText(options.working_folder.RelativePath().c_str());
     _launcher_arguments->setText(Merge(options.arguments, " ").c_str());
-    _launcher_log_file_edit->setText(ReplaceBuiltInVariable(options.log_file.c_str()).c_str());
+    _launcher_log_file_edit->setText(options.log_file.RelativePath().c_str());
 }
 
 /// New command line arguments. Update them.
@@ -1802,11 +1916,11 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             } else if (action == visit_layer_website_action) {
                 QDesktopServices::openUrl(QUrl(layer->url.c_str()));
             } else if (action == export_html_action) {
-                const std::string path = format("%s/%s.html", GetPath(BUILTIN_PATH_APPDATA).c_str(), layer->key.c_str());
+                const std::string path = format("%s/%s.html", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
                 ExportHtmlDoc(*layer, path);
                 QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
             } else if (action == export_markdown_action) {
-                const std::string path = format("%s/%s.md", GetPath(BUILTIN_PATH_APPDATA).c_str(), layer->key.c_str());
+                const std::string path = format("%s/%s.md", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
                 ExportMarkdownDoc(*layer, path);
                 QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
             }
@@ -1831,7 +1945,7 @@ QStringList MainWindow::BuildEnvVariables() const {
     Configurator &configurator = Configurator::Get();
 
     QStringList env = QProcess::systemEnvironment();
-    env << (QString("VK_LOADER_DEBUG=") + ::GetLoaderMessageTokens(configurator.environment.GetLoaderMessageTypes()).c_str());
+    env << (QString("VK_LOADER_DEBUG=") + ::GetLogString(configurator.environment.GetLoaderMessageFlags()).c_str());
     return env;
 }
 
@@ -1865,37 +1979,37 @@ void MainWindow::on_push_button_launcher_clicked() {
     Configurator &configurator = Configurator::Get();
     const Application &active_application = configurator.environment.GetActiveApplication();
 
-    assert(!active_application.executable_path.empty());
-    launch_log += format("- Application: %s\n", active_application.executable_path.c_str());
-
-    launch_log += format("- Executable: %s\n", ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str());
-    if (!QFileInfo(ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str()).exists()) {
-        Alert::PathInvalid(ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str(),
-                           format("The '%s' application will fail to launch.", active_application.executable_path.c_str()).c_str());
+    assert(!active_application.executable_path.Empty());
+    launch_log += format("- Executable: %s\n", active_application.executable_path.AbsolutePath().c_str());
+    if (!active_application.executable_path.Exists()) {
+        Alert::PathInvalid(
+            active_application.executable_path,
+            format("The '%s' application will fail to launch.", active_application.executable_path.AbsolutePath().c_str()).c_str());
     }
 
-    launch_log += format("- Working Directory: %s\n", ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str());
-    if (!QFileInfo(ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str()).exists()) {
-        Alert::PathInvalid(ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str(),
-                           format("The '%s' application will fail to launch.", active_application.executable_path.c_str()).c_str());
+    const ApplicationOptions &options = active_application.GetActiveOptions();
+
+    launch_log += format("- Working Directory: %s\n", options.working_folder.AbsolutePath().c_str());
+    if (!options.working_folder.Exists()) {
+        Alert::PathInvalid(
+            options.working_folder,
+            format("The '%s' application will fail to launch.", active_application.executable_path.AbsolutePath().c_str()).c_str());
     }
 
     if (!_launcher_arguments->text().isEmpty()) {
         launch_log += format("- Command-line Arguments: %s\n", _launcher_arguments->text().toStdString().c_str());
     }
 
-    const ApplicationOptions &options = active_application.GetActiveOptions();
-    const std::string actual_log_file = ReplaceBuiltInVariable(options.log_file.c_str());
-    if (!actual_log_file.empty()) {
-        launch_log += format("- Log file: %s\n", actual_log_file.c_str());
+    if (!options.log_file.Empty()) {
+        launch_log += format("- Log file: %s\n", options.log_file.AbsolutePath().c_str());
     }
 
-    if (!actual_log_file.empty()) {
+    if (!options.log_file.Empty()) {
         // Start logging
         // Make sure the log file is not already opened. This can occur if the
         // launched application is closed from the applicaiton.
         if (!_log_file.isOpen()) {
-            _log_file.setFileName(actual_log_file.c_str());
+            _log_file.setFileName(options.log_file.AbsolutePath().c_str());
 
             // Open and append, or open and truncate?
             QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
@@ -1935,7 +2049,8 @@ void MainWindow::on_push_button_launcher_clicked() {
         _launch_application->deleteLater();
         _launch_application = nullptr;
 
-        const std::string failed_log = std::string("Failed to launch ") + active_application.executable_path.c_str() + "!\n";
+        const std::string failed_log =
+            std::string("Failed to launch ") + active_application.executable_path.AbsolutePath().c_str() + "!\n";
         Log(failed_log);
     }
 

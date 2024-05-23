@@ -19,9 +19,12 @@
  */
 
 #include "environment.h"
-#include "platform.h"
 #include "setting.h"
 #include "util.h"
+
+#include "type_platform.h"
+#include "type_layers_mode.h"
+#include "type_log.h"
 
 #include <QMessageBox>
 #include <QCheckBox>
@@ -42,7 +45,7 @@ static const char* GetApplicationSuffix() {
         ".app",  // PLATFORM_MACOS
         "N/A"    // PLATFORM_ANDROID
     };
-    static_assert(countof(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return TABLE[VKC_PLATFORM];
 }
@@ -66,146 +69,18 @@ static const char* GetLayoutStateToken(LayoutState state) {
         "launcherCollapsed",           // LAYOUT_LAUNCHER_COLLAPSED
         "launcherOnClear"              // LAYOUT_LAUNCHER_CLEAR_ON
     };
-    static_assert(countof(table) == LAYOUT_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(table) == LAYOUT_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return table[state];
 }
 
-static const char* GetLayersModeToken(LayersMode mode) {
-    static const char* TOKENS[]{
-        "controlled_by_applications",  // LAYERS_MODE_BY_APPLICATIONS
-        "controlled_by_configurator",  // LAYERS_MODE_BY_CONFIGURATOR_RUNNING
-        "disabled_by_configurator"     // LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED
-    };
-    static_assert(countof(TOKENS) == LAYERS_MODE_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    return TOKENS[mode];
-}
-
-LayersMode GetLayersMode(const std::string& token) {
-    for (int i = LAYERS_MODE_FIRST, l = LAYERS_MODE_LAST; i <= l; ++i) {
-        LayersMode layers_mode = static_cast<LayersMode>(i);
-        if (GetLayersModeToken(layers_mode) == token) {
-            return layers_mode;
-        }
-    }
-
-    return LAYERS_CONTROLLED_BY_APPLICATIONS;
-}
-
-std::string GetLoaderMessageToken(LoaderMessageType message_type) {
-    static const char* LOADER_MESSAGE_TOKENS[]{
-        "error",  // LOADER_MESSAGE_ERROR
-        "warn",   // LOADER_MESSAGE_WARN
-        "info",   // LOADER_MESSAGE_INFO
-        "debug",  // LOADER_MESSAGE_DEBUG
-        "layer",  // LOADER_MESSAGE_LAYER
-        "implem"  // LOADER_MESSAGE_IMPLEMENTATION
-    };
-
-    static_assert(countof(LOADER_MESSAGE_TOKENS) == LOADER_MESSAGE_COUNT,
-                  "The tranlation table size doesn't match the enum number of elements");
-
-    return LOADER_MESSAGE_TOKENS[message_type - LOADER_MESSAGE_FIRST];
-}
-
-std::string GetLoaderMessageTokens(int mesage_types) {
-    std::vector<std::string> results;
-
-    for (int i = LOADER_MESSAGE_FIRST, l = LOADER_MESSAGE_LAST; i <= l; ++i) {
-        if (mesage_types & (1 << i)) {
-            results.push_back(GetLoaderMessageToken(static_cast<LoaderMessageType>(i)));
-        }
-    }
-
-    return Merge(results, ",");
-}
-
-int GetLoaderMessageTypes(const std::string& values) {
-    std::vector<std::string> split_values = Split(values, ",");
-
-    int result = 0;
-
-    for (std::size_t i = 0, n = split_values.size(); i < n; ++i) {
-        const LoaderMessageType message_type = GetLoaderMessageType(split_values[i]);
-        if (message_type == LOADER_MESSAGE_NONE) {
-            continue;
-        }
-        result |= (1 << message_type);
-    }
-
-    return result;
-}
-
-LoaderMessageType GetLoaderMessageType(const std::string& token) {
-    for (int i = LOADER_MESSAGE_FIRST, n = LOADER_MESSAGE_LAST; i <= n; ++i) {
-        const LoaderMessageType type = static_cast<LoaderMessageType>(i);
-        if (::GetLoaderMessageToken(type) == token) {
-            return type;
-        }
-    }
-
-    return LOADER_MESSAGE_NONE;
-}
-
-std::string GetHideMessageBoxesToken(HideMessageType type) {
-    static const char* TOKENS[]{
-        "need_application_restart",  // HIDE_MESSAGE_NEED_APPLICATION_RESTART
-        "use_system_tray",           // HIDE_MESSAGE_USE_SYSTEM_TRAY
-    };
-
-    static_assert(countof(TOKENS) == HIDE_MESSAGE_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    return TOKENS[type - HIDE_MESSAGE_FIRST];
-}
-
-HideMessageType GetHideMessageBoxes(const std::string& token) {
-    for (int i = HIDE_MESSAGE_FIRST, n = HIDE_MESSAGE_LAST; i <= n; ++i) {
-        const HideMessageType type = static_cast<HideMessageType>(i);
-        if (::GetHideMessageBoxesToken(type) == token) {
-            return type;
-        }
-    }
-
-    return HIDE_MESSAGE_NONE;
-}
-
-std::string GetTabToken(TabType type) {
-    static const char* TOKENS[]{
-        "diagnostic",      // TAB_DIAGNOSTIC
-        "applications",    // TAB_APPLICATIONS
-        "layers",          // TAB_LAYERS
-        "configurations",  // TAB_CONFIGURATIONS
-        "preferences",     // TAB_PREFERENCES
-        "help"             // TAB_HELP
-    };
-
-    static_assert(countof(TOKENS) == TAB_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    return TOKENS[type - TAB_FIRST];
-}
-
-TabType GetTabType(const std::string& token) {
-    for (int i = TAB_FIRST, n = TAB_LAST; i <= n; ++i) {
-        const TabType type = static_cast<TabType>(i);
-        if (::GetTabToken(type) == token) {
-            return type;
-        }
-    }
-
-    return TAB_DIAGNOSTIC;
-}
-
-Environment::Environment(PathManager& paths, const Version& api_version)
+Environment::Environment()
     : active_tab(TAB_DIAGNOSTIC),
-      first_run(false),
       has_crashed(false),
       use_system_tray(false),
       use_per_application_configuration(false),
-      loader_message_types_flags(::GetLoaderMessageTypes(qgetenv("VK_LOADER_DEBUG").toStdString())),
-      hide_message_boxes_flags(0),
-      paths_manager(paths),
-      paths(paths_manager) {
+      loader_message_types_flags(::GetLogFlags(qgetenv("VK_LOADER_DEBUG").toStdString())),
+      hide_message_boxes_flags(0) {
     const bool result = Load();
     assert(result);
 }
@@ -236,8 +111,6 @@ void Environment::Reset(ResetMode mode) {
         case SYSTEM: {
             const bool result_env = Load();
             assert(result_env);
-            const bool result_path = paths_manager.Load();
-            assert(result_path);
             break;
         }
         default: {
@@ -252,7 +125,7 @@ std::string GetPath() {
         "/AppData/Local/LunarG",  // ENVIRONMENT_WIN32
         "/.local/share/vulkan"    // ENVIRONMENT_UNIX
     };
-    static_assert(countof(TABLE) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(TABLE) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     const std::string home = QDir().homePath().toStdString();
     return home + TABLE[VKC_ENV];
@@ -261,8 +134,8 @@ std::string GetPath() {
 bool Environment::Load() {
     Reset(DEFAULT);
 
-    const std::string& vkconfig_init_path = GetPath(BUILTIN_PATH_VKCONFIG_INIT);
-    QFile file(vkconfig_init_path.c_str());
+    const Path& vkconfig_init_path = ::Get(Path::INIT);
+    QFile file(vkconfig_init_path.AbsolutePath().c_str());
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {  // if applist.json exist, load saved applications
         QString data = file.readAll();
         file.close();
@@ -277,7 +150,7 @@ bool Environment::Load() {
 
         // interface json object
         const QJsonObject& json_interface_object = json_root_object.value("interface").toObject();
-        this->active_tab = GetTabType(json_interface_object.value("active_tab").toString().toStdString());
+        this->active_tab = GetTabType(json_interface_object.value("active_tab").toString().toStdString().c_str());
         this->has_crashed = json_interface_object.value("has_crashed").toBool();
 
         // diagnostic json object
@@ -286,7 +159,7 @@ bool Environment::Load() {
         this->loader_message_types_flags = 0;
         for (int i = 0, n = json_loader_messages_array.size(); i < n; ++i) {
             const std::string& token = json_loader_messages_array[i].toString().toStdString();
-            this->loader_message_types_flags |= (1 << GetLoaderMessageType(token));
+            this->loader_message_types_flags |= GetLogBit(token.c_str());
         }
 
         // applications json object
@@ -304,7 +177,7 @@ bool Environment::Load() {
 
             const QJsonObject& json_application_object = json_list_object.value(json_list_keys[i]).toObject();
             application.executable_path = json_list_keys[i].toStdString();
-            application.layers_mode = ::GetLayersMode(json_application_object.value("mode").toString().toStdString());
+            application.layers_mode = ::GetLayersMode(json_application_object.value("mode").toString().toStdString().c_str());
             application.layers_configuration = json_application_object.value("configuration").toString().toStdString();
             application.active_option_index = json_application_object.value("active_option_index").toInt();
 
@@ -339,7 +212,7 @@ bool Environment::Load() {
         // configurations json object
         const QJsonObject& json_configurations_object = json_root_object.value("configurations").toObject();
         this->use_per_application_configuration = json_configurations_object.value("use_per_application").toBool();
-        this->layers_mode = ::GetLayersMode(json_configurations_object.value("mode").toString().toStdString());
+        this->layers_mode = ::GetLayersMode(json_configurations_object.value("mode").toString().toStdString().c_str());
         this->selected_configuration = json_configurations_object.value("configuration").toString().toStdString();
 
         // preferences json object
@@ -351,7 +224,7 @@ bool Environment::Load() {
         this->hide_message_boxes_flags = 0;
         for (int i = 0, n = json_hide_message_boxes_array.size(); i < n; ++i) {
             const std::string& token = json_hide_message_boxes_array[i].toString().toStdString();
-            this->hide_message_boxes_flags |= (1 << GetHideMessageBoxes(token));
+            this->hide_message_boxes_flags |= GetLogBit(token.c_str());
         }
     }
 
@@ -365,31 +238,29 @@ bool Environment::Load() {
 
     // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
     // assemble a list of paths that take precidence for layer discovery.
-    const QString VK_LAYER_PATH(qgetenv("VK_LAYER_PATH"));
-    if (!VK_LAYER_PATH.isEmpty()) {
-        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET] =
-            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(SEPARATOR));
-    } else {
-        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET].clear();
+    this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET].clear();
+
+    const std::vector<std::string> VK_LAYER_PATH = Split(qgetenv("VK_LAYER_PATH").toStdString(), SEPARATOR);
+    for (std::size_t i = 0, n = VK_LAYER_PATH.size(); i < n; ++i) {
+        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET].push_back(Path(VK_LAYER_PATH[i]));
     }
 
     // See if the VK_ADD_LAYER_PATH environment variable is set. If so, parse it and
     // assemble a list of paths that take precidence for layer discovery.
-    const QString VK_ADD_LAYER_PATH(qgetenv("VK_ADD_LAYER_PATH"));
-    if (!VK_ADD_LAYER_PATH.isEmpty()) {
-        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD] =
-            ConvertString(QString(qgetenv("VK_ADD_LAYER_PATH")).split(SEPARATOR));
-    } else {
-        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].clear();
+    this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].clear();
+
+    const std::vector<std::string> VK_ADD_LAYER_PATH = Split(qgetenv("VK_ADD_LAYER_PATH").toStdString(), SEPARATOR);
+    for (std::size_t i = 0, n = VK_ADD_LAYER_PATH.size(); i < n; ++i) {
+        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].push_back(Path(VK_ADD_LAYER_PATH[i]));
     }
 
     return true;
 }
 
 bool Environment::Save() const {
-    const std::string& vkconfig_init_path = GetPath(BUILTIN_PATH_VKCONFIG_INIT);
+    const Path& vkconfig_init_path = ::Get(Path::INIT);
 
-    QFile file(vkconfig_init_path.c_str());
+    QFile file(vkconfig_init_path.AbsolutePath().c_str());
     const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
     assert(result);
 
@@ -397,17 +268,17 @@ bool Environment::Save() const {
     json_root_object.insert("file_format_version", Version::VKCONFIG.str().c_str());
 
     QJsonObject json_interface_object;
-    json_interface_object.insert("active_tab", GetTabToken(this->active_tab).c_str());
+    json_interface_object.insert("active_tab", GetToken(this->active_tab));
     json_interface_object.insert("has_crashed", this->has_crashed);
     json_root_object.insert("interface", json_interface_object);
 
     QJsonObject json_diagnostic_object;
 
     QJsonArray json_loader_messages_array;
-    for (int i = LOADER_MESSAGE_FIRST, n = LOADER_MESSAGE_LAST; i < n; ++i) {
-        LoaderMessageType type = static_cast<LoaderMessageType>(i);
+    for (int i = LOG_FIRST, n = LOG_COUNT; i < n; ++i) {
+        LogType type = static_cast<LogType>(i);
         if (this->loader_message_types_flags & (1 << i)) {
-            json_loader_messages_array.append(GetLoaderMessageToken(type).c_str());
+            json_loader_messages_array.append(GetToken(type));
         }
     }
     json_diagnostic_object.insert("loader_messages", json_loader_messages_array);
@@ -422,7 +293,7 @@ bool Environment::Save() const {
         const Application& application = this->applications[i];
 
         QJsonObject json_application_object;
-        json_application_object.insert("mode", ::GetLayersModeToken(application.layers_mode));
+        json_application_object.insert("mode", ::GetToken(application.layers_mode));
         json_application_object.insert("configuration", application.layers_configuration.c_str());
         json_application_object.insert("active_option", application.active_option_index);
 
@@ -442,16 +313,16 @@ bool Environment::Save() const {
 
             QJsonObject json_option_object;
             json_option_object.insert("label", options.label.c_str());
-            json_option_object.insert("working_folder", options.working_folder.c_str());
+            json_option_object.insert("working_folder", options.working_folder.AbsolutePath().c_str());
             json_option_object.insert("arguments", json_arg_array);
             json_option_object.insert("environment_variables", json_env_array);
-            json_option_object.insert("log_file", options.log_file.c_str());
+            json_option_object.insert("log_file", options.log_file.AbsolutePath().c_str());
 
             json_options_array.append(json_option_object);
         }
         json_application_object.insert("options", json_options_array);
 
-        json_applications_list_object.insert(application.executable_path.c_str(), json_application_object);
+        json_applications_list_object.insert(application.executable_path.AbsolutePath().c_str(), json_application_object);
     }
 
     json_applications_object.insert("list", json_applications_list_object);
@@ -464,20 +335,20 @@ bool Environment::Save() const {
 
     QJsonObject json_configurations_object;
     json_configurations_object.insert("use_per_application", this->use_per_application_configuration);
-    json_configurations_object.insert("mode", ::GetLayersModeToken(this->layers_mode));
+    json_configurations_object.insert("mode", ::GetToken(this->layers_mode));
     json_configurations_object.insert("configuration", this->selected_configuration.c_str());
 
     json_root_object.insert("configurations", json_configurations_object);
 
     QJsonObject json_preferences_object;
     json_preferences_object.insert("use_system_tray", this->use_system_tray);
-    json_preferences_object.insert("VK_LOCAL", this->home_sdk_path.c_str());
+    json_preferences_object.insert("VK_HOME", this->home_sdk_path.c_str());
 
     QJsonArray json_hide_message_boxes_array;
-    for (int i = HIDE_MESSAGE_FIRST, n = HIDE_MESSAGE_LAST; i < n; ++i) {
-        HideMessageType hide_message_type = static_cast<HideMessageType>(i);
+    for (int i = LOG_FIRST, n = LOG_COUNT; i < n; ++i) {
+        LogType type = static_cast<LogType>(i);
         if (this->hide_message_boxes_flags & (1 << i)) {
-            json_hide_message_boxes_array.append(GetHideMessageBoxesToken(hide_message_type).c_str());
+            json_hide_message_boxes_array.append(GetToken(type));
         }
     }
     json_preferences_object.insert("hide_message_boxes", json_hide_message_boxes_array);
@@ -572,6 +443,14 @@ const QByteArray& Environment::Get(LayoutState state) const {
     return this->layout_states[state];
 }
 
+void Environment::SetPerConfigUserDefinedLayersPaths(const std::vector<Path>& paths) {
+    std::vector<Path>& custom_layer_paths_gui = this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI];
+    custom_layer_paths_gui.clear();
+    for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
+        custom_layer_paths_gui.push_back(paths[i]);
+    }
+}
+
 bool Environment::IsDefaultConfigurationInit(const std::string& default_configuration_filename) const {
     for (std::size_t i = 0, n = this->default_configuration_filenames.size(); i < n; ++i) {
         if (this->default_configuration_filenames[i] == default_configuration_filename) {
@@ -595,8 +474,8 @@ void Environment::InitDefaultConfiguration(const std::string& configuration_file
 /// Note, not ALL macOS executables are in a bundle, so if a non-bundled
 /// executable is fed in here, it will silently just return without
 /// modifying the path (which will be the correct behavior)
-bool ExactExecutableFromAppBundle(std::string& app_path) {
-    std::string path = app_path;
+bool ExactExecutableFromAppBundle(Path& app_path) {
+    std::string path = app_path.AbsolutePath();
     path += "/Contents/";
     std::string list_file = path + "Info.plist";
     QFile file(list_file.c_str());
@@ -631,7 +510,7 @@ bool ExactExecutableFromAppBundle(std::string& app_path) {
             path += cExeName;
 
             // Return original if not found, but root if found
-            app_path = path;
+            app_path = Path(path);
 
             delete[] cExeName;
             break;
@@ -643,7 +522,7 @@ bool ExactExecutableFromAppBundle(std::string& app_path) {
     return true;
 }
 
-std::string Environment::GetDefaultExecutablePath(const std::string& executable_name) const {
+Path Environment::GetDefaultExecutablePath(const std::string& executable_name) const {
     static const char* DEFAULT_PATH = VKC_PLATFORM == VKC_PLATFORM_MACOS ? "/../.." : "";
 
     // Using VULKAN_SDK environement variable
@@ -653,56 +532,51 @@ std::string Environment::GetDefaultExecutablePath(const std::string& executable_
             "/Bin",  // ENVIRONMENT_WIN32
             "/bin",  // ENVIRONMENT_UNIX
         };
-        static_assert(countof(TABLE) == ENVIRONMENT_COUNT, "The tranlation table size doesn't match the enum number of elements");
+        static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
 
-        const std::string search_path = env + TABLE[VKC_ENV] + DEFAULT_PATH + executable_name.c_str();
-        const QFileInfo file_info(ReplaceBuiltInVariable(search_path).c_str());
-        if (file_info.exists()) {
+        const Path search_path(env + TABLE[VKC_ENV] + DEFAULT_PATH + executable_name.c_str());
+        if (search_path.Exists()) {
             return search_path;
         }
     }
 
     // Such the default applications from package installation (Linux)
     if (VKC_PLATFORM == VKC_PLATFORM_LINUX) {
-        const std::string search_path = std::string("/usr/bin") + DEFAULT_PATH + executable_name.c_str();
-        const QFileInfo file_info(ReplaceBuiltInVariable(search_path).c_str());
-        if (file_info.exists()) {
+        const Path search_path(std::string("/usr/bin") + DEFAULT_PATH + executable_name);
+        if (search_path.Exists()) {
             return search_path;
         }
     } else if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
-        const std::string search_path = std::string("/Applications") + executable_name.c_str();
-        std::string replaced_string = ReplaceBuiltInVariable(search_path);
-        const QFileInfo file_info(search_path.c_str());
-        if (file_info.exists() && ExactExecutableFromAppBundle(replaced_string)) {
-            return replaced_string;
+        Path search_path(std::string("/Applications") + executable_name);
+        if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
+            return search_path;
         }
     }
 
     // Using relative path to vkconfig in case SDK is not "installed"
     if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
-        const std::string search_path = std::string("..") + DEFAULT_PATH + executable_name.c_str();
-        std::string replaced_string = ReplaceBuiltInVariable(search_path);
-        const QFileInfo file_info(replaced_string.c_str());
-        if (file_info.exists() && ExactExecutableFromAppBundle(replaced_string)) {
-            return replaced_string;
+        Path search_path(std::string("..") + DEFAULT_PATH + executable_name);
+        if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
+            return search_path;
         }
     } else {
-        const std::string search_path = std::string(".") + DEFAULT_PATH + executable_name.c_str();
-        const QFileInfo file_info(ReplaceBuiltInVariable(search_path).c_str());
-        if (file_info.exists()) {
+        Path search_path(std::string(".") + DEFAULT_PATH + executable_name);
+        if (search_path.Exists()) {
             return search_path;
         }
     }
 
-    return "./" + executable_name;
+    return Path("./" + executable_name);
 }
 
-static const DefaultApplication defaults_applications[] = {{"vkcube", ConvertNativeSeparators("/vkcube"), "--suppress_popups"},
-                                                           {"vkcubepp", ConvertNativeSeparators("/vkcubepp"), "--suppress_popups"}};
+static const DefaultApplication defaults_applications[] = {{"vkcube", "/vkcube", "--suppress_popups"},
+                                                           {"vkcubepp", "/vkcubepp", "--suppress_popups"}};
 
 Application Environment::CreateDefaultApplication(const DefaultApplication& default_application) const {
-    const std::string executable_path = GetDefaultExecutablePath((default_application.key + GetApplicationSuffix()).c_str());
-    if (executable_path.empty()) Application();  // application could not be found..
+    const Path executable_path = GetDefaultExecutablePath((default_application.key + GetApplicationSuffix()).c_str());
+    if (executable_path.Empty()) {
+        Application();  // application could not be found..
+    }
 
     Application application;  //(default_application.name, executable_path, default_application.arguments);
     application.executable_path = executable_path;
@@ -720,10 +594,12 @@ Application Environment::CreateDefaultApplication(const DefaultApplication& defa
 std::vector<Application> Environment::CreateDefaultApplications() const {
     std::vector<Application> new_applications;
 
-    for (std::size_t name_index = 0, name_count = countof(defaults_applications); name_index < name_count; ++name_index) {
+    for (std::size_t name_index = 0, name_count = std::size(defaults_applications); name_index < name_count; ++name_index) {
         const Application& application = CreateDefaultApplication(defaults_applications[name_index]);
 
-        if (application.executable_path.empty()) continue;
+        if (application.executable_path.Empty()) {
+            continue;
+        }
 
         new_applications.push_back(application);
     }
@@ -738,7 +614,7 @@ std::vector<Application> Environment::RemoveMissingApplications(const std::vecto
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
         const Application& application = applications[i];
 
-        const QFileInfo file_info(application.executable_path.c_str());
+        const QFileInfo file_info(application.executable_path.AbsolutePath().c_str());
         if (!file_info.exists()) continue;
 
         valid_applications.push_back(application);
@@ -751,7 +627,7 @@ std::vector<Application> Environment::UpdateDefaultApplications(const std::vecto
     std::vector<Application> search_applications;
     std::vector<Application> updated_applications = applications;
 
-    for (std::size_t default_index = 0, default_count = countof(defaults_applications); default_index < default_count;
+    for (std::size_t default_index = 0, default_count = std::size(defaults_applications); default_index < default_count;
          ++default_index) {
         const std::string defaults_name = defaults_applications[default_index].key + GetApplicationSuffix();
 
@@ -762,7 +638,7 @@ std::vector<Application> Environment::UpdateDefaultApplications(const std::vecto
              application_index < application_count; ++application_index) {
             const Application& application = search_applications[application_index];
 
-            if (QString(application.executable_path.c_str()).endsWith(defaults_name.c_str())) {
+            if (QString(application.executable_path.AbsolutePath().c_str()).endsWith(defaults_name.c_str())) {
                 updated_applications.push_back(CreateDefaultApplication(defaults_applications[default_index]));
             } else {
                 updated_applications.push_back(application);

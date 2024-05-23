@@ -77,7 +77,7 @@ const char* GetToken(SettingType type) {
         "FRAMES",        // SETTING_FRAMES
         "LIST"           // SETTING_LIST
     };
-    static_assert(countof(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return table[type];
 }
@@ -348,7 +348,7 @@ const char* GetToken(DependenceMode type) {
         "ALL",   // DEPENDENCE_ALL
         "ANY"    // DEPENDENCE_ANY
     };
-    static_assert(countof(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return table[type];
 }

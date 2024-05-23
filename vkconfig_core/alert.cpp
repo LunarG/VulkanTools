@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,18 @@ void Alert::LoaderFailure() {
     QMessageBox alert;
     alert.QDialog::setWindowTitle("Vulkan Development Status failure...");
     alert.setText("Could not find a Vulkan Loader.");
+    alert.setIcon(QMessageBox::Critical);
+    alert.exec();
+}
+
+void Alert::LoaderIncompatibleVersions(const Version& loader_version) {
+    QMessageBox alert;
+    alert.setWindowTitle("Incompatible layers versions");
+    alert.setText(format("The system has Vulkan Loader %s. The Vulkan Loader 1.3.211 and older requires that the layers use the "
+                         "same Vulkan Headers minor version.",
+                         loader_version.str().c_str())
+                      .c_str());
+    alert.setInformativeText("Please update the Vulkan Runtime at https://vulkan.lunarg.com/sdk/home");
     alert.setIcon(QMessageBox::Critical);
     alert.exec();
 }
@@ -66,8 +78,8 @@ void Alert::ApplicationListEmpty() {
     alert.exec();
 }
 
-void Alert::LayerInvalid(const char* path, const char* message) {
-    const std::string text = format("%s is not a valid layer manifest. \n\n", path) + message;
+void Alert::LayerInvalid(const Path& path, const char* message) {
+    const std::string text = format("%s is not a valid layer manifest. \n\n", path.AbsolutePath().c_str()) + message;
 
     QMessageBox alert;
     alert.QDialog::setWindowTitle("Failed to load a layer manifest...");
@@ -77,8 +89,8 @@ void Alert::LayerInvalid(const char* path, const char* message) {
     alert.exec();
 }
 
-void Alert::PathInvalid(const char* path, const char* message) {
-    const std::string text = format("'%s' is not a valid path.", path);
+void Alert::PathInvalid(const Path& path, const char* message) {
+    const std::string text = format("'%s' is not a valid path.", path.AbsolutePath().c_str());
 
     QMessageBox alert;
     alert.QDialog::setWindowTitle("The select path doesn't exist...");
@@ -241,10 +253,10 @@ static std::string BuildPropertiesLog(const Layer& layer) {
     }
 
     description += "\n";
-    description += layer.manifest_path + "\n";
-    description += format("- %s Layers Path \n", GetLayerTypeLabel(layer.type));
+    description += layer.manifest_path.AbsolutePath() + "\n";
+    description += format("- %s Layers Path \n", GetToken(layer.type));
     description += "- File Format: " + layer.file_format_version.str() + "\n";
-    description += "- Layer Binary Path:\n    " + layer.binary_path + "\n";
+    description += "- Layer Binary Path:\n    " + layer.binary_path.AbsolutePath() + "\n";
     description += "\n";
     description +=
         format("Total Settings Count: %d - Total Presets Count: %d", CountSettings(layer.settings), layer.presets.size());
@@ -272,18 +284,6 @@ void Alert::LayerProperties(const Layer* layer) {
     alert.setDefaultButton(QMessageBox::Ok);
     alert.setIcon(QMessageBox::Information);
     alert.exec();
-}
-
-QMessageBox::Button Alert::LayerIncompatibleVersions(const char* message, const Version& loader_version) {
-    QMessageBox alert;
-    alert.setWindowTitle("Incompatible layers versions");
-    alert.setText(format("The system has Vulkan Loader %s. The Vulkan Loader 1.3.211 and older requires that the layers use the "
-                         "same Vulkan Headers minor version.",
-                         loader_version.str().c_str())
-                      .c_str());
-    alert.setInformativeText(message);
-    alert.setIcon(QMessageBox::Critical);
-    return static_cast<QMessageBox::Button>(alert.exec());
 }
 
 void Alert::LogFileFailed() {

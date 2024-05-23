@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5 COMPONENTS Core Gui Widgets Network QUIET)
 
@@ -6,21 +6,14 @@ if(Qt5_FOUND)
     file(GLOB FILES_SOURCE ./*.cpp)
     file(GLOB FILES_HEADER ./*.h)
 
-    file(GLOB FILES_CONFIGURATIONS_2_2_2 ./configurations/2.2.2/*.json)
-    source_group("Configurations 2.2.2 Files" FILES ${FILES_CONFIGURATIONS_2_2_2})
+    file(GLOB FILES_CONFIGURATIONS ./configurations/3.0.0/*.json)
+    source_group("Configurations Files" FILES ${FILES_CONFIGURATIONS})
 
     file(GLOB FILES_LAYERS_SCHEMA ./layers/layers_schema.json)
     source_group("Schema Files" FILES ${FILES_LAYERS_SCHEMA})
 
     set(FILES_RESOURCES 
-        ${FILES_CONFIGURATIONS_2_2_2}
-        ${FILES_LAYERS_130}
-        ${FILES_LAYERS_135}
-        ${FILES_LAYERS_141}
-        ${FILES_LAYERS_148}
-        ${FILES_LAYERS_154}
-        ${FILES_LAYERS_162}
-        ${FILES_LAYERS_170}
+        ${FILES_CONFIGURATIONS}
         ${FILES_LAYERS_SCHEMA})
 
     set(FILES_ALL ${FILES_SOURCE} ${FILES_HEADER} ${FILES_RESOURCES})

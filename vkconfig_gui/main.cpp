@@ -19,43 +19,21 @@
  */
 
 #include "mainwindow.h"
+#include "vulkan_util.h"
 
-#include "../vkconfig_core/path.h"
 #include "../vkconfig_core/alert.h"
-#include "../vkconfig_core/version.h"
 #include "../vkconfig_core/application_singleton.h"
-#include "../vkconfig_core/override.h"
-#include "../vkconfig_core/environment.h"
+#include "../vkconfig_core/configurator.h"
+#include "../vkconfig_core/configurator_signal.h"
 
 #include <QApplication>
 
-#include <csignal>
 #include <cassert>
-
-static void SurrenderConfiguration(int signal) {
-    (void)signal;
-
-    PathManager paths("");
-    Environment environment(paths);
-
-    // Indicate that Vulkan Configurator crashed to handle it on next run
-    environment.has_crashed = true;
-
-    // Remove the system layers configuration files
-    SurrenderConfiguration(environment);
-}
-
-static void InitSignals() {
-    std::signal(SIGINT, SurrenderConfiguration);
-    std::signal(SIGTERM, SurrenderConfiguration);
-    std::signal(SIGSEGV, SurrenderConfiguration);
-    std::signal(SIGABRT, SurrenderConfiguration);
-    std::signal(SIGILL, SurrenderConfiguration);
-    std::signal(SIGFPE, SurrenderConfiguration);
-}
 
 int main(int argc, char* argv[]) {
     InitSignals();
+
+    const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
 
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
@@ -85,16 +63,24 @@ int main(int argc, char* argv[]) {
     // This has to go after the construction of QApplication in
     // order to use a QMessageBox and avoid some QThread warnings.
     ApplicationSingleton singleton("vkconfig_single_instance");
-
     while (!singleton.IsFirstInstance()) {
         if (Alert::ConfiguratorSingleton() == QMessageBox::Cancel) {
             return -1;
         }
     }
 
-    // We simply cannot run without any layers
-    Configurator& configurator = Configurator::Get("");
+    if (vulkan_info.loaderVersion == 0) {
+        Alert::LoaderFailure();
+        return -1;
+    }
 
+    if (Version(vulkan_info.loaderVersion) < Version("1.3.261")) {
+        Alert::LoaderIncompatibleVersions(Version(vulkan_info.loaderVersion));
+        return -1;
+    }
+
+    // We simply cannot run without any layers
+    Configurator& configurator = Configurator::Get();
     if (!configurator.Init()) {
         return -1;
     }

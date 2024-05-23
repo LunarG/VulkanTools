@@ -21,9 +21,9 @@
 #include "main_reset.h"
 #include "main_layers.h"
 #include "main_doc.h"
-#include "main_signal.h"
 
 #include "../vkconfig_core/path.h"
+#include "../vkconfig_core/configurator_signal.h"
 
 int main(int argc, char* argv[]) {
     const CommandLine command_line(argc, argv);

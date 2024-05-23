@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "platform.h"
+#include "type_platform.h"
 #include "layer.h"
 
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
