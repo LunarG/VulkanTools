@@ -95,9 +95,11 @@ def main():
         if not json_in_name.endswith('.json.in'):
             continue
         json_in_fname = os.path.basename(json_in_name)
-        layer_name = json_in_fname[:-len('.json.in')]
+        # VulkanTools repository json.in filenames omit the "_lunarg_"
+        corrected_vt_layer_name = json_in_fname.replace("VkLayer_", "VkLayer_lunarg_")
+        layer_name = corrected_vt_layer_name[:-len('.json.in')]
         layer_lib_name = layer_name + file_type_suffix
-        json_out_fname = os.path.join(target_dir, json_in_fname[:-len('.in')])
+        json_out_fname = os.path.join(target_dir, corrected_vt_layer_name[:-len('.in')])
         with open(json_out_fname,'w') as json_out_file, \
              open(json_in_name) as infile:
             for line in infile:
