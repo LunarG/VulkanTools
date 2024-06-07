@@ -340,12 +340,11 @@ void dump_html_wl_display(const wl_display* object, const ApiDumpSettings& setti
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-void dump_html_wl_surface(const wl_surface object, const ApiDumpSettings& settings, int indents)
+void dump_html_wl_surface(const wl_surface* object, const ApiDumpSettings& settings, int indents)
 {
-    if (settings.showAddress())
-        settings.stream() << "<div class='val'>" << object << "</div></summary>";
-    else
-        settings.stream() << "<div class='val'>address</div></summary>";
+    settings.stream() << "<div class='val'>";
+    OutputAddress(settings, object);
+    settings.stream() << "</div>";
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
@@ -19183,7 +19182,7 @@ void dump_html_VkWaylandSurfaceCreateInfoKHR(const VkWaylandSurfaceCreateInfoKHR
     }
     dump_html_value<const VkWaylandSurfaceCreateFlagsKHR>(object.flags, settings, "VkWaylandSurfaceCreateFlagsKHR", "flags", indents + 1, dump_html_VkWaylandSurfaceCreateFlagsKHR);
     dump_html_value<const wl_display*>(object.display, settings, "struct wl_display*", "display", indents + 1, dump_html_wl_display);
-    dump_html_pointer<const wl_surface>(object.surface, settings, "struct wl_surface*", "surface", indents + 1, dump_html_wl_surface);
+    dump_html_value<const wl_surface*>(object.surface, settings, "struct wl_surface*", "surface", indents + 1, dump_html_wl_surface);
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)

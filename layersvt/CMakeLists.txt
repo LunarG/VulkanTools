@@ -16,14 +16,20 @@ elseif(APPLE)
     endif()
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
+    option(BUILD_WSI_WAYLAND_SUPPORT "Build WAYLAND WSI support" ON)
 
     find_package(PkgConfig REQUIRED)
 
-    # TODO: The monitor layer is the only layer that requires XCB support
     if (BUILD_WSI_XCB_SUPPORT)
         pkg_check_modules(XCB REQUIRED QUIET IMPORTED_TARGET xcb)
         add_compile_definitions(VK_USE_PLATFORM_XCB_KHR)
     endif()
+
+    if (BUILD_WSI_WAYLAND_SUPPORT)
+        pkg_check_modules(WAYLAND_CLIENT REQUIRED IMPORTED_TARGET wayland-client)
+        add_compile_definitions(VK_USE_PLATFORM_WAYLAND_KHR)
+    endif()
+
 else()
     message(FATAL_ERROR "Unsupported Platform!")
 endif()
@@ -70,10 +76,13 @@ if(BUILD_APIDUMP)
     )
 
     if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
-        target_compile_definitions(VkLayer_api_dump PRIVATE VK_USE_PLATFORM_XLIB_KHR)
+        if (BUILD_WSI_XCB_SUPPORT)
+            target_compile_definitions(VkLayer_api_dump PRIVATE VK_USE_PLATFORM_XLIB_KHR)
+        endif()
 
-        # Add Wayland API dump support
-        # target_compile_definitions(VkLayer_api_dump PRIVATE VK_USE_PLATFORM_XLIB_KHR)
+        if (BUILD_WSI_WAYLAND_SUPPORT)
+            target_compile_definitions(VkLayer_api_dump PRIVATE VK_USE_PLATFORM_WAYLAND_KHR)
+        endif()
     endif()
 
     target_compile_definitions(VkLayer_api_dump PRIVATE VK_ENABLE_BETA_EXTENSIONS)
