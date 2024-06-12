@@ -49,6 +49,6 @@ Vulkan Cube demo from [Khronos/Vulkan-Tools](https://github.com/KhronosGroup/Vul
 adb shell pm grant com.example.VkCube android.permission.READ_EXTERNAL_STORAGE
 adb shell pm grant com.example.VkCube android.permission.WRITE_EXTERNAL_STORAGE
 ```
-## Layer Options
+## Layer Settings
 
 The options for this layer are specified in VK_LAYER_LUNARG_screenshot.json. The layer option details are documented in the [screenshot layer documentation](https://vulkan.lunarg.com/doc/sdk/latest/windows/screenshot_layer.html#user-content-layer-details).

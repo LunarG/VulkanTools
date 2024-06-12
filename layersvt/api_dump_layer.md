@@ -111,14 +111,14 @@ The easiest way to set a property is from the ADB shell:
 
 **For example:**
 
-To set the API Dump output log filename, which on desktop uses `VK_APIDUMP_LOG_FILENAME`
+To set the API Dump output log filename, which on desktop uses `VK_API_DUMP_LOG_FILENAME`
 set the following property:
 
-    debug.apidump_log_filename
+    debug.vulkan.api_dump.log_filename
 
 Which you can set in the following way:
 
-    adb shell "setprop debug.apidump_log_filename '/sdcard/Android/vk_apidump.txt'"
+    adb shell "setprop debug.vulkan.api_dump.log_filename '/sdcard/Android/vk_apidump.txt'"
 
 <br></br>
 
