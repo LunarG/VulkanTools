@@ -11,7 +11,7 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.6.0](https://github.com/LunarG/VulkanTools/tree/main) - May 2024
+## [Vulkan Configurator 2.6.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.283.0) - May 2024
 
 ### Features:
 - Add system tray

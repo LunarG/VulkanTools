@@ -63,7 +63,15 @@ void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &a
         const bool result = configuration.Load(available_layers, configuration_files[i].absoluteFilePath().toStdString());
         assert(result);
 
-        if (!IsPlatformSupported(configuration.platform_flags)) continue;
+        if (!IsPlatformSupported(configuration.platform_flags)) {
+            continue;
+        }
+
+#ifdef _M_ARM64
+        if (configuration.key == "Frame Capture") {
+            continue;
+        }
+#endif
 
         OrderParameter(configuration.parameters, available_layers);
 
