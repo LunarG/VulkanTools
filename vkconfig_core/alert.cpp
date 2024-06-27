@@ -44,12 +44,12 @@ void Alert::StartLoaderFailure() {
     alert.exec();
 }
 
-void Alert::StartLoaderIncompatibleVersions(const Version& loader_version) {
+void Alert::StartLoaderIncompatibleVersions(const Version& system_loader_version, const Version& required_loader_version) {
     QMessageBox alert;
     alert.setWindowTitle("Vulkan Configurator failed to start...");
-    alert.setText(format("The system has Vulkan Loader %s. The Vulkan Loader 1.3.211 and older requires that the layers use the "
+    alert.setText(format("The system has Vulkan Loader %s. The Vulkan Loader %s and older requires that the layers use the "
                          "same Vulkan Headers minor version.",
-                         loader_version.str().c_str())
+                         system_loader_version.str().c_str(), required_loader_version.str().c_str())
                       .c_str());
     alert.setInformativeText("Please update the Vulkan Runtime at https://vulkan.lunarg.com/sdk/home");
     alert.setIcon(QMessageBox::Critical);

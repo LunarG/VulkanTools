@@ -21,6 +21,7 @@
 #include "mainwindow.h"
 
 #include "../vkconfig_core/vulkan_util.h"
+#include "../vkconfig_core/vulkan_util.h"
 #include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/application_singleton.h"
 #include "../vkconfig_core/configurator.h"
@@ -29,6 +30,13 @@
 #include <QApplication>
 
 #include <cassert>
+
+#if VKC_ENV == VKC_ENV_WIN32
+static const Version REQUIRED_LOADER_VERSION(1, 3, 284);
+#elif VKC_ENV == VKC_ENV_UNIX
+static const Version REQUIRED_LOADER_VERSION(1, 3, 261);
+#else
+#endif
 
 int main(int argc, char* argv[]) {
     InitSignals();
@@ -69,8 +77,8 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    if (vulkan_info.loaderVersion < Version(1, 3, 261)) {
-        Alert::StartLoaderIncompatibleVersions(vulkan_info.loaderVersion);
+    if (vulkan_info.loaderVersion < REQUIRED_LOADER_VERSION) {
+        Alert::StartLoaderIncompatibleVersions(vulkan_info.loaderVersion, REQUIRED_LOADER_VERSION);
         return -1;
     }
 

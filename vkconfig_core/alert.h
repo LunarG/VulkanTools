@@ -28,7 +28,7 @@
 struct Alert {
     static QMessageBox::Button StartSingleton();
     static void StartLoaderFailure();
-    static void StartLoaderIncompatibleVersions(const Version& loader_version);
+    static void StartLoaderIncompatibleVersions(const Version& system_loader_version, const Version& required_loader_version);
     static void StartPhysicalDeviceFailure();
 
     static void LayerInvalid(const Path& path, const char* message);

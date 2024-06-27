@@ -25,8 +25,6 @@
 #include <cstdint>
 #include <string>
 
-#define SUPPORT_LAYER_CONFIG_2_2_0 1
-
 extern const char *VKCONFIG_NAME;
 extern const char *VKCONFIG_SHORT_NAME;
 
