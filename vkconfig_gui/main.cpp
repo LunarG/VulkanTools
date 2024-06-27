@@ -58,8 +58,9 @@ int main(int argc, char* argv[]) {
     }
 
     Configurator& configurator = Configurator::Get();
-    configurator
-        .Surrender();  // Make sure layers configuration is deleted otherwise BuildVulkanSystemInfo() will crash... (unexplained)
+
+    // Make sure layers configuration is deleted otherwise BuildVulkanSystemInfo() will crash... (unexplained)
+    configurator.Surrender();
 
     const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
 

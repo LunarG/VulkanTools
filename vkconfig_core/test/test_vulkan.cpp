@@ -18,16 +18,15 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../vulkan_info.h"
+#include "../vulkan_util.h"
 
 #include <gtest/gtest.h>
 
-TEST(test_vulkan, string) {
+TEST(test_vulkan, system_info) {
     const VulkanSystemInfo& vulkan_system_info = BuildVulkanSystemInfo();
 
-    const std::string version_a("1.1.130");
-    const std::string version_b("1.2.145");
-
-    EXPECT_EQ(version_a, Version(version_a.c_str()).str());
-    EXPECT_EQ(version_b, Version(version_b.c_str()).str());
+    EXPECT_TRUE(vulkan_system_info.loaderVersion != Version::VERSION_NULL);
+    EXPECT_TRUE(!vulkan_system_info.instanceLayerProperties.empty());
+    EXPECT_TRUE(!vulkan_system_info.instanceExtensionPropertie.empty());
+    EXPECT_TRUE(!vulkan_system_info.physicalDevices.empty());
 }
