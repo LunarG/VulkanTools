@@ -282,7 +282,7 @@ Configurator::Configurator() : environment(), layers(environment), configuration
 Configurator::~Configurator() {
     configurations.SaveAllConfigurations(layers.selected_layers);
 
-    this->Surrender();
+    // this->Surrender();
 }
 
 bool Configurator::Init() {

@@ -28,7 +28,7 @@ else()
         endif()
 
         if(WIN32)
-            add_executable(vkconfig-gui WIN32 ${FILES_ALL} ${CMAKE_CURRENT_SOURCE_DIR}/resourcefiles/vkconfig.rc)
+            add_executable(vkconfig-gui ${FILES_ALL} ${CMAKE_CURRENT_SOURCE_DIR}/resourcefiles/vkconfig.rc)
             target_compile_definitions(vkconfig-gui PRIVATE _CRT_SECURE_NO_WARNINGS)
             target_compile_options(vkconfig-gui PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/MP>)
             target_link_libraries(vkconfig-gui Cfgmgr32)

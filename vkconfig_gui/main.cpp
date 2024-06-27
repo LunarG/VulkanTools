@@ -33,6 +33,8 @@
 int main(int argc, char* argv[]) {
     InitSignals();
 
+    qputenv("VK_LOADER_DEBUG", "all");
+
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
 
@@ -60,7 +62,7 @@ int main(int argc, char* argv[]) {
     Configurator& configurator = Configurator::Get();
 
     // Make sure layers configuration is deleted otherwise BuildVulkanSystemInfo() will crash... (unexplained)
-    configurator.Surrender();
+    // configurator.Surrender();
 
     const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
 
