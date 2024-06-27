@@ -21,17 +21,32 @@
 #include "alert.h"
 #include <QCheckBox>
 
-void Alert::LoaderFailure() {
+QMessageBox::Button Alert::StartSingleton() {
     QMessageBox alert;
-    alert.QDialog::setWindowTitle("Vulkan Development Status failure...");
+    alert.QDialog::setWindowTitle(format("Cannot start a new instance of %s", VKCONFIG_NAME).c_str());
+    alert.setIcon(QMessageBox::Critical);
+    alert.setDefaultButton(QMessageBox::Cancel);
+    alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    alert.setText(format("Another instance of %s is currently running. Please close it to continue.", VKCONFIG_NAME).c_str());
+    alert.setInformativeText(format("Press OK to continue launching the new instance of %s when the other instance is "
+                                    "stopped.\nPress CANCEL to stop the launch of a new %s instance.",
+                                    VKCONFIG_NAME, VKCONFIG_NAME)
+                                 .c_str());
+
+    return static_cast<QMessageBox::Button>(alert.exec());
+}
+
+void Alert::StartLoaderFailure() {
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle("Vulkan Configurator failed to start...");
     alert.setText("Could not find a Vulkan Loader.");
     alert.setIcon(QMessageBox::Critical);
     alert.exec();
 }
 
-void Alert::LoaderIncompatibleVersions(const Version& loader_version) {
+void Alert::StartLoaderIncompatibleVersions(const Version& loader_version) {
     QMessageBox alert;
-    alert.setWindowTitle("Incompatible layers versions");
+    alert.setWindowTitle("Vulkan Configurator failed to start...");
     alert.setText(format("The system has Vulkan Loader %s. The Vulkan Loader 1.3.211 and older requires that the layers use the "
                          "same Vulkan Headers minor version.",
                          loader_version.str().c_str())
@@ -41,40 +56,11 @@ void Alert::LoaderIncompatibleVersions(const Version& loader_version) {
     alert.exec();
 }
 
-void Alert::InstanceFailure() {
+void Alert::StartPhysicalDeviceFailure() {
     QMessageBox alert;
-    alert.QDialog::setWindowTitle("Vulkan Development Status failure...");
-    alert.setText("Cannot find a compatible Vulkan installable client driver (ICD).");
-    alert.setIcon(QMessageBox::Critical);
-    alert.exec();
-}
-
-void Alert::PhysicalDeviceFailure() {
-    QMessageBox alert;
-    alert.setWindowTitle("Vulkan Development Status failure...");
+    alert.setWindowTitle("Vulkan Configurator failed to start...");
     alert.setText("Cannot find any Vulkan Physical Devices.");
     alert.setIcon(QMessageBox::Critical);
-    alert.exec();
-}
-
-void Alert::ApplicationListUnsupported(const char* message) {
-    QMessageBox alert;
-    alert.QDialog::setWindowTitle("Layers override of a selected list of Vulkan Applications is not available");
-    alert.setTextFormat(Qt::RichText);
-    alert.setText(message);
-    alert.setInformativeText(
-        "In order to apply layers override to only a selected list of Vulkan applications, get the latest Vulkan Runtime from "
-        "<a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature or update your Vulkan drivers");
-    alert.setIcon(QMessageBox::Warning);
-    alert.exec();
-}
-
-void Alert::ApplicationListEmpty() {
-    QMessageBox alert;
-    alert.setIcon(QMessageBox::Warning);
-    alert.QDialog::setWindowTitle("Vulkan Layers overriding will apply globally.");
-    alert.setText("The application list to override is empty. Restricting layers overriding to the selected list is disabled.");
-    alert.setInformativeText("As a result, Vulkan Layers overriding will apply globally, to all Vulkan applications.");
     alert.exec();
 }
 
@@ -121,21 +107,6 @@ QMessageBox::Button Alert::LayerProfiles() {
     alert.setInformativeText("Do you want to override ALL explicit layers too?");
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     alert.setIcon(QMessageBox::Warning);
-    return static_cast<QMessageBox::Button>(alert.exec());
-}
-
-QMessageBox::Button Alert::ConfiguratorSingleton() {
-    QMessageBox alert;
-    alert.QDialog::setWindowTitle(format("Cannot start a new instance of %s", VKCONFIG_NAME).c_str());
-    alert.setIcon(QMessageBox::Critical);
-    alert.setDefaultButton(QMessageBox::Cancel);
-    alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-    alert.setText(format("Another instance of %s is currently running. Please close it to continue.", VKCONFIG_NAME).c_str());
-    alert.setInformativeText(format("Press OK to continue launching the new instance of %s when the other instance is "
-                                    "stopped.\nPress CANCEL to stop the launch of a new %s instance.",
-                                    VKCONFIG_NAME, VKCONFIG_NAME)
-                                 .c_str());
-
     return static_cast<QMessageBox::Button>(alert.exec());
 }
 

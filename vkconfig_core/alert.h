@@ -26,14 +26,10 @@
 #include <QMessageBox>
 
 struct Alert {
-    static void LoaderFailure();
-    static void LoaderIncompatibleVersions(const Version& loader_version);
-
-    static void InstanceFailure();
-    static void PhysicalDeviceFailure();
-
-    static void ApplicationListUnsupported(const char* message);
-    static void ApplicationListEmpty();
+    static QMessageBox::Button StartSingleton();
+    static void StartLoaderFailure();
+    static void StartLoaderIncompatibleVersions(const Version& loader_version);
+    static void StartPhysicalDeviceFailure();
 
     static void LayerInvalid(const Path& path, const char* message);
     static QMessageBox::Button LayerImplicitExcluded(const char* layer_name);
@@ -41,7 +37,6 @@ struct Alert {
 
     static void PathInvalid(const Path& path, const char* message);
 
-    static QMessageBox::Button ConfiguratorSingleton();
     static void ConfiguratorRestart();
     static QMessageBox::Button ConfiguratorResetAll();
     static QMessageBox::Button ConfiguratorReloadDefault();

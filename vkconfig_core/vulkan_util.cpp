@@ -90,11 +90,13 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
     VulkanSystemInfo vulkan_system_info;
 
     VulkanFunctions vk;
+    if (!vk.Validate()) {
+        return vulkan_system_info;
+    }
 
     uint32_t api_version = 0;
     VkResult result = vk.EnumerateInstanceVersion(&api_version);
     vulkan_system_info.loaderVersion = Version(api_version);
-
     assert(result == VK_SUCCESS);
 
     std::uint32_t instance_layer_count = 0;
@@ -155,6 +157,7 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
     // This can fail on a new Linux setup. Check and fail gracefully rather than crash.
     if (result != VK_SUCCESS) {
         vk.DestroyInstance(instance, NULL);
+        return vulkan_system_info;
     }
 
     std::vector<VkPhysicalDevice> devices;

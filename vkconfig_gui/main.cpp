@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     // order to use a QMessageBox and avoid some QThread warnings.
     ApplicationSingleton singleton("vkconfig_single_instance");
     while (!singleton.IsFirstInstance()) {
-        if (Alert::ConfiguratorSingleton() == QMessageBox::Cancel) {
+        if (Alert::StartSingleton() == QMessageBox::Cancel) {
             return -1;
         }
     }
@@ -65,12 +65,17 @@ int main(int argc, char* argv[]) {
     const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
 
     if (vulkan_info.loaderVersion == Version::VERSION_NULL) {
-        Alert::LoaderFailure();
+        Alert::StartLoaderFailure();
         return -1;
     }
 
     if (vulkan_info.loaderVersion < Version(1, 3, 261)) {
-        Alert::LoaderIncompatibleVersions(vulkan_info.loaderVersion);
+        Alert::StartLoaderIncompatibleVersions(vulkan_info.loaderVersion);
+        return -1;
+    }
+
+    if (vulkan_info.physicalDevices.empty()) {
+        Alert::StartPhysicalDeviceFailure();
         return -1;
     }
 
