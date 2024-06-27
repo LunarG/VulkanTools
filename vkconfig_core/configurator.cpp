@@ -115,16 +115,14 @@ static LoaderSettings BuildLoaderSettings(const Configuration& configuration) {
 }
 
 // Create and write vk_loader_settings.json file
-static bool WriteLoaderSettings(const Path& loader_settings_path) {
+bool Configurator::WriteLoaderSettings(const Path& loader_settings_path) {
     assert(!loader_settings_path.Empty());
-
-    Configurator& configurator = Configurator::Get();
 
     std::vector<LoaderSettings> loader_settings_array;
 
-    if (configurator.environment.GetPerApplicationConfig()) {
-        for (std::size_t i = 0, n = configurator.environment.GetApplications().size(); i < n; ++i) {
-            const Application& application = configurator.environment.GetApplication(i);
+    if (this->environment.GetPerApplicationConfig()) {
+        for (std::size_t i = 0, n = this->environment.GetApplications().size(); i < n; ++i) {
+            const Application& application = this->environment.GetApplication(i);
             LoaderSettings loader_settings;
 
             switch (application.layers_mode) {
@@ -132,11 +130,11 @@ static bool WriteLoaderSettings(const Path& loader_settings_path) {
                     continue;
                 } break;
                 case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
-                    Configuration* configuration = configurator.configurations.FindConfiguration(application.layers_configuration);
+                    Configuration* configuration = this->configurations.FindConfiguration(application.layers_configuration);
                     loader_settings = BuildLoaderSettings(*configuration);
                 } break;
                 case LAYERS_DISABLED_BY_CONFIGURATOR: {
-                    Configuration disabled_configuration = Configuration::CreateDisabled(configurator.layers.selected_layers);
+                    Configuration disabled_configuration = Configuration::CreateDisabled(this->layers.selected_layers);
                     loader_settings = BuildLoaderSettings(disabled_configuration);
                 } break;
             }
@@ -145,8 +143,7 @@ static bool WriteLoaderSettings(const Path& loader_settings_path) {
             loader_settings_array.push_back(loader_settings);
         }
     } else {
-        Configuration* configuration =
-            configurator.configurations.FindConfiguration(configurator.environment.GetSelectedConfiguration());
+        Configuration* configuration = this->configurations.FindConfiguration(this->environment.GetSelectedConfiguration());
 
         if (configuration != nullptr) {
             loader_settings_array.push_back(BuildLoaderSettings(*configuration));
@@ -176,8 +173,7 @@ static bool WriteLoaderSettings(const Path& loader_settings_path) {
 }
 
 // Create and write vk_layer_settings.txt file
-static bool WriteLayersSettings(const std::vector<Layer>& available_layers, const Configuration& configuration,
-                                const Path& settings_path) {
+bool Configurator::WriteLayersSettings(const Path& settings_path) {
     QFile file(settings_path.AbsolutePath().c_str());
     const bool result_settings_file = file.open(QIODevice::WriteOnly | QIODevice::Text);
     if (!result_settings_file) {
@@ -188,14 +184,16 @@ static bool WriteLayersSettings(const std::vector<Layer>& available_layers, cons
 
     bool has_missing_layers = false;
 
+    Configuration* configuration = this->configurations.FindConfiguration(this->environment.GetSelectedConfiguration());
+
     // Loop through all the layers
-    for (std::size_t j = 0, n = configuration.parameters.size(); j < n; ++j) {
-        const Parameter& parameter = configuration.parameters[j];
+    for (std::size_t j = 0, n = configuration->parameters.size(); j < n; ++j) {
+        const Parameter& parameter = configuration->parameters[j];
         if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
             continue;
         }
 
-        const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
+        const Layer* layer = FindByKey(this->layers.selected_layers, parameter.key.c_str());
         if (layer == nullptr) {
             has_missing_layers = true;
             continue;
@@ -359,7 +357,7 @@ void Configurator::Configure(const std::vector<Layer>& available_layers, const s
     }
 }
 
-bool Configurator::Override(const Configuration& configuration) {
+bool Configurator::Override() {
     const Path& loader_settings_path = ::Get(Path::LOADER_SETTINGS);
     const Path& layers_settings_path = ::Get(Path::LAYERS_SETTINGS);
 
@@ -367,10 +365,10 @@ bool Configurator::Override(const Configuration& configuration) {
     this->Surrender();
 
     // vk_loader_settings.json
-    const bool result_layers = ::WriteLoaderSettings(loader_settings_path);
+    const bool result_layers = this->WriteLoaderSettings(loader_settings_path);
 
     // vk_layer_settings.txt
-    const bool result_settings = ::WriteLayersSettings(this->layers.selected_layers, configuration, layers_settings_path);
+    const bool result_settings = this->WriteLayersSettings(layers_settings_path);
 
     // On Windows only, we need to write these values to the registry
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS

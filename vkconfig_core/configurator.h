@@ -36,7 +36,7 @@ class Configurator {
 
    public:
     bool Surrender();
-    bool Override(const Configuration& configuration);
+    bool Override();
     bool HasOverride() const;
 
     void ActivateConfiguration(const std::string& configuration_name);
@@ -56,6 +56,9 @@ class Configurator {
 
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
+
+    bool WriteLayersSettings(const Path& layers_settings_path);
+    bool WriteLoaderSettings(const Path& loader_settings_path);
 
    public:
     Environment environment;
