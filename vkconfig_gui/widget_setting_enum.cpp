@@ -114,9 +114,9 @@ void WidgetSettingEnum::Refresh(RefreshAreas refresh_areas) {
         int selection = 0;
         const std::string value = this->data().GetValue();
         for (std::size_t i = 0, n = physical_device_infos.size(); i < n; ++i) {
-            this->field->addItem(physical_device_infos[i].deviceName);
+            this->field->addItem(physical_device_infos[i].deviceName.c_str());
             if (physical_device_infos[i].deviceName == value || "${VP_PHYSICAL_DEVICES}" == value) {
-                this->data().SetValue(physical_device_infos[i].deviceName);
+                this->data().SetValue(physical_device_infos[i].deviceName.c_str());
                 selection = static_cast<int>(this->enum_indexes.size());
             }
             this->enum_indexes.push_back(i);
@@ -205,8 +205,8 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         const std::vector<VulkanPhysicalDeviceInfo>& physical_device_infos = Configurator::Get().vulkan_system_info.physicalDevices;
         assert(index >= 0 && index < static_cast<int>(physical_device_infos.size()));
 
-        this->data().SetValue(physical_device_infos[index].deviceName);
-        this->setToolTip(physical_device_infos[index].deviceName);
+        this->data().SetValue(physical_device_infos[index].deviceName.c_str());
+        this->setToolTip(physical_device_infos[index].deviceName.c_str());
     } else {
         assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 

@@ -19,17 +19,7 @@
  */
 
 #include "vulkan_info.h"
-
-std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
-    std::string result;
-
-    for (std::size_t i = 0, n = VK_UUID_SIZE; i < n; ++i) {
-        result += format("%02X", deviceUUID[i]);
-    }
-
-    return result;
-}
-
+/*
 static std::string GetUserDefinedLayersPathsLog(const char *label, UserDefinedLayersPaths custom_layer_path) {
     std::string log;
 
@@ -271,3 +261,4 @@ std::string GenerateVulkanStatus() {
 
     return log;
 }
+*/

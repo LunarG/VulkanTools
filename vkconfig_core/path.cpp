@@ -244,15 +244,17 @@ static const Path GetConfigsPath() {
 }
 
 static const Path GetLayersSettingsPath() {
-    static const std::string TABLE[] = {
-        "/vulkan",     // ENVIRONMENT_WIN32
-        "/settings.d"  // ENVIRONMENT_UNIX
-    };
-    static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
+#if VKC_ENV == VKC_ENV_WIN32
+    const std::string layers_settings_path = "/" + VKCONFIG_VERSION + "/override";
+#elif VKC_ENV == VKC_ENV_UNIX
+    const std::string layers_settings_path = "/settings.d";
+#else
+#error Unknown platform
+#endif
 
     std::string result = qgetenv("VK_LAYER_SETTINGS_PATH").toStdString();
     if (result.empty()) {
-        result = GetAppDataPath().RelativePath() + TABLE[VKC_ENV];
+        result = GetAppDataPath().RelativePath() + layers_settings_path;
     }
     if (result.find("vk_layer_settings.txt") == std::string::npos) {
         result += "/vk_layer_settings.txt";
@@ -269,13 +271,15 @@ static const Path GetLayersSettingsPath() {
 }
 
 static const Path GetLoaderSettingsPath() {
-    static const std::string TABLE[] = {
-        "/vulkan",            // ENVIRONMENT_WIN32
-        "/loader_settings.d"  // ENVIRONMENT_UNIX
-    };
-    static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
+#if VKC_ENV == VKC_ENV_WIN32
+    const std::string loader_settings_path = "/vulkan";
+#elif VKC_ENV == VKC_ENV_UNIX
+    const std::string loader_settings_path = "/loader_settings.d";
+#else
+#error Unknown platform
+#endif
 
-    std::string result = GetAppDataPath().RelativePath() + TABLE[VKC_ENV];
+    std::string result = GetAppDataPath().RelativePath() + loader_settings_path;
     if (result.find("vk_loader_settings.json") == std::string::npos) {
         result += "/vk_loader_settings.json";
     }

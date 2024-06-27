@@ -22,10 +22,21 @@
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/type_platform.h"
+#include "../vkconfig_core/util.h"
 
 #include <QLibrary>
 
 #include <cassert>
+
+static std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
+    std::string result;
+
+    for (std::size_t i = 0, n = VK_UUID_SIZE; i < n; ++i) {
+        result += format("%02X", deviceUUID[i]);
+    }
+
+    return result;
+}
 
 struct VulkanFunctions {
     VulkanFunctions();
@@ -40,7 +51,7 @@ struct VulkanFunctions {
     PFN_vkGetPhysicalDeviceProperties2 GetPhysicalDeviceProperties2;
 };
 
-const char *GetVulkanLibrary() {
+static const char *GetVulkanLibrary() {
     static const char *TABLE[] = {
         "vulkan-1.dll",              // PLATFORM_WINDOWS
         "libvulkan",                 // PLATFORM_LINUX
@@ -80,7 +91,10 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
 
     VulkanFunctions vk;
 
-    VkResult result = vk.EnumerateInstanceVersion(&vulkan_system_info.loaderVersion);
+    uint32_t api_version = 0;
+    VkResult result = vk.EnumerateInstanceVersion(&api_version);
+    vulkan_system_info.loaderVersion = Version(api_version);
+
     assert(result == VK_SUCCESS);
 
     std::uint32_t instance_layer_count = 0;
@@ -158,10 +172,10 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
 
         vk.GetPhysicalDeviceProperties2(devices[i], &properties2);
 
-        std::strncpy(device_info.deviceName, properties2.properties.deviceName, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE);
-        device_info.apiVersion = properties2.properties.apiVersion;
-        std::memcpy(device_info.deviceUUID, properties_deviceid.deviceUUID, VK_UUID_SIZE);
-        std::memcpy(device_info.driverUUID, properties_deviceid.driverUUID, VK_UUID_SIZE);
+        device_info.deviceName = properties2.properties.deviceName;
+        device_info.apiVersion = Version(properties2.properties.apiVersion);
+        device_info.deviceUUID = GetUUIDString(properties_deviceid.deviceUUID);
+        device_info.driverUUID = GetUUIDString(properties_deviceid.driverUUID);
     }
 
     vk.DestroyInstance(instance, NULL);

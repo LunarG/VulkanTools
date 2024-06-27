@@ -19,8 +19,8 @@
  */
 
 #include "mainwindow.h"
-#include "vulkan_util.h"
 
+#include "../vkconfig_core/vulkan_util.h"
 #include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/application_singleton.h"
 #include "../vkconfig_core/configurator.h"
@@ -33,8 +33,6 @@
 int main(int argc, char* argv[]) {
     InitSignals();
 
-    const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
-
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
 
@@ -45,18 +43,8 @@ int main(int argc, char* argv[]) {
     // settings from the previous version (assuming that's ever an issue)
     QCoreApplication::setApplicationName(VKCONFIG_SHORT_NAME);
 
-    // Older Qt versions do not have this. Dynamically check the version
-    // of Qt since it's just an enumerant. Versions 5.6.0 and later have
-    // high dpi support. We really don't need to check the 5, but for
-    // the sake of completeness and mabye compatibility with qt 6.
-    // Also ignoring the trailing point releases
-    const char* version = qVersion();
-    int version_major, version_minor;
-    sscanf(version, "%d.%d", &version_major, &version_minor);
-    if (version_major >= 5 && version_minor >= 6) {
-        // Qt::AA_EnableHighDpiScaling = 20  from qnamespace.h in Qt 5.6 or later
-        QCoreApplication::setAttribute((Qt::ApplicationAttribute)20);
-    }
+    // Qt::AA_EnableHighDpiScaling = 20  from qnamespace.h in Qt 5.6 or later
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication app(argc, argv);
 
@@ -69,18 +57,22 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if (vulkan_info.loaderVersion == 0) {
+    Configurator& configurator = Configurator::Get();
+    configurator
+        .Surrender();  // Make sure layers configuration is deleted otherwise BuildVulkanSystemInfo() will crash... (unexplained)
+
+    const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
+
+    if (vulkan_info.loaderVersion == Version::VERSION_NULL) {
         Alert::LoaderFailure();
         return -1;
     }
 
-    if (Version(vulkan_info.loaderVersion) < Version("1.3.261")) {
-        Alert::LoaderIncompatibleVersions(Version(vulkan_info.loaderVersion));
+    if (vulkan_info.loaderVersion < Version(1, 3, 261)) {
+        Alert::LoaderIncompatibleVersions(vulkan_info.loaderVersion);
         return -1;
     }
 
-    // We simply cannot run without any layers
-    Configurator& configurator = Configurator::Get();
     if (!configurator.Init()) {
         return -1;
     }

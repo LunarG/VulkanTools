@@ -20,19 +20,21 @@
 
 #pragma once
 
+#include "version.h"
+
 #include <vulkan/vulkan.h>
 
 #include <vector>
 
 struct VulkanPhysicalDeviceInfo {
-    char deviceName[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE];
-    uint8_t deviceUUID[VK_UUID_SIZE];
-    uint8_t driverUUID[VK_UUID_SIZE];
-    uint32_t apiVersion;
+    std::string deviceName;
+    std::string deviceUUID;
+    std::string driverUUID;
+    Version apiVersion;
 };
 
 struct VulkanSystemInfo {
-    uint32_t loaderVersion;
+    Version loaderVersion;
     std::vector<VkLayerProperties> instanceLayerProperties;
     std::vector<VkExtensionProperties> instanceExtensionPropertie;
     std::vector<VulkanPhysicalDeviceInfo> physicalDevices;
