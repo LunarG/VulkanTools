@@ -43,7 +43,7 @@ Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFO
 
 Configuration Configuration::CreateDisabled(const std::vector<Layer>& available_layers) {
     Configuration result;
-    result.key = "_TempConfiguration";
+    result.key = "_DisablingConfiguration";
     result.parameters = GatherParameters(result.parameters, available_layers);
 
     for (std::size_t i = 0, n = result.parameters.size(); i < n; ++i) {

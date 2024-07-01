@@ -88,13 +88,14 @@ class Environment {
     bool AppendApplication(const Application& application);
     bool RemoveApplication(std::size_t application_index);
 
+    const ConfigurationInfo& GetActiveConfigurationInfo() const;
+    ConfigurationInfo& GetActiveConfigurationInfo();
+
     const std::vector<Application>& GetApplications() const { return applications; }
     const Application& GetActiveApplication() const;
+    Application& GetActiveApplication();
     const Application& GetApplication(std::size_t application_index) const;
     Application& GetApplication(std::size_t application_index);
-
-    const std::string& GetSelectedConfiguration() const { return this->selected_configuration; }
-    void SetSelectedConfiguration(const std::string& key) { this->selected_configuration = key; }
 
     const QByteArray& Get(LayoutState state) const;
     void Set(LayoutState state, const QByteArray& data);
@@ -104,9 +105,6 @@ class Environment {
 
     bool GetUseSystemTray() const { return this->use_system_tray; }
     void SetUseSystemTray(bool enable) { this->use_system_tray = enable; }
-
-    LayersMode GetMode() const;
-    void SetMode(LayersMode mode);
 
     LogFlags GetLoaderMessageFlags() const { return this->loader_message_types_flags; }
     void SetLoaderMessageFlags(LogFlags flags) { this->loader_message_types_flags = flags; }
@@ -129,18 +127,18 @@ class Environment {
     Path path_export;
     Path path_import;
 
+    ConfigurationInfo global_configuration;
+
    private:
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
 
     TabType active_tab;
-    LayersMode layers_mode;
     bool use_system_tray;
     bool use_per_application_configuration;
     LogFlags loader_message_types_flags;
     std::string home_sdk_path;
 
-    std::string selected_configuration;
     int active_executable_index;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
     std::array<std::vector<Path>, USER_DEFINED_LAYERS_PATHS_COUNT> user_defined_layers_paths;

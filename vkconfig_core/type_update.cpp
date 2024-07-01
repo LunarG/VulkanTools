@@ -18,30 +18,4 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
-
-#include "type_layers_mode.h"
-#include "path.h"
-#include "configuration_info.h"
-
-#include <string>
-#include <vector>
-
-struct ApplicationOptions {
-    std::string label;
-    Path working_folder;
-    std::vector<std::string> arguments;
-    std::vector<std::string> environment_variables;
-    Path log_file;
-};
-
-struct Application {
-    Path executable_path;
-    ConfigurationInfo configuration;
-    int active_option_index;
-    std::vector<ApplicationOptions> options;
-
-    ApplicationOptions& GetActiveOptions() { return this->options[active_option_index]; }
-
-    const ApplicationOptions& GetActiveOptions() const { return this->options[active_option_index]; }
-};
+#include "type_update.h"

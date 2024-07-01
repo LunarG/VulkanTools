@@ -31,6 +31,25 @@
 
 class Configurator {
    public:
+    struct LayersSettings {
+        std::string configuration_name;
+        Path executable_path;
+        Path settings_path;
+    };
+
+    struct LoaderLayerSettings {
+        std::string key;
+        std::string path;
+        LayerControl control = LAYER_CONTROL_AUTO;
+        bool implicit = false;
+    };
+
+    struct LoaderSettings {
+        std::string executable_path;
+        std::vector<LoaderLayerSettings> layers;
+        LogFlags stderr_log_flags = LOG_ERROR;
+    };
+
     static Configurator& Get();
     bool Init();
 
@@ -39,16 +58,7 @@ class Configurator {
     bool Override();
     bool HasOverride() const;
 
-    void ActivateConfiguration(const std::string& configuration_name);
-
-    // The only function that actually configure the system, the Vulkan Loader, the Vulkan layer settings, creating and deleting
-    // system files
-    void Configure(const std::vector<Layer>& available_layers, const std::string& configuration_name);
-    void Configure(const std::vector<Layer>& available_layers);
-
     void ResetToDefault(bool hard);
-
-    bool SupportLoaderSettings(Version* return_loader_version = nullptr) const;
 
    private:
     Configurator();
@@ -59,6 +69,9 @@ class Configurator {
 
     bool WriteLayersSettings(const Path& layers_settings_path);
     bool WriteLoaderSettings(const Path& loader_settings_path);
+
+    void BuildLoaderSettings(const ConfigurationInfo& info, const std::string& executable_path,
+                             std::vector<LoaderSettings>& loader_settings_array) const;
 
    public:
     Environment environment;

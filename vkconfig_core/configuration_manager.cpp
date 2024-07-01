@@ -201,15 +201,15 @@ const Configuration *ConfigurationManager::FindConfiguration(const std::string &
 }
 
 Configuration *ConfigurationManager::FindActiveConfiguration() {
-    return FindConfiguration(this->environment.GetSelectedConfiguration());
+    return FindConfiguration(this->environment.global_configuration.GetName());
 }
 
 bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &available_layers) const {
-    switch (environment.GetMode()) {
+    switch (this->environment.global_configuration.GetMode()) {
         case LAYERS_CONTROLLED_BY_APPLICATIONS:
             return false;
         case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
-            const std::string configuration_name = this->environment.GetSelectedConfiguration();
+            const std::string configuration_name = this->environment.global_configuration.GetName();
             if (configuration_name.empty()) {
                 return false;
             } else {

@@ -382,10 +382,10 @@ void MainWindow::UpdateTray() {
 
         const Environment &environment = configurator.environment;
 
-        const bool use_override = environment.GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS;
+        const bool use_override = environment.global_configuration.GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS;
         const bool active = configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers) && use_override;
 
-        switch (environment.GetMode()) {
+        switch (environment.global_configuration.GetMode()) {
             default:
             case LAYERS_CONTROLLED_BY_APPLICATIONS:
                 this->_tray_layers_controlled_by_applications->setChecked(true);
@@ -456,8 +456,13 @@ void MainWindow::trayActionRestore() {
 
 void MainWindow::trayActionControlledByApplications() {
     Configurator &configurator = Configurator::Get();
-    configurator.environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
-    configurator.Configure(configurator.layers.selected_layers);
+
+    if (configurator.environment.GetPerApplicationConfig()) {
+        configurator.environment.GetActiveApplication().configuration.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
+    } else {
+        configurator.environment.global_configuration.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
+    }
+    configurator.Override();
 
     this->UpdateUI();
     this->UpdateTray();
@@ -465,8 +470,14 @@ void MainWindow::trayActionControlledByApplications() {
 
 void MainWindow::trayActionControlledByConfigurator() {
     Configurator &configurator = Configurator::Get();
-    configurator.environment.SetMode(LAYERS_CONTROLLED_BY_CONFIGURATOR);
-    configurator.Configure(configurator.layers.selected_layers);
+
+    if (configurator.environment.GetPerApplicationConfig()) {
+        configurator.environment.GetActiveApplication().configuration.SetMode(LAYERS_CONTROLLED_BY_CONFIGURATOR);
+    } else {
+        configurator.environment.global_configuration.SetMode(LAYERS_CONTROLLED_BY_CONFIGURATOR);
+    }
+
+    configurator.Override();
 
     this->UpdateUI();
     this->UpdateTray();
@@ -474,8 +485,14 @@ void MainWindow::trayActionControlledByConfigurator() {
 
 void MainWindow::trayActionDisabledByApplications() {
     Configurator &configurator = Configurator::Get();
-    configurator.environment.SetMode(LAYERS_DISABLED_BY_CONFIGURATOR);
-    configurator.Configure(configurator.layers.selected_layers);
+
+    if (configurator.environment.GetPerApplicationConfig()) {
+        configurator.environment.GetActiveApplication().configuration.SetMode(LAYERS_DISABLED_BY_CONFIGURATOR);
+    } else {
+        configurator.environment.global_configuration.SetMode(LAYERS_DISABLED_BY_CONFIGURATOR);
+    }
+
+    configurator.Override();
 
     this->UpdateUI();
     this->UpdateTray();
@@ -492,10 +509,13 @@ static std::string GetMainWindowTitle(bool active) {
 }
 
 void MainWindow::InitUI() {
-    Configurator &configurator = Configurator::Get();
-    const Environment &environment = configurator.environment;
+    const Environment &environment = Configurator::Get().environment;
 
-    ui->combo_box_mode->setCurrentIndex(environment.GetMode());
+    if (environment.GetPerApplicationConfig()) {
+        ui->combo_box_mode->setCurrentIndex(environment.GetActiveApplication().configuration.GetMode());
+    } else {
+        ui->combo_box_mode->setCurrentIndex(environment.global_configuration.GetMode());
+    }
 }
 
 void MainWindow::AddLayerPathItem(const std::string &layer_path) {
@@ -604,7 +624,7 @@ void MainWindow::UpdateUI() {
 
     Configurator &configurator = Configurator::Get();
     const Environment &environment = Configurator::Get().environment;
-    const std::string &selected_contiguration_name = environment.GetSelectedConfiguration();
+    const std::string &selected_contiguration_name = environment.GetActiveConfigurationInfo().GetName();
     const bool has_selected_configuration = !selected_contiguration_name.empty();
 
     this->blockSignals(true);
@@ -1008,13 +1028,8 @@ void MainWindow::on_check_box_apply_list_clicked() {
 void MainWindow::on_combo_box_mode_currentIndexChanged(int index) {
     Configurator &configurator = Configurator::Get();
 
-    if (configurator.environment.GetPerApplicationConfig()) {
-        Application &application = configurator.environment.GetApplication(configurator.environment.GetActiveApplicationIndex());
-        application.layers_mode = static_cast<LayersMode>(index);
-    } else {
-        configurator.environment.SetMode(static_cast<LayersMode>(index));
-        configurator.ActivateConfiguration(configurator.environment.GetSelectedConfiguration());
-    }
+    configurator.environment.GetActiveConfigurationInfo().SetMode(static_cast<LayersMode>(index));
+    configurator.Override();
 
     const bool enabled_ui = index == LAYERS_CONTROLLED_BY_CONFIGURATOR;
 
@@ -1029,7 +1044,7 @@ void MainWindow::on_combo_box_applications_currentIndexChanged(int index) {
 
     Application &application = configurator.environment.GetApplication(index);
     ui->combo_box_applications->setToolTip(application.executable_path.AbsolutePath().c_str());
-    ui->combo_box_mode->setCurrentIndex(application.layers_mode);
+    ui->combo_box_mode->setCurrentIndex(application.configuration.GetMode());
 }
 
 void MainWindow::on_check_box_per_application_toggled(bool checked) {
@@ -1037,12 +1052,7 @@ void MainWindow::on_check_box_per_application_toggled(bool checked) {
     configurator.environment.SetPerApplicationConfig(checked);
 
     ui->combo_box_applications->setEnabled(configurator.environment.GetPerApplicationConfig());
-    if (checked) {
-        Application &application = configurator.environment.GetApplication(configurator.environment.GetActiveApplicationIndex());
-        ui->combo_box_mode->setCurrentIndex(application.layers_mode);
-    } else {
-        ui->combo_box_mode->setCurrentIndex(configurator.environment.GetMode());
-    }
+    ui->combo_box_mode->setCurrentIndex(configurator.environment.GetActiveConfigurationInfo().GetMode());
 }
 
 void MainWindow::on_check_box_clear_on_launch_clicked() {
@@ -1077,7 +1087,9 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
     // to ensure the new item is "selected"
     // ui->tree_configurations->setCurrentItem(item);
 
-    Configurator::Get().ActivateConfiguration(configuration_item->configuration_name);
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.GetActiveConfigurationInfo().SetName(configuration_item->configuration_name);
+    configurator.Override();
 
     UpdateUI();
 }
@@ -1085,9 +1097,12 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
 void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
     (void)column;
 
+    Configurator &configurator = Configurator::Get();
+
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
     if (configuration_item != nullptr) {
-        Configurator::Get().ActivateConfiguration(configuration_item->configuration_name);
+        configurator.environment.GetActiveConfigurationInfo().SetName(configuration_item->configuration_name);
+        configurator.Override();
     }
 
     UpdateUI();
@@ -1139,8 +1154,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             configurator.configurations.RemoveConfigurationFile(old_name);
             configuration->key = configuration_item->configuration_name = new_name;
             configurator.configurations.SaveAllConfigurations(configurator.layers.selected_layers);
-
-            configurator.ActivateConfiguration(new_name);
+            configurator.environment.GetActiveConfigurationInfo().SetName(new_name);
 
             LoadConfigurationList();
         } else {
@@ -1150,8 +1164,10 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             item->setText(1, old_name.c_str());
             ui->configurations_tree->blockSignals(false);
 
-            configurator.ActivateConfiguration(old_name);
+            configurator.environment.GetActiveConfigurationInfo().SetName(old_name);
         }
+
+        configurator.Override();
 
         this->UpdateUI();
     }
@@ -1172,8 +1188,10 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
     configuration_item->radio_button->setChecked(true);
 
     Configurator &configurator = Configurator::Get();
-    if (configurator.environment.GetSelectedConfiguration() != configuration_item->configuration_name) {
-        configurator.ActivateConfiguration(configuration_item->configuration_name);
+    if (configurator.environment.GetActiveConfigurationInfo().GetName() != configuration_item->configuration_name) {
+        configurator.environment.GetActiveConfigurationInfo().SetName(configuration_item->configuration_name);
+
+        configurator.Override();
         this->UpdateUI();
     }
 }
@@ -1181,9 +1199,7 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
 void MainWindow::StartTool(Tool tool) {
     Configurator &configurator = Configurator::Get();
 
-    LayersMode saved_mode = configurator.environment.GetMode();
-    configurator.environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
-    configurator.Configure(configurator.layers.selected_layers);
+    configurator.Surrender();
 
     switch (tool) {
         case TOOL_VULKAN_INFO:
@@ -1194,8 +1210,7 @@ void MainWindow::StartTool(Tool tool) {
             break;
     }
 
-    configurator.environment.SetMode(saved_mode);
-    configurator.Configure(configurator.layers.selected_layers);
+    configurator.Override();
 }
 
 /// Create the VulkanInfo dialog if it doesn't already exits & show it.
@@ -1259,7 +1274,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         if (environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_USE_SYSTEM_TRAY)) {
             std::string shut_down_state;
 
-            if (environment.GetMode() == LAYERS_CONTROLLED_BY_CONFIGURATOR) {
+            if (environment.GetActiveConfigurationInfo().GetMode() == LAYERS_CONTROLLED_BY_CONFIGURATOR) {
                 shut_down_state =
                     "Vulkan Layers override will remain in effect while Vulkan Configurator remain active in the system tray.";
             } else {
@@ -1329,7 +1344,7 @@ void MainWindow::on_push_button_applications_clicked() {
     // dlg.exec();
 
     Configurator &configurator = Configurator::Get();
-    configurator.Configure(configurator.layers.selected_layers);
+    configurator.Override();
 
     UpdateUI();
 }
@@ -1346,9 +1361,12 @@ void MainWindow::on_push_button_rename_clicked() {
 }
 
 void MainWindow::on_push_button_remove_clicked() {
-    Configurator &configurator = Configurator::Get();
+    ConfigurationListItem *configuration_item = GetCheckedItem();
+    if (configuration_item == nullptr) {
+        return;
+    }
 
-    this->RemoveConfiguration(configurator.environment.GetSelectedConfiguration());
+    this->RemoveConfiguration(configuration_item->configuration_name);
 }
 
 void MainWindow::on_push_button_duplicate_clicked() {
@@ -1360,7 +1378,8 @@ void MainWindow::on_push_button_duplicate_clicked() {
     const Configuration &duplicated_configuration =
         configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, configutation->key, true);
 
-    configurator.ActivateConfiguration(duplicated_configuration.key);
+    configurator.environment.GetActiveConfigurationInfo().SetName(duplicated_configuration.key);
+    configurator.Override();
 
     LoadConfigurationList();
 
@@ -1373,7 +1392,8 @@ void MainWindow::NewClicked() {
     Configuration &new_configuration =
         configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, "New Configuration");
 
-    configurator.ActivateConfiguration(new_configuration.key);
+    configurator.environment.GetActiveConfigurationInfo().SetName(new_configuration.key);
+    configurator.Override();
 
     LoadConfigurationList();
 }
@@ -1395,7 +1415,7 @@ void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
 
     Configurator &configurator = Configurator::Get();
     configurator.configurations.RemoveConfiguration(configurator.layers.selected_layers, configuration_name);
-    configurator.environment.SetSelectedConfiguration("");
+    configurator.environment.GetActiveConfigurationInfo().SetName("");
 
     LoadConfigurationList();
 
@@ -1458,7 +1478,8 @@ void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
 
     item->configuration_name = duplicated_configuration.key;
 
-    configurator.ActivateConfiguration(duplicated_configuration.key);
+    configurator.environment.GetActiveConfigurationInfo().SetName(duplicated_configuration.key);
+    configurator.Override();
 
     LoadConfigurationList();
 
@@ -1541,7 +1562,8 @@ void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
     (void)item;
 
     Configurator &configurator = Configurator::Get();
-    configurator.Configure(configurator.layers.selected_layers);
+    configurator.environment.GetActiveConfigurationInfo().ForceUpdate(UPDATE_LAYERS_SETTINGS_BIT);
+    configurator.Override();
 }
 
 void MainWindow::SetupLauncherTree() {

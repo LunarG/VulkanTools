@@ -37,7 +37,7 @@ static int RunLayersOverride(const CommandLine& command_line) {
         return -1;
     }
 
-    const bool override_result = configurator.Override(configuration);
+    const bool override_result = configurator.Override();
 
     configurator.environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 

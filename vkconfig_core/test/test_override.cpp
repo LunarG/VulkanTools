@@ -44,7 +44,7 @@ TEST(test_override, write_erase_global) {
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
-    EXPECT_EQ(true, configurator.Override(configuration));
+    EXPECT_EQ(true, configurator.Override());
 
     QFile file_layers_override_ref((":" + LOADER_SETTINGS).c_str());
     const bool result_layers_override_ref = file_layers_override_ref.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -98,7 +98,7 @@ TEST(test_override, write_erase_per_application) {
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
-    EXPECT_EQ(true, configurator.Override(configuration));
+    EXPECT_EQ(true, configurator.Override());
 
     QFile file_layers_override_ref((":" + LOADER_SETTINGS).c_str());
     const bool result_layers_override_ref = file_layers_override_ref.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -150,7 +150,7 @@ TEST(test_override, vk_layer_settings_txt) {
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
-    EXPECT_EQ(true, configurator.Override(configuration));
+    EXPECT_EQ(true, configurator.Override());
 
     VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
     vkuCreateLayerSettingSet(LAYER, nullptr, nullptr, nullptr, &layerSettingSet);
@@ -304,7 +304,7 @@ TEST(test_override, env_var) {
 
     qputenv("VK_LAYER_SETTINGS_PATH", "./vk_layer_settings.txt");
 
-    EXPECT_EQ(true, configurator.Override(configuration));
+    EXPECT_EQ(true, configurator.Override());
 
     VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
     vkuCreateLayerSettingSet(LAYER, nullptr, nullptr, nullptr, &layerSettingSet);

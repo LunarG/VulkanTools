@@ -93,10 +93,9 @@ Environment::~Environment() {
 void Environment::Reset(ResetMode mode) {
     switch (mode) {
         case DEFAULT: {
-            this->layers_mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
+            this->global_configuration = ConfigurationInfo();
             this->use_per_application_configuration = false;
             this->use_system_tray = false;
-            this->selected_configuration = "Validation";
             this->active_executable_index = 0;
             this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI].clear();
 
@@ -177,8 +176,9 @@ bool Environment::Load() {
 
             const QJsonObject& json_application_object = json_list_object.value(json_list_keys[i]).toObject();
             application.executable_path = json_list_keys[i].toStdString();
-            application.layers_mode = ::GetLayersMode(json_application_object.value("mode").toString().toStdString().c_str());
-            application.layers_configuration = json_application_object.value("configuration").toString().toStdString();
+            application.configuration.SetName(json_application_object.value("configuration").toString().toStdString());
+            application.configuration.SetMode(
+                ::GetLayersMode(json_application_object.value("mode").toString().toStdString().c_str()));
             application.active_option_index = json_application_object.value("active_option_index").toInt();
 
             const QJsonArray& json_options_array = json_application_object.value("options").toArray();
@@ -212,8 +212,9 @@ bool Environment::Load() {
         // configurations json object
         const QJsonObject& json_configurations_object = json_root_object.value("configurations").toObject();
         this->use_per_application_configuration = json_configurations_object.value("use_per_application").toBool();
-        this->layers_mode = ::GetLayersMode(json_configurations_object.value("mode").toString().toStdString().c_str());
-        this->selected_configuration = json_configurations_object.value("configuration").toString().toStdString();
+        this->global_configuration.SetName(json_configurations_object.value("configuration").toString().toStdString());
+        this->global_configuration.SetMode(
+            ::GetLayersMode(json_configurations_object.value("mode").toString().toStdString().c_str()));
 
         // preferences json object
         const QJsonObject& json_preferences_object = json_root_object.value("preferences").toObject();
@@ -293,8 +294,8 @@ bool Environment::Save() const {
         const Application& application = this->applications[i];
 
         QJsonObject json_application_object;
-        json_application_object.insert("mode", ::GetToken(application.layers_mode));
-        json_application_object.insert("configuration", application.layers_configuration.c_str());
+        json_application_object.insert("configuration", application.configuration.GetName());
+        json_application_object.insert("mode", ::GetToken(application.configuration.GetMode()));
         json_application_object.insert("active_option", application.active_option_index);
 
         QJsonArray json_options_array;
@@ -335,8 +336,8 @@ bool Environment::Save() const {
 
     QJsonObject json_configurations_object;
     json_configurations_object.insert("use_per_application", this->use_per_application_configuration);
-    json_configurations_object.insert("mode", ::GetToken(this->layers_mode));
-    json_configurations_object.insert("configuration", this->selected_configuration.c_str());
+    json_configurations_object.insert("configuration", this->global_configuration.GetName());
+    json_configurations_object.insert("mode", ::GetToken(this->global_configuration.GetMode()));
 
     json_root_object.insert("configurations", json_configurations_object);
 
@@ -373,7 +374,7 @@ int Environment::GetActiveApplicationIndex() const {
 
 bool Environment::HasOverriddenApplications() const {
     for (std::size_t i = 0, n = this->applications.size(); i < n; ++i) {
-        if (this->applications[i].layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
+        if (this->applications[i].configuration.GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS) {
             return true;
         }
     }
@@ -399,7 +400,9 @@ bool Environment::RemoveApplication(std::size_t application_index) {
     new_applications.reserve(this->applications.size() - 1);
 
     for (std::size_t i = 0, n = this->applications.size(); i < n; ++i) {
-        if (i == application_index) continue;
+        if (i == application_index) {
+            continue;
+        }
         new_applications.push_back(this->applications[i]);
     }
 
@@ -407,7 +410,29 @@ bool Environment::RemoveApplication(std::size_t application_index) {
     return true;
 }
 
+const ConfigurationInfo& Environment::GetActiveConfigurationInfo() const {
+    if (this->GetPerApplicationConfig()) {
+        return this->GetActiveApplication().configuration;
+    } else {
+        return this->global_configuration;
+    }
+}
+
+ConfigurationInfo& Environment::GetActiveConfigurationInfo() {
+    if (this->GetPerApplicationConfig()) {
+        return this->GetActiveApplication().configuration;
+    } else {
+        return this->global_configuration;
+    }
+}
+
 const Application& Environment::GetActiveApplication() const {
+    assert(!this->applications.empty());
+
+    return this->applications[this->active_executable_index];  // Not found, but the list is present, so return the first item.
+}
+
+Application& Environment::GetActiveApplication() {
     assert(!this->applications.empty());
 
     return this->applications[this->active_executable_index];  // Not found, but the list is present, so return the first item.
@@ -428,10 +453,6 @@ Application& Environment::GetApplication(std::size_t application_index) {
 bool Environment::GetPerApplicationConfig() const { return this->use_per_application_configuration; }
 
 void Environment::SetPerApplicationConfig(bool enable) { this->use_per_application_configuration = enable; }
-
-LayersMode Environment::GetMode() const { return this->layers_mode; }
-
-void Environment::SetMode(LayersMode mode) { this->layers_mode = mode; }
 
 void Environment::Set(LayoutState state, const QByteArray& data) {
     assert(state >= LAYOUT_FIRST && state <= LAYOUT_LAST);

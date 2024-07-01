@@ -380,7 +380,7 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     }
 
     // Refresh layer configuration
-    configurator.Configure(configurator.layers.selected_layers);
+    configurator.Override();
 }
 
 void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent) {
