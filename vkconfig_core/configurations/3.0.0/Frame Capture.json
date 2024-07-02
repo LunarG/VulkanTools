@@ -1,0 +1,25 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Frame Capture",
+        "platforms": [
+            "WINDOWS",
+            "LINUX"
+        ],
+        "description": "Capture a range of frames",
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_gfxreconstruct",
+                "rank": 0,
+                "settings": [
+                    {
+                        "key": "capture_file",
+                        "type": "SAVE_FILE",
+                        "value": "${VK_LOCAL}/gfxrecon_capture.gfxr"
+                    }
+                ],
+                "control": "on"
+            }
+        ]
+    }
+}

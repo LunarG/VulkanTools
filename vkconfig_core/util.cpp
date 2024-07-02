@@ -20,16 +20,16 @@
  */
 
 #include "util.h"
-#include "platform.h"
+#include "type_platform.h"
+
+#include <QString>
+#include <QStringList>
 
 #include <cstddef>
 #include <cstring>
 #include <cassert>
 #include <cstdarg>
 #include <cctype>
-
-#include <QString>
-#include <QStringList>
 
 #include <cctype>
 #include <regex>

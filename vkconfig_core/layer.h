@@ -23,8 +23,9 @@
 
 #include "setting.h"
 #include "layer_preset.h"
-#include "layer_type.h"
 #include "version.h"
+#include "path.h"
+#include "type_layer_type.h"
 
 #include <QObject>
 #include <QJsonDocument>
@@ -55,7 +56,7 @@ class Layer {
    public:
     std::string key;
     Version file_format_version;
-    std::string binary_path;
+    Path binary_path;
     Version api_version;
     std::string implementation_version;
     StatusType status;
@@ -63,7 +64,7 @@ class Layer {
     std::string introduction;
     std::string url;
     int platforms;
-    std::string manifest_path;
+    Path manifest_path;
     LayerType type;
     QJsonDocument profile;
     std::string disable_env;
@@ -74,9 +75,7 @@ class Layer {
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
-    bool Load(const std::vector<Layer>& available_layers, const std::string& full_path_to_file, LayerType layer_type);
-
-    bool Load(const std::string& full_path_to_file, LayerType layer_type);
+    bool Load(const Path& full_path_to_file, LayerType layer_type);
 
    private:
     Layer& operator=(const Layer&) = delete;

@@ -20,7 +20,7 @@
 
 #include "help.h"
 #include "util.h"
-#include "platform.h"
+#include "type_platform.h"
 
 #include <vulkan/vulkan.h>
 

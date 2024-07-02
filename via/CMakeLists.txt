@@ -45,6 +45,8 @@ endif()
 # Needed for VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
 target_compile_definitions(vkvia PRIVATE VK_ENABLE_BETA_EXTENSIONS)
 
+set_target_properties(vkvia PROPERTIES FOLDER "tools")
+
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "(GNU|Clang)")
 
     target_compile_options(vkvia PRIVATE

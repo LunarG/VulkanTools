@@ -58,12 +58,12 @@ TEST(test_layer, collect_settings) {
 
 TEST(test_layer, load_header_overridden) {
     Layer layer;
-    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_00.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_00.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
     EXPECT_STREQ("VK_LAYER_LUNARG_test_00", layer.key.c_str());
-    EXPECT_STREQ(".\\VkLayer_test.dll", layer.binary_path.c_str());
+    EXPECT_STREQ(".\\VkLayer_test.dll", layer.binary_path.RelativePath().c_str());
     EXPECT_EQ(Version(1, 2, 170), layer.api_version);
     EXPECT_STREQ("Build 76", layer.implementation_version.c_str());
     EXPECT_STREQ("test layer", layer.description.c_str());
@@ -76,12 +76,12 @@ TEST(test_layer, load_header_overridden) {
 
 TEST(test_layer, load_header_default) {
     Layer layer;
-    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_01.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_01.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
     EXPECT_STREQ("VK_LAYER_LUNARG_test_01", layer.key.c_str());
-    EXPECT_STREQ(".\\VkLayer_test.dll", layer.binary_path.c_str());
+    EXPECT_STREQ(".\\VkLayer_test.dll", layer.binary_path.RelativePath().c_str());
     EXPECT_EQ(Version(1, 2, 170), layer.api_version);
     EXPECT_STREQ("Build 76", layer.implementation_version.c_str());
     EXPECT_STREQ("test layer", layer.description.c_str());
@@ -94,7 +94,7 @@ TEST(test_layer, load_header_default) {
 
 TEST(test_layer, load_header_override) {
     Layer layer;
-    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_02.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_02.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -106,7 +106,7 @@ TEST(test_layer, load_header_override) {
 
 TEST(test_layer, load_setting_interit) {
     Layer layer;
-    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_03.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_03.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -128,7 +128,7 @@ TEST(test_layer, load_setting_interit) {
 
 TEST(test_layer, load_preset_interit) {
     Layer layer;
-    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -148,7 +148,7 @@ TEST(test_layer, load_preset_interit) {
 
 TEST(test_layer, load_setting_children_interit) {
     Layer layer;
-    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_05.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_05.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -170,7 +170,7 @@ TEST(test_layer, load_setting_children_interit) {
 
 TEST(test_layer, load_setting_enum_interit) {
     Layer layer;
-    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_test_06.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_06.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -212,12 +212,12 @@ TEST(test_layer, load_setting_enum_interit) {
 
 TEST(test_layer, load_1_1_0_header) {
     Layer layer;
-    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_1_0.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_reference_1_1_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
     EXPECT_EQ(Version(1, 1, 0), layer.file_format_version);
     EXPECT_STREQ("VK_LAYER_LUNARG_reference_1_1_0", layer.key.c_str());
-    EXPECT_STREQ(".\\VkLayer_reference.dll", layer.binary_path.c_str());
+    EXPECT_STREQ(".\\VkLayer_reference.dll", layer.binary_path.RelativePath().c_str());
     EXPECT_EQ(Version(1, 2, 162), layer.api_version);
     EXPECT_STREQ("Build 75", layer.implementation_version.c_str());
     EXPECT_STREQ("reference layer", layer.description.c_str());
@@ -230,7 +230,7 @@ TEST(test_layer, load_1_1_0_header) {
 
 TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     Layer layer;
-    const bool load_loaded = layer.Load(std::vector<Layer>(), ":/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
+    const bool load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT);
     ASSERT_TRUE(load_loaded);
 
     // Preset Enum
@@ -277,11 +277,11 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     {
         const std::size_t index = 2;
 
-        const SettingDataFileLoad* setting_only =
-            static_cast<const SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "string_required_only"));
+        const SettingDataString* setting_only =
+            static_cast<const SettingDataString*>(FindSetting(layer.presets[index].settings, "string_required_only"));
         ASSERT_TRUE(setting_only);
-        const SettingDataFileLoad* setting_opt =
-            static_cast<const SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "string_with_optional"));
+        const SettingDataString* setting_opt =
+            static_cast<const SettingDataString*>(FindSetting(layer.presets[index].settings, "string_with_optional"));
         ASSERT_TRUE(setting_opt);
 
         EXPECT_STREQ("Preset String", layer.presets[index].label.c_str());
@@ -321,8 +321,8 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_STREQ("Description Load File", layer.presets[index].description.c_str());
         EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
         EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-        EXPECT_STREQ("./text.log", setting_only->value.c_str());
-        EXPECT_STREQ("./text.log", setting_opt->value.c_str());
+        EXPECT_STREQ(Path("./text.log").RelativePath().c_str(), setting_only->value.RelativePath().c_str());
+        EXPECT_STREQ(Path("./text.log").RelativePath().c_str(), setting_opt->value.RelativePath().c_str());
     }
 
     // Preset Load Folder
@@ -340,8 +340,8 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_STREQ("Description Load Folder", layer.presets[index].description.c_str());
         EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
         EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-        EXPECT_STREQ("./text", setting_only->value.c_str());
-        EXPECT_STREQ("./text", setting_opt->value.c_str());
+        EXPECT_STREQ(Path("./text").RelativePath().c_str(), setting_only->value.RelativePath().c_str());
+        EXPECT_STREQ(Path("./text").RelativePath().c_str(), setting_opt->value.RelativePath().c_str());
     }
 
     // Preset Save File
@@ -359,8 +359,8 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_STREQ("Description Save File", layer.presets[index].description.c_str());
         EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
         EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-        EXPECT_STREQ("./text.log", setting_only->value.c_str());
-        EXPECT_STREQ("./text.log", setting_opt->value.c_str());
+        EXPECT_STREQ(Path("./text.log").RelativePath().c_str(), setting_only->value.RelativePath().c_str());
+        EXPECT_STREQ(Path("./text.log").RelativePath().c_str(), setting_opt->value.RelativePath().c_str());
     }
 
     // Preset Save Folder
@@ -378,8 +378,8 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_STREQ("Description Save Folder", layer.presets[index].description.c_str());
         EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[index].platform_flags);
         EXPECT_EQ(STATUS_DEPRECATED, layer.presets[index].status);
-        EXPECT_STREQ("./text", setting_only->value.c_str());
-        EXPECT_STREQ("./text", setting_opt->value.c_str());
+        EXPECT_STREQ(Path("./text").RelativePath().c_str(), setting_only->value.RelativePath().c_str());
+        EXPECT_STREQ(Path("./text").RelativePath().c_str(), setting_opt->value.RelativePath().c_str());
     }
 
     // Preset int
@@ -705,7 +705,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_EQ(PLATFORM_DESKTOP_BIT, setting_meta->platform_flags);
         EXPECT_TRUE(setting_meta->filter.empty());
 
-        EXPECT_STREQ("./test.txt", setting_meta->default_value.c_str());
+        EXPECT_STREQ(setting_meta->default_value.RelativePath().c_str(), Path("./test.txt").RelativePath().c_str());
     }
 
     // Load File With Optional
@@ -725,7 +725,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
         EXPECT_STREQ("*.txt", setting_meta->filter.c_str());
 
-        EXPECT_STREQ("./test.txt", setting_meta->default_value.c_str());
+        EXPECT_STREQ(setting_meta->default_value.RelativePath().c_str(), Path("./test.txt").RelativePath().c_str());
     }
 
     // Save File Required Only
@@ -745,7 +745,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_EQ(PLATFORM_DESKTOP_BIT, setting_meta->platform_flags);
         EXPECT_TRUE(setting_meta->filter.empty());
 
-        EXPECT_STREQ("./test.json", setting_meta->default_value.c_str());
+        EXPECT_STREQ(setting_meta->default_value.RelativePath().c_str(), Path("./test.json").RelativePath().c_str());
     }
 
     // Save File With Optional
@@ -765,7 +765,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
         EXPECT_STREQ("*.json", setting_meta->filter.c_str());
 
-        EXPECT_STREQ("./test.json", setting_meta->default_value.c_str());
+        EXPECT_STREQ(setting_meta->default_value.RelativePath().c_str(), Path("./test.json").RelativePath().c_str());
     }
 
     // Save Folder Required Only
@@ -784,7 +784,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_EQ(SETTING_VIEW_STANDARD, setting_meta->view);
         EXPECT_EQ(PLATFORM_DESKTOP_BIT, setting_meta->platform_flags);
 
-        EXPECT_STREQ("./test", setting_meta->default_value.c_str());
+        EXPECT_STREQ(setting_meta->default_value.RelativePath().c_str(), Path("./test").RelativePath().c_str());
     }
 
     // Save Folder With Optional
@@ -803,7 +803,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         EXPECT_EQ(SETTING_VIEW_ADVANCED, setting_meta->view);
         EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, setting_meta->platform_flags);
 
-        EXPECT_STREQ("./test", setting_meta->default_value.c_str());
+        EXPECT_STREQ(setting_meta->default_value.RelativePath().c_str(), Path("./test").RelativePath().c_str());
     }
 
     // Int Required Only
