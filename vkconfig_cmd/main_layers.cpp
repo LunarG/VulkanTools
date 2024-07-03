@@ -83,11 +83,7 @@ static int RunLayersSurrender(const CommandLine& command_line) {
 }
 
 static int RunLayersList(const CommandLine& command_line) {
-    Environment environment;
-    environment.Reset(Environment::DEFAULT);
-
-    LayerManager layers(environment);
-    layers.LoadAllInstalledLayers();
+    LayerManager layers;
 
     if (layers.selected_layers.empty()) {
         printf("No Vulkan layer found\n");
@@ -103,11 +99,7 @@ static int RunLayersList(const CommandLine& command_line) {
 }
 
 static int RunLayersVerbose(const CommandLine& command_line) {
-    Environment environment;
-    environment.Reset(Environment::DEFAULT);
-
-    LayerManager layers(environment);
-    layers.LoadAllInstalledLayers();
+    LayerManager layers;
 
     for (std::size_t i = 0, n = layers.selected_layers.size(); i < n; ++i) {
         const Layer& layer = layers.selected_layers[i];

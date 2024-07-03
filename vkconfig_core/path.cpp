@@ -32,6 +32,16 @@
 
 static const std::string VKCONFIG_VERSION("vkconfig");
 
+struct BuiltinDesc {
+    const char* key;
+    const Path::Builtin path;
+};
+
+static const BuiltinDesc VARIABLES[] = {{"${VK_HOME}", Path::HOME},
+                                        {"${VK_APPDATA}", Path::APPDATA},
+                                        {"${VULKAN_SDK}", Path::SDK},
+                                        {"${VULKAN_CONTENT}", Path::CONTENT}};
+
 static std::string ConvertSeparators(const std::string& path, const char* native_separator, const char* alien_separator) {
     const std::size_t native_separator_size = std::strlen(native_separator);
     const std::size_t alien_separator_size = std::strlen(alien_separator);
@@ -74,9 +84,28 @@ Path::Path() {}
 
 Path::Path(const Path& path) : data(path.data) {}
 
-Path::Path(const char* path) : data(path) {}
+Path::Path(const char* path) : Path(std::string(path)) {}
 
-Path::Path(const std::string& path) : data(path) {}
+Path::Path(const std::string& path, bool recover_vars) {
+    std::string result = path;
+
+    if (recover_vars) {
+        for (std::size_t i = 0, n = std::size(VARIABLES); i < n; ++i) {
+            std::string substring = ::Get(VARIABLES[i].path).AbsolutePath();
+
+            const std::size_t found = result.find(substring);
+            if (found < substring.size()) {
+                assert(found == 0);  // The builtin variable must be first part of the path
+                const std::size_t offset = found + substring.size();
+                const std::string replaced_path = VARIABLES[i].key + result.substr(found + offset, result.size() - offset);
+                result = ConvertNativeSeparators(replaced_path);
+                break;
+            }
+        }
+    }
+
+    this->data = result;
+}
 
 bool Path::IsFile() const { return QFileInfo(this->data.c_str()).isFile(); }
 
@@ -155,16 +184,6 @@ std::string Path::AbsoluteDir() const {
 }
 
 std::string Path::AbsolutePath() const {
-    struct BuiltinDesc {
-        const char* key;
-        const Path::Builtin path;
-    };
-
-    static const BuiltinDesc VARIABLES[] = {{"${VK_HOME}", Path::HOME},
-                                            {"${VK_APPDATA}", Path::APPDATA},
-                                            {"${VULKAN_SDK}", Path::SDK},
-                                            {"${VULKAN_CONTENT}", Path::CONTENT}};
-
     for (std::size_t i = 0, n = std::size(VARIABLES); i < n; ++i) {
         const std::size_t found = this->data.find(VARIABLES[i].key);
         if (found < this->data.size()) {
@@ -368,7 +387,9 @@ std::string AbsolutePath(Path::Builtin path) { return Get(path).AbsolutePath(); 
 std::string RelativePath(Path::Builtin path) { return Get(path).RelativePath(); }
 
 std::vector<Path> CollectFilePaths(const Path& directory, const char* filter) {
-    const QDir dir(directory.AbsolutePath().c_str());
+    const std::string& absolute_path = directory.AbsolutePath();
+
+    const QDir dir(absolute_path.c_str());
     const QFileInfoList& list = dir.entryInfoList(QStringList() << filter, QDir::Files | QDir::NoSymLinks);
 
     std::vector<Path> result;

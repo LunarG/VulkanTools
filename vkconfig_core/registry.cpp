@@ -83,7 +83,7 @@ void RemoveRegistryEntriesForLayers(QString loader_settings_file, QString layers
 }
 
 /// Look for device specific layers
-static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Layer> &layers, LayerType type) {
+static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Path> &layers_paths) {
     HKEY key;
     if (CM_Open_DevNode_Key(id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &key, CM_REGISTRY_SOFTWARE) != CR_SUCCESS) return;
 
@@ -103,10 +103,8 @@ static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Lay
 
     if (data_type == REG_SZ || data_type == REG_MULTI_SZ) {
         for (wchar_t *curr_filename = path; curr_filename[0] != '\0'; curr_filename += wcslen(curr_filename) + 1) {
+            layers_paths.push_back(QString::fromWCharArray(curr_filename).toStdString());
             Layer layer;
-            if (layer.Load(Path(QString::fromWCharArray(curr_filename).toStdString()), type)) {
-                layers.push_back(layer);
-            }
 
             if (data_type == REG_SZ) {
                 break;
@@ -119,7 +117,9 @@ static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Lay
 }
 
 /// This is for Windows only. It looks for device specific layers in the Windows registry.
-void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerType type) {
+std::vector<Path> LoadRegistryLayers(const QString &path) {
+    std::vector<Path> layers_paths;
+
     QString root_string = path.section('\\', 0, 0);
     static QHash<QString, HKEY> root_keys = {
         {"HKEY_CLASSES_ROOT", HKEY_CLASSES_ROOT},
@@ -156,10 +156,10 @@ void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerTy
         // This has already been set by now
         if (path.endsWith("VulkanExplicitLayers")) {
             entry = "VulkanExplicitLayers";
-            type = LAYER_TYPE_EXPLICIT;
+            // type = LAYER_TYPE_EXPLICIT;
         } else if (path.endsWith("VulkanImplicitLayers")) {
             entry = "VulkanImplicitLayers";
-            type = LAYER_TYPE_IMPLICIT;
+            // type = LAYER_TYPE_IMPLICIT;
         }
 
         for (wchar_t *device_name = device_names; device_name[0] != '\0'; device_name += wcslen(device_name) + 1) {
@@ -167,7 +167,7 @@ void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerTy
             if (CM_Locate_DevNodeW(&device_id, device_name, CM_LOCATE_DEVNODE_NORMAL) != CR_SUCCESS) {
                 continue;
             }
-            LoadDeviceRegistry(device_id, entry, layers, type);
+            LoadDeviceRegistry(device_id, entry, layers_paths);
 
             DEVINST child_id;
             if (CM_Get_Child(&child_id, device_id, 0) != CR_SUCCESS) {
@@ -184,7 +184,7 @@ void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerTy
                     continue;
                 }
                 if (wcscmp(child_guid, (LPCWSTR)SOFTWARE_COMPONENT_GUID.utf16()) == 0) {
-                    LoadDeviceRegistry(child_id, entry, layers, type);
+                    LoadDeviceRegistry(child_id, entry, layers_paths);
                     break;
                 }
             } while (CM_Get_Sibling(&child_id, child_id, 0) == CR_SUCCESS);
@@ -194,6 +194,8 @@ void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerTy
     if (device_names != nullptr) {
         delete[] device_names;
     }
+
+    return layers_paths;
 }
 
 #endif  // VKC_PLATFORM == VKC_PLATFORM_WINDOWS

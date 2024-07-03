@@ -43,6 +43,7 @@ class Configuration {
     std::size_t Size() const { return this->parameters.size(); };
 
     std::string key;  // User readable display of the configuration name (may contain spaces)
+    int version;
     int platform_flags;
     std::string description;        // A friendly description of what this profile does
     QByteArray setting_tree_state;  // Recall editor tree state

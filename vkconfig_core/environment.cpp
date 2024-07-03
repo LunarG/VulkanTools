@@ -74,20 +74,25 @@ static const char* GetLayoutStateToken(LayoutState state) {
     return table[state];
 }
 
-Environment::Environment()
-    : active_tab(TAB_DIAGNOSTIC),
+Environment::Environment(Mode mode)
+    : mode(mode),
+      active_tab(TAB_DIAGNOSTIC),
       has_crashed(false),
       use_system_tray(false),
       use_per_application_configuration(false),
       loader_message_types_flags(::GetLogFlags(qgetenv("VK_LOADER_DEBUG").toStdString())),
       hide_message_boxes_flags(0) {
-    const bool result = Load();
-    assert(result);
+    if (mode == MODE_AUTO_LOAD_SAVE) {
+        const bool result = Load();
+        assert(result);
+    }
 }
 
 Environment::~Environment() {
-    const bool result = Save();
-    assert(result);
+    if (mode == MODE_AUTO_LOAD_SAVE) {
+        const bool result = Save();
+        assert(result);
+    }
 }
 
 void Environment::Reset(ResetMode mode) {
@@ -97,7 +102,6 @@ void Environment::Reset(ResetMode mode) {
             this->use_per_application_configuration = false;
             this->use_system_tray = false;
             this->active_executable_index = 0;
-            this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI].clear();
 
             this->applications = CreateDefaultApplications();
             break;
@@ -135,7 +139,7 @@ bool Environment::Load() {
 
     const Path& vkconfig_init_path = ::Get(Path::INIT);
     QFile file(vkconfig_init_path.AbsolutePath().c_str());
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {  // if applist.json exist, load saved applications
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QString data = file.readAll();
         file.close();
 
@@ -230,32 +234,6 @@ bool Environment::Load() {
             const std::string& token = json_hide_message_boxes_array[i].toString().toStdString();
             this->hide_message_boxes_flags |= GetLogBit(token.c_str());
         }
-    }
-
-    /*
-    // Load layout state
-    for (std::size_t i = 0; i < LAYOUT_COUNT; ++i) {
-        this->layout_states[i] = settings.value(GetLayoutStateToken(static_cast<LayoutState>(i))).toByteArray();
-    }
-    */
-    const char* SEPARATOR = GetToken(PARSE_ENV_VAR);
-
-    // See if the VK_LAYER_PATH environment variable is set. If so, parse it and
-    // assemble a list of paths that take precidence for layer discovery.
-    this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET].clear();
-
-    const std::vector<std::string> VK_LAYER_PATH = Split(qgetenv("VK_LAYER_PATH").toStdString(), SEPARATOR);
-    for (std::size_t i = 0, n = VK_LAYER_PATH.size(); i < n; ++i) {
-        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET].push_back(Path(VK_LAYER_PATH[i]));
-    }
-
-    // See if the VK_ADD_LAYER_PATH environment variable is set. If so, parse it and
-    // assemble a list of paths that take precidence for layer discovery.
-    this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].clear();
-
-    const std::vector<std::string> VK_ADD_LAYER_PATH = Split(qgetenv("VK_ADD_LAYER_PATH").toStdString(), SEPARATOR);
-    for (std::size_t i = 0, n = VK_ADD_LAYER_PATH.size(); i < n; ++i) {
-        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].push_back(Path(VK_ADD_LAYER_PATH[i]));
     }
 
     return true;
@@ -467,28 +445,6 @@ const QByteArray& Environment::Get(LayoutState state) const {
     return this->layout_states[state];
 }
 
-void Environment::SetPerConfigUserDefinedLayersPaths(const std::vector<Path>& paths) {
-    std::vector<Path>& custom_layer_paths_gui = this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_GUI];
-    custom_layer_paths_gui.clear();
-    for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
-        custom_layer_paths_gui.push_back(paths[i]);
-    }
-}
-
-bool Environment::IsDefaultConfigurationInit(const std::string& default_configuration_filename) const {
-    for (std::size_t i = 0, n = this->default_configuration_filenames.size(); i < n; ++i) {
-        if (this->default_configuration_filenames[i] == default_configuration_filename) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void Environment::InitDefaultConfiguration(const std::string& configuration_filename) {
-    AppendString(this->default_configuration_filenames, configuration_filename);
-}
-
 ///////////////////////////////////////////////////////////////////////////
 /// This is only used on macOS to extract the executable from the bundle.
 /// You have to look at the plist.info file, you can't just assume whatever
@@ -546,12 +502,14 @@ bool ExactExecutableFromAppBundle(Path& app_path) {
     return true;
 }
 
-Path Environment::GetDefaultExecutablePath(const std::string& executable_name) const {
+DefaultPath Environment::GetDefaultExecutablePath(const std::string& executable_name) const {
     static const char* DEFAULT_PATH = VKC_PLATFORM == VKC_PLATFORM_MACOS ? "/../.." : "";
 
+    DefaultPath default_path{"." + executable_name, "."};
+
     // Using VULKAN_SDK environement variable
-    const std::string env("${VULKAN_SDK}");
-    if (!env.empty()) {
+    const Path env = ::Get(Path::SDK);
+    if (!env.Empty()) {
         static const char* TABLE[] = {
             "/Bin",  // ENVIRONMENT_WIN32
             "/bin",  // ENVIRONMENT_UNIX
@@ -560,20 +518,26 @@ Path Environment::GetDefaultExecutablePath(const std::string& executable_name) c
 
         const Path search_path(env + TABLE[VKC_ENV] + DEFAULT_PATH + executable_name.c_str());
         if (search_path.Exists()) {
-            return search_path;
+            default_path.executable_path = Path(search_path.AbsolutePath(), true);
+            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
+            return default_path;
         }
     }
 
-    // Such the default applications from package installation (Linux)
+    // Search the default applications from package installation (Linux)
     if (VKC_PLATFORM == VKC_PLATFORM_LINUX) {
         const Path search_path(std::string("/usr/bin") + DEFAULT_PATH + executable_name);
         if (search_path.Exists()) {
-            return search_path;
+            default_path.executable_path = Path(search_path.AbsolutePath(), true);
+            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
+            return default_path;
         }
     } else if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
         Path search_path(std::string("/Applications") + executable_name);
         if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
-            return search_path;
+            default_path.executable_path = Path(search_path.AbsolutePath(), true);
+            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
+            return default_path;
         }
     }
 
@@ -581,30 +545,34 @@ Path Environment::GetDefaultExecutablePath(const std::string& executable_name) c
     if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
         Path search_path(std::string("..") + DEFAULT_PATH + executable_name);
         if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
-            return search_path;
+            default_path.executable_path = Path(search_path.AbsolutePath(), true);
+            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
+            return default_path;
         }
     } else {
         Path search_path(std::string(".") + DEFAULT_PATH + executable_name);
         if (search_path.Exists()) {
-            return search_path;
+            default_path.executable_path = Path(search_path.AbsolutePath(), true);
+            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
+            return default_path;
         }
     }
 
-    return Path("./" + executable_name);
+    return default_path;
 }
 
 static const DefaultApplication defaults_applications[] = {{"vkcube", "/vkcube", "--suppress_popups"},
                                                            {"vkcubepp", "/vkcubepp", "--suppress_popups"}};
 
 Application Environment::CreateDefaultApplication(const DefaultApplication& default_application) const {
-    const Path executable_path = GetDefaultExecutablePath((default_application.key + GetApplicationSuffix()).c_str());
-    if (executable_path.Empty()) {
+    const DefaultPath& default_paths = GetDefaultExecutablePath((default_application.key + GetApplicationSuffix()).c_str());
+    if (default_paths.executable_path.Empty()) {
         Application();  // application could not be found..
     }
 
     ApplicationOptions options;
     options.label = "Default";
-    options.working_folder = executable_path.AbsoluteDir();
+    options.working_folder = default_paths.working_folder;
     // On all operating systems, but Windows we keep running into problems with this ending up
     // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
     // initially will be set to the users home folder across all OS's. This is highly visible
@@ -612,8 +580,8 @@ Application Environment::CreateDefaultApplication(const DefaultApplication& defa
     // easily change this later to anywhere they like.
     options.log_file = std::string("${VK_LOCAL}") + default_application.key + ".txt";
 
-    Application application;  //(default_application.name, executable_path, default_application.arguments);
-    application.executable_path = executable_path;
+    Application application;
+    application.executable_path = Path(default_paths.executable_path.AbsolutePath(), true);
     application.options.push_back(options);
     application.active_option_index = 0;
 
@@ -644,7 +612,9 @@ std::vector<Application> Environment::RemoveMissingApplications(const std::vecto
         const Application& application = applications[i];
 
         const QFileInfo file_info(application.executable_path.AbsolutePath().c_str());
-        if (!file_info.exists()) continue;
+        if (!file_info.exists()) {
+            continue;
+        }
 
         valid_applications.push_back(application);
     }

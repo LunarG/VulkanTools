@@ -148,3 +148,10 @@ bool IsValueFound(const std::vector<EnabledNumberOrString>& list, const NumberOr
 QStringList ConvertValues(const std::vector<NumberOrString>& values);
 
 std::string GetLayerSettingPrefix(const std::string& key);
+
+template <typename T>
+std::vector<T> GetVector(const T& value) {
+    std::vector<T> result;
+    result.push_back(value);
+    return result;
+}

@@ -22,6 +22,8 @@
 
 #include <gtest/gtest.h>
 
+#ifndef RUN_ON_GITHUB
+
 TEST(test_vulkan, system_info) {
     const VulkanSystemInfo& vulkan_system_info = BuildVulkanSystemInfo();
 
@@ -30,3 +32,5 @@ TEST(test_vulkan, system_info) {
     EXPECT_TRUE(!vulkan_system_info.instanceExtensionPropertie.empty());
     EXPECT_TRUE(!vulkan_system_info.physicalDevices.empty());
 }
+
+#endif  // RUN_ON_GITHUB

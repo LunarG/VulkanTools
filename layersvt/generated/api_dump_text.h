@@ -271,21 +271,12 @@ void dump_text_wl_display(const wl_display* object, const ApiDumpSettings& setti
 }
 #endif  // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-<<<<<<< HEAD
-void dump_text_wl_surface(const wl_surface* object, const ApiDumpSettings& settings, int indents)
-{
+void dump_text_wl_surface(const wl_surface* object, const ApiDumpSettings& settings, int indents) {
     if (object == NULL) {
         settings.stream() << "NULL";
         return;
     }
     OutputAddress(settings, object);
-=======
-void dump_text_wl_surface(const wl_surface object, const ApiDumpSettings& settings, int indents) {
-    if (settings.showAddress())
-        settings.stream() << object;
-    else
-        settings.stream() << "address";
->>>>>>> e0a90a9f9... vkconfig3: Implement loader settings file and added tests
 }
 #endif  // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
@@ -19706,20 +19697,13 @@ void dump_text_VkWaylandSurfaceCreateInfoKHR(const VkWaylandSurfaceCreateInfoKHR
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1,
                                            dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
-<<<<<<< HEAD
-    dump_text_value<const VkWaylandSurfaceCreateFlagsKHR>(object.flags, settings, "VkWaylandSurfaceCreateFlagsKHR", "flags", indents + 1, dump_text_VkWaylandSurfaceCreateFlagsKHR);  // AET
-    dump_text_value<const wl_display*>(object.display, settings, "struct wl_display*", "display", indents + 1, dump_text_wl_display);  // AET
-    dump_text_value<const wl_surface*>(object.surface, settings, "struct wl_surface*", "surface", indents + 1, dump_text_wl_surface);  // AET
-    if(object.pNext != nullptr){
-=======
     dump_text_value<const VkWaylandSurfaceCreateFlagsKHR>(object.flags, settings, "VkWaylandSurfaceCreateFlagsKHR", "flags",
                                                           indents + 1, dump_text_VkWaylandSurfaceCreateFlagsKHR);  // AET
     dump_text_value<const wl_display*>(object.display, settings, "struct wl_display*", "display", indents + 1,
                                        dump_text_wl_display);  // AET
-    dump_text_pointer<const wl_surface>(object.surface, settings, "struct wl_surface*", "surface", indents + 1,
-                                        dump_text_wl_surface);
+    dump_text_value<const wl_surface*>(object.surface, settings, "struct wl_surface*", "surface", indents + 1,
+                                       dump_text_wl_surface);  // AET
     if (object.pNext != nullptr) {
->>>>>>> e0a90a9f9... vkconfig3: Implement loader settings file and added tests
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }

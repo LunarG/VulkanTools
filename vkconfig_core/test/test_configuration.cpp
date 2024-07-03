@@ -60,7 +60,7 @@ static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parame
 
 TEST(test_configuration, load_and_save) {
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/Configuration 3.0.0.json");
+    const bool load_loaded = configuration_loaded.Load(std::vector<Layer>(), ":/test/Configuration 3.0.0.json");
     EXPECT_TRUE(load_loaded);
     EXPECT_EQ(1, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());

@@ -60,6 +60,10 @@ class Configurator {
 
     void ResetToDefault(bool hard);
 
+    Configuration* GetActiveConfiguration();
+    const Configuration* GetActiveConfiguration() const;
+    bool HasActiveConfiguration() const;
+
    private:
     Configurator();
     ~Configurator();

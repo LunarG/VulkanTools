@@ -21,7 +21,6 @@
 #pragma once
 
 #include "configuration.h"
-#include "environment.h"
 #include "path.h"
 
 #include <string>
@@ -29,7 +28,7 @@
 
 class ConfigurationManager {
    public:
-    ConfigurationManager(Environment& environment);
+    ConfigurationManager();
     ~ConfigurationManager();
 
     void LoadAllConfigurations(const std::vector<Layer>& available_layers);
@@ -44,17 +43,11 @@ class ConfigurationManager {
     std::string ImportConfiguration(const std::vector<Layer>& available_layers, const Path& full_import_path);
     void ExportConfiguration(const std::vector<Layer>& available_layers, const Path& full_export_path,
                              const std::string& configuration_name);
-    Configuration* FindActiveConfiguration();
+
     const Configuration* FindConfiguration(const std::string& configuration_name) const;
     Configuration* FindConfiguration(const std::string& configuration_name);
 
-    bool HasActiveConfiguration(const std::vector<Layer>& available_layers) const;
-
-    void ResetDefaultsConfigurations(const std::vector<Layer>& available_layers);
-
-    void ReloadDefaultsConfigurations(const std::vector<Layer>& available_layers);
-
-    void FirstDefaultsConfigurations(const std::vector<Layer>& available_layers);
+    void Reset(const std::vector<Layer>& available_layers);
 
     void SortConfigurations();
 
@@ -79,5 +72,6 @@ class ConfigurationManager {
     void LoadConfigurationsPath(const std::vector<Layer>& available_layers);
     void LoadDefaultConfigurations(const std::vector<Layer>& available_layers);
 
-    Environment& environment;
+    std::vector<std::string> default_configuration_filenames;
+    std::map<std::string, int> removed_built_in_configuration;
 };

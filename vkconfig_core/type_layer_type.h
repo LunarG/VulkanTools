@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,11 @@
 #pragma once
 
 enum LayerType {  // Enum value can't be changed
-    LAYER_TYPE_EXPLICIT = 0,
-    LAYER_TYPE_IMPLICIT = 1,
-    LAYER_TYPE_USER_DEFINED = 2,
+    LAYER_TYPE_IMPLICIT = 0,
+    LAYER_TYPE_EXPLICIT,
 
-    LAYER_TYPE_FIRST = LAYER_TYPE_EXPLICIT,
-    LAYER_TYPE_LAST = LAYER_TYPE_USER_DEFINED
+    LAYER_TYPE_FIRST = LAYER_TYPE_IMPLICIT,
+    LAYER_TYPE_LAST = LAYER_TYPE_EXPLICIT
 };
 
 enum { LAYER_TYPE_COUNT = LAYER_TYPE_LAST - LAYER_TYPE_FIRST + 1 };

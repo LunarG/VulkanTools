@@ -296,7 +296,7 @@ Configurator& Configurator::Get() {
     return configurator;
 }
 
-Configurator::Configurator() : environment(), layers(environment), configurations(environment) {}
+Configurator::Configurator() : environment(), layers(), configurations() {}
 
 Configurator::~Configurator() {
     configurations.SaveAllConfigurations(layers.selected_layers);
@@ -317,12 +317,6 @@ bool Configurator::Init() {
         }
     } else {
         this->configurations.LoadAllConfigurations(this->layers.selected_layers);
-    }
-
-    if (this->configurations.Empty()) {
-        this->configurations.ResetDefaultsConfigurations(layers.selected_layers);
-    } else {
-        this->configurations.FirstDefaultsConfigurations(layers.selected_layers);
     }
 
     this->Override();
@@ -375,11 +369,19 @@ bool Configurator::HasOverride() const {
 }
 
 void Configurator::ResetToDefault(bool hard) {
-    if (hard) {
-        this->environment.Reset(Environment::CLEAR);
-        this->layers.LoadAllInstalledLayers();
-        this->configurations.ResetDefaultsConfigurations(this->layers.selected_layers);
-    } else {
-        this->configurations.ReloadDefaultsConfigurations(this->layers.selected_layers);
-    }
+    this->environment.Reset(Environment::CLEAR);
+    this->layers.LoadAllInstalledLayers();
+    this->configurations.Reset(this->layers.selected_layers);
 }
+
+Configuration* Configurator::GetActiveConfiguration() {
+    const ConfigurationInfo& info = this->environment.GetActiveConfigurationInfo();
+    return this->configurations.FindConfiguration(info.GetName());
+}
+
+const Configuration* Configurator::GetActiveConfiguration() const {
+    const ConfigurationInfo& info = this->environment.GetActiveConfigurationInfo();
+    return this->configurations.FindConfiguration(info.GetName());
+}
+
+bool Configurator::HasActiveConfiguration() const { return true; }

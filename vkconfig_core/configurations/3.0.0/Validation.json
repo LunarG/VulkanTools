@@ -2,6 +2,7 @@
     "file_format_version": "3.0.0",
     "configuration": {
         "name": "Validation",
+        "version": 1,
         "platforms": [
             "WINDOWS",
             "LINUX",

@@ -39,7 +39,8 @@
 #include <string>
 #include <algorithm>
 
-Configuration::Configuration() : key("New Configuration"), platform_flags(PLATFORM_DESKTOP_BIT), view_advanced_settings(false) {}
+Configuration::Configuration()
+    : key("New Configuration"), version(1), platform_flags(PLATFORM_DESKTOP_BIT), view_advanced_settings(false) {}
 
 Configuration Configuration::CreateDisabled(const std::vector<Layer>& available_layers) {
     Configuration result;
@@ -66,6 +67,10 @@ bool Configuration::Load3_0(const std::vector<Layer>& available_layers, const QJ
     this->description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
+    if (json_configuration_object.value("version") != QJsonValue::Undefined) {
+        this->version = json_configuration_object.value("version").toVariant().toInt();
+    }
+
     if (json_configuration_object.value("expanded_states") != QJsonValue::Undefined) {
         this->setting_tree_state = json_configuration_object.value("expanded_states").toVariant().toByteArray();
     }
@@ -222,6 +227,7 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const Path&
 
     QJsonObject json_configuration;
     json_configuration.insert("name", this->key.c_str());
+    json_configuration.insert("version", this->version);
     json_configuration.insert("description", this->description.c_str());
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
     if (!exporter && !this->setting_tree_state.isEmpty()) {

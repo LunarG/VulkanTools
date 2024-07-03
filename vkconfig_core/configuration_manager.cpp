@@ -23,7 +23,7 @@
 #include "configurator.h"
 #include "alert.h"
 
-ConfigurationManager::ConfigurationManager(Environment &environment) : environment(environment) {}
+ConfigurationManager::ConfigurationManager() {}
 
 ConfigurationManager::~ConfigurationManager() {}
 
@@ -32,11 +32,8 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
 
     this->LoadConfigurationsPath(available_layers);
 
-    // If no configuration were found, we reset with the built-in configuration, eg for first launch
-    if (this->available_configurations.empty()) {
-        this->environment.Reset(Environment::DEFAULT);
-        this->LoadDefaultConfigurations(available_layers);
-    }
+    // If built-in configurations were updated, replace the stored configuration
+    this->LoadDefaultConfigurations(available_layers);
 
     this->SortConfigurations();
 }
@@ -61,8 +58,16 @@ void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &a
 
         OrderParameter(configuration.parameters, available_layers);
 
-        Configuration *found_configuration = FindByKey(this->available_configurations, configuration.key.c_str());
+        Configuration *found_configuration = this->FindConfiguration(configuration.key);
         if (found_configuration == nullptr) {
+            auto iter = this->removed_built_in_configuration.find(configuration.key);
+            // If the removed built-in configuration is a version older than the current built-in configuration, we are it back.
+            if (iter->second < configuration.version) {
+                this->available_configurations.push_back(configuration);
+            }
+        } else if (found_configuration->version < configuration.version) {
+            // Replaced the old configuration by the new one
+            this->RemoveConfiguration(available_layers, found_configuration->key);
             this->available_configurations.push_back(configuration);
         }
     }
@@ -173,6 +178,12 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
 
     for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
         if (this->available_configurations[i].key == configuration_name) {
+            int version = this->available_configurations[i].version;
+
+            auto result = this->removed_built_in_configuration.insert(std::make_pair(configuration_name, version));
+            if (!result.second) {
+                this->removed_built_in_configuration[configuration_name] = version;
+            }
             continue;
         }
         updated_configurations.push_back(this->available_configurations[i]);
@@ -204,35 +215,6 @@ const Configuration *ConfigurationManager::FindConfiguration(const std::string &
     }
 
     return FindByKey(this->available_configurations, configuration_name.c_str());
-}
-
-Configuration *ConfigurationManager::FindActiveConfiguration() {
-    return FindConfiguration(this->environment.global_configuration.GetName());
-}
-
-bool ConfigurationManager::HasActiveConfiguration(const std::vector<Layer> &available_layers) const {
-    switch (this->environment.global_configuration.GetMode()) {
-        case LAYERS_CONTROLLED_BY_APPLICATIONS:
-            return false;
-        case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
-            const std::string configuration_name = this->environment.global_configuration.GetName();
-            if (configuration_name.empty()) {
-                return false;
-            } else {
-                const Configuration *selected_configuration = FindByKey(this->available_configurations, configuration_name.c_str());
-                if (selected_configuration != nullptr) {
-                    std::string missing_layer;
-                    return !::HasMissingLayer(selected_configuration->parameters, available_layers, missing_layer);
-                } else {
-                    return false;
-                }
-            }
-        }
-        case LAYERS_DISABLED_BY_CONFIGURATOR:
-            return true;
-    }
-
-    return false;
 }
 
 std::string ConfigurationManager::ImportConfiguration(const std::vector<Layer> &available_layers, const Path &full_import_path) {
@@ -274,54 +256,19 @@ void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &availab
     }
 }
 
-void ConfigurationManager::ResetDefaultsConfigurations(const std::vector<Layer> &available_layers) {
-    this->environment.Reset(Environment::DEFAULT);
-
+void ConfigurationManager::Reset(const std::vector<Layer> &available_layers) {
     // Now we need to kind of restart everything
-    this->LoadAllConfigurations(available_layers);
-    this->SaveAllConfigurations(available_layers);
-}
-
-void ConfigurationManager::ReloadDefaultsConfigurations(const std::vector<Layer> &available_layers) {
-    // Now we need to kind of restart everything
-    LoadDefaultConfigurations(available_layers);
-}
-
-void ConfigurationManager::FirstDefaultsConfigurations(const std::vector<Layer> &available_layers) {
-    const std::vector<Path> &configuration_files = CollectFilePaths(":/configurations/");
-
-    for (int i = 0, n = configuration_files.size(); i < n; ++i) {
-        if (environment.IsDefaultConfigurationInit(configuration_files[i].Basename())) {
-            continue;
-        }
-
-        environment.InitDefaultConfiguration(configuration_files[i].Basename());
-
-        Configuration configuration;
-        const bool result = configuration.Load(available_layers, configuration_files[i].AbsolutePath());
-        assert(result);
-
-        if (!IsPlatformSupported(configuration.platform_flags)) {
-            continue;
-        }
-
-        if (FindByKey(available_configurations, configuration.key.c_str()) != nullptr) {
-            continue;
-        }
-
-        OrderParameter(configuration.parameters, available_layers);
-        available_configurations.push_back(configuration);
-    }
+    this->LoadDefaultConfigurations(available_layers);
 }
 
 bool ConfigurationManager::CheckApiVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,
                                             std::string &log_versions) const {
-    return CompareLayersVersions(available_layers, selected_configuration, Version::VKCONFIG, log_versions, true);
+    return this->CompareLayersVersions(available_layers, selected_configuration, Version::VKCONFIG, log_versions, true);
 }
 
 bool ConfigurationManager::CheckLayersVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,
                                                std::string &log_versions) const {
-    return CompareLayersVersions(available_layers, selected_configuration, Version::VERSION_NULL, log_versions, false);
+    return this->CompareLayersVersions(available_layers, selected_configuration, Version::VERSION_NULL, log_versions, false);
 }
 
 bool ConfigurationManager::CompareLayersVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,

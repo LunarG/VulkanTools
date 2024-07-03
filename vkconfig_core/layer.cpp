@@ -49,12 +49,11 @@
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
 
-Layer::Layer() : status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT), type(LAYER_TYPE_EXPLICIT) {}
+Layer::Layer() : status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT) {}
 
-Layer::Layer(const std::string& key, const LayerType layer_type)
-    : key(key), status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT), type(layer_type) {}
+Layer::Layer(const std::string& key) : key(key), status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT) {}
 
-Layer::Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
+Layer::Layer(const std::string& key, const Version& file_format_version, const Version& api_version,
              const std::string& implementation_version, const std::string& library_path)
     : key(key),
       file_format_version(file_format_version),
@@ -62,8 +61,7 @@ Layer::Layer(const std::string& key, const LayerType layer_type, const Version& 
       api_version(api_version),
       implementation_version(implementation_version),
       status(STATUS_STABLE),
-      platforms(PLATFORM_DESKTOP_BIT),
-      type(layer_type) {}
+      platforms(PLATFORM_DESKTOP_BIT) {}
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
@@ -136,8 +134,8 @@ SettingMeta* Layer::Instantiate(SettingMetaSet& meta_set, const std::string& key
     return setting_meta;
 }
 
-bool Layer::Load(const Path& full_path_to_file, LayerType layer_type) {
-    this->type = layer_type;  // Set layer type, no way to know this from the json file
+bool Layer::Load(const Path& full_path_to_file, LayerType type) {
+    this->type = type;  // Set layer type, no way to know this from the json file
 
     if (full_path_to_file.Empty()) {
         return false;
@@ -177,8 +175,8 @@ bool Layer::Load(const Path& full_path_to_file, LayerType layer_type) {
 
     this->file_format_version = ReadVersionValue(json_root_object, "file_format_version");
     if (this->file_format_version.GetMajor() > 1) {
-        Alert::LayerInvalid(full_path_to_file,
-                            format("Unsupported layer file format: %s", this->file_format_version.str().c_str()).c_str());
+        const std::string message = format("Unsupported layer file format: %s", this->file_format_version.str().c_str());
+        Alert::LayerInvalid(full_path_to_file, message.c_str());
         return false;
     }
 

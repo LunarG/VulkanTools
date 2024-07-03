@@ -41,7 +41,7 @@ class Path {
     Path();
     Path(const Path& path);
     Path(const char* path);
-    Path(const std::string& path);
+    Path(const std::string& path, bool recover_vars = false);
 
     Path& operator=(const Path& path);
     Path& operator=(const char* path);

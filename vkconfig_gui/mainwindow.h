@@ -246,7 +246,6 @@ class MainWindow : public QMainWindow {
     void DuplicateClicked(ConfigurationListItem *item);
     void ExportClicked(ConfigurationListItem *item);
     void ImportClicked(ConfigurationListItem *item);
-    void ReloadDefaultClicked(ConfigurationListItem *item);
 
     void AddLayerPathItem(const std::string &layer_path);
     void AddLayerItem(const Parameter &parameter);

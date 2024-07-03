@@ -23,26 +23,18 @@
 #include <gtest/gtest.h>
 
 TEST(test_configuration_manager, create_remove) {
-    Environment environment;
-    environment.Reset(Environment::DEFAULT);
-
     std::vector<Layer> available_layers;
     Layer layer;
     layer.key = "VK_LAYER_KHRONOS_validation";
     layer.manifest_path = "VK_LAYER_KHRONOS_validation.dummy_path";
     available_layers.push_back(layer);
 
-    ConfigurationManager configuration_manager(environment);
-
-    // No active configuration by default
-    EXPECT_EQ(nullptr, configuration_manager.FindActiveConfiguration());
-    EXPECT_EQ(false, configuration_manager.HasActiveConfiguration(available_layers));
+    ConfigurationManager configuration_manager;
 
     // Create configuration
     configuration_manager.CreateConfiguration(available_layers, "Configuration A");
     configuration_manager.CreateConfiguration(available_layers, "Configuration B");
     EXPECT_EQ(2, configuration_manager.available_configurations.size());
-    EXPECT_EQ(false, configuration_manager.HasActiveConfiguration(available_layers));
 
     // Create configuration with the same name, updating the name
     const std::string configuration_duplicate_key =
@@ -60,12 +52,8 @@ TEST(test_configuration_manager, create_remove) {
     // Already deleted
     configuration_manager.RemoveConfiguration(available_layers, "Configuration A");
     EXPECT_EQ(1, configuration_manager.available_configurations.size());
-    EXPECT_EQ(false, configuration_manager.HasActiveConfiguration(available_layers));
 
     // Remove configuration
     configuration_manager.RemoveConfiguration(available_layers, configuration_duplicate_key.c_str());
     EXPECT_EQ(true, configuration_manager.Empty());
-    EXPECT_EQ(false, configuration_manager.HasActiveConfiguration(available_layers));
-
-    environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 }

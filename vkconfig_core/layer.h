@@ -39,8 +39,8 @@ class Layer {
     static const char* NO_PRESET;
 
     Layer();
-    Layer(const std::string& key, const LayerType layer_type);
-    Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
+    Layer(const std::string& key);
+    Layer(const std::string& key, const Version& file_format_version, const Version& api_version,
           const std::string& implementation_version, const std::string& library_path);
 
     bool IsValid() const;
@@ -65,7 +65,7 @@ class Layer {
     std::string url;
     int platforms;
     Path manifest_path;
-    LayerType type;
+    LayerType type = LAYER_TYPE_EXPLICIT;
     QJsonDocument profile;
     std::string disable_env;
     std::string enable_env;
@@ -75,7 +75,7 @@ class Layer {
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
-    bool Load(const Path& full_path_to_file, LayerType layer_type);
+    bool Load(const Path& full_path_to_file, LayerType type = LAYER_TYPE_EXPLICIT);
 
    private:
     Layer& operator=(const Layer&) = delete;

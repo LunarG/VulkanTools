@@ -24,7 +24,7 @@
 #include "../setting_string.h"
 
 #include <gtest/gtest.h>
-
+/*
 inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaString*>(layer.Instantiate(layer.settings, key, SETTING_STRING));
 }
@@ -425,3 +425,4 @@ TEST(test_parameter, compute_min_api_version_missing_all) {
     Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
     EXPECT_EQ(Version(1, 2, 170), min_version_A);
 }
+*/

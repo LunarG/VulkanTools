@@ -383,7 +383,7 @@ void MainWindow::UpdateTray() {
         const Environment &environment = configurator.environment;
 
         const bool use_override = environment.global_configuration.GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS;
-        const bool active = configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers) && use_override;
+        const bool active = configurator.HasActiveConfiguration() && use_override;
 
         switch (environment.global_configuration.GetMode()) {
             default:
@@ -641,7 +641,7 @@ void MainWindow::UpdateUI() {
     ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
     ui->combo_box_applications->blockSignals(false);
 
-    const bool has_active_configuration = configurator.configurations.HasActiveConfiguration(configurator.layers.selected_layers);
+    const bool has_active_configuration = configurator.HasActiveConfiguration();
 
     // Mode states
     this->UpdateTray();
@@ -721,18 +721,16 @@ void MainWindow::UpdateUI() {
     ui->push_button_settings->setEnabled(has_selected_configuration);
     ui->push_button_export->setEnabled(has_selected_configuration);
 
-    // Load Layers paths
-    std::vector<Path> layer_paths = configurator.layers.BuildPathList();
-
     // ui->tree_layers_paths->setEnabled(enable_layer_ui);
     ui->tree_layers_paths->clear();
+    /*
+        std::vector<Path> layer_paths = configurator.layers.BuildPathList();
+        for (std::size_t path_index = 0, count = layer_paths.size(); path_index < count; ++path_index) {
+            const std::string user_defined_path(layer_paths[path_index].RelativePath().c_str());
 
-    for (std::size_t path_index = 0, count = layer_paths.size(); path_index < count; ++path_index) {
-        const std::string user_defined_path(layer_paths[path_index].RelativePath().c_str());
-
-        AddLayerPathItem(user_defined_path);
-    }
-
+            AddLayerPathItem(user_defined_path);
+        }
+    */
     ui->tree_layers_paths->update();
 
     // Load Layers items
@@ -1372,7 +1370,7 @@ void MainWindow::on_push_button_remove_clicked() {
 void MainWindow::on_push_button_duplicate_clicked() {
     Configurator &configurator = Configurator::Get();
 
-    const Configuration *configutation = configurator.configurations.FindActiveConfiguration();
+    const Configuration *configutation = configurator.GetActiveConfiguration();
     assert(configutation != nullptr);
 
     const Configuration &duplicated_configuration =
@@ -1531,19 +1529,6 @@ void MainWindow::ExportClicked(ConfigurationListItem *item) {
     configurator.configurations.ExportConfiguration(configurator.layers.selected_layers, full_export_path,
                                                     item->configuration_name);
     */
-}
-
-void MainWindow::ReloadDefaultClicked(ConfigurationListItem *item) {
-    (void)item;
-
-    if (Alert::ConfiguratorReloadDefault() == QMessageBox::Yes) {
-        _settings_tree_manager.CleanupGUI();
-
-        Configurator &configurator = Configurator::Get();
-        configurator.configurations.ReloadDefaultsConfigurations(configurator.layers.selected_layers);
-
-        LoadConfigurationList();
-    }
 }
 
 void MainWindow::editorExpanded(QTreeWidgetItem *item) {

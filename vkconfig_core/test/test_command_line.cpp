@@ -165,7 +165,7 @@ TEST(test_command_line, usage_mode_layers_surrender_invalid) {
 }
 
 TEST(test_command_line, usage_mode_layers_override) {
-    static char* argv[] = {"vkconfig", "layers", "--override", ":/Configuration 3.0.0.json"};
+    static char* argv[] = {"vkconfig", "layers", "--override", ":/test/Configuration 3.0.0.json"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);

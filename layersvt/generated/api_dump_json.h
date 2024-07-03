@@ -278,18 +278,9 @@ void dump_json_wl_display(const wl_display* object, const ApiDumpSettings& setti
 }
 #endif  // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-<<<<<<< HEAD
-void dump_json_wl_surface(const wl_surface* object, const ApiDumpSettings& settings, int indents)
-{
+void dump_json_wl_surface(const wl_surface* object, const ApiDumpSettings& settings, int indents) {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
-=======
-void dump_json_wl_surface(const wl_surface object, const ApiDumpSettings& settings, int indents) {
-    if (settings.showAddress())
-        settings.stream() << "\"" << object << "\"";
-    else
-        settings.stream() << "\"address\"";
->>>>>>> e0a90a9f9... vkconfig3: Implement loader settings file and added tests
 }
 #endif  // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
@@ -21179,12 +21170,8 @@ void dump_json_VkWaylandSurfaceCreateInfoKHR(const VkWaylandSurfaceCreateInfoKHR
     dump_json_value<const wl_display*>(object.display, NULL, settings, "struct wl_display*", "display", false, false, indents + 1,
                                        dump_json_wl_display);
     settings.stream() << ",\n";
-<<<<<<< HEAD
-    dump_json_value<const wl_surface*>(object.surface, NULL, settings, "struct wl_surface*", "surface", false, false, indents + 1, dump_json_wl_surface);
-=======
-    dump_json_pointer<const wl_surface>(object.surface, settings, "struct wl_surface*", "surface", false, false, indents + 1,
-                                        dump_json_wl_surface);
->>>>>>> e0a90a9f9... vkconfig3: Implement loader settings file and added tests
+    dump_json_value<const wl_surface*>(object.surface, NULL, settings, "struct wl_surface*", "surface", false, false, indents + 1,
+                                       dump_json_wl_surface);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #endif  // VK_USE_PLATFORM_WAYLAND_KHR

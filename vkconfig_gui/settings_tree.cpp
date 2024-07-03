@@ -62,7 +62,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
     this->tree = build_tree;
 
-    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
+    Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration == nullptr) {
         return;
     }
@@ -150,12 +150,14 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 }
 
 void SettingsTreeManager::CleanupGUI() {
-    if (this->tree == nullptr)  // Was not initialized
+    // Was not initialized
+    if (this->tree == nullptr) {
         return;
+    }
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
+    Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
         configuration->setting_tree_state.clear();
         GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
@@ -168,39 +170,50 @@ void SettingsTreeManager::CleanupGUI() {
 void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {
     (void)index;
 
-    if (this->tree == nullptr)  // Was not initialized
+    // Was not initialized
+    if (this->tree == nullptr) {
         return;
+    }
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
-    configuration->setting_tree_state.clear();
-    GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
-
-    return;
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    if (configuration != nullptr) {
+        configuration->setting_tree_state.clear();
+        GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
+    }
 }
 
 void SettingsTreeManager::OnCollapsedChanged(const QModelIndex &index) {
     (void)index;
 
-    if (this->tree == nullptr)  // Was not initialized
+    // Was not initialized
+    if (this->tree == nullptr) {
         return;
+    }
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.configurations.FindActiveConfiguration();
-    configuration->setting_tree_state.clear();
-    GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
-
-    return;
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    if (configuration != nullptr) {
+        configuration->setting_tree_state.clear();
+        GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
+    }
 }
 
 void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &parameter, const SettingMeta &meta_object) {
-    if (!IsPlatformSupported(meta_object.platform_flags)) return;
-    if (meta_object.view == SETTING_VIEW_HIDDEN) return;
-    if (meta_object.view == SETTING_VIEW_ADVANCED &&
-        !Configurator::Get().configurations.FindActiveConfiguration()->view_advanced_settings)
+    if (!IsPlatformSupported(meta_object.platform_flags)) {
         return;
+    }
+
+    if (meta_object.view == SETTING_VIEW_HIDDEN) {
+        return;
+    }
+
+    Configurator &configurator = Configurator::Get();
+    if (meta_object.view == SETTING_VIEW_ADVANCED && !configurator.GetActiveConfiguration()->view_advanced_settings) {
+        return;
+    }
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));

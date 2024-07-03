@@ -53,26 +53,22 @@ enum LayoutState {
 
 enum { LAYOUT_COUNT = LAYOUT_LAST - LAYOUT_FIRST + 1 };
 
-enum UserDefinedLayersPaths {
-    USER_DEFINED_LAYERS_PATHS_ENV_SET = 0,  // VK_LAYER_PATH
-    USER_DEFINED_LAYERS_PATHS_ENV_ADD,      // VK_ADD_LAYER_PATH
-    USER_DEFINED_LAYERS_PATHS_GUI,
-
-    USER_DEFINED_LAYERS_PATHS_FIRST = USER_DEFINED_LAYERS_PATHS_ENV_SET,
-    USER_DEFINED_LAYERS_PATHS_LAST = USER_DEFINED_LAYERS_PATHS_GUI,
-};
-
-enum { USER_DEFINED_LAYERS_PATHS_COUNT = USER_DEFINED_LAYERS_PATHS_LAST - USER_DEFINED_LAYERS_PATHS_FIRST + 1 };
-
 struct DefaultApplication {
     std::string name;
     std::string key;
     std::string arguments;
 };
 
+struct DefaultPath {
+    Path executable_path;
+    Path working_folder;
+};
+
 class Environment {
    public:
-    Environment();
+    enum Mode { MODE_AUTO_LOAD_SAVE = 0, MODE_UNINITIALIZED };
+
+    Environment(Mode mode = MODE_AUTO_LOAD_SAVE);
     ~Environment();
 
     enum ResetMode { DEFAULT = 0, CLEAR, SYSTEM };
@@ -109,15 +105,6 @@ class Environment {
     LogFlags GetLoaderMessageFlags() const { return this->loader_message_types_flags; }
     void SetLoaderMessageFlags(LogFlags flags) { this->loader_message_types_flags = flags; }
 
-    void SetPerConfigUserDefinedLayersPaths(const std::vector<Path>& paths);
-
-    const std::vector<Path>& GetUserDefinedLayersPaths(UserDefinedLayersPaths user_defined_layers_paths_id) const {
-        return this->user_defined_layers_paths[user_defined_layers_paths_id];
-    }
-
-    bool IsDefaultConfigurationInit(const std::string& configuration_filename) const;
-    void InitDefaultConfiguration(const std::string& configuration_filename);
-
     // Search for all the applications in the list, an remove the application which executable can't be found
     std::vector<Application> RemoveMissingApplications(const std::vector<Application>& applications) const;
 
@@ -133,6 +120,8 @@ class Environment {
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
 
+    const Mode mode;
+
     TabType active_tab;
     bool use_system_tray;
     bool use_per_application_configuration;
@@ -141,10 +130,7 @@ class Environment {
 
     int active_executable_index;
     std::array<QByteArray, LAYOUT_COUNT> layout_states;
-    std::array<std::vector<Path>, USER_DEFINED_LAYERS_PATHS_COUNT> user_defined_layers_paths;
     std::vector<Application> applications;
-
-    std::vector<std::string> default_configuration_filenames;
 
     // Update default applications path to use relative path (really useful only on Windows)
     std::vector<Application> UpdateDefaultApplications(const std::vector<Application>& applications) const;
@@ -152,7 +138,7 @@ class Environment {
     // Create a list of default applications, eg vkcube
     std::vector<Application> CreateDefaultApplications() const;
     Application CreateDefaultApplication(const DefaultApplication& default_application) const;
-    Path GetDefaultExecutablePath(const std::string& executable_name) const;
+    DefaultPath GetDefaultExecutablePath(const std::string& executable_name) const;
 };
 
 bool ExactExecutableFromAppBundle(Path& path);

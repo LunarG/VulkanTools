@@ -29,11 +29,7 @@
 #include <cassert>
 
 int run_doc_html(const CommandLine& command_line) {
-    Environment environment;
-    environment.Reset(Environment::DEFAULT);
-
-    LayerManager layers(environment);
-    layers.LoadAllInstalledLayers();
+    LayerManager layers;
 
     for (std::size_t i = 0, n = layers.selected_layers.size(); i < n; ++i) {
         const Layer& layer = layers.selected_layers[i];
@@ -49,11 +45,7 @@ int run_doc_html(const CommandLine& command_line) {
 }
 
 int run_doc_markdown(const CommandLine& command_line) {
-    Environment environment;
-    environment.Reset(Environment::DEFAULT);
-
-    LayerManager layers(environment);
-    layers.LoadAllInstalledLayers();
+    LayerManager layers;
 
     for (std::size_t i = 0, n = layers.selected_layers.size(); i < n; ++i) {
         const Layer& layer = layers.selected_layers[i];
@@ -71,21 +63,17 @@ int run_doc_markdown(const CommandLine& command_line) {
 int run_doc_settings(const CommandLine& command_line) {
     int rval = 0;
 
-    Environment environment;
-    environment.Reset(Environment::DEFAULT);
-    ConfigurationManager configuration_manager(environment);
-    Configuration config;
-    LayerManager layers(environment);
-    Layer* layer;
+    LayerManager layers;
 
-    layers.LoadLayer(command_line.doc_layer_name);
-    layer = FindByKey(layers.selected_layers, command_line.doc_layer_name.c_str());
+    Layer* layer = layers.Find(command_line.doc_layer_name.c_str());
     if (!layer) {
         fprintf(stderr, "vkconfig: Could not load layer %s\n", command_line.doc_layer_name.c_str());
         fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
         return -1;
     }
-    config = configuration_manager.CreateConfiguration(layers.selected_layers, "Config");
+
+    ConfigurationManager configuration_manager;
+    Configuration config = configuration_manager.CreateConfiguration(layers.selected_layers, "Config");
     config.parameters = GatherParameters(config.parameters, layers.selected_layers);
     config.parameters[0].control = LAYER_CONTROL_ON;
     ExportSettingsDoc(layers.selected_layers, config, command_line.doc_out_dir + "/vk_layer_settings.txt");

@@ -147,6 +147,24 @@ TEST(test_path, replace_path_unknown) {
     EXPECT_TRUE(replaced_path.find("${UNKNOWN}") == 0);
 }
 
+TEST(test_path, convert_to_variable) {
+    const std::string replaced_path = ::Get(Path::SDK).AbsolutePath();
+
+    Path recovered_path(replaced_path, true);
+
+    EXPECT_EQ(::Get(Path::SDK), recovered_path);
+}
+
+TEST(test_path, convert_to_variable_postfix) {
+    const Path base_path(::Get(Path::SDK).AbsolutePath(), true);
+    const Path reference_path = base_path + "/TestA";
+
+    const std::string replaced_path = reference_path.AbsolutePath();
+    Path recovered_path(replaced_path, true);
+
+    EXPECT_EQ(reference_path, recovered_path);
+}
+
 TEST(test_path, convert_native_separator_empty) {
     const std::string replaced_path = Path("").AbsolutePath();
 
@@ -166,10 +184,18 @@ TEST(test_path, get_path_home) {
 }
 
 TEST(test_path, get_path_appdata) {
-    const std::string appdata(AbsolutePath(Path::APPDATA).c_str());
+    const std::string data(AbsolutePath(Path::APPDATA).c_str());
     const std::string home(Path(QDir().homePath().toStdString()).AbsolutePath());
 
-    EXPECT_TRUE(appdata.find(home.c_str()) == 0);
+    EXPECT_TRUE(data.find(home.c_str()) == 0);
+}
+
+TEST(test_path, get_path_init) {
+    const std::string init(AbsolutePath(Path::INIT).c_str());
+    const std::string data(AbsolutePath(Path::APPDATA).c_str());
+
+    EXPECT_TRUE(init.find(data.c_str()) != std::string::npos);
+    EXPECT_TRUE(init.find("vkconfig.json") != std::string::npos);
 }
 
 TEST(test_path, get_path_config) {
@@ -177,6 +203,20 @@ TEST(test_path, get_path_config) {
 
     EXPECT_TRUE(value.startsWith(AbsolutePath(Path::CONFIGS).c_str()));
     EXPECT_TRUE(value.endsWith("configurations"));
+}
+
+TEST(test_path, get_path_layers_settings) {
+    const std::string value(AbsolutePath(Path::LAYERS_SETTINGS).c_str());
+
+    EXPECT_TRUE(value.find("vk_layer_settings.txt") != std::string::npos);
+    EXPECT_TRUE(value.find(AbsolutePath(Path::APPDATA).c_str()) != std::string::npos);
+}
+
+TEST(test_path, get_path_loader_settings) {
+    const std::string value(AbsolutePath(Path::LOADER_SETTINGS).c_str());
+
+    EXPECT_TRUE(value.find("vk_loader_settings.json") != std::string::npos);
+    EXPECT_TRUE(value.find(AbsolutePath(Path::APPDATA).c_str()) != std::string::npos);
 }
 
 TEST(test_path, get_path_override_settings) {

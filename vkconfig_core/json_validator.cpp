@@ -49,7 +49,7 @@ bool JsonValidator::Check(const QString &json_data) {
     assert(!json_data.isEmpty());
 
     if (!schema) {
-        const QJsonDocument schema_document = ParseJsonFile(":/layers/schema.json");
+        const QJsonDocument schema_document = ParseJsonFile(":/vkconfig/schema.json");
 
         schema.reset(new Schema);
 

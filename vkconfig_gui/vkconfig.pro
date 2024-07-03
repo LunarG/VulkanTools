@@ -2,7 +2,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
 
-CONFIG += c++11
+CONFIG += c++17
 CONFIG += sdk_no_version_check
 
 INCLUDEPATH += ../external/Vulkan-Headers/include
@@ -30,11 +30,15 @@ SOURCES += \
     ../vkconfig_core/alert.cpp \
     ../vkconfig_core/application.cpp \
     ../vkconfig_core/application_singleton.cpp \
+    ../vkconfig_core/bitfield.cpp \
     ../vkconfig_core/command_line.cpp \
     ../vkconfig_core/configuration.cpp \
+    ../vkconfig_core/configuration_info.cpp \
     ../vkconfig_core/configuration_manager.cpp \
-    ../vkconfig_core/doc.cpp \
+    ../vkconfig_core/configurator.cpp \
+    ../vkconfig_core/configurator_signal.cpp \
     ../vkconfig_core/date.cpp \
+    ../vkconfig_core/doc.cpp \
     ../vkconfig_core/environment.cpp \
     ../vkconfig_core/header.cpp \
     ../vkconfig_core/help.cpp \
@@ -43,13 +47,8 @@ SOURCES += \
     ../vkconfig_core/layer.cpp \
     ../vkconfig_core/layer_manager.cpp \
     ../vkconfig_core/layer_preset.cpp \
-    ../vkconfig_core/layer_state.cpp \
-    ../vkconfig_core/layer_type.cpp \
-    ../vkconfig_core/override.cpp \
     ../vkconfig_core/parameter.cpp \
     ../vkconfig_core/path.cpp \
-    ../vkconfig_core/path_manager.cpp \
-    ../vkconfig_core/platform.cpp \
     ../vkconfig_core/registry.cpp \
     ../vkconfig_core/setting.cpp \
     ../vkconfig_core/setting_bool.cpp \
@@ -61,9 +60,19 @@ SOURCES += \
     ../vkconfig_core/setting_int.cpp \
     ../vkconfig_core/setting_list.cpp \
     ../vkconfig_core/setting_string.cpp \
+    ../vkconfig_core/type_hide_message.cpp \
+    ../vkconfig_core/type_layer_control.cpp \
+    ../vkconfig_core/type_layer_type.cpp \
+    ../vkconfig_core/type_layers_mode.cpp \
+    ../vkconfig_core/type_log.cpp \
+    ../vkconfig_core/type_platform.cpp \
+    ../vkconfig_core/type_status.cpp \
+    ../vkconfig_core/type_tab.cpp \
+    ../vkconfig_core/type_update.cpp \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/version.cpp \
-    vulkan_util.cpp \
+    ../vkconfig_core/vulkan_info.cpp \
+    ../vkconfig_core/vulkan_util.cpp \
     widget_preset.cpp \
     widget_setting.cpp \
     widget_setting_bool.cpp \
@@ -81,18 +90,21 @@ SOURCES += \
     dialog_vulkan_info.cpp \
     main.cpp \
     mainwindow.cpp \
-    settings_tree.cpp \
-    configurator.cpp
+    settings_tree.cpp
 
 HEADERS += \
     ../vkconfig_core/alert.h \
     ../vkconfig_core/application.h \
     ../vkconfig_core/application_singleton.h \
+    ../vkconfig_core/bitfield.h \
     ../vkconfig_core/command_line.h \
     ../vkconfig_core/configuration.h \
+    ../vkconfig_core/configuration_info.h \
     ../vkconfig_core/configuration_manager.h \
-    ../vkconfig_core/doc.h \
+    ../vkconfig_core/configurator.h \
+    ../vkconfig_core/configurator_signal.h \
     ../vkconfig_core/date.h \
+    ../vkconfig_core/doc.h \
     ../vkconfig_core/environment.h \
     ../vkconfig_core/header.h \
     ../vkconfig_core/help.h \
@@ -101,13 +113,8 @@ HEADERS += \
     ../vkconfig_core/layer.h \
     ../vkconfig_core/layer_manager.h \
     ../vkconfig_core/layer_preset.h \
-    ../vkconfig_core/layer_state.h \
-    ../vkconfig_core/layer_type.h \
-    ../vkconfig_core/override.h \
     ../vkconfig_core/parameter.h \
     ../vkconfig_core/path.h \
-    ../vkconfig_core/path_manager.h \
-    ../vkconfig_core/platform.h \
     ../vkconfig_core/registry.h \
     ../vkconfig_core/setting.h \
     ../vkconfig_core/setting_bool.h \
@@ -119,9 +126,19 @@ HEADERS += \
     ../vkconfig_core/setting_int.h \
     ../vkconfig_core/setting_list.h \
     ../vkconfig_core/setting_string.h \
+    ../vkconfig_core/type_hide_message.h \
+    ../vkconfig_core/type_layer_control.h \
+    ../vkconfig_core/type_layer_type.h \
+    ../vkconfig_core/type_layers_mode.h \
+    ../vkconfig_core/type_log.h \
+    ../vkconfig_core/type_platform.h \
+    ../vkconfig_core/type_status.h \
+    ../vkconfig_core/type_tab.h \
+    ../vkconfig_core/type_update.h \
     ../vkconfig_core/util.h \
     ../vkconfig_core/version.h \
-    vulkan_util.h \
+    ../vkconfig_core/vulkan_info.h \
+    ../vkconfig_core/vulkan_util.h \
     widget_preset.h \
     widget_setting.h \
     widget_setting_bool.h \
@@ -138,8 +155,7 @@ HEADERS += \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
     mainwindow.h \
-    settings_tree.h \
-    configurator.h
+    settings_tree.h
 
 FORMS += \
     dialog_vulkan_analysis.ui \

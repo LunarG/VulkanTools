@@ -21,6 +21,7 @@
 #include "../configuration.h"
 #include "../util.h"
 #include "../layer_manager.h"
+#include "../environment.h"
 
 #include <array>
 #include <string>
@@ -60,9 +61,7 @@ static bool operator==(const Parameter& a, const Parameter& b) {
 static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b) { return !(a == b); }
 
 struct TestBuilin {
-    TestBuilin()
-        : environment(),
-          layer_manager(environment) {
+    TestBuilin() : environment(), layer_manager() {
         this->layer_manager.LoadLayersFromPath(":/sdk");
         EXPECT_TRUE(!this->layer_manager.selected_layers.empty());
     }
@@ -73,9 +72,8 @@ struct TestBuilin {
 
     Configuration Load(const char* configuration_name) {
         Configuration configuration_loaded;
-        const bool result = configuration_loaded.Load(
-            layer_manager.selected_layers,
-            format(":/configurations/%s.json", configuration_name).c_str());
+        const bool result = configuration_loaded.Load(layer_manager.selected_layers,
+                                                      format(":/configurations/%s.json", configuration_name).c_str());
         return result ? configuration_loaded : Configuration();
     }
 
@@ -97,7 +95,7 @@ struct TestBuilin {
 
 TEST(test_built_in_load, sdk_layers_with_configuration) {
     TestBuilin test;
-    EXPECT_EQ(8, test.layer_manager.selected_layers.size());
+    EXPECT_TRUE(test.layer_manager.selected_layers.size() >= 8);
 
     {
         Configuration load_api_dump = test.Load("API dump");

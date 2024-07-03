@@ -25,9 +25,8 @@
 
 const char* GetToken(LayerType type) {
     static const char* TOKENS[] = {
-        "Explicit",     // LAYER_TYPE_EXPLICIT
-        "Implicit",     // LAYER_TYPE_IMPLICIT
-        "User-Defined"  // LAYER_TYPE_USER_DEFINED
+        "Explicit",  // LAYER_TYPE_EXPLICIT
+        "Implicit",  // LAYER_TYPE_IMPLICIT
     };
     static_assert(std::size(TOKENS) == LAYER_TYPE_COUNT);
 

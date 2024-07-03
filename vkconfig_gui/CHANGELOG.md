@@ -20,7 +20,8 @@
 - Split GUI and command line tool
 
 ### Deprecation:
-- Requires Vulkan Loader 1.3.261 or newer.
+- Requires Vulkan Loader 1.3.261 or newer on Linux and macOS
+- Requires Vulkan Loader 1.3.284 or newer on Windows.
 - Highly recommand Validation layer 1.3.250 or newer.
 
 ## [Vulkan Configurator 2.6.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.283.0) - May 2024

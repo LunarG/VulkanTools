@@ -26,6 +26,7 @@
 
 #include <QFile>
 
+#include <array>
 #include <string>
 #include <cstdio>
 #include <cstring>
@@ -58,16 +59,16 @@ struct ModeDesc {
 };
 
 static const ModeDesc mode_desc[] = {
-    {COMMAND_NONE, "", HELP_DEFAULT},               // COMMAND_NONE
-    {COMMAND_SHOW_USAGE, "-h", HELP_HELP},          // COMMAND_SHOW_USAGE
-    {COMMAND_SHOW_USAGE, "--help", HELP_HELP},      // COMMAND_SHOW_USAGE
-    {COMMAND_SHOW_USAGE, "help", HELP_HELP},        // COMMAND_SHOW_USAGE
-    {COMMAND_VERSION, "-v", HELP_VERSION},          // COMMAND_VERSION
-    {COMMAND_VERSION, "--version", HELP_VERSION},   // COMMAND_VERSION
-    {COMMAND_VERSION, "version", HELP_VERSION},     // COMMAND_VERSION
-    {COMMAND_LAYERS, "layers", HELP_LAYERS},        // COMMAND_LAYERS
-    {COMMAND_DOC, "doc", HELP_DOC},                 // COMMAND_DOC
-    {COMMAND_RESET, "reset", HELP_RESET}            // COMMAND_RESET
+    {COMMAND_NONE, "", HELP_DEFAULT},              // COMMAND_NONE
+    {COMMAND_SHOW_USAGE, "-h", HELP_HELP},         // COMMAND_SHOW_USAGE
+    {COMMAND_SHOW_USAGE, "--help", HELP_HELP},     // COMMAND_SHOW_USAGE
+    {COMMAND_SHOW_USAGE, "help", HELP_HELP},       // COMMAND_SHOW_USAGE
+    {COMMAND_VERSION, "-v", HELP_VERSION},         // COMMAND_VERSION
+    {COMMAND_VERSION, "--version", HELP_VERSION},  // COMMAND_VERSION
+    {COMMAND_VERSION, "version", HELP_VERSION},    // COMMAND_VERSION
+    {COMMAND_LAYERS, "layers", HELP_LAYERS},       // COMMAND_LAYERS
+    {COMMAND_DOC, "doc", HELP_DOC},                // COMMAND_DOC
+    {COMMAND_RESET, "reset", HELP_RESET}           // COMMAND_RESET
 };
 
 static CommandType GetModeId(const char* token) {

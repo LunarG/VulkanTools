@@ -15,7 +15,7 @@
         <file alias="Validation.json">../vkconfig_core/configurations/3.0.0/Validation.json</file>
     </qresource>
 
-    <qresource prefix="/layers">
+    <qresource prefix="/vkconfig">
         <file alias="schema.json">../vkconfig_core/layers/layers_schema.json</file>
         <file alias="validusage.json">../vkconfig_core/layers/validusage.json</file>
     </qresource>

@@ -27,6 +27,10 @@ function(vkConfigTest NAME)
     if(WIN32)
         target_link_libraries(${TEST_NAME} Cfgmgr32)
     endif()
+    if (RUN_ON_GITHUB)
+        target_compile_definitions(${TEST_NAME} PRIVATE RUN_ON_GITHUB)
+    endif()
+
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endfunction()
 
