@@ -14,8 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Author: Mark Lobodzinski <mark@lunarg.com>
-# Author: Tony Barbour <tony@lunarg.com>
+# Authors: 
+# - Mark Lobodzinski <mark@lunarg.com>
+# - Tony Barbour <tony@lunarg.com>
+# - Christophe Riccio <christophe@lunarg.com>
 
 import os
 import argparse
@@ -53,6 +55,8 @@ EXTERNAL_DIR = repo_relative(EXTERNAL_DIR_NAME)
 VT_BUILD_DIR = repo_relative(BUILD_DIR_NAME)
 CONFIGURATIONS = ['Release', 'Debug']
 DEFAULT_CONFIGURATION = CONFIGURATIONS[0]
+TESTS_MODES = ['On', 'GitHubCI', 'Developer']
+DEFAULT_TESTS_MODE = TESTS_MODES[0]
 
 #
 # Create build directory if it does not already exist
@@ -68,7 +72,10 @@ def BuildVT(args):
     RunShellCmd(cmake_ver_cmd)
 
     print("Run CMake")
-    cmake_cmd = f'cmake -S . -B {VT_BUILD_DIR} -D UPDATE_DEPS_DIR={EXTERNAL_DIR} -DUPDATE_DEPS=ON -DBUILD_TESTS=ON -DBUILD_WERROR=ON'
+    if args.tests == 'GitHubCI':
+        cmake_cmd = f'cmake -S . -B {VT_BUILD_DIR} -DUPDATE_DEPS_DIR={EXTERNAL_DIR} -DUPDATE_DEPS=ON -DBUILD_TESTS=ON -DRUN_ON_GITHUB=ON -DBUILD_WERROR=ON'
+    else:
+        cmake_cmd = f'cmake -S . -B {VT_BUILD_DIR} -DUPDATE_DEPS_DIR={EXTERNAL_DIR} -DUPDATE_DEPS=ON -DBUILD_TESTS=ON -DBUILD_WERROR=ON'
     RunShellCmd(cmake_cmd)
 
     print("Build Vulkan Tools")
@@ -122,6 +129,9 @@ def main():
         choices=CONFIGURATIONS, default=DEFAULT_CONFIGURATION,
         help='Build target configuration. Can be one of: {0}'.format(
             ', '.join(CONFIGURATIONS)))
+    parser.add_argument(
+        '--tests', dest='tests',
+        choices=TESTS_MODES, default=DEFAULT_TESTS_MODE)
     args = parser.parse_args()
 
     global ret_code

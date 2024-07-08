@@ -113,7 +113,7 @@ if(BUILD_SCREENSHOT)
     )
 endif()
 
-if (BUILD_TESTS_DEBUG)
+if (BUILD_TESTS AND NOT RUN_ON_GITHUB)
     add_subdirectory(test)
 endif()
 

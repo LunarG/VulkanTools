@@ -28,6 +28,15 @@ find_package(VulkanUtilityLibraries REQUIRED CONFIG)
 
 find_package(valijson REQUIRED CONFIG)
 
+option(BUILD_TESTS "Build tests")
+option(RUN_ON_GITHUB "Build only tests that can run on Github" OFF)
+option(BUILD_EXPERIMENTAL "Build tests for debugging layers" OFF)
+
+if(BUILD_TESTS)
+    enable_testing()
+    find_package(GTest REQUIRED CONFIG)
+endif()
+
 # NOTE: Our custom code generation target isn't desirable for system package managers or add_subdirectory users.
 # So this target needs to be off by default to avoid obtuse build errors or patches.
 option(VT_CODEGEN "Enable vulkantools code generation")
@@ -85,15 +94,8 @@ elseif (APPLE)
 
 endif()
 
-option(BUILD_TESTS "Build tests")
-option(BUILD_TESTS_DEBUG "Build tests for debugging layers" OFF)
-option(BUILD_EXPERIMENTAL "Build tests for debugging layers" OFF)
-
 if(BUILD_TESTS)
-    enable_testing()
     add_subdirectory(tests)
-
-    find_package(GTest REQUIRED CONFIG)
 endif()
 
 if(BUILD_VIA)
@@ -101,10 +103,13 @@ if(BUILD_VIA)
 endif()
 
 if(BUILD_APIDUMP OR BUILD_MONITOR OR BUILD_SCREENSHOT)
+    message("INFO: Building Vulkan Layers")
     add_subdirectory(layersvt)
 endif()
 
 if(BUILD_LAYERMGR)
+    message("INFO: Building Vulkan Configurator")
+
     if (WIN32)
         # Minimize what Windows.h leaks
         add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
