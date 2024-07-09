@@ -13,6 +13,7 @@
         <file alias="Portability.json">../vkconfig_core/configurations/2.2.2/Portability.json</file>
         <file alias="Synchronization.json">../vkconfig_core/configurations/2.2.2/Synchronization.json</file>
         <file alias="Validation.json">../vkconfig_core/configurations/2.2.2/Validation.json</file>
+        <file alias="Crash Diagnostic.json">../vkconfig_core/configurations/2.2.2/Crash Diagnostic.json</file>
     </qresource>
 
     <qresource prefix="/layers">
