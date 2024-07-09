@@ -34,3 +34,4 @@ out64/*
 *.files
 *.includes
 .vscode/
+.cache
