@@ -1,0 +1,94 @@
+{
+    "configuration": {
+        "description": "Crash Diagnostic Layer is a crash/hang debugging tool that helps determines GPU progress in a Vulkan application.",
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_crash_diagnostic",
+                "platforms": [
+                    "WINDOWS",
+                    "LINUX",
+                    "MACOS"
+                ],
+                "rank": 1,
+                "settings": [
+                    {
+                        "key": "watchdog_timeout_ms",
+                        "type": "INT",
+                        "value": 30000
+                    },
+                    {
+                        "key": "output_path",
+                        "type": "STRING",
+                        "value": ""
+                    },
+                    {
+                        "key": "dump_queue_submits",
+                        "type": "ENUM",
+                        "value": "running"
+                    },
+                    {
+                        "key": "dump_command_buffers",
+                        "type": "ENUM",
+                        "value": "running"
+                    },
+                    {
+                        "key": "dump_commands",
+                        "type": "ENUM",
+                        "value": "running"
+                    },
+                    {
+                        "key": "dump_shaders",
+                        "type": "ENUM",
+                        "value": "off"
+                    },
+                    {
+                        "key": "message_severity",
+                        "type": "FLAGS",
+                        "value": [
+                            "error"
+                        ]
+                    },
+                    {
+                        "key": "log_file",
+                        "type": "STRING",
+                        "value": "stderr"
+                    },
+                    {
+                        "key": "trace_on",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "trace_all_semaphores",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "sync_after_commands",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "instrument_all_commands",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "track_semaphores",
+                        "type": "BOOL",
+                        "value": true
+                    }
+                ],
+                "state": "OVERRIDDEN"
+            }
+        ],
+        "name": "Crash Diagnostic",
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "view_advanced_settings": false
+    },
+    "file_format_version": "2.2.3"
+}
