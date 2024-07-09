@@ -22,6 +22,7 @@
 
 #include <sstream>
 #include <cstdlib>
+#include <algorithm>
 #include <cctype>
 
 // TODO: When the layer path issue is resolved with CI (set outside of the tests) remove this function
