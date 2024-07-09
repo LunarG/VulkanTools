@@ -165,17 +165,17 @@ void MainWindow::InitTray() {
 
         this->_tray_layers_controlled_by_applications = new QAction("Layers Controlled by the Vulkan Applications", this);
         this->_tray_layers_controlled_by_applications->setCheckable(true);
-        connect(this->_tray_layers_controlled_by_applications, &QAction::triggered, this,
+        connect(this->_tray_layers_controlled_by_applications, &QAction::toggled, this,
                 &MainWindow::trayActionControlledByApplications);
 
         this->_tray_layers_controlled_by_configurator = new QAction("Layers Controlled by the Vulkan Configurator", this);
         this->_tray_layers_controlled_by_configurator->setCheckable(true);
-        connect(this->_tray_layers_controlled_by_configurator, &QAction::triggered, this,
+        connect(this->_tray_layers_controlled_by_configurator, &QAction::toggled, this,
                 &MainWindow::trayActionControlledByConfigurator);
 
         this->_tray_layers_disabled_by_configurator = new QAction("Layers Disabled by the Vulkan Configurator", this);
         this->_tray_layers_disabled_by_configurator->setCheckable(true);
-        connect(this->_tray_layers_disabled_by_configurator, &QAction::triggered, this,
+        connect(this->_tray_layers_disabled_by_configurator, &QAction::toggled, this,
                 &MainWindow::trayActionDisabledByApplications);
 
         this->_tray_icon_menu = new QMenu(this);
@@ -276,31 +276,37 @@ void MainWindow::trayActionRestore() {
     this->UpdateTray();
 }
 
-void MainWindow::trayActionControlledByApplications() {
-    Configurator &configurator = Configurator::Get();
-    configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+void MainWindow::trayActionControlledByApplications(bool checked) {
+    if (checked) {
+        Configurator &configurator = Configurator::Get();
+        configurator.environment.SetMode(LAYERS_MODE_BY_APPLICATIONS);
+        configurator.configurations.Configure(configurator.layers.selected_layers);
 
-    this->UpdateUI();
-    this->UpdateTray();
+        this->UpdateUI();
+        this->UpdateTray();
+    }
 }
 
-void MainWindow::trayActionControlledByConfigurator() {
-    Configurator &configurator = Configurator::Get();
-    configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+void MainWindow::trayActionControlledByConfigurator(bool checked) {
+    if (checked) {
+        Configurator &configurator = Configurator::Get();
+        configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_RUNNING);
+        configurator.configurations.Configure(configurator.layers.selected_layers);
 
-    this->UpdateUI();
-    this->UpdateTray();
+        this->UpdateUI();
+        this->UpdateTray();
+    }
 }
 
-void MainWindow::trayActionDisabledByApplications() {
-    Configurator &configurator = Configurator::Get();
-    configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED);
-    configurator.configurations.Configure(configurator.layers.selected_layers);
+void MainWindow::trayActionDisabledByApplications(bool checked) {
+    if (checked) {
+        Configurator &configurator = Configurator::Get();
+        configurator.environment.SetMode(LAYERS_MODE_BY_CONFIGURATOR_ALL_DISABLED);
+        configurator.configurations.Configure(configurator.layers.selected_layers);
 
-    this->UpdateUI();
-    this->UpdateTray();
+        this->UpdateUI();
+        this->UpdateTray();
+    }
 }
 
 static std::string GetMainWindowTitle(bool active) {

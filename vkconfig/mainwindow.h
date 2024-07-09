@@ -113,9 +113,9 @@ class MainWindow : public QMainWindow {
 
    private slots:
     void trayActionRestore();
-    void trayActionControlledByApplications();
-    void trayActionControlledByConfigurator();
-    void trayActionDisabledByApplications();
+    void trayActionControlledByApplications(bool checked);
+    void trayActionControlledByConfigurator(bool checked);
+    void trayActionDisabledByApplications(bool checked);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
    public Q_SLOTS:
