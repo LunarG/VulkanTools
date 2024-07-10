@@ -89,9 +89,9 @@ def BuildVT(args):
     RunShellCmd(test_cmd, VT_BUILD_DIR)
 
     print("Build Vulkan Configurator with QtCreator")
-    os.chdir('%s/../vkconfig' % VT_BUILD_DIR)
-    RunShellCmd('qmake vkconfig.pro', '%s/../vkconfig' % VT_BUILD_DIR)
-    RunShellCmd('make', '%s/../vkconfig' % VT_BUILD_DIR)
+    os.chdir('%s/../vkconfig_gui' % VT_BUILD_DIR)
+    RunShellCmd('qmake vkconfig.pro', '%s/../vkconfig_gui' % VT_BUILD_DIR)
+    RunShellCmd('make', '%s/../vkconfig_gui' % VT_BUILD_DIR)
 
 ret_code = 0
 def RunATest(vt_cmd, vt_env):
