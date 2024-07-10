@@ -25,6 +25,7 @@
 #include "type_platform.h"
 
 #include <QDir>
+#include <QDateTime>
 #include <QJsonDocument>
 
 #include <cassert>
@@ -204,7 +205,11 @@ std::string Path::RelativePath() const {
     return ConvertNativeSeparators(this->data);
 }
 
-std::string Path::LastModified() const { return QFileInfo(this->data.c_str()).lastModified().toString(Qt::ISODate).toStdString(); }
+std::string Path::LastModified() const {
+    QFileInfo file_info(this->data.c_str());
+
+    return file_info.lastModified().toString(Qt::ISODate).toStdString();
+}
 
 bool operator==(const Path& a, const Path& b) { return a.AbsolutePath() == b.AbsolutePath(); }
 

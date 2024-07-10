@@ -249,7 +249,7 @@ TEST(test_path, get_path_vulkan_sdk) {
 #ifdef __APPLE__
         qputenv("VULKAN_SDK", "~/VulkanSDK");
         const std::string value = AbsolutePath(Path::SDK);
-        EXPECT_STREQ(Path("~/VulkanSDK/share/vulkan").c_str(), value.c_str());
+        EXPECT_STREQ(Path("~/VulkanSDK/share/vulkan").AbsolutePath().c_str(), value.c_str());
 #else
         qputenv("VULKAN_SDK", "~/VulkanSDK");
         const std::string value = AbsolutePath(Path::SDK);

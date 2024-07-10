@@ -171,7 +171,7 @@ class ViaSystem {
     };
 
     struct VulkanSettingPair {
-        std::string key;
+        std::string name;
         std::string value;
     };
 

@@ -85,7 +85,7 @@ def BuildVT(args):
 
     print("Run Vulkan Tools Tests")
     os.chdir(VT_BUILD_DIR)
-    test_cmd = 'ctest --parallel %s --output-on-failure --config %s' % (os.cpu_count(), args.configuration)
+    test_cmd = 'ctest --parallel %s --output-on-failure' % (os.cpu_count())
     RunShellCmd(test_cmd, VT_BUILD_DIR)
 
     print("Build Vulkan Configurator with QtCreator")

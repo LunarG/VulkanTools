@@ -1694,7 +1694,7 @@ void ViaSystem::GenerateSettingsFileJsonInfo(const std::string& settings_file) {
                 setting_layer = trimmed_setting.substr(0, period_loc);
                 setting_name = trimmed_setting.substr(period_loc + 1, std::string::npos);
             }
-            new_pair.key = setting_name;
+            new_pair.name = setting_name;
 
             // Add items to settings map for now
             if (settings.find(setting_layer) == settings.end()) {
@@ -1724,7 +1724,7 @@ void ViaSystem::GenerateSettingsFileJsonInfo(const std::string& settings_file) {
                 PrintBeginTableRow();
                 PrintTableElement("");
                 PrintTableElement("");
-                PrintTableElement(cur_vector[cur_item].key);
+                PrintTableElement(cur_vector[cur_item].name);
                 PrintTableElement(cur_vector[cur_item].value);
                 PrintEndTableRow();
             }
