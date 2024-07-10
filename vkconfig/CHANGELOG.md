@@ -16,6 +16,9 @@
 ### Features:
 - Add Crash Diagnostic layer built-in configuration
 
+### Fixes:
+- Fix system configuration not being update when toggling layers configuration modes #2046
+
 ## [Vulkan Configurator 2.6.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.283.0) - May 2024
 
 ### Features:
