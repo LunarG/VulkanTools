@@ -19,66 +19,13 @@
  */
 
 #include "../util.h"
-#include "../platform.h"
+#include "../type_platform.h"
 
 #include <array>
 
 #include <QDir>
 
 #include <gtest/gtest.h>
-
-TEST(test_util, countof_int_2) {
-    const int test_data[]{8, 9};
-    static_assert(countof(test_data) == 2, "countof for 2 ints is broken");
-
-    EXPECT_EQ(2, countof(test_data));
-}
-
-TEST(test_util, countof_int_1) {
-    const int test_data[]{7};
-    static_assert(countof(test_data) == 1, "countof for 1 int is broken");
-
-    EXPECT_EQ(1, countof(test_data));
-}
-
-TEST(test_util, countof_cstring_3) {
-    const char* test_data[]{"GNI", "GNA", "GNE"};
-    static_assert(countof(test_data) == 3, "countof for cstring is broken");
-
-    EXPECT_EQ(3, countof(test_data));
-}
-
-TEST(test_util, countof_string_3) {
-    const std::string test_data[]{"GNI", "GNA", "GNE"};
-    static_assert(countof(test_data) == 3, "countof for string is broken");
-
-    EXPECT_EQ(3, countof(test_data));
-}
-
-TEST(test_util, countof_array_2) {
-    const std::array<int, 2> test_data{6, 7};
-    static_assert(countof(test_data) == 2, "countof for array is broken");
-
-    EXPECT_EQ(2, countof(test_data));
-}
-
-TEST(test_util, countof_array_3) {
-    const std::array<std::string, 3> test_data{"GNI", "GNA", "GNE"};
-
-    EXPECT_EQ(3, countof(test_data));
-}
-
-TEST(test_util, countof_vector_2) {
-    const std::vector<int> test_data{6, 7};
-
-    EXPECT_EQ(2, countof(test_data));
-}
-
-TEST(test_util, countof_vector_3) {
-    const std::vector<std::string> test_data{"GNI", "GNA", "GNE"};
-
-    EXPECT_EQ(3, countof(test_data));
-}
 
 TEST(test_util, format_int_1) { EXPECT_EQ("Test 1", format("Test %d", 1)); }
 
