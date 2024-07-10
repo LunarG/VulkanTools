@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 #include "../path.h"
 #include "../util.h"
-#include "../platform.h"
+#include "../type_platform.h"
 
 #include <array>
 
@@ -28,52 +28,19 @@
 
 #include <gtest/gtest.h>
 
-// Test that GetPath return the home directory when the stored path is empty
-TEST(test_path, get_path) { EXPECT_STRNE(GetPath(BUILTIN_PATH_HOME).c_str(), ""); }
-
-TEST(test_path, replace_path_home) {
-    const std::string replaced_path = ReplaceBuiltInVariable("${HOME}/test.txt");
-
-    EXPECT_TRUE(replaced_path.find("${HOME}") > replaced_path.size());
-}
-
-TEST(test_path, replace_path_vk_local) {
-    const std::string replaced_path = ReplaceBuiltInVariable("${VK_LOCAL}/test.txt");
-
-    EXPECT_TRUE(replaced_path.find("${VK_LOCAL}") > replaced_path.size());
-}
-
-TEST(test_path, replace_path_vk_appdata) {
-    const std::string replaced_path = ReplaceBuiltInVariable("${VK_APPDATA}/test.txt");
-
-    EXPECT_TRUE(replaced_path.find("${VK_APPDATA}") > replaced_path.size());
-}
-
-TEST(test_path, replace_path_unknown) {
-    const std::string replaced_path = ReplaceBuiltInVariable("${UNKNOWN}/test.txt");
-
-    EXPECT_STREQ("${UNKNOWN}/test.txt", replaced_path.c_str());
-}
-
-TEST(test_path, convert_native_separator_empty) {
-    const std::string replaced_path = ReplaceBuiltInVariable("");
-
-    EXPECT_STREQ("", replaced_path.c_str());
-}
-
 TEST(test_path, native_path) {
     static const char* table[] = {
         "/vkconfig/test\\path/format/",  "/vkconfig/test\\path/format\\", "/vkconfig\\test/path/format/",
         "/vkconfig\\test/path\\format/", "/vkconfig\\test/path/format",   "/vkconfig/test/path/format",
         "\\vkconfig\\test/path\\format", "/vkconfig/test/path/format/",   "\\vkconfig\\test/path\\format\\"};
 
-    for (std::size_t i = 0, n = countof(table); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(table); i < n; ++i) {
         const std::string test_case = table[i];
 
         if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) {
-            EXPECT_STREQ("\\vkconfig\\test\\path\\format", ConvertNativeSeparators(test_case).c_str());
+            EXPECT_STREQ("\\vkconfig\\test\\path\\format", Path(test_case).RelativePath().c_str());
         } else {
-            EXPECT_STREQ("/vkconfig/test/path/format", ConvertNativeSeparators(test_case).c_str());
+            EXPECT_STREQ("/vkconfig/test/path/format", Path(test_case).RelativePath().c_str());
         }
     }
 }
@@ -81,15 +48,265 @@ TEST(test_path, native_path) {
 TEST(test_path, native_path_with_file) {
     static const char* table[] = {"/vkconfig/test/path/format/file.txt", "\\vkconfig\\test/path\\format\\file.txt"};
 
-    for (std::size_t i = 0, n = countof(table); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(table); i < n; ++i) {
         const std::string test_case = table[i];
 
         if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) {
-            EXPECT_STREQ("\\vkconfig\\test\\path\\format\\file.txt", ConvertNativeSeparators(test_case).c_str());
+            EXPECT_STREQ("\\vkconfig\\test\\path\\format\\file.txt", Path(test_case).RelativePath().c_str());
         } else {
-            EXPECT_STREQ("/vkconfig/test/path/format/file.txt", ConvertNativeSeparators(test_case).c_str());
+            EXPECT_STREQ("/vkconfig/test/path/format/file.txt", Path(test_case).RelativePath().c_str());
         }
     }
+}
+
+TEST(test_path, path_addition) {
+    Path pathR("testA/test");
+    Path pathA = (Path("testA") += "/") + "test";
+    Path pathB = Path("testA") + "/" + "test";
+    Path pathC = Path("testA") += "/test";
+
+    EXPECT_TRUE(pathR == pathA);
+    EXPECT_TRUE(pathR == pathB);
+    EXPECT_TRUE(pathR == pathC);
+    EXPECT_STREQ(pathR.RelativePath().c_str(), pathA.RelativePath().c_str());
+    EXPECT_STREQ(pathR.RelativePath().c_str(), pathB.RelativePath().c_str());
+    EXPECT_STREQ(pathR.RelativePath().c_str(), pathC.RelativePath().c_str());
+    EXPECT_STREQ(pathR.AbsolutePath().c_str(), pathA.AbsolutePath().c_str());
+    EXPECT_STREQ(pathR.AbsolutePath().c_str(), pathB.AbsolutePath().c_str());
+    EXPECT_STREQ(pathR.AbsolutePath().c_str(), pathC.AbsolutePath().c_str());
+}
+
+TEST(test_path, path_operation_clear) {
+    static const char* table[] = {"/vkconfig/test/path/format/file.txt", "\\vkconfig\\test/path\\format\\file.txt",
+                                  "/vkconfig\\test/path/format/", ""};
+
+    for (std::size_t i = 0, n = std::size(table); i < n; ++i) {
+        Path test_case = Path(table[i]);
+        test_case.Clear();
+
+        EXPECT_TRUE(test_case.Empty());
+    }
+}
+
+TEST(test_path, path_operations_valid) {
+    struct test_case {
+        std::string path;
+        bool is_file;
+    };
+
+    static const test_case CASES[] = {{"./fileA.pouet", true}, {"./testA/", false}};
+
+    for (std::size_t i = 0, n = std::size(CASES); i < n; ++i) {
+        Path test_case = Path(CASES[i].path.c_str());
+        EXPECT_FALSE(test_case.Exists());
+        EXPECT_TRUE(test_case.Create(CASES[i].is_file));
+        EXPECT_TRUE(test_case.Exists());
+        EXPECT_EQ(test_case.IsFile(), CASES[i].is_file);
+        EXPECT_TRUE(test_case.Create(CASES[i].is_file));
+        EXPECT_TRUE(test_case.Exists());
+        EXPECT_TRUE(test_case.Remove());
+        EXPECT_FALSE(test_case.Exists());
+        EXPECT_FALSE(test_case.Remove());
+        EXPECT_FALSE(test_case.Exists());
+
+        test_case.Clear();
+        EXPECT_TRUE(test_case.Empty());
+    }
+}
+
+TEST(test_path, path_operations_invalid) {
+    Path test_case("");
+    EXPECT_TRUE(test_case.Empty());
+    EXPECT_FALSE(test_case.Exists());
+    EXPECT_FALSE(test_case.Create(true));
+    EXPECT_FALSE(test_case.Create(false));
+    EXPECT_FALSE(test_case.IsFile());
+    EXPECT_FALSE(test_case.IsDir());
+    EXPECT_FALSE(test_case.Remove());
+};
+
+// Test that GetPath return the home directory when the stored path is empty
+TEST(test_path, get_path) { EXPECT_STRNE(Get(Path::HOME).RelativePath().c_str(), ""); }
+
+TEST(test_path, replace_path_vk_home) {
+    const std::string replaced_path = Path("${VK_HOME}/test.txt").AbsolutePath();
+
+    EXPECT_TRUE(replaced_path.find("${VK_HOME}") > replaced_path.size());
+}
+
+TEST(test_path, replace_path_vk_appdata) {
+    const std::string replaced_path = Path("${VK_APPDATA}/test.txt").AbsolutePath();
+
+    EXPECT_TRUE(replaced_path.find("${VK_APPDATA}") > replaced_path.size());
+}
+
+TEST(test_path, replace_path_unknown) {
+    const std::string replaced_path = Path("${UNKNOWN}/test.txt").AbsolutePath();
+
+    // unknown variables are not replaced or modified
+    EXPECT_TRUE(replaced_path.find("${UNKNOWN}") == 0);
+}
+
+TEST(test_path, convert_to_variable) {
+    const std::string replaced_path = ::Get(Path::SDK).AbsolutePath();
+
+    Path recovered_path(replaced_path, true);
+
+    EXPECT_EQ(::Get(Path::SDK), recovered_path);
+}
+
+TEST(test_path, convert_to_variable_postfix) {
+    const Path base_path(::Get(Path::SDK).AbsolutePath(), true);
+    const Path reference_path = base_path + "/TestA";
+
+    const std::string replaced_path = reference_path.AbsolutePath();
+    Path recovered_path(replaced_path, true);
+
+    EXPECT_EQ(reference_path, recovered_path);
+}
+
+TEST(test_path, convert_native_separator_empty) {
+    const std::string replaced_path = Path("").AbsolutePath();
+
+    EXPECT_STREQ("", replaced_path.c_str());
+}
+
+TEST(test_path, get_path_home) {
+    const std::string value_default(AbsolutePath(Path::HOME).c_str());
+
+    EXPECT_TRUE(EndsWith(value_default, "VulkanSDK"));
+
+    qputenv("VK_HOME", ":/MyVulkanSDKLocalDir");
+
+    const std::string value_env(AbsolutePath(Path::HOME).c_str());
+
+    EXPECT_STREQ(Path(":/MyVulkanSDKLocalDir").RelativePath().c_str(), value_env.c_str());
+}
+
+TEST(test_path, get_path_appdata) {
+    const std::string data(AbsolutePath(Path::APPDATA).c_str());
+    const std::string home(Path(QDir().homePath().toStdString()).AbsolutePath());
+
+    EXPECT_TRUE(data.find(home.c_str()) == 0);
+}
+
+TEST(test_path, get_path_init) {
+    const std::string init(AbsolutePath(Path::INIT).c_str());
+    const std::string data(AbsolutePath(Path::APPDATA).c_str());
+
+    EXPECT_TRUE(init.find(data.c_str()) != std::string::npos);
+    EXPECT_TRUE(init.find("vkconfig.json") != std::string::npos);
+}
+
+TEST(test_path, get_path_config) {
+    const QString value(AbsolutePath(Path::CONFIGS).c_str());
+
+    EXPECT_TRUE(value.startsWith(AbsolutePath(Path::CONFIGS).c_str()));
+    EXPECT_TRUE(value.endsWith("configurations"));
+}
+
+TEST(test_path, get_path_layers_settings) {
+    const std::string value(AbsolutePath(Path::LAYERS_SETTINGS).c_str());
+
+    EXPECT_TRUE(value.find("vk_layer_settings.txt") != std::string::npos);
+    EXPECT_TRUE(value.find(AbsolutePath(Path::APPDATA).c_str()) != std::string::npos);
+}
+
+TEST(test_path, get_path_loader_settings) {
+    const std::string value(AbsolutePath(Path::LOADER_SETTINGS).c_str());
+
+    EXPECT_TRUE(value.find("vk_loader_settings.json") != std::string::npos);
+    EXPECT_TRUE(value.find(AbsolutePath(Path::APPDATA).c_str()) != std::string::npos);
+}
+
+TEST(test_path, get_path_override_settings) {
+    {
+        const QString value(AbsolutePath(Path::LAYERS_SETTINGS).c_str());
+        EXPECT_TRUE(value.endsWith("vk_layer_settings.txt"));
+    }
+
+    {
+        qputenv("VK_LAYER_SETTINGS_PATH", "~/VulkanSDK/vk_layer_settings.txt");
+        const std::string value = AbsolutePath(Path::LAYERS_SETTINGS).c_str();
+        EXPECT_STREQ(Path("~/VulkanSDK/vk_layer_settings.txt").AbsolutePath().c_str(), value.c_str());
+    }
+
+    {
+        qputenv("VK_LAYER_SETTINGS_PATH", "~/VulkanSDK");
+        const std::string value = AbsolutePath(Path::LAYERS_SETTINGS).c_str();
+        EXPECT_STREQ(Path("~/VulkanSDK/vk_layer_settings.txt").AbsolutePath().c_str(), value.c_str());
+    }
+}
+
+TEST(test_path, get_path_override_layers) {
+    const QString value(AbsolutePath(Path::LOADER_SETTINGS).c_str());
+
+    EXPECT_TRUE(value.endsWith("vk_loader_settings.json"));
+}
+
+TEST(test_path, get_path_vulkan_sdk) {
+    {
+#ifdef __APPLE__
+        qputenv("VULKAN_SDK", "~/VulkanSDK");
+        const std::string value = AbsolutePath(Path::SDK);
+        EXPECT_STREQ(Path("~/VulkanSDK/share/vulkan").AbsolutePath().c_str(), value.c_str());
+#else
+        qputenv("VULKAN_SDK", "~/VulkanSDK");
+        const std::string value = AbsolutePath(Path::SDK);
+        EXPECT_STREQ(Path("~/VulkanSDK").AbsolutePath().c_str(), value.c_str());
+#endif
+    }
+}
+
+TEST(test_path, get_path_vulkan_content) {
+    const QString value(AbsolutePath(Path::CONTENT).c_str());
+
+    EXPECT_TRUE(!value.isEmpty());
+    EXPECT_TRUE(value.startsWith(AbsolutePath(Path::SDK).c_str()));
+    EXPECT_TRUE(value.toLower().endsWith("config"));
+}
+
+TEST(test_path, collect_file_paths_success_set1) {
+    const std::vector<Path>& paths = CollectFilePaths(":/configurations/");
+
+    EXPECT_EQ(paths.size(), 5);
+    EXPECT_STREQ(Path(":/configurations/API dump.json").AbsolutePath().c_str(), paths[0].AbsolutePath().c_str());
+}
+
+TEST(test_path, collect_file_paths_success_set2) {
+    const std::vector<Path>& paths = CollectFilePaths(":/layers/");
+
+    EXPECT_EQ(paths.size(), 10);
+    EXPECT_STREQ(Path(":/layers/VK_LAYER_LUNARG_reference_1_1_0.json").AbsolutePath().c_str(), paths[0].AbsolutePath().c_str());
+}
+
+TEST(test_path, collect_file_paths_success_set3) {
+    const std::vector<Path>& paths = CollectFilePaths(":/profiles/");
+
+    EXPECT_EQ(paths.size(), 4);
+    EXPECT_STREQ(Path(":/profiles/VP_KHR_roadmap.json").AbsolutePath().c_str(), paths[0].AbsolutePath().c_str());
+}
+
+TEST(test_path, collect_file_paths_not_found) {
+    const std::vector<Path>& result = CollectFilePaths(":/configurations_not_found/");
+
+    EXPECT_EQ(result.empty(), true);
+}
+
+TEST(test_path, collect_profiles_from_file) {
+    const std::vector<std::string>& result = CollectProfileNamesFromFile(":/profiles/VP_KHR_roadmap.json");
+
+    EXPECT_EQ(result.size(), 2);
+    EXPECT_STREQ("VP_KHR_roadmap_2022", result[0].c_str());
+    EXPECT_STREQ("VP_KHR_roadmap_2024", result[1].c_str());
+}
+
+TEST(test_path, collect_profiles_from_dir) {
+    const std::vector<std::string>& result = CollectProfileNamesFromDir(":/profiles/");
+
+    EXPECT_EQ(result.size(), 9);
+    EXPECT_STREQ("VP_KHR_roadmap_2022", result[0].c_str());
+    EXPECT_STREQ("VP_KHR_roadmap_2024", result[1].c_str());
 }
 
 TEST(test_path, is_portable_filename_valid) {
@@ -106,76 +323,4 @@ TEST(test_path, is_portable_filename_invalid) {
     EXPECT_TRUE(!IsPortableFilename("VulkanConfigurator2\\.json"));
     EXPECT_TRUE(!IsPortableFilename("VulkanConfigurator*"));
     EXPECT_TRUE(!IsPortableFilename("Vulkan:Configurator"));
-}
-
-TEST(test_path, get_path_local) {
-    const QString value(::GetPath(BUILTIN_PATH_LOCAL).c_str());
-
-    EXPECT_TRUE(value.endsWith("VulkanSDK"));
-}
-
-TEST(test_path, get_path_appdata) {
-    const QString value(::GetPath(BUILTIN_PATH_APPDATA).c_str());
-
-    EXPECT_TRUE(value.startsWith(::GetPath(BUILTIN_PATH_HOME).c_str()));
-}
-
-TEST(test_path, get_path_config) {
-    const QString value(::GetPath(BUILTIN_PATH_CONFIG_REF).c_str());
-
-    EXPECT_TRUE(value.startsWith(::GetPath(BUILTIN_PATH_APPDATA).c_str()));
-    EXPECT_TRUE(value.endsWith("configurations"));
-}
-
-TEST(test_path, get_path_override_settings) {
-    {
-        const QString value(::GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS).c_str());
-        EXPECT_TRUE(value.endsWith("vk_layer_settings.txt"));
-    }
-
-    {
-        qputenv("VK_LAYER_SETTINGS_PATH", "~/VulkanSDK/vk_layer_settings.txt");
-        const std::string value = ::GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
-        EXPECT_STREQ(ConvertNativeSeparators("~/VulkanSDK/vk_layer_settings.txt").c_str(), value.c_str());
-    }
-
-    {
-        qputenv("VK_LAYER_SETTINGS_PATH", "~/VulkanSDK");
-        const std::string value = ::GetPath(BUILTIN_PATH_OVERRIDE_SETTINGS);
-        EXPECT_STREQ(ConvertNativeSeparators("~/VulkanSDK/vk_layer_settings.txt").c_str(), value.c_str());
-    }
-}
-
-TEST(test_path, get_path_override_layers) {
-    const QString value(::GetPath(BUILTIN_PATH_OVERRIDE_LAYERS).c_str());
-
-    EXPECT_TRUE(value.endsWith("VkLayer_override.json"));
-}
-
-TEST(test_path, get_path_vulkan_sdk) {
-    {
-        qputenv("VULKAN_SDK", "");
-        const std::string value = ::GetPath(BUILTIN_PATH_VULKAN_SDK);
-        EXPECT_TRUE(!value.empty());
-    }
-
-    {
-#ifdef __APPLE__
-        qputenv("VULKAN_SDK", "~/VulkanSDK");
-        const std::string value = ::GetPath(BUILTIN_PATH_VULKAN_SDK);
-        EXPECT_STREQ(ConvertNativeSeparators("~/VulkanSDK/share/vulkan").c_str(), value.c_str());
-#else
-        qputenv("VULKAN_SDK", "~/VulkanSDK");
-        const std::string value = ::GetPath(BUILTIN_PATH_VULKAN_SDK);
-        EXPECT_STREQ(ConvertNativeSeparators("~/VulkanSDK").c_str(), value.c_str());
-#endif
-    }
-}
-
-TEST(test_path, get_path_vulkan_content) {
-    const QString value(::GetPath(BUILTIN_PATH_VULKAN_CONTENT).c_str());
-
-    EXPECT_TRUE(!value.isEmpty());
-    EXPECT_TRUE(value.startsWith(::GetPath(BUILTIN_PATH_VULKAN_SDK).c_str()));
-    EXPECT_TRUE(value.toLower().endsWith("config"));
 }

@@ -21,8 +21,8 @@
 #pragma once
 
 #include "layer.h"
-#include "layer_state.h"
 #include "setting.h"
+#include "type_layer_control.h"
 
 #include <vector>
 
@@ -35,35 +35,19 @@ enum ParameterRank {
     PARAMETER_RANK_EXPLICIT_AVAILABLE
 };
 
-enum LayerControl {
-    LAYER_CONTROL_OFF = 0,
-    LAYER_CONTROL_ON,
-    LAYER_CONTROL_AUTO,
-    LAYER_CONTROL_APPLICATIONS,
-    LAYER_CONTROL_UNORDERED,
-
-    LAYER_CONTROL_FIRST = LAYER_CONTROL_OFF,
-    LAYER_CONTROL_LAST = LAYER_CONTROL_UNORDERED
-};
-
-enum { LAYER_CONTROL_COUNT = LAYER_CONTROL_LAST - LAYER_CONTROL_FIRST + 1 };
-
 struct Parameter {
     static const int NO_RANK = -1;
 
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), platform_flags(PLATFORM_DESKTOP_BIT), overridden_rank(NO_RANK) {
-        assert(true);
-    }
+    Parameter() : control(LAYER_CONTROL_AUTO), platform_flags(PLATFORM_DESKTOP_BIT), overridden_rank(NO_RANK) { assert(true); }
 
-    Parameter(const std::string& key, const LayerState state)
-        : key(key), state(state), control(LAYER_CONTROL_AUTO), platform_flags(PLATFORM_DESKTOP_BIT), overridden_rank(NO_RANK) {
+    Parameter(const std::string& key, const LayerControl control)
+        : key(key), control(LAYER_CONTROL_AUTO), platform_flags(PLATFORM_DESKTOP_BIT), overridden_rank(NO_RANK) {
         assert(true);
     }
 
     bool ApplyPresetSettings(const LayerPreset& preset);
 
     std::string key;
-    LayerState state;
     LayerControl control;
     int platform_flags;
     SettingDataSet settings;
@@ -74,12 +58,10 @@ struct Parameter {
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);
 Version ComputeMinApiVersion(const Version api_version, const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
 void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
-void FilterParameters(std::vector<Parameter>& parameters, const LayerState state);
+void FilterParameters(std::vector<Parameter>& parameters, const LayerControl control);
 std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const std::vector<Layer>& available_layers);
 
 bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers, std::string& missing_layer);
 
 std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters);
 std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
-
-bool UseBuiltinValidationSettings(const Parameter& parameter);
