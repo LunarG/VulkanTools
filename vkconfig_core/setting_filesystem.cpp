@@ -43,14 +43,16 @@ std::string SettingMetaFilesystem::Export(ExportMode export_mode) const {
             assert(0);
             return "";
         case EXPORT_MODE_OVERRIDE:
-            return ReplaceBuiltInVariable(this->default_value).c_str();
+            return this->default_value.AbsolutePath();
         case EXPORT_MODE_DOC:
-            return this->default_value;
+            return this->default_value.RelativePath();
     }
 }
 
 bool SettingMetaFilesystem::Equal(const SettingMeta& other) const {
-    if (!SettingMeta::Equal(other)) return false;
+    if (!SettingMeta::Equal(other)) {
+        return false;
+    }
 
     const SettingMetaFilesystem& meta = static_cast<const SettingMetaFilesystem&>(other);
 
@@ -59,7 +61,34 @@ bool SettingMetaFilesystem::Equal(const SettingMeta& other) const {
 
 // SettingDataFilesystem
 
-SettingDataFilesystem::SettingDataFilesystem(const std::string& key, const SettingType& type) : SettingDataString(key, type) {}
+SettingDataFilesystem::SettingDataFilesystem(const SettingMetaFilesystem* meta) : SettingData(meta->key, meta->type), meta(meta) {
+    assert(meta != nullptr);
+    this->Reset();
+}
+
+SettingDataFilesystem::SettingDataFilesystem(const std::string& key, const SettingType& type) : SettingData(key, type) {}
+
+void SettingDataFilesystem::Reset() {
+    assert(meta != nullptr);
+    this->value = this->meta->default_value;
+}
+
+void SettingDataFilesystem::Copy(const SettingData* data) {
+    if (data->type != this->type) return;
+
+    const SettingDataFilesystem* setting_data = static_cast<const SettingDataFilesystem*>(data);
+    this->value = setting_data->value;
+}
+
+bool SettingDataFilesystem::Load(const QJsonObject& json_setting) {
+    this->value = ReadStringValue(json_setting, "value");
+    return true;
+}
+
+bool SettingDataFilesystem::Save(QJsonObject& json_setting) const {
+    json_setting.insert("value", this->value.RelativePath().c_str());
+    return true;
+}
 
 std::string SettingDataFilesystem::Export(ExportMode export_mode) const {
     switch (export_mode) {
@@ -67,15 +96,22 @@ std::string SettingDataFilesystem::Export(ExportMode export_mode) const {
             assert(0);
             return "";
         case EXPORT_MODE_OVERRIDE: {
-            std::string file = this->value;
-            if (VKC_ENV == VKC_ENV_WIN32) {
-                file = ConvertSeparators(file, "/", GetNativeSeparator());
-            }
-            return ReplaceBuiltInVariable(file).c_str();
+            Path file(this->value);
+            return file.AbsolutePath();
         }
         case EXPORT_MODE_DOC:
-            return this->value;
+            return Path(this->value).RelativePath();
     }
+}
+
+const Path& SettingDataFilesystem::GetValue() const { return this->value; }
+
+void SettingDataFilesystem::SetValue(const Path& value) { this->value = value; }
+
+bool SettingDataFilesystem::Equal(const SettingData& other) const {
+    if (!SettingData::Equal(other)) return false;
+
+    return this->value == static_cast<const SettingDataFilesystem&>(other).value;
 }
 
 // SettingMetaFileLoad
@@ -97,7 +133,9 @@ SettingDataFileLoad::SettingDataFileLoad(const SettingMetaFileLoad* meta)
     : SettingDataFilesystem(meta->key, meta->type), meta(meta) {}
 
 void SettingDataFileLoad::Copy(const SettingData* data) {
-    if (data->type != this->type) return;
+    if (data->type != this->type) {
+        return;
+    }
 
     const SettingDataFileLoad* setting_data = static_cast<const SettingDataFileLoad*>(data);
     this->value = setting_data->value;
@@ -105,10 +143,10 @@ void SettingDataFileLoad::Copy(const SettingData* data) {
 }
 
 bool SettingDataFileLoad::Load(const QJsonObject& json_setting) {
-    SettingDataString::Load(json_setting);
+    this->value = Path(ReadStringValue(json_setting, "value"));
 
     if (this->meta->format == "PROFILE") {
-        this->profile_names = GetProfileNamesFromFile(this->value);
+        this->profile_names = CollectProfileNamesFromFile(this->value);
     }
     return true;
 }
@@ -134,7 +172,9 @@ SettingDataFileSave::SettingDataFileSave(const SettingMetaFileSave* meta)
     : SettingDataFilesystem(meta->key, meta->type), meta(meta) {}
 
 void SettingDataFileSave::Copy(const SettingData* data) {
-    if (data->type != this->type) return;
+    if (data->type != this->type) {
+        return;
+    }
 
     const SettingDataFileSave* setting_data = static_cast<const SettingDataFileSave*>(data);
     this->value = setting_data->value;
@@ -168,10 +208,10 @@ void SettingDataFolderLoad::Copy(const SettingData* data) {
 }
 
 bool SettingDataFolderLoad::Load(const QJsonObject& json_setting) {
-    SettingDataString::Load(json_setting);
+    SettingDataFilesystem::Load(json_setting);
 
     if (this->meta->format == "PROFILE") {
-        this->profile_names = GetProfileNamesFromDir(this->value);
+        this->profile_names = CollectProfileNamesFromDir(this->value);
     }
     return true;
 }
@@ -197,7 +237,9 @@ SettingDataFolderSave::SettingDataFolderSave(const SettingMetaFolderSave* meta)
     : SettingDataFilesystem(meta->key, meta->type), meta(meta) {}
 
 void SettingDataFolderSave::Copy(const SettingData* data) {
-    if (data->type != this->type) return;
+    if (data->type != this->type) {
+        return;
+    }
 
     const SettingDataFolderSave* setting_data = static_cast<const SettingDataFolderSave*>(data);
     this->value = setting_data->value;
