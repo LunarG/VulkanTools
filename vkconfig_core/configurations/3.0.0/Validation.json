@@ -1,0 +1,22 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Validation",
+        "version": 1,
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
+        "layers": [
+            {
+                "name": "VK_LAYER_KHRONOS_validation",
+                "rank": 0,
+                "settings": [
+                ],
+                "control": "on"
+            }
+        ]
+    }
+}

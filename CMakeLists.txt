@@ -30,7 +30,6 @@ find_package(valijson REQUIRED CONFIG)
 
 option(BUILD_TESTS "Build tests")
 option(RUN_ON_GITHUB "Build only tests that can run on Github" OFF)
-option(BUILD_EXPERIMENTAL "Build tests for debugging layers" OFF)
 
 if(BUILD_TESTS)
     enable_testing()
@@ -116,8 +115,6 @@ if(BUILD_LAYERMGR)
     endif()
 
     add_subdirectory(vkconfig_core)
-    add_subdirectory(vkconfig)
-    if(BUILD_EXPERIMENTAL)
-        add_subdirectory(vkconfig3)
-    endif()
+    add_subdirectory(vkconfig_cmd)
+    add_subdirectory(vkconfig_gui)
 endif()
