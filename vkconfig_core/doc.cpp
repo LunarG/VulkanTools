@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022 Valve Corporation
- * Copyright (c) 2020-2022 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 #include "doc.h"
 #include "setting_flags.h"
-#include "override.h"
+#include "configurator.h"
 
 #include <QFileInfo>
 
@@ -322,9 +322,10 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += "<ul>\n";
     text += format("\t<li>API Version: %s</li>\n", layer.api_version.str().c_str());
     text += format("\t<li>Implementation Version: %s</li>\n", layer.implementation_version.c_str());
-    text += format("\t<li>Layer Manifest: %s<ul>\n", QFileInfo(layer.manifest_path.c_str()).fileName().toStdString().c_str());
+    text += format("\t<li>Layer Manifest: %s<ul>\n",
+                   QFileInfo(layer.manifest_path.RelativePath().c_str()).fileName().toStdString().c_str());
     text += format("\t\t<li>File Format: %s</li>\n", layer.file_format_version.str().c_str());
-    text += format("\t\t<li>Layer Binary Path: %s</li>\n", layer.binary_path.c_str());
+    text += format("\t\t<li>Layer Binary Path: %s</li>\n", layer.binary_path.RelativePath().c_str());
     text += "\t</ul></li>\n";
     if (layer.platforms != 0) {
         text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHtml(layer.platforms).c_str());
@@ -407,10 +408,12 @@ void ExportMarkdownDoc(const Layer& layer, const std::string& path) {
     text += "### Layer Properties\n\n";
     text += "- API Version: " + layer.api_version.str() + "\n";
     text += "- Implementation Version: " + layer.implementation_version + "\n";
-    text += "- Layer Manifest: " + QFileInfo(layer.manifest_path.c_str()).fileName().toStdString() + "\n";
+    text += "- Layer Manifest: " + QFileInfo(layer.manifest_path.RelativePath().c_str()).fileName().toStdString() + "\n";
     text += "  - File Format: " + layer.file_format_version.str() + "\n";
     text += "  - Layer Binary: ";
-    text += (layer.binary_path.rfind("./", 0) == 0 ? layer.binary_path.substr(2) : layer.binary_path) + "\n";
+    text += (layer.binary_path.RelativePath().rfind("./", 0) == 0 ? layer.binary_path.RelativePath().substr(2)
+                                                                  : layer.binary_path.RelativePath()) +
+            "\n";
 
     if (layer.platforms != 0) {
         text += "- Platforms: " + BuildPlatformsMarkdown(layer.platforms) + "\n";
@@ -464,8 +467,10 @@ void ExportMarkdownDoc(const Layer& layer, const std::string& path) {
 }
 
 void ExportSettingsDoc(const std::vector<Layer>& available_layers, const Configuration& configuration, const std::string& path) {
+    /* TODO
     if (WriteLayersSettings(available_layers, configuration, path))
         printf("vkconfig: settings written to %s\n", path.c_str());
     else
         printf("vkconfig: could not write %s\n", path.c_str());
+    */
 }
