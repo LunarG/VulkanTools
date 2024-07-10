@@ -75,16 +75,14 @@ static const char* GetLayoutStateToken(LayoutState state) {
 }
 
 Environment::Environment(Mode mode)
-    : mode(mode),
-      active_tab(TAB_DIAGNOSTIC),
-      has_crashed(false),
-      use_system_tray(false),
-      use_per_application_configuration(false),
-      loader_message_types_flags(::GetLogFlags(qgetenv("VK_LOADER_DEBUG").toStdString())),
-      hide_message_boxes_flags(0) {
+    : mode(mode), loader_message_types_flags(::GetLogFlags(qgetenv("VK_LOADER_DEBUG").toStdString())) {
     if (mode == MODE_AUTO_LOAD_SAVE) {
         const bool result = Load();
         assert(result);
+    }
+
+    if (this->applications.empty()) {
+        this->applications = CreateDefaultApplications();
     }
 }
 
@@ -508,15 +506,9 @@ DefaultPath Environment::GetDefaultExecutablePath(const std::string& executable_
     DefaultPath default_path{"." + executable_name, "."};
 
     // Using VULKAN_SDK environement variable
-    const Path env = ::Get(Path::SDK);
+    const Path env = ::Get(Path::SDK_BIN);
     if (!env.Empty()) {
-        static const char* TABLE[] = {
-            "/Bin",  // ENVIRONMENT_WIN32
-            "/bin",  // ENVIRONMENT_UNIX
-        };
-        static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
-
-        const Path search_path(env + TABLE[VKC_ENV] + DEFAULT_PATH + executable_name.c_str());
+        const Path search_path(env + DEFAULT_PATH + executable_name.c_str());
         if (search_path.Exists()) {
             default_path.executable_path = Path(search_path.AbsolutePath(), true);
             default_path.working_folder = Path(search_path.AbsoluteDir(), true);

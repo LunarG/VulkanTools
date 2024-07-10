@@ -281,16 +281,19 @@ MainWindow::MainWindow(QWidget *parent)
     Configurator &configurator = Configurator::Get();
     Environment &environment = configurator.environment;
 
-    // Restore window geometry from last launch
-    // restoreGeometry(environment.Get(VKCONFIG3_LAYOUT_MAIN_GEOMETRY));
-    // restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_WINDOW_STATE));
-    // ui->splitter_main->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER1));
-    // ui->splitter_configurations->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER2));
-    // ui->splitter_settings->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER3));
+    ui->combo_box_mode->setCurrentIndex(environment.GetActiveConfigurationInfo().GetMode());
 
     // Update configuration application area
 
-    if (!environment.GetApplications().empty()) {
+    if (environment.GetApplications().empty()) {
+        environment.SetPerApplicationConfig(false);
+
+        ui->check_box_per_application->setEnabled(false);
+        ui->check_box_per_application->setVisible(false);
+        ui->combo_box_applications->setVisible(false);
+    } else {
+        ui->check_box_per_application->setEnabled(true);
+
         ui->combo_box_applications->blockSignals(true);
         ui->combo_box_applications->clear();
         for (std::size_t i = 0, n = environment.GetApplications().size(); i < n; ++i) {
@@ -299,10 +302,11 @@ MainWindow::MainWindow(QWidget *parent)
             ui->combo_box_applications->addItem(application.executable_path.RelativePath().c_str());
         }
         ui->combo_box_applications->blockSignals(false);
+
+        this->on_check_box_per_application_toggled(environment.GetPerApplicationConfig());
+        this->on_combo_box_applications_currentIndexChanged(environment.GetActiveApplicationIndex());
+        ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
     }
-    this->on_check_box_per_application_toggled(environment.GetPerApplicationConfig());
-    this->on_combo_box_applications_currentIndexChanged(environment.GetActiveApplicationIndex());
-    ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
 
     // ui->edit_executable->setText(application.executable_path.c_str());
     /*
@@ -325,6 +329,13 @@ MainWindow::MainWindow(QWidget *parent)
     // insufficinet.
     ui->log_browser->document()->setMaximumBlockCount(2048);
     // ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
+
+    // Restore window geometry from last launch
+    // restoreGeometry(environment.Get(VKCONFIG3_LAYOUT_MAIN_GEOMETRY));
+    // restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_WINDOW_STATE));
+    // ui->splitter_main->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER1));
+    // ui->splitter_configurations->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER2));
+    // ui->splitter_settings->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER3));
 
     this->InitTray();
     this->UpdateTray();
@@ -378,14 +389,9 @@ void MainWindow::UpdateTray() {
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         // QApplication::setQuitOnLastWindowClosed(!ui->check_box_persistent->isChecked());
 
-        Configurator &configurator = Configurator::Get();
+        const Environment &environment = Configurator::Get().environment;
 
-        const Environment &environment = configurator.environment;
-
-        const bool use_override = environment.global_configuration.GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS;
-        const bool active = configurator.HasActiveConfiguration() && use_override;
-
-        switch (environment.global_configuration.GetMode()) {
+        switch (environment.GetActiveConfigurationInfo().GetMode()) {
             default:
             case LAYERS_CONTROLLED_BY_APPLICATIONS:
                 this->_tray_layers_controlled_by_applications->setChecked(true);
@@ -404,7 +410,7 @@ void MainWindow::UpdateTray() {
                 break;
         }
 
-        if (active) {
+        if (environment.global_configuration.GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS) {
             const QIcon icon(":/resourcefiles/vkconfig-on.png");
 
             this->setWindowIcon(icon);
@@ -510,16 +516,6 @@ static std::string GetMainWindowTitle(bool active) {
 #endif
     if (active) title += " <ACTIVE>";
     return title;
-}
-
-void MainWindow::InitUI() {
-    const Environment &environment = Configurator::Get().environment;
-
-    if (environment.GetPerApplicationConfig()) {
-        ui->combo_box_mode->setCurrentIndex(environment.GetActiveApplication().configuration.GetMode());
-    } else {
-        ui->combo_box_mode->setCurrentIndex(environment.global_configuration.GetMode());
-    }
 }
 
 void MainWindow::AddLayerPathItem(const std::string &layer_path) {

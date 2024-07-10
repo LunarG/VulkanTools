@@ -198,7 +198,6 @@ class MainWindow : public QMainWindow {
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void InitUI();
     void UpdateUI();
 
    private:

@@ -669,7 +669,7 @@
                  <item row="1" column="0">
                   <widget class="QLabel" name="label_19">
                    <property name="text">
-                    <string>Layers Configuration Mode:</string>
+                    <string>Layers Configuration Mode: </string>
                    </property>
                   </widget>
                  </item>
@@ -701,7 +701,7 @@
                  <item row="0" column="0">
                   <widget class="QCheckBox" name="check_box_per_application">
                    <property name="text">
-                    <string>Per-Application Configuration:</string>
+                    <string>Per-Application Configuration: </string>
                    </property>
                   </widget>
                  </item>

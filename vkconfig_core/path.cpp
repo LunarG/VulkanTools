@@ -319,7 +319,7 @@ static const Path GetLoaderSettingsPath() {
 }
 
 static const Path GetSDKPath() {
-    static const char* TABLE[] = {
+    const char* TABLE[] = {
         "",                         // PLATFORM_WINDOWS
         "/usr",                     // PLATFORM_LINUX
         "/usr/local/share/vulkan",  // PLATFORM_MACOS
@@ -337,6 +337,16 @@ static const Path GetSDKPath() {
     }
 
     return result;
+}
+
+static const Path GetSDKBinPath() {
+    const char* TABLE[] = {
+        "/Bin",  // ENVIRONMENT_WIN32
+        "/bin",  // ENVIRONMENT_UNIX
+    };
+    static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
+
+    return GetSDKPath() + TABLE[VKC_ENV];
 }
 
 static const Path GetExplicitLayersPath() {
@@ -380,6 +390,8 @@ Path Get(Path::Builtin path) {
             return ::GetLoaderSettingsPath();
         case Path::SDK:
             return ::GetSDKPath();
+        case Path::SDK_BIN:
+            return ::GetSDKBinPath();
         case Path::EXPLICIT_LAYERS:
             return ::GetExplicitLayersPath();
         case Path::CONTENT:

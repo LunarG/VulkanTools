@@ -34,6 +34,7 @@ class Path {
         LAYERS_SETTINGS,
         LOADER_SETTINGS,
         SDK,
+        SDK_BIN,
         EXPLICIT_LAYERS,
         CONTENT,
     };

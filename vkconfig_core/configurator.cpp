@@ -82,6 +82,9 @@ void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std:
             return;
         case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
             configuration = this->configurations.FindConfiguration(info.GetName());
+            if (configuration == nullptr) {
+                return;
+            }
         } break;
         case LAYERS_DISABLED_BY_CONFIGURATOR: {
             configuration = &disbled_configuration;

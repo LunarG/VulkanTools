@@ -123,7 +123,7 @@ LayerManager::LayerManager(const std::vector<Path> &user_defined_paths) {
     this->paths[LAYERS_PATHS_GUI].insert(this->paths[LAYERS_PATHS_GUI].begin(), user_defined_paths.begin(),
                                          user_defined_paths.end());
 
-    this->paths[LAYERS_PATHS_SDK].push_back(::Get(Path::SDK));
+    this->paths[LAYERS_PATHS_SDK].push_back(::Get(Path::SDK_BIN));
 
     this->LoadAllInstalledLayers();
 }
@@ -150,7 +150,7 @@ const Layer *LayerManager::Find(const std::string &layer_name) const {
 void LayerManager::LoadAllInstalledLayers() {
     this->selected_layers.clear();
 
-    for (std::size_t group_index = 0, group_count = LAYERS_PATHS_COUNT; group_index < group_count; ++group_index) {
+    for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
         const LayerType layer_type = ::GetLayerType(static_cast<LayersPaths>(group_index));
 
         const std::vector<Path> &paths_group = this->paths[group_index];

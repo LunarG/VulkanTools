@@ -62,7 +62,9 @@ void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &a
         if (found_configuration == nullptr) {
             auto iter = this->removed_built_in_configuration.find(configuration.key);
             // If the removed built-in configuration is a version older than the current built-in configuration, we are it back.
-            if (iter->second < configuration.version) {
+            if (iter == this->removed_built_in_configuration.end()) {
+                this->available_configurations.push_back(configuration);
+            } else if (iter->second < configuration.version) {
                 this->available_configurations.push_back(configuration);
             }
         } else if (found_configuration->version < configuration.version) {
@@ -71,8 +73,6 @@ void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &a
             this->available_configurations.push_back(configuration);
         }
     }
-
-    this->SortConfigurations();
 }
 
 void ConfigurationManager::SortConfigurations() {
@@ -259,6 +259,8 @@ void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &availab
 void ConfigurationManager::Reset(const std::vector<Layer> &available_layers) {
     // Now we need to kind of restart everything
     this->LoadDefaultConfigurations(available_layers);
+
+    this->SortConfigurations();
 }
 
 bool ConfigurationManager::CheckApiVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,

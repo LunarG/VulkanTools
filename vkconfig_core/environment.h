@@ -108,8 +108,8 @@ class Environment {
     // Search for all the applications in the list, an remove the application which executable can't be found
     std::vector<Application> RemoveMissingApplications(const std::vector<Application>& applications) const;
 
-    bool has_crashed;
-    int hide_message_boxes_flags;
+    bool has_crashed = false;
+    int hide_message_boxes_flags = 0;
 
     Path path_export;
     Path path_import;
@@ -122,9 +122,9 @@ class Environment {
 
     const Mode mode;
 
-    TabType active_tab;
-    bool use_system_tray;
-    bool use_per_application_configuration;
+    TabType active_tab = TAB_DIAGNOSTIC;
+    bool use_system_tray = false;
+    bool use_per_application_configuration = false;
     LogFlags loader_message_types_flags;
     Path home_sdk_path;
 
