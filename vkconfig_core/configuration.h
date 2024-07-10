@@ -22,7 +22,6 @@
 #pragma once
 
 #include "parameter.h"
-#include "path_manager.h"
 
 #include <QByteArray>
 
@@ -33,27 +32,28 @@ class Configuration {
    public:
     Configuration();
 
-    bool Load(const std::vector<Layer>& available_layers, const std::string& full_path);
-    bool Save(const std::vector<Layer>& available_layers, const std::string& full_path, bool exporter = false) const;
-    bool HasOverride() const;
+    static Configuration CreateDisabled(const std::vector<Layer>& available_layers);
 
-    void Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager);
+    bool Load(const Path& full_path, const std::vector<Layer>& available_layers);
+    bool Save(const Path& full_path, bool exporter = false) const;
+    bool HasOverride() const;
+    Parameter* Find(std::string parameter_key);
+
+    void Reset(const std::vector<Layer>& available_layers);
 
     std::size_t Size() const { return this->parameters.size(); };
 
     std::string key;  // User readable display of the configuration name (may contain spaces)
+    int version;
     int platform_flags;
     std::string description;        // A friendly description of what this profile does
     QByteArray setting_tree_state;  // Recall editor tree state
     bool view_advanced_settings;
 
     std::vector<Parameter> parameters;
-    std::vector<std::string> user_defined_paths;
+    std::vector<Path> user_defined_paths;
 
     bool IsBuiltIn() const;
-
-   private:
-    bool Load2_2(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object);
 };
 
 std::string MakeConfigurationName(const std::vector<Configuration>& configurations, const std::string& configuration_name);
