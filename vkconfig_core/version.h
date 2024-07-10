@@ -25,18 +25,14 @@
 #include <cstdint>
 #include <string>
 
-#define SUPPORT_LAYER_CONFIG_2_2_0 1
-
 extern const char *VKCONFIG_NAME;
 extern const char *VKCONFIG_SHORT_NAME;
 
 class Version {
    public:
     static const Version VKCONFIG;
-    static const Version VKCONFIG3;
     static const Version VKHEADER;
     static const Version VERSION_NULL;
-    static const Version LAYER_CONFIG;
 
     explicit Version() : _major(0), _minor(0), _patch(0) {}
     explicit Version(uint32_t version_complete);

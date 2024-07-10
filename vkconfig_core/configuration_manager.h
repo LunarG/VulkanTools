@@ -21,43 +21,33 @@
 #pragma once
 
 #include "configuration.h"
-#include "environment.h"
-#include "path_manager.h"
+#include "path.h"
 
 #include <string>
 #include <vector>
 
 class ConfigurationManager {
    public:
-    ConfigurationManager(Environment& environment);
+    ConfigurationManager();
     ~ConfigurationManager();
 
     void LoadAllConfigurations(const std::vector<Layer>& available_layers);
 
-    void SaveAllConfigurations(const std::vector<Layer>& available_layers);
+    void SaveAllConfigurations();
 
     Configuration& CreateConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name,
                                        bool duplicate = false);
 
     void RemoveConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
 
-    std::string ImportConfiguration(const std::vector<Layer>& available_layers, const std::string& full_import_path);
-    void ExportConfiguration(const std::vector<Layer>& available_layers, const std::string& full_export_path,
+    std::string ImportConfiguration(const std::vector<Layer>& available_layers, const Path& full_import_path);
+    void ExportConfiguration(const std::vector<Layer>& available_layers, const Path& full_export_path,
                              const std::string& configuration_name);
-    Configuration* FindActiveConfiguration();
 
-    bool HasActiveConfiguration(const std::vector<Layer>& available_layers) const;
+    const Configuration* FindConfiguration(const std::string& configuration_name) const;
+    Configuration* FindConfiguration(const std::string& configuration_name);
 
-    // The only function that actually configure the system, the Vulkan Loader, the Vulkan layer settings, creating and deleting
-    // system files
-    void Configure(const std::vector<Layer>& available_layers, const std::string& configuration_name);
-    void Configure(const std::vector<Layer>& available_layers);
-
-    void ResetDefaultsConfigurations(const std::vector<Layer>& available_layers);
-
-    void ReloadDefaultsConfigurations(const std::vector<Layer>& available_layers);
-
-    void FirstDefaultsConfigurations(const std::vector<Layer>& available_layers);
+    void Reset(const std::vector<Layer>& available_layers);
 
     void SortConfigurations();
 
@@ -79,8 +69,9 @@ class ConfigurationManager {
 
     void RemoveConfigurationFiles();
 
-    void LoadConfigurationsPath(const std::vector<Layer>& available_layers, const char* path);
+    void LoadConfigurationsPath(const std::vector<Layer>& available_layers);
     void LoadDefaultConfigurations(const std::vector<Layer>& available_layers);
 
-    Environment& environment;
+    std::vector<std::string> default_configuration_filenames;
+    std::map<std::string, int> removed_built_in_configuration;
 };
