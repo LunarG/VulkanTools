@@ -49,7 +49,7 @@ void LoadVUIDs(std::vector<NumberOrString>& value) {
     }
 
     if (json_text.isEmpty()) {
-        json_text = ReadAll(":/layers/validusage.json");
+        json_text = ReadAll(":/vkconfig/validusage.json");
     }
 
     if (json_text.isEmpty()) {
