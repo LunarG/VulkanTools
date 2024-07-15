@@ -1281,6 +1281,27 @@ out:
     return res;
 }
 
+// Utility
+
+std::string ReplaceAllBackslashes(const std::string& in_str) {
+    std::string str = in_str;
+    size_t bs_pos = str.find("\\");
+    while (bs_pos != std::string::npos) {
+#ifdef VIA_WINDOWS_TARGET
+        // Accept existing double-backslashes on Windows
+        if (str.at(bs_pos + 1) != '\\') {
+            str.replace(bs_pos, 1, "\\\\");
+        }
+        bs_pos = str.find("\\", bs_pos + 2);
+#else
+        // Just always replace backslashes on other platforms
+        str.replace(bs_pos, 1, "/");
+        bs_pos = str.find("\\", bs_pos + 1);
+#endif
+    }
+    return str;
+}
+
 // Print methods
 
 void ViaSystem::StartOutput(const std::string& title) {
@@ -1554,7 +1575,7 @@ void ViaSystem::PrintStandardTextVkConfig(const std::string& text_str) {
     if (_table_count > 0) {
         _out_ofstream << "," << std::endl;
     }
-    _out_ofstream << "\t\"" << _standard_text_count << "\": \"" << text_str << "\"";
+    _out_ofstream << "\t\"" << _standard_text_count << "\": \"" << ReplaceAllBackslashes(text_str) << "\"";
     _table_count++;
     _standard_text_count++;
 }
@@ -1564,7 +1585,7 @@ void ViaSystem::PrintBeginTableVkConfig(const std::string& table_name) {
     if (_table_count > 0) {
         _out_ofstream << "," << std::endl;
     }
-    _out_ofstream << "\t\"" << table_name << "\": {" << std::endl;
+    _out_ofstream << "\t\"" << ReplaceAllBackslashes(table_name) << "\": {" << std::endl;
     _table_count++;
 }
 void ViaSystem::PrintBeginTableRowVkConfig() {
@@ -1580,7 +1601,7 @@ void ViaSystem::PrintTableElementVkConfig(const std::string& element) {
     if (_col_count > 0) {
         _out_ofstream << "," << std::endl;
     }
-    _out_ofstream << "\t\t\t\"" << _col_count << "\": \"" << element << "\"";
+    _out_ofstream << "\t\t\t\"" << _col_count << "\": \"" << ReplaceAllBackslashes(element) << "\"";
     _col_count++;
 }
 
@@ -1616,23 +1637,6 @@ std::string ViaSystem::ConvertPathFormat(std::string str) {
     }
 
     return str;
-}
-
-static void ReplaceAllBackslashes(std::string& str) {
-    size_t bs_pos = str.find("\\");
-    while (bs_pos != std::string::npos) {
-#ifdef VIA_WINDOWS_TARGET
-        // Accept existing double-backslashes on Windows
-        if (str.at(bs_pos + 1) != '\\') {
-            str.replace(bs_pos, 1, "\\\\");
-        }
-        bs_pos = str.find("\\", bs_pos + 2);
-#else
-        // Just always replace backslashes on other platforms
-        str.replace(bs_pos, 1, "/");
-        bs_pos = str.find("\\", bs_pos + 1);
-#endif
-    }
 }
 
 void ViaSystem::GenerateSettingsFileJsonInfo(const std::string& settings_file) {
@@ -1680,8 +1684,7 @@ void ViaSystem::GenerateSettingsFileJsonInfo(const std::string& settings_file) {
 
             std::string before_equal = trimmed_line.substr(0, equal_loc);
             std::string after_equal = trimmed_line.substr(equal_loc + 1, std::string::npos);
-            new_pair.value = TrimWhitespace(after_equal);
-            ReplaceAllBackslashes(new_pair.value);
+            new_pair.value = ReplaceAllBackslashes(TrimWhitespace(after_equal));
 
             std::string trimmed_setting = TrimWhitespace(before_equal);
 
