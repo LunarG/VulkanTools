@@ -47,7 +47,7 @@ else()
             get_filename_component(QT_BIN_DIR "${QMAKE_EXE}" DIRECTORY)
             find_program(WINDEPLOYQT_EXE windeployqt HINTS "${QT_BIN_DIR}")
 
-            message("Will run ${WINDEPLOYQT_EXE} at ${CMAKE_INSTALL_FULL_BINDIR}/vkconfig3.exe")
+            message(STATUS "Will run ${WINDEPLOYQT_EXE} at ${CMAKE_INSTALL_FULL_BINDIR}/vkconfig3.exe")
             install(CODE "execute_process(COMMAND ${WINDEPLOYQT_EXE} ${CMAKE_INSTALL_FULL_BINDIR}/vkconfig3.exe)")
         endif()
     else()

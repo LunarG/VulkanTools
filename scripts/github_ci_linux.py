@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Authors: 
+# Authors:
 # - Mark Lobodzinski <mark@lunarg.com>
 # - Tony Barbour <tony@lunarg.com>
 # - Christophe Riccio <christophe@lunarg.com>
@@ -85,7 +85,7 @@ def BuildVT(args):
 
     print("Run Vulkan Tools Tests")
     os.chdir(VT_BUILD_DIR)
-    test_cmd = 'ctest --parallel %s --output-on-failure --config %s' % (os.cpu_count(), args.configuration)
+    test_cmd = 'ctest --parallel %s --output-on-failure -C %s' % (os.cpu_count(), args.configuration)
     RunShellCmd(test_cmd, VT_BUILD_DIR)
 
     print("Build Vulkan Configurator with QtCreator")
