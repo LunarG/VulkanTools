@@ -90,7 +90,8 @@
                         "value": false
                     }
                 ],
-                "control": "on"
+                "control": "on",
+                "version": "latest"
             },
             {
                 "name": "VK_LAYER_KHRONOS_synchronization2",
@@ -102,7 +103,8 @@
                         "value": false
                     }
                 ],
-                "control": "on"
+                "control": "on",
+                "version": "latest"
             }
         ]
     }

@@ -73,6 +73,7 @@ SOURCES += \
     ../vkconfig_core/version.cpp \
     ../vkconfig_core/vulkan_info.cpp \
     ../vkconfig_core/vulkan_util.cpp \
+    configuration_layer_widget.cpp \
     widget_preset.cpp \
     widget_setting.cpp \
     widget_setting_bool.cpp \
@@ -139,6 +140,7 @@ HEADERS += \
     ../vkconfig_core/version.h \
     ../vkconfig_core/vulkan_info.h \
     ../vkconfig_core/vulkan_util.h \
+    configuration_layer_widget.h \
     widget_preset.h \
     widget_setting.h \
     widget_setting_bool.h \

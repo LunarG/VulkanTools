@@ -13,6 +13,7 @@
             {
                 "name": "VK_LAYER_LUNARG_reference_1_2_1",
                 "rank": 8,
+                "version": "latest",
                 "settings": [
                     {
                         "key": "enum_required_only",

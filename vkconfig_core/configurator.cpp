@@ -302,7 +302,7 @@ Configurator& Configurator::Get() {
 Configurator::Configurator() : environment(), layers(), configurations() {}
 
 Configurator::~Configurator() {
-    configurations.SaveAllConfigurations(layers.selected_layers);
+    this->configurations.SaveAllConfigurations();
 
     this->Surrender();
 }

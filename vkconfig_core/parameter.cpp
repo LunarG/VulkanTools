@@ -228,13 +228,15 @@ std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters
         const Layer& layer = available_layers[i];
 
         // The layer is already in the layer tree
-        if (IsFound(parameters, layer.key.c_str())) continue;
+        if (IsFound(parameters, layer.key.c_str())) {
+            continue;
+        }
 
         Parameter parameter;
         parameter.key = layer.key;
         parameter.control = LAYER_CONTROL_AUTO;
-        parameter.api_version = layer.api_version;
-        CollectDefaultSettingData(layer.settings, parameter.settings);
+        // parameter.api_version = layer.api_version;
+        // CollectDefaultSettingData(layer.settings, parameter.settings);
 
         gathered_parameters.push_back(parameter);
     }

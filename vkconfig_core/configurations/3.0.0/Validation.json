@@ -15,7 +15,8 @@
                 "rank": 0,
                 "settings": [
                 ],
-                "control": "on"
+                "control": "on",
+                "version": "latest"
             }
         ]
     }

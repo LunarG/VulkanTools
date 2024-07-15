@@ -43,7 +43,7 @@ void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &a
 
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
         Configuration configuration;
-        const bool result = configuration.Load(available_layers, configuration_files[i]);
+        const bool result = configuration.Load(configuration_files[i], available_layers);
         assert(result);
 
         if (!IsPlatformSupported(configuration.platform_flags)) {
@@ -90,7 +90,7 @@ void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &avai
     const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
     for (int i = 0, n = configuration_files.size(); i < n; ++i) {
         Configuration configuration;
-        const bool result = configuration.Load(available_layers, configuration_files[i]);
+        const bool result = configuration.Load(configuration_files[i], available_layers);
         if (!result) {
             continue;
         }
@@ -108,12 +108,15 @@ void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &avai
     }
 }
 
-static Path MakeConfigurationPath(const std::string &key) { return (Get(Path::CONFIGS) + "/" + key + ".json").AbsolutePath(); }
+static Path MakeConfigurationPath(const std::string &key) {
+    const Path &path = Get(Path::CONFIGS) + "/" + key + ".json";
+    return path.AbsolutePath();
+}
 
-void ConfigurationManager::SaveAllConfigurations(const std::vector<Layer> &available_layers) {
+void ConfigurationManager::SaveAllConfigurations() {
     for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
         const Path &path(MakeConfigurationPath(available_configurations[i].key));
-        available_configurations[i].Save(available_layers, path);
+        available_configurations[i].Save(path);
     }
 }
 
@@ -125,11 +128,11 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
     new_configuration.key = MakeConfigurationName(available_configurations, configuration_name);
 
     const Path &path(MakeConfigurationPath(new_configuration.key));
-    new_configuration.Save(available_layers, path);
+    new_configuration.Save(path);
 
     // Reload from file to workaround the lack of SettingSet copy support
     Configuration configuration;
-    const bool result = configuration.Load(available_layers, path);
+    const bool result = configuration.Load(path, available_layers);
     assert(result);
 
     this->available_configurations.push_back(configuration);
@@ -221,7 +224,7 @@ std::string ConfigurationManager::ImportConfiguration(const std::vector<Layer> &
     assert(!full_import_path.Empty());
 
     Configuration configuration;
-    if (!configuration.Load(available_layers, full_import_path)) {
+    if (!configuration.Load(full_import_path, available_layers)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");
@@ -246,7 +249,7 @@ void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &availab
     Configuration *configuration = FindByKey(available_configurations, configuration_name.c_str());
     assert(configuration);
 
-    if (!configuration->Save(available_layers, full_export_path, true)) {
+    if (!configuration->Save(full_export_path, true)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Export of Layers Configuration error");

@@ -19,7 +19,8 @@
                         "value": "${VK_LOCAL}/gfxrecon_capture.gfxr"
                     }
                 ],
-                "control": "on"
+                "control": "on",
+                "version": "latest"
             }
         ]
     }

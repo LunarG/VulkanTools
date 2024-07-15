@@ -531,7 +531,7 @@ void MainWindow::AddLayerPathItem(const std::string &layer_path) {
     ui->tree_layers_paths->setItemWidget(item_state, layer_path_widget);
 }
 
-void MainWindow::AddLayerItem(const Parameter &parameter) {
+void MainWindow::AddLayerItem(Parameter &parameter) {
     assert(!parameter.key.empty());
 
     std::vector<Layer> &available_layers = Configurator::Get().layers.selected_layers;
@@ -574,47 +574,10 @@ void MainWindow::AddLayerItem(const Parameter &parameter) {
         layers.push_back(layer);
     }
 
-    LayerWidget *layer_widget = new LayerWidget(layers, parameter, ui->layers_tree, item_state);
+    ConfigurationLayerWidget *layer_widget = new ConfigurationLayerWidget(layers, parameter);
     item_state->widget = layer_widget;
 
     ui->layers_tree->setItemWidget(item_state, layer_widget);
-
-    // item_state->setDisabled(layer == nullptr);
-
-    // item_state->layer_state->addItem(is_implicit_layer ? "Implicitly On" : "Application-Controlled");
-    // item_state->layer_state->addItem("Forced On");
-    // item_state->layer_state->addItem("Forced Off");
-
-    /*
-    const QFontMetrics fm = ui->tree_layers_list->fontMetrics();
-    const QSize combo_name_size = fm.size(Qt::TextSingleLine, parameter.key.c_str()) * 1.2;
-    item_state->setSizeHint(0, combo_name_size);
-
-    const QSize combo_version_size = fm.size(Qt::TextSingleLine, layer->api_version.str().c_str());
-    item_state->setSizeHint(1, combo_version_size);
-
-    const QSize combo_state_size = fm.size(Qt::TextSingleLine, "Application-Controlled");
-    item_state->setSizeHint(2, combo_state_size);
-    */
-    // Add the top level item
-
-    // Add a combo box. Default has gray background which looks hidious
-    // WidgetTreeFriendlyComboBox *widget_version = new WidgetTreeFriendlyComboBox(item_state);
-    // ui->tree_layers_list->setItemWidget(item_state, 1, widget_version);
-
-    // widget_version->addItem(layer->api_version.str().c_str());
-
-    // WidgetTreeFriendlyComboBox *widget_state = new WidgetTreeFriendlyComboBox(item_state);
-    // ui->tree_layers_list->setItemWidget(item_state, 2, widget_state);
-
-    /*
-    widget_state->addItem(is_implicit_layer ? "Implicitly On" : "Application-Controlled");
-    widget_state->addItem("Forced On");
-    widget_state->addItem("Forced Off");
-    widget_state->setCurrentIndex(parameter.state);
-
-    connect(widget_state, SIGNAL(selectionMade(QListWidgetItem *, int)), this, SLOT(layerUseChanged(QListWidgetItem *, int)));
-    */
 }
 
 void MainWindow::UpdateUI() {
@@ -1042,7 +1005,7 @@ void MainWindow::on_combo_box_applications_currentIndexChanged(int index) {
 
     Application &application = configurator.environment.GetApplication(index);
     ui->combo_box_applications->setToolTip(application.executable_path.AbsolutePath().c_str());
-    ui->combo_box_mode->setCurrentIndex(application.configuration.GetMode());
+    ui->combo_box_mode->setCurrentIndex(configurator.environment.GetActiveConfigurationInfo().GetMode());
 }
 
 void MainWindow::on_check_box_per_application_toggled(bool checked) {
@@ -1151,7 +1114,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             // Rename configuration ; Remove old configuration file ; change the name of the configuration
             configurator.configurations.RemoveConfigurationFile(old_name);
             configuration->key = configuration_item->configuration_name = new_name;
-            configurator.configurations.SaveAllConfigurations(configurator.layers.selected_layers);
+            configurator.configurations.SaveAllConfigurations();
             configurator.environment.GetActiveConfigurationInfo().SetName(new_name);
 
             LoadConfigurationList();

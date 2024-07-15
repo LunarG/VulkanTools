@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,21 +38,18 @@ enum ParameterRank {
 struct Parameter {
     static const int NO_RANK = -1;
 
-    Parameter() : control(LAYER_CONTROL_AUTO), platform_flags(PLATFORM_DESKTOP_BIT), overridden_rank(NO_RANK) { assert(true); }
+    Parameter() : control(LAYER_CONTROL_AUTO) {}
 
-    Parameter(const std::string& key, const LayerControl control)
-        : key(key), control(LAYER_CONTROL_AUTO), platform_flags(PLATFORM_DESKTOP_BIT), overridden_rank(NO_RANK) {
-        assert(true);
-    }
+    Parameter(const std::string& key, const LayerControl control) : key(key), control(control) {}
 
     bool ApplyPresetSettings(const LayerPreset& preset);
 
     std::string key;
-    LayerControl control;
-    int platform_flags;
+    LayerControl control = LAYER_CONTROL_AUTO;
+    int platform_flags = PLATFORM_DESKTOP_BIT;
     SettingDataSet settings;
-    int overridden_rank;
-    Version api_version;
+    int overridden_rank = NO_RANK;
+    Version api_version = Version::VERSION_NULL;
 };
 
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);

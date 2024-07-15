@@ -34,9 +34,10 @@ class Configuration {
 
     static Configuration CreateDisabled(const std::vector<Layer>& available_layers);
 
-    bool Load(const std::vector<Layer>& available_layers, const Path& full_path);
-    bool Save(const std::vector<Layer>& available_layers, const Path& full_path, bool exporter = false) const;
+    bool Load(const Path& full_path, const std::vector<Layer>& available_layers);
+    bool Save(const Path& full_path, bool exporter = false) const;
     bool HasOverride() const;
+    Parameter* Find(std::string parameter_key);
 
     void Reset(const std::vector<Layer>& available_layers);
 
@@ -53,9 +54,6 @@ class Configuration {
     std::vector<Path> user_defined_paths;
 
     bool IsBuiltIn() const;
-
-   private:
-    bool Load3_0(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object);
 };
 
 std::string MakeConfigurationName(const std::vector<Configuration>& configurations, const std::string& configuration_name);

@@ -33,7 +33,7 @@ class ConfigurationManager {
 
     void LoadAllConfigurations(const std::vector<Layer>& available_layers);
 
-    void SaveAllConfigurations(const std::vector<Layer>& available_layers);
+    void SaveAllConfigurations();
 
     Configuration& CreateConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name,
                                        bool duplicate = false);

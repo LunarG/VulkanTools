@@ -615,6 +615,9 @@
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
+           <property name="childrenCollapsible">
+            <bool>false</bool>
+           </property>
            <widget class="QWidget" name="widgetTopLeft" native="true">
             <layout class="QVBoxLayout" name="verticalLayout_12">
              <property name="spacing">
@@ -669,7 +672,7 @@
                  <item row="1" column="0">
                   <widget class="QLabel" name="label_19">
                    <property name="text">
-                    <string>Layers Configuration Mode: </string>
+                    <string>Layers Mode: </string>
                    </property>
                   </widget>
                  </item>
@@ -701,7 +704,7 @@
                  <item row="0" column="0">
                   <widget class="QCheckBox" name="check_box_per_application">
                    <property name="text">
-                    <string>Per-Application Configuration: </string>
+                    <string>Per-Application: </string>
                    </property>
                   </widget>
                  </item>

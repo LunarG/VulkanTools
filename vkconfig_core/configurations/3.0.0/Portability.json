@@ -11,58 +11,12 @@
         "description": "Check the Vulkan application is portable to Apple platforms",
         "layers": [
             {
-                "name": "VK_LAYER_LUNARG_api_dump",
-                "rank": -1,
-                "settings": [
-                ],
-                "control": "off"
-            },
-            {
-                "name": "VK_LAYER_LUNARG_gfxreconstruct",
-                "rank": -1,
-                "settings": [
-                ],
-                "control": "off",
-                "platforms": [
-                    "WINDOWS",
-                    "LINUX"
-                ]
-            },
-            {
-                "name": "VK_LAYER_LUNARG_monitor",
-                "rank": -1,
-                "settings": [
-                ],
-                "control": "off",
-                "platforms": [
-                    "WINDOWS",
-                    "LINUX"
-                ]
-            },
-            {
-                "name": "VK_LAYER_LUNARG_screenshot",
-                "rank": -1,
-                "settings": [
-                ],
-                "control": "off",
-                "platforms": [
-                    "WINDOWS",
-                    "LINUX"
-                ]
-            },
-            {
-                "name": "VK_LAYER_KHRONOS_synchronization2",
-                "rank": -1,
-                "settings": [
-                ],
-                "control": "off"
-            },
-            {
                 "name": "VK_LAYER_KHRONOS_validation",
                 "rank": 4,
                 "settings": [
                 ],
-                "control": "on"
+                "control": "on",
+                "version": "latest"
             },
             {
                 "name": "VK_LAYER_KHRONOS_profiles",
@@ -79,7 +33,8 @@
                         "value": "VP_LUNARG_desktop_baseline_2023"
                     }
                 ],
-                "control": "on"
+                "control": "on",
+                "version": "latest"
             }
         ]
     }

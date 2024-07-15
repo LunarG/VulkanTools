@@ -87,7 +87,8 @@
                         "value": true
                     }
                 ],
-                "state": "OVERRIDDEN"
+                "control": "on",
+                "version": "latest"
             }
         ]
     }

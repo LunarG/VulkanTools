@@ -22,12 +22,12 @@
 #pragma once
 
 #include "settings_tree.h"
+#include "configuration_layer_widget.h"
 
 #include "ui_mainwindow.h"
 
 #include <QDialog>
 #include <QMainWindow>
-#include <QListWidgetItem>
 #include <QLabel>
 #include <QRadioButton>
 #include <QShowEvent>
@@ -52,94 +52,6 @@ class ConfigurationListItem : public QTreeWidgetItem {
    private:
     ConfigurationListItem(const ConfigurationListItem &) = delete;
     ConfigurationListItem &operator=(const ConfigurationListItem &) = delete;
-};
-
-class LayerWidget : public QLabel {
-    Q_OBJECT
-
-   public:
-    LayerWidget(const std::vector<const Layer *> layers, const Parameter &parameter, QListWidget *list, QListWidgetItem *item)
-        : item(item), layer_version(nullptr), layer_state(nullptr) {
-        const bool is_implicit_layer = layers.empty() ? false : layers[0]->type == LAYER_TYPE_IMPLICIT;
-
-        if (parameter.control != LAYER_CONTROL_APPLICATIONS && parameter.control != LAYER_CONTROL_UNORDERED) {
-            this->layer_version = new QComboBox(this);
-            this->layer_version->addItem(layers.empty() ? "0.0.000" : layers[0]->api_version.str().c_str());
-            if (!layers.empty()) {
-                this->layer_version->setToolTip(layers[0]->manifest_path.AbsolutePath().c_str());
-            }
-            // this->layer_version->setEnabled(layers.size() > 1);
-            this->layer_version->installEventFilter(this);
-
-            this->layer_state = new QComboBox(this);
-            this->layer_state->addItem("Auto");
-            this->layer_state->addItem("On");
-            this->layer_state->addItem("Off");
-            this->layer_state->setEnabled(!layers.empty());
-            this->layer_state->setCurrentIndex(parameter.control);
-            this->layer_state->installEventFilter(this);
-        }
-
-        std::string decorated_name(layers.empty() ? parameter.key : layers[0]->key);
-
-        if (layers.empty()) {
-            // A layers configuration may have excluded layer that are misssing because they are not available on this platform
-            // We simply hide these layers to avoid confusing the Vulkan developers
-            if (parameter.control == LAYER_CONTROL_OFF) {
-                return;
-            }
-
-            if (parameter.control != LAYER_CONTROL_APPLICATIONS && parameter.control != LAYER_CONTROL_UNORDERED) {
-                decorated_name += " (Missing)";
-            }
-        } else {
-            if (layers[0]->status != STATUS_STABLE) {
-                decorated_name += format(" (%s)", GetToken(layers[0]->status));
-            }
-
-            // if (IsDLL32Bit(layer->manifest_path)) {
-            //    decorated_name += " (32-bit)";
-            //}
-        }
-        this->setText(decorated_name.c_str());
-
-        item->setSizeHint(QSize(0, ITEM_HEIGHT));
-
-        // list->addItem(item);
-        // list->setItemWidget(item, this);
-    }
-
-   protected:
-    bool eventFilter(QObject *target, QEvent *event) {
-        if (event->type() == QEvent::Wheel) {
-            return true;
-        }
-
-        return false;
-    }
-
-    void resizeEvent(QResizeEvent *event) override {
-        QSize size = event->size();
-
-        if (this->layer_state != nullptr) {
-            const QFontMetrics fm = this->layer_state->fontMetrics();
-            const int width_state = std::max(HorizontalAdvance(fm, "Auto 000"), 80);
-            const int width_version = std::max(HorizontalAdvance(fm, "1.2.199 000"), 80);
-
-            const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, size.height());
-            this->layer_state->setGeometry(state_button_rect);
-
-            const QRect version_button_rect = QRect(size.width() - width_state - width_version, 0, width_version, size.height());
-            this->layer_version->setGeometry(version_button_rect);
-        }
-    }
-
-   public:
-    QListWidgetItem *item;
-
-   private:
-    QComboBox *layer_version;
-    QComboBox *layer_state;
 };
 
 class LayerPathWidget : public QLabel {
@@ -247,7 +159,7 @@ class MainWindow : public QMainWindow {
     void ImportClicked(ConfigurationListItem *item);
 
     void AddLayerPathItem(const std::string &layer_path);
-    void AddLayerItem(const Parameter &parameter);
+    void AddLayerItem(Parameter &parameter);
 
    private slots:
     void trayActionRestore();

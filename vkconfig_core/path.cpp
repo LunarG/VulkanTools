@@ -232,7 +232,7 @@ static const Path GetHomePath() {
 }
 
 static const Path GetAppDataPath() {
-    static const char* TABLE[] = {
+    const char* TABLE[] = {
         "/AppData/Local/LunarG",  // ENVIRONMENT_WIN32
         "/.local/share/vulkan"    // ENVIRONMENT_UNIX
     };
@@ -242,7 +242,7 @@ static const Path GetAppDataPath() {
 }
 
 static const Path GetInitPath() {
-    static const std::string TABLE[] = {
+    const std::string TABLE[] = {
         "/" + VKCONFIG_VERSION + "/vkconfig.json",        // ENVIRONMENT_WIN32
         "/lunarg-" + VKCONFIG_VERSION + "/vkconfig.json"  // ENVIRONMENT_UNIX
     };
@@ -252,13 +252,14 @@ static const Path GetInitPath() {
 }
 
 static const Path GetConfigsPath() {
-    static const std::string TABLE[] = {
+    const std::string TABLE[] = {
         "/" + VKCONFIG_VERSION + "/configurations",        // ENVIRONMENT_WIN32
         "/lunarg-" + VKCONFIG_VERSION + "/configurations"  // ENVIRONMENT_UNIX
     };
     static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
 
-    Path path(GetAppDataPath().RelativePath() + TABLE[VKC_ENV]);
+    Path app_data_path = GetAppDataPath();
+    Path path(app_data_path + TABLE[VKC_ENV]);
 
     if (!path.Exists()) {
         path.Create();

@@ -72,18 +72,18 @@ struct TestBuilin {
 
     Configuration Load(const char* configuration_name) {
         Configuration configuration_loaded;
-        const bool result = configuration_loaded.Load(layer_manager.selected_layers,
-                                                      format(":/configurations/%s.json", configuration_name).c_str());
+        const bool result = configuration_loaded.Load(format(":/configurations/%s.json", configuration_name).c_str(),
+                                                      layer_manager.selected_layers);
         return result ? configuration_loaded : Configuration();
     }
 
     Configuration Restore(const Configuration& configuration_loaded) {
         const std::string filename = format("test_%s_layers.json", configuration_loaded.key.c_str());
-        const bool saved = configuration_loaded.Save(this->layer_manager.selected_layers, filename.c_str());
+        const bool saved = configuration_loaded.Save(filename.c_str());
         EXPECT_TRUE(saved);
 
         Configuration configuration_saved;
-        EXPECT_TRUE(configuration_saved.Load(this->layer_manager.selected_layers, filename.c_str()));
+        EXPECT_TRUE(configuration_saved.Load(filename.c_str(), this->layer_manager.selected_layers));
         return configuration_saved;
     }
 
@@ -113,7 +113,7 @@ TEST(test_built_in_load, sdk_layers_with_configuration) {
 
     {
         Configuration load_portability = test.Load("Portability");
-        EXPECT_EQ(7, load_portability.Size());
+        EXPECT_EQ(2, load_portability.Size());
         Configuration save_portability = test.Restore(load_portability);
         EXPECT_EQ(save_portability, load_portability);
     }
