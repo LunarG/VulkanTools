@@ -103,12 +103,12 @@ if(BUILD_VIA)
 endif()
 
 if(BUILD_APIDUMP OR BUILD_MONITOR OR BUILD_SCREENSHOT)
-    message("INFO: Building Vulkan Layers")
+    message(STATUS "INFO: Building Vulkan Layers")
     add_subdirectory(layersvt)
 endif()
 
 if(BUILD_LAYERMGR)
-    message("INFO: Building Vulkan Configurator")
+    message(STATUS "INFO: Building Vulkan Configurator")
 
     if (WIN32)
         # Minimize what Windows.h leaks

@@ -10656,23 +10656,23 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingAttachmentLocationsKHR(VkCommandBuff
     }
     ApiDumpInstance::current().outputMutex()->unlock();
 }
-VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingInputAttachmentIndicesKHR(VkCommandBuffer commandBuffer, const VkRenderingInputAttachmentIndexInfoKHR* pLocationInfo)
+VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingInputAttachmentIndicesKHR(VkCommandBuffer commandBuffer, const VkRenderingInputAttachmentIndexInfoKHR* pInputAttachmentIndexInfo)
 {
     ApiDumpInstance::current().outputMutex()->lock();
-    dump_function_head(ApiDumpInstance::current(), "vkCmdSetRenderingInputAttachmentIndicesKHR", "commandBuffer, pLocationInfo", "void");
-    device_dispatch_table(commandBuffer)->CmdSetRenderingInputAttachmentIndicesKHR(commandBuffer, pLocationInfo);
+    dump_function_head(ApiDumpInstance::current(), "vkCmdSetRenderingInputAttachmentIndicesKHR", "commandBuffer, pInputAttachmentIndexInfo", "void");
+    device_dispatch_table(commandBuffer)->CmdSetRenderingInputAttachmentIndicesKHR(commandBuffer, pInputAttachmentIndexInfo);
     
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         switch(ApiDumpInstance::current().settings().format())
         {
             case ApiDumpFormat::Text:
-                dump_text_vkCmdSetRenderingInputAttachmentIndicesKHR(ApiDumpInstance::current(), commandBuffer, pLocationInfo);
+                dump_text_vkCmdSetRenderingInputAttachmentIndicesKHR(ApiDumpInstance::current(), commandBuffer, pInputAttachmentIndexInfo);
                 break;
             case ApiDumpFormat::Html:
-                dump_html_vkCmdSetRenderingInputAttachmentIndicesKHR(ApiDumpInstance::current(), commandBuffer, pLocationInfo);
+                dump_html_vkCmdSetRenderingInputAttachmentIndicesKHR(ApiDumpInstance::current(), commandBuffer, pInputAttachmentIndexInfo);
                 break;
             case ApiDumpFormat::Json:
-                dump_json_vkCmdSetRenderingInputAttachmentIndicesKHR(ApiDumpInstance::current(), commandBuffer, pLocationInfo);
+                dump_json_vkCmdSetRenderingInputAttachmentIndicesKHR(ApiDumpInstance::current(), commandBuffer, pInputAttachmentIndexInfo);
                 break;
         }
     }

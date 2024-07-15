@@ -3846,6 +3846,12 @@ void dump_html_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000351002:
         settings.stream() << "VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT (";
         break;
+    case 1000495000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_FEATURES_EXT (";
+        break;
+    case 1000495001:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_PROPERTIES_EXT (";
+        break;
     case 1000496000:
         settings.stream() << "VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT (";
         break;
@@ -4038,11 +4044,41 @@ void dump_html_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000555000:
         settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV (";
         break;
+    case 1000558000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_RELAXED_EXTENDED_INSTRUCTION_FEATURES_KHR (";
+        break;
+    case 1000562000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_FEATURES_KHR (";
+        break;
+    case 1000562001:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_PROPERTIES_KHR (";
+        break;
+    case 1000562002:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_LIST_KHR (";
+        break;
+    case 1000562003:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_KHR (";
+        break;
+    case 1000562004:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_VULKAN_PROPERTIES_KHR (";
+        break;
     case 1000563000:
         settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV (";
         break;
+    case 1000564000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT (";
+        break;
     case 1000568000:
         settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV (";
+        break;
+    case 1000575000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA (";
+        break;
+    case 1000575001:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA (";
+        break;
+    case 1000575002:
+        settings.stream() << "VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA (";
         break;
     default:
         settings.stream() << "UNKNOWN (";
@@ -4330,6 +4366,9 @@ void dump_html_VkVendorId(VkVendorId object, const ApiDumpSettings& settings, in
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
+    case 0x10000:
+        settings.stream() << "VK_VENDOR_ID_KHRONOS (";
+        break;
     case 0x10001:
         settings.stream() << "VK_VENDOR_ID_VIV (";
         break;
@@ -6396,7 +6435,7 @@ void dump_html_VkSubpassContents(VkSubpassContents object, const ApiDumpSettings
         settings.stream() << "VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS (";
         break;
     case 1000451000:
-        settings.stream() << "VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_EXT (";
+        settings.stream() << "VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_KHR (";
         break;
     default:
         settings.stream() << "UNKNOWN (";
@@ -6589,7 +6628,10 @@ void dump_html_VkDriverId(VkDriverId object, const ApiDumpSettings& settings, in
         settings.stream() << "VK_DRIVER_ID_IMAGINATION_OPEN_SOURCE_MESA (";
         break;
     case 26:
-        settings.stream() << "VK_DRIVER_ID_MESA_AGXV (";
+        settings.stream() << "VK_DRIVER_ID_MESA_HONEYKRISP (";
+        break;
+    case 27:
+        settings.stream() << "VK_DRIVER_ID_RESERVED_27 (";
         break;
     default:
         settings.stream() << "UNKNOWN (";
@@ -8553,6 +8595,31 @@ void dump_html_VkLayeredDriverUnderlyingApiMSFT(VkLayeredDriverUnderlyingApiMSFT
     }
     settings.stream() << object << ")</div></summary>";
 }
+void dump_html_VkPhysicalDeviceLayeredApiKHR(VkPhysicalDeviceLayeredApiKHR object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "VK_PHYSICAL_DEVICE_LAYERED_API_VULKAN_KHR (";
+        break;
+    case 1:
+        settings.stream() << "VK_PHYSICAL_DEVICE_LAYERED_API_D3D12_KHR (";
+        break;
+    case 2:
+        settings.stream() << "VK_PHYSICAL_DEVICE_LAYERED_API_METAL_KHR (";
+        break;
+    case 3:
+        settings.stream() << "VK_PHYSICAL_DEVICE_LAYERED_API_OPENGL_KHR (";
+        break;
+    case 4:
+        settings.stream() << "VK_PHYSICAL_DEVICE_LAYERED_API_OPENGLES_KHR (";
+        break;
+    default:
+        settings.stream() << "UNKNOWN (";
+    }
+    settings.stream() << object << ")</div></summary>";
+}
 
 //========================= Bitmask Implementations =========================//
 
@@ -9425,12 +9492,6 @@ void dump_html_VkBufferUsageFlagBits(VkBufferUsageFlagBits object, const ApiDump
     if(object & 268435456) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_RESERVED_28_BIT_KHR"; is_first = false;
     }
-    if(object & 536870912) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_RESERVED_29_BIT_KHR"; is_first = false;
-    }
-    if(object & 1073741824) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_RESERVED_30_BIT_KHR"; is_first = false;
-    }
     if(object & 524288) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR"; is_first = false;
     }
@@ -9875,6 +9936,9 @@ void dump_html_VkDependencyFlagBits(VkDependencyFlagBits object, const ApiDumpSe
     if(object & 8) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_DEPENDENCY_FEEDBACK_LOOP_BIT_EXT"; is_first = false;
     }
+    if(object & 16) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_DEPENDENCY_EXTENSION_586_BIT_IMG"; is_first = false;
+    }
     if(!is_first)
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
@@ -10162,6 +10226,9 @@ void dump_html_VkExternalMemoryHandleTypeFlagBits(VkExternalMemoryHandleTypeFlag
     }
     if(object & 16384) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_EXTERNAL_MEMORY_HANDLE_TYPE_SCREEN_BUFFER_BIT_QNX"; is_first = false;
+    }
+    if(object & 32768) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_EXTERNAL_MEMORY_HANDLE_TYPE_590_BIT_HUAWEI"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -10640,6 +10707,15 @@ void dump_html_VkAccessFlagBits2(VkAccessFlagBits2 object, const ApiDumpSettings
     if(object & 68719476736) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR"; is_first = false;
     }
+    if(object & 144115188075855872) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_RESERVED_57_BIT_KHR"; is_first = false;
+    }
+    if(object & 288230376151711744) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_RESERVED_58_BIT_KHR"; is_first = false;
+    }
+    if(object & 576460752303423488) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_RESERVED_59_BIT_KHR"; is_first = false;
+    }
     if(object & 70368744177664) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_RESERVED_46_BIT_INTEL"; is_first = false;
     }
@@ -10763,11 +10839,14 @@ void dump_html_VkRenderingFlagBits(VkRenderingFlagBits object, const ApiDumpSett
     if(object & 4) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_RESUMING_BIT"; is_first = false;
     }
-    if(object & 16) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_CONTENTS_INLINE_BIT_EXT"; is_first = false;
-    }
     if(object & 8) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT"; is_first = false;
+    }
+    if(object & 32) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_EXTENSION_505_BIT_EXT"; is_first = false;
+    }
+    if(object & 16) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_CONTENTS_INLINE_BIT_KHR"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -11192,6 +11271,12 @@ void dump_html_VkVideoSessionCreateFlagBitsKHR(VkVideoSessionCreateFlagBitsKHR o
     if(object & 16) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_SESSION_CREATE_RESERVED_4_BIT_KHR"; is_first = false;
     }
+    if(object & 32) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_SESSION_CREATE_RESERVED_5_BIT_KHR"; is_first = false;
+    }
+    if(object & 64) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_SESSION_CREATE_RESERVED_6_BIT_KHR"; is_first = false;
+    }
     if(!is_first)
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
@@ -11281,6 +11366,9 @@ void dump_html_VkVideoEncodeH264CapabilityFlagBitsKHR(VkVideoEncodeH264Capabilit
     }
     if(object & 256) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_H264_CAPABILITY_GENERATE_PREFIX_NALU_BIT_KHR"; is_first = false;
+    }
+    if(object & 512) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_H264_CAPABILITY_RESERVED_9_BIT_KHR"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -11413,6 +11501,9 @@ void dump_html_VkVideoEncodeH265CapabilityFlagBitsKHR(VkVideoEncodeH265Capabilit
     }
     if(object & 512) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_H265_CAPABILITY_MULTIPLE_SLICE_SEGMENTS_PER_TILE_BIT_KHR"; is_first = false;
+    }
+    if(object & 1024) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_H265_CAPABILITY_RESERVED_10_BIT_KHR"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -12411,6 +12502,9 @@ void dump_html_VkPipelineCreateFlagBits2KHR(VkPipelineCreateFlagBits2KHR object,
     if(object & 4) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR"; is_first = false;
     }
+    if(object & 68719476736) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_RESERVED_36_BIT_KHR"; is_first = false;
+    }
     if(object & 8589934592) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_33_BIT_KHR"; is_first = false;
     }
@@ -12507,8 +12601,14 @@ void dump_html_VkPipelineCreateFlagBits2KHR(VkPipelineCreateFlagBits2KHR object,
     if(object & 2147483648) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_31_BIT_KHR"; is_first = false;
     }
+    if(object & 274877906944) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_EXTENSION_573_BIT_EXT"; is_first = false;
+    }
     if(object & 34359738368) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_35_BIT_KHR"; is_first = false;
+    }
+    if(object & 137438953472) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_37_BIT_ARM"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -12551,12 +12651,6 @@ void dump_html_VkBufferUsageFlagBits2KHR(VkBufferUsageFlagBits2KHR object, const
     }
     if(object & 268435456) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_28_BIT_KHR"; is_first = false;
-    }
-    if(object & 536870912) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_29_BIT_KHR"; is_first = false;
-    }
-    if(object & 1073741824) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_30_BIT_KHR"; is_first = false;
     }
     if(object & 134217728) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_27_BIT_QCOM"; is_first = false;
@@ -12609,6 +12703,9 @@ void dump_html_VkBufferUsageFlagBits2KHR(VkBufferUsageFlagBits2KHR object, const
     if(object & 16777216) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT"; is_first = false;
     }
+    if(object & 4294967296) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_EXTENSION_573_BIT_EXT"; is_first = false;
+    }
     if(!is_first)
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
@@ -12620,6 +12717,9 @@ void dump_html_VkShaderCreateFlagBitsEXT(VkShaderCreateFlagBitsEXT object, const
     settings.stream() << object;
     if(object & 1) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_LINK_STAGE_BIT_EXT"; is_first = false;
+    }
+    if(object & 1024) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_RESERVED_10_BIT_KHR"; is_first = false;
     }
     if(object & 2) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT"; is_first = false;
@@ -12641,6 +12741,12 @@ void dump_html_VkShaderCreateFlagBitsEXT(VkShaderCreateFlagBitsEXT object, const
     }
     if(object & 128) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_EXTENSION_573_BIT_EXT"; is_first = false;
+    }
+    if(object & 256) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_RESERVED_8_BIT_EXT"; is_first = false;
+    }
+    if(object & 512) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_RESERVED_9_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -30982,6 +31088,38 @@ void dump_html_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV(const VkPh
     dump_html_value<const VkImageUsageFlags>(object.extendedSparseImageUsageFlags, settings, "VkImageUsageFlags", "extendedSparseImageUsageFlags", indents + 1, dump_html_VkImageUsageFlags);
     dump_html_value<const VkBufferUsageFlags>(object.extendedSparseBufferUsageFlags, settings, "VkBufferUsageFlags", "extendedSparseBufferUsageFlags", indents + 1, dump_html_VkBufferUsageFlags);
 }
+void dump_html_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT(const VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkBool32>(object.legacyVertexAttributes, settings, "VkBool32", "legacyVertexAttributes", indents + 1, dump_html_VkBool32);
+}
+void dump_html_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT(const VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkBool32>(object.nativeUnalignedPerformance, settings, "VkBool32", "nativeUnalignedPerformance", indents + 1, dump_html_VkBool32);
+}
 void dump_html_VkLayerSettingEXT(const VkLayerSettingEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
@@ -31997,6 +32135,113 @@ void dump_html_VkPhysicalDeviceRawAccessChainsFeaturesNV(const VkPhysicalDeviceR
     }
     dump_html_value<const VkBool32>(object.shaderRawAccessChains, settings, "VkBool32", "shaderRawAccessChains", indents + 1, dump_html_VkBool32);
 }
+void dump_html_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR(const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkBool32>(object.shaderRelaxedExtendedInstruction, settings, "VkBool32", "shaderRelaxedExtendedInstruction", indents + 1, dump_html_VkBool32);
+}
+void dump_html_VkPhysicalDeviceMaintenance7FeaturesKHR(const VkPhysicalDeviceMaintenance7FeaturesKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkBool32>(object.maintenance7, settings, "VkBool32", "maintenance7", indents + 1, dump_html_VkBool32);
+}
+void dump_html_VkPhysicalDeviceMaintenance7PropertiesKHR(const VkPhysicalDeviceMaintenance7PropertiesKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkBool32>(object.robustFragmentShadingRateAttachmentAccess, settings, "VkBool32", "robustFragmentShadingRateAttachmentAccess", indents + 1, dump_html_VkBool32);
+    dump_html_value<const VkBool32>(object.separateDepthStencilAttachmentAccess, settings, "VkBool32", "separateDepthStencilAttachmentAccess", indents + 1, dump_html_VkBool32);
+    dump_html_value<const uint32_t>(object.maxDescriptorSetTotalUniformBuffersDynamic, settings, "uint32_t", "maxDescriptorSetTotalUniformBuffersDynamic", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.maxDescriptorSetTotalStorageBuffersDynamic, settings, "uint32_t", "maxDescriptorSetTotalStorageBuffersDynamic", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.maxDescriptorSetTotalBuffersDynamic, settings, "uint32_t", "maxDescriptorSetTotalBuffersDynamic", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.maxDescriptorSetUpdateAfterBindTotalUniformBuffersDynamic, settings, "uint32_t", "maxDescriptorSetUpdateAfterBindTotalUniformBuffersDynamic", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.maxDescriptorSetUpdateAfterBindTotalStorageBuffersDynamic, settings, "uint32_t", "maxDescriptorSetUpdateAfterBindTotalStorageBuffersDynamic", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.maxDescriptorSetUpdateAfterBindTotalBuffersDynamic, settings, "uint32_t", "maxDescriptorSetUpdateAfterBindTotalBuffersDynamic", indents + 1, dump_html_uint32_t);
+}
+void dump_html_VkPhysicalDeviceLayeredApiPropertiesKHR(const VkPhysicalDeviceLayeredApiPropertiesKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const uint32_t>(object.vendorID, settings, "uint32_t", "vendorID", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.deviceID, settings, "uint32_t", "deviceID", indents + 1, dump_html_uint32_t);
+    dump_html_value<const VkPhysicalDeviceLayeredApiKHR>(object.layeredAPI, settings, "VkPhysicalDeviceLayeredApiKHR", "layeredAPI", indents + 1, dump_html_VkPhysicalDeviceLayeredApiKHR);
+    dump_html_value<const char*>(object.deviceName, settings, "char[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE]", "deviceName", indents + 1, dump_html_cstring);
+}
+void dump_html_VkPhysicalDeviceLayeredApiPropertiesListKHR(const VkPhysicalDeviceLayeredApiPropertiesListKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const uint32_t>(object.layeredApiCount, settings, "uint32_t", "layeredApiCount", indents + 1, dump_html_uint32_t);
+    dump_html_array<const VkPhysicalDeviceLayeredApiPropertiesKHR>(object.pLayeredApis, object.layeredApiCount, settings, "VkPhysicalDeviceLayeredApiPropertiesKHR*", "VkPhysicalDeviceLayeredApiPropertiesKHR", "pLayeredApis", indents + 1, dump_html_VkPhysicalDeviceLayeredApiPropertiesKHR); // ZRT
+}
+void dump_html_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR(const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkPhysicalDeviceProperties2>(object.properties, settings, "VkPhysicalDeviceProperties2", "properties", indents + 1, dump_html_VkPhysicalDeviceProperties2);
+}
 void dump_html_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV(const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
@@ -32013,6 +32258,22 @@ void dump_html_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV(const VkPhysi
     }
     dump_html_value<const VkBool32>(object.shaderFloat16VectorAtomics, settings, "VkBool32", "shaderFloat16VectorAtomics", indents + 1, dump_html_VkBool32);
 }
+void dump_html_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT(const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkBool32>(object.shaderReplicatedComposites, settings, "VkBool32", "shaderReplicatedComposites", indents + 1, dump_html_VkBool32);
+}
 void dump_html_VkPhysicalDeviceRayTracingValidationFeaturesNV(const VkPhysicalDeviceRayTracingValidationFeaturesNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
@@ -32028,6 +32289,54 @@ void dump_html_VkPhysicalDeviceRayTracingValidationFeaturesNV(const VkPhysicalDe
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const VkBool32>(object.rayTracingValidation, settings, "VkBool32", "rayTracingValidation", indents + 1, dump_html_VkBool32);
+}
+void dump_html_VkPhysicalDeviceImageAlignmentControlFeaturesMESA(const VkPhysicalDeviceImageAlignmentControlFeaturesMESA& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkBool32>(object.imageAlignmentControl, settings, "VkBool32", "imageAlignmentControl", indents + 1, dump_html_VkBool32);
+}
+void dump_html_VkPhysicalDeviceImageAlignmentControlPropertiesMESA(const VkPhysicalDeviceImageAlignmentControlPropertiesMESA& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const uint32_t>(object.supportedImageAlignmentMask, settings, "uint32_t", "supportedImageAlignmentMask", indents + 1, dump_html_uint32_t);
+}
+void dump_html_VkImageAlignmentControlCreateInfoMESA(const VkImageAlignmentControlCreateInfoMESA& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const uint32_t>(object.maximumRequestedAlignment, settings, "uint32_t", "maximumRequestedAlignment", indents + 1, dump_html_uint32_t);
 }
 
 //========================== Union Implementations ==========================//
@@ -34852,6 +35161,12 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     case 1000492001:
         dump_html_pNext<const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV>(static_cast<const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV*>(object), settings, "VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV", indents, dump_html_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV);
         break;
+    case 1000495000:
+        dump_html_pNext<const VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT>(static_cast<const VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT*>(object), settings, "VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT", indents, dump_html_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT);
+        break;
+    case 1000495001:
+        dump_html_pNext<const VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT>(static_cast<const VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT*>(object), settings, "VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT", indents, dump_html_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT);
+        break;
     case 1000496000:
         dump_html_pNext<const VkLayerSettingsCreateInfoEXT>(static_cast<const VkLayerSettingsCreateInfoEXT*>(object), settings, "VkLayerSettingsCreateInfoEXT", indents, dump_html_VkLayerSettingsCreateInfoEXT);
         break;
@@ -35033,11 +35348,41 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     case 1000555000:
         dump_html_pNext<const VkPhysicalDeviceRawAccessChainsFeaturesNV>(static_cast<const VkPhysicalDeviceRawAccessChainsFeaturesNV*>(object), settings, "VkPhysicalDeviceRawAccessChainsFeaturesNV", indents, dump_html_VkPhysicalDeviceRawAccessChainsFeaturesNV);
         break;
+    case 1000558000:
+        dump_html_pNext<const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR>(static_cast<const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR);
+        break;
+    case 1000562000:
+        dump_html_pNext<const VkPhysicalDeviceMaintenance7FeaturesKHR>(static_cast<const VkPhysicalDeviceMaintenance7FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance7FeaturesKHR", indents, dump_html_VkPhysicalDeviceMaintenance7FeaturesKHR);
+        break;
+    case 1000562001:
+        dump_html_pNext<const VkPhysicalDeviceMaintenance7PropertiesKHR>(static_cast<const VkPhysicalDeviceMaintenance7PropertiesKHR*>(object), settings, "VkPhysicalDeviceMaintenance7PropertiesKHR", indents, dump_html_VkPhysicalDeviceMaintenance7PropertiesKHR);
+        break;
+    case 1000562003:
+        dump_html_pNext<const VkPhysicalDeviceLayeredApiPropertiesKHR>(static_cast<const VkPhysicalDeviceLayeredApiPropertiesKHR*>(object), settings, "VkPhysicalDeviceLayeredApiPropertiesKHR", indents, dump_html_VkPhysicalDeviceLayeredApiPropertiesKHR);
+        break;
+    case 1000562002:
+        dump_html_pNext<const VkPhysicalDeviceLayeredApiPropertiesListKHR>(static_cast<const VkPhysicalDeviceLayeredApiPropertiesListKHR*>(object), settings, "VkPhysicalDeviceLayeredApiPropertiesListKHR", indents, dump_html_VkPhysicalDeviceLayeredApiPropertiesListKHR);
+        break;
+    case 1000562004:
+        dump_html_pNext<const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR>(static_cast<const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR*>(object), settings, "VkPhysicalDeviceLayeredApiVulkanPropertiesKHR", indents, dump_html_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR);
+        break;
     case 1000563000:
         dump_html_pNext<const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV>(static_cast<const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV*>(object), settings, "VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV", indents, dump_html_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV);
         break;
+    case 1000564000:
+        dump_html_pNext<const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT>(static_cast<const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT);
+        break;
     case 1000568000:
         dump_html_pNext<const VkPhysicalDeviceRayTracingValidationFeaturesNV>(static_cast<const VkPhysicalDeviceRayTracingValidationFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingValidationFeaturesNV", indents, dump_html_VkPhysicalDeviceRayTracingValidationFeaturesNV);
+        break;
+    case 1000575000:
+        dump_html_pNext<const VkPhysicalDeviceImageAlignmentControlFeaturesMESA>(static_cast<const VkPhysicalDeviceImageAlignmentControlFeaturesMESA*>(object), settings, "VkPhysicalDeviceImageAlignmentControlFeaturesMESA", indents, dump_html_VkPhysicalDeviceImageAlignmentControlFeaturesMESA);
+        break;
+    case 1000575001:
+        dump_html_pNext<const VkPhysicalDeviceImageAlignmentControlPropertiesMESA>(static_cast<const VkPhysicalDeviceImageAlignmentControlPropertiesMESA*>(object), settings, "VkPhysicalDeviceImageAlignmentControlPropertiesMESA", indents, dump_html_VkPhysicalDeviceImageAlignmentControlPropertiesMESA);
+        break;
+    case 1000575002:
+        dump_html_pNext<const VkImageAlignmentControlCreateInfoMESA>(static_cast<const VkImageAlignmentControlCreateInfoMESA*>(object), settings, "VkImageAlignmentControlCreateInfoMESA", indents, dump_html_VkImageAlignmentControlCreateInfoMESA);
         break;
     case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
     case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
@@ -42352,7 +42697,7 @@ void dump_html_vkCmdSetRenderingAttachmentLocationsKHR(ApiDumpInstance& dump_ins
 
     settings.stream() << "</details>";
 }
-void dump_html_vkCmdSetRenderingInputAttachmentIndicesKHR(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkRenderingInputAttachmentIndexInfoKHR* pLocationInfo)
+void dump_html_vkCmdSetRenderingInputAttachmentIndicesKHR(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkRenderingInputAttachmentIndexInfoKHR* pInputAttachmentIndexInfo)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
     settings.stream() << "</summary>";
@@ -42360,7 +42705,7 @@ void dump_html_vkCmdSetRenderingInputAttachmentIndicesKHR(ApiDumpInstance& dump_
     if(settings.showParams())
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
-        dump_html_pointer<const VkRenderingInputAttachmentIndexInfoKHR>(pLocationInfo, settings, "const VkRenderingInputAttachmentIndexInfoKHR*", "pLocationInfo", 1, dump_html_VkRenderingInputAttachmentIndexInfoKHR);
+        dump_html_pointer<const VkRenderingInputAttachmentIndexInfoKHR>(pInputAttachmentIndexInfo, settings, "const VkRenderingInputAttachmentIndexInfoKHR*", "pInputAttachmentIndexInfo", 1, dump_html_VkRenderingInputAttachmentIndexInfoKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 
