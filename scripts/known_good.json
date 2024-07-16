@@ -54,7 +54,7 @@
             "cmake_options": [
                 "-DVOLK_INSTALL=ON"
             ],
-            "commit": "vulkan-sdk-1.3.283",
+            "commit": "vulkan-sdk-1.3.290",
             "deps": [
                 {
                     "var_name": "VULKAN_HEADERS_INSTALL_DIR",
