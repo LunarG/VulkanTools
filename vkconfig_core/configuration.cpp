@@ -64,6 +64,7 @@ bool Configuration::Load2_2(const std::vector<Layer>& available_layers, const QJ
         this->platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
     }
 
+    this->user_defined_paths.clear();
     if (json_configuration_object.value("layers_paths") != QJsonValue::Undefined) {
         std::vector<std::string> paths = ReadStringArray(json_configuration_object, "layers_paths");
         for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
@@ -212,8 +213,8 @@ bool Configuration::Save(const std::vector<Layer>& available_layers, const std::
     json_configuration.insert("layers", json_layers);
 
     QJsonArray json_paths;
-    for (std::size_t i = 0, n = user_defined_paths.size(); i < n; ++i) {
-        json_paths.append(user_defined_paths[i].c_str());
+    for (std::size_t i = 0, n = this->user_defined_paths.size(); i < n; ++i) {
+        json_paths.append(this->user_defined_paths[i].c_str());
     }
     json_configuration.insert("layers_paths", json_paths);
 
