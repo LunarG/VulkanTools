@@ -96,7 +96,7 @@ VkResult layer_test::VulkanInstanceBuilder::Init(const std::vector<VkLayerSettin
         }
     }
 
-    layer_test::SetEnvironmentSetting("VK_LAYER_PATH", TEST_BINARY_PATH);
+    layer_test::SetEnvironmentSetting("VK_LAYER_PATH", LAYER_BINARY_PATH);
 
     VkApplicationInfo app_info{GetDefaultApplicationInfo()};
 
