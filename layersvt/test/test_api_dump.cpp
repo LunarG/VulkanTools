@@ -23,6 +23,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <filesystem>
+
 static const char* kLayerName = "VK_LAYER_LUNARG_api_dump";
 
 class ApiDumpTests : public VkTestFramework {
@@ -50,8 +52,8 @@ TEST_F(ApiDumpTests, init_layer) {
     EXPECT_EQ(err, VK_SUCCESS);
 
     // check the output file is generated
-    const std::string path = std::string(TEST_EXECUTABLE_PATH) + "/" + filename_string;
-    FILE* file = fopen(path.c_str(), "r");
+    const std::filesystem::path path = std::filesystem::current_path() / std::filesystem::path(filename_string);
+    FILE* file = fopen(path.string().c_str(), "r");
     ASSERT_TRUE(file != NULL);
 
     const char* file_start_content_expected = "<!doctype html>";
