@@ -33,7 +33,8 @@ function(LayerTest NAME)
                    layer_test_framework.h)
     add_dependencies(${TEST_NAME} VkLayer_${NAME})
     target_link_libraries(${TEST_NAME} Vulkan::Headers Vulkan::Loader GTest::gtest GTest::gtest_main Vulkan::LayerSettings)
-    target_compile_definitions(${TEST_NAME} PUBLIC TEST_BINARY_PATH="$<TARGET_FILE_DIR:VkLayer_${NAME}>")
+    target_compile_definitions(${TEST_NAME} PUBLIC LAYER_BINARY_PATH="$<TARGET_FILE_DIR:VkLayer_${NAME}>")
+    target_compile_definitions(${TEST_NAME} PUBLIC TEST_EXECUTABLE_PATH="$<TARGET_FILE_DIR:${TEST_NAME}>")
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 
     set_tests_properties(${TEST_NAME} PROPERTIES ENVIRONMENT
