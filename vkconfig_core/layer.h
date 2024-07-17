@@ -59,6 +59,7 @@ class Layer {
     Path binary_path;
     Version api_version;
     std::string implementation_version;
+    std::string validated_last_modified;
     StatusType status;
     std::string description;
     std::string introduction;
@@ -75,10 +76,13 @@ class Layer {
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
-    bool Load(const Path& full_path_to_file, LayerType type = LAYER_TYPE_EXPLICIT);
+    bool Load(const Path& full_path_to_file, const std::map<std::string, std::string>& layers_validated,
+              LayerType type = LAYER_TYPE_EXPLICIT);
 
    private:
     Layer& operator=(const Layer&) = delete;
+
+    bool IsBuiltIn() const;
 
     std::vector<std::shared_ptr<SettingMeta> > memory;  // Settings are deleted when all layers instances are deleted.
 };
