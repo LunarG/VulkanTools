@@ -6,8 +6,7 @@
                 "name": "VK_LAYER_LUNARG_crash_diagnostic",
                 "platforms": [
                     "WINDOWS",
-                    "LINUX",
-                    "MACOS"
+                    "LINUX"
                 ],
                 "rank": 1,
                 "settings": [
