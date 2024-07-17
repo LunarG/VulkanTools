@@ -52,6 +52,8 @@ class Path {
     bool IsFile() const;
     bool IsDir() const;
 
+    bool IsBuiltIn() const;
+
     void Clear();
     bool Exists() const;
     bool Create(bool as_file = false) const;
