@@ -124,8 +124,6 @@ LayerManager::LayerManager(const std::vector<Path> &user_defined_paths) {
                                          user_defined_paths.end());
 
     this->paths[LAYERS_PATHS_SDK].push_back(::Get(Path::SDK_BIN));
-
-    this->LoadAllInstalledLayers();
 }
 
 void LayerManager::Clear() { this->selected_layers.clear(); }
@@ -147,7 +145,7 @@ const Layer *LayerManager::Find(const std::string &layer_name) const {
 }
 
 // Find all installed layers on the system.
-void LayerManager::LoadAllInstalledLayers() {
+void LayerManager::LoadAllInstalledLayers(const std::map<std::string, std::string> &layers_validated) {
     this->selected_layers.clear();
 
     for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
@@ -155,17 +153,18 @@ void LayerManager::LoadAllInstalledLayers() {
 
         const std::vector<Path> &paths_group = this->paths[group_index];
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
-            this->LoadLayersFromPath(paths_group[i], layer_type);
+            this->LoadLayersFromPath(paths_group[i], layers_validated, layer_type);
         }
     }
 }
 
-void LayerManager::LoadLayersFromPath(const Path &layers_path, LayerType type) {
+void LayerManager::LoadLayersFromPath(const Path &layers_path, const std::map<std::string, std::string> &layers_validated,
+                                      LayerType type) {
     const std::vector<Path> &layers_paths = layers_path.IsDir() ? CollectFilePaths(layers_path) : GetVector(layers_path);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
         Layer layer;
-        if (layer.Load(layers_paths[i], type)) {
+        if (layer.Load(layers_paths[i], layers_validated, type)) {
             if (this->IsAvailable(layer)) {
                 continue;
             }
