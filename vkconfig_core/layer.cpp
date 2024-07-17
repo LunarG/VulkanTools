@@ -134,7 +134,7 @@ SettingMeta* Layer::Instantiate(SettingMetaSet& meta_set, const std::string& key
     return setting_meta;
 }
 
-bool Layer::Load(const Path& full_path_to_file, LayerType type) {
+bool Layer::Load(const Path& full_path_to_file, const std::map<std::string, std::string>& layers_validated, LayerType type) {
     this->type = type;  // Set layer type, no way to know this from the json file
 
     if (full_path_to_file.Empty()) {
@@ -182,10 +182,7 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type) {
 
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
 
-    std::string current_last_modified = full_path_to_file.LastModified();
-
-    QSettings settings;
-    std::string cached_last_modified = settings.value(full_path_to_file.AbsolutePath().c_str()).toString().toStdString();
+    const std::string& last_modified = full_path_to_file.LastModified();
 
     this->key = ReadStringValue(json_layer_object, "name");
 
@@ -197,11 +194,18 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type) {
 
     JsonValidator validator;
 
-    const bool should_validate = current_last_modified != cached_last_modified;
+    std::string cached_last_modified;
+    auto it = layers_validated.find(this->manifest_path.AbsolutePath());
+    if (it != layers_validated.end()) {
+        cached_last_modified = it->second;
+    }
+    const bool should_validate = !this->manifest_path.IsBuiltIn() && last_modified != cached_last_modified;
     const bool is_valid = should_validate ? validator.Check(json_text) : true;
 
-    if (should_validate && is_valid) {
-        settings.setValue(full_path_to_file.AbsolutePath().c_str(), current_last_modified.c_str());
+    if (!is_valid) {
+        this->validated_last_modified.clear();
+    } else {
+        this->validated_last_modified = last_modified;
     }
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
