@@ -77,6 +77,8 @@ class Configurator {
     void BuildLoaderSettings(const ConfigurationInfo& info, const std::string& executable_path,
                              std::vector<LoaderSettings>& loader_settings_array) const;
 
+    void UpdateLayersValidationCache();
+
    public:
     Environment environment;
     LayerManager layers;

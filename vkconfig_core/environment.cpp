@@ -37,6 +37,7 @@
 #include <QTextStream>
 
 #include <cassert>
+#include <iostream>
 
 static const char* GetApplicationSuffix() {
     static const char* TABLE[] = {
@@ -163,6 +164,18 @@ bool Environment::Load() {
             this->loader_message_types_flags |= GetLogBit(token.c_str());
         }
 
+        // layers json object
+        const QJsonObject& json_layers_object = json_root_object.value("layers").toObject();
+        const QJsonObject& json_layers_validated_object = json_layers_object.value("validated").toObject();
+
+        const QStringList& json_layers_validated_keys = json_layers_validated_object.keys();
+
+        for (int i = 0, n = json_layers_validated_keys.length(); i < n; ++i) {
+            const std::string& manifest_path = json_layers_validated_keys[i].toStdString();
+            const std::string& last_modified = json_layers_validated_object.value(manifest_path.c_str()).toString().toStdString();
+            layers_validated.insert(std::make_pair(manifest_path, last_modified));
+        }
+
         // applications json object
         const QJsonObject& json_applications_object = json_root_object.value("applications").toObject();
 
@@ -239,9 +252,17 @@ bool Environment::Load() {
 
 bool Environment::Save() const {
     const Path& vkconfig_init_path = ::Get(Path::INIT);
+    if (Path(vkconfig_init_path.AbsoluteDir()).Exists()) {
+        std::cout << Path(vkconfig_init_path).AbsoluteDir() << " exists." << std::endl;
+    } else {
+        std::cout << Path(vkconfig_init_path).AbsoluteDir() << " doesn't exist." << std::endl;
+    }
 
     QFile file(vkconfig_init_path.AbsolutePath().c_str());
     const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
+    if (result == false) {
+        std::cout << vkconfig_init_path.AbsolutePath().c_str() << std::endl;
+    }
     assert(result);
 
     QJsonObject json_root_object;
@@ -309,7 +330,13 @@ bool Environment::Save() const {
 
     json_root_object.insert("applications", json_applications_object);
 
+    QJsonObject json_layers_paths_object;
+    for (auto it = this->layers_validated.begin(), end = this->layers_validated.end(); it != end; ++it) {
+        json_layers_paths_object.insert(it->first.c_str(), it->second.c_str());
+    }
+
     QJsonObject json_layers_object;
+    json_layers_object.insert("validated", json_layers_paths_object);
 
     json_root_object.insert("layers", json_layers_object);
 

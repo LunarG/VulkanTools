@@ -302,15 +302,28 @@ Configurator& Configurator::Get() {
 Configurator::Configurator() : environment(), layers(), configurations() {}
 
 Configurator::~Configurator() {
+    this->UpdateLayersValidationCache();
+
     this->configurations.SaveAllConfigurations();
 
     this->Surrender();
 }
 
+void Configurator::UpdateLayersValidationCache() {
+    this->environment.layers_validated.clear();
+
+    for (std::size_t i = 0, n = this->layers.Size(); i < n; ++i) {
+        const Layer& layer = this->layers.selected_layers[i];
+
+        this->environment.layers_validated.insert(
+            std::make_pair(layer.manifest_path.AbsolutePath(), layer.validated_last_modified));
+    }
+}
+
 bool Configurator::Init() {
     // Load simple app settings, the additional search paths, and the
     // override app list.
-    this->layers.LoadAllInstalledLayers();
+    this->layers.LoadAllInstalledLayers(environment.layers_validated);
 
     if (this->environment.has_crashed) {
         this->environment.has_crashed = false;
@@ -373,7 +386,7 @@ bool Configurator::HasOverride() const {
 
 void Configurator::ResetToDefault(bool hard) {
     this->environment.Reset(Environment::CLEAR);
-    this->layers.LoadAllInstalledLayers();
+    this->layers.LoadAllInstalledLayers(this->environment.layers_validated);
     this->configurations.Reset(this->layers.selected_layers);
 }
 

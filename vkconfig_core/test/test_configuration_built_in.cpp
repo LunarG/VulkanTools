@@ -60,9 +60,11 @@ static bool operator==(const Parameter& a, const Parameter& b) {
 
 static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b) { return !(a == b); }
 
+std::map<std::string, std::string> Dummy() { return std::map<std::string, std::string>(); }
+
 struct TestBuilin {
-    TestBuilin() : environment(), layer_manager() {
-        this->layer_manager.LoadLayersFromPath(":/sdk");
+    TestBuilin() : environment(Environment::MODE_UNINITIALIZED), layer_manager() {
+        this->layer_manager.LoadLayersFromPath(":/sdk", Dummy());
         EXPECT_TRUE(!this->layer_manager.selected_layers.empty());
     }
 
