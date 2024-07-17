@@ -54,8 +54,10 @@ class LayerManager {
     Layer* Find(const std::string& layer_name);
     const Layer* Find(const std::string& layer_name) const;
 
-    void LoadAllInstalledLayers();
-    void LoadLayersFromPath(const Path& layers_path, LayerType type = LAYER_TYPE_EXPLICIT);
+    void LoadAllInstalledLayers(const std::map<std::string, std::string>& layers_validated);
+
+    void LoadLayersFromPath(const Path& layers_path, const std::map<std::string, std::string>& layers_validated,
+                            LayerType type = LAYER_TYPE_EXPLICIT);
 
     std::vector<Layer> selected_layers;
 
