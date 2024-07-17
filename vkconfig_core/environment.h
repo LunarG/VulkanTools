@@ -115,6 +115,7 @@ class Environment {
     Path path_import;
 
     ConfigurationInfo global_configuration;
+    std::map<std::string, std::string> layers_validated;
 
    private:
     Environment(const Environment&) = delete;

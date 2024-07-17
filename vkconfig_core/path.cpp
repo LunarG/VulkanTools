@@ -112,6 +112,8 @@ bool Path::IsFile() const { return QFileInfo(this->data.c_str()).isFile(); }
 
 bool Path::IsDir() const { return QFileInfo(this->data.c_str()).isDir(); }
 
+bool Path::IsBuiltIn() const { return this->data.find(":") == 0; }
+
 Path& Path::operator=(const Path& path) {
     this->data = path.data;
     return *this;
@@ -223,7 +225,6 @@ static const Path GetHomePath() {
     }
 
     Path path(result);
-
     if (!path.Exists()) {
         path.Create();
     }
@@ -238,7 +239,12 @@ static const Path GetAppDataPath() {
     };
     static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
 
-    return QDir().homePath().toStdString() + TABLE[VKC_ENV];
+    Path path(QDir().homePath().toStdString() + TABLE[VKC_ENV]);
+    if (!path.Exists()) {
+        path.Create();
+    }
+
+    return path;
 }
 
 static const Path GetInitPath() {
@@ -248,7 +254,14 @@ static const Path GetInitPath() {
     };
     static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
 
-    return GetAppDataPath().RelativePath() + TABLE[VKC_ENV];
+    Path path(GetAppDataPath().RelativePath() + TABLE[VKC_ENV]);
+    Path folder(path.AbsoluteDir());
+
+    if (!folder.Exists()) {
+        folder.Create();
+    }
+
+    return path;
 }
 
 static const Path GetConfigsPath() {
