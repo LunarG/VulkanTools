@@ -32,19 +32,33 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer
         this->layer_version->addItem("Latest");
         int version_index = 0;
 
+        const Layer *selected_layer = nullptr;
+        const Layer *latest_layer = nullptr;
+
         for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
             if (layers[i]->key != parameter.key) {
                 continue;
             }
 
+            if (latest_layer == nullptr) {
+                latest_layer = layers[i];
+            }
+
             if (layers[i]->api_version == parameter.api_version) {
-                this->layer_version->setToolTip(layers[i]->manifest_path.AbsolutePath().c_str());
+                selected_layer = layers[i];
                 version_index = this->layer_version->count();
+            } else if (layers[i]->api_version > latest_layer->api_version) {
+                latest_layer = layers[i];
             }
 
             this->layer_version->addItem(layers[i]->api_version.str().c_str());
         }
         this->layer_version->setCurrentIndex(version_index);
+        if (selected_layer != nullptr) {
+            this->layer_version->setToolTip(selected_layer->manifest_path.AbsolutePath().c_str());
+        } else if (latest_layer != nullptr) {
+            this->layer_version->setToolTip(latest_layer->manifest_path.AbsolutePath().c_str());
+        }
 
         // this->layer_version->setEnabled(layers.size() > 1);
         this->connect(this->layer_version, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_version_currentIndexChanged(int)));
