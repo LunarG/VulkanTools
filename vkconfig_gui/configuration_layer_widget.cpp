@@ -95,7 +95,8 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer
         //    decorated_name += " (32-bit)";
         //}
     }
-    this->setText(decorated_name.c_str());
+
+    this->setText((" =  " + decorated_name).c_str());
 }
 
 bool ConfigurationLayerWidget::eventFilter(QObject *target, QEvent *event) {
@@ -111,8 +112,8 @@ void ConfigurationLayerWidget::resizeEvent(QResizeEvent *event) {
 
     if (this->layer_state != nullptr) {
         const QFontMetrics fm = this->layer_state->fontMetrics();
-        const int width_state = std::max(HorizontalAdvance(fm, "Auto 000"), 80);
-        const int width_version = std::max(HorizontalAdvance(fm, "1.2.199 000"), 80);
+        const int width_state = HorizontalAdvance(fm, "Auto 000");
+        const int width_version = HorizontalAdvance(fm, "1.2.199 000");
 
         const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, size.height());
         this->layer_state->setGeometry(state_button_rect);

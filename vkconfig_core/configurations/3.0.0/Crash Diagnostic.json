@@ -11,10 +11,6 @@
         "layers": [
             {
                 "name": "VK_LAYER_LUNARG_crash_diagnostic",
-                "platforms": [
-                    "WINDOWS",
-                    "LINUX"
-                ],
                 "rank": 1,
                 "settings": [
                     {
