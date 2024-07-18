@@ -27,7 +27,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer
     : layer_name(parameter.key) {
     // const bool is_implicit_layer = layers.empty() ? false : layers[0]->type == LAYER_TYPE_IMPLICIT;
 
-    if (parameter.control != LAYER_CONTROL_APPLICATIONS && parameter.control != LAYER_CONTROL_UNORDERED) {
+    if (parameter.control != LAYER_CONTROL_APPLICATIONS_API && parameter.control != LAYER_CONTROL_APPLICATIONS_ENV) {
         this->layer_version = new QComboBox(this);
         this->layer_version->addItem("Latest");
         int version_index = 0;
@@ -83,7 +83,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer
             return;
         }
 
-        if (parameter.control != LAYER_CONTROL_APPLICATIONS && parameter.control != LAYER_CONTROL_UNORDERED) {
+        if (parameter.control != LAYER_CONTROL_APPLICATIONS_API && parameter.control != LAYER_CONTROL_APPLICATIONS_ENV) {
             decorated_name += " (Missing)";
         }
     } else {
@@ -95,7 +95,8 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer
         //    decorated_name += " (32-bit)";
         //}
     }
-    this->setText(decorated_name.c_str());
+
+    this->setText((" =  " + decorated_name).c_str());
 }
 
 bool ConfigurationLayerWidget::eventFilter(QObject *target, QEvent *event) {
@@ -111,8 +112,8 @@ void ConfigurationLayerWidget::resizeEvent(QResizeEvent *event) {
 
     if (this->layer_state != nullptr) {
         const QFontMetrics fm = this->layer_state->fontMetrics();
-        const int width_state = std::max(HorizontalAdvance(fm, "Auto 000"), 80);
-        const int width_version = std::max(HorizontalAdvance(fm, "1.2.199 000"), 80);
+        const int width_state = HorizontalAdvance(fm, "Auto 000");
+        const int width_version = HorizontalAdvance(fm, "1.2.199 000");
 
         const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, size.height());
         this->layer_state->setGeometry(state_button_rect);
