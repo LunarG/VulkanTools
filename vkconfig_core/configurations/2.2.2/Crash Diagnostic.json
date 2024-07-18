@@ -4,10 +4,6 @@
         "layers": [
             {
                 "name": "VK_LAYER_LUNARG_crash_diagnostic",
-                "platforms": [
-                    "WINDOWS",
-                    "LINUX"
-                ],
                 "rank": 1,
                 "settings": [
                     {
@@ -84,10 +80,9 @@
         "name": "Crash Diagnostic",
         "platforms": [
             "WINDOWS",
-            "LINUX",
-            "MACOS"
+            "LINUX"
         ],
         "view_advanced_settings": false
     },
-    "file_format_version": "2.2.3"
+    "file_format_version": "2.2.2"
 }
