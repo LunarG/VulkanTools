@@ -5,8 +5,7 @@
         "version": 1,
         "platforms": [
             "WINDOWS",
-            "LINUX",
-            "MACOS"
+            "LINUX"
         ],
         "description": "Crash Diagnostic Layer is a crash/hang debugging tool that helps determines GPU progress in a Vulkan application.",
         "layers": [
