@@ -293,16 +293,16 @@ bool Environment::Save() const {
 
             QJsonObject json_option_object;
             json_option_object.insert("label", options.label.c_str());
-            json_option_object.insert("working_folder", options.working_folder.AbsolutePath().c_str());
+            json_option_object.insert("working_folder", options.working_folder.RelativePath().c_str());
             json_option_object.insert("arguments", json_arg_array);
             json_option_object.insert("environment_variables", json_env_array);
-            json_option_object.insert("log_file", options.log_file.AbsolutePath().c_str());
+            json_option_object.insert("log_file", options.log_file.RelativePath().c_str());
 
             json_options_array.append(json_option_object);
         }
         json_application_object.insert("options", json_options_array);
 
-        json_applications_list_object.insert(application.executable_path.AbsolutePath().c_str(), json_application_object);
+        json_applications_list_object.insert(application.executable_path.RelativePath().c_str(), json_application_object);
     }
 
     json_applications_object.insert("list", json_applications_list_object);
