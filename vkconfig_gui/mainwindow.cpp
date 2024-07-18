@@ -599,7 +599,7 @@ void MainWindow::UpdateUI() {
     ui->combo_box_applications->setEnabled(ui->check_box_per_application->isChecked());
     const std::vector<Application> &applications = environment.GetApplications();
     for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
-        ui->combo_box_applications->addItem(applications[i].executable_path.AbsolutePath().c_str());
+        ui->combo_box_applications->addItem(applications[i].executable_path.RelativePath().c_str());
     }
     ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
     ui->combo_box_applications->blockSignals(false);
