@@ -47,9 +47,6 @@
 
 #include <cassert>
 
-static const char *TEXT_EXECUTE_CLOSER_APPLICATION = "Execute Closer to the Vulkan Application";
-static const char *TEXT_EXECUTE_CLOSER_DRIVER = "Execute Closer to the Vulkan Driver";
-
 #if VKC_PLATFORM == VKC_PLATFORM_LINUX || VKC_PLATFORM == VKC_PLATFORM_MACOS
 #include <unistd.h>
 
@@ -278,6 +275,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(_launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_push_button_applications_clicked()));
 
+    this->InitTray();
+
     Configurator &configurator = Configurator::Get();
     Environment &environment = configurator.environment;
 
@@ -337,7 +336,6 @@ MainWindow::MainWindow(QWidget *parent)
     // ui->splitter_configurations->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER2));
     // ui->splitter_settings->restoreState(environment.Get(VKCONFIG3_LAYOUT_MAIN_SPLITTER3));
 
-    this->InitTray();
     this->UpdateTray();
     this->UpdateUI();
 }
@@ -410,7 +408,7 @@ void MainWindow::UpdateTray() {
                 break;
         }
 
-        if (environment.global_configuration.GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS) {
+        if (environment.GetActiveConfigurationInfo().GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS) {
             const QIcon icon(":/resourcefiles/vkconfig-on.png");
 
             this->setWindowIcon(icon);
@@ -514,7 +512,9 @@ static std::string GetMainWindowTitle(bool active) {
 #else
     std::string title = format("%s %s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
 #endif
-    if (active) title += " <ACTIVE>";
+    if (active) {
+        title += " <ACTIVE>";
+    }
     return title;
 }
 
@@ -558,7 +558,7 @@ void MainWindow::AddLayerItem(Parameter &parameter) {
             return;
         }
 
-        if (parameter.control != LAYER_CONTROL_APPLICATIONS && parameter.control != LAYER_CONTROL_UNORDERED) {
+        if (parameter.control != LAYER_CONTROL_APPLICATIONS_API && parameter.control != LAYER_CONTROL_APPLICATIONS_ENV) {
             decorated_name += " (Missing)";
         }
     }
@@ -576,6 +576,12 @@ void MainWindow::AddLayerItem(Parameter &parameter) {
 
     ConfigurationLayerWidget *layer_widget = new ConfigurationLayerWidget(layers, parameter);
     item_state->widget = layer_widget;
+
+    if (parameter.control == LAYER_CONTROL_APPLICATIONS_API) {
+        item_state->widget->setToolTip("Located and Enabled Layers using the Vulkan API by the Vulkan Application");
+    } else if (parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
+        item_state->widget->setToolTip("Located and Enabled Layers using Environment Variables by the Vulkan Application");
+    }
 
     ui->layers_tree->setItemWidget(item_state, layer_widget);
 }
@@ -997,6 +1003,9 @@ void MainWindow::on_combo_box_mode_currentIndexChanged(int index) {
     ui->group_box_configurations->setEnabled(enabled_ui);
     ui->group_box_settings->setEnabled(enabled_ui);
     ui->group_box_layers->setEnabled(enabled_ui);
+
+    this->UpdateTray();
+    this->UpdateUI();
 }
 
 void MainWindow::on_combo_box_applications_currentIndexChanged(int index) {
@@ -1006,6 +1015,9 @@ void MainWindow::on_combo_box_applications_currentIndexChanged(int index) {
     Application &application = configurator.environment.GetApplication(index);
     ui->combo_box_applications->setToolTip(application.executable_path.AbsolutePath().c_str());
     ui->combo_box_mode->setCurrentIndex(configurator.environment.GetActiveConfigurationInfo().GetMode());
+
+    this->UpdateTray();
+    this->UpdateUI();
 }
 
 void MainWindow::on_check_box_per_application_toggled(bool checked) {
@@ -1014,6 +1026,9 @@ void MainWindow::on_check_box_per_application_toggled(bool checked) {
 
     ui->combo_box_applications->setEnabled(configurator.environment.GetPerApplicationConfig());
     ui->combo_box_mode->setCurrentIndex(configurator.environment.GetActiveConfigurationInfo().GetMode());
+
+    this->UpdateTray();
+    this->UpdateUI();
 }
 
 void MainWindow::on_check_box_clear_on_launch_clicked() {

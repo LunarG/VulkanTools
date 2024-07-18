@@ -23,6 +23,7 @@
 #include <array>
 #include <cstring>
 
+// These names are requied by the Vulkan Loader settings file
 const char* GetToken(LayerControl control) {
     static const char* TOKENS[] = {
         "auto",                        // LAYER_CONTROL_AUTO
