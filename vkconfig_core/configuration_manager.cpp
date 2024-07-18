@@ -70,6 +70,8 @@ void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &a
 #ifdef _M_ARM64
         if (configuration.key == "Frame Capture") {
             continue;
+        } else if (configuration.key == "Crash Diagnostic") {
+            continue;
         }
 #endif
 
