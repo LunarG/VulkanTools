@@ -387,4 +387,10 @@ const Configuration* Configurator::GetActiveConfiguration() const {
     return this->configurations.FindConfiguration(info.GetName());
 }
 
-bool Configurator::HasActiveConfiguration() const { return true; }
+bool Configurator::HasActiveConfiguration() const {
+    if (this->environment.GetPerApplicationConfig()) {
+        return this->environment.HasOverriddenApplications();
+    } else {
+        return this->environment.GetActiveConfigurationInfo().GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS;
+    }
+}
