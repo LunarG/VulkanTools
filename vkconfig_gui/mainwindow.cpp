@@ -84,10 +84,14 @@ static PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
 /// Utility function to see if the file is 32-bit
 static bool IsDLL32Bit(const std::string full_path) {
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
-    if (full_path.empty()) return false;
+    if (full_path.empty()) {
+        return false;
+    }
 
     QFile file(full_path.c_str());
-    if (!file.open(QIODevice::ReadOnly)) return false;  // punt...
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;  // punt...
+    }
 
     // Not gonna lie, just guessed 1024 and it was enough.
     // This is the minimum page size on any OS (I might be wrong,
@@ -96,7 +100,9 @@ static bool IsDLL32Bit(const std::string full_path) {
     void *header = file.map(0, 4096, QFileDevice::MapPrivateOption);
 
     // Another punt as we may not be able to map the file
-    if (header == nullptr) return false;
+    if (header == nullptr) {
+        return false;
+    }
 
     PE_ARCHITECTURE arch = GetImageArchitecture(header);
 
@@ -263,6 +269,11 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(OnConfigurationTreeChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     connect(ui->configurations_tree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
             SLOT(OnConfigurationTreeClicked(QTreeWidgetItem *, int)));
+
+    connect(ui->layers_tree, SIGNAL(itemChanged(QListWidgetItem *, int)), this, SLOT(OnLayersItemChanged(QListWidgetItem *, int)));
+    connect(ui->layers_tree, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), this,
+            SLOT(OnLayersTreeChanged(QListWidgetItem *, QListWidgetItem *)));
+    connect(ui->layers_tree, SIGNAL(indexesMoved(int)), this, SLOT(OnLayersIndexesMoved(const QModelIndexList &)));
 
     connect(ui->settings_tree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(editorExpanded(QTreeWidgetItem *)));
     connect(ui->settings_tree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
@@ -710,38 +721,9 @@ void MainWindow::UpdateUI() {
         Configuration *configuration =
             FindByKey(configurator.configurations.available_configurations, selected_contiguration_name.c_str());
         if (configuration != nullptr) {
-            std::vector<Parameter> parameters = GatherParameters(configuration->parameters, configurator.layers.selected_layers);
-            /*
-            {
-                QListWidgetItem *item = new QListWidgetItem();
-                ui->layers_tree->addItem(item);
-                item->setText(TEXT_EXECUTE_CLOSER_APPLICATION);
-                //item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
-                item->setFlags(0);
-                item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-                QFont font = item->font();
-                font.setItalic(true);
-                item->setFont(font);
-                // item->setDisabled(true);
+            for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+                AddLayerItem(configuration->parameters[i]);
             }
-            */
-            for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-                AddLayerItem(parameters[i]);
-            }
-            /*
-            {
-                QListWidgetItem *item = new QListWidgetItem();
-                ui->layers_tree->addItem(item);
-                item->setText(TEXT_EXECUTE_CLOSER_DRIVER);
-                //item->setFlags(item->flags() & ~Qt::ItemIsSelectable);
-                item->setFlags(0);
-                item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-                QFont font = item->font();
-                font.setItalic(true);
-                item->setFont(font);
-                // item->setDisabled(true);
-            }
-            */
             resizeEvent(nullptr);
 
             ui->layers_tree->update();
@@ -1807,7 +1789,15 @@ static const Layer *GetLayer(QListWidget *tree, QListWidgetItem *item) {
 }
 
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
-    if (event->type() == QEvent::Wheel) {
+    QEvent::Type event_type = event->type();
+
+    if (event_type == QEvent::Wheel) {
+        return true;
+    }
+
+    if (event_type == QEvent::ChildRemoved) {
+        // Layers were reordered, we need to update the configuration
+        Configurator::Get().Override();
         return true;
     }
 
