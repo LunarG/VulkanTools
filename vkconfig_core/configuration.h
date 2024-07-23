@@ -33,6 +33,7 @@ class Configuration {
     Configuration();
 
     static Configuration CreateDisabled(const std::vector<Layer>& available_layers);
+    static Configuration Create(const std::vector<Layer>& available_layers, const std::string& key);
 
     bool Load(const Path& full_path, const std::vector<Layer>& available_layers);
     bool Save(const Path& full_path, bool exporter = false) const;
