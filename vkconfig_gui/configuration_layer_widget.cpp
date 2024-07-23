@@ -100,7 +100,14 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer
 }
 
 bool ConfigurationLayerWidget::eventFilter(QObject *target, QEvent *event) {
-    if (event->type() == QEvent::Wheel) {
+    QEvent::Type event_type = event->type();
+
+    if (event_type == QEvent::Wheel) {
+        return true;
+    }
+
+    if (event_type == QEvent::DragEnter || event_type == QEvent::DragMove || event_type == QEvent::DragLeave ||
+        event_type == QEvent::DragEnter) {
         return true;
     }
 
