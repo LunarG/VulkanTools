@@ -40,8 +40,13 @@ bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
         for (std::size_t i = 0, n = this->settings.size(); i < n; ++i) {
             SettingData* current_setting = this->settings[i];
 
-            if (current_setting->key != preset_setting->key) continue;
-            if (current_setting->type != preset_setting->type) continue;
+            if (current_setting->key != preset_setting->key) {
+                continue;
+            }
+
+            if (current_setting->type != preset_setting->type) {
+                continue;
+            }
 
             this->settings[i]->Copy(preset_setting);
         }
@@ -229,25 +234,13 @@ std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters
         Parameter parameter;
         parameter.key = layer.key;
         parameter.control = LAYER_CONTROL_AUTO;
-        // parameter.api_version = layer.api_version;
-        // CollectDefaultSettingData(layer.settings, parameter.settings);
+        parameter.api_version = Version::VERSION_NULL;
+        CollectDefaultSettingData(layer.settings, parameter.settings);
 
         gathered_parameters.push_back(parameter);
     }
 
-    OrderParameter(gathered_parameters, available_layers);
-
-    Parameter applications_enabled_layers_api;
-    applications_enabled_layers_api.key = "Vulkan Application Layers from the Vulkan API";
-    applications_enabled_layers_api.control = LAYER_CONTROL_APPLICATIONS_API;
-    applications_enabled_layers_api.overridden_rank = 998;
-    gathered_parameters.push_back(applications_enabled_layers_api);
-
-    Parameter applications_enabled_layers_env;
-    applications_enabled_layers_env.key = "Vulkan Application Layers from Environment Variables";
-    applications_enabled_layers_env.control = LAYER_CONTROL_APPLICATIONS_ENV;
-    applications_enabled_layers_env.overridden_rank = 999;
-    gathered_parameters.push_back(applications_enabled_layers_env);
+    // OrderParameter(gathered_parameters, available_layers);
 
     return gathered_parameters;
 }

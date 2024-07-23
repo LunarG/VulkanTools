@@ -91,11 +91,15 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             if (!IsPlatformSupported(parameter.platform_flags)) {
                 continue;
             }
-            /*
-            if (parameter.control != LAYER_STATE_OVERRIDDEN) {
+
+            if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
                 continue;
             }
-            */
+
+            if (parameter.settings.empty()) {
+                continue;
+            }
+
             const std::vector<Layer> &selected_layers = configurator.layers.selected_layers;
             const Layer *layer = FindByKey(selected_layers, parameter.key.c_str());
 
@@ -113,16 +117,12 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
             layer_item->setText(0, layer_text.c_str());
             layer_item->setFont(0, font_layer);
             layer_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            if (layer != nullptr) layer_item->setToolTip(0, layer->description.c_str());
-            layer_item->setExpanded(true);
+            if (layer != nullptr) {
+                layer_item->setToolTip(0, layer->description.c_str());
+            }
+            layer_item->setExpanded(parameter.control == LAYER_CONTROL_ON);
 
-            if (layer == nullptr) continue;
-
-            // Handle the case were we get off easy. No settings.
-            if (parameter.settings.empty()) {
-                QTreeWidgetItem *layer_child_item = new QTreeWidgetItem();
-                layer_child_item->setText(0, "No User Settings");
-                layer_item->addChild(layer_child_item);
+            if (layer == nullptr) {
                 continue;
             }
 
@@ -201,7 +201,34 @@ void SettingsTreeManager::OnCollapsedChanged(const QModelIndex &index) {
     }
 }
 
+static bool IsBuiltinValidationSetting(const Parameter &parameter, const std::string &key) {
+    if (parameter.key != "VK_LAYER_KHRONOS_validation") {
+        return false;
+    }
+
+    std::vector<std::string> keys;
+    keys.push_back("enables");
+    keys.push_back("disables");
+
+    if (parameter.api_version.GetPatch() < 242) {
+        keys.push_back("printf_to_stdout");
+        keys.push_back("printf_verbose");
+        keys.push_back("printf_buffer_size");
+        keys.push_back("gpuav_buffer_oob");
+        keys.push_back("warn_on_robust_oob");
+        keys.push_back("validate_draw_indirect");
+        keys.push_back("vma_linear_output");
+        keys.push_back("fine_grained_locking");
+    }
+
+    return IsStringFound(keys, key);
+}
+
 void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &parameter, const SettingMeta &meta_object) {
+    if (IsBuiltinValidationSetting(parameter, meta_object.key)) {
+        return;
+    }
+
     if (!IsPlatformSupported(meta_object.platform_flags)) {
         return;
     }
