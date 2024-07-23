@@ -43,10 +43,13 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
         const Configurator::LoaderLayerSettings& layer = loader_settings.layers[j];
 
         QJsonObject json_layer;
-        json_layer.insert("name", layer.key.c_str());
-        json_layer.insert("path", layer.path.c_str());
+        if (layer.control != LAYER_CONTROL_APPLICATIONS_API && layer.control != LAYER_CONTROL_APPLICATIONS_ENV) {
+            json_layer.insert("name", layer.key.c_str());
+            json_layer.insert("path", layer.path.c_str());
+            json_layer.insert("treat_as_implicit_manifest", layer.implicit);
+        }
+
         json_layer.insert("control", ToLowerCase(::GetToken(layer.control)).c_str());
-        json_layer.insert("treat_as_implicit_manifest", layer.implicit);
         json_layers.append(json_layer);
     }
 
@@ -100,18 +103,22 @@ void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std:
             continue;
         }
 
-        const Layer* layer = FindByKey(this->layers.selected_layers, parameter.key.c_str());
-        if (layer == nullptr) {
-            continue;
-        }
+        if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
+            loader_layer_settings.control = parameter.control;
+        } else {
+            const Layer* layer = FindByKey(this->layers.selected_layers, parameter.key.c_str());
+            if (layer == nullptr) {
+                continue;
+            }
 
-        // Extract just the path
-        loader_layer_settings.key = parameter.key;
-        if (layer != nullptr) {
-            loader_layer_settings.path = layer->manifest_path.AbsolutePath();
+            // Extract just the path
+            loader_layer_settings.key = parameter.key;
+            if (layer != nullptr) {
+                loader_layer_settings.path = layer->manifest_path.AbsolutePath();
+            }
+            loader_layer_settings.control = parameter.control;
+            loader_layer_settings.implicit = layer != nullptr ? layer->type == LAYER_TYPE_IMPLICIT : false;
         }
-        loader_layer_settings.control = parameter.control;
-        loader_layer_settings.implicit = layer != nullptr ? layer->type == LAYER_TYPE_IMPLICIT : false;
 
         result.layers.push_back(loader_layer_settings);
     }

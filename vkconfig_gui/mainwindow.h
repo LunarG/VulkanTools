@@ -213,7 +213,9 @@ class MainWindow : public QMainWindow {
     void OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void OnConfigurationItemChanged(QTreeWidgetItem *item, int column);
     void OnConfigurationTreeClicked(QTreeWidgetItem *item, int column);
+
     void OnSettingsTreeClicked(QTreeWidgetItem *item, int column);
+
     void OnLauncherLoaderMessageChanged(int level);
 
     void standardOutputAvailable();                                 // stdout output is available
