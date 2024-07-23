@@ -39,8 +39,33 @@
 #include <string>
 #include <algorithm>
 
+static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) {
+    Parameter applications_enabled_layers_api;
+    applications_enabled_layers_api.key = "Vulkan Layers from the Application Vulkan API";
+    applications_enabled_layers_api.control = LAYER_CONTROL_APPLICATIONS_API;
+    applications_enabled_layers_api.overridden_rank = 998;
+    parameters.push_back(applications_enabled_layers_api);
+
+    Parameter applications_enabled_layers_env;
+    applications_enabled_layers_env.key = "Vulkan Layers from Application Environment Variables";
+    applications_enabled_layers_env.control = LAYER_CONTROL_APPLICATIONS_ENV;
+    applications_enabled_layers_env.overridden_rank = 999;
+    parameters.push_back(applications_enabled_layers_env);
+}
+
 Configuration::Configuration()
     : key("New Configuration"), version(1), platform_flags(PLATFORM_DESKTOP_BIT), view_advanced_settings(false) {}
+
+Configuration Configuration::Create(const std::vector<Layer>& available_layers, const std::string& key) {
+    Configuration result;
+
+    result.key = key;
+    result.parameters = GatherParameters(result.parameters, available_layers);
+
+    AddApplicationEnabledParameters(result.parameters);
+
+    return result;
+}
 
 Configuration Configuration::CreateDisabled(const std::vector<Layer>& available_layers) {
     Configuration result;
@@ -50,6 +75,8 @@ Configuration Configuration::CreateDisabled(const std::vector<Layer>& available_
     for (std::size_t i = 0, n = result.parameters.size(); i < n; ++i) {
         result.parameters[i].control = LAYER_CONTROL_OFF;
     }
+
+    AddApplicationEnabledParameters(result.parameters);
 
     return result;
 }
@@ -191,6 +218,8 @@ bool Configuration::Load(const Path& full_path, const std::vector<Layer>& availa
         this->parameters.push_back(parameter);
     }
 
+    this->parameters = GatherParameters(this->parameters, available_layers);
+
     return true;
 }
 
@@ -213,9 +242,6 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
 
     for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
         const Parameter& parameter = this->parameters[i];
-        if (parameter.control == LAYER_CONTROL_AUTO) {
-            continue;
-        }
 
         QJsonObject json_layer;
         json_layer.insert("name", parameter.key.c_str());
