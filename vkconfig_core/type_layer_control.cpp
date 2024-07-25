@@ -19,6 +19,7 @@
  */
 
 #include "type_layer_control.h"
+#include "util.h"
 
 #include <array>
 #include <cstring>
@@ -26,9 +27,9 @@
 // These names are requied by the Vulkan Loader settings file
 const char* GetToken(LayerControl control) {
     static const char* TOKENS[] = {
-        "auto",                        // LAYER_CONTROL_AUTO
-        "on",                          // LAYER_CONTROL_ON
-        "off",                         // LAYER_CONTROL_OFF
+        "Auto",                        // LAYER_CONTROL_AUTO
+        "On",                          // LAYER_CONTROL_ON
+        "Off",                         // LAYER_CONTROL_OFF
         "application_enabled_layers",  // LAYER_CONTROL_APPLICATIONS
         "unordered_layer_location"     // LAYER_CONTROL_UNORDERED
     };
@@ -40,7 +41,7 @@ const char* GetToken(LayerControl control) {
 LayerControl GetLayerControl(const char* token) {
     for (int i = LAYER_CONTROL_FIRST, l = LAYER_CONTROL_LAST; i <= l; ++i) {
         const LayerControl type = static_cast<LayerControl>(i);
-        if (std::strcmp(::GetToken(type), token) == 0) {
+        if (ToLowerCase(::GetToken(type)) == ToLowerCase(token)) {
             return type;
         }
     }

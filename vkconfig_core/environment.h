@@ -117,6 +117,8 @@ class Environment {
     ConfigurationInfo global_configuration;
     std::map<std::string, std::string> layers_validated;
 
+    std::string selected_layer_name;
+
    private:
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
