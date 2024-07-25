@@ -40,21 +40,42 @@
 #include <algorithm>
 
 static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) {
-    Parameter applications_enabled_layers_api;
-    applications_enabled_layers_api.key = "Vulkan Layers from the Application Vulkan API";
-    applications_enabled_layers_api.control = LAYER_CONTROL_APPLICATIONS_API;
-    applications_enabled_layers_api.overridden_rank = 998;
-    parameters.push_back(applications_enabled_layers_api);
+    bool found_applications_api = false;
+    for (auto paramater : parameters) {
+        if (paramater.control != LAYER_CONTROL_APPLICATIONS_API) {
+            continue;
+        }
 
-    Parameter applications_enabled_layers_env;
-    applications_enabled_layers_env.key = "Vulkan Layers from Application Environment Variables";
-    applications_enabled_layers_env.control = LAYER_CONTROL_APPLICATIONS_ENV;
-    applications_enabled_layers_env.overridden_rank = 999;
-    parameters.push_back(applications_enabled_layers_env);
+        found_applications_api = true;
+        break;
+    }
+
+    if (!found_applications_api) {
+        Parameter applications_enabled_layers_api;
+        applications_enabled_layers_api.key = "Vulkan Layers from the Application Vulkan API";
+        applications_enabled_layers_api.control = LAYER_CONTROL_APPLICATIONS_API;
+        applications_enabled_layers_api.overridden_rank = 998;
+        parameters.push_back(applications_enabled_layers_api);
+    }
+
+    bool found_applications_env = false;
+    for (auto paramater : parameters) {
+        if (paramater.control != LAYER_CONTROL_APPLICATIONS_ENV) {
+            continue;
+        }
+
+        found_applications_env = true;
+        break;
+    }
+
+    if (!found_applications_env) {
+        Parameter applications_enabled_layers_env;
+        applications_enabled_layers_env.key = "Vulkan Layers from Application Environment Variables";
+        applications_enabled_layers_env.control = LAYER_CONTROL_APPLICATIONS_ENV;
+        applications_enabled_layers_env.overridden_rank = 999;
+        parameters.push_back(applications_enabled_layers_env);
+    }
 }
-
-Configuration::Configuration()
-    : key("New Configuration"), version(1), platform_flags(PLATFORM_DESKTOP_BIT), view_advanced_settings(false) {}
 
 Configuration Configuration::Create(const std::vector<Layer>& available_layers, const std::string& key) {
     Configuration result;
@@ -127,6 +148,10 @@ bool Configuration::Load(const Path& full_path, const std::vector<Layer>& availa
 
     if (json_configuration_object.value("view_advanced_settings") != QJsonValue::Undefined) {
         this->view_advanced_settings = ReadBoolValue(json_configuration_object, "view_advanced_settings");
+    }
+
+    if (json_configuration_object.value("view_advanced_layers") != QJsonValue::Undefined) {
+        this->view_advanced_layers = ReadBoolValue(json_configuration_object, "view_advanced_layers");
     }
 
     if (json_configuration_object.value("platforms") != QJsonValue::Undefined) {
@@ -220,6 +245,8 @@ bool Configuration::Load(const Path& full_path, const std::vector<Layer>& availa
 
     this->parameters = GatherParameters(this->parameters, available_layers);
 
+    AddApplicationEnabledParameters(this->parameters);
+
     return true;
 }
 
@@ -282,6 +309,7 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
         json_configuration.insert("expanded_states", this->setting_tree_state.data());
     }
     json_configuration.insert("view_advanced_settings", this->view_advanced_settings);
+    json_configuration.insert("view_advanced_layers", this->view_advanced_layers);
     json_configuration.insert("layers", json_layers);
 
     QJsonArray json_paths;

@@ -63,7 +63,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     this->tree = build_tree;
 
     Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration == nullptr) {
+    if (configuration == nullptr || configurator.environment.selected_layer_name.empty()) {
         return;
     }
 
@@ -88,6 +88,11 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         // There will be one top level item for each layer
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
+
+            if (configurator.environment.selected_layer_name.find(parameter.key) == std::string::npos) {
+                continue;
+            }
+
             if (!IsPlatformSupported(parameter.platform_flags)) {
                 continue;
             }
@@ -128,12 +133,12 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
 
             if (!layer->presets.empty()) {
                 QTreeWidgetItem *presets_item = new QTreeWidgetItem();
-                layer_item->addChild(presets_item);
+                this->tree->addTopLevelItem(presets_item);
                 WidgetPreset *presets_combobox = new WidgetPreset(this->tree, presets_item, *layer, parameter);
                 this->connect(presets_combobox, SIGNAL(itemChanged()), this, SLOT(OnPresetChanged()));
             }
 
-            BuildGenericTree(layer_item, parameter);
+            BuildGenericTree(parameter);
         }
     }
 
@@ -244,7 +249,11 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-    parent->addChild(item);
+    if (parent == nullptr) {
+        this->tree->addTopLevelItem(item);
+    } else {
+        parent->addChild(item);
+    }
 
     switch (meta_object.type) {
         case SETTING_GROUP: {
@@ -360,12 +369,12 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
     }
 }
 
-void SettingsTreeManager::BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter) {
+void SettingsTreeManager::BuildGenericTree(Parameter &parameter) {
     std::vector<Layer> &available_layers = Configurator::Get().layers.selected_layers;
 
     const SettingMetaSet &settings = FindByKey(available_layers, parameter.key.c_str())->settings;
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
-        this->BuildTreeItem(parent, parameter, *settings[i]);
+        this->BuildTreeItem(nullptr, parameter, *settings[i]);
     }
 }
 

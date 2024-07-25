@@ -23,12 +23,16 @@
 
 #include "../vkconfig_core/configurator.h"
 
-ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer *> &layers, const Parameter &parameter)
+ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer *> &layers, const Parameter &parameter,
+                                                   bool advanced_view)
     : layer_name(parameter.key) {
     // const bool is_implicit_layer = layers.empty() ? false : layers[0]->type == LAYER_TYPE_IMPLICIT;
 
+    Version api_version;
+
     if (parameter.control != LAYER_CONTROL_APPLICATIONS_API && parameter.control != LAYER_CONTROL_APPLICATIONS_ENV) {
         this->layer_version = new QComboBox(this);
+        this->layer_version->setVisible(advanced_view);
         this->layer_version->addItem("Latest");
         int version_index = 0;
 
@@ -55,8 +59,10 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer
         }
         this->layer_version->setCurrentIndex(version_index);
         if (selected_layer != nullptr) {
+            api_version = selected_layer->api_version;
             this->layer_version->setToolTip(selected_layer->manifest_path.AbsolutePath().c_str());
         } else if (latest_layer != nullptr) {
+            api_version = latest_layer->api_version;
             this->layer_version->setToolTip(latest_layer->manifest_path.AbsolutePath().c_str());
         }
 
@@ -65,9 +71,9 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer
         // this->layer_version->installEventFilter(this);
 
         this->layer_state = new QComboBox(this);
-        this->layer_state->addItem("Auto");
-        this->layer_state->addItem("On");
-        this->layer_state->addItem("Off");
+        for (int i = LAYER_CONTROL_UI_FIRST; i <= LAYER_CONTROL_UI_LAST; ++i) {
+            this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
+        }
         this->layer_state->setEnabled(!layers.empty());
         this->layer_state->setCurrentIndex(parameter.control);
         this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
@@ -87,6 +93,10 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer
             decorated_name += " (Missing)";
         }
     } else {
+        if (!advanced_view && api_version != Version::VERSION_NULL) {
+            decorated_name += format(" - %s", api_version.str().c_str());
+        }
+
         if (layers[0]->status != STATUS_STABLE) {
             decorated_name += format(" (%s)", GetToken(layers[0]->status));
         }
