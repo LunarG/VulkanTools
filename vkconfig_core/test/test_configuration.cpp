@@ -62,7 +62,7 @@ TEST(test_configuration, load_and_save) {
     Configuration configuration_loaded;
     const bool load_loaded = configuration_loaded.Load(":/test/Configuration 3.0.0.json", std::vector<Layer>());
     EXPECT_TRUE(load_loaded);
-    EXPECT_EQ(1, configuration_loaded.parameters.size());
+    EXPECT_EQ(3, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
     Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_2_1");
