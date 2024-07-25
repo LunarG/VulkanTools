@@ -58,7 +58,7 @@ class SettingsTreeManager : QObject {
     SettingsTreeManager(const SettingsTreeManager &) = delete;
     SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
 
-    void BuildGenericTree(QTreeWidgetItem *parent, Parameter &parameter);
+    void BuildGenericTree(Parameter &parameter);
     void BuildTreeItem(QTreeWidgetItem *parent, Parameter &parameter, const SettingMeta &meta);
 
     void RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent);
