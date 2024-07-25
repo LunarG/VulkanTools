@@ -30,8 +30,6 @@
 
 class Configuration {
    public:
-    Configuration();
-
     static Configuration CreateDisabled(const std::vector<Layer>& available_layers);
     static Configuration Create(const std::vector<Layer>& available_layers, const std::string& key);
 
@@ -44,12 +42,13 @@ class Configuration {
 
     std::size_t Size() const { return this->parameters.size(); };
 
-    std::string key;  // User readable display of the configuration name (may contain spaces)
-    int version;
-    int platform_flags;
+    std::string key = "New Configuration";  // User readable display of the configuration name (may contain spaces)
+    int version = 1;
+    int platform_flags = PLATFORM_DESKTOP_BIT;
     std::string description;        // A friendly description of what this profile does
     QByteArray setting_tree_state;  // Recall editor tree state
-    bool view_advanced_settings;
+    bool view_advanced_settings = false;
+    bool view_advanced_layers = false;
 
     std::vector<Parameter> parameters;
     std::vector<Path> user_defined_paths;

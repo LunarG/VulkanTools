@@ -223,7 +223,7 @@ bool Configurator::WriteLayersSettings(const Path& layers_settings_path) {
                 continue;
             }
 
-            const Layer* layer = FindByKey(this->layers.selected_layers, parameter.key.c_str());
+            const Layer* layer = this->layers.Find(parameter.key.c_str());
             if (layer == nullptr) {
                 has_missing_layers = true;
                 continue;
