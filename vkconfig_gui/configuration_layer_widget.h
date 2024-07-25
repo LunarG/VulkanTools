@@ -32,7 +32,7 @@ class ConfigurationLayerWidget : public QLabel {
     Q_OBJECT
 
    public:
-    ConfigurationLayerWidget(const std::vector<const Layer *> &layers, const Parameter &parameter);
+    ConfigurationLayerWidget(const std::vector<const Layer *> &layers, const Parameter &parameter, bool advanced_view);
 
    protected:
     bool eventFilter(QObject *target, QEvent *event);

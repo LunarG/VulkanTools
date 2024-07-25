@@ -45,9 +45,6 @@ class ConfigurationListItem : public QTreeWidgetItem {
     ConfigurationListItem(const std::string &configuration_name) : configuration_name(configuration_name) {}
     std::string configuration_name;
     QRadioButton *radio_button;
-    QPushButton *push_button_reset;
-    QPushButton *push_button_duplicate;
-    QPushButton *push_button_remove;
 
    private:
     ConfigurationListItem(const ConfigurationListItem &) = delete;
@@ -159,7 +156,7 @@ class MainWindow : public QMainWindow {
     void ImportClicked(ConfigurationListItem *item);
 
     void AddLayerPathItem(const std::string &layer_path);
-    void AddLayerItem(Parameter &parameter);
+    void AddLayerItem(Parameter &parameter, bool advanced_view);
 
    private slots:
     void trayActionRestore();
@@ -210,11 +207,15 @@ class MainWindow : public QMainWindow {
     void on_combo_box_mode_currentIndexChanged(int index);
     void on_combo_box_applications_currentIndexChanged(int index);
 
+    void on_combo_box_layers_view_currentIndexChanged(int index);
+
     void OnConfigurationItemExpanded(QTreeWidgetItem *item);
     void OnConfigurationItemClicked(bool checked);
     void OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void OnConfigurationItemChanged(QTreeWidgetItem *item, int column);
     void OnConfigurationTreeClicked(QTreeWidgetItem *item, int column);
+
+    void OnLayerCurrentRowChanged(int currentRow);
 
     void OnSettingsTreeClicked(QTreeWidgetItem *item, int column);
 
