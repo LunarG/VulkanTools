@@ -70,12 +70,15 @@ config("vulkan_layer_config") {
 
 vt_sources = [
   "layersvt/generated/api_dump.cpp",
+  "layersvt/generated/api_dump_text.h",
   "layersvt/generated/api_dump_html.h",
   "layersvt/generated/api_dump_json.h",
-  "layersvt/generated/api_dump_text.h",
+  "layersvt/generated/api_dump_text.cpp",
+  "layersvt/generated/api_dump_html.cpp",
+  "layersvt/generated/api_dump_json.cpp",
+  "layersvt/generated/api_dump_video_text.h",
   "layersvt/generated/api_dump_video_html.h",
   "layersvt/generated/api_dump_video_json.h",
-  "layersvt/generated/api_dump_video_text.h",
   "layersvt/api_dump.h",
   "layersvt/vk_layer_table.cpp",
   "layersvt/vk_layer_table.h",

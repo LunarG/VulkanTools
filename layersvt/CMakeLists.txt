@@ -57,12 +57,15 @@ if(BUILD_APIDUMP)
 
     target_sources(VkLayer_api_dump PRIVATE
         generated/api_dump.cpp
+        generated/api_dump_text.h
         generated/api_dump_html.h
         generated/api_dump_json.h
-        generated/api_dump_text.h
+        generated/api_dump_text.cpp
+        generated/api_dump_html.cpp
+        generated/api_dump_json.cpp
+        generated/api_dump_video_text.h
         generated/api_dump_video_html.h
         generated/api_dump_video_json.h
-        generated/api_dump_video_text.h
         api_dump.h
         vk_layer_table.cpp
         vk_layer_table.h

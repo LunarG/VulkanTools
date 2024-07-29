@@ -49,7 +49,10 @@ def main(argv):
                    filename] for filename in ["api_dump.cpp",
                                               "api_dump_text.h",
                                               "api_dump_html.h",
-                                              "api_dump_json.h"]]]
+                                              "api_dump_json.h",
+                                              "api_dump_text.cpp",
+                                              "api_dump_html.cpp",
+                                              "api_dump_json.cpp"]]]
 
     gen_video_cmds = [*[[repo_relative('scripts/vt_genvk.py'),
                    '-registry', os.path.abspath(os.path.join(args.registry, 'video.xml')),
