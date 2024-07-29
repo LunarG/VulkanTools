@@ -26,10 +26,7 @@
 
 #pragma once
 
-#include "api_dump.h"
-#include "api_dump_video_text.h"
-
-
+#include "api_dump_text.h"
 
 
 //=========================== Type Implementations ==========================//

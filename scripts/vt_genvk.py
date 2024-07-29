@@ -150,7 +150,8 @@ def makeGenOpts(args):
             apientry          = 'VKAPI_CALL ',
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
-            expandEnumerants = False)
+            expandEnumerants  = False,
+            isVideoGeneration = False)
         ]
 
     # API dump generator options for api_dump_text.h
@@ -158,7 +159,7 @@ def makeGenOpts(args):
         ApiDumpOutputGenerator,
         ApiDumpGeneratorOptions(
             conventions       = conventions,
-            input             = TEXT_CODEGEN,
+            input             = TEXT_CODEGEN_HEADER,
             filename          = 'api_dump_text.h',
             apiname           = 'vulkan',
             genpath           = None,
@@ -179,7 +180,38 @@ def makeGenOpts(args):
             apientry          = 'VKAPI_CALL ',
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
-            expandEnumerants  = False)
+            expandEnumerants  = False,
+            isVideoGeneration = False)
+    ]
+
+      # API dump generator options for api_dump_text.cpp
+    genOpts['api_dump_text.cpp'] = [
+        ApiDumpOutputGenerator,
+        ApiDumpGeneratorOptions(
+            conventions       = conventions,
+            input             = TEXT_CODEGEN_IMPLEMENTATION,
+            filename          = 'api_dump_text.cpp',
+            apiname           = 'vulkan',
+            genpath           = None,
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            genFuncPointers   = True,
+            protectFile       = protect,
+            protectFeature    = False,
+            protectProto      = None,
+            protectProtoStr   = 'VK_NO_PROTOTYPES',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            expandEnumerants  = False,
+            isVideoGeneration = False)
     ]
 
     # API dump generator options for api_dump_video_text.h
@@ -187,7 +219,7 @@ def makeGenOpts(args):
         ApiDumpOutputGenerator,
         ApiDumpGeneratorOptions(
             conventions       = conventions,
-            input             = TEXT_CODEGEN,
+            input             = TEXT_CODEGEN_IMPLEMENTATION,
             filename          = 'api_dump_video_text.h',
             apiname           = 'vulkan',
             genpath           = None,
@@ -217,7 +249,7 @@ def makeGenOpts(args):
         ApiDumpOutputGenerator,
         ApiDumpGeneratorOptions(
             conventions       = conventions,
-            input             = HTML_CODEGEN,
+            input             = HTML_CODEGEN_HEADER,
             filename          = 'api_dump_html.h',
             apiname           = 'vulkan',
             genpath           = None,
@@ -238,7 +270,38 @@ def makeGenOpts(args):
             apientry          = 'VKAPI_CALL ',
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
-            expandEnumerants  = False)
+            expandEnumerants  = False,
+            isVideoGeneration = False)
+    ]
+
+        # API dump generator options for api_dump_html.cpp
+    genOpts['api_dump_html.cpp'] = [
+        ApiDumpOutputGenerator,
+        ApiDumpGeneratorOptions(
+            conventions       = conventions,
+            input             = HTML_CODEGEN_IMPLEMENTATION,
+            filename          = 'api_dump_html.cpp',
+            apiname           = 'vulkan',
+            genpath           = None,
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            genFuncPointers   = True,
+            protectFile       = protect,
+            protectFeature    = False,
+            protectProto      = None,
+            protectProtoStr   = 'VK_NO_PROTOTYPES',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            expandEnumerants  = False,
+            isVideoGeneration = False)
     ]
 
      # API dump generator options for api_dump_video_html.h
@@ -246,7 +309,7 @@ def makeGenOpts(args):
         ApiDumpOutputGenerator,
         ApiDumpGeneratorOptions(
             conventions       = conventions,
-            input             = HTML_CODEGEN,
+            input             = HTML_CODEGEN_IMPLEMENTATION,
             filename          = 'api_dump_video_html.h',
             apiname           = 'vulkan',
             genpath           = None,
@@ -276,7 +339,7 @@ def makeGenOpts(args):
         ApiDumpOutputGenerator,
         ApiDumpGeneratorOptions(
             conventions       = conventions,
-            input             = JSON_CODEGEN,
+            input             = JSON_CODEGEN_HEADER,
             filename          = 'api_dump_json.h',
             apiname           = 'vulkan',
             genpath           = None,
@@ -297,7 +360,38 @@ def makeGenOpts(args):
             apientry          = 'VKAPI_CALL ',
             apientryp         = 'VKAPI_PTR *',
             alignFuncParam    = 48,
-            expandEnumerants  = False)
+            expandEnumerants  = False,
+            isVideoGeneration = False)
+    ]
+
+    # API dump generator options for api_dump_json.cpp
+    genOpts['api_dump_json.cpp'] = [
+        ApiDumpOutputGenerator,
+        ApiDumpGeneratorOptions(
+            conventions       = conventions,
+            input             = JSON_CODEGEN_IMPLEMENTATION,
+            filename          = 'api_dump_json.cpp',
+            apiname           = 'vulkan',
+            genpath           = None,
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            genFuncPointers   = True,
+            protectFile       = protect,
+            protectFeature    = False,
+            protectProto      = None,
+            protectProtoStr   = 'VK_NO_PROTOTYPES',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48,
+            expandEnumerants  = False,
+            isVideoGeneration = False)
     ]
 
     # API dump generator options for api_dump_video_json.h
@@ -305,7 +399,7 @@ def makeGenOpts(args):
         ApiDumpOutputGenerator,
         ApiDumpGeneratorOptions(
             conventions       = conventions,
-            input             = JSON_CODEGEN,
+            input             = JSON_CODEGEN_IMPLEMENTATION,
             filename          = 'api_dump_video_json.h',
             apiname           = 'vulkan',
             genpath           = None,
@@ -438,7 +532,7 @@ if __name__ == '__main__':
     from cgenerator import CGeneratorOptions, COutputGenerator
 
     # VulkanTools generator additions
-    from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN, HTML_CODEGEN, JSON_CODEGEN
+    from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN_HEADER, TEXT_CODEGEN_IMPLEMENTATION, HTML_CODEGEN_HEADER, HTML_CODEGEN_IMPLEMENTATION, JSON_CODEGEN_HEADER, JSON_CODEGEN_IMPLEMENTATION
     from vkconventions import VulkanConventions
 
     # This splits arguments which are space-separated lists

@@ -28,10 +28,7 @@
 
 #pragma once
 
-#include "api_dump.h"
-#include "api_dump_video_json.h"
-
-
+#include "api_dump_json.h"
 
 
 //=========================== Type Implementations ==========================//

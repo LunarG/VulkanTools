@@ -466,8 +466,7 @@ class ApiDumpSettings {
             if (use_spaces)
                 output_stream << std::left << std::setw(type_size) << type << " = ";
             else
-                output_stream << type << std::setw((type_size - (int)strlen(type) - 1 + tab_size) / tab_size) << ""
-                              << " = ";
+                output_stream << type << std::setw((type_size - (int)strlen(type) - 1 + tab_size) / tab_size) << "" << " = ";
         } else {
             output_stream << " = ";
         }
@@ -1011,7 +1010,7 @@ class ApiDumpInstance {
 };
 
 // Helper function to determine the value of GPLPreRasterOrFragmentShader;
-bool checkForGPLPreRasterOrFragmentShader(const VkGraphicsPipelineCreateInfo &object) {
+inline bool checkForGPLPreRasterOrFragmentShader(const VkGraphicsPipelineCreateInfo &object) {
     VkGraphicsPipelineLibraryFlagsEXT flags{};
     const VkBaseInStructure *pNext_chain = reinterpret_cast<const VkBaseInStructure *>(object.pNext);
     while (pNext_chain) {
@@ -1028,7 +1027,7 @@ bool checkForGPLPreRasterOrFragmentShader(const VkGraphicsPipelineCreateInfo &ob
 // Utility to output an address.
 // If the quotes arg is true, the address is encloded in quotes.
 // Used for text, html, and json output.
-void OutputAddress(const ApiDumpSettings &settings, const void *addr) {
+inline void OutputAddress(const ApiDumpSettings &settings, const void *addr) {
     if (settings.showAddress())
         if (addr == NULL)
             settings.stream() << "NULL";
@@ -1038,7 +1037,7 @@ void OutputAddress(const ApiDumpSettings &settings, const void *addr) {
         settings.stream() << "address";
 }
 
-void OutputAddressJSON(const ApiDumpSettings &settings, const void *addr) {
+inline void OutputAddressJSON(const ApiDumpSettings &settings, const void *addr) {
     settings.stream() << "\"";
     OutputAddress(settings, addr);
     settings.stream() << "\"";
@@ -1046,8 +1045,8 @@ void OutputAddressJSON(const ApiDumpSettings &settings, const void *addr) {
 
 //==================================== Text Backend Helpers ======================================//
 
-void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
-                             const char *funcReturn) {
+inline void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
+                                    const char *funcReturn) {
     const ApiDumpSettings &settings(dump_inst.settings());
     if (settings.showThreadAndFrame()) {
         settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
@@ -1139,19 +1138,20 @@ void dump_text_value(const T &object, const ApiDumpSettings &settings, const cha
     dump(object, settings, indents);
 }
 
-void dump_text_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
+inline void dump_text_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents) {
     settings.formatNameType(indents, name, type_string);
     settings.stream() << text << "\n";
 }
 
-void dump_text_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_text_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
     if (object == NULL)
         settings.stream() << "NULL";
     else
         settings.stream() << "\"" << object << "\"";
 }
 
-void dump_text_void(const void *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_text_void(const void *object, const ApiDumpSettings &settings, int indents) {
     if (object == NULL) {
         settings.stream() << "NULL";
         return;
@@ -1159,7 +1159,7 @@ void dump_text_void(const void *object, const ApiDumpSettings &settings, int ind
     OutputAddress(settings, object);
 }
 
-void dump_text_int(int object, const ApiDumpSettings &settings, int indents) { settings.stream() << object; }
+inline void dump_text_int(int object, const ApiDumpSettings &settings, int indents) { settings.stream() << object; }
 
 template <typename T>
 void dump_text_pNext(const T *object, const ApiDumpSettings &settings, const char *type_string, int indents,
@@ -1174,15 +1174,15 @@ void dump_text_pNext(const T *object, const ApiDumpSettings &settings, const cha
 
 //==================================== Html Backend Helpers ======================================//
 
-void dump_html_nametype(std::ostream &stream, bool showType, const char *name, const char *type) {
+inline void dump_html_nametype(std::ostream &stream, bool showType, const char *name, const char *type) {
     stream << "<div class='var'>" << name << "</div>";
     if (showType) {
         stream << "<div class='type'>" << type << "</div>";
     }
 }
 
-void dump_html_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
-                             const char *funcReturn) {
+inline void dump_html_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
+                                    const char *funcReturn) {
     const ApiDumpSettings &settings(dump_inst.settings());
     if (settings.showThreadAndFrame()) {
         settings.stream() << "<div class='thd'>Thread: " << dump_inst.threadID() << "</div>";
@@ -1287,13 +1287,14 @@ void dump_html_value(const T &object, const ApiDumpSettings &settings, const cha
     settings.stream() << "</details>";
 }
 
-void dump_html_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
+inline void dump_html_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents) {
     settings.stream() << "<details class='data'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
     settings.stream() << "<div class='val'>" << text << "</div></summary></details>";
 }
 
-void dump_html_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_html_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
     settings.stream() << "<div class='val'>";
     if (object == NULL)
         settings.stream() << "NULL";
@@ -1302,13 +1303,13 @@ void dump_html_cstring(const char *object, const ApiDumpSettings &settings, int 
     settings.stream() << "</div>";
 }
 
-void dump_html_void(const void *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_html_void(const void *object, const ApiDumpSettings &settings, int indents) {
     settings.stream() << "<div class='val'>";
     OutputAddress(settings, object);
     settings.stream() << "</div>";
 }
 
-void dump_html_int(int object, const ApiDumpSettings &settings, int indents) {
+inline void dump_html_int(int object, const ApiDumpSettings &settings, int indents) {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     settings.stream() << "</div>";
@@ -1328,7 +1329,7 @@ void dump_html_pNext(const T *object, const ApiDumpSettings &settings, const cha
 
 //==================================== Json Backend Helpers ======================================//
 
-void dump_json_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcReturn) {
+inline void dump_json_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcReturn) {
     const ApiDumpSettings &settings(dump_inst.settings());
 
     if (!dump_inst.firstFunctionCallOnFrame()) settings.stream() << ",\n";
@@ -1520,7 +1521,8 @@ void dump_json_value(const T &object, const void *pObject, const ApiDumpSettings
     settings.stream() << settings.indentation(indents) << "}";
 }
 
-void dump_json_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
+inline void dump_json_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents) {
     settings.stream() << settings.indentation(indents) << "{\n";
     settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
     settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
@@ -1532,7 +1534,7 @@ void dump_json_special(const char *text, const ApiDumpSettings &settings, const 
     settings.stream() << settings.indentation(indents) << "}";
 }
 
-void dump_json_UNUSED(const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
+inline void dump_json_UNUSED(const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
     settings.stream() << settings.indentation(indents) << "{\n";
     settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
     settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
@@ -1541,19 +1543,19 @@ void dump_json_UNUSED(const ApiDumpSettings &settings, const char *type_string, 
     settings.stream() << settings.indentation(indents) << "}";
 }
 
-void dump_json_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_json_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
     if (object == NULL)
         settings.stream() << "\"\"";
     else
         settings.stream() << "\"" << object << "\"";
 }
 
-void dump_json_void(const void *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_json_void(const void *object, const ApiDumpSettings &settings, int indents) {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 
-void dump_json_int(int object, const ApiDumpSettings &settings, int indents) {
+inline void dump_json_int(int object, const ApiDumpSettings &settings, int indents) {
     settings.stream() << settings.indentation(indents) << "\"value\" : " << '"' << object << "\"";
     settings.stream() << '"' << object << "\"";
 }
@@ -1588,7 +1590,8 @@ void dump_json_pNext(const T *object, const ApiDumpSettings &settings, const cha
 
 //==================================== Common Helpers ======================================//
 
-void dump_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams, const char *funcReturn) {
+inline void dump_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
+                               const char *funcReturn) {
     if (dump_inst.shouldDumpOutput()) {
         switch (dump_inst.settings().format()) {
             case ApiDumpFormat::Text:
