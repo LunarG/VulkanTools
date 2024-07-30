@@ -89,7 +89,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
 
-            if (configurator.environment.selected_layer_name.find(parameter.key) == std::string::npos) {
+            if (configurator.environment.selected_layer_name != parameter.key) {
                 continue;
             }
 
@@ -143,13 +143,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     }
 
     this->connect(this->tree, SIGNAL(expanded(const QModelIndex)), this, SLOT(OnExpandedChanged(const QModelIndex)));
-    this->connect(this->tree, SIGNAL(collapsed(const QModelIndex)), this, SLOT(OnCollapsedChanged(const QModelIndex)));
+    this->connect(this->tree, SIGNAL(collapsed(const QModelIndex)), this, SLOT(OnExpandedChanged(const QModelIndex)));
 
     this->tree->resizeColumnToContents(0);
-
-    if (!configuration->setting_tree_state.isEmpty()) {
-        this->SetTreeState(configuration->setting_tree_state, 0, this->tree->invisibleRootItem());
-    }
 
     this->tree->blockSignals(false);
 }
@@ -161,11 +157,20 @@ void SettingsTreeManager::CleanupGUI() {
     }
 
     Configurator &configurator = Configurator::Get();
+    if (!configurator.environment.selected_layer_name.empty()) {
+        Configuration *configuration = configurator.GetActiveConfiguration();
+        if (configuration != nullptr) {
+            for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+                Parameter &parameter = configuration->parameters[i];
 
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        configuration->setting_tree_state.clear();
-        GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
+                if (parameter.key != configurator.environment.selected_layer_name) {
+                    continue;
+                }
+
+                parameter.setting_tree_state.clear();
+                GetTreeState(parameter.setting_tree_state, this->tree->invisibleRootItem());
+            }
+        }
     }
 
     this->tree->clear();
@@ -184,25 +189,16 @@ void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {
 
     Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
-        configuration->setting_tree_state.clear();
-        GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
-    }
-}
+        for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+            Parameter &parameter = configuration->parameters[i];
 
-void SettingsTreeManager::OnCollapsedChanged(const QModelIndex &index) {
-    (void)index;
+            if (parameter.key != configurator.environment.selected_layer_name) {
+                continue;
+            }
 
-    // Was not initialized
-    if (this->tree == nullptr) {
-        return;
-    }
-
-    Configurator &configurator = Configurator::Get();
-
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        configuration->setting_tree_state.clear();
-        GetTreeState(configuration->setting_tree_state, this->tree->invisibleRootItem());
+            parameter.setting_tree_state.clear();
+            GetTreeState(parameter.setting_tree_state, this->tree->invisibleRootItem());
+        }
     }
 }
 
@@ -375,6 +371,10 @@ void SettingsTreeManager::BuildGenericTree(Parameter &parameter) {
     const SettingMetaSet &settings = FindByKey(available_layers, parameter.key.c_str())->settings;
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         this->BuildTreeItem(nullptr, parameter, *settings[i]);
+    }
+
+    if (!parameter.setting_tree_state.isEmpty()) {
+        this->SetTreeState(parameter.setting_tree_state, 0, this->tree->invisibleRootItem());
     }
 }
 
