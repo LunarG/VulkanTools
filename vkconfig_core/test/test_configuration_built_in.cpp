@@ -35,8 +35,6 @@ static bool operator==(const Configuration& a, const Configuration& b) {
         return false;
     else if (a.description != b.description)
         return false;
-    else if (a.setting_tree_state != b.setting_tree_state)
-        return false;
     else if (a.parameters != b.parameters)
         return false;
     return true;
@@ -50,6 +48,8 @@ static bool operator==(const Parameter& a, const Parameter& b) {
     if (a.control != b.control) return false;
 
     if (a.settings.size() != b.settings.size()) return false;
+
+    if (a.setting_tree_state != b.setting_tree_state) return false;
 
     for (std::size_t i = 0, n = a.settings.size(); i < n; ++i) {
         if (*a.settings[i] != *b.settings[i]) return false;
@@ -106,7 +106,6 @@ TEST(test_built_in_load, sdk_layers_with_configuration) {
         EXPECT_STREQ(save_api_dump.description.c_str(), load_api_dump.description.c_str());
         EXPECT_EQ(save_api_dump.version, load_api_dump.version);
         EXPECT_EQ(save_api_dump.platform_flags, load_api_dump.platform_flags);
-        EXPECT_EQ(save_api_dump.setting_tree_state, load_api_dump.setting_tree_state);
         EXPECT_EQ(save_api_dump.parameters.size(), load_api_dump.parameters.size());
         for (std::size_t i = 0, n = save_api_dump.parameters.size(); i < n; ++i) {
             EXPECT_EQ(save_api_dump.parameters[i], load_api_dump.parameters[i]);

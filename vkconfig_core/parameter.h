@@ -50,6 +50,7 @@ struct Parameter {
     SettingDataSet settings;
     int overridden_rank = NO_RANK;
     Version api_version = Version::VERSION_NULL;
+    QByteArray setting_tree_state;  // Recall editor tree state
 };
 
 ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);
