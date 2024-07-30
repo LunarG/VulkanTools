@@ -572,7 +572,7 @@ void MainWindow::AddLayerItem(Parameter &parameter, bool advanced_view) {
     }
 
     ui->layers_tree->setItemWidget(item_state, layer_widget);
-    if (configurator.environment.selected_layer_name.find(parameter.key) != std::string::npos) {
+    if (configurator.environment.selected_layer_name == parameter.key) {
         ui->layers_tree->setCurrentItem(item_state);
     }
 }
@@ -708,6 +708,8 @@ void MainWindow::UpdateUI() {
                 this->AddLayerItem(parameter, configuration->view_advanced_layers);
             }
             resizeEvent(nullptr);
+
+            ui->combo_box_layers_view->setCurrentIndex(configuration->view_advanced_layers);
 
             ui->layers_tree->update();
         }
@@ -1010,12 +1012,11 @@ void MainWindow::OnConfigurationItemClicked(bool checked) {
         return;
     }
 
-    // This appears redundant on Windows, but under linux it is needed
-    // to ensure the new item is "selected"
-    // ui->tree_configurations->setCurrentItem(item);
+    this->_settings_tree_manager.CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
     configurator.environment.GetActiveConfigurationInfo().SetName(configuration_item->configuration_name);
+    configurator.environment.selected_layer_name.clear();
     configurator.Override();
 
     UpdateUI();
@@ -1028,7 +1029,10 @@ void MainWindow::OnConfigurationTreeClicked(QTreeWidgetItem *item, int column) {
 
     ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
     if (configuration_item != nullptr) {
+        this->_settings_tree_manager.CleanupGUI();
+
         configurator.environment.GetActiveConfigurationInfo().SetName(configuration_item->configuration_name);
+        configurator.environment.selected_layer_name.clear();
         configurator.Override();
     }
 
@@ -1082,6 +1086,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             configuration->key = configuration_item->configuration_name = new_name;
             configurator.configurations.SaveAllConfigurations();
             configurator.environment.GetActiveConfigurationInfo().SetName(new_name);
+            configurator.environment.selected_layer_name.clear();
 
             LoadConfigurationList();
         } else {
@@ -1092,6 +1097,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             ui->configurations_tree->blockSignals(false);
 
             configurator.environment.GetActiveConfigurationInfo().SetName(old_name);
+            configurator.environment.selected_layer_name.clear();
         }
 
         configurator.Override();
@@ -1116,6 +1122,8 @@ void MainWindow::OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidge
 
     Configurator &configurator = Configurator::Get();
     if (configurator.environment.GetActiveConfigurationInfo().GetName() != configuration_item->configuration_name) {
+        this->_settings_tree_manager.CleanupGUI();
+
         configurator.environment.GetActiveConfigurationInfo().SetName(configuration_item->configuration_name);
 
         configurator.Override();
@@ -1472,11 +1480,21 @@ void MainWindow::OnConfigurationItemExpanded(QTreeWidgetItem *item) {
 }
 
 void MainWindow::OnLayerCurrentRowChanged(int currentRow) {
+    this->_settings_tree_manager.CleanupGUI();
+
     if (currentRow != -1) {
         Configurator &configurator = Configurator::Get();
         QWidget *widget = ui->layers_tree->itemWidget(ui->layers_tree->item(currentRow));
         std::string layer_name = static_cast<LayerPathWidget *>(widget)->text().toStdString();
-        configurator.environment.selected_layer_name = layer_name;
+        Configuration *configuration = configurator.GetActiveConfiguration();
+        if (configuration != nullptr) {
+            for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+                Parameter &parameter = configuration->parameters[i];
+                if (layer_name.find(parameter.key) != std::string::npos) {
+                    configurator.environment.selected_layer_name = parameter.key;
+                }
+            }
+        }
     }
 
     //    ui->splitter_settings->setVisible(currentRow != -1);
