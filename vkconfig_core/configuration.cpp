@@ -142,10 +142,6 @@ bool Configuration::Load(const Path& full_path, const std::vector<Layer>& availa
         this->version = json_configuration_object.value("version").toVariant().toInt();
     }
 
-    if (json_configuration_object.value("expanded_states") != QJsonValue::Undefined) {
-        this->setting_tree_state = json_configuration_object.value("expanded_states").toVariant().toByteArray();
-    }
-
     if (json_configuration_object.value("view_advanced_settings") != QJsonValue::Undefined) {
         this->view_advanced_settings = ReadBoolValue(json_configuration_object, "view_advanced_settings");
     }
@@ -195,6 +191,11 @@ bool Configuration::Load(const Path& full_path, const std::vector<Layer>& availa
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
             parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
+        }
+
+        const QJsonValue& json_expanded_value = json_layer_object.value("expanded_states");
+        if (json_expanded_value != QJsonValue::Undefined) {
+            parameter.setting_tree_state = json_layer_object.value("expanded_states").toVariant().toByteArray();
         }
 
         const Layer* layer = nullptr;
@@ -277,6 +278,9 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
         json_layer.insert("version",
                           parameter.api_version == Version::VERSION_NULL ? "latest" : parameter.api_version.str().c_str());
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
+        if (!exporter && !parameter.setting_tree_state.isEmpty()) {
+            json_layer.insert("expanded_states", parameter.setting_tree_state.data());
+        }
 
         QJsonArray json_settings;
         for (std::size_t j = 0, m = parameter.settings.size(); j < m; ++j) {
@@ -305,9 +309,6 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
     json_configuration.insert("version", this->version);
     json_configuration.insert("description", this->description.c_str());
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
-    if (!exporter && !this->setting_tree_state.isEmpty()) {
-        json_configuration.insert("expanded_states", this->setting_tree_state.data());
-    }
     json_configuration.insert("view_advanced_settings", this->view_advanced_settings);
     json_configuration.insert("view_advanced_layers", this->view_advanced_layers);
     json_configuration.insert("layers", json_layers);
