@@ -52,7 +52,6 @@ class SettingsTreeManager : QObject {
     void OnSettingChanged();
     void OnPresetChanged();
     void OnExpandedChanged(const QModelIndex &index);
-    void OnCollapsedChanged(const QModelIndex &index);
 
    private:
     SettingsTreeManager(const SettingsTreeManager &) = delete;
