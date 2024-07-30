@@ -45,8 +45,7 @@ class Configuration {
     std::string key = "New Configuration";  // User readable display of the configuration name (may contain spaces)
     int version = 1;
     int platform_flags = PLATFORM_DESKTOP_BIT;
-    std::string description;        // A friendly description of what this profile does
-    QByteArray setting_tree_state;  // Recall editor tree state
+    std::string description;  // A friendly description of what this profile does
     bool view_advanced_settings = false;
     bool view_advanced_layers = false;
 
