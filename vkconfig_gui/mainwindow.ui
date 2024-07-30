@@ -995,7 +995,7 @@
                <item>
                 <widget class="QLabel" name="label_20">
                  <property name="text">
-                  <string>Layers Views:</string>
+                  <string>Layers Views: </string>
                  </property>
                 </widget>
                </item>
