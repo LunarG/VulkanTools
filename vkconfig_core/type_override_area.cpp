@@ -18,4 +18,4 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "type_update.h"
+#include "type_override_area.h"

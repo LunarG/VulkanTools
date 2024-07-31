@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "type_update.h"
 #include "type_layers_mode.h"
 
 #include <string>
@@ -29,7 +28,6 @@ class ConfigurationInfo {
    private:
     std::string name = "Validation";
     LayersMode mode = LAYERS_CONTROLLED_BY_APPLICATIONS;
-    UpdateBits area = UPDATE_NONE;
 
    public:
     const char* GetName() const { return this->name.c_str(); }
@@ -37,7 +35,6 @@ class ConfigurationInfo {
     void SetName(const std::string& new_configuration_name) {
         if (this->name != new_configuration_name) {
             this->name = new_configuration_name;
-            this->area = UPDATE_ALL;
         }
     }
 
@@ -46,15 +43,6 @@ class ConfigurationInfo {
     void SetMode(LayersMode new_configuration_mode) {
         if (this->mode != new_configuration_mode) {
             this->mode = new_configuration_mode;
-            this->area = UPDATE_ALL;
-        }
-    }
-
-    void ForceUpdate(UpdateBits area_bits) {
-        if (area_bits == UPDATE_NONE) {
-            this->area = area_bits;
-        } else {
-            this->area = static_cast<UpdateBits>(this->area | area_bits);
         }
     }
 };
