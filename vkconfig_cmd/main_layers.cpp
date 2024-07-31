@@ -37,7 +37,7 @@ static int RunLayersOverride(const CommandLine& command_line) {
         return -1;
     }
 
-    const bool override_result = configurator.Override();
+    const bool override_result = configurator.Override(OVERRIDE_AREA_ALL);
 
     configurator.environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 
@@ -64,7 +64,7 @@ static int RunLayersSurrender(const CommandLine& command_line) {
     Configurator& configurator = Configurator::Get();
 
     const bool has_overridden_layers = configurator.HasOverride();
-    const bool surrender_result = configurator.Surrender();
+    const bool surrender_result = configurator.Surrender(OVERRIDE_AREA_ALL);
 
     configurator.environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 

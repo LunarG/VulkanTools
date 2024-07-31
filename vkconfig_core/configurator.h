@@ -27,6 +27,7 @@
 #include "../vkconfig_core/environment.h"
 #include "../vkconfig_core/configuration_manager.h"
 #include "../vkconfig_core/type_platform.h"
+#include "../vkconfig_core/type_override_area.h"
 #include "../vkconfig_core/vulkan_info.h"
 
 class Configurator {
@@ -54,8 +55,8 @@ class Configurator {
     bool Init();
 
    public:
-    bool Surrender();
-    bool Override();
+    bool Surrender(OverrideArea override_area);
+    bool Override(OverrideArea override_area);
     bool HasOverride() const;
 
     void ResetToDefault(bool hard);
@@ -71,8 +72,8 @@ class Configurator {
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
-    bool WriteLayersSettings(const Path& layers_settings_path);
-    bool WriteLoaderSettings(const Path& loader_settings_path);
+    bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
+    bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
 
     void BuildLoaderSettings(const ConfigurationInfo& info, const std::string& executable_path,
                              std::vector<LoaderSettings>& loader_settings_array) const;
