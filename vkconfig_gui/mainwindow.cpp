@@ -34,6 +34,7 @@
 #include "../vkconfig_core/type_platform.h"
 #include "../vkconfig_core/type_log.h"
 #include "../vkconfig_core/type_hide_message.h"
+#include "../vkconfig_core/ui.h"
 
 #include <QMenu>
 #include <QProcess>
@@ -521,18 +522,6 @@ void MainWindow::trayActionDisabledByApplications(bool checked) {
     }
 }
 
-static std::string GetMainWindowTitle(bool active) {
-#if VKCONFIG_DATE
-    std::string title = format("%s %s-%s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
-#else
-    std::string title = format("%s %s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
-#endif
-    if (active) {
-        title += " <ACTIVE>";
-    }
-    return title;
-}
-
 void MainWindow::AddLayerPathItem(const std::string &layer_path) {
     TreeWidgetItemParameter *item_state = new TreeWidgetItemParameter(layer_path.c_str());
 
@@ -797,7 +786,13 @@ void MainWindow::UpdateUI() {
     }
 
     // Update title bar
-    this->setWindowTitle(GetMainWindowTitle(has_active_configuration).c_str());
+#ifdef VKCONFIG_DATE
+    bool display_date = true;
+#else
+    bool display_date = false;
+#endif
+
+    this->setWindowTitle(GetMainWindowTitle(has_active_configuration, display_date).c_str());
 
     ui->configurations_tree->blockSignals(false);
     this->blockSignals(false);
@@ -831,6 +826,18 @@ void MainWindow::LoadConfigurationList() {
         ui->configurations_tree->addTopLevelItem(item);
         ui->configurations_tree->setItemWidget(item, 0, item->radio_button);
         connect(item->radio_button, SIGNAL(toggled(bool)), this, SLOT(OnConfigurationItemClicked(bool)));
+
+        const Configuration *active_configuration = configurator.GetActiveConfiguration();
+        if (active_configuration != nullptr) {
+            if (active_configuration->key == configuration.key) {
+                item->radio_button->blockSignals(true);
+                item->radio_button->setChecked(true);
+
+                ui->configurations_tree->setCurrentItem(item);
+
+                item->radio_button->blockSignals(false);
+            }
+        }
     }
 
     ui->configurations_tree->blockSignals(false);
@@ -1284,44 +1291,7 @@ void MainWindow::on_push_button_applications_clicked() {
     UpdateUI();
 }
 
-void MainWindow::on_push_button_new_clicked() { this->NewClicked(); }
-
-void MainWindow::on_push_button_rename_clicked() {
-    ConfigurationListItem *configuration_item = GetCheckedItem();
-    if (configuration_item == nullptr) {
-        return;
-    }
-
-    ui->configurations_tree->editItem(configuration_item, 1);
-}
-
-void MainWindow::on_push_button_remove_clicked() {
-    ConfigurationListItem *configuration_item = GetCheckedItem();
-    if (configuration_item == nullptr) {
-        return;
-    }
-
-    this->RemoveConfiguration(configuration_item->configuration_name);
-}
-
-void MainWindow::on_push_button_duplicate_clicked() {
-    Configurator &configurator = Configurator::Get();
-
-    const Configuration *configutation = configurator.GetActiveConfiguration();
-    assert(configutation != nullptr);
-
-    const Configuration &duplicated_configuration =
-        configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, configutation->key, true);
-
-    configurator.environment.GetActiveConfigurationInfo().SetName(duplicated_configuration.key);
-    configurator.Override();
-
-    LoadConfigurationList();
-
-    this->UpdateUI();
-}
-
-void MainWindow::NewClicked() {
+void MainWindow::OnContextMenuNewClicked(ConfigurationListItem *item) {
     Configurator &configurator = Configurator::Get();
 
     Configuration &new_configuration =
@@ -1333,13 +1303,68 @@ void MainWindow::NewClicked() {
     LoadConfigurationList();
 }
 
-void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
-    assert(!configuration_name.empty());
+void MainWindow::OnContextMenuImportClicked(ConfigurationListItem *item) {
+    (void)item;  // We don't need this
+
+    Configurator &configurator = Configurator::Get();
+
+    const Path &path_import = configurator.environment.path_import;
+    /*
+    const Path full_import_path = configurator.path.SelectPath(this, PATH_IMPORT_CONFIGURATION);
+    if (full_import_path.Empty()) {
+        return;
+    }
+
+    configurator.configurations.ImportConfiguration(configurator.layers.selected_layers, full_import_path);
+    */
+    LoadConfigurationList();
+}
+
+void MainWindow::OnContextMenuRenameClicked(ConfigurationListItem *item) {
+    assert(item);
+
+    ui->configurations_tree->editItem(item, 1);
+}
+
+void MainWindow::OnContextMenuDuplicateClicked(ConfigurationListItem *item) {
+    assert(item);
+    assert(!item->configuration_name.empty());
+
+    Configurator &configurator = Configurator::Get();
+    const Configuration &duplicated_configuration =
+        configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, item->configuration_name, true);
+
+    item->configuration_name = duplicated_configuration.key;
+
+    configurator.environment.GetActiveConfigurationInfo().SetName(duplicated_configuration.key);
+    configurator.Override();
+
+    LoadConfigurationList();
+
+    /*
+        ConfigurationListItem *new_item = nullptr;
+        for (int i = 0, n = ui->tree_configurations->topLevelItemCount(); i < n; ++i) {
+            ConfigurationListItem *searched_item = dynamic_cast<ConfigurationListItem *>(ui->tree_configurations->topLevelItem(i));
+            assert(searched_item);
+
+            if (searched_item->configuration_name != duplicated_configuration.key) continue;
+
+            new_item = searched_item;
+            break;
+        }
+        assert(new_item);
+        ui->tree_configurations->editItem(new_item, 1);
+    */
+}
+
+void MainWindow::OnContextMenuDeleteClicked(ConfigurationListItem *item) {
+    assert(item);
+    assert(!item->configuration_name.empty());
 
     // Let make sure...
     QMessageBox alert;
-    alert.setWindowTitle(format("Removing *%s* configuration...", configuration_name.c_str()).c_str());
-    alert.setText(format("Are you sure you want to remove the *%s* configuration?", configuration_name.c_str()).c_str());
+    alert.setWindowTitle(format("Removing *%s* configuration...", item->configuration_name.c_str()).c_str());
+    alert.setText(format("Are you sure you want to remove the *%s* configuration?", item->configuration_name.c_str()).c_str());
     alert.setInformativeText("All the data from this configuration will be lost.");
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     alert.setDefaultButton(QMessageBox::Yes);
@@ -1349,7 +1374,7 @@ void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
     }
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.RemoveConfiguration(configurator.layers.selected_layers, configuration_name);
+    configurator.configurations.RemoveConfiguration(configurator.layers.selected_layers, item->configuration_name);
     configurator.environment.GetActiveConfigurationInfo().SetName("");
 
     LoadConfigurationList();
@@ -1357,13 +1382,7 @@ void MainWindow::RemoveConfiguration(const std::string &configuration_name) {
     this->UpdateUI();
 }
 
-void MainWindow::RemoveClicked(ConfigurationListItem *item) {
-    assert(item);
-
-    this->RemoveConfiguration(item->configuration_name);
-}
-
-void MainWindow::ResetClicked(ConfigurationListItem *item) {
+void MainWindow::OnContextMenuResetClicked(ConfigurationListItem *item) {
     assert(item);
     assert(!item->configuration_name.empty());
 
@@ -1397,61 +1416,29 @@ void MainWindow::ResetClicked(ConfigurationListItem *item) {
     LoadConfigurationList();
 }
 
-void MainWindow::RenameClicked(ConfigurationListItem *item) {
-    assert(item);
-
-    ui->configurations_tree->editItem(item, 1);
-}
-
-void MainWindow::DuplicateClicked(ConfigurationListItem *item) {
+void MainWindow::OnContextMenuReloadClicked(ConfigurationListItem *item) {
     assert(item);
     assert(!item->configuration_name.empty());
-
-    Configurator &configurator = Configurator::Get();
-    const Configuration &duplicated_configuration =
-        configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, item->configuration_name, true);
-
-    item->configuration_name = duplicated_configuration.key;
-
-    configurator.environment.GetActiveConfigurationInfo().SetName(duplicated_configuration.key);
-    configurator.Override();
-
-    LoadConfigurationList();
-
-    /*
-        ConfigurationListItem *new_item = nullptr;
-        for (int i = 0, n = ui->tree_configurations->topLevelItemCount(); i < n; ++i) {
-            ConfigurationListItem *searched_item = dynamic_cast<ConfigurationListItem *>(ui->tree_configurations->topLevelItem(i));
-            assert(searched_item);
-
-            if (searched_item->configuration_name != duplicated_configuration.key) continue;
-
-            new_item = searched_item;
-            break;
-        }
-        assert(new_item);
-        ui->tree_configurations->editItem(new_item, 1);
-    */
 }
 
-void MainWindow::ImportClicked(ConfigurationListItem *item) {
-    (void)item;  // We don't need this
+void MainWindow::OnContextMenuExportConfigsClicked(ConfigurationListItem *item) {
+    assert(item);
 
     Configurator &configurator = Configurator::Get();
 
-    const Path &path_import = configurator.environment.path_import;
-    /*
-    const Path full_import_path = configurator.path.SelectPath(this, PATH_IMPORT_CONFIGURATION);
-    if (full_import_path.Empty()) {
+    const Path &path_export = configurator.environment.path_export;
+    /* TODO
+    const Path full_export_path = configurator.path.SelectPath(this, PATH_EXPORT_CONFIGURATION, full_suggested_path);
+    if (full_export_path.Empty()) {
         return;
     }
 
-    configurator.configurations.ImportConfiguration(configurator.layers.selected_layers, full_import_path);
+    configurator.configurations.ExportConfiguration(configurator.layers.selected_layers, full_export_path,
+                                                    item->configuration_name);
     */
-    LoadConfigurationList();
 }
 
-void MainWindow::ExportClicked(ConfigurationListItem *item) {
+void MainWindow::OnContextMenuExportSettingsClicked(ConfigurationListItem *item) {
     assert(item);
 
     Configurator &configurator = Configurator::Get();
@@ -1483,18 +1470,23 @@ void MainWindow::OnLayerCurrentRowChanged(int currentRow) {
     this->_settings_tree_manager.CleanupGUI();
 
     if (currentRow != -1) {
-        Configurator &configurator = Configurator::Get();
         QWidget *widget = ui->layers_tree->itemWidget(ui->layers_tree->item(currentRow));
-        std::string layer_name = static_cast<LayerPathWidget *>(widget)->text().toStdString();
-        Configuration *configuration = configurator.GetActiveConfiguration();
-        if (configuration != nullptr) {
-            for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
-                Parameter &parameter = configuration->parameters[i];
-                if (layer_name.find(parameter.key) != std::string::npos) {
-                    configurator.environment.selected_layer_name = parameter.key;
+        const std::string &layer_string = static_cast<LayerPathWidget *>(widget)->text().toStdString();
+
+        /*
+                Configurator &configurator = Configurator::Get();
+                Configuration *configuration = configurator.GetActiveConfiguration();
+                if (configuration != nullptr) {
+                    for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+                        Parameter &parameter = configuration->parameters[i];
+                        if (layer_name.find(parameter.key) != std::string::npos) {
+                            configurator.environment.selected_layer_name = parameter.key;
+                        }
+                    }
                 }
-            }
-        }
+        */
+        Configurator &configurator = Configurator::Get();
+        configurator.environment.selected_layer_name = ExtractLayerName(configurator.layers, layer_string);
     }
 
     //    ui->splitter_settings->setVisible(currentRow != -1);
@@ -1774,16 +1766,12 @@ static const Layer *GetLayer(QListWidget *tree, QListWidgetItem *item) {
 
     TreeWidgetItemParameter *item_parameter = static_cast<TreeWidgetItemParameter *>(item);
 
-    const std::string &text = item_parameter->layer_name;
-    if (!text.empty()) {
+    const std::string &layer_string = item_parameter->layer_name;
+    if (!layer_string.empty()) {
         Configurator &configurator = Configurator::Get();
 
-        for (std::size_t i = 0, n = configurator.layers.selected_layers.size(); i < n; ++i) {
-            const Layer &layer = configurator.layers.selected_layers[i];
-            if (text.find(layer.key) != std::string::npos) {
-                return &layer;
-            }
-        }
+        const std::string &layer_key = ExtractLayerName(configurator.layers, layer_string);
+        return configurator.layers.Find(layer_key);
     }
 
     return nullptr;
@@ -1886,9 +1874,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
-            QAction *action_export = new QAction("Export the Configuration...", nullptr);
-            action_export->setEnabled(item != nullptr);
-            menu.addAction(action_export);
+            QAction *action_export_config = new QAction("Export the Configuration...", nullptr);
+            action_export_config->setEnabled(item != nullptr);
+            menu.addAction(action_export_config);
 
             QAction *action_export_settings = new QAction("Export the Layers Settings...", nullptr);
             action_export_settings->setEnabled(item != nullptr);
@@ -1898,11 +1886,23 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             QAction *action = menu.exec(point);
 
             if (action == action_new) {
-            } else if (action == action_delete) {
-            } else if (action == action_duplicate) {
-            } else if (action == action_rename) {
+                this->OnContextMenuNewClicked(item);
             } else if (action == action_import) {
-            } else if (action == action_export) {
+                this->OnContextMenuImportClicked(item);
+            } else if (action == action_rename) {
+                this->OnContextMenuRenameClicked(item);
+            } else if (action == action_duplicate) {
+                this->OnContextMenuDuplicateClicked(item);
+            } else if (action == action_delete) {
+                this->OnContextMenuDeleteClicked(item);
+            } else if (action == action_reset) {
+                this->OnContextMenuResetClicked(item);
+            } else if (action == action_reload) {
+                this->OnContextMenuReloadClicked(item);
+            } else if (action == action_export_config) {
+                this->OnContextMenuExportConfigsClicked(item);
+            } else if (action == action_export_settings) {
+                this->OnContextMenuExportSettingsClicked(item);
             }
         }
     } else if (target == ui->layers_tree) {
@@ -1913,14 +1913,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             const Layer *layer = GetLayer(ui->layers_tree, item);
 
             QMenu menu(ui->layers_tree);
-
-            QAction *action_all = new QAction("Show All Layers", nullptr);
-            action_all->setEnabled(item != nullptr);
-            action_all->setCheckable(true);
-            action_all->setChecked(true);
-            menu.addAction(action_all);
-
-            menu.addSeparator();
 
             QAction *action_description = new QAction("Open the Layer Description...", nullptr);
             action_description->setEnabled(item != nullptr);
