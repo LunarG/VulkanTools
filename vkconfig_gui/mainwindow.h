@@ -199,7 +199,6 @@ class MainWindow : public QMainWindow {
     void on_push_button_launcher_clicked();
     void on_push_button_clear_log_clicked();
     void on_check_box_clear_on_launch_clicked();
-    void on_push_button_applications_clicked();
 
     void on_check_box_per_application_toggled(bool checked);
     void on_combo_box_mode_currentIndexChanged(int index);
