@@ -127,178 +127,193 @@ void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std:
 }
 
 // Create and write vk_loader_settings.json file
-bool Configurator::WriteLoaderSettings(const Path& loader_settings_path) {
+bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path) {
     assert(!loader_settings_path.Empty());
 
-    std::vector<LoaderSettings> loader_settings_array;
+    if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
+        std::vector<LoaderSettings> loader_settings_array;
 
-    if (this->environment.GetPerApplicationConfig()) {
-        for (std::size_t i = 0, n = this->environment.GetApplications().size(); i < n; ++i) {
-            const Application& application = this->environment.GetApplication(i);
+        if (this->environment.GetPerApplicationConfig()) {
+            for (std::size_t i = 0, n = this->environment.GetApplications().size(); i < n; ++i) {
+                const Application& application = this->environment.GetApplication(i);
 
-            this->BuildLoaderSettings(application.configuration, application.executable_path.AbsolutePath(), loader_settings_array);
-        }
-    } else {
-        BuildLoaderSettings(this->environment.global_configuration, "", loader_settings_array);
-    }
-
-    if (loader_settings_array.empty()) {
-        return this->Surrender();
-    } else {
-        QJsonObject root;
-        root.insert("file_format_version", "1.0.0");
-        if (loader_settings_array.size() > 1) {
-            QJsonArray json_settings_array;
-            for (std::size_t i = 0, n = loader_settings_array.size(); i < n; ++i) {
-                json_settings_array.append(CreateJsonSettingObject(loader_settings_array[i]));
+                this->BuildLoaderSettings(application.configuration, application.executable_path.AbsolutePath(),
+                                          loader_settings_array);
             }
-            root.insert("settings_array", json_settings_array);
-        } else if (!loader_settings_array.empty()) {
-            root.insert("settings", CreateJsonSettingObject(loader_settings_array[0]));
+        } else {
+            BuildLoaderSettings(this->environment.global_configuration, "", loader_settings_array);
         }
-        QJsonDocument doc(root);
 
-        QFile json_file(loader_settings_path.AbsolutePath().c_str());
-        const bool result_layers_file = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
-        assert(result_layers_file);
-        json_file.write(doc.toJson());
-        json_file.close();
+        if (!loader_settings_array.empty()) {
+            QJsonObject root;
+            root.insert("file_format_version", "1.0.0");
+            if (loader_settings_array.size() > 1) {
+                QJsonArray json_settings_array;
+                for (std::size_t i = 0, n = loader_settings_array.size(); i < n; ++i) {
+                    json_settings_array.append(CreateJsonSettingObject(loader_settings_array[i]));
+                }
+                root.insert("settings_array", json_settings_array);
+            } else if (!loader_settings_array.empty()) {
+                root.insert("settings", CreateJsonSettingObject(loader_settings_array[0]));
+            }
+            QJsonDocument doc(root);
 
-        return result_layers_file;
+            QFile json_file(loader_settings_path.AbsolutePath().c_str());
+            const bool result_layers_file = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
+            assert(result_layers_file);
+            json_file.write(doc.toJson());
+            json_file.close();
+
+            return result_layers_file;
+        }
+        return true;
+    } else {
+        return true;
     }
 }
 
 // Create and write vk_layer_settings.txt file
-bool Configurator::WriteLayersSettings(const Path& layers_settings_path) {
-    std::vector<LayersSettings> layers_settings_array;
+bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path) {
+    if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
+        std::vector<LayersSettings> layers_settings_array;
 
-    if (this->environment.GetPerApplicationConfig()) {
-        const std::vector<Application>& applications = this->environment.GetApplications();
+        if (this->environment.GetPerApplicationConfig()) {
+            const std::vector<Application>& applications = this->environment.GetApplications();
 
-        for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+            for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+                LayersSettings settings;
+                settings.configuration_name = applications[i].configuration.GetName();
+                settings.executable_path = applications[i].executable_path;
+                settings.settings_path = applications[i].GetActiveOptions().working_folder;
+                layers_settings_array.push_back(settings);
+            }
+        } else {
             LayersSettings settings;
-            settings.configuration_name = applications[i].configuration.GetName();
-            settings.executable_path = applications[i].executable_path;
-            settings.settings_path = applications[i].GetActiveOptions().working_folder;
+            settings.configuration_name = this->environment.global_configuration.GetName();
+            settings.settings_path = layers_settings_path;
             layers_settings_array.push_back(settings);
         }
-    } else {
-        LayersSettings settings;
-        settings.configuration_name = this->environment.global_configuration.GetName();
-        settings.settings_path = layers_settings_path;
-        layers_settings_array.push_back(settings);
-    }
 
-    bool has_missing_layers = false;
-    bool result_settings_file = true;
+        bool has_missing_layers = false;
+        bool result_settings_file = true;
 
-    for (std::size_t i = 0, n = layers_settings_array.size(); i < n; ++i) {
-        const LayersSettings& layers_settings = layers_settings_array[i];
+        for (std::size_t i = 0, n = layers_settings_array.size(); i < n; ++i) {
+            const LayersSettings& layers_settings = layers_settings_array[i];
 
-        Configuration* configuration = this->configurations.FindConfiguration(layers_settings.configuration_name);
-        if (configuration == nullptr) {
-            if (layers_settings.executable_path.Empty()) {
-                fprintf(stderr, "Fail to apply unknown '%s' global configuration\n", layers_settings.configuration_name.c_str());
-            } else {
-                fprintf(stderr, "Fail to apply unknown '%s' configuration to '%s'\n", layers_settings.configuration_name.c_str(),
-                        layers_settings.executable_path.AbsolutePath().c_str());
-            }
+            Configuration* configuration = this->configurations.FindConfiguration(layers_settings.configuration_name);
+            if (configuration == nullptr) {
+                if (layers_settings.executable_path.Empty()) {
+                    fprintf(stderr, "Fail to apply unknown '%s' global configuration\n",
+                            layers_settings.configuration_name.c_str());
+                } else {
+                    fprintf(stderr, "Fail to apply unknown '%s' configuration to '%s'\n",
+                            layers_settings.configuration_name.c_str(), layers_settings.executable_path.AbsolutePath().c_str());
+                }
 
-            result_settings_file = false;
-            continue;
-        }
-
-        QFile file(layers_settings.settings_path.AbsolutePath().c_str());
-        result_settings_file = result_settings_file && file.open(QIODevice::WriteOnly | QIODevice::Text);
-        if (!result_settings_file) {
-            fprintf(stderr, "Cannot open file %s\n", layers_settings.settings_path.AbsolutePath().c_str());
-            continue;
-        }
-        QTextStream stream(&file);
-
-        // Loop through all the layers
-        for (std::size_t j = 0, n = configuration->parameters.size(); j < n; ++j) {
-            const Parameter& parameter = configuration->parameters[j];
-            if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
+                result_settings_file = false;
                 continue;
             }
 
-            const Layer* layer = this->layers.Find(parameter.key.c_str());
-            if (layer == nullptr) {
-                has_missing_layers = true;
-                continue;
+            if (layers_settings.settings_path.Exists()) {
+                if (this->GetActiveConfiguration()->key != configuration->key) {
+                    continue;
+                }
             }
 
-            if (parameter.control != LAYER_CONTROL_ON) {
+            QFile file(layers_settings.settings_path.AbsolutePath().c_str());
+            result_settings_file = result_settings_file && file.open(QIODevice::WriteOnly | QIODevice::Text);
+            if (!result_settings_file) {
+                fprintf(stderr, "Cannot open file %s\n", layers_settings.settings_path.AbsolutePath().c_str());
                 continue;
             }
+            QTextStream stream(&file);
 
-            stream << "\n";
-            stream << "# " << layer->key.c_str() << "\n\n";
-
-            std::string lc_layer_name = GetLayerSettingPrefix(layer->key);
-
-            for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
-                const SettingData* setting_data = parameter.settings[i];
-
-                // Skip groups - they aren't settings, so not relevant in this output
-                if (setting_data->type == SETTING_GROUP) {
+            // Loop through all the layers
+            for (std::size_t j = 0, n = configuration->parameters.size(); j < n; ++j) {
+                const Parameter& parameter = configuration->parameters[j];
+                if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
                     continue;
                 }
 
-                // Skip missing settings
-                const SettingMeta* meta = FindSetting(layer->settings, setting_data->key.c_str());
-                if (meta == nullptr) {
+                const Layer* layer = this->layers.Find(parameter.key.c_str());
+                if (layer == nullptr) {
+                    has_missing_layers = true;
                     continue;
                 }
 
-                // Skip overriden settings
-                if (::CheckSettingOverridden(*meta)) {
+                if (parameter.control != LAYER_CONTROL_ON) {
                     continue;
                 }
 
-                stream << "# ";
-                stream << meta->label.c_str();
-                stream << "\n# =====================\n# <LayerIdentifier>.";
-                stream << meta->key.c_str() << "\n";
-
-                // Break up description into smaller words
-                std::string description = meta->description;
-                std::vector<std::string> words;
-                std::size_t pos;
-                while ((pos = description.find(" ")) != std::string::npos) {
-                    words.push_back(description.substr(0, pos));
-                    description.erase(0, pos + 1);
-                }
-                if (description.size() > 0) words.push_back(description);
-                if (words.size() > 0) {
-                    stream << "#";
-                    std::size_t nchars = 2;
-                    for (auto word : words) {
-                        if (word.size() + nchars > 80) {
-                            stream << "\n#";
-                            nchars = 2;
-                        }
-                        stream << " " << word.c_str();
-                        nchars += (word.size() + 1);
-                    }
-                }
                 stream << "\n";
+                stream << "# " << layer->key.c_str() << "\n\n";
 
-                // If feature has unmet dependency, output it but comment it out
-                if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
-                    stream << "#";
+                std::string lc_layer_name = GetLayerSettingPrefix(layer->key);
+
+                for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
+                    const SettingData* setting_data = parameter.settings[i];
+
+                    // Skip groups - they aren't settings, so not relevant in this output
+                    if (setting_data->type == SETTING_GROUP) {
+                        continue;
+                    }
+
+                    // Skip missing settings
+                    const SettingMeta* meta = FindSetting(layer->settings, setting_data->key.c_str());
+                    if (meta == nullptr) {
+                        continue;
+                    }
+
+                    // Skip overriden settings
+                    if (::CheckSettingOverridden(*meta)) {
+                        continue;
+                    }
+
+                    stream << "# ";
+                    stream << meta->label.c_str();
+                    stream << "\n# =====================\n# <LayerIdentifier>.";
+                    stream << meta->key.c_str() << "\n";
+
+                    // Break up description into smaller words
+                    std::string description = meta->description;
+                    std::vector<std::string> words;
+                    std::size_t pos;
+                    while ((pos = description.find(" ")) != std::string::npos) {
+                        words.push_back(description.substr(0, pos));
+                        description.erase(0, pos + 1);
+                    }
+                    if (description.size() > 0) words.push_back(description);
+                    if (words.size() > 0) {
+                        stream << "#";
+                        std::size_t nchars = 2;
+                        for (auto word : words) {
+                            if (word.size() + nchars > 80) {
+                                stream << "\n#";
+                                nchars = 2;
+                            }
+                            stream << " " << word.c_str();
+                            nchars += (word.size() + 1);
+                        }
+                    }
+                    stream << "\n";
+
+                    // If feature has unmet dependency, output it but comment it out
+                    if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
+                        stream << "#";
+                    }
+
+                    stream << lc_layer_name.c_str() << setting_data->key.c_str() << " = ";
+                    stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
+                    stream << "\n\n";
                 }
-
-                stream << lc_layer_name.c_str() << setting_data->key.c_str() << " = ";
-                stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
-                stream << "\n\n";
             }
+            file.close();
         }
-        file.close();
-    }
 
-    return result_settings_file && !has_missing_layers;
+        return result_settings_file && !has_missing_layers;
+    } else {
+        return true;
+    }
 }
 
 Configurator& Configurator::Get() {
@@ -313,7 +328,7 @@ Configurator::~Configurator() {
 
     this->configurations.SaveAllConfigurations();
 
-    this->Surrender();
+    this->Surrender(OVERRIDE_AREA_ALL);
 }
 
 void Configurator::UpdateLayersValidationCache() {
@@ -342,44 +357,51 @@ bool Configurator::Init() {
         this->configurations.LoadAllConfigurations(this->layers.selected_layers);
     }
 
-    this->Override();
+    this->Override(OVERRIDE_AREA_ALL);
 
     return true;
 }
 
-bool Configurator::Override() {
+bool Configurator::Override(OverrideArea override_area) {
     const Path& loader_settings_path = ::Get(Path::LOADER_SETTINGS);
     const Path& layers_settings_path = ::Get(Path::LAYERS_SETTINGS);
 
     // Clean up
-    this->Surrender();
+    this->Surrender(override_area);
 
     // vk_loader_settings.json
-    const bool result_layers = this->WriteLoaderSettings(loader_settings_path);
+    bool result_loader_settings = this->WriteLoaderSettings(override_area, loader_settings_path);
 
+    // TODO, Add per application layer_settings file
     // vk_layer_settings.txt
-    const bool result_settings = this->WriteLayersSettings(layers_settings_path);
+    bool result_layers_settings = this->WriteLayersSettings(override_area, layers_settings_path);
 
     // On Windows only, we need to write these values to the registry
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
     AppendRegistryEntriesForLayers(loader_settings_path.AbsolutePath().c_str(), layers_settings_path.AbsolutePath().c_str());
 #endif
 
-    return result_settings && result_layers;
+    return result_loader_settings && result_layers_settings;
 }
 
-bool Configurator::Surrender() {
+bool Configurator::Surrender(OverrideArea override_area) {
     const Path& loader_settings_path = ::Get(Path::LOADER_SETTINGS);
     const Path& layers_settings_path = ::Get(Path::LAYERS_SETTINGS);
 
-    const bool result_loader_settings = loader_settings_path.Remove();
-    const bool result_layers_settings = layers_settings_path.Remove();
+    bool result_loader_settings = true;
+    if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
+        result_loader_settings = loader_settings_path.Remove();
+    }
+
+    // TODO, Remove per application layer_settings file
+    bool result_layers_settings = true;
+    if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
+        result_layers_settings = layers_settings_path.Remove();
+    }
 
 #if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
     RemoveRegistryEntriesForLayers(loader_settings_path.AbsolutePath().c_str(), layers_settings_path.AbsolutePath().c_str());
 #endif
-
-    this->environment.global_configuration.ForceUpdate(UPDATE_ALL);
 
     return result_loader_settings && result_layers_settings;
 }
