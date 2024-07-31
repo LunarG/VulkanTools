@@ -33,7 +33,7 @@ void SurrenderConfiguration(int signal) {
     configurator.environment.has_crashed = true;
 
     // Delete the layers configurations files
-    configurator.Surrender();
+    configurator.Surrender(OVERRIDE_AREA_ALL);
 }
 
 void InitSignals() {

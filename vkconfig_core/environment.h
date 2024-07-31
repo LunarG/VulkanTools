@@ -31,28 +31,6 @@
 #include <vector>
 #include <string>
 
-enum LayoutState {
-    VKCONFIG2_LAYOUT_MAIN_GEOMETRY = 0,
-    VKCONFIG2_LAYOUT_MAIN_WINDOW_STATE,
-    VKCONFIG2_LAYOUT_MAIN_SPLITTER1,
-    VKCONFIG2_LAYOUT_MAIN_SPLITTER2,
-    VKCONFIG2_LAYOUT_MAIN_SPLITTER3,
-    VKCONFIG3_LAYOUT_MAIN_GEOMETRY,
-    VKCONFIG3_LAYOUT_MAIN_WINDOW_STATE,
-    VKCONFIG3_LAYOUT_MAIN_SPLITTER1,
-    VKCONFIG3_LAYOUT_MAIN_SPLITTER2,
-    VKCONFIG3_LAYOUT_MAIN_SPLITTER3,
-    LAYOUT_LAYER_GEOMETRY,
-    LAYOUT_LAYER_SPLITTER,
-    LAYOUT_LAUNCHER_COLLAPSED,
-    LAYOUT_LAUNCHER_NOT_CLEAR,
-
-    LAYOUT_FIRST = VKCONFIG2_LAYOUT_MAIN_GEOMETRY,
-    LAYOUT_LAST = LAYOUT_LAUNCHER_NOT_CLEAR,
-};
-
-enum { LAYOUT_COUNT = LAYOUT_LAST - LAYOUT_FIRST + 1 };
-
 struct DefaultApplication {
     std::string name;
     std::string key;
@@ -93,9 +71,6 @@ class Environment {
     const Application& GetApplication(std::size_t application_index) const;
     Application& GetApplication(std::size_t application_index);
 
-    const QByteArray& Get(LayoutState state) const;
-    void Set(LayoutState state, const QByteArray& data);
-
     bool GetPerApplicationConfig() const;
     void SetPerApplicationConfig(bool enable);
 
@@ -119,6 +94,16 @@ class Environment {
 
     std::string selected_layer_name;
 
+    struct Layout {
+        QByteArray main_geometry;
+        QByteArray main_window_state;
+        QByteArray main_splitter_main_state;
+        QByteArray main_splitter_configurations_state;
+        QByteArray main_splitter_settings_state;
+    } layout;
+
+    bool launcher_clear_on_launch = true;
+
    private:
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
@@ -132,7 +117,6 @@ class Environment {
     Path home_sdk_path;
 
     int active_executable_index;
-    std::array<QByteArray, LAYOUT_COUNT> layout_states;
     std::vector<Application> applications;
 
     // Update default applications path to use relative path (really useful only on Windows)
