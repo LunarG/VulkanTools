@@ -70,6 +70,7 @@ SOURCES += \
     ../vkconfig_core/type_tab.cpp \
     ../vkconfig_core/type_update.cpp \
     ../vkconfig_core/util.cpp \
+    ../vkconfig_core/ui.cpp \
     ../vkconfig_core/version.cpp \
     ../vkconfig_core/vulkan_info.cpp \
     ../vkconfig_core/vulkan_util.cpp \
@@ -137,6 +138,7 @@ HEADERS += \
     ../vkconfig_core/type_tab.h \
     ../vkconfig_core/type_update.h \
     ../vkconfig_core/util.h \
+    ../vkconfig_core/ui.h \
     ../vkconfig_core/version.h \
     ../vkconfig_core/vulkan_info.h \
     ../vkconfig_core/vulkan_util.h \

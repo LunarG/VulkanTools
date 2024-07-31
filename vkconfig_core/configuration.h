@@ -47,7 +47,7 @@ class Configuration {
     int platform_flags = PLATFORM_DESKTOP_BIT;
     std::string description;  // A friendly description of what this profile does
     bool view_advanced_settings = false;
-    bool view_advanced_layers = false;
+    bool view_advanced_layers = true;
 
     std::vector<Parameter> parameters;
     std::vector<Path> user_defined_paths;
