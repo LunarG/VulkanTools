@@ -74,6 +74,7 @@ vkConfigTest(test_type_log)
 vkConfigTest(test_type_platform)
 vkConfigTest(test_type_status)
 vkConfigTest(test_type_tab)
+vkConfigTest(test_ui)
 vkConfigTest(test_vulkan)
 
 
