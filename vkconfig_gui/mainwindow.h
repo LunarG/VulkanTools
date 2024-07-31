@@ -147,13 +147,15 @@ class MainWindow : public QMainWindow {
     QAction *_tray_layers_disabled_by_configurator;
     QAction *_tray_quit_action;
 
-    void RemoveClicked(ConfigurationListItem *item);
-    void ResetClicked(ConfigurationListItem *item);
-    void RenameClicked(ConfigurationListItem *item);
-    void NewClicked();
-    void DuplicateClicked(ConfigurationListItem *item);
-    void ExportClicked(ConfigurationListItem *item);
-    void ImportClicked(ConfigurationListItem *item);
+    void OnContextMenuNewClicked(ConfigurationListItem *item);
+    void OnContextMenuImportClicked(ConfigurationListItem *item);
+    void OnContextMenuRenameClicked(ConfigurationListItem *item);
+    void OnContextMenuDuplicateClicked(ConfigurationListItem *item);
+    void OnContextMenuDeleteClicked(ConfigurationListItem *item);
+    void OnContextMenuResetClicked(ConfigurationListItem *item);
+    void OnContextMenuReloadClicked(ConfigurationListItem *item);
+    void OnContextMenuExportConfigsClicked(ConfigurationListItem *item);
+    void OnContextMenuExportSettingsClicked(ConfigurationListItem *item);
 
     void AddLayerPathItem(const std::string &layer_path);
     void AddLayerItem(Parameter &parameter, bool advanced_view);
@@ -196,10 +198,6 @@ class MainWindow : public QMainWindow {
     void on_push_button_clear_log_clicked();
     void on_check_box_clear_on_launch_clicked();
     void on_push_button_applications_clicked();
-    void on_push_button_new_clicked();
-    void on_push_button_rename_clicked();
-    void on_push_button_remove_clicked();
-    void on_push_button_duplicate_clicked();
 
     void on_check_box_per_application_toggled(bool checked);
     void on_combo_box_mode_currentIndexChanged(int index);
@@ -230,7 +228,6 @@ class MainWindow : public QMainWindow {
     void InitTray();
     void UpdateTray();
 
-    void RemoveConfiguration(const std::string &configuration_name);
     void ResetLaunchApplication();
     void StartTool(Tool tool);
     QStringList BuildEnvVariables() const;
