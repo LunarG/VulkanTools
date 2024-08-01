@@ -215,29 +215,6 @@ bool Environment::Load() {
             this->home_sdk_path = ::Get(Path::HOME);
         }
 
-        if (json_preferences_object.value("layout") != QJsonValue::Undefined) {
-            const QJsonObject& json_layout_object = json_preferences_object.value("layout").toObject();
-
-            if (json_layout_object.value("main_geometry") != QJsonValue::Undefined) {
-                this->layout.main_geometry = json_layout_object.value("main_geometry").toVariant().toByteArray();
-            }
-            if (json_layout_object.value("main_window_state") != QJsonValue::Undefined) {
-                this->layout.main_window_state = json_layout_object.value("main_window_state").toVariant().toByteArray();
-            }
-            if (json_layout_object.value("main_splitter_main_state") != QJsonValue::Undefined) {
-                this->layout.main_splitter_main_state =
-                    json_layout_object.value("main_splitter_main_state").toVariant().toByteArray();
-            }
-            if (json_layout_object.value("main_splitter_configurations_state") != QJsonValue::Undefined) {
-                this->layout.main_splitter_configurations_state =
-                    json_layout_object.value("main_splitter_configurations_state").toVariant().toByteArray();
-            }
-            if (json_layout_object.value("main_splitter_settings_state") != QJsonValue::Undefined) {
-                this->layout.main_splitter_settings_state =
-                    json_layout_object.value("main_splitter_settings_state").toVariant().toByteArray();
-            }
-        }
-
         const QJsonArray& json_hide_message_boxes_array = json_preferences_object.value("hide_message_boxes").toArray();
         this->hide_message_boxes_flags = 0;
         for (int i = 0, n = json_hide_message_boxes_array.size(); i < n; ++i) {
@@ -349,25 +326,6 @@ bool Environment::Save() const {
     QJsonObject json_preferences_object;
     json_preferences_object.insert("use_system_tray", this->use_system_tray);
     json_preferences_object.insert("VK_HOME", this->home_sdk_path.RelativePath().c_str());
-
-    // TODO: layout is not stored correctly
-    QJsonObject json_layout_object;
-    if (!this->layout.main_geometry.isEmpty()) {
-        json_layout_object.insert("main_geometry", this->layout.main_geometry.data());
-    }
-    if (!this->layout.main_window_state.isEmpty()) {
-        json_layout_object.insert("main_window_state", this->layout.main_window_state.data());
-    }
-    if (!this->layout.main_splitter_main_state.isEmpty()) {
-        json_layout_object.insert("main_splitter_main_state", this->layout.main_splitter_main_state.data());
-    }
-    if (!this->layout.main_splitter_configurations_state.isEmpty()) {
-        json_layout_object.insert("main_splitter_configurations_state", this->layout.main_splitter_configurations_state.data());
-    }
-    if (!this->layout.main_splitter_settings_state.isEmpty()) {
-        json_layout_object.insert("main_splitter_settings_state", this->layout.main_splitter_settings_state.data());
-    }
-    json_preferences_object.insert("layout", json_layout_object);
 
     QJsonArray json_hide_message_boxes_array;
     for (int i = LOG_FIRST, n = LOG_COUNT; i < n; ++i) {
