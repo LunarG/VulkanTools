@@ -46,6 +46,7 @@
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QDesktopServices>
+#include <QSettings>
 
 #include <cassert>
 
@@ -300,12 +301,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->log_browser->document()->setMaximumBlockCount(2048);
     // ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
-    // Restore window geometry from last launch
-    this->restoreGeometry(environment.layout.main_geometry);
-    this->restoreState(environment.layout.main_window_state);
-    this->ui->splitter_main->restoreState(environment.layout.main_splitter_main_state);
-    this->ui->splitter_configurations->restoreState(environment.layout.main_splitter_configurations_state);
-    this->ui->splitter_settings->restoreState(environment.layout.main_splitter_settings_state);
+    // Restore UI geometry from last launch
+    this->LoadUIGeometry();
 
     this->UpdateTray();
     this->UpdateUI();
@@ -1126,13 +1123,27 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     _settings_tree_manager.CleanupGUI();
 
-    environment.layout.main_geometry = this->saveGeometry();
-    environment.layout.main_window_state = this->saveState();
-    environment.layout.main_splitter_main_state = ui->splitter_main->saveState();
-    environment.layout.main_splitter_configurations_state = ui->splitter_configurations->saveState();
-    environment.layout.main_splitter_settings_state = ui->splitter_settings->saveState();
+    this->SaveUIGeometry();
 
     QMainWindow::closeEvent(event);
+}
+
+void MainWindow::LoadUIGeometry() {
+    QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
+    this->restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
+    this->restoreState(settings.value("mainwindow/state").toByteArray());
+    this->ui->splitter_main->restoreState(settings.value("mainwindow/splitter_main_state").toByteArray());
+    this->ui->splitter_configurations->restoreState(settings.value("mainwindow/splitter_configurations_state").toByteArray());
+    this->ui->splitter_settings->restoreState(settings.value("mainwindow/splitter_settings_state").toByteArray());
+}
+
+void MainWindow::SaveUIGeometry() {
+    QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
+    settings.setValue("mainwindow/geometry", this->saveGeometry());
+    settings.setValue("mainwindow/state", this->saveState());
+    settings.setValue("mainwindow/splitter_main_state", ui->splitter_main->saveState());
+    settings.setValue("mainwindow/splitter_configurations_state", ui->splitter_configurations->saveState());
+    settings.setValue("mainwindow/splitter_settings_state", ui->splitter_settings->saveState());
 }
 
 /// Resizing needs a little help. Yes please, there has to be
