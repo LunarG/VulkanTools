@@ -27,7 +27,7 @@
 class ConfigurationInfo {
    private:
     std::string name = "Validation";
-    LayersMode mode = LAYERS_CONTROLLED_BY_APPLICATIONS;
+    LayersMode mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
 
    public:
     const char* GetName() const { return this->name.c_str(); }
