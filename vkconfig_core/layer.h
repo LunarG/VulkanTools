@@ -23,8 +23,9 @@
 
 #include "setting.h"
 #include "layer_preset.h"
-#include "layer_type.h"
 #include "version.h"
+#include "path.h"
+#include "type_layer_type.h"
 
 #include <QObject>
 #include <QJsonDocument>
@@ -38,8 +39,8 @@ class Layer {
     static const char* NO_PRESET;
 
     Layer();
-    Layer(const std::string& key, const LayerType layer_type);
-    Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
+    Layer(const std::string& key);
+    Layer(const std::string& key, const Version& file_format_version, const Version& api_version,
           const std::string& implementation_version, const std::string& library_path);
 
     bool IsValid() const;
@@ -55,16 +56,17 @@ class Layer {
    public:
     std::string key;
     Version file_format_version;
-    std::string binary_path;
+    Path binary_path;
     Version api_version;
     std::string implementation_version;
+    std::string validated_last_modified;
     StatusType status;
     std::string description;
     std::string introduction;
     std::string url;
     int platforms;
-    std::string manifest_path;
-    LayerType type;
+    Path manifest_path;
+    LayerType type = LAYER_TYPE_EXPLICIT;
     QJsonDocument profile;
     std::string disable_env;
     std::string enable_env;
@@ -74,12 +76,13 @@ class Layer {
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
-    bool Load(const std::vector<Layer>& available_layers, const std::string& full_path_to_file, LayerType layer_type);
-
-    bool Load(const std::string& full_path_to_file, LayerType layer_type);
+    bool Load(const Path& full_path_to_file, const std::map<std::string, std::string>& layers_validated,
+              LayerType type = LAYER_TYPE_EXPLICIT);
 
    private:
     Layer& operator=(const Layer&) = delete;
+
+    bool IsBuiltIn() const;
 
     std::vector<std::shared_ptr<SettingMeta> > memory;  // Settings are deleted when all layers instances are deleted.
 };

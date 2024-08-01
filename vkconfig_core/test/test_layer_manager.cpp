@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,87 @@
  */
 
 #include "../layer_manager.h"
+#include "../environment.h"
 
 #include <gtest/gtest.h>
 
-static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_1_0_0"};
+std::map<std::string, std::string> Dummy() { return std::map<std::string, std::string>(); }
 
-TEST(test_layer_manager, load_only_layer_json) {
-    PathManager paths("", SUPPORTED_CONFIG_FILES);
-    Environment environment(paths);
-    environment.Reset(Environment::DEFAULT);
+TEST(test_layer_manager, clear) {
+    LayerManager layer_manager;
 
-    LayerManager layer_manager(environment);
-    layer_manager.LoadLayersFromPath(":/");
+    EXPECT_TRUE(layer_manager.Empty());
+    EXPECT_TRUE(layer_manager.Size() == 0);
+}
 
-    EXPECT_EQ(10, layer_manager.selected_layers.size());
+TEST(test_layer_manager, load_all) {
+    std::vector<Path> user_defined_paths;
+    user_defined_paths.push_back(":/layers");
 
-    environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
+    Environment environment;
+
+    LayerManager layer_manager(user_defined_paths);
+    layer_manager.LoadAllInstalledLayers(environment.layers_validated);
+
+    EXPECT_TRUE(layer_manager.Size() >= 10);
+    EXPECT_TRUE(!layer_manager.Empty());
+
+    layer_manager.Clear();
+    EXPECT_TRUE(layer_manager.Empty());
+}
+
+TEST(test_layer_manager, load_dir) {
+    LayerManager layer_manager;
+    EXPECT_TRUE(layer_manager.Empty());
+
+    layer_manager.LoadLayersFromPath(":/layers", Dummy());
+
+    EXPECT_TRUE(!layer_manager.Empty());
+    EXPECT_EQ(10, layer_manager.Size());
+
+    EXPECT_TRUE(layer_manager.Find("VK_LAYER_LUNARG_reference_1_1_0") != nullptr);
+
+    layer_manager.Clear();
+    EXPECT_TRUE(layer_manager.Empty());
+}
+
+TEST(test_layer_manager, load_file) {
+    LayerManager layer_manager;
+    EXPECT_TRUE(layer_manager.Empty());
+
+    layer_manager.LoadLayersFromPath(":/layers/VK_LAYER_LUNARG_reference_1_1_0.json", Dummy());
+
+    EXPECT_TRUE(!layer_manager.Empty());
+    EXPECT_EQ(1, layer_manager.Size());
+
+    EXPECT_TRUE(layer_manager.Find("VK_LAYER_LUNARG_reference_1_1_0") != nullptr);
+
+    layer_manager.Clear();
+    EXPECT_TRUE(layer_manager.Empty());
+}
+
+TEST(test_layer_manager, find) {
+    std::vector<Path> user_defined_paths;
+    user_defined_paths.push_back(":/layers");
+
+    Environment environment;
+
+    LayerManager layer_manager(user_defined_paths);
+    EXPECT_TRUE(layer_manager.Empty());
+
+    layer_manager.LoadAllInstalledLayers(environment.layers_validated);
+
+    EXPECT_TRUE(layer_manager.Find("VK_LAYER_LUNARG_reference_1_1_0") != nullptr);
+    EXPECT_TRUE(layer_manager.Find("VK_LAYER_LUNARG_test_03") != nullptr);
+}
+
+TEST(test_layer_manager, avoid_duplicate) {
+    LayerManager layer_manager;
+    EXPECT_TRUE(layer_manager.Empty());
+
+    layer_manager.LoadLayersFromPath(":/layers", Dummy());
+    EXPECT_EQ(10, layer_manager.Size());
+
+    layer_manager.LoadLayersFromPath(":/layers", Dummy());
+    EXPECT_EQ(10, layer_manager.Size());
 }

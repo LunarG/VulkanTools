@@ -22,7 +22,7 @@
 
 #include <QDir>
 #include <QFileInfo>
-
+/*
 Application::Application(const std::string& name, const std::string& executable_full_path, const std::string& arguments)
     : app_name(name),
       executable_path(executable_full_path),
@@ -33,3 +33,4 @@ Application::Application(const std::string& name, const std::string& executable_
                    .toStdString()
                    .c_str()),
       layers_mode(LAYERS_MODE_BY_CONFIGURATOR_RUNNING) {}
+*/

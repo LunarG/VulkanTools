@@ -1,0 +1,41 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Portability",
+        "version": 1,
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "description": "Check the Vulkan application is portable to Apple platforms",
+        "layers": [
+            {
+                "name": "VK_LAYER_KHRONOS_validation",
+                "rank": 4,
+                "settings": [
+                ],
+                "control": "on",
+                "version": "latest"
+            },
+            {
+                "name": "VK_LAYER_KHRONOS_profiles",
+                "rank": 5,
+                "settings": [
+                    {
+                        "key": "profile_dirs",
+                        "type": "LOAD_FOLDER",
+                        "value": "${VULKAN_CONTENT}/VK_LAYER_KHRONOS_profiles"
+                    },
+                    {
+                        "key": "profile_name",
+                        "type": "ENUM",
+                        "value": "VP_LUNARG_desktop_baseline_2023"
+                    }
+                ],
+                "control": "on",
+                "version": "latest"
+            }
+        ]
+    }
+}
