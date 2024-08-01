@@ -226,6 +226,9 @@ class MainWindow : public QMainWindow {
     MainWindow(const MainWindow &) = delete;
     MainWindow &operator=(const MainWindow &) = delete;
 
+    void LoadUIGeometry();
+    void SaveUIGeometry();
+
     void InitTray();
     void UpdateTray();
 
