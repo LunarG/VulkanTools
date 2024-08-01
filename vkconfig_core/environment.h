@@ -94,14 +94,6 @@ class Environment {
 
     std::string selected_layer_name;
 
-    struct Layout {
-        QByteArray main_geometry;
-        QByteArray main_window_state;
-        QByteArray main_splitter_main_state;
-        QByteArray main_splitter_configurations_state;
-        QByteArray main_splitter_settings_state;
-    } layout;
-
     bool launcher_clear_on_launch = true;
 
    private:
