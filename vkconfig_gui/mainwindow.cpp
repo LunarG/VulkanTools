@@ -198,7 +198,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->configurations_tree->installEventFilter(this);
     ui->layers_tree->installEventFilter(this);
     ui->settings_tree->installEventFilter(this);
-    //    ui->splitter_settings->setVisible(false);
 
     SetupLauncherTree();
 
@@ -213,14 +212,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->actionVulkan_Installation, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInstallation(bool)));
     connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetToDefault(bool)));
-    /*
-        connect(ui->comboBox_configurations, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
-                SLOT(OnConfigurationItemChanged(QTreeWidgetItem *, int)));
-        connect(ui->comboBox_configurations, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,
-                SLOT(OnConfigurationTreeChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-        connect(ui->comboBox_configurations, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
-                SLOT(OnConfigurationTreeClicked(QTreeWidgetItem *, int)));
-    */
+
     connect(ui->configurations_tree, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this,
             SLOT(OnConfigurationItemChanged(QTreeWidgetItem *, int)));
     connect(ui->configurations_tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this,
@@ -230,10 +222,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->configurations_tree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
             SLOT(OnConfigurationTreeClicked(QTreeWidgetItem *, int)));
 
-    // connect(ui->layers_tree, SIGNAL(itemChanged(QListWidgetItem *, int)), this, SLOT(OnLayersItemChanged(QListWidgetItem *,
-    // int))); connect(ui->layers_tree, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), this,
-    // SLOT(OnLayersTreeChanged(QListWidgetItem *, QListWidgetItem *))); connect(ui->layers_tree, SIGNAL(indexesMoved(int)), this,
-    // SLOT(OnLayersIndexesMoved(const QModelIndexList &)));
     connect(ui->layers_tree, SIGNAL(currentRowChanged(int)), this, SLOT(OnLayerCurrentRowChanged(int)));
 
     connect(ui->settings_tree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(editorExpanded(QTreeWidgetItem *)));
@@ -279,32 +267,20 @@ MainWindow::MainWindow(QWidget *parent)
         ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
     }
 
-    // ui->edit_executable->setText(application.executable_path.c_str());
-    /*
-        ui->edit_dir->setText(application.working_folder.c_str());
-        ui->edit_arguments->setText(application.arguments.c_str());
-        ui->edit_env->setText(application.env.c_str());
-        ui->edit_log->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
-    */
     ui->execute_closer_application_label->setVisible(true);
     ui->execute_closer_driver_label->setVisible(true);
-
-    // ui->check_box_persistent->setToolTip("Keep Vulkan Configurator running in system tray when closing the main window");
-    // ui->check_box_persistent->setVisible(QSystemTrayIcon::isSystemTrayAvailable());
-
-    this->LoadConfigurationList();
 
     // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
     // Whenever the control surpasses this block count, old blocks are discarded.
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
     ui->log_browser->document()->setMaximumBlockCount(2048);
-    // ui->configuration_tree->scrollToItem(ui->configuration_tree->topLevelItem(0), QAbstractItemView::PositionAtTop);
 
     // Restore UI geometry from last launch
     this->LoadUIGeometry();
 
-    this->UpdateTray();
+    this->UpdateUI_Configurations();
+    this->UpdateUI_Status();
     this->UpdateUI();
 }
 
@@ -344,19 +320,31 @@ void MainWindow::InitTray() {
 
         this->_tray_icon = new QSystemTrayIcon(this);
         this->_tray_icon->setContextMenu(this->_tray_icon_menu);
-        this->UpdateTray();
+        this->UpdateUI_Status();
         this->_tray_icon->show();
 
         this->connect(this->_tray_icon, &QSystemTrayIcon::activated, this, &MainWindow::iconActivated);
     }
 }
 
-void MainWindow::UpdateTray() {
+void MainWindow::UpdateUI_Status() {
+    const Configurator &configurator = Configurator::Get();
+    const Environment &environment = configurator.environment;
+
+    const std::string &selected_contiguration_name = environment.GetActiveConfigurationInfo().GetName();
+    const bool has_selected_configuration = !selected_contiguration_name.empty();
+    const bool has_active_configuration = configurator.HasActiveConfiguration() && has_selected_configuration;
+
+    // Update title bar
+#ifdef VKCONFIG_DATE
+    bool display_date = true;
+#else
+    bool display_date = false;
+#endif
+
+    this->setWindowTitle(GetMainWindowTitle(has_active_configuration, display_date).c_str());
+
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
-        // QApplication::setQuitOnLastWindowClosed(!ui->check_box_persistent->isChecked());
-
-        const Environment &environment = Configurator::Get().environment;
-
         switch (environment.GetActiveConfigurationInfo().GetMode()) {
             default:
             case LAYERS_CONTROLLED_BY_APPLICATIONS:
@@ -375,17 +363,23 @@ void MainWindow::UpdateTray() {
                 this->_tray_layers_disabled_by_configurator->setChecked(true);
                 break;
         }
+    }
 
-        if (environment.GetActiveConfigurationInfo().GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS) {
-            const QIcon icon(":/resourcefiles/vkconfig-on.png");
+    if (has_active_configuration && environment.GetActiveConfigurationInfo().GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS) {
+        const QIcon icon(":/resourcefiles/vkconfig-on.png");
 
-            this->setWindowIcon(icon);
+        this->setWindowIcon(icon);
+
+        if (QSystemTrayIcon::isSystemTrayAvailable()) {
             this->_tray_icon->setIcon(icon);
             this->_tray_icon->setToolTip("Layers controlled by the Vulkan Configurator");
-        } else {
-            const QIcon icon(":/resourcefiles/vkconfig-off.png");
+        }
+    } else {
+        const QIcon icon(":/resourcefiles/vkconfig-off.png");
 
-            this->setWindowIcon(icon);
+        this->setWindowIcon(icon);
+
+        if (QSystemTrayIcon::isSystemTrayAvailable()) {
             this->_tray_icon->setIcon(icon);
             this->_tray_icon->setToolTip("Layers controlled by the Vulkan Applications");
         }
@@ -413,7 +407,7 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
                 this->hide();
             }
 
-            this->UpdateTray();
+            this->UpdateUI_Status();
             break;
     }
 }
@@ -423,7 +417,7 @@ void MainWindow::trayActionRestore() {
     this->showNormal();
 
     this->UpdateUI();
-    this->UpdateTray();
+    this->UpdateUI_Status();
 }
 
 void MainWindow::trayActionControlledByApplications(bool checked) {
@@ -434,7 +428,7 @@ void MainWindow::trayActionControlledByApplications(bool checked) {
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI();
-        this->UpdateTray();
+        this->UpdateUI_Status();
     }
 }
 
@@ -446,7 +440,7 @@ void MainWindow::trayActionControlledByConfigurator(bool checked) {
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI();
-        this->UpdateTray();
+        this->UpdateUI_Status();
     }
 }
 
@@ -458,7 +452,7 @@ void MainWindow::trayActionDisabledByApplications(bool checked) {
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI();
-        this->UpdateTray();
+        this->UpdateUI_Status();
     }
 }
 
@@ -530,10 +524,10 @@ void MainWindow::UpdateUI() {
     ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
     ui->combo_box_applications->blockSignals(false);
 
-    const bool has_active_configuration = configurator.HasActiveConfiguration();
+    const bool has_active_configuration = configurator.HasActiveConfiguration() && has_selected_configuration;
 
     // Mode states
-    this->UpdateTray();
+    this->UpdateUI_Status();
     // ui->tree_layers_paths->blockSignals(true);
 
     // Update configurations
@@ -726,15 +720,6 @@ void MainWindow::UpdateUI() {
         this->_settings_tree_manager.CleanupGUI();
     }
 
-    // Update title bar
-#ifdef VKCONFIG_DATE
-    bool display_date = true;
-#else
-    bool display_date = false;
-#endif
-
-    this->setWindowTitle(GetMainWindowTitle(has_active_configuration, display_date).c_str());
-
     ui->configurations_tree->blockSignals(false);
     this->blockSignals(false);
 
@@ -743,7 +728,7 @@ void MainWindow::UpdateUI() {
 
 // Load or refresh the list of configuration. Any configuration that uses a layer that
 // is not detected on the system is disabled.
-void MainWindow::LoadConfigurationList() {
+void MainWindow::UpdateUI_Configurations() {
     // There are lots of ways into this, and in none of them
     // can we have an active editor running.
     _settings_tree_manager.CleanupGUI();
@@ -788,6 +773,36 @@ void MainWindow::LoadConfigurationList() {
     ui->configurations_tree->setColumnWidth(4, 24);
 }
 
+void MainWindow::UpdateUI_Layers() {
+    ui->layers_tree->clear();
+
+    Configurator &configurator = Configurator::Get();
+    const std::string &selected_contiguration_name = configurator.environment.GetActiveConfigurationInfo().GetName();
+    const bool has_selected_configuration = !selected_contiguration_name.empty();
+
+    if (has_selected_configuration) {
+        Configuration *configuration = configurator.configurations.FindConfiguration(selected_contiguration_name);
+        if (configuration != nullptr) {
+            for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+                Parameter &parameter = configuration->parameters[i];
+
+                if (!configuration->view_advanced_layers) {
+                    if (parameter.control == LAYER_CONTROL_AUTO) {
+                        continue;
+                    }
+                }
+
+                this->AddLayerItem(parameter, configuration->view_advanced_layers);
+            }
+            resizeEvent(nullptr);
+
+            ui->combo_box_layers_view->setCurrentIndex(configuration->view_advanced_layers);
+
+            ui->layers_tree->update();
+        }
+    }
+}
+
 /// Okay, because we are using custom controls, some of
 /// the signaling is not happening as expected. So, we cannot
 /// always get an accurate answer to the currently selected
@@ -821,7 +836,7 @@ void MainWindow::on_combo_box_mode_currentIndexChanged(int index) {
     ui->group_box_settings->setEnabled(enabled_ui);
     ui->group_box_layers->setEnabled(enabled_ui);
 
-    this->UpdateTray();
+    this->UpdateUI_Status();
     this->UpdateUI();
 }
 
@@ -833,7 +848,7 @@ void MainWindow::on_combo_box_applications_currentIndexChanged(int index) {
     ui->combo_box_applications->setToolTip(application.executable_path.AbsolutePath().c_str());
     ui->combo_box_mode->setCurrentIndex(configurator.environment.GetActiveConfigurationInfo().GetMode());
 
-    this->UpdateTray();
+    this->UpdateUI_Status();
     this->UpdateUI();
 }
 
@@ -844,7 +859,7 @@ void MainWindow::on_check_box_per_application_toggled(bool checked) {
     ui->combo_box_applications->setEnabled(configurator.environment.GetPerApplicationConfig());
     ui->combo_box_mode->setCurrentIndex(configurator.environment.GetActiveConfigurationInfo().GetMode());
 
-    this->UpdateTray();
+    this->UpdateUI_Status();
     this->UpdateUI();
 }
 
@@ -871,9 +886,8 @@ void MainWindow::toolsResetToDefault(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.ResetToDefault(true);
 
-    LoadConfigurationList();
-
-    UpdateUI();
+    this->UpdateUI_Configurations();
+    this->UpdateUI();
 }
 
 // Thist signal actually comes from the radio button
@@ -963,7 +977,7 @@ void MainWindow::OnConfigurationItemChanged(QTreeWidgetItem *item, int column) {
             configurator.environment.GetActiveConfigurationInfo().SetName(new_name);
             configurator.environment.selected_layer_name.clear();
 
-            LoadConfigurationList();
+            this->UpdateUI_Configurations();
         } else {
             // If the configurate name is empty or the configuration name is taken, keep old configuration name
 
@@ -1177,7 +1191,7 @@ void MainWindow::OnContextMenuNewClicked(ConfigurationListItem *item) {
     configurator.environment.GetActiveConfigurationInfo().SetName(new_configuration.key);
     configurator.Override(OVERRIDE_AREA_ALL);
 
-    this->LoadConfigurationList();
+    this->UpdateUI_Configurations();
 }
 
 void MainWindow::OnContextMenuImportClicked(ConfigurationListItem *item) {
@@ -1201,7 +1215,7 @@ void MainWindow::OnContextMenuImportClicked(ConfigurationListItem *item) {
     configurator.environment.GetActiveConfigurationInfo().SetName(imported_configuration);
     configurator.Override(OVERRIDE_AREA_ALL);
 
-    this->LoadConfigurationList();
+    this->UpdateUI_Configurations();
 }
 
 void MainWindow::OnContextMenuRenameClicked(ConfigurationListItem *item) {
@@ -1223,7 +1237,7 @@ void MainWindow::OnContextMenuDuplicateClicked(ConfigurationListItem *item) {
     configurator.environment.GetActiveConfigurationInfo().SetName(duplicated_configuration.key);
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-    LoadConfigurationList();
+    this->UpdateUI_Configurations();
 }
 
 void MainWindow::OnContextMenuDeleteClicked(ConfigurationListItem *item) {
@@ -1246,9 +1260,9 @@ void MainWindow::OnContextMenuDeleteClicked(ConfigurationListItem *item) {
     configurator.configurations.RemoveConfiguration(configurator.layers.selected_layers, item->configuration_name);
     configurator.environment.GetActiveConfigurationInfo().SetName("");
 
-    LoadConfigurationList();
-
-    // this->UpdateUI();
+    this->UpdateUI_Configurations();
+    this->UpdateUI_Layers();
+    this->UpdateUI_Status();
 }
 
 void MainWindow::OnContextMenuResetClicked(ConfigurationListItem *item) {
@@ -1278,11 +1292,13 @@ void MainWindow::OnContextMenuResetClicked(ConfigurationListItem *item) {
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     alert.setDefaultButton(QMessageBox::Yes);
     alert.setIcon(QMessageBox::Warning);
-    if (alert.exec() == QMessageBox::No) return;
+    if (alert.exec() == QMessageBox::No) {
+        return;
+    }
 
     configuration->Reset(configurator.layers.selected_layers);
 
-    LoadConfigurationList();
+    this->UpdateUI_Configurations();
 }
 
 void MainWindow::OnContextMenuReloadClicked(ConfigurationListItem *item) {
