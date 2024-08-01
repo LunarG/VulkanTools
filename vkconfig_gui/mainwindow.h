@@ -115,7 +115,6 @@ class MainWindow : public QMainWindow {
     std::unique_ptr<QProcess> _launch_application;  // Keeps track of the monitored app
     QFile _log_file;                                // Log file for layer output
 
-    void LoadConfigurationList();
     void SetupLauncherTree();
 
     void closeEvent(QCloseEvent *event) override;
@@ -230,7 +229,9 @@ class MainWindow : public QMainWindow {
     void SaveUIGeometry();
 
     void InitTray();
-    void UpdateTray();
+    void UpdateUI_Status();
+    void UpdateUI_Configurations();
+    void UpdateUI_Layers();
 
     void ResetLaunchApplication();
     void StartTool(Tool tool);
