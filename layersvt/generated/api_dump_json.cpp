@@ -3403,6 +3403,15 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000470006:
         settings.stream() << "\"VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO_KHR\"";
         break;
+    case 1000476000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ANTI_LAG_FEATURES_AMD\"";
+        break;
+    case 1000476001:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_ANTI_LAG_DATA_AMD\"";
+        break;
+    case 1000476002:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_ANTI_LAG_PRESENTATION_INFO_AMD\"";
+        break;
     case 1000481000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR\"";
         break;
@@ -7793,6 +7802,37 @@ void dump_json_VkOpticalFlowSessionBindingPointNV(VkOpticalFlowSessionBindingPoi
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
+void dump_json_VkAntiLagModeAMD(VkAntiLagModeAMD object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"VK_ANTI_LAG_MODE_DRIVER_CONTROL_AMD\"";
+        break;
+    case 1:
+        settings.stream() << "\"VK_ANTI_LAG_MODE_ON_AMD\"";
+        break;
+    case 2:
+        settings.stream() << "\"VK_ANTI_LAG_MODE_OFF_AMD\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_VkAntiLagStageAMD(VkAntiLagStageAMD object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"VK_ANTI_LAG_STAGE_INPUT_AMD\"";
+        break;
+    case 1:
+        settings.stream() << "\"VK_ANTI_LAG_STAGE_PRESENT_AMD\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
 void dump_json_VkShaderCodeTypeEXT(VkShaderCodeTypeEXT object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
@@ -9093,6 +9133,9 @@ void dump_json_VkShaderStageFlagBits(VkShaderStageFlagBits object, const ApiDump
     }
     if(object & 524288) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_STAGE_CLUSTER_CULLING_BIT_HUAWEI"; is_first = false;
+    }
+    if(object & 32768) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_STAGE_RESERVED_15_BIT_NV"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -11254,20 +11297,6 @@ void dump_json_VkIndirectCommandsLayoutUsageFlagBitsNV(VkIndirectCommandsLayoutU
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeFlagBitsKHR(VkVideoEncodeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
-{
-    bool is_first = true;
-    settings.stream() << '"' << object;
-    if(object & 1) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_RESERVED_0_BIT_KHR"; is_first = false;
-    }
-    if(object & 2) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_RESERVED_1_BIT_KHR"; is_first = false;
-    }
-    if(!is_first)
-        settings.stream() << ')';
-    settings.stream() << "\"";
-}
 void dump_json_VkVideoEncodeCapabilityFlagBitsKHR(VkVideoEncodeCapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
@@ -12419,10 +12448,6 @@ void dump_json_VkIndirectCommandsLayoutUsageFlagsNV(VkIndirectCommandsLayoutUsag
 {
     dump_json_VkIndirectCommandsLayoutUsageFlagBitsNV((VkIndirectCommandsLayoutUsageFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkVideoEncodeFlagsKHR(VkVideoEncodeFlagsKHR object, const ApiDumpSettings& settings, int indents)
-{
-    dump_json_VkVideoEncodeFlagBitsKHR((VkVideoEncodeFlagBitsKHR) object, settings, indents);
-}
 void dump_json_VkVideoEncodeCapabilityFlagsKHR(VkVideoEncodeCapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeCapabilityFlagBitsKHR((VkVideoEncodeCapabilityFlagBitsKHR) object, settings, indents);
@@ -12728,6 +12753,10 @@ void dump_json_VkHeadlessSurfaceCreateFlagsEXT(VkHeadlessSurfaceCreateFlagsEXT o
     settings.stream() << '"' << object << "\"";
 }
 void dump_json_VkDeviceMemoryReportFlagsEXT(VkDeviceMemoryReportFlagsEXT object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << '"' << object << "\"";
+}
+void dump_json_VkVideoEncodeFlagsKHR(VkVideoEncodeFlagsKHR object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
@@ -26811,7 +26840,7 @@ void dump_json_VkDescriptorBufferBindingInfoEXT(const VkDescriptorBufferBindingI
     if(object.pNext != nullptr){
         dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
     } else {
-        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
     dump_json_value<const VkDeviceAddress>(object.address, NULL, settings, "VkDeviceAddress", "address", false, false, indents + 1, dump_json_VkDeviceAddress);
@@ -26827,7 +26856,7 @@ void dump_json_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT(const VkDe
     if(object.pNext != nullptr){
         dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
     } else {
-        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
     dump_json_value<const VkBuffer>(object.buffer, NULL, settings, "VkBuffer", "buffer", false, false, indents + 1, dump_json_VkBuffer);
@@ -30341,6 +30370,54 @@ void dump_json_VkBufferUsageFlags2CreateInfoKHR(const VkBufferUsageFlags2CreateI
     }
     settings.stream() << ",\n";
     dump_json_value<const VkBufferUsageFlags2KHR>(object.usage, NULL, settings, "VkBufferUsageFlags2KHR", "usage", false, false, indents + 1, dump_json_VkBufferUsageFlags2KHR);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPhysicalDeviceAntiLagFeaturesAMD(const VkPhysicalDeviceAntiLagFeaturesAMD& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.antiLag, NULL, settings, "VkBool32", "antiLag", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkAntiLagPresentationInfoAMD(const VkAntiLagPresentationInfoAMD& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkAntiLagStageAMD>(object.stage, NULL, settings, "VkAntiLagStageAMD", "stage", false, false, indents + 1, dump_json_VkAntiLagStageAMD);
+    settings.stream() << ",\n";
+    dump_json_value<const uint64_t>(object.frameIndex, NULL, settings, "uint64_t", "frameIndex", false, false, indents + 1, dump_json_uint64_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkAntiLagDataAMD(const VkAntiLagDataAMD& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkAntiLagModeAMD>(object.mode, NULL, settings, "VkAntiLagModeAMD", "mode", false, false, indents + 1, dump_json_VkAntiLagModeAMD);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxFPS, NULL, settings, "uint32_t", "maxFPS", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_pointer<const VkAntiLagPresentationInfoAMD>(object.pPresentationInfo, settings, "const VkAntiLagPresentationInfoAMD*", "pPresentationInfo", true, false, indents + 1, dump_json_VkAntiLagPresentationInfoAMD);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR(const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -34518,6 +34595,15 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         break;
     case 1000470006:
         dump_json_pNext<const VkBufferUsageFlags2CreateInfoKHR>(static_cast<const VkBufferUsageFlags2CreateInfoKHR*>(object), settings, "VkBufferUsageFlags2CreateInfoKHR", indents, dump_json_VkBufferUsageFlags2CreateInfoKHR);
+        break;
+    case 1000476000:
+        dump_json_pNext<const VkPhysicalDeviceAntiLagFeaturesAMD>(static_cast<const VkPhysicalDeviceAntiLagFeaturesAMD*>(object), settings, "VkPhysicalDeviceAntiLagFeaturesAMD", indents, dump_json_VkPhysicalDeviceAntiLagFeaturesAMD);
+        break;
+    case 1000476002:
+        dump_json_pNext<const VkAntiLagPresentationInfoAMD>(static_cast<const VkAntiLagPresentationInfoAMD*>(object), settings, "VkAntiLagPresentationInfoAMD", indents, dump_json_VkAntiLagPresentationInfoAMD);
+        break;
+    case 1000476001:
+        dump_json_pNext<const VkAntiLagDataAMD>(static_cast<const VkAntiLagDataAMD*>(object), settings, "VkAntiLagDataAMD", indents, dump_json_VkAntiLagDataAMD);
         break;
     case 1000481000:
         dump_json_pNext<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR>(static_cast<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR", indents, dump_json_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR);
@@ -48675,6 +48761,22 @@ void dump_json_vkGetDeviceImageSubresourceLayoutKHR(ApiDumpInstance& dump_inst, 
         dump_json_pointer<const VkDeviceImageSubresourceInfoKHR>(pInfo, settings, "const VkDeviceImageSubresourceInfoKHR*", "pInfo", true, false, 4, dump_json_VkDeviceImageSubresourceInfoKHR);
         settings.stream() << ",\n";
         dump_json_pointer<const VkSubresourceLayout2KHR>(pLayout, settings, "VkSubresourceLayout2KHR*", "pLayout", true, false, 4, dump_json_VkSubresourceLayout2KHR);
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
+void dump_json_vkAntiLagUpdateAMD(ApiDumpInstance& dump_inst, VkDevice device, const VkAntiLagDataAMD* pData)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkDevice>(device, NULL, settings, "VkDevice", "device", false, false, 4, dump_json_VkDevice);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkAntiLagDataAMD>(pData, settings, "const VkAntiLagDataAMD*", "pData", true, false, 4, dump_json_VkAntiLagDataAMD);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     settings.stream() << settings.indentation(2) << "}";

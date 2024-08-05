@@ -14921,6 +14921,28 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSubresourceLayoutKHR(VkDevice device,
     }
     ApiDumpInstance::current().outputMutex()->unlock();
 }
+VKAPI_ATTR void VKAPI_CALL vkAntiLagUpdateAMD(VkDevice device, const VkAntiLagDataAMD* pData)
+{
+    ApiDumpInstance::current().outputMutex()->lock();
+    dump_function_head(ApiDumpInstance::current(), "vkAntiLagUpdateAMD", "device, pData", "void");
+    device_dispatch_table(device)->AntiLagUpdateAMD(device, pData);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkAntiLagUpdateAMD(ApiDumpInstance::current(), device, pData);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkAntiLagUpdateAMD(ApiDumpInstance::current(), device, pData);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkAntiLagUpdateAMD(ApiDumpInstance::current(), device, pData);
+                break;
+        }
+    }
+    ApiDumpInstance::current().outputMutex()->unlock();
+}
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateShadersEXT(VkDevice device, uint32_t createInfoCount, const VkShaderCreateInfoEXT* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkShaderEXT* pShaders)
 {
     ApiDumpInstance::current().outputMutex()->lock();
@@ -16783,6 +16805,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetRenderingAreaGranularityKHR);
     if(strcmp(pName, "vkGetDeviceImageSubresourceLayoutKHR") == 0 && (!device || device_dispatch_table(device)->GetDeviceImageSubresourceLayoutKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceImageSubresourceLayoutKHR);
+    if(strcmp(pName, "vkAntiLagUpdateAMD") == 0 && (!device || device_dispatch_table(device)->AntiLagUpdateAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkAntiLagUpdateAMD);
     if(strcmp(pName, "vkCreateShadersEXT") == 0 && (!device || device_dispatch_table(device)->CreateShadersEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateShadersEXT);
     if(strcmp(pName, "vkDestroyShaderEXT") == 0 && (!device || device_dispatch_table(device)->DestroyShaderEXT))
