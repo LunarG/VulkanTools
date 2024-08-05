@@ -3775,6 +3775,15 @@ void dump_html_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000470006:
         settings.stream() << "VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO_KHR (";
         break;
+    case 1000476000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ANTI_LAG_FEATURES_AMD (";
+        break;
+    case 1000476001:
+        settings.stream() << "VK_STRUCTURE_TYPE_ANTI_LAG_DATA_AMD (";
+        break;
+    case 1000476002:
+        settings.stream() << "VK_STRUCTURE_TYPE_ANTI_LAG_PRESENTATION_INFO_AMD (";
+        break;
     case 1000481000:
         settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR (";
         break;
@@ -8396,6 +8405,41 @@ void dump_html_VkOpticalFlowSessionBindingPointNV(VkOpticalFlowSessionBindingPoi
     }
     settings.stream() << object << ")</div></summary>";
 }
+void dump_html_VkAntiLagModeAMD(VkAntiLagModeAMD object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "VK_ANTI_LAG_MODE_DRIVER_CONTROL_AMD (";
+        break;
+    case 1:
+        settings.stream() << "VK_ANTI_LAG_MODE_ON_AMD (";
+        break;
+    case 2:
+        settings.stream() << "VK_ANTI_LAG_MODE_OFF_AMD (";
+        break;
+    default:
+        settings.stream() << "UNKNOWN (";
+    }
+    settings.stream() << object << ")</div></summary>";
+}
+void dump_html_VkAntiLagStageAMD(VkAntiLagStageAMD object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "VK_ANTI_LAG_STAGE_INPUT_AMD (";
+        break;
+    case 1:
+        settings.stream() << "VK_ANTI_LAG_STAGE_PRESENT_AMD (";
+        break;
+    default:
+        settings.stream() << "UNKNOWN (";
+    }
+    settings.stream() << object << ")</div></summary>";
+}
 void dump_html_VkShaderCodeTypeEXT(VkShaderCodeTypeEXT object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
@@ -9741,6 +9785,9 @@ void dump_html_VkShaderStageFlagBits(VkShaderStageFlagBits object, const ApiDump
     }
     if(object & 524288) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_STAGE_CLUSTER_CULLING_BIT_HUAWEI"; is_first = false;
+    }
+    if(object & 32768) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_STAGE_RESERVED_15_BIT_NV"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -11984,21 +12031,6 @@ void dump_html_VkIndirectCommandsLayoutUsageFlagBitsNV(VkIndirectCommandsLayoutU
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeFlagBitsKHR(VkVideoEncodeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
-{
-    settings.stream() << "<div class='val'>";
-    bool is_first = true;
-    settings.stream() << object;
-    if(object & 1) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_RESERVED_0_BIT_KHR"; is_first = false;
-    }
-    if(object & 2) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_RESERVED_1_BIT_KHR"; is_first = false;
-    }
-    if(!is_first)
-        settings.stream() << ")";
-    settings.stream() << "</div></summary>";
-}
 void dump_html_VkVideoEncodeCapabilityFlagBitsKHR(VkVideoEncodeCapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
@@ -13174,10 +13206,6 @@ void dump_html_VkIndirectCommandsLayoutUsageFlagsNV(VkIndirectCommandsLayoutUsag
 {
     dump_html_VkIndirectCommandsLayoutUsageFlagBitsNV((VkIndirectCommandsLayoutUsageFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkVideoEncodeFlagsKHR(VkVideoEncodeFlagsKHR object, const ApiDumpSettings& settings, int indents)
-{
-    dump_html_VkVideoEncodeFlagBitsKHR((VkVideoEncodeFlagBitsKHR) object, settings, indents);
-}
 void dump_html_VkVideoEncodeCapabilityFlagsKHR(VkVideoEncodeCapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeCapabilityFlagBitsKHR((VkVideoEncodeCapabilityFlagBitsKHR) object, settings, indents);
@@ -13528,6 +13556,11 @@ void dump_html_VkHeadlessSurfaceCreateFlagsEXT(VkHeadlessSurfaceCreateFlagsEXT o
                              << object << "</div></summary>";
 }
 void dump_html_VkDeviceMemoryReportFlagsEXT(VkDeviceMemoryReportFlagsEXT object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>"
+                             << object << "</div></summary>";
+}
+void dump_html_VkVideoEncodeFlagsKHR(VkVideoEncodeFlagsKHR object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
@@ -27260,7 +27293,7 @@ void dump_html_VkDescriptorBufferBindingInfoEXT(const VkDescriptorBufferBindingI
     if(object.pNext != nullptr){
         dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
     } else {
-        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+        dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const VkDeviceAddress>(object.address, settings, "VkDeviceAddress", "address", indents + 1, dump_html_VkDeviceAddress);
     dump_html_value<const VkBufferUsageFlags>(object.usage, settings, "VkBufferUsageFlags", "usage", indents + 1, dump_html_VkBufferUsageFlags);
@@ -27277,7 +27310,7 @@ void dump_html_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT(const VkDe
     if(object.pNext != nullptr){
         dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
     } else {
-        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+        dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const VkBuffer>(object.buffer, settings, "VkBuffer", "buffer", indents + 1, dump_html_VkBuffer);
 }
@@ -30845,6 +30878,57 @@ void dump_html_VkBufferUsageFlags2CreateInfoKHR(const VkBufferUsageFlags2CreateI
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const VkBufferUsageFlags2KHR>(object.usage, settings, "VkBufferUsageFlags2KHR", "usage", indents + 1, dump_html_VkBufferUsageFlags2KHR);
+}
+void dump_html_VkPhysicalDeviceAntiLagFeaturesAMD(const VkPhysicalDeviceAntiLagFeaturesAMD& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkBool32>(object.antiLag, settings, "VkBool32", "antiLag", indents + 1, dump_html_VkBool32);
+}
+void dump_html_VkAntiLagPresentationInfoAMD(const VkAntiLagPresentationInfoAMD& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkAntiLagStageAMD>(object.stage, settings, "VkAntiLagStageAMD", "stage", indents + 1, dump_html_VkAntiLagStageAMD);
+    dump_html_value<const uint64_t>(object.frameIndex, settings, "uint64_t", "frameIndex", indents + 1, dump_html_uint64_t);
+}
+void dump_html_VkAntiLagDataAMD(const VkAntiLagDataAMD& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkAntiLagModeAMD>(object.mode, settings, "VkAntiLagModeAMD", "mode", indents + 1, dump_html_VkAntiLagModeAMD);
+    dump_html_value<const uint32_t>(object.maxFPS, settings, "uint32_t", "maxFPS", indents + 1, dump_html_uint32_t);
+    dump_html_pointer<const VkAntiLagPresentationInfoAMD>(object.pPresentationInfo, settings, "const VkAntiLagPresentationInfoAMD*", "pPresentationInfo", indents + 1, dump_html_VkAntiLagPresentationInfoAMD);
 }
 void dump_html_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR(const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -35104,6 +35188,15 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         break;
     case 1000470006:
         dump_html_pNext<const VkBufferUsageFlags2CreateInfoKHR>(static_cast<const VkBufferUsageFlags2CreateInfoKHR*>(object), settings, "VkBufferUsageFlags2CreateInfoKHR", indents, dump_html_VkBufferUsageFlags2CreateInfoKHR);
+        break;
+    case 1000476000:
+        dump_html_pNext<const VkPhysicalDeviceAntiLagFeaturesAMD>(static_cast<const VkPhysicalDeviceAntiLagFeaturesAMD*>(object), settings, "VkPhysicalDeviceAntiLagFeaturesAMD", indents, dump_html_VkPhysicalDeviceAntiLagFeaturesAMD);
+        break;
+    case 1000476002:
+        dump_html_pNext<const VkAntiLagPresentationInfoAMD>(static_cast<const VkAntiLagPresentationInfoAMD*>(object), settings, "VkAntiLagPresentationInfoAMD", indents, dump_html_VkAntiLagPresentationInfoAMD);
+        break;
+    case 1000476001:
+        dump_html_pNext<const VkAntiLagDataAMD>(static_cast<const VkAntiLagDataAMD*>(object), settings, "VkAntiLagDataAMD", indents, dump_html_VkAntiLagDataAMD);
         break;
     case 1000481000:
         dump_html_pNext<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR>(static_cast<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR", indents, dump_html_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR);
@@ -45896,6 +45989,20 @@ void dump_html_vkGetDeviceImageSubresourceLayoutKHR(ApiDumpInstance& dump_inst, 
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_pointer<const VkDeviceImageSubresourceInfoKHR>(pInfo, settings, "const VkDeviceImageSubresourceInfoKHR*", "pInfo", 1, dump_html_VkDeviceImageSubresourceInfoKHR);
         dump_html_pointer<const VkSubresourceLayout2KHR>(pLayout, settings, "VkSubresourceLayout2KHR*", "pLayout", 1, dump_html_VkSubresourceLayout2KHR);
+    }
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
+
+    settings.stream() << "</details>";
+}
+void dump_html_vkAntiLagUpdateAMD(ApiDumpInstance& dump_inst, VkDevice device, const VkAntiLagDataAMD* pData)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << "</summary>";
+
+    if(settings.showParams())
+    {
+        dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
+        dump_html_pointer<const VkAntiLagDataAMD>(pData, settings, "const VkAntiLagDataAMD*", "pData", 1, dump_html_VkAntiLagDataAMD);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 
