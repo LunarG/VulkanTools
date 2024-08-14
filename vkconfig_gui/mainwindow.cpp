@@ -175,16 +175,6 @@ static const int LAUNCH_ROW_HEIGHT = 28;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       _launch_application(nullptr),
-      _log_file(nullptr),
-      _launcher_apps_combo(nullptr),
-      _launcher_executable(nullptr),
-      _launcher_arguments(nullptr),
-      _launcher_working(nullptr),
-      _launcher_log_file_edit(nullptr),
-      _launcher_apps_browse_button(nullptr),
-      _launcher_executable_browse_button(nullptr),
-      _launcher_working_browse_button(nullptr),
-      _launcher_log_file_browse_button(nullptr),
       _tray_icon(nullptr),
       _tray_icon_menu(nullptr),
       _tray_restore_action(nullptr),
@@ -194,7 +184,7 @@ MainWindow::MainWindow(QWidget *parent)
       _tray_quit_action(nullptr),
       ui(new Ui::MainWindow) {
     ui->setupUi(this);
-    ui->launcher_tree->installEventFilter(this);
+    ui->application_list->installEventFilter(this);
     ui->configurations_tree->installEventFilter(this);
     ui->layers_tree->installEventFilter(this);
     ui->settings_tree->installEventFilter(this);
@@ -228,12 +218,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->settings_tree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
             SLOT(OnSettingsTreeClicked(QTreeWidgetItem *, int)));
 
-    connect(ui->launcher_tree, SIGNAL(itemCollapsed(QTreeWidgetItem *)), this, SLOT(launchItemCollapsed(QTreeWidgetItem *)));
-    connect(ui->launcher_tree, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(launchItemExpanded(QTreeWidgetItem *)));
+    // connect(ui->launcher_loader_debug, SIGNAL(currentIndexChanged(int)), this, SLOT(OnLauncherLoaderMessageChanged(int)));
 
-    connect(ui->launcher_loader_debug, SIGNAL(currentIndexChanged(int)), this, SLOT(OnLauncherLoaderMessageChanged(int)));
-
-    connect(_launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_push_button_applications_clicked()));
+    // connect(_launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_push_button_applications_clicked()));
 
     this->InitTray();
 
@@ -615,29 +602,8 @@ void MainWindow::UpdateUI() {
 
     // Load Layers items
     // ui->layers_tree->setEnabled(enable_layer_ui);
-    ui->layers_tree->clear();
-
-    if (has_selected_configuration) {
-        Configuration *configuration = configurator.configurations.FindConfiguration(selected_contiguration_name);
-        if (configuration != nullptr) {
-            for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
-                Parameter &parameter = configuration->parameters[i];
-
-                if (!configuration->view_advanced_layers) {
-                    if (parameter.control == LAYER_CONTROL_AUTO) {
-                        continue;
-                    }
-                }
-
-                this->AddLayerItem(parameter, configuration->view_advanced_layers);
-            }
-            resizeEvent(nullptr);
-
-            ui->combo_box_layers_view->setCurrentIndex(configuration->view_advanced_layers);
-
-            ui->layers_tree->update();
-        }
-    }
+    this->UpdateUI_LoaderMessages();
+    this->UpdateUI_Layers();
 
     // Handle application lists states
     /*
@@ -647,8 +613,8 @@ void MainWindow::UpdateUI() {
         ui->push_button_applications->setEnabled(!been_warned_about_old_loader &&
                                                  ui->combo_box_mode->currentIndex() != LAYERS_MODE_BY_APPLICATIONS);
     */
-    _launcher_apps_combo->blockSignals(true);
-    _launcher_apps_combo->clear();
+    //_launcher_apps_combo->blockSignals(true);
+    //_launcher_apps_combo->clear();
     /*
     if (applications.empty()) {
         _launcher_executable->setText("");
@@ -668,7 +634,7 @@ void MainWindow::UpdateUI() {
         _launcher_log_file_edit->setText(ReplaceBuiltInVariable(application.log_file.c_str()).c_str());
     }
     */
-    _launcher_apps_combo->blockSignals(false);
+    //_launcher_apps_combo->blockSignals(false);
 
     // Handle persistent states
     /*
@@ -686,32 +652,6 @@ void MainWindow::UpdateUI() {
     ui->push_button_launcher->setText(_launch_application ? "Terminate" : "Launch");
     ui->check_box_clear_on_launch->setChecked(environment.launcher_clear_on_launch);
     // ui->launcher_loader_debug->setCurrentIndex(environment.GetLoaderMessage());
-
-    // ui->launcher_loader_debug
-    if (_launcher_executable_browse_button) {
-        _launcher_executable_browse_button->setEnabled(has_application_list);
-    }
-    if (_launcher_working_browse_button) {
-        _launcher_working_browse_button->setEnabled(has_application_list);
-    }
-    if (_launcher_log_file_browse_button) {
-        _launcher_log_file_browse_button->setEnabled(has_application_list);
-    }
-    if (_launcher_apps_combo) {
-        _launcher_apps_combo->setEnabled(has_application_list);
-    }
-    if (_launcher_executable) {
-        _launcher_executable->setEnabled(has_application_list);
-    }
-    if (_launcher_arguments) {
-        _launcher_arguments->setEnabled(has_application_list);
-    }
-    if (_launcher_working) {
-        _launcher_working->setEnabled(has_application_list);
-    }
-    if (_launcher_log_file_edit) {
-        _launcher_log_file_edit->setEnabled(has_application_list);
-    }
 
     // ui->settings_tree->setEnabled(environment.GetMode() == LAYERS_MODE_CONTROLLED_BY_CONFIGURATOR && has_selected_configuration);
     if (has_selected_configuration) {
@@ -773,6 +713,32 @@ void MainWindow::UpdateUI_Configurations() {
     ui->configurations_tree->setColumnWidth(4, 24);
 }
 
+void MainWindow::UpdateUI_LoaderMessages() {
+    const Configurator &configurator = Configurator::Get();
+
+    const Configuration *configuration = configurator.GetActiveConfiguration();
+    if (configuration != nullptr) {
+        ui->configuration_loader_errors_checkBox->blockSignals(true);
+        ui->configuration_loader_errors_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_ERROR));
+        ui->configuration_loader_errors_checkBox->blockSignals(false);
+        ui->configuration_loader_warns_checkBox->blockSignals(true);
+        ui->configuration_loader_warns_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_WARN));
+        ui->configuration_loader_warns_checkBox->blockSignals(false);
+        ui->configuration_loader_infos_checkBox->blockSignals(true);
+        ui->configuration_loader_infos_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_INFO));
+        ui->configuration_loader_infos_checkBox->blockSignals(false);
+        ui->configuration_loader_debug_checkBox->blockSignals(true);
+        ui->configuration_loader_debug_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DEBUG));
+        ui->configuration_loader_debug_checkBox->blockSignals(false);
+        ui->configuration_loader_layers_checkBox->blockSignals(true);
+        ui->configuration_loader_layers_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_LAYER));
+        ui->configuration_loader_layers_checkBox->blockSignals(false);
+        ui->configuration_loader_drivers_checkBox->blockSignals(true);
+        ui->configuration_loader_drivers_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_IMPLEM));
+        ui->configuration_loader_drivers_checkBox->blockSignals(false);
+    }
+}
+
 void MainWindow::UpdateUI_Layers() {
     ui->layers_tree->clear();
 
@@ -832,7 +798,7 @@ void MainWindow::on_combo_box_mode_currentIndexChanged(int index) {
 
     const bool enabled_ui = index == LAYERS_CONTROLLED_BY_CONFIGURATOR;
 
-    ui->group_box_configurations->setEnabled(enabled_ui);
+    ui->configurations_tree->setEnabled(enabled_ui);
     ui->group_box_settings->setEnabled(enabled_ui);
     ui->group_box_layers->setEnabled(enabled_ui);
 
@@ -861,6 +827,50 @@ void MainWindow::on_check_box_per_application_toggled(bool checked) {
 
     this->UpdateUI_Status();
     this->UpdateUI();
+}
+
+void MainWindow::OnConfigurationLoaderMessageCheckBox_toggled(bool checked) {
+    (void)checked;
+
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *active_configuration = configurator.GetActiveConfiguration();
+    if (active_configuration != nullptr) {
+        int loader_log_messages_bits = 0;
+
+        loader_log_messages_bits |= ui->configuration_loader_errors_checkBox->isChecked() ? GetBit(LOG_ERROR) : 0;
+        loader_log_messages_bits |= ui->configuration_loader_warns_checkBox->isChecked() ? GetBit(LOG_WARN) : 0;
+        loader_log_messages_bits |= ui->configuration_loader_infos_checkBox->isChecked() ? GetBit(LOG_INFO) : 0;
+        loader_log_messages_bits |= ui->configuration_loader_debug_checkBox->isChecked() ? GetBit(LOG_DEBUG) : 0;
+        loader_log_messages_bits |= ui->configuration_loader_layers_checkBox->isChecked() ? GetBit(LOG_LAYER) : 0;
+        loader_log_messages_bits |= ui->configuration_loader_drivers_checkBox->isChecked() ? GetBit(LOG_IMPLEM) : 0;
+
+        active_configuration->loader_log_messages_flags = loader_log_messages_bits;
+    }
+}
+
+void MainWindow::on_configuration_loader_errors_checkBox_toggled(bool checked) {
+    OnConfigurationLoaderMessageCheckBox_toggled(checked);
+}
+
+void MainWindow::on_configuration_loader_warns_checkBox_toggled(bool checked) {
+    OnConfigurationLoaderMessageCheckBox_toggled(checked);
+}
+
+void MainWindow::on_configuration_loader_infos_checkBox_toggled(bool checked) {
+    OnConfigurationLoaderMessageCheckBox_toggled(checked);
+}
+
+void MainWindow::on_configuration_loader_debug_checkBox_toggled(bool checked) {
+    OnConfigurationLoaderMessageCheckBox_toggled(checked);
+}
+
+void MainWindow::on_configuration_loader_layers_checkBox_toggled(bool checked) {
+    OnConfigurationLoaderMessageCheckBox_toggled(checked);
+}
+
+void MainWindow::on_configuration_loader_drivers_checkBox_toggled(bool checked) {
+    OnConfigurationLoaderMessageCheckBox_toggled(checked);
 }
 
 void MainWindow::on_check_box_clear_on_launch_clicked() {
@@ -1261,6 +1271,7 @@ void MainWindow::OnContextMenuDeleteClicked(ConfigurationListItem *item) {
     configurator.environment.GetActiveConfigurationInfo().SetName("");
 
     this->UpdateUI_Configurations();
+    this->UpdateUI_LoaderMessages();
     this->UpdateUI_Layers();
     this->UpdateUI_Status();
 }
@@ -1367,111 +1378,131 @@ void MainWindow::OnSettingsTreeClicked(QTreeWidgetItem *item, int column) {
 }
 
 void MainWindow::SetupLauncherTree() {
-    // App Name
-    QTreeWidgetItem *launcher_parent = new QTreeWidgetItem();
-    launcher_parent->setText(0, "Application");
-    ui->launcher_tree->addTopLevelItem(launcher_parent);
+    const Configurator &configurator = Configurator::Get();
 
-    _launcher_apps_combo = new QComboBox();
-    _launcher_apps_combo->setFocusPolicy(Qt::StrongFocus);
-    _launcher_apps_combo->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    _launcher_apps_combo->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui->launcher_tree->setItemWidget(launcher_parent, 1, _launcher_apps_combo);
+    const std::vector<Application> &applications = configurator.environment.GetApplications();
+    ui->application_list->clear();
+    for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+        QListWidgetItem *application_item = new QListWidgetItem();
+        application_item->setText(applications[i].executable_path.RelativePath().c_str());
+        application_item->setToolTip(applications[i].executable_path.AbsolutePath().c_str());
+        ui->application_list->addItem(application_item);
+    }
 
-    _launcher_apps_browse_button = new QPushButton();
-    _launcher_apps_browse_button->setText("...");
-    _launcher_apps_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    _launcher_apps_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
-    _launcher_apps_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    _launcher_apps_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui->launcher_tree->setItemWidget(launcher_parent, 2, _launcher_apps_browse_button);
-    connect(_launcher_apps_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
-    connect(_launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_push_button_applications_clicked()));
+    const std::vector<Configuration> &configurations = configurator.configurations.available_configurations;
+    ui->application_configuration_comboBox->clear();
+    for (std::size_t i = 0, n = configurations.size(); i < n; ++i) {
+        ui->application_configuration_comboBox->addItem(configurations[i].key.c_str());
+    }
 
-    // Executable
-    QTreeWidgetItem *launcher_executable_item = new QTreeWidgetItem();
-    launcher_executable_item->setText(0, "Executable");
-    launcher_parent->addChild(launcher_executable_item);
+    /*
+        // App Name
+        QTreeWidgetItem *launcher_parent = new QTreeWidgetItem();
+        launcher_parent->setText(0, "Application");
+        ui->application_list->addTopLevelItem(launcher_parent);
 
-    _launcher_executable = new QLineEdit();
-    _launcher_executable->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    _launcher_executable->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui->launcher_tree->setItemWidget(launcher_executable_item, 1, _launcher_executable);
-    _launcher_executable->setReadOnly(false);
+        _launcher_apps_combo = new QComboBox();
+        _launcher_apps_combo->setFocusPolicy(Qt::StrongFocus);
+        _launcher_apps_combo->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+        _launcher_apps_combo->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+        ui->application_list->setItemWidget(launcher_parent, 1, _launcher_apps_combo);
 
-    _launcher_executable_browse_button = new QPushButton();
-    _launcher_executable_browse_button->setText("...");
-    _launcher_executable_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    _launcher_executable_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
-    _launcher_executable_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    _launcher_executable_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui->launcher_tree->setItemWidget(launcher_executable_item, 2, _launcher_executable_browse_button);
-    connect(_launcher_executable, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeExecutable(const QString &)));
-    connect(_launcher_executable_browse_button, SIGNAL(clicked()), this, SLOT(launchSetExecutable()));
+        _launcher_apps_browse_button = new QPushButton();
+        _launcher_apps_browse_button->setText("...");
+        _launcher_apps_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        _launcher_apps_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+        _launcher_apps_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+        _launcher_apps_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+        ui->launcher_tree->setItemWidget(launcher_parent, 2, _launcher_apps_browse_button);
+        connect(_launcher_apps_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(launchItemChanged(int)));
+        connect(_launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_push_button_applications_clicked()));
 
-    // Working folder
-    QTreeWidgetItem *launcher_folder_item = new QTreeWidgetItem();
-    launcher_folder_item->setText(0, "Working Directory");
-    launcher_parent->addChild(launcher_folder_item);
+        // Executable
+        QTreeWidgetItem *launcher_executable_item = new QTreeWidgetItem();
+        launcher_executable_item->setText(0, "Executable");
+        launcher_parent->addChild(launcher_executable_item);
 
-    _launcher_working = new QLineEdit();
-    _launcher_working->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    _launcher_working->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui->launcher_tree->setItemWidget(launcher_folder_item, 1, _launcher_working);
-    _launcher_working->setReadOnly(false);
+        _launcher_executable = new QLineEdit();
+        _launcher_executable->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+        _launcher_executable->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+        ui->application_list->setItemWidget(launcher_executable_item, 1, _launcher_executable);
+        _launcher_executable->setReadOnly(false);
 
-    _launcher_working_browse_button = new QPushButton();
-    _launcher_working_browse_button->setText("...");
-    _launcher_working_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    _launcher_working_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
-    _launcher_working_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    _launcher_working_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui->launcher_tree->setItemWidget(launcher_folder_item, 2, _launcher_working_browse_button);
-    connect(_launcher_working, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeWorkingFolder(const QString &)));
-    connect(_launcher_working_browse_button, SIGNAL(clicked()), this, SLOT(launchSetWorkingFolder()));
+        _launcher_executable_browse_button = new QPushButton();
+        _launcher_executable_browse_button->setText("...");
+        _launcher_executable_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        _launcher_executable_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+        _launcher_executable_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+        _launcher_executable_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+        ui->launcher_tree->setItemWidget(launcher_executable_item, 2, _launcher_executable_browse_button);
+        connect(_launcher_executable, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeExecutable(const QString &)));
+        connect(_launcher_executable_browse_button, SIGNAL(clicked()), this, SLOT(launchSetExecutable()));
 
-    // Command line arguments
-    QTreeWidgetItem *launcher_arguments_item = new QTreeWidgetItem();
-    launcher_arguments_item->setText(0, "Command-line Arguments");
-    launcher_parent->addChild(launcher_arguments_item);
+        // Working folder
+        QTreeWidgetItem *launcher_folder_item = new QTreeWidgetItem();
+        launcher_folder_item->setText(0, "Working Directory");
+        launcher_parent->addChild(launcher_folder_item);
 
-    _launcher_arguments = new QLineEdit();
-    _launcher_arguments->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    _launcher_arguments->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui->launcher_tree->setItemWidget(launcher_arguments_item, 1, _launcher_arguments);
-    connect(_launcher_arguments, SIGNAL(textEdited(const QString &)), this, SLOT(launchArgsEdited(const QString &)));
+        _launcher_working = new QLineEdit();
+        _launcher_working->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+        _launcher_working->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+        ui->launcher_tree->setItemWidget(launcher_folder_item, 1, _launcher_working);
+        _launcher_working->setReadOnly(false);
 
-    // Log file
-    QTreeWidgetItem *launcher_log_file_item = new QTreeWidgetItem();
-    launcher_log_file_item->setText(0, "Output Log");
-    launcher_parent->addChild(launcher_log_file_item);
+        _launcher_working_browse_button = new QPushButton();
+        _launcher_working_browse_button->setText("...");
+        _launcher_working_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        _launcher_working_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+        _launcher_working_browse_button->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+        _launcher_working_browse_button->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+        ui->launcher_tree->setItemWidget(launcher_folder_item, 2, _launcher_working_browse_button);
+        connect(_launcher_working, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeWorkingFolder(const QString &)));
+        connect(_launcher_working_browse_button, SIGNAL(clicked()), this, SLOT(launchSetWorkingFolder()));
 
-    _launcher_log_file_edit = new QLineEdit();
-    _launcher_log_file_edit->setMinimumHeight(LAUNCH_ROW_HEIGHT);
-    _launcher_log_file_edit->setMaximumHeight(LAUNCH_ROW_HEIGHT);
-    ui->launcher_tree->setItemWidget(launcher_log_file_item, 1, _launcher_log_file_edit);
-    connect(_launcher_log_file_edit, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeLogFile(const QString &)));
+        // Command line arguments
+        QTreeWidgetItem *launcher_arguments_item = new QTreeWidgetItem();
+        launcher_arguments_item->setText(0, "Command-line Arguments");
+        launcher_parent->addChild(launcher_arguments_item);
 
-    _launcher_log_file_browse_button = new QPushButton();
-    _launcher_log_file_browse_button->setText("...");
-    _launcher_log_file_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    _launcher_log_file_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
-    ui->launcher_tree->setItemWidget(launcher_log_file_item, 2, _launcher_log_file_browse_button);
-    connect(_launcher_log_file_browse_button, SIGNAL(clicked()), this, SLOT(launchSetLogFile()));
+        _launcher_arguments = new QLineEdit();
+        _launcher_arguments->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+        _launcher_arguments->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+        ui->launcher_tree->setItemWidget(launcher_arguments_item, 1, _launcher_arguments);
+        connect(_launcher_arguments, SIGNAL(textEdited(const QString &)), this, SLOT(launchArgsEdited(const QString &)));
 
-    // Launcher tree
-    ui->launcher_tree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 5 + 6);
-    ui->launcher_tree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 5 + 6);
+        // Log file
+        QTreeWidgetItem *launcher_log_file_item = new QTreeWidgetItem();
+        launcher_log_file_item->setText(0, "Output Log");
+        launcher_parent->addChild(launcher_log_file_item);
 
-    ui->launcher_tree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
-    ui->launcher_tree->setColumnWidth(
-        1, ui->launcher_tree->rect().width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
-    ui->launcher_tree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
+        _launcher_log_file_edit = new QLineEdit();
+        _launcher_log_file_edit->setMinimumHeight(LAUNCH_ROW_HEIGHT);
+        _launcher_log_file_edit->setMaximumHeight(LAUNCH_ROW_HEIGHT);
+        ui->launcher_tree->setItemWidget(launcher_log_file_item, 1, _launcher_log_file_edit);
+        connect(_launcher_log_file_edit, SIGNAL(textEdited(const QString &)), this, SLOT(launchChangeLogFile(const QString &)));
 
-    ui->launcher_tree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->launcher_tree->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        _launcher_log_file_browse_button = new QPushButton();
+        _launcher_log_file_browse_button->setText("...");
+        _launcher_log_file_browse_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        _launcher_log_file_browse_button->setMaximumWidth(LAUNCH_COLUMN2_SIZE);
+        ui->launcher_tree->setItemWidget(launcher_log_file_item, 2, _launcher_log_file_browse_button);
+        connect(_launcher_log_file_browse_button, SIGNAL(clicked()), this, SLOT(launchSetLogFile()));
+
+        // Launcher tree
+        ui->launcher_tree->setMinimumHeight(LAUNCH_ROW_HEIGHT * 5 + 6);
+        ui->launcher_tree->setMaximumHeight(LAUNCH_ROW_HEIGHT * 5 + 6);
+
+        ui->launcher_tree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
+        ui->launcher_tree->setColumnWidth(
+            1, ui->launcher_tree->rect().width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
+        ui->launcher_tree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
+
+        ui->launcher_tree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        ui->launcher_tree->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    */
 }
 
+/*
 // Expanding the tree also grows the tree to match
 void MainWindow::launchItemExpanded(QTreeWidgetItem *item) {
     (void)item;
@@ -1485,7 +1516,9 @@ void MainWindow::launchItemCollapsed(QTreeWidgetItem *item) {
     ui->launcher_tree->setMinimumHeight(LAUNCH_ROW_HEIGHT + 6);
     ui->launcher_tree->setMaximumHeight(LAUNCH_ROW_HEIGHT + 6);
 }
+*/
 
+/*
 void MainWindow::OnLauncherLoaderMessageChanged(int level) {
     Configurator &configurator = Configurator::Get();
 
@@ -1503,19 +1536,20 @@ void MainWindow::launchSetExecutable() {
 
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
-    /* TODO
-    const Path exe = configurator.path.SelectPath(this, PATH_EXECUTABLE, application.executable_path);
 
-    // The user has cancel the operation
-    if (exe.Empty()) {
-        return;
-    }
+    //const Path exe = configurator.path.SelectPath(this, PATH_EXECUTABLE, application.executable_path);
 
-    application.executable_path = exe;
-    */
+    //// The user has cancel the operation
+    //if (exe.Empty()) {
+    //    return;
+    //}
+
+    //application.executable_path = exe;
+
     _launcher_executable->setText(application.executable_path.RelativePath().c_str());
 }
-
+*/
+/*
 void MainWindow::launchSetLogFile() {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
@@ -1523,19 +1557,20 @@ void MainWindow::launchSetLogFile() {
     Configurator &configurator = Configurator::Get();
     Application &application = configurator.environment.GetApplication(current_application_index);
     ApplicationOptions &options = application.GetActiveOptions();
-    /* TODO
-    const Path &path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, options.log_file);
+    // TODO
+    //const Path &path = configurator.path.SelectPath(this, PATH_LAUNCHER_LOG_FILE, options.log_file);
 
-    // The user has cancel the operation
-    if (path.Empty()) {
-        return;
-    }
+    //// The user has cancel the operation
+    //if (path.Empty()) {
+    //    return;
+    //}
 
-    options.log_file = path;
-    */
+    //options.log_file = path;
+
     _launcher_log_file_edit->setText(options.log_file.RelativePath().c_str());
 }
-
+*/
+/*
 void MainWindow::launchSetWorkingFolder() {
     int current_application_index = _launcher_apps_combo->currentIndex();
     assert(current_application_index >= 0);
@@ -1544,19 +1579,21 @@ void MainWindow::launchSetWorkingFolder() {
     Application &application = configurator.environment.GetApplication(current_application_index);
     ApplicationOptions &options = application.GetActiveOptions();
 
-    /* TODO
-    const Path path = configurator.path.SelectPath(this, PATH_WORKING_DIR, options.working_folder);
+    // TODO
+    //const Path path = configurator.path.SelectPath(this, PATH_WORKING_DIR, options.working_folder);
 
-    // The user has cancel the operation
-    if (path.Empty()) {
-        return;
-    }
+    //// The user has cancel the operation
+    //if (path.Empty()) {
+    //    return;
+    //}
 
-    options.working_folder = path;
-    */
+    //options.working_folder = path;
+
     _launcher_working->setText(options.working_folder.RelativePath().c_str());
 }
+*/
 
+/*
 // Log file path edited manually.
 void MainWindow::launchChangeLogFile(const QString &log_file) {
     int current_application_index = _launcher_apps_combo->currentIndex();
@@ -1610,6 +1647,7 @@ void MainWindow::launchArgsEdited(const QString &arguments) {
     ApplicationOptions &options = application.GetActiveOptions();
     options.arguments = SplitSpace(arguments.toStdString());
 }
+*/
 
 // Clear the browser window
 void MainWindow::on_push_button_clear_log_clicked() {
@@ -1857,11 +1895,11 @@ void MainWindow::on_push_button_launcher_clicked() {
             options.working_folder,
             format("The '%s' application will fail to launch.", active_application.executable_path.AbsolutePath().c_str()).c_str());
     }
-
+    /*
     if (!_launcher_arguments->text().isEmpty()) {
         launch_log += format("- Command-line Arguments: %s\n", _launcher_arguments->text().toStdString().c_str());
     }
-
+    */
     if (!options.log_file.Empty()) {
         launch_log += format("- Log file: %s\n", options.log_file.AbsolutePath().c_str());
     }
@@ -1893,9 +1931,9 @@ void MainWindow::on_push_button_launcher_clicked() {
     connect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
             SLOT(processClosed(int, QProcess::ExitStatus)));
 
-    _launch_application->setProgram(ui->edit_executable->text());
-    _launch_application->setWorkingDirectory(ui->edit_dir->text());
-    _launch_application->setEnvironment(BuildEnvVariables() + ui->edit_env->text().split(","));
+    //_launch_application->setProgram(ui->edit_executable->text());
+    //_launch_application->setWorkingDirectory(ui->edit_dir->text());
+    //_launch_application->setEnvironment(BuildEnvVariables() + ui->edit_env->text().split(","));
 
     if (!options.arguments.empty()) {
         const QStringList args = ConvertString(options.arguments);
