@@ -24,6 +24,7 @@
 #include "path.h"
 #include "json.h"
 #include "type_platform.h"
+#include "type_log.h"
 #include "version.h"
 
 #include <QFile>
@@ -148,6 +149,11 @@ bool Configuration::Load(const Path& full_path, const std::vector<Layer>& availa
 
     if (json_configuration_object.value("view_advanced_layers") != QJsonValue::Undefined) {
         this->view_advanced_layers = ReadBoolValue(json_configuration_object, "view_advanced_layers");
+    }
+
+    if (json_configuration_object.value("loader_message_types") != QJsonValue::Undefined) {
+        const std::vector<std::string>& loader_messsage_types = ReadStringArray(json_configuration_object, "loader_message_types");
+        this->loader_log_messages_flags = GetLogFlags(loader_messsage_types);
     }
 
     if (json_configuration_object.value("platforms") != QJsonValue::Undefined) {
@@ -311,6 +317,7 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
     json_configuration.insert("view_advanced_settings", this->view_advanced_settings);
     json_configuration.insert("view_advanced_layers", this->view_advanced_layers);
+    SaveStringArray(json_configuration, "loader_message_types", GetLogTokens(this->loader_log_messages_flags));
     json_configuration.insert("layers", json_layers);
 
     QJsonArray json_paths;
