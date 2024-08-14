@@ -95,6 +95,8 @@ void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std:
     }
     assert(configuration != nullptr);
 
+    result.stderr_log_flags = configuration->loader_log_messages_flags;
+
     for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
         LoaderLayerSettings loader_layer_settings;
 
