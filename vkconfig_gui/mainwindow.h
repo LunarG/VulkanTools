@@ -129,15 +129,6 @@ class MainWindow : public QMainWindow {
 
     ConfigurationListItem *GetCheckedItem();
 
-    QComboBox *_launcher_apps_combo;
-    QLineEdit *_launcher_executable;
-    QLineEdit *_launcher_arguments;
-    QLineEdit *_launcher_working;
-    QLineEdit *_launcher_log_file_edit;
-    QPushButton *_launcher_apps_browse_button;
-    QPushButton *_launcher_executable_browse_button;
-    QPushButton *_launcher_working_browse_button;
-    QPushButton *_launcher_log_file_browse_button;
     QSystemTrayIcon *_tray_icon;
     QMenu *_tray_icon_menu;
     QAction *_tray_restore_action;
@@ -179,7 +170,7 @@ class MainWindow : public QMainWindow {
     void OnHelpGPUInfo(bool checked);
 
     void editorExpanded(QTreeWidgetItem *item);
-
+    /*
     void launchItemExpanded(QTreeWidgetItem *item);
     void launchItemCollapsed(QTreeWidgetItem *item);
     void launchItemChanged(int index);
@@ -190,7 +181,7 @@ class MainWindow : public QMainWindow {
     void launchChangeExecutable(const QString &new_text);
     void launchChangeWorkingFolder(const QString &new_text);
     void launchArgsEdited(const QString &new_text);
-
+    */
     void on_tab_widget_currentChanged(int index);
 
     void on_push_button_launcher_clicked();
@@ -203,6 +194,15 @@ class MainWindow : public QMainWindow {
 
     void on_combo_box_layers_view_currentIndexChanged(int index);
 
+    void OnConfigurationLoaderMessageCheckBox_toggled(bool checked);
+
+    void on_configuration_loader_errors_checkBox_toggled(bool checked);
+    void on_configuration_loader_warns_checkBox_toggled(bool checked);
+    void on_configuration_loader_infos_checkBox_toggled(bool checked);
+    void on_configuration_loader_debug_checkBox_toggled(bool checked);
+    void on_configuration_loader_layers_checkBox_toggled(bool checked);
+    void on_configuration_loader_drivers_checkBox_toggled(bool checked);
+
     void OnConfigurationItemExpanded(QTreeWidgetItem *item);
     void OnConfigurationItemClicked(bool checked);
     void OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
@@ -213,7 +213,7 @@ class MainWindow : public QMainWindow {
 
     void OnSettingsTreeClicked(QTreeWidgetItem *item, int column);
 
-    void OnLauncherLoaderMessageChanged(int level);
+    // void OnLauncherLoaderMessageChanged(int level);
 
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
@@ -229,6 +229,7 @@ class MainWindow : public QMainWindow {
     void InitTray();
     void UpdateUI_Status();
     void UpdateUI_Configurations();
+    void UpdateUI_LoaderMessages();
     void UpdateUI_Layers();
 
     void ResetLaunchApplication();

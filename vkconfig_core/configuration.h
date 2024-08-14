@@ -22,6 +22,7 @@
 #pragma once
 
 #include "parameter.h"
+#include "type_log.h"
 
 #include <QByteArray>
 
@@ -48,6 +49,7 @@ class Configuration {
     std::string description;  // A friendly description of what this profile does
     bool view_advanced_settings = false;
     bool view_advanced_layers = true;
+    int loader_log_messages_flags = GetBit(LOG_ERROR) | GetBit(LOG_WARN);
 
     std::vector<Parameter> parameters;
     std::vector<Path> user_defined_paths;
