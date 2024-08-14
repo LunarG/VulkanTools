@@ -128,102 +128,110 @@
          <number>6</number>
         </property>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,7">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
           <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
            <number>0</number>
           </property>
           <property name="bottomMargin">
            <number>0</number>
           </property>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <property name="leftMargin">
-             <number>0</number>
+           <widget class="QListWidget" name="application_list">
+            <property name="editTriggers">
+             <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
             </property>
-            <property name="topMargin">
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <property name="leftMargin">
              <number>0</number>
             </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
             <item>
-             <widget class="QTreeWidget" name="launcher_tree">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             <layout class="QHBoxLayout" name="horizontalLayout_12">
+              <property name="spacing">
+               <number>0</number>
               </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
+              <property name="topMargin">
+               <number>0</number>
               </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>120</height>
-               </size>
+              <property name="bottomMargin">
+               <number>0</number>
               </property>
-              <property name="font">
-               <font>
-                <family>Arial</family>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="horizontalScrollBarPolicy">
-               <enum>Qt::ScrollBarAlwaysOff</enum>
-              </property>
-              <property name="autoScroll">
-               <bool>false</bool>
-              </property>
-              <property name="editTriggers">
-               <set>QAbstractItemView::NoEditTriggers</set>
-              </property>
-              <property name="itemsExpandable">
-               <bool>true</bool>
-              </property>
-              <property name="columnCount">
-               <number>3</number>
-              </property>
-              <attribute name="headerVisible">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="headerCascadingSectionResizes">
-               <bool>true</bool>
-              </attribute>
-              <attribute name="headerStretchLastSection">
-               <bool>false</bool>
-              </attribute>
-              <column>
-               <property name="text">
-                <string/>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string notr="true">2</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string notr="true">3</string>
-               </property>
-              </column>
-             </widget>
+              <item>
+               <widget class="QComboBox" name="application_options_comboBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="application_option_pushButton_add">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>32</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="application_option_pushButton_remove">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>32</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>32</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>-</string>
+                </property>
+                <property name="icon">
+                 <iconset theme="user-trash">
+                  <normaloff>.</normaloff>.</iconset>
+                </property>
+                <property name="flat">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <layout class="QGridLayout" name="gridLayout_5">
               <property name="leftMargin">
                <number>0</number>
               </property>
@@ -236,150 +244,135 @@
               <property name="bottomMargin">
                <number>0</number>
               </property>
-              <item>
-               <widget class="QPushButton" name="pushButton_4">
+              <property name="horizontalSpacing">
+               <number>7</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>0</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_21">
                 <property name="text">
-                 <string>+</string>
+                 <string>Layers Mode:</string>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_3">
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_2">
                 <property name="text">
-                 <string>-</string>
+                 <string>Arguments:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_2">
+              <item row="2" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_9">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLineEdit" name="application_directory_edit"/>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="application_directory_edit_pushButton">
+                  <property name="maximumSize">
+                   <size>
+                    <width>32</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="5" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_10">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLineEdit" name="application_output_log_edit"/>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="application_output_log_pushButton">
+                  <property name="maximumSize">
+                   <size>
+                    <width>32</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="4" column="1">
+               <widget class="QListWidget" name="application_envs_list"/>
+              </item>
+              <item row="3" column="1">
+               <widget class="QListWidget" name="application_arguments_list"/>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label">
                 <property name="text">
-                 <string>...</string>
+                 <string>Output Log:</string>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_5">
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_6">
                 <property name="text">
-                 <string>*</string>
+                 <string>Env Variables:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
                 </property>
                </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Working Dir:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QComboBox" name="application_layers_mode_comboBox">
+                  <item>
+                   <property name="text">
+                    <string>Layers Controlled by Vulkan Applications</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Layers Controlled by Vulkan Configurator</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Layers Disabled by Vulkan Configurator</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="application_configuration_comboBox"/>
+                </item>
+               </layout>
               </item>
              </layout>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QGridLayout" name="gridLayout_5">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item row="4" column="1">
-             <widget class="QLineEdit" name="edit_log"/>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="edit_dir"/>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Executable:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="edit_arguments"/>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="edit_env">
-              <property name="toolTip">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QPushButton" name="pushButton_dir">
-              <property name="maximumSize">
-               <size>
-                <width>32</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>Output Log:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="edit_executable"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Working Dir:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="pushButton_exe">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>32</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string>Arguments:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Env Variables:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="2">
-             <widget class="QPushButton" name="pushButton_log">
-              <property name="maximumSize">
-               <size>
-                <width>32</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
             </item>
            </layout>
           </item>
@@ -415,6 +408,19 @@
            <property name="bottomMargin">
             <number>0</number>
            </property>
+           <item row="1" column="2">
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
            <item row="1" column="1">
             <widget class="QPushButton" name="push_button_clear_log">
              <property name="font">
@@ -445,79 +451,6 @@
             </widget>
            </item>
            <item row="1" column="4">
-            <widget class="QComboBox" name="launcher_loader_debug">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan loader debug messages level used by the VK_LOADER_DEBUG environment variable on launch. &lt;br/&gt;&lt;br/&gt;Levels are:&lt;br/&gt;- error&lt;br/&gt;- warn (warnings)&lt;br/&gt;- info (information)&lt;br/&gt;- debug&lt;br/&gt;- layer (layer information)&lt;br/&gt;- implem (implementation/icd information)&lt;br/&gt;- all (report out all messages)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>none</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string extracomment="Only Errors">error</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>warn</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>info</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>debug</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>layer</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>implem</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>all</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>Vulkan Loader Messages:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="1" column="5">
             <widget class="QPushButton" name="push_button_launcher">
              <property name="font">
               <font>
@@ -535,6 +468,12 @@
         </item>
         <item>
          <widget class="QTextBrowser" name="log_browser">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="font">
            <font>
             <family>Consolas</family>
@@ -633,99 +572,9 @@
               <number>0</number>
              </property>
              <item>
-              <layout class="QVBoxLayout" name="layout_layers_control" stretch="0">
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <layout class="QGridLayout" name="gridLayout2">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="verticalSpacing">
-                  <number>7</number>
-                 </property>
-                 <item row="0" column="1">
-                  <widget class="QComboBox" name="combo_box_applications">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_19">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string>Layers Mode: </string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QComboBox" name="combo_box_mode">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string>Layers Controlled by Vulkan Applications</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Layers Controlled by Vulkan Configurator</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>Layers Disabled by Vulkan Configurator</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="0" column="0">
-                  <widget class="QCheckBox" name="check_box_per_application">
-                   <property name="text">
-                    <string>Per-Application: </string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
-             <item>
               <widget class="QGroupBox" name="group_box_configurations">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -752,6 +601,71 @@
                 <property name="bottomMargin">
                  <number>0</number>
                 </property>
+                <item>
+                 <layout class="QGridLayout" name="gridLayout_6">
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item row="0" column="1">
+                   <widget class="QComboBox" name="combo_box_applications">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QCheckBox" name="check_box_per_application">
+                    <property name="text">
+                     <string>Per-Application: </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_19">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>Layers Mode: </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QComboBox" name="combo_box_mode">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>Layers Controlled by Vulkan Applications</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Layers Controlled by Vulkan Configurator</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Layers Disabled by Vulkan Configurator</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_2">
                   <property name="spacing">
@@ -825,25 +739,6 @@
                     </column>
                    </widget>
                   </item>
-                  <item>
-                   <layout class="QVBoxLayout" name="verticalLayout">
-                    <property name="spacing">
-                     <number>0</number>
-                    </property>
-                    <property name="leftMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="topMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="rightMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="bottomMargin">
-                     <number>0</number>
-                    </property>
-                   </layout>
-                  </item>
                  </layout>
                 </item>
                </layout>
@@ -877,7 +772,7 @@
              <property name="spacing">
               <number>0</number>
              </property>
-             <item row="3" column="0" alignment="Qt::AlignBottom">
+             <item row="4" column="0" alignment="Qt::AlignBottom">
               <widget class="QLabel" name="execute_closer_application_label">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
@@ -906,7 +801,76 @@
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
+             <item row="6" column="0" alignment="Qt::AlignTop">
+              <widget class="QLabel" name="execute_closer_driver_label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>9</pointsize>
+                 <italic>true</italic>
+                </font>
+               </property>
+               <property name="autoFillBackground">
+                <bool>true</bool>
+               </property>
+               <property name="lineWidth">
+                <number>0</number>
+               </property>
+               <property name="text">
+                <string>Execute Closer to the Vulkan Driver</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+               </property>
+               <property name="margin">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <layout class="QHBoxLayout" name="horizontalLayout_7">
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_20">
+                 <property name="text">
+                  <string>Layers Views: </string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="combo_box_layers_view">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Overidden Layers Only</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>All Available Layers</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="5" column="0">
               <widget class="QListWidget" name="layers_tree">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -952,40 +916,8 @@
                </property>
               </widget>
              </item>
-             <item row="5" column="0" alignment="Qt::AlignTop">
-              <widget class="QLabel" name="execute_closer_driver_label">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <pointsize>9</pointsize>
-                 <italic>true</italic>
-                </font>
-               </property>
-               <property name="autoFillBackground">
-                <bool>true</bool>
-               </property>
-               <property name="lineWidth">
-                <number>0</number>
-               </property>
-               <property name="text">
-                <string>Execute Closer to the Vulkan Driver</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
-               </property>
-               <property name="margin">
-                <number>0</number>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item row="0" column="0">
+              <layout class="QHBoxLayout" name="loader_messages_horizontalLayout">
                <property name="topMargin">
                 <number>0</number>
                </property>
@@ -993,30 +925,52 @@
                 <number>7</number>
                </property>
                <item>
-                <widget class="QLabel" name="label_20">
+                <widget class="QLabel" name="label_4">
                  <property name="text">
-                  <string>Layers Views: </string>
+                  <string>Loader Messages: </string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="combo_box_layers_view">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
+                <widget class="QCheckBox" name="configuration_loader_errors_checkBox">
+                 <property name="text">
+                  <string>Errors</string>
                  </property>
-                 <item>
-                  <property name="text">
-                   <string>Overidden Layers Only</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>All Available Layers</string>
-                  </property>
-                 </item>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="configuration_loader_warns_checkBox">
+                 <property name="text">
+                  <string>Warnings</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="configuration_loader_infos_checkBox">
+                 <property name="text">
+                  <string>Informations</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="configuration_loader_debug_checkBox">
+                 <property name="text">
+                  <string>Debug</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="configuration_loader_layers_checkBox">
+                 <property name="text">
+                  <string>Layers</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="configuration_loader_drivers_checkBox">
+                 <property name="text">
+                  <string>Drivers</string>
+                 </property>
                 </widget>
                </item>
               </layout>
