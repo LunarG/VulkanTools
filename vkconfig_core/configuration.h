@@ -50,6 +50,7 @@ class Configuration {
     bool view_advanced_settings = false;
     bool view_advanced_layers = true;
     int loader_log_messages_flags = GetBit(LOG_ERROR) | GetBit(LOG_WARN);
+    std::string selected_layer_name;
 
     std::vector<Parameter> parameters;
     std::vector<Path> user_defined_paths;
