@@ -92,8 +92,6 @@ class Environment {
     ConfigurationInfo global_configuration;
     std::map<std::string, std::string> layers_validated;
 
-    std::string selected_layer_name;
-
     bool launcher_clear_on_launch = true;
 
    private:
