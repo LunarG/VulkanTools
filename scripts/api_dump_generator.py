@@ -96,7 +96,7 @@ COMMON_CODEGEN = """
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance)
 {{
-    ApiDumpInstance::current().outputMutex()->lock();
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     ApiDumpInstance::current().initLayerSettings(pCreateInfo, pAllocator);
     dump_function_head(ApiDumpInstance::current(), "vkCreateInstance", "pCreateInfo, pAllocator, pInstance", "VkResult");
 
@@ -132,13 +132,12 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCre
                 break;
         }}
     }}
-    ApiDumpInstance::current().outputMutex()->unlock();
     return result;
 }}
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice)
 {{
-    ApiDumpInstance::current().outputMutex()->lock();
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     dump_function_head(ApiDumpInstance::current(), "vkCreateDevice", "physicalDevice, pCreateInfo, pAllocator, pDevice", "VkResult");
 
     // Get the function pointer
@@ -174,7 +173,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, c
                 break;
         }}
     }}
-    ApiDumpInstance::current().outputMutex()->unlock();
     return result;
 }}
 
@@ -217,7 +215,7 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
 VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     @if('{funcName}' not in BLOCKING_API_CALLS)
-    ApiDumpInstance::current().outputMutex()->lock();
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     dump_function_head(ApiDumpInstance::current(), "{funcName}", "{funcNamedParams}", "{funcReturn}");
     @end if
 
@@ -246,7 +244,7 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     @end if
     @if('{funcName}' in BLOCKING_API_CALLS)
-    ApiDumpInstance::current().outputMutex()->lock();
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     dump_function_head(ApiDumpInstance::current(), "{funcName}", "{funcNamedParams}", "{funcReturn}");
     @end if
     {funcStateTrackingCode}
@@ -296,7 +294,6 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
             @end if
         }}
     }}
-    ApiDumpInstance::current().outputMutex()->unlock();
     @if('{funcReturn}' != 'void')
     return result;
     @end if
@@ -309,7 +306,7 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
 {{
     @if('{funcName}' not in BLOCKING_API_CALLS)
-    ApiDumpInstance::current().outputMutex()->lock();
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     @if('{funcName}' in ['vkDebugMarkerSetObjectNameEXT', 'vkSetDebugUtilsObjectNameEXT'])
     ApiDumpInstance::current().update_object_name_map(pNameInfo);
     @end if
@@ -323,7 +320,7 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     device_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     @end if
     @if('{funcName}' in BLOCKING_API_CALLS)
-    ApiDumpInstance::current().outputMutex()->lock();
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     dump_function_head(ApiDumpInstance::current(), "{funcName}", "{funcNamedParams}", "{funcReturn}");
     @end if
     {funcStateTrackingCode}
@@ -358,7 +355,6 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
             @end if
         }}
     }}
-    ApiDumpInstance::current().outputMutex()->unlock();
     @if('{funcName}' == 'vkQueuePresentKHR')
     ApiDumpInstance::current().nextFrame();
     @end if
