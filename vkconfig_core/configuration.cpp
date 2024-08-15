@@ -151,6 +151,10 @@ bool Configuration::Load(const Path& full_path, const std::vector<Layer>& availa
         this->view_advanced_layers = ReadBoolValue(json_configuration_object, "view_advanced_layers");
     }
 
+    if (json_configuration_object.value("selected_layer_name") != QJsonValue::Undefined) {
+        this->selected_layer_name = ReadString(json_configuration_object, "selected_layer_name");
+    }
+
     if (json_configuration_object.value("loader_message_types") != QJsonValue::Undefined) {
         const std::vector<std::string>& loader_messsage_types = ReadStringArray(json_configuration_object, "loader_message_types");
         this->loader_log_messages_flags = GetLogFlags(loader_messsage_types);
@@ -317,6 +321,7 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
     json_configuration.insert("view_advanced_settings", this->view_advanced_settings);
     json_configuration.insert("view_advanced_layers", this->view_advanced_layers);
+    json_configuration.insert("selected_layer_name", this->selected_layer_name.c_str());
     SaveStringArray(json_configuration, "loader_message_types", GetLogTokens(this->loader_log_messages_flags));
     json_configuration.insert("layers", json_layers);
 
