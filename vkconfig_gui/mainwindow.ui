@@ -621,6 +621,12 @@
                   </item>
                   <item row="0" column="0">
                    <widget class="QCheckBox" name="check_box_per_application">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>Per-Application: </string>
                     </property>
@@ -672,12 +678,15 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QTreeWidget" name="configurations_tree">
+                   <widget class="QListWidget" name="configurations_list">
                     <property name="font">
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
                      </font>
+                    </property>
+                    <property name="autoFillBackground">
+                     <bool>false</bool>
                     </property>
                     <property name="frameShape">
                      <enum>QFrame::Box</enum>
@@ -697,46 +706,6 @@
                     <property name="alternatingRowColors">
                      <bool>false</bool>
                     </property>
-                    <property name="indentation">
-                     <number>5</number>
-                    </property>
-                    <property name="columnCount">
-                     <number>5</number>
-                    </property>
-                    <attribute name="headerVisible">
-                     <bool>false</bool>
-                    </attribute>
-                    <attribute name="headerMinimumSectionSize">
-                     <number>20</number>
-                    </attribute>
-                    <attribute name="headerStretchLastSection">
-                     <bool>false</bool>
-                    </attribute>
-                    <column>
-                     <property name="text">
-                      <string notr="true">1</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string notr="true">2</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string notr="true">3</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string notr="true">4</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string notr="true">5</string>
-                     </property>
-                    </column>
                    </widget>
                   </item>
                  </layout>
@@ -871,7 +840,7 @@
               </layout>
              </item>
              <item row="5" column="0">
-              <widget class="QListWidget" name="layers_tree">
+              <widget class="QListWidget" name="layers_list">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                  <horstretch>0</horstretch>
