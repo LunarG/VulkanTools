@@ -92,6 +92,13 @@ SOURCES += \
     dialog_vulkan_info.cpp \
     main.cpp \
     mainwindow.cpp \
+    tab.cpp \
+    tab_applications.cpp \
+    tab_configurations.cpp \
+    tab_diagnostics.cpp \
+    tab_help.cpp \
+    tab_layers.cpp \
+    tab_preferences.cpp \
     settings_tree.cpp
 
 HEADERS += \
@@ -159,6 +166,13 @@ HEADERS += \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
     mainwindow.h \
+    tab.h \
+    tab_applications.h \
+    tab_configurations.h \
+    tab_diagnostics.h \
+    tab_help.h \
+    tab_layers.h \
+    tab_preferences.h \
     settings_tree.h
 
 FORMS += \

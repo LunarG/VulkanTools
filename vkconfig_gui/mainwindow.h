@@ -21,8 +21,13 @@
 
 #pragma once
 
-#include "settings_tree.h"
 #include "configuration_layer_widget.h"
+#include "tab_applications.h"
+#include "tab_configurations.h"
+#include "tab_diagnostics.h"
+#include "tab_help.h"
+#include "tab_layers.h"
+#include "tab_preferences.h"
 
 #include "ui_mainwindow.h"
 
@@ -37,19 +42,6 @@
 
 #include <memory>
 #include <string>
-
-/// This just allows me to associate a specific profile definition
-/// with a list widget item.
-class ConfigurationListItem : public QTreeWidgetItem {
-   public:
-    ConfigurationListItem(const std::string &configuration_name) : configuration_name(configuration_name) {}
-    std::string configuration_name;
-    QRadioButton *radio_button;
-
-   private:
-    ConfigurationListItem(const ConfigurationListItem &) = delete;
-    ConfigurationListItem &operator=(const ConfigurationListItem &) = delete;
-};
 
 class LayerPathWidget : public QLabel {
     Q_OBJECT
@@ -94,8 +86,12 @@ class TreeWidgetItemParameter : public QListWidgetItem {
    public:
     TreeWidgetItemParameter(const char *layer_name) : widget(nullptr), layer_name(layer_name) { assert(layer_name != nullptr); }
 
-    QWidget *widget;
     std::string layer_name;
+    QWidget *widget;
+
+   private:
+    TreeWidgetItemParameter(const TreeWidgetItemParameter &) = delete;
+    TreeWidgetItemParameter &operator=(const TreeWidgetItemParameter &) = delete;
 };
 
 enum Tool { TOOL_VULKAN_INFO, TOOL_VULKAN_INSTALL };
@@ -110,24 +106,17 @@ class MainWindow : public QMainWindow {
     void UpdateUI();
 
    private:
-    SettingsTreeManager _settings_tree_manager;
-
     std::unique_ptr<QProcess> _launch_application;  // Keeps track of the monitored app
     QFile _log_file;                                // Log file for layer output
 
-    void SetupLauncherTree();
-
     void closeEvent(QCloseEvent *event) override;
     void showEvent(QShowEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
     bool eventFilter(QObject *target, QEvent *event) override;
 
     std::unique_ptr<QDialog> vk_info_dialog;
     std::unique_ptr<QDialog> vk_installation_dialog;
 
     void Log(const std::string &log);
-
-    ConfigurationListItem *GetCheckedItem();
 
     QSystemTrayIcon *_tray_icon;
     QMenu *_tray_icon_menu;
@@ -137,18 +126,7 @@ class MainWindow : public QMainWindow {
     QAction *_tray_layers_disabled_by_configurator;
     QAction *_tray_quit_action;
 
-    void OnContextMenuNewClicked(ConfigurationListItem *item);
-    void OnContextMenuImportClicked(ConfigurationListItem *item);
-    void OnContextMenuRenameClicked(ConfigurationListItem *item);
-    void OnContextMenuDuplicateClicked(ConfigurationListItem *item);
-    void OnContextMenuDeleteClicked(ConfigurationListItem *item);
-    void OnContextMenuResetClicked(ConfigurationListItem *item);
-    void OnContextMenuReloadClicked(ConfigurationListItem *item);
-    void OnContextMenuExportConfigsClicked(ConfigurationListItem *item);
-    void OnContextMenuExportSettingsClicked(ConfigurationListItem *item);
-
     void AddLayerPathItem(const std::string &layer_path);
-    void AddLayerItem(Parameter &parameter, bool advanced_view);
 
    private slots:
     void trayActionRestore();
@@ -169,7 +147,6 @@ class MainWindow : public QMainWindow {
     void OnHelpLayerSpec(bool checked);
     void OnHelpGPUInfo(bool checked);
 
-    void editorExpanded(QTreeWidgetItem *item);
     /*
     void launchItemExpanded(QTreeWidgetItem *item);
     void launchItemCollapsed(QTreeWidgetItem *item);
@@ -194,8 +171,6 @@ class MainWindow : public QMainWindow {
 
     void on_combo_box_layers_view_currentIndexChanged(int index);
 
-    void OnConfigurationLoaderMessageCheckBox_toggled(bool checked);
-
     void on_configuration_loader_errors_checkBox_toggled(bool checked);
     void on_configuration_loader_warns_checkBox_toggled(bool checked);
     void on_configuration_loader_infos_checkBox_toggled(bool checked);
@@ -203,17 +178,9 @@ class MainWindow : public QMainWindow {
     void on_configuration_loader_layers_checkBox_toggled(bool checked);
     void on_configuration_loader_drivers_checkBox_toggled(bool checked);
 
-    void OnConfigurationItemExpanded(QTreeWidgetItem *item);
-    void OnConfigurationItemClicked(bool checked);
-    void OnConfigurationTreeChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void OnConfigurationItemChanged(QTreeWidgetItem *item, int column);
-    void OnConfigurationTreeClicked(QTreeWidgetItem *item, int column);
-
-    void OnLayerCurrentRowChanged(int currentRow);
-
-    void OnSettingsTreeClicked(QTreeWidgetItem *item, int column);
-
-    // void OnLauncherLoaderMessageChanged(int level);
+    void on_configurations_list_itemChanged(QListWidgetItem *item);
+    void on_configurations_list_currentRowChanged(int currentRow);
+    void on_layers_list_currentRowChanged(int currentRow);
 
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
@@ -223,18 +190,19 @@ class MainWindow : public QMainWindow {
     MainWindow(const MainWindow &) = delete;
     MainWindow &operator=(const MainWindow &) = delete;
 
-    void LoadUIGeometry();
-    void SaveUIGeometry();
-
     void InitTray();
     void UpdateUI_Status();
-    void UpdateUI_Configurations();
-    void UpdateUI_LoaderMessages();
-    void UpdateUI_Layers();
 
     void ResetLaunchApplication();
     void StartTool(Tool tool);
     QStringList BuildEnvVariables() const;
 
-    std::unique_ptr<Ui::MainWindow> ui;
+    std::shared_ptr<Ui::MainWindow> ui;
+    std::array<std::shared_ptr<Tab>, TAB_COUNT> tabs;
+    std::shared_ptr<TabDiagnostics> tab_diagnostic;
+    std::shared_ptr<TabApplications> tab_applications;
+    std::shared_ptr<TabLayers> tab_layers;
+    std::shared_ptr<TabConfigurations> tab_configurations;
+    std::shared_ptr<TabPreferences> tab_preferences;
+    std::shared_ptr<TabHelp> tab_help;
 };

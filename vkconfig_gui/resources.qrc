@@ -5,6 +5,9 @@
         <file>resourcefiles/qt_logo.png</file>
         <file>resourcefiles/vkconfig-off.png</file>
         <file>resourcefiles/vkconfig-on.png</file>
+        <file>resourcefiles/config-off.png</file>
+        <file>resourcefiles/config-on.png</file>
+        <file>resourcefiles/config-invalid.png</file>
     </qresource>
 
     <qresource prefix="/configurations">
