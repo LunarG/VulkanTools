@@ -63,7 +63,9 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
     this->tree = build_tree;
 
     Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration == nullptr || configurator.environment.selected_layer_name.empty()) {
+    if (configuration == nullptr) {
+        return;
+    } else if (configuration->selected_layer_name.empty()) {
         return;
     }
 
@@ -89,7 +91,7 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
 
-            if (configurator.environment.selected_layer_name != parameter.key) {
+            if (configuration->selected_layer_name != parameter.key) {
                 continue;
             }
 
@@ -157,13 +159,13 @@ void SettingsTreeManager::CleanupGUI() {
     }
 
     Configurator &configurator = Configurator::Get();
-    if (!configurator.environment.selected_layer_name.empty()) {
-        Configuration *configuration = configurator.GetActiveConfiguration();
-        if (configuration != nullptr) {
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    if (configuration != nullptr) {
+        if (!configuration->selected_layer_name.empty()) {
             for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
                 Parameter &parameter = configuration->parameters[i];
 
-                if (parameter.key != configurator.environment.selected_layer_name) {
+                if (parameter.key != configuration->selected_layer_name) {
                     continue;
                 }
 
@@ -192,7 +194,7 @@ void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
 
-            if (parameter.key != configurator.environment.selected_layer_name) {
+            if (parameter.key != configuration->selected_layer_name) {
                 continue;
             }
 
