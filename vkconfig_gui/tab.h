@@ -26,6 +26,9 @@
 
 #include "ui_mainwindow.h"
 
+#include <QObject>
+#include <QSystemTrayIcon>
+
 class MainWindow;
 
 enum UpdateUIMode {
@@ -33,7 +36,10 @@ enum UpdateUIMode {
     UPDATE_REFRESH_UI,
 };
 
-struct Tab {
+struct Tab : public QObject {
+    Q_OBJECT
+
+   public:
     Tab(TabType type, MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
     virtual ~Tab();
 
