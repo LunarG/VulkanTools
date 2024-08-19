@@ -1136,6 +1136,9 @@
                </column>
               </widget>
              </item>
+             <item row="0" column="0">
+              <widget class="QComboBox" name="configurations_presets_comboBox"/>
+             </item>
             </layout>
            </widget>
           </widget>
