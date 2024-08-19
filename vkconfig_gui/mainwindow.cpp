@@ -286,13 +286,13 @@ void MainWindow::AddLayerPathItem(const std::string &layer_path) {
     TreeWidgetItemParameter *item_state = new TreeWidgetItemParameter(layer_path.c_str());
 
     item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
-    LayerPathWidget *layer_path_widget = new LayerPathWidget(layer_path, ui->tree_layers_paths, item_state);
+    LayerPathWidget *layer_path_widget = new LayerPathWidget(layer_path, ui->layers_tree, item_state);
 
     item_state->widget = layer_path_widget;
 
     // Add the top level item
-    ui->tree_layers_paths->addItem(item_state);
-    ui->tree_layers_paths->setItemWidget(item_state, layer_path_widget);
+    ui->layers_tree->addTopLevelItem(item_state);
+    ui->layers_tree->setItemWidget(item_state, 0, layer_path_widget);
 }
 
 void MainWindow::UpdateUI() {
@@ -565,7 +565,7 @@ void MainWindow::on_configurations_list_currentRowChanged(int currentRow) {
     this->tab_configurations->OnSelectConfiguration(currentRow);
 }
 
-void MainWindow::on_layers_list_currentRowChanged(int currentRow) {
+void MainWindow::on_configurations_layers_list_currentRowChanged(int currentRow) {
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
     this->tab_configurations->OnSelectLayer(currentRow);
 }

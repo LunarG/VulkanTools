@@ -103,6 +103,12 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
                 continue;
             }
 
+            if (parameter.control == LAYER_CONTROL_OFF) {
+                this->tree->setEnabled(false);
+            } else {
+                this->tree->setEnabled(true);
+            }
+
             if (parameter.settings.empty()) {
                 continue;
             }
