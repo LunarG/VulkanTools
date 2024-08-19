@@ -149,24 +149,6 @@ class MainWindow : public QMainWindow {
 
     void on_tab_widget_currentChanged(int index);
 
-    // Configurations tabs
-    void on_check_box_per_application_toggled(bool checked);
-    void on_combo_box_mode_currentIndexChanged(int index);
-    void on_combo_box_applications_currentIndexChanged(int index);
-
-    void on_combo_box_layers_view_currentIndexChanged(int index);
-
-    void on_configuration_loader_errors_checkBox_toggled(bool checked);
-    void on_configuration_loader_warns_checkBox_toggled(bool checked);
-    void on_configuration_loader_infos_checkBox_toggled(bool checked);
-    void on_configuration_loader_debug_checkBox_toggled(bool checked);
-    void on_configuration_loader_layers_checkBox_toggled(bool checked);
-    void on_configuration_loader_drivers_checkBox_toggled(bool checked);
-
-    void on_configurations_list_itemChanged(QListWidgetItem *item);
-    void on_configurations_list_currentRowChanged(int currentRow);
-    void on_configurations_layers_list_currentRowChanged(int currentRow);
-
     // Applications tabs
     void on_push_button_launcher_clicked();
     void on_push_button_clear_log_clicked();
@@ -189,23 +171,17 @@ class MainWindow : public QMainWindow {
     void launchArgsEdited(const QString &new_text);
     */
 
+    void UpdateUI_Status();
+
    private:
     MainWindow(const MainWindow &) = delete;
     MainWindow &operator=(const MainWindow &) = delete;
 
     void InitTray();
-    void UpdateUI_Status();
-
     void ResetLaunchApplication();
     void StartTool(Tool tool);
     QStringList BuildEnvVariables() const;
 
     std::shared_ptr<Ui::MainWindow> ui;
     std::array<std::shared_ptr<Tab>, TAB_COUNT> tabs;
-    std::shared_ptr<TabDiagnostics> tab_diagnostic;
-    std::shared_ptr<TabApplications> tab_applications;
-    std::shared_ptr<TabLayers> tab_layers;
-    std::shared_ptr<TabConfigurations> tab_configurations;
-    std::shared_ptr<TabPreferences> tab_preferences;
-    std::shared_ptr<TabHelp> tab_help;
 };

@@ -21,6 +21,11 @@
 #include "tab.h"
 #include "mainwindow.h"
 
+#include "../vkconfig_core/configurator.h"
+#include "../vkconfig_core/ui.h"
+
+#include <QMenu>
+
 Tab::Tab(TabType type, MainWindow& window, std::shared_ptr<Ui::MainWindow> ui) : type(type), window(window), ui(ui) {}
 
 Tab::~Tab() {}
