@@ -233,7 +233,7 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
     const bool has_selected_configuration = !selected_contiguration_name.empty();
 
     if (has_selected_configuration) {
-        this->_settings_tree_manager.CreateGUI(ui->configurations_settings_tree);
+        this->_settings_tree_manager.CreateGUI(ui->configurations_presets_comboBox, ui->configurations_settings_tree);
     } else {
         this->_settings_tree_manager.CleanupGUI();
     }
@@ -518,7 +518,7 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
     Configurator &configurator = Configurator::Get();
     configurator.GetActiveConfiguration()->selected_layer_name = ExtractLayerName(configurator.layers, layer_string);
 
-    this->_settings_tree_manager.CreateGUI(ui->configurations_settings_tree);
+    this->_settings_tree_manager.CreateGUI(ui->configurations_presets_comboBox, ui->configurations_settings_tree);
 }
 
 void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
