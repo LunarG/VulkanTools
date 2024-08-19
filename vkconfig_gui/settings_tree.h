@@ -40,7 +40,7 @@ class SettingsTreeManager : QObject {
 
     bool launched_application;
 
-    void CreateGUI(QTreeWidget *build_tree);
+    void CreateGUI(QComboBox *preset_combobox, QTreeWidget *build_tree);
     void CleanupGUI();
 
     void GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item);
@@ -50,7 +50,7 @@ class SettingsTreeManager : QObject {
 
    public Q_SLOTS:
     void OnSettingChanged();
-    void OnPresetChanged();
+    void OnPresetChanged(int combox_preset_index);
     void OnExpandedChanged(const QModelIndex &index);
 
    private:
@@ -62,5 +62,7 @@ class SettingsTreeManager : QObject {
 
     void RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent);
 
+    std::vector<std::string> preset_labels;  // The preset in the combobox
     QTreeWidget *tree;
+    Parameter *parameter;
 };
