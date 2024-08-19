@@ -36,6 +36,36 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     ui->configurations_layers_list->installEventFilter(&window);
     ui->configurations_settings_tree->installEventFilter(&window);
 
+    this->connect(this->ui->check_box_per_application, SIGNAL(toggled(bool)), this,
+                  SLOT(on_check_box_per_application_toggled(bool)));
+    this->connect(this->ui->combo_box_mode, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_combo_box_mode_currentIndexChanged(int)));
+    this->connect(this->ui->combo_box_applications, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_combo_box_applications_currentIndexChanged(int)));
+
+    this->connect(this->ui->combo_box_layers_view, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_combo_box_layers_view_currentIndexChanged(int)));
+
+    this->connect(this->ui->configuration_loader_errors_checkBox, SIGNAL(toggled(bool)), this,
+                  SLOT(on_configuration_loader_errors_checkBox_toggled(bool)));
+    this->connect(this->ui->configuration_loader_warns_checkBox, SIGNAL(toggled(bool)), this,
+                  SLOT(on_configuration_loader_warns_checkBox_toggled(bool)));
+    this->connect(this->ui->configuration_loader_infos_checkBox, SIGNAL(toggled(bool)), this,
+                  SLOT(on_configuration_loader_infos_checkBox_toggled(bool)));
+    this->connect(this->ui->configuration_loader_debug_checkBox, SIGNAL(toggled(bool)), this,
+                  SLOT(on_configuration_loader_debug_checkBox_toggled(bool)));
+    this->connect(this->ui->configuration_loader_layers_checkBox, SIGNAL(toggled(bool)), this,
+                  SLOT(on_configuration_loader_layers_checkBox_toggled(bool)));
+    this->connect(this->ui->configuration_loader_drivers_checkBox, SIGNAL(toggled(bool)), this,
+                  SLOT(on_configuration_loader_drivers_checkBox_toggled(bool)));
+
+    this->connect(this->ui->configurations_list, SIGNAL(itemChanged(QListWidgetItem *)), this,
+                  SLOT(on_configurations_list_itemChanged(QListWidgetItem *)));
+    this->connect(this->ui->configurations_list, SIGNAL(currentRowChanged(int)), this,
+                  SLOT(on_configurations_list_currentRowChanged(int)));
+    this->connect(this->ui->configurations_layers_list, SIGNAL(currentRowChanged(int)), this,
+                  SLOT(on_configurations_layers_list_currentRowChanged(int)));
+
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
     this->ui->splitter_main->restoreState(settings.value("mainwindow/splitter_main_state").toByteArray());
     this->ui->splitter_configurations->restoreState(settings.value("mainwindow/splitter_configurations_state").toByteArray());
@@ -698,4 +728,89 @@ void TabConfigurations::OnContextMenuExportSettingsClicked(ConfigurationListItem
 
     Configurator &configurator = Configurator::Get();
     // TODO
+}
+
+void TabConfigurations::on_combo_box_mode_currentIndexChanged(int index) {
+    Configurator &configurator = Configurator::Get();
+
+    configurator.environment.GetActiveConfigurationInfo().SetMode(static_cast<LayersMode>(index));
+    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+
+    this->UpdateUI(UPDATE_REFRESH_UI);
+    this->window.UpdateUI_Status();
+}
+
+void TabConfigurations::on_combo_box_applications_currentIndexChanged(int index) {
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.SelectActiveApplication(index);
+
+    this->UpdateUI(UPDATE_REFRESH_UI);
+    this->window.UpdateUI_Status();
+}
+
+void TabConfigurations::on_check_box_per_application_toggled(bool checked) {
+    Configurator &configurator = Configurator::Get();
+
+    configurator.environment.SetPerApplicationConfig(checked);
+    configurator.Override(OVERRIDE_AREA_ALL);
+
+    this->UpdateUI(UPDATE_REFRESH_UI);
+    this->window.UpdateUI_Status();
+}
+
+void TabConfigurations::on_configuration_loader_errors_checkBox_toggled(bool checked) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+    this->OnCheckedLoaderMessageTypes(checked);
+}
+
+void TabConfigurations::on_configuration_loader_warns_checkBox_toggled(bool checked) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+    this->OnCheckedLoaderMessageTypes(checked);
+}
+
+void TabConfigurations::on_configuration_loader_infos_checkBox_toggled(bool checked) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+    this->OnCheckedLoaderMessageTypes(checked);
+}
+
+void TabConfigurations::on_configuration_loader_debug_checkBox_toggled(bool checked) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+    this->OnCheckedLoaderMessageTypes(checked);
+}
+
+void TabConfigurations::on_configuration_loader_layers_checkBox_toggled(bool checked) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+    this->OnCheckedLoaderMessageTypes(checked);
+}
+
+void TabConfigurations::on_configuration_loader_drivers_checkBox_toggled(bool checked) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+    this->OnCheckedLoaderMessageTypes(checked);
+}
+
+void TabConfigurations::on_combo_box_layers_view_currentIndexChanged(int index) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    configuration->view_advanced_layers = index != 0;
+
+    this->UpdateUI_Layers(UPDATE_REBUILD_UI);
+}
+
+/// An item has been changed. Check for edit of the items name (configuration name)
+void TabConfigurations::on_configurations_list_itemChanged(QListWidgetItem *item) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+    this->OnRenameConfiguration(item);
+}
+
+void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+    this->OnSelectConfiguration(currentRow);
+}
+
+void TabConfigurations::on_configurations_layers_list_currentRowChanged(int currentRow) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+    this->OnSelectLayer(currentRow);
 }
