@@ -53,6 +53,9 @@ class ConfigurationListItem : public QListWidgetItem {
 };
 
 struct TabConfigurations : public Tab {
+    Q_OBJECT
+
+   public:
     TabConfigurations(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui);
     virtual ~TabConfigurations();
 
@@ -70,6 +73,24 @@ struct TabConfigurations : public Tab {
     void UpdateUI_LoaderMessages();
     void UpdateUI_Layers(UpdateUIMode ui_update_mode);
     void UpdateUI_Settings(UpdateUIMode ui_update_mode);
+
+   public Q_SLOTS:
+    void on_check_box_per_application_toggled(bool checked);
+    void on_combo_box_mode_currentIndexChanged(int index);
+    void on_combo_box_applications_currentIndexChanged(int index);
+
+    void on_combo_box_layers_view_currentIndexChanged(int index);
+
+    void on_configuration_loader_errors_checkBox_toggled(bool checked);
+    void on_configuration_loader_warns_checkBox_toggled(bool checked);
+    void on_configuration_loader_infos_checkBox_toggled(bool checked);
+    void on_configuration_loader_debug_checkBox_toggled(bool checked);
+    void on_configuration_loader_layers_checkBox_toggled(bool checked);
+    void on_configuration_loader_drivers_checkBox_toggled(bool checked);
+
+    void on_configurations_list_itemChanged(QListWidgetItem *item);
+    void on_configurations_list_currentRowChanged(int currentRow);
+    void on_configurations_layers_list_currentRowChanged(int currentRow);
 
    private:
     SettingsTreeManager _settings_tree_manager;
