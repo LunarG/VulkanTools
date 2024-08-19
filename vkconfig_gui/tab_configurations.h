@@ -25,6 +25,18 @@
 
 #include <QAbstractItemView>
 
+class ListWidgetItemParameter : public QListWidgetItem {
+   public:
+    ListWidgetItemParameter(const char *layer_name) : widget(nullptr), layer_name(layer_name) { assert(layer_name != nullptr); }
+
+    std::string layer_name;
+    QWidget *widget;
+
+   private:
+    ListWidgetItemParameter(const ListWidgetItemParameter &) = delete;
+    ListWidgetItemParameter &operator=(const ListWidgetItemParameter &) = delete;
+};
+
 /// This just allows me to associate a specific profile definition
 /// with a list widget item.
 class ConfigurationListItem : public QListWidgetItem {

@@ -33,8 +33,8 @@
 
 TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_CONFIGURATIONS, window, ui) {
     ui->configurations_list->installEventFilter(&window);
-    ui->layers_list->installEventFilter(&window);
-    ui->settings_tree->installEventFilter(&window);
+    ui->configurations_layers_list->installEventFilter(&window);
+    ui->configurations_settings_tree->installEventFilter(&window);
 
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
     this->ui->splitter_main->restoreState(settings.value("mainwindow/splitter_main_state").toByteArray());
@@ -57,7 +57,6 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
     const bool enabled_ui = mode == LAYERS_CONTROLLED_BY_CONFIGURATOR;
 
     const std::string &selected_contiguration_name = environment.GetActiveConfigurationInfo().GetName();
-    const bool has_selected_configuration = !selected_contiguration_name.empty();
 
     ui->combo_box_mode->blockSignals(true);
     ui->combo_box_mode->setCurrentIndex(mode);
@@ -108,12 +107,6 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
     }
 
     ui->configurations_list->blockSignals(false);
-
-    if (has_selected_configuration) {
-        this->_settings_tree_manager.CreateGUI(ui->settings_tree);
-    } else {
-        this->_settings_tree_manager.CleanupGUI();
-    }
 }
 
 void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
@@ -175,7 +168,7 @@ void TabConfigurations::UpdateUI_LoaderMessages() {
 }
 
 void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
-    ui->layers_list->clear();
+    ui->configurations_layers_list->clear();
 
     Configurator &configurator = Configurator::Get();
     const std::string &selected_contiguration_name = configurator.environment.GetActiveConfigurationInfo().GetName();
@@ -195,9 +188,9 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
 
                 const Layer *layer = configurator.layers.Find(parameter.key);
 
-                TreeWidgetItemParameter *item_state = new TreeWidgetItemParameter(parameter.key.c_str());
+                ListWidgetItemParameter *item_state = new ListWidgetItemParameter(parameter.key.c_str());
                 item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
-                ui->layers_list->addItem(item_state);
+                ui->configurations_layers_list->addItem(item_state);
 
                 std::vector<const Layer *> layers;
                 if (layer != nullptr) {
@@ -205,7 +198,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
                 }
 
                 ConfigurationLayerWidget *layer_widget =
-                    new ConfigurationLayerWidget(layers, parameter, configuration->view_advanced_layers);
+                    new ConfigurationLayerWidget(this, layers, parameter, configuration->view_advanced_layers);
                 item_state->widget = layer_widget;
 
                 if (parameter.control == LAYER_CONTROL_APPLICATIONS_API) {
@@ -215,16 +208,16 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
                         "Located and Enabled Layers using Environment Variables by the Vulkan Application");
                 }
 
-                ui->layers_list->setItemWidget(item_state, layer_widget);
+                ui->configurations_layers_list->setItemWidget(item_state, layer_widget);
                 if (configuration->selected_layer_name == parameter.key) {
-                    ui->layers_list->setCurrentItem(item_state);
+                    ui->configurations_layers_list->setCurrentItem(item_state);
                 }
             }
             // resizeEvent(nullptr);
 
             ui->combo_box_layers_view->setCurrentIndex(configuration->view_advanced_layers);
 
-            ui->layers_list->update();
+            ui->configurations_layers_list->update();
         }
     }
 
@@ -232,7 +225,19 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
     ui->execute_closer_driver_label->setVisible(true);
 }
 
-void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {}
+void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
+    Configurator &configurator = Configurator::Get();
+    Environment &environment = configurator.environment;
+
+    const std::string &selected_contiguration_name = environment.GetActiveConfigurationInfo().GetName();
+    const bool has_selected_configuration = !selected_contiguration_name.empty();
+
+    if (has_selected_configuration) {
+        this->_settings_tree_manager.CreateGUI(ui->configurations_settings_tree);
+    } else {
+        this->_settings_tree_manager.CleanupGUI();
+    }
+}
 
 void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     this->UpdateUI_Configurations(ui_update_mode);
@@ -261,7 +266,7 @@ static const Layer *GetLayer(QListWidget *tree, QListWidgetItem *item) {
         return nullptr;
     }
 
-    TreeWidgetItemParameter *item_parameter = static_cast<TreeWidgetItemParameter *>(item);
+    ListWidgetItemParameter *item_parameter = static_cast<ListWidgetItemParameter *>(item);
 
     const std::string &layer_string = item_parameter->layer_name;
     if (!layer_string.empty()) {
@@ -286,20 +291,6 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
         Configurator::Get().Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
         return true;
     }
-
-    // Launch tree does some fancy resizing and since it's down in
-    // layouts and splitters, we can't just rely on the resize method
-    // of this window. Any resize coming through needs to trigger this
-    // or we get drawing artifacts on macOS.
-    /*
-        if (event->type() == QEvent::Resize) {
-            const QRect rect = ui->launcher_tree->rect();
-            ui->launcher_tree->setColumnWidth(0, LAUNCH_COLUMN0_SIZE);
-            ui->launcher_tree->setColumnWidth(1, rect.width() - LAUNCH_COLUMN0_SIZE - LAUNCH_COLUMN2_SIZE - LAUNCH_SPACING_SIZE);
-            ui->launcher_tree->setColumnWidth(2, LAUNCH_COLUMN2_SIZE);
-            return false;
-        }
-    */
 
     if (target == ui->configurations_list) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
@@ -383,14 +374,14 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 this->OnContextMenuExportSettingsClicked(item);
             }
         }
-    } else if (target == ui->layers_list) {
+    } else if (target == ui->configurations_layers_list) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
         if (right_click) {
-            QListWidgetItem *item = ui->layers_list->itemAt(right_click->pos());
+            QListWidgetItem *item = ui->configurations_layers_list->itemAt(right_click->pos());
 
-            const Layer *layer = GetLayer(ui->layers_list, item);
+            const Layer *layer = GetLayer(ui->configurations_layers_list, item);
 
-            QMenu menu(ui->layers_list);
+            QMenu menu(ui->configurations_layers_list);
 
             QAction *action_description = new QAction("Open the Layer Description...", nullptr);
             action_description->setEnabled(item != nullptr);
@@ -497,7 +488,6 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *item) {
         // Rename configuration ; Remove old configuration file ; change the name of the configuration
         configurator.configurations.RemoveConfigurationFile(old_name);
         configuration->key = configuration_item->configuration_name = new_name;
-        configurator.configurations.SaveAllConfigurations();
         configurator.environment.GetActiveConfigurationInfo().SetName(new_name);
 
         this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
@@ -522,13 +512,13 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
         return;  // No row selected
     }
 
-    QWidget *widget = ui->layers_list->itemWidget(ui->layers_list->item(currentRow));
+    QWidget *widget = ui->configurations_layers_list->itemWidget(ui->configurations_layers_list->item(currentRow));
     const std::string &layer_string = static_cast<LayerPathWidget *>(widget)->text().toStdString();
 
     Configurator &configurator = Configurator::Get();
     configurator.GetActiveConfiguration()->selected_layer_name = ExtractLayerName(configurator.layers, layer_string);
 
-    this->_settings_tree_manager.CreateGUI(ui->settings_tree);
+    this->_settings_tree_manager.CreateGUI(ui->configurations_settings_tree);
 }
 
 void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
