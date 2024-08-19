@@ -50,9 +50,9 @@
 static const char *TOOLTIP_ORDER =
     "Layers are executed between the Vulkan application and driver in the specific order represented here";
 
-SettingsTreeManager::SettingsTreeManager() : launched_application(false), tree(nullptr) {}
+SettingsTreeManager::SettingsTreeManager() : launched_application(false), tree(nullptr), parameter(nullptr) {}
 
-void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
+void SettingsTreeManager::CreateGUI(QComboBox *preset_combobox, QTreeWidget *build_tree) {
     assert(build_tree);
 
     // Do this first to make absolutely sure if these is an old configuration still active it's state gets saved.
@@ -113,38 +113,64 @@ void SettingsTreeManager::CreateGUI(QTreeWidget *build_tree) {
                 continue;
             }
 
+            this->parameter = &parameter;
+
             const std::vector<Layer> &selected_layers = configurator.layers.selected_layers;
             const Layer *layer = FindByKey(selected_layers, parameter.key.c_str());
+            /*
+                        QTreeWidgetItem *layer_item = new QTreeWidgetItem();
+                        this->tree->addTopLevelItem(layer_item);
 
-            QTreeWidgetItem *layer_item = new QTreeWidgetItem();
-            this->tree->addTopLevelItem(layer_item);
+                        std::string layer_text = parameter.key;
+                        if (layer == nullptr) {
+                            layer_text += " (Missing)";
+                        } else if (layer->status != STATUS_STABLE) {
+                            layer_text += std::string(" (") + GetToken(layer->status) + ")";
+                        }
 
-            std::string layer_text = parameter.key;
-            if (layer == nullptr) {
-                layer_text += " (Missing)";
-            } else if (layer->status != STATUS_STABLE) {
-                layer_text += std::string(" (") + GetToken(layer->status) + ")";
-            }
-
-            layer_item->setToolTip(0, parameter.key.c_str());  // Hack for the context menu to find the layer
-            layer_item->setText(0, layer_text.c_str());
-            layer_item->setFont(0, font_layer);
-            layer_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            if (layer != nullptr) {
-                layer_item->setToolTip(0, layer->description.c_str());
-            }
-            layer_item->setExpanded(parameter.control == LAYER_CONTROL_ON);
-
+                        layer_item->setToolTip(0, parameter.key.c_str());  // Hack for the context menu to find the layer
+                        layer_item->setText(0, layer_text.c_str());
+                        layer_item->setFont(0, font_layer);
+                        layer_item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+                        if (layer != nullptr) {
+                            layer_item->setToolTip(0, layer->description.c_str());
+                        }
+                        layer_item->setExpanded(parameter.control == LAYER_CONTROL_ON);
+            */
             if (layer == nullptr) {
                 continue;
             }
 
+            preset_combobox->blockSignals(true);
+            preset_combobox->clear();
+            preset_labels.clear();
             if (!layer->presets.empty()) {
-                QTreeWidgetItem *presets_item = new QTreeWidgetItem();
-                this->tree->addTopLevelItem(presets_item);
-                WidgetPreset *presets_combobox = new WidgetPreset(this->tree, presets_item, *layer, parameter);
-                this->connect(presets_combobox, SIGNAL(itemChanged()), this, SLOT(OnPresetChanged()));
+                preset_combobox->addItem(Layer::NO_PRESET);
+                preset_labels.push_back(Layer::NO_PRESET);
+
+                for (std::size_t i = 0, n = layer->presets.size(); i < n; ++i) {
+                    const LayerPreset &layer_preset = layer->presets[i];
+
+                    if (!IsPlatformSupported(layer_preset.platform_flags)) {
+                        continue;
+                    }
+                    if (layer_preset.view == SETTING_VIEW_HIDDEN) {
+                        continue;
+                    }
+
+                    preset_combobox->addItem((layer_preset.label + " Preset").c_str());
+                    preset_labels.push_back(layer_preset.label);
+                }
+
+                // QTreeWidgetItem *presets_item = new QTreeWidgetItem();
+                // this->tree->addTopLevelItem(presets_item);
+                // WidgetPreset *presets_combobox = new WidgetPreset(this->tree, presets_item, *layer, parameter);
+                this->connect(preset_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
+                preset_combobox->setVisible(true);
+            } else {
+                preset_combobox->setVisible(false);
             }
+            preset_combobox->blockSignals(false);
 
             BuildGenericTree(parameter);
         }
@@ -385,7 +411,21 @@ int SettingsTreeManager::SetTreeState(QByteArray &byte_array, int index, QTreeWi
     return index;
 }
 
-void SettingsTreeManager::OnPresetChanged() { this->Refresh(REFRESH_ENABLE_AND_STATE); }
+void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
+    assert(combox_preset_index >= 0 && static_cast<std::size_t>(combox_preset_index) < preset_labels.size());
+    const std::string &preset_label = preset_labels[combox_preset_index];
+
+    if (preset_label == Layer::NO_PRESET) return;
+
+    Configurator &configurator = Configurator::Get();
+    const Layer *layer = configurator.layers.Find(this->parameter->key.c_str());
+
+    const LayerPreset *preset = GetPreset(layer->presets, preset_label.c_str());
+    assert(preset != nullptr);
+    this->parameter->ApplyPresetSettings(*preset);
+
+    this->Refresh(REFRESH_ENABLE_AND_STATE);
+}
 
 void SettingsTreeManager::OnSettingChanged() { this->Refresh(REFRESH_ENABLE_ONLY); }
 
