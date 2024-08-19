@@ -20,6 +20,7 @@
 
 #include "configuration_layer_widget.h"
 #include "widget_setting.h"
+#include "tab_configurations.h"
 
 #include "../vkconfig_core/configurator.h"
 
@@ -92,9 +93,9 @@ static bool IsDLL32Bit(const std::string full_path) {
 #endif
 }
 
-ConfigurationLayerWidget::ConfigurationLayerWidget(const std::vector<const Layer *> &layers, const Parameter &parameter,
-                                                   bool advanced_view)
-    : layer_name(parameter.key) {
+ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const std::vector<const Layer *> &layers,
+                                                   const Parameter &parameter, bool advanced_view)
+    : tab(tab), layer_name(parameter.key) {
     // const bool is_implicit_layer = layers.empty() ? false : layers[0]->type == LAYER_TYPE_IMPLICIT;
 
     Version api_version;
@@ -226,4 +227,6 @@ void ConfigurationLayerWidget::on_layer_state_currentIndexChanged(int index) {
     Configuration *configuration = Configurator::Get().GetActiveConfiguration();
     Parameter *parameter = configuration->Find(this->layer_name);
     parameter->control = GetLayerControl(text.c_str());
+
+    this->tab->UpdateUI_Settings(UPDATE_REFRESH_UI);
 }
