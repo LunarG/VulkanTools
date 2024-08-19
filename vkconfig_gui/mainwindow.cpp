@@ -65,19 +65,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->InitTray();
 
-    this->tab_diagnostic.reset(new TabDiagnostics(*this, ui));
-    this->tab_applications.reset(new TabApplications(*this, ui));
-    this->tab_layers.reset(new TabLayers(*this, ui));
-    this->tab_configurations.reset(new TabConfigurations(*this, ui));
-    this->tab_preferences.reset(new TabPreferences(*this, ui));
-    this->tab_help.reset(new TabHelp(*this, ui));
-
-    this->tabs[TAB_DIAGNOSTIC] = this->tab_diagnostic;
-    this->tabs[TAB_APPLICATIONS] = this->tab_applications;
-    this->tabs[TAB_LAYERS] = this->tab_layers;
-    this->tabs[TAB_CONFIGURATIONS] = this->tab_configurations;
-    this->tabs[TAB_PREFERENCES] = this->tab_preferences;
-    this->tabs[TAB_HELP] = this->tab_help;
+    this->tabs[TAB_DIAGNOSTIC].reset(new TabDiagnostics(*this, ui));
+    this->tabs[TAB_APPLICATIONS].reset(new TabApplications(*this, ui));
+    this->tabs[TAB_LAYERS].reset(new TabLayers(*this, ui));
+    this->tabs[TAB_CONFIGURATIONS].reset(new TabConfigurations(*this, ui));
+    this->tabs[TAB_PREFERENCES].reset(new TabPreferences(*this, ui));
+    this->tabs[TAB_HELP].reset(new TabHelp(*this, ui));
 
     connect(ui->action_find_more_layers, SIGNAL(triggered(bool)), this, SLOT(OnHelpFindLayers(bool)));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(OnHelpAbout(bool)));
@@ -106,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->restoreState(settings.value("mainwindow/state").toByteArray());
 
     this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
+
     this->UpdateUI_Status();
     this->UpdateUI();
 }
@@ -116,25 +110,20 @@ void MainWindow::InitTray() {
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         this->_tray_quit_action = new QAction("&Quit", this);
         connect(this->_tray_quit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
-
         this->_tray_restore_action = new QAction("Open &Vulkan Configurator", this);
         connect(this->_tray_restore_action, &QAction::triggered, this, &MainWindow::trayActionRestore);
-
         this->_tray_layers_controlled_by_applications = new QAction("Layers Controlled by the Vulkan Applications", this);
         this->_tray_layers_controlled_by_applications->setCheckable(true);
         connect(this->_tray_layers_controlled_by_applications, &QAction::toggled, this,
                 &MainWindow::trayActionControlledByApplications);
-
         this->_tray_layers_controlled_by_configurator = new QAction("Layers Controlled by the Vulkan Configurator", this);
         this->_tray_layers_controlled_by_configurator->setCheckable(true);
         connect(this->_tray_layers_controlled_by_configurator, &QAction::toggled, this,
                 &MainWindow::trayActionControlledByConfigurator);
-
         this->_tray_layers_disabled_by_configurator = new QAction("Layers Disabled by the Vulkan Configurator", this);
         this->_tray_layers_disabled_by_configurator->setCheckable(true);
         connect(this->_tray_layers_disabled_by_configurator, &QAction::toggled, this,
                 &MainWindow::trayActionDisabledByApplications);
-
         this->_tray_icon_menu = new QMenu(this);
         this->_tray_icon_menu->addAction(this->_tray_restore_action);
         this->_tray_icon_menu->addSeparator();
@@ -143,12 +132,10 @@ void MainWindow::InitTray() {
         this->_tray_icon_menu->addAction(this->_tray_layers_disabled_by_configurator);
         this->_tray_icon_menu->addSeparator();
         this->_tray_icon_menu->addAction(this->_tray_quit_action);
-
         this->_tray_icon = new QSystemTrayIcon(this);
         this->_tray_icon->setContextMenu(this->_tray_icon_menu);
         this->UpdateUI_Status();
         this->_tray_icon->show();
-
         this->connect(this->_tray_icon, &QSystemTrayIcon::activated, this, &MainWindow::iconActivated);
     }
 }
@@ -156,7 +143,6 @@ void MainWindow::InitTray() {
 void MainWindow::UpdateUI_Status() {
     const Configurator &configurator = Configurator::Get();
     const Environment &environment = configurator.environment;
-
     const std::string &selected_contiguration_name = environment.GetActiveConfigurationInfo().GetName();
     const bool has_selected_configuration = !selected_contiguration_name.empty();
     const bool has_active_configuration = configurator.HasActiveConfiguration() && has_selected_configuration;
@@ -169,7 +155,6 @@ void MainWindow::UpdateUI_Status() {
 #endif
 
     this->setWindowTitle(GetMainWindowTitle(has_active_configuration, display_date).c_str());
-
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         switch (environment.GetActiveConfigurationInfo().GetMode()) {
             default:
@@ -193,18 +178,14 @@ void MainWindow::UpdateUI_Status() {
 
     if (has_active_configuration && environment.GetActiveConfigurationInfo().GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS) {
         const QIcon icon(":/resourcefiles/vkconfig-on.png");
-
         this->setWindowIcon(icon);
-
         if (QSystemTrayIcon::isSystemTrayAvailable()) {
             this->_tray_icon->setIcon(icon);
             this->_tray_icon->setToolTip("Layers controlled by the Vulkan Configurator");
         }
     } else {
         const QIcon icon(":/resourcefiles/vkconfig-off.png");
-
         this->setWindowIcon(icon);
-
         if (QSystemTrayIcon::isSystemTrayAvailable()) {
             this->_tray_icon->setIcon(icon);
             this->_tray_icon->setToolTip("Layers controlled by the Vulkan Applications");
@@ -220,11 +201,9 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
             break;
         case QSystemTrayIcon::DoubleClick:
             Qt::WindowStates window_states = this->windowState();
-
             const bool is_minimized = this->isMinimized();
             const bool is_visible = this->isVisible();
             const bool is_hidden = this->isHidden();
-
             if (this->isMinimized() || this->isHidden()) {
                 this->setVisible(true);
                 this->showNormal();
@@ -233,6 +212,7 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
                 this->hide();
             }
 
+            this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
             this->UpdateUI_Status();
             break;
     }
@@ -241,19 +221,21 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
 void MainWindow::trayActionRestore() {
     this->hide();
     this->showNormal();
-
     this->UpdateUI();
+    this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
     this->UpdateUI_Status();
 }
 
 void MainWindow::trayActionControlledByApplications(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-
         configurator.environment.GetActiveConfigurationInfo().SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI();
+        if (this->tabs[this->ui->tab_widget->currentIndex()] != nullptr) {
+            this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
+        }
         this->UpdateUI_Status();
     }
 }
@@ -261,11 +243,13 @@ void MainWindow::trayActionControlledByApplications(bool checked) {
 void MainWindow::trayActionControlledByConfigurator(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-
         configurator.environment.GetActiveConfigurationInfo().SetMode(LAYERS_CONTROLLED_BY_CONFIGURATOR);
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI();
+        if (this->tabs[this->ui->tab_widget->currentIndex()] != nullptr) {
+            this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
+        }
         this->UpdateUI_Status();
     }
 }
@@ -273,11 +257,13 @@ void MainWindow::trayActionControlledByConfigurator(bool checked) {
 void MainWindow::trayActionDisabledByApplications(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-
         configurator.environment.GetActiveConfigurationInfo().SetMode(LAYERS_DISABLED_BY_CONFIGURATOR);
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI();
+        if (this->tabs[this->ui->tab_widget->currentIndex()] != nullptr) {
+            this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
+        }
         this->UpdateUI_Status();
     }
 }
@@ -315,7 +301,7 @@ void MainWindow::UpdateUI() {
     ui->check_box_clear_on_launch->setChecked(environment.launcher_clear_on_launch);
 
     // Mode states
-    this->UpdateUI_Status();
+    // this->UpdateUI_Status();
 
     ui->configurations_list->blockSignals(false);
     this->blockSignals(false);
@@ -323,83 +309,8 @@ void MainWindow::UpdateUI() {
     --check_recurse;
 }
 
-void MainWindow::on_combo_box_mode_currentIndexChanged(int index) {
-    Configurator &configurator = Configurator::Get();
-
-    configurator.environment.GetActiveConfigurationInfo().SetMode(static_cast<LayersMode>(index));
-    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-
-    this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REFRESH_UI);
-
-    this->UpdateUI_Status();
-    this->UpdateUI();
-}
-
-void MainWindow::on_combo_box_applications_currentIndexChanged(int index) {
-    Configurator &configurator = Configurator::Get();
-    configurator.environment.SelectActiveApplication(index);
-
-    this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REFRESH_UI);
-
-    this->UpdateUI_Status();
-    this->UpdateUI();
-}
-
-void MainWindow::on_check_box_per_application_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
-
-    configurator.environment.SetPerApplicationConfig(checked);
-    configurator.Override(OVERRIDE_AREA_ALL);
-
-    this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REFRESH_UI);
-
-    this->UpdateUI_Status();
-    this->UpdateUI();
-}
-
-void MainWindow::on_configuration_loader_errors_checkBox_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->tab_configurations->OnCheckedLoaderMessageTypes(checked);
-}
-
-void MainWindow::on_configuration_loader_warns_checkBox_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->tab_configurations->OnCheckedLoaderMessageTypes(checked);
-}
-
-void MainWindow::on_configuration_loader_infos_checkBox_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->tab_configurations->OnCheckedLoaderMessageTypes(checked);
-}
-
-void MainWindow::on_configuration_loader_debug_checkBox_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->tab_configurations->OnCheckedLoaderMessageTypes(checked);
-}
-
-void MainWindow::on_configuration_loader_layers_checkBox_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->tab_configurations->OnCheckedLoaderMessageTypes(checked);
-}
-
-void MainWindow::on_configuration_loader_drivers_checkBox_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->tab_configurations->OnCheckedLoaderMessageTypes(checked);
-}
-
 void MainWindow::on_check_box_clear_on_launch_clicked() {
     Configurator::Get().environment.launcher_clear_on_launch = ui->check_box_clear_on_launch->isChecked();
-}
-
-void MainWindow::on_combo_box_layers_view_currentIndexChanged(int index) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-
-    Configurator &configurator = Configurator::Get();
-
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    configuration->view_advanced_layers = index != 0;
-
-    this->tab_configurations->UpdateUI_Layers(UPDATE_REBUILD_UI);
 }
 
 void MainWindow::toolsResetToDefault(bool checked) {
@@ -554,22 +465,6 @@ void MainWindow::showEvent(QShowEvent *event) {
     event->accept();
 }
 
-/// An item has been changed. Check for edit of the items name (configuration name)
-void MainWindow::on_configurations_list_itemChanged(QListWidgetItem *item) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->tab_configurations->OnRenameConfiguration(item);
-}
-
-void MainWindow::on_configurations_list_currentRowChanged(int currentRow) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->tab_configurations->OnSelectConfiguration(currentRow);
-}
-
-void MainWindow::on_configurations_layers_list_currentRowChanged(int currentRow) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->tab_configurations->OnSelectLayer(currentRow);
-}
-
 // Clear the browser window
 void MainWindow::on_push_button_clear_log_clicked() {
     ui->log_browser->clear();
@@ -578,6 +473,10 @@ void MainWindow::on_push_button_clear_log_clicked() {
 }
 
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
+    if (this->tabs[this->ui->tab_widget->currentIndex()] == nullptr) {
+        return false;
+    }
+
     return this->tabs[this->ui->tab_widget->currentIndex()]->EventFilter(target, event);
 }
 
