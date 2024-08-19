@@ -23,16 +23,23 @@
 #include "../vkconfig_core/parameter.h"
 #include "../vkconfig_core/layer.h"
 
+#include "ui_mainwindow.h"
+
 #include <QListWidgetItem>
 #include <QLabel>
 #include <QComboBox>
 #include <QResizeEvent>
 
+#include <memory>
+
+class TabConfigurations;
+
 class ConfigurationLayerWidget : public QLabel {
     Q_OBJECT
 
    public:
-    ConfigurationLayerWidget(const std::vector<const Layer *> &layers, const Parameter &parameter, bool advanced_view);
+    ConfigurationLayerWidget(TabConfigurations *tab, const std::vector<const Layer *> &layers, const Parameter &parameter,
+                             bool advanced_view);
 
    protected:
     bool eventFilter(QObject *target, QEvent *event);
@@ -43,6 +50,7 @@ class ConfigurationLayerWidget : public QLabel {
     void on_layer_state_currentIndexChanged(int index);
 
    private:
+    TabConfigurations *tab;
     std::string layer_name;
 
     QComboBox *layer_version = nullptr;
