@@ -47,7 +47,7 @@ class LayerPathWidget : public QLabel {
     Q_OBJECT
 
    public:
-    LayerPathWidget(const std::string &layer_path, QListWidget *list, QListWidgetItem *item) : item(item) {
+    LayerPathWidget(const std::string &layer_path, QTreeWidget *list, QTreeWidgetItem *item) : item(item) {
         this->button_edit = new QPushButton(this);
         this->button_edit->setText("...");
         this->button_edit->show();
@@ -57,7 +57,7 @@ class LayerPathWidget : public QLabel {
 
         this->setText(layer_path.c_str());
 
-        item->setSizeHint(QSize(0, ITEM_HEIGHT));
+        item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     }
 
     QPushButton *button_edit;
@@ -79,10 +79,10 @@ class LayerPathWidget : public QLabel {
     }
 
    public:
-    QListWidgetItem *item;
+    QTreeWidgetItem *item;
 };
 
-class TreeWidgetItemParameter : public QListWidgetItem {
+class TreeWidgetItemParameter : public QTreeWidgetItem {
    public:
     TreeWidgetItemParameter(const char *layer_name) : widget(nullptr), layer_name(layer_name) { assert(layer_name != nullptr); }
 
@@ -149,24 +149,9 @@ class MainWindow : public QMainWindow {
     void OnHelpLayerSpec(bool checked);
     void OnHelpGPUInfo(bool checked);
 
-    /*
-    void launchItemExpanded(QTreeWidgetItem *item);
-    void launchItemCollapsed(QTreeWidgetItem *item);
-    void launchItemChanged(int index);
-    void launchSetLogFile();
-    void launchSetExecutable();
-    void launchSetWorkingFolder();
-    void launchChangeLogFile(const QString &new_text);
-    void launchChangeExecutable(const QString &new_text);
-    void launchChangeWorkingFolder(const QString &new_text);
-    void launchArgsEdited(const QString &new_text);
-    */
     void on_tab_widget_currentChanged(int index);
 
-    void on_push_button_launcher_clicked();
-    void on_push_button_clear_log_clicked();
-    void on_check_box_clear_on_launch_clicked();
-
+    // Configurations tabs
     void on_check_box_per_application_toggled(bool checked);
     void on_combo_box_mode_currentIndexChanged(int index);
     void on_combo_box_applications_currentIndexChanged(int index);
@@ -182,11 +167,29 @@ class MainWindow : public QMainWindow {
 
     void on_configurations_list_itemChanged(QListWidgetItem *item);
     void on_configurations_list_currentRowChanged(int currentRow);
-    void on_layers_list_currentRowChanged(int currentRow);
+    void on_configurations_layers_list_currentRowChanged(int currentRow);
+
+    // Applications tabs
+    void on_push_button_launcher_clicked();
+    void on_push_button_clear_log_clicked();
+    void on_check_box_clear_on_launch_clicked();
 
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
     void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
+
+    /*
+    void launchItemExpanded(QTreeWidgetItem *item);
+    void launchItemCollapsed(QTreeWidgetItem *item);
+    void launchItemChanged(int index);
+    void launchSetLogFile();
+    void launchSetExecutable();
+    void launchSetWorkingFolder();
+    void launchChangeLogFile(const QString &new_text);
+    void launchChangeExecutable(const QString &new_text);
+    void launchChangeWorkingFolder(const QString &new_text);
+    void launchArgsEdited(const QString &new_text);
+    */
 
    private:
     MainWindow(const MainWindow &) = delete;
