@@ -24,6 +24,7 @@
 #include "application.h"
 #include "type_tab.h"
 #include "type_log.h"
+#include "serialization.h"
 
 #include <QByteArray>
 
@@ -42,40 +43,25 @@ struct DefaultPath {
     Path working_folder;
 };
 
-class Environment {
+class Environment : public Serialize {
    public:
-    enum Mode { MODE_AUTO_LOAD_SAVE = 0, MODE_UNINITIALIZED };
-
-    Environment(Mode mode = MODE_AUTO_LOAD_SAVE);
+    Environment();
     ~Environment();
 
-    enum ResetMode { DEFAULT = 0, CLEAR, SYSTEM };
-
-    void Reset(ResetMode mode);
-
-    bool Load();
-    bool Save() const;
+    bool Load(const QJsonObject& json_root_object) override;
+    bool Save(QJsonObject& json_root_object) const override;
+    void Reset() override;
 
     void SelectActiveApplication(std::size_t application_index);
     int GetActiveApplicationIndex() const;
-    bool HasOverriddenApplications() const;
     bool AppendApplication(const Application& application);
     bool RemoveApplication(std::size_t application_index);
-
-    const ConfigurationInfo& GetActiveConfigurationInfo() const;
-    ConfigurationInfo& GetActiveConfigurationInfo();
 
     const std::vector<Application>& GetApplications() const { return applications; }
     const Application& GetActiveApplication() const;
     Application& GetActiveApplication();
     const Application& GetApplication(std::size_t application_index) const;
     Application& GetApplication(std::size_t application_index);
-
-    bool GetPerApplicationConfig() const;
-    void SetPerApplicationConfig(bool enable);
-
-    bool GetUseSystemTray() const { return this->use_system_tray; }
-    void SetUseSystemTray(bool enable) { this->use_system_tray = enable; }
 
     LogFlags GetLoaderMessageFlags() const { return this->loader_message_types_flags; }
     void SetLoaderMessageFlags(LogFlags flags) { this->loader_message_types_flags = flags; }
@@ -89,20 +75,13 @@ class Environment {
     Path path_export;
     Path path_import;
 
-    ConfigurationInfo global_configuration;
-    std::map<std::string, std::string> layers_validated;
-
     bool launcher_clear_on_launch = true;
 
    private:
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
 
-    const Mode mode;
-
     TabType active_tab = TAB_DIAGNOSTIC;
-    bool use_system_tray = false;
-    bool use_per_application_configuration = false;
     LogFlags loader_message_types_flags;
     Path home_sdk_path;
 

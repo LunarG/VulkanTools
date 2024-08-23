@@ -26,9 +26,7 @@
 
 #include <cassert>
 
-static int RunLayersOverride(const CommandLine& command_line) {
-    Configurator& configurator = Configurator::Get();
-
+static int RunLayersOverride(Configurator& configurator, const CommandLine& command_line) {
     Configuration configuration;
     const bool load_result =
         configuration.Load(command_line.layers_configuration_path.c_str(), configurator.layers.selected_layers);
@@ -38,8 +36,6 @@ static int RunLayersOverride(const CommandLine& command_line) {
     }
 
     const bool override_result = configurator.Override(OVERRIDE_AREA_ALL);
-
-    configurator.environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 
     if (override_result) {
         printf("\nLayers configuration \"%s\" applied to all Vulkan Applications, including Vulkan layers:\n",
@@ -60,13 +56,9 @@ static int RunLayersOverride(const CommandLine& command_line) {
     return override_result ? 0 : -1;
 }
 
-static int RunLayersSurrender(const CommandLine& command_line) {
-    Configurator& configurator = Configurator::Get();
-
+static int RunLayersSurrender(Configurator& configurator, const CommandLine& command_line) {
     const bool has_overridden_layers = configurator.HasOverride();
     const bool surrender_result = configurator.Surrender(OVERRIDE_AREA_ALL);
-
-    configurator.environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 
     if (has_overridden_layers) {
         if (surrender_result) {
@@ -82,14 +74,12 @@ static int RunLayersSurrender(const CommandLine& command_line) {
     return surrender_result ? 0 : -1;
 }
 
-static int RunLayersList(const CommandLine& command_line) {
-    LayerManager layers;
-
-    if (layers.selected_layers.empty()) {
+static int RunLayersList(Configurator& configurator, const CommandLine& command_line) {
+    if (configurator.layers.selected_layers.empty()) {
         printf("No Vulkan layer found\n");
     } else {
-        for (std::size_t i = 0, n = layers.selected_layers.size(); i < n; ++i) {
-            const Layer& layer = layers.selected_layers[i];
+        for (std::size_t i = 0, n = configurator.layers.selected_layers.size(); i < n; ++i) {
+            const Layer& layer = configurator.layers.selected_layers[i];
 
             printf("%s\n", layer.key.c_str());
         }
@@ -98,11 +88,9 @@ static int RunLayersList(const CommandLine& command_line) {
     return 0;
 }
 
-static int RunLayersVerbose(const CommandLine& command_line) {
-    LayerManager layers;
-
-    for (std::size_t i = 0, n = layers.selected_layers.size(); i < n; ++i) {
-        const Layer& layer = layers.selected_layers[i];
+static int RunLayersVerbose(Configurator& configurator, const CommandLine& command_line) {
+    for (std::size_t i = 0, n = configurator.layers.selected_layers.size(); i < n; ++i) {
+        const Layer& layer = configurator.layers.selected_layers[i];
 
         printf("%s (%s) %s-%s\n", layer.key.c_str(), GetToken(layer.type), layer.api_version.str().c_str(),
                layer.implementation_version.c_str());
@@ -118,18 +106,21 @@ int run_layers(const CommandLine& command_line) {
     assert(command_line.command == COMMAND_LAYERS);
     assert(command_line.error == ERROR_NONE);
 
+    Configurator& configurator = Configurator::Get();
+    configurator.Init(Configurator::CMD);
+
     switch (command_line.command_layers_arg) {
         case COMMAND_LAYERS_OVERRIDE: {
-            return RunLayersOverride(command_line);
+            return RunLayersOverride(configurator, command_line);
         }
         case COMMAND_LAYERS_SURRENDER: {
-            return RunLayersSurrender(command_line);
+            return RunLayersSurrender(configurator, command_line);
         }
         case COMMAND_LAYERS_LIST: {
-            return RunLayersList(command_line);
+            return RunLayersList(configurator, command_line);
         }
         case COMMAND_LAYERS_VERBOSE: {
-            return RunLayersVerbose(command_line);
+            return RunLayersVerbose(configurator, command_line);
         }
         default: {
             assert(0);

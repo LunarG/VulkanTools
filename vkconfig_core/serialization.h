@@ -20,40 +20,10 @@
 
 #pragma once
 
-#include "../vkconfig_core/type_tab.h"
+#include <QJsonObject>
 
-#include "ui_mainwindow.h"
-
-#include <QObject>
-#include <QSystemTrayIcon>
-
-#include <memory>
-#include <cassert>
-
-class MainWindow;
-
-enum UpdateUIMode {
-    UPDATE_REBUILD_UI = 0,
-    UPDATE_REFRESH_UI,
-};
-
-struct Tab : public QObject {
-    Q_OBJECT
-
-   public:
-    Tab(TabType type, MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
-    virtual ~Tab();
-
-    Tab(const Tab&) = delete;
-    Tab& operator=(const Tab&) = delete;
-
-    const TabType type;
-
-    virtual void UpdateUI(UpdateUIMode mode) = 0;
-    virtual void CleanUI() = 0;
-    virtual bool EventFilter(QObject* target, QEvent* event) = 0;
-
-   protected:
-    std::shared_ptr<Ui::MainWindow> ui;
-    MainWindow& window;
+struct Serialize {
+    virtual bool Load(const QJsonObject& json_root_object) = 0;
+    virtual bool Save(QJsonObject& json_root_object) const = 0;
+    virtual void Reset() = 0;
 };
