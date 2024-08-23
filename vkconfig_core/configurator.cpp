@@ -37,6 +37,84 @@
 #include <cstdio>
 #include <algorithm>
 
+Configurator& Configurator::Get() {
+    static Configurator configurator;
+    return configurator;
+}
+
+Configurator::Configurator() {}
+
+Configurator::~Configurator() {
+    QJsonObject json_root_object;
+
+    this->environment.Save(json_root_object);
+    this->configurations.Save(json_root_object);
+    this->layers.Save(json_root_object);
+
+    QJsonDocument json_doc(json_root_object);
+
+    const Path& vkconfig_init_path = ::Get(Path::INIT);
+    QFile file(vkconfig_init_path.AbsolutePath().c_str());
+    const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
+    assert(result);
+
+    file.write(json_doc.toJson());
+    file.close();
+
+    if (this->mode == GUI) {
+        this->Surrender(OVERRIDE_AREA_ALL);
+    }
+}
+
+bool Configurator::Init(Mode mode) {
+    this->mode = mode;
+
+    const Path& vkconfig_init_path = ::Get(Path::INIT);
+
+    QString init_data;
+
+    QFile file(vkconfig_init_path.AbsolutePath().c_str());
+    const bool has_init_file = file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    if (has_init_file) {
+        init_data = file.readAll();
+        file.close();
+
+        const QJsonDocument& json_doc = QJsonDocument::fromJson(init_data.toLocal8Bit());
+        const QJsonObject& json_root_object = json_doc.object();
+
+        this->environment.Load(json_root_object);
+
+        bool request_reset = false;
+        if (this->environment.has_crashed) {
+            this->environment.has_crashed = false;
+
+            if (Alert::ConfiguratorCrashed() == QMessageBox::Yes) {
+                request_reset = true;
+            }
+        }
+
+        if (request_reset) {
+            this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+
+            this->environment.Reset();
+            this->layers.Reset();
+            this->configurations.Reset();
+        } else {
+            this->layers.Load(json_root_object);
+            this->configurations.Load(json_root_object);
+        }
+
+        this->Override(OVERRIDE_AREA_ALL);
+    } else {
+        this->environment.Reset();
+        this->layers.Reset();
+        this->configurations.Reset();
+    }
+
+    return true;
+}
+
 static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& loader_settings) {
     QJsonArray json_layers;
     for (std::size_t j = 0, o = loader_settings.layers.size(); j < o; ++j) {
@@ -80,11 +158,11 @@ void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std:
     static Configuration disbled_configuration = Configuration::CreateDisabled(this->layers.selected_layers);
     const Configuration* configuration = nullptr;
 
-    switch (info.GetMode()) {
+    switch (info.mode) {
         case LAYERS_CONTROLLED_BY_APPLICATIONS:
             return;
         case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
-            configuration = this->configurations.FindConfiguration(info.GetName());
+            configuration = this->configurations.FindConfiguration(info.name);
             if (configuration == nullptr) {
                 return;
             }
@@ -135,15 +213,22 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
     if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
         std::vector<LoaderSettings> loader_settings_array;
 
-        if (this->environment.GetPerApplicationConfig()) {
-            for (std::size_t i = 0, n = this->environment.GetApplications().size(); i < n; ++i) {
-                const Application& application = this->environment.GetApplication(i);
+        const std::map<std::string, ConfigurationInfo>& infos = this->configurations.GetConfigurationInfos();
+        for (auto it = infos.begin(), end = infos.end(); it != end; ++it) {
+            if (this->configurations.GetPerApplicationConfig()) {
+                if (it->first == GLOBAL_CONFIGURATION_TOKEN) {
+                    continue;
+                }
 
-                this->BuildLoaderSettings(application.configuration, application.executable_path.AbsolutePath(),
-                                          loader_settings_array);
+                this->BuildLoaderSettings(it->second, it->first, loader_settings_array);
+            } else {
+                if (it->first != GLOBAL_CONFIGURATION_TOKEN) {
+                    continue;
+                }
+
+                this->BuildLoaderSettings(it->second, "", loader_settings_array);
+                break;
             }
-        } else {
-            BuildLoaderSettings(this->environment.global_configuration, "", loader_settings_array);
         }
 
         if (!loader_settings_array.empty()) {
@@ -179,19 +264,20 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
     if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
         std::vector<LayersSettings> layers_settings_array;
 
-        if (this->environment.GetPerApplicationConfig()) {
+        if (this->configurations.GetPerApplicationConfig()) {
             const std::vector<Application>& applications = this->environment.GetApplications();
 
             for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
                 LayersSettings settings;
-                settings.configuration_name = applications[i].configuration.GetName();
+                settings.configuration_name =
+                    this->configurations.FindConfigurationInfo(applications[i].executable_path.AbsolutePath())->name;
                 settings.executable_path = applications[i].executable_path;
                 settings.settings_path = applications[i].GetActiveOptions().working_folder;
                 layers_settings_array.push_back(settings);
             }
         } else {
             LayersSettings settings;
-            settings.configuration_name = this->environment.global_configuration.GetName();
+            settings.configuration_name = this->configurations.FindConfigurationInfo(GLOBAL_CONFIGURATION_TOKEN)->name;
             settings.settings_path = layers_settings_path;
             layers_settings_array.push_back(settings);
         }
@@ -318,52 +404,6 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
     }
 }
 
-Configurator& Configurator::Get() {
-    static Configurator configurator;
-    return configurator;
-}
-
-Configurator::Configurator() : environment(), layers(), configurations() {}
-
-Configurator::~Configurator() {
-    this->UpdateLayersValidationCache();
-
-    this->configurations.SaveAllConfigurations();
-
-    this->Surrender(OVERRIDE_AREA_ALL);
-}
-
-void Configurator::UpdateLayersValidationCache() {
-    this->environment.layers_validated.clear();
-
-    for (std::size_t i = 0, n = this->layers.Size(); i < n; ++i) {
-        const Layer& layer = this->layers.selected_layers[i];
-
-        this->environment.layers_validated.insert(
-            std::make_pair(layer.manifest_path.AbsolutePath(), layer.validated_last_modified));
-    }
-}
-
-bool Configurator::Init() {
-    // Load simple app settings, the additional search paths, and the
-    // override app list.
-    this->layers.LoadAllInstalledLayers(environment.layers_validated);
-
-    if (this->environment.has_crashed) {
-        this->environment.has_crashed = false;
-
-        if (Alert::ConfiguratorCrashed() == QMessageBox::No) {
-            this->configurations.LoadAllConfigurations(this->layers.selected_layers);
-        }
-    } else {
-        this->configurations.LoadAllConfigurations(this->layers.selected_layers);
-    }
-
-    this->Override(OVERRIDE_AREA_ALL);
-
-    return true;
-}
-
 bool Configurator::Override(OverrideArea override_area) {
     const Path& loader_settings_path = ::Get(Path::LOADER_SETTINGS);
     const Path& layers_settings_path = ::Get(Path::LAYERS_SETTINGS);
@@ -415,26 +455,20 @@ bool Configurator::HasOverride() const {
     return loader_settings_path.Exists() || layers_settings_path.Exists();
 }
 
-void Configurator::ResetToDefault(bool hard) {
-    this->environment.Reset(Environment::CLEAR);
-    this->layers.LoadAllInstalledLayers(this->environment.layers_validated);
-    this->configurations.Reset(this->layers.selected_layers);
+void Configurator::Reset() {
+    this->environment.Reset();
+    this->layers.Reset();
+    this->configurations.Reset();
 }
 
 Configuration* Configurator::GetActiveConfiguration() {
-    const ConfigurationInfo& info = this->environment.GetActiveConfigurationInfo();
-    return this->configurations.FindConfiguration(info.GetName());
+    const ConfigurationInfo* info = this->configurations.GetActiveConfigurationInfo();
+    return this->configurations.FindConfiguration(info->name);
 }
 
 const Configuration* Configurator::GetActiveConfiguration() const {
-    const ConfigurationInfo& info = this->environment.GetActiveConfigurationInfo();
-    return this->configurations.FindConfiguration(info.GetName());
+    const ConfigurationInfo* info = this->configurations.GetActiveConfigurationInfo();
+    return this->configurations.FindConfiguration(info->name);
 }
 
-bool Configurator::HasActiveConfiguration() const {
-    if (this->environment.GetPerApplicationConfig()) {
-        return this->environment.HasOverriddenApplications();
-    } else {
-        return this->environment.GetActiveConfigurationInfo().GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS;
-    }
-}
+bool Configurator::HasActiveConfiguration() const { return this->configurations.HasActiveConfiguration(); }

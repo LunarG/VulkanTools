@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "configuration_layer_widget.h"
+//#include "configuration_layer_widget.h"
 #include "tab_applications.h"
 #include "tab_configurations.h"
 #include "tab_diagnostics.h"
@@ -42,57 +42,6 @@
 
 #include <memory>
 #include <string>
-
-class LayerPathWidget : public QLabel {
-    Q_OBJECT
-
-   public:
-    LayerPathWidget(const std::string &layer_path, QTreeWidget *list, QTreeWidgetItem *item) : item(item) {
-        this->button_edit = new QPushButton(this);
-        this->button_edit->setText("...");
-        this->button_edit->show();
-        this->buttom_remove = new QPushButton(this);
-        this->buttom_remove->setText("x");
-        this->buttom_remove->show();
-
-        this->setText(layer_path.c_str());
-
-        item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-    }
-
-    QPushButton *button_edit;
-    QPushButton *buttom_remove;
-
-   protected:
-    void resizeEvent(QResizeEvent *event) override {
-        QSize size = event->size();
-
-        const QFontMetrics fm = this->button_edit->fontMetrics();
-        const int button_width_state = 30;
-
-        const QRect edit_button_rect =
-            QRect(size.width() - button_width_state - button_width_state, 0, button_width_state, size.height());
-        this->button_edit->setGeometry(edit_button_rect);
-
-        const QRect remove_button_rect = QRect(size.width() - button_width_state, 0, button_width_state, size.height());
-        this->buttom_remove->setGeometry(remove_button_rect);
-    }
-
-   public:
-    QTreeWidgetItem *item;
-};
-
-class TreeWidgetItemParameter : public QTreeWidgetItem {
-   public:
-    TreeWidgetItemParameter(const char *layer_name) : widget(nullptr), layer_name(layer_name) { assert(layer_name != nullptr); }
-
-    std::string layer_name;
-    QWidget *widget;
-
-   private:
-    TreeWidgetItemParameter(const TreeWidgetItemParameter &) = delete;
-    TreeWidgetItemParameter &operator=(const TreeWidgetItemParameter &) = delete;
-};
 
 enum Tool { TOOL_VULKAN_INFO, TOOL_VULKAN_INSTALL };
 
@@ -125,8 +74,6 @@ class MainWindow : public QMainWindow {
     QAction *_tray_layers_controlled_by_configurator;
     QAction *_tray_layers_disabled_by_configurator;
     QAction *_tray_quit_action;
-
-    void AddLayerPathItem(const std::string &layer_path);
 
    private slots:
     void trayActionRestore();

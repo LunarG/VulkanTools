@@ -23,8 +23,6 @@
 
 #include <gtest/gtest.h>
 
-std::map<std::string, std::string> Dummy() { return std::map<std::string, std::string>(); }
-
 TEST(test_layer_manager, clear) {
     LayerManager layer_manager;
 
@@ -33,13 +31,9 @@ TEST(test_layer_manager, clear) {
 }
 
 TEST(test_layer_manager, load_all) {
-    std::vector<Path> user_defined_paths;
-    user_defined_paths.push_back(":/layers");
-
-    Environment environment;
-
-    LayerManager layer_manager(user_defined_paths);
-    layer_manager.LoadAllInstalledLayers(environment.layers_validated);
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadAllInstalledLayers();
 
     EXPECT_TRUE(layer_manager.Size() >= 10);
     EXPECT_TRUE(!layer_manager.Empty());
@@ -52,7 +46,7 @@ TEST(test_layer_manager, load_dir) {
     LayerManager layer_manager;
     EXPECT_TRUE(layer_manager.Empty());
 
-    layer_manager.LoadLayersFromPath(":/layers", Dummy());
+    layer_manager.LoadLayersFromPath(":/layers");
 
     EXPECT_TRUE(!layer_manager.Empty());
     EXPECT_EQ(10, layer_manager.Size());
@@ -67,7 +61,7 @@ TEST(test_layer_manager, load_file) {
     LayerManager layer_manager;
     EXPECT_TRUE(layer_manager.Empty());
 
-    layer_manager.LoadLayersFromPath(":/layers/VK_LAYER_LUNARG_reference_1_1_0.json", Dummy());
+    layer_manager.LoadLayersFromPath(":/layers/VK_LAYER_LUNARG_reference_1_1_0.json");
 
     EXPECT_TRUE(!layer_manager.Empty());
     EXPECT_EQ(1, layer_manager.Size());
@@ -79,15 +73,9 @@ TEST(test_layer_manager, load_file) {
 }
 
 TEST(test_layer_manager, find) {
-    std::vector<Path> user_defined_paths;
-    user_defined_paths.push_back(":/layers");
-
-    Environment environment;
-
-    LayerManager layer_manager(user_defined_paths);
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
     EXPECT_TRUE(layer_manager.Empty());
-
-    layer_manager.LoadAllInstalledLayers(environment.layers_validated);
 
     EXPECT_TRUE(layer_manager.Find("VK_LAYER_LUNARG_reference_1_1_0") != nullptr);
     EXPECT_TRUE(layer_manager.Find("VK_LAYER_LUNARG_test_03") != nullptr);
@@ -97,9 +85,9 @@ TEST(test_layer_manager, avoid_duplicate) {
     LayerManager layer_manager;
     EXPECT_TRUE(layer_manager.Empty());
 
-    layer_manager.LoadLayersFromPath(":/layers", Dummy());
+    layer_manager.LoadLayersFromPath(":/layers");
     EXPECT_EQ(10, layer_manager.Size());
 
-    layer_manager.LoadLayersFromPath(":/layers", Dummy());
+    layer_manager.LoadLayersFromPath(":/layers");
     EXPECT_EQ(10, layer_manager.Size());
 }
