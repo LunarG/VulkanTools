@@ -63,14 +63,12 @@ static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parame
 std::map<std::string, std::string> Dummy() { return std::map<std::string, std::string>(); }
 
 struct TestBuilin {
-    TestBuilin() : environment(Environment::MODE_UNINITIALIZED), layer_manager() {
-        this->layer_manager.LoadLayersFromPath(":/sdk", Dummy());
+    TestBuilin() : environment(), layer_manager() {
+        this->layer_manager.LoadLayersFromPath(":/sdk");
         EXPECT_TRUE(!this->layer_manager.selected_layers.empty());
     }
 
-    ~TestBuilin() {
-        environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
-    }
+    ~TestBuilin() {}
 
     Configuration Load(const char* configuration_name) {
         Configuration configuration_loaded;

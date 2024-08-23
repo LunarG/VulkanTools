@@ -134,7 +134,6 @@ void MainWindow::InitTray() {
         this->_tray_icon_menu->addAction(this->_tray_quit_action);
         this->_tray_icon = new QSystemTrayIcon(this);
         this->_tray_icon->setContextMenu(this->_tray_icon_menu);
-        this->UpdateUI_Status();
         this->_tray_icon->show();
         this->connect(this->_tray_icon, &QSystemTrayIcon::activated, this, &MainWindow::iconActivated);
     }
@@ -142,10 +141,7 @@ void MainWindow::InitTray() {
 
 void MainWindow::UpdateUI_Status() {
     const Configurator &configurator = Configurator::Get();
-    const Environment &environment = configurator.environment;
-    const std::string &selected_contiguration_name = environment.GetActiveConfigurationInfo().GetName();
-    const bool has_selected_configuration = !selected_contiguration_name.empty();
-    const bool has_active_configuration = configurator.HasActiveConfiguration() && has_selected_configuration;
+    const bool has_active_configuration = configurator.HasActiveConfiguration();
 
     // Update title bar
 #ifdef VKCONFIG_DATE
@@ -154,9 +150,12 @@ void MainWindow::UpdateUI_Status() {
     bool display_date = false;
 #endif
 
+    const ConfigurationInfo *configuration_info = configurator.configurations.GetActiveConfigurationInfo();
+    const LayersMode mode = configuration_info == nullptr ? LAYERS_CONTROLLED_BY_APPLICATIONS : configuration_info->mode;
+
     this->setWindowTitle(GetMainWindowTitle(has_active_configuration, display_date).c_str());
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
-        switch (environment.GetActiveConfigurationInfo().GetMode()) {
+        switch (mode) {
             default:
             case LAYERS_CONTROLLED_BY_APPLICATIONS:
                 this->_tray_layers_controlled_by_applications->setChecked(true);
@@ -176,7 +175,7 @@ void MainWindow::UpdateUI_Status() {
         }
     }
 
-    if (has_active_configuration && environment.GetActiveConfigurationInfo().GetMode() != LAYERS_CONTROLLED_BY_APPLICATIONS) {
+    if (has_active_configuration && mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
         const QIcon icon(":/resourcefiles/vkconfig-on.png");
         this->setWindowIcon(icon);
         if (QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -229,7 +228,7 @@ void MainWindow::trayActionRestore() {
 void MainWindow::trayActionControlledByApplications(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-        configurator.environment.GetActiveConfigurationInfo().SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
+        configurator.configurations.GetActiveConfigurationInfo()->mode = LAYERS_CONTROLLED_BY_APPLICATIONS;
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI();
@@ -243,7 +242,7 @@ void MainWindow::trayActionControlledByApplications(bool checked) {
 void MainWindow::trayActionControlledByConfigurator(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-        configurator.environment.GetActiveConfigurationInfo().SetMode(LAYERS_CONTROLLED_BY_CONFIGURATOR);
+        configurator.configurations.GetActiveConfigurationInfo()->mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI();
@@ -257,7 +256,7 @@ void MainWindow::trayActionControlledByConfigurator(bool checked) {
 void MainWindow::trayActionDisabledByApplications(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-        configurator.environment.GetActiveConfigurationInfo().SetMode(LAYERS_DISABLED_BY_CONFIGURATOR);
+        configurator.configurations.GetActiveConfigurationInfo()->mode = LAYERS_DISABLED_BY_CONFIGURATOR;
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI();
@@ -268,19 +267,6 @@ void MainWindow::trayActionDisabledByApplications(bool checked) {
     }
 }
 
-void MainWindow::AddLayerPathItem(const std::string &layer_path) {
-    TreeWidgetItemParameter *item_state = new TreeWidgetItemParameter(layer_path.c_str());
-
-    item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
-    LayerPathWidget *layer_path_widget = new LayerPathWidget(layer_path, ui->layers_tree, item_state);
-
-    item_state->widget = layer_path_widget;
-
-    // Add the top level item
-    ui->layers_tree->addTopLevelItem(item_state);
-    ui->layers_tree->setItemWidget(item_state, 0, layer_path_widget);
-}
-
 void MainWindow::UpdateUI() {
     static int check_recurse = 0;
     ++check_recurse;
@@ -288,13 +274,9 @@ void MainWindow::UpdateUI() {
 
     Configurator &configurator = Configurator::Get();
     const Environment &environment = Configurator::Get().environment;
-    const std::string &selected_contiguration_name = environment.GetActiveConfigurationInfo().GetName();
-    const bool has_selected_configuration = !selected_contiguration_name.empty();
 
     this->blockSignals(true);
     ui->configurations_list->blockSignals(true);
-
-    const bool has_active_configuration = configurator.HasActiveConfiguration() && has_selected_configuration;
 
     const bool has_application_list = !environment.GetApplications().empty();
     ui->push_button_launcher->setText(_launch_application ? "Terminate" : "Launch");
@@ -321,7 +303,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     }
 
     Configurator &configurator = Configurator::Get();
-    configurator.ResetToDefault(true);
+    configurator.Reset();
 
     this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REFRESH_UI);
     this->UpdateUI();
@@ -330,7 +312,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 void MainWindow::StartTool(Tool tool) {
     Configurator &configurator = Configurator::Get();
 
-    if (!configurator.environment.GetPerApplicationConfig()) {
+    if (!configurator.configurations.GetPerApplicationConfig()) {
         configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 
@@ -343,7 +325,7 @@ void MainWindow::StartTool(Tool tool) {
             break;
     }
 
-    if (!configurator.environment.GetPerApplicationConfig()) {
+    if (!configurator.configurations.GetPerApplicationConfig()) {
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 }
@@ -393,15 +375,16 @@ void MainWindow::OnHelpGPUInfo(bool checked) {
 /// The only thing we need to do here is clear the configuration if
 /// the user does not want it active.
 void MainWindow::closeEvent(QCloseEvent *event) {
-    Environment &environment = Configurator::Get().environment;
+    Configurator &configurator = Configurator::Get();
+    Environment &environment = configurator.environment;
 
     // Alert the user to the current state of the vulkan configurator and
     // give them the option to not shutdown.
-    if (environment.GetUseSystemTray()) {
+    if (configurator.configurations.GetUseSystemTray()) {
         if (environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_USE_SYSTEM_TRAY)) {
             std::string shut_down_state;
 
-            if (environment.GetActiveConfigurationInfo().GetMode() == LAYERS_CONTROLLED_BY_CONFIGURATOR) {
+            if (configurator.configurations.GetActiveConfigurationInfo()->mode == LAYERS_CONTROLLED_BY_CONFIGURATOR) {
                 shut_down_state =
                     "Vulkan Layers override will remain in effect while Vulkan Configurator remain active in the system tray.";
             } else {
