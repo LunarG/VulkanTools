@@ -23,10 +23,17 @@
 #include "tab.h"
 
 struct TabDiagnostics : public Tab {
+    Q_OBJECT
+
+   public:
     TabDiagnostics(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
     virtual ~TabDiagnostics();
 
     virtual void UpdateUI(UpdateUIMode mode) override;
     virtual void CleanUI() override;
     virtual bool EventFilter(QObject* target, QEvent* event) override;
+
+   public Q_SLOTS:
+
+   private:
 };

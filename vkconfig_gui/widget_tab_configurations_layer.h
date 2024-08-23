@@ -20,40 +20,38 @@
 
 #pragma once
 
-#include "../vkconfig_core/type_tab.h"
+#include "../vkconfig_core/parameter.h"
 
 #include "ui_mainwindow.h"
 
-#include <QObject>
-#include <QSystemTrayIcon>
+#include <QListWidgetItem>
+#include <QLabel>
+#include <QComboBox>
+#include <QResizeEvent>
 
 #include <memory>
-#include <cassert>
 
-class MainWindow;
+class TabConfigurations;
 
-enum UpdateUIMode {
-    UPDATE_REBUILD_UI = 0,
-    UPDATE_REFRESH_UI,
-};
-
-struct Tab : public QObject {
+class ConfigurationLayerWidget : public QLabel {
     Q_OBJECT
 
    public:
-    Tab(TabType type, MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
-    virtual ~Tab();
-
-    Tab(const Tab&) = delete;
-    Tab& operator=(const Tab&) = delete;
-
-    const TabType type;
-
-    virtual void UpdateUI(UpdateUIMode mode) = 0;
-    virtual void CleanUI() = 0;
-    virtual bool EventFilter(QObject* target, QEvent* event) = 0;
+    ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter, const std::vector<Version> &layer_version,
+                             bool advanced_view);
 
    protected:
-    std::shared_ptr<Ui::MainWindow> ui;
-    MainWindow& window;
+    bool eventFilter(QObject *target, QEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
+
+   public Q_SLOTS:
+    void on_layer_version_currentIndexChanged(int index);
+    void on_layer_state_currentIndexChanged(int index);
+
+   private:
+    TabConfigurations *tab;
+    std::string layer_name;
+
+    QComboBox *layer_version = nullptr;
+    QComboBox *layer_state = nullptr;
 };

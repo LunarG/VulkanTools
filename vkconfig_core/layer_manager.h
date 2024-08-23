@@ -22,6 +22,7 @@
 
 #include "layer.h"
 #include "path.h"
+#include "serialization.h"
 
 #include <string>
 #include <vector>
@@ -43,9 +44,21 @@ enum { LAYERS_PATHS_COUNT = LAYERS_PATHS_LAST - LAYERS_PATHS_FIRST + 1 };
 
 LayerType GetLayerType(LayersPaths Layers_paths_type);
 
-class LayerManager {
+struct LayersPathInfo {
+    Path path;
+    std::vector<Layer> layers;
+
+    bool enabled = true;
+};
+
+class LayerManager : public Serialize {
    public:
-    LayerManager(const std::vector<Path>& user_defined_paths = std::vector<Path>());
+    LayerManager();
+    ~LayerManager();
+
+    bool Load(const QJsonObject& json_root_object) override;
+    bool Save(QJsonObject& json_root_object) const override;
+    void Reset() override;
 
     void Clear();
     bool Empty() const;
@@ -54,15 +67,19 @@ class LayerManager {
     Layer* Find(const std::string& layer_name);
     const Layer* Find(const std::string& layer_name) const;
 
-    void LoadAllInstalledLayers(const std::map<std::string, std::string>& layers_validated);
+    std::vector<Version> GatherVersions(const std::string& layer_name) const;
+    const Layer* FindFromVersion(const std::string& layer_name, const Version& version) const;
+    const Layer* FindFromManifest(const Path& manifest_path) const;
 
-    void LoadLayersFromPath(const Path& layers_path, const std::map<std::string, std::string>& layers_validated,
-                            LayerType type = LAYER_TYPE_EXPLICIT);
+    void LoadAllInstalledLayers();
+
+    void LoadLayersFromPath(const Path& layers_path, LayerType type = LAYER_TYPE_EXPLICIT);
 
     std::vector<Layer> selected_layers;
+    std::array<std::vector<Path>, LAYERS_PATHS_COUNT> paths;
 
    private:
-    bool IsAvailable(const Layer& layer) const;
+    std::map<std::string, std::string> layers_validated;
 
-    std::array<std::vector<Path>, LAYERS_PATHS_COUNT> paths;
+    bool IsAvailable(const Layer& layer) const;
 };
