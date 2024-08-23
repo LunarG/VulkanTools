@@ -72,7 +72,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_diagnostic">
        <attribute name="title">
@@ -549,7 +549,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QTreeWidget" name="layers_tree">
+           <widget class="QTreeWidget" name="layers_paths_tree">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>

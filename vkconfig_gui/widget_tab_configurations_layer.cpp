@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "configuration_layer_widget.h"
+#include "widget_tab_configurations_layer.h"
 #include "widget_setting.h"
 #include "tab_configurations.h"
 
@@ -93,48 +93,32 @@ static bool IsDLL32Bit(const std::string full_path) {
 #endif
 }
 
-ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const std::vector<const Layer *> &layers,
-                                                   const Parameter &parameter, bool advanced_view)
+ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter,
+                                                   const std::vector<Version> &layer_versions, bool advanced_view)
     : tab(tab), layer_name(parameter.key) {
     // const bool is_implicit_layer = layers.empty() ? false : layers[0]->type == LAYER_TYPE_IMPLICIT;
 
-    Version api_version;
+    const Configurator &configurator = Configurator::Get();
+    const Layer *layer = configurator.layers.FindFromVersion(parameter.key, parameter.api_version);
 
     if (parameter.control != LAYER_CONTROL_APPLICATIONS_API && parameter.control != LAYER_CONTROL_APPLICATIONS_ENV) {
+        assert(layer != nullptr);
+
         this->layer_version = new QComboBox(this);
         this->layer_version->setVisible(advanced_view);
         this->layer_version->addItem("Latest");
+
         int version_index = 0;
-
-        const Layer *selected_layer = nullptr;
-        const Layer *latest_layer = nullptr;
-
-        for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
-            if (layers[i]->key != parameter.key) {
-                continue;
-            }
-
-            if (latest_layer == nullptr) {
-                latest_layer = layers[i];
-            }
-
-            if (layers[i]->api_version == parameter.api_version) {
-                selected_layer = layers[i];
+        for (std::size_t i = 0, n = layer_versions.size(); i < n; ++i) {
+            if (layer_versions[i] == parameter.api_version) {
                 version_index = this->layer_version->count();
-            } else if (layers[i]->api_version > latest_layer->api_version) {
-                latest_layer = layers[i];
+
+                this->layer_version->setToolTip(layer->manifest_path.AbsolutePath().c_str());
             }
 
-            this->layer_version->addItem(layers[i]->api_version.str().c_str());
+            this->layer_version->addItem(layer_versions[i].str().c_str());
         }
         this->layer_version->setCurrentIndex(version_index);
-        if (selected_layer != nullptr) {
-            api_version = selected_layer->api_version;
-            this->layer_version->setToolTip(selected_layer->manifest_path.AbsolutePath().c_str());
-        } else if (latest_layer != nullptr) {
-            api_version = latest_layer->api_version;
-            this->layer_version->setToolTip(latest_layer->manifest_path.AbsolutePath().c_str());
-        }
 
         // this->layer_version->setEnabled(layers.size() > 1);
         this->connect(this->layer_version, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_version_currentIndexChanged(int)));
@@ -144,7 +128,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         for (int i = LAYER_CONTROL_UI_FIRST; i <= LAYER_CONTROL_UI_LAST; ++i) {
             this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
         }
-        this->layer_state->setEnabled(!layers.empty());
+        this->layer_state->setEnabled(!layer_versions.empty());
         this->layer_state->setCurrentIndex(parameter.control);
         this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
         // this->layer_state->installEventFilter(this);
@@ -152,7 +136,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
 
     std::string decorated_name = parameter.key;
 
-    if (layers.empty()) {
+    if (layer_versions.empty()) {
         // A layers configuration may have excluded layer that are misssing because they are not available on this platform
         // We simply hide these layers to avoid confusing the Vulkan developers
         if (parameter.control == LAYER_CONTROL_OFF) {
@@ -163,12 +147,14 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
             decorated_name += " (Missing)";
         }
     } else {
-        if (!advanced_view && api_version != Version::VERSION_NULL) {
-            decorated_name += format(" - %s", api_version.str().c_str());
+        assert(layer != nullptr);
+
+        if (!advanced_view && parameter.api_version != Version::VERSION_NULL) {
+            decorated_name += format(" - %s", parameter.api_version.str().c_str());
         }
 
-        if (layers[0]->status != STATUS_STABLE) {
-            decorated_name += format(" (%s)", GetToken(layers[0]->status));
+        if (layer->status != STATUS_STABLE) {
+            decorated_name += format(" (%s)", GetToken(layer->status));
         }
 
         // if (IsDLL32Bit(layer->manifest_path)) {

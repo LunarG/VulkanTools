@@ -23,9 +23,93 @@
 #include "configurator.h"
 #include "alert.h"
 
+const char *GLOBAL_CONFIGURATION_TOKEN = "GLOBAL";
+
 ConfigurationManager::ConfigurationManager() {}
 
 ConfigurationManager::~ConfigurationManager() {}
+
+bool ConfigurationManager::Load(const QJsonObject &json_root_object) {
+    // configurations json object
+    if (json_root_object.value("configurations") != QJsonValue::Undefined) {
+        const QJsonObject &json_configurations_object = json_root_object.value("configurations").toObject();
+        this->use_per_application_configuration = json_configurations_object.value("use_per_application").toBool();
+        this->use_system_tray = json_configurations_object.value("use_system_tray").toBool();
+        this->active_application = json_configurations_object.value("active_application").toString().toStdString();
+
+        if (json_configurations_object.value("infos") != QJsonValue::Undefined) {
+            const QJsonObject &json_infos_object = json_configurations_object.value("infos").toObject();
+            const QStringList &json_infos_keys = json_infos_object.keys();
+            for (int i = 0, n = json_infos_keys.length(); i < n; ++i) {
+                const std::string &key = json_infos_keys[i].toStdString();
+                const QJsonObject &json_info_object = json_infos_object.value(key.c_str()).toObject();
+                ConfigurationInfo info;
+                info.name = json_info_object.value("name").toString().toStdString();
+                info.mode = ::GetLayersMode(json_info_object.value("mode").toString().toStdString().c_str());
+                this->configuration_infos.insert(std::make_pair(key, info));
+            }
+        }
+
+        if (json_configurations_object.value("removed_builtin") != QJsonValue::Undefined) {
+            const QJsonObject &json_removed_builtin_object = json_configurations_object.value("removed_builtin").toObject();
+            const QStringList &json_removed_builtin_keys = json_removed_builtin_object.keys();
+
+            for (int i = 0, n = json_removed_builtin_keys.length(); i < n; ++i) {
+                const std::string &key = json_removed_builtin_keys[i].toStdString();
+                const int version = json_removed_builtin_object.value(key.c_str()).toInt();
+                this->removed_built_in_configuration.insert(std::make_pair(key, version));
+            }
+        }
+    }
+
+    this->LoadAllConfigurations(Configurator::Get().layers.selected_layers);
+
+    return true;
+}
+
+bool ConfigurationManager::Save(QJsonObject &json_root_object) const {
+    this->SaveAllConfigurations();
+
+    QJsonObject json_removed_builtin_configurations_object;
+    for (auto it = this->removed_built_in_configuration.begin(), end = this->removed_built_in_configuration.end(); it != end;
+         ++it) {
+        json_removed_builtin_configurations_object.insert(it->first.c_str(), it->second);
+    }
+
+    QJsonObject json_infos_object;
+    for (auto it = this->configuration_infos.begin(), end = this->configuration_infos.end(); it != end; ++it) {
+        QJsonObject json_info_object;
+        json_info_object.insert("name", it->second.name.c_str());
+        json_info_object.insert("mode", GetToken(it->second.mode));
+        json_infos_object.insert(it->first.c_str(), json_info_object);
+    }
+
+    QJsonObject json_configurations_object;
+    json_configurations_object.insert("use_per_application", this->use_per_application_configuration);
+    json_configurations_object.insert("use_system_tray", this->use_system_tray);
+    json_configurations_object.insert("active_application", this->active_application.c_str());
+    json_configurations_object.insert("infos", json_infos_object);
+    json_configurations_object.insert("removed_builtin", json_removed_builtin_configurations_object);
+
+    json_root_object.insert("configurations", json_configurations_object);
+
+    return true;
+}
+
+void ConfigurationManager::Reset() {
+    this->removed_built_in_configuration.clear();
+    this->use_per_application_configuration = false;
+    this->use_system_tray = false;
+    this->active_application.clear();
+    this->configuration_infos.clear();
+    this->available_configurations.clear();
+
+    this->LoadDefaultConfigurations(Configurator::Get().layers.selected_layers);
+    this->SortConfigurations();
+
+    ConfigurationInfo info;
+    this->configuration_infos.insert(std::make_pair(GLOBAL_CONFIGURATION_TOKEN, info));
+}
 
 void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &available_layers) {
     this->available_configurations.clear();
@@ -71,7 +155,7 @@ void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &a
             }
         } else if (found_configuration->version < configuration.version) {
             // Replaced the old configuration by the new one
-            this->RemoveConfiguration(available_layers, found_configuration->key);
+            this->RemoveConfiguration(found_configuration->key);
             this->available_configurations.push_back(configuration);
         }
     }
@@ -115,11 +199,55 @@ static Path MakeConfigurationPath(const std::string &key) {
     return path.AbsolutePath();
 }
 
-void ConfigurationManager::SaveAllConfigurations() {
+void ConfigurationManager::SaveAllConfigurations() const {
     for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
         const Path &path(MakeConfigurationPath(available_configurations[i].key));
         available_configurations[i].Save(path);
     }
+}
+
+const ConfigurationInfo *ConfigurationManager::GetActiveConfigurationInfo() const {
+    if (this->use_per_application_configuration) {
+        return &this->configuration_infos.find(this->active_application.c_str())->second;
+    } else {
+        return &this->configuration_infos.find(GLOBAL_CONFIGURATION_TOKEN)->second;
+    }
+}
+
+ConfigurationInfo *ConfigurationManager::GetActiveConfigurationInfo() {
+    if (this->use_per_application_configuration) {
+        return &this->configuration_infos.find(this->active_application.c_str())->second;
+    } else {
+        return &this->configuration_infos.find(GLOBAL_CONFIGURATION_TOKEN)->second;
+    }
+}
+
+const ConfigurationInfo *ConfigurationManager::FindConfigurationInfo(const std::string &key) const {
+    for (auto it = this->configuration_infos.begin(), end = this->configuration_infos.end(); it != end; ++it) {
+        if (it->first == key) {
+            return &it->second;
+        }
+    }
+
+    return nullptr;
+}
+
+const std::map<std::string, ConfigurationInfo> &ConfigurationManager::GetConfigurationInfos() const {
+    return this->configuration_infos;
+}
+
+bool ConfigurationManager::HasActiveConfiguration() const {
+    if (this->GetActiveConfigurationInfo() == nullptr) {
+        return false;
+    }
+
+    for (auto it = configuration_infos.begin(), end = configuration_infos.end(); it != end; ++it) {
+        if (it->second.mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer> &available_layers,
@@ -139,6 +267,8 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
 
     this->available_configurations.push_back(configuration);
     this->SortConfigurations();
+
+    this->GetActiveConfigurationInfo()->name = configuration.key;
 
     return *FindByKey(this->available_configurations, configuration.key.c_str());
 }
@@ -173,7 +303,7 @@ void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
     }
 }
 
-void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &available_layers, const std::string &configuration_name) {
+void ConfigurationManager::RemoveConfiguration(const std::string &configuration_name) {
     assert(!configuration_name.empty());
 
     RemoveConfigurationFile(configuration_name.c_str());
@@ -196,6 +326,10 @@ void ConfigurationManager::RemoveConfiguration(const std::vector<Layer> &availab
 
     std::swap(updated_configurations, this->available_configurations);
     this->SortConfigurations();
+
+    if (this->GetActiveConfigurationInfo()->name == configuration_name) {
+        this->GetActiveConfigurationInfo()->name.clear();
+    }
 }
 
 Configuration *ConfigurationManager::FindConfiguration(const std::string &configuration_name) {
@@ -222,7 +356,7 @@ const Configuration *ConfigurationManager::FindConfiguration(const std::string &
     return FindByKey(this->available_configurations, configuration_name.c_str());
 }
 
-std::string ConfigurationManager::ImportConfiguration(const std::vector<Layer> &available_layers, const Path &full_import_path) {
+void ConfigurationManager::ImportConfiguration(const std::vector<Layer> &available_layers, const Path &full_import_path) {
     assert(!full_import_path.Empty());
 
     Configuration configuration;
@@ -233,14 +367,14 @@ std::string ConfigurationManager::ImportConfiguration(const std::vector<Layer> &
         msg.setText("Cannot access the source configuration file.");
         msg.setInformativeText(full_import_path.AbsolutePath().c_str());
         msg.exec();
-        return "";
+        return;
     }
 
     configuration.key = MakeConfigurationName(this->available_configurations, configuration.key + " (Imported)");
     this->available_configurations.push_back(configuration);
     this->SortConfigurations();
 
-    return configuration.key;
+    this->GetActiveConfigurationInfo()->name = configuration.key;
 }
 
 void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &available_layers, const Path &full_export_path,
@@ -259,13 +393,6 @@ void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &availab
         msg.setInformativeText(full_export_path.AbsolutePath().c_str());
         msg.exec();
     }
-}
-
-void ConfigurationManager::Reset(const std::vector<Layer> &available_layers) {
-    // Now we need to kind of restart everything
-    this->LoadDefaultConfigurations(available_layers);
-
-    this->SortConfigurations();
 }
 
 bool ConfigurationManager::CheckApiVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,
@@ -315,3 +442,11 @@ bool ConfigurationManager::CompareLayersVersions(const std::vector<Layer> &avail
 
     return result;
 }
+
+bool ConfigurationManager::GetPerApplicationConfig() const { return this->use_per_application_configuration; }
+
+void ConfigurationManager::SetPerApplicationConfig(bool enabled) { this->use_per_application_configuration = enabled; }
+
+bool ConfigurationManager::GetUseSystemTray() const { return this->use_system_tray; }
+
+void ConfigurationManager::SetUseSystemTray(bool enabled) { this->use_system_tray = enabled; }
