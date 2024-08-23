@@ -21,33 +21,44 @@
 #pragma once
 
 #include "configuration.h"
+#include "configuration_info.h"
 #include "path.h"
+#include "serialization.h"
 
 #include <string>
 #include <vector>
 
-class ConfigurationManager {
+extern const char* GLOBAL_CONFIGURATION_TOKEN;
+
+class ConfigurationManager : public Serialize {
    public:
     ConfigurationManager();
     ~ConfigurationManager();
 
-    void LoadAllConfigurations(const std::vector<Layer>& available_layers);
+    bool Load(const QJsonObject& json_root_object) override;
+    bool Save(QJsonObject& json_root_object) const override;
+    void Reset() override;
 
-    void SaveAllConfigurations();
+    void LoadAllConfigurations(const std::vector<Layer>& available_layers);
+    void SaveAllConfigurations() const;
+
+    const ConfigurationInfo* GetActiveConfigurationInfo() const;
+    ConfigurationInfo* GetActiveConfigurationInfo();
+    const ConfigurationInfo* FindConfigurationInfo(const std::string& key) const;
+    const std::map<std::string, ConfigurationInfo>& GetConfigurationInfos() const;
+    bool HasActiveConfiguration() const;
 
     Configuration& CreateConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name,
                                        bool duplicate = false);
 
-    void RemoveConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
+    void RemoveConfiguration(const std::string& configuration_name);
 
-    std::string ImportConfiguration(const std::vector<Layer>& available_layers, const Path& full_import_path);
+    void ImportConfiguration(const std::vector<Layer>& available_layers, const Path& full_import_path);
     void ExportConfiguration(const std::vector<Layer>& available_layers, const Path& full_export_path,
                              const std::string& configuration_name);
 
     const Configuration* FindConfiguration(const std::string& configuration_name) const;
     Configuration* FindConfiguration(const std::string& configuration_name);
-
-    void Reset(const std::vector<Layer>& available_layers);
 
     void SortConfigurations();
 
@@ -61,6 +72,12 @@ class ConfigurationManager {
     bool HasFile(const Configuration& configuration) const;
     void RemoveConfigurationFile(const std::string& key);
 
+    bool GetPerApplicationConfig() const;
+    void SetPerApplicationConfig(bool enabled);
+
+    bool GetUseSystemTray() const;
+    void SetUseSystemTray(bool enabled);
+
     std::vector<Configuration> available_configurations;
 
    private:
@@ -72,6 +89,9 @@ class ConfigurationManager {
     void LoadConfigurationsPath(const std::vector<Layer>& available_layers);
     void LoadDefaultConfigurations(const std::vector<Layer>& available_layers);
 
-    std::vector<std::string> default_configuration_filenames;
     std::map<std::string, int> removed_built_in_configuration;
+    bool use_system_tray = false;
+    bool use_per_application_configuration = false;
+    std::string active_application;
+    std::map<std::string, ConfigurationInfo> configuration_infos;
 };

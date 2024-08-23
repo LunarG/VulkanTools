@@ -22,7 +22,6 @@
 
 #include "type_layers_mode.h"
 #include "path.h"
-#include "configuration_info.h"
 
 #include <string>
 #include <vector>
@@ -37,7 +36,6 @@ struct ApplicationOptions {
 
 struct Application {
     Path executable_path;
-    ConfigurationInfo configuration;
     int active_option_index = 0;
     std::vector<ApplicationOptions> options;
 

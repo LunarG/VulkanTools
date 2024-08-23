@@ -27,8 +27,8 @@
 #include <gtest/gtest.h>
 
 TEST(test_environment, reset_default_applications_sdk_found) {
-    Environment environment(Environment::MODE_UNINITIALIZED);
-    environment.Reset(Environment::DEFAULT);
+    Environment environment;
+    environment.Reset();
 
     const std::vector<Application>& applications = environment.GetApplications();
 
@@ -45,15 +45,13 @@ TEST(test_environment, reset_default_applications_sdk_found) {
         EXPECT_TRUE(applications[1].options[0].working_folder.RelativePath().find("${VULKAN_SDK}") != std::string::npos);
         EXPECT_TRUE(applications[1].options[0].log_file.RelativePath().find("${VK_LOCAL}") != std::string::npos);
     }
-
-    environment.Reset(Environment::SYSTEM);
 }
 
 TEST(test_environment, reset_default_applications_no_sdk) {
     qunsetenv("VULKAN_SDK");
 
-    Environment environment(Environment::MODE_UNINITIALIZED);
-    environment.Reset(Environment::DEFAULT);
+    Environment environment;
+    environment.Reset();
 
     const std::vector<Application>& applications = environment.GetApplications();
 
@@ -66,12 +64,10 @@ TEST(test_environment, reset_default_applications_no_sdk) {
     EXPECT_TRUE(applications[1].executable_path.RelativePath().find("vkcubepp") != std::string::npos);
     EXPECT_TRUE(applications[1].options[0].working_folder.RelativePath().find(".") != std::string::npos);
     EXPECT_TRUE(applications[1].options[0].log_file.RelativePath().find("${VK_LOCAL}") != std::string::npos);
-
-    environment.Reset(Environment::SYSTEM);
 }
 
 TEST(test_environment, remove_missing_applications) {
-    Environment environment(Environment::MODE_UNINITIALIZED);
+    Environment environment;
 
     const Path& path_missing = ::Get(Path::HOME) + "my_missing_executable";
     const Path& path_exciting = ::Get(Path::HOME) + "my_exciting_executable";
