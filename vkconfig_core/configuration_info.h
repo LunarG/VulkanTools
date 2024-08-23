@@ -24,25 +24,7 @@
 
 #include <string>
 
-class ConfigurationInfo {
-   private:
+struct ConfigurationInfo {
     std::string name = "Validation";
     LayersMode mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
-
-   public:
-    const char* GetName() const { return this->name.c_str(); }
-
-    void SetName(const std::string& new_configuration_name) {
-        if (this->name != new_configuration_name) {
-            this->name = new_configuration_name;
-        }
-    }
-
-    LayersMode GetMode() const { return this->mode; }
-
-    void SetMode(LayersMode new_configuration_mode) {
-        if (this->mode != new_configuration_mode) {
-            this->mode = new_configuration_mode;
-        }
-    }
 };

@@ -32,6 +32,8 @@
 
 class Configurator {
    public:
+    enum Mode { CMD, GUI };
+
     struct LayersSettings {
         std::string configuration_name;
         Path executable_path;
@@ -52,14 +54,14 @@ class Configurator {
     };
 
     static Configurator& Get();
-    bool Init();
+    bool Init(Mode mode = GUI);
 
    public:
     bool Surrender(OverrideArea override_area);
     bool Override(OverrideArea override_area);
     bool HasOverride() const;
 
-    void ResetToDefault(bool hard);
+    void Reset();
 
     Configuration* GetActiveConfiguration();
     const Configuration* GetActiveConfiguration() const;
@@ -78,9 +80,8 @@ class Configurator {
     void BuildLoaderSettings(const ConfigurationInfo& info, const std::string& executable_path,
                              std::vector<LoaderSettings>& loader_settings_array) const;
 
-    void UpdateLayersValidationCache();
-
    public:
+    Mode mode;
     Environment environment;
     LayerManager layers;
     ConfigurationManager configurations;
