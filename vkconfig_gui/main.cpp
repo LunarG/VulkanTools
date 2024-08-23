@@ -67,9 +67,7 @@ int main(int argc, char* argv[]) {
     }
 
     Configurator& configurator = Configurator::Get();
-
-    // Make sure layers configuration is deleted otherwise BuildVulkanSystemInfo() will crash... (unexplained)
-    configurator.Surrender(OVERRIDE_AREA_ALL);
+    // configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
 

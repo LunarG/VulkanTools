@@ -43,17 +43,17 @@ TEST(test_configuration_manager, create_remove) {
     EXPECT_STREQ("Configuration A (2)", configuration_duplicate_key.c_str());
 
     // Remove configurations
-    configuration_manager.RemoveConfiguration(available_layers, "Configuration A");
+    configuration_manager.RemoveConfiguration("Configuration A");
     EXPECT_EQ(2, configuration_manager.available_configurations.size());
 
-    configuration_manager.RemoveConfiguration(available_layers, "Configuration B");
+    configuration_manager.RemoveConfiguration("Configuration B");
     EXPECT_EQ(1, configuration_manager.available_configurations.size());
 
     // Already deleted
-    configuration_manager.RemoveConfiguration(available_layers, "Configuration A");
+    configuration_manager.RemoveConfiguration("Configuration A");
     EXPECT_EQ(1, configuration_manager.available_configurations.size());
 
     // Remove configuration
-    configuration_manager.RemoveConfiguration(available_layers, configuration_duplicate_key.c_str());
+    configuration_manager.RemoveConfiguration(configuration_duplicate_key.c_str());
     EXPECT_EQ(true, configuration_manager.Empty());
 }

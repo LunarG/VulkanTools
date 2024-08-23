@@ -23,10 +23,17 @@
 #include "tab.h"
 
 struct TabPreferences : public Tab {
+    Q_OBJECT
+
+   public:
     TabPreferences(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
     virtual ~TabPreferences();
 
     virtual void UpdateUI(UpdateUIMode mode) override;
     virtual void CleanUI() override;
     virtual bool EventFilter(QObject* target, QEvent* event) override;
+
+   public Q_SLOTS:
+
+   private:
 };

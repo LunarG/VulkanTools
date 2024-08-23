@@ -20,39 +20,25 @@
 
 #pragma once
 
-#include "../vkconfig_core/parameter.h"
-#include "../vkconfig_core/layer.h"
-
-#include "ui_mainwindow.h"
-
-#include <QListWidgetItem>
-#include <QLabel>
-#include <QComboBox>
+#include <QCheckBox>
+#include <QPushButton>
 #include <QResizeEvent>
 
-#include <memory>
-
-class TabConfigurations;
-
-class ConfigurationLayerWidget : public QLabel {
+class LayersPathWidget : public QCheckBox {
     Q_OBJECT
 
    public:
-    ConfigurationLayerWidget(TabConfigurations *tab, const std::vector<const Layer *> &layers, const Parameter &parameter,
-                             bool advanced_view);
+    LayersPathWidget(const std::string &layer_path);
 
    protected:
-    bool eventFilter(QObject *target, QEvent *event);
     void resizeEvent(QResizeEvent *event) override;
 
    public Q_SLOTS:
-    void on_layer_version_currentIndexChanged(int index);
-    void on_layer_state_currentIndexChanged(int index);
+    void on_button_edit_clicked(bool checked = false);
+    void on_buttom_remove_clicked(bool checked = false);
+    void on_checkStateChanged(Qt::CheckState state);
 
-   private:
-    TabConfigurations *tab;
-    std::string layer_name;
-
-    QComboBox *layer_version = nullptr;
-    QComboBox *layer_state = nullptr;
+   public:
+    QPushButton *button_edit = nullptr;
+    QPushButton *buttom_remove = nullptr;
 };
