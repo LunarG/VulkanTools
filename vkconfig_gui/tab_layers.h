@@ -23,10 +23,15 @@
 #include "tab.h"
 
 struct TabLayers : public Tab {
-    TabLayers(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
+    Q_OBJECT
+
+   public:
+    TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui);
     virtual ~TabLayers();
 
     virtual void UpdateUI(UpdateUIMode mode) override;
     virtual void CleanUI() override;
-    virtual bool EventFilter(QObject* target, QEvent* event) override;
+    virtual bool EventFilter(QObject *target, QEvent *event) override;
+
+    void UpdateUI_LayersPaths(UpdateUIMode ui_update_mode);
 };

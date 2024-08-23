@@ -417,16 +417,22 @@ std::string AbsolutePath(Path::Builtin path) { return Get(path).AbsolutePath(); 
 
 std::string RelativePath(Path::Builtin path) { return Get(path).RelativePath(); }
 
-std::vector<Path> CollectFilePaths(const Path& directory, const char* filter) {
-    const std::string& absolute_path = directory.AbsolutePath();
-
-    const QDir dir(absolute_path.c_str());
-    const QFileInfoList& list = dir.entryInfoList(QStringList() << filter, QDir::Files | QDir::NoSymLinks);
-
+std::vector<Path> CollectFilePaths(const Path& path, const char* filter) {
     std::vector<Path> result;
-    for (int i = 0, n = list.size(); i < n; ++i) {
-        result.push_back(list[i].absoluteFilePath().toStdString());
+
+    if (path.IsDir()) {
+        const std::string& absolute_path = path.AbsolutePath();
+
+        const QDir dir(absolute_path.c_str());
+        const QFileInfoList& list = dir.entryInfoList(QStringList() << filter, QDir::Files | QDir::NoSymLinks);
+
+        for (int i = 0, n = list.size(); i < n; ++i) {
+            result.push_back(list[i].absoluteFilePath().toStdString());
+        }
+    } else if (path.IsFile()) {
+        result.push_back(path);
     }
+
     return result;
 }
 

@@ -52,7 +52,9 @@ static int RunReset(int argc, char* argv[], bool hard) {
 
     QApplication app(argc, argv);
 
-    Configurator::Get().ResetToDefault(hard);
+    Configurator& configurator = Configurator::Get();
+    configurator.Init(Configurator::CMD);
+    configurator.Reset();
 
     return 0;
 }
