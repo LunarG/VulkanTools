@@ -294,7 +294,7 @@ static const Layer *GetLayer(QListWidget *tree, QListWidgetItem *item) {
         Configurator &configurator = Configurator::Get();
 
         const std::string &layer_key = ExtractLayerName(configurator.layers, layer_string);
-        return configurator.layers.Find(layer_key);
+        return configurator.layers.FindFromVersion(layer_key, Version::VERSION_NULL);
     }
 
     return nullptr;
@@ -563,6 +563,8 @@ void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
 }
 
 void TabConfigurations::OnContextMenuNewClicked(ConfigurationListItem *item) {
+    (void)item;  // We don't need this
+
     Configurator &configurator = Configurator::Get();
 
     configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, "New Configuration");

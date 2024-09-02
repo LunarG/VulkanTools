@@ -323,7 +323,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                     continue;
                 }
 
-                const Layer* layer = this->layers.Find(parameter.key.c_str());
+                const Layer* layer = this->layers.FindFromVersion(parameter.key.c_str(), parameter.api_version);
                 if (layer == nullptr) {
                     has_missing_layers = true;
                     continue;
