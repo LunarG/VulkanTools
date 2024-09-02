@@ -34,6 +34,11 @@
         <file alias="VK_LAYER_LUNARG_test_04.json">./layers/VK_LAYER_LUNARG_test_04.json</file>
         <file alias="VK_LAYER_LUNARG_test_05.json">./layers/VK_LAYER_LUNARG_test_05.json</file>
         <file alias="VK_LAYER_LUNARG_test_06.json">./layers/VK_LAYER_LUNARG_test_06.json</file>
+
+        <file alias="VK_LAYER_LUNARG_version_135.json">./layers/VK_LAYER_LUNARG_version_135.json</file>
+        <file alias="VK_LAYER_LUNARG_version_193.json">./layers/VK_LAYER_LUNARG_version_193.json</file>
+        <file alias="VK_LAYER_LUNARG_version_204.json">./layers/VK_LAYER_LUNARG_version_204.json</file>
+        <file alias="VK_LAYER_LUNARG_version_290.json">./layers/VK_LAYER_LUNARG_version_290.json</file>
     </qresource>
 
     <qresource prefix="/configurations">
