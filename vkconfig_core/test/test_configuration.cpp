@@ -59,8 +59,10 @@ static bool operator==(const Parameter& a, const Parameter& b) {
 static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b) { return !(a == b); }
 
 TEST(test_configuration, load_and_save) {
+    LayerManager layers;
+
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/test/Configuration 3.0.0.json", std::vector<Layer>());
+    const bool load_loaded = configuration_loaded.Load(":/test/Configuration 3.0.0.json", layers);
     EXPECT_TRUE(load_loaded);
     EXPECT_EQ(3, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
@@ -72,7 +74,7 @@ TEST(test_configuration, load_and_save) {
     configuration_loaded.Save("test_layer_1_2_1.json");
 
     Configuration configuration_saved;
-    configuration_saved.Load("test_layer_1_2_1.json", std::vector<Layer>());
+    configuration_saved.Load("test_layer_1_2_1.json", layers);
 
     EXPECT_EQ(configuration_loaded, configuration_saved);
 }
