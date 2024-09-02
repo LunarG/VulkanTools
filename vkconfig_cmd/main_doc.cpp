@@ -65,7 +65,7 @@ int run_doc_settings(const CommandLine& command_line) {
 
     LayerManager layers;
 
-    const Layer* layer = layers.FindFromVersion(command_line.doc_layer_name.c_str(), Version::VERSION_NULL);
+    const Layer* layer = layers.Find(command_line.doc_layer_name.c_str(), Version::LATEST);
     if (!layer) {
         fprintf(stderr, "vkconfig: Could not load layer %s\n", command_line.doc_layer_name.c_str());
         fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");
@@ -73,8 +73,8 @@ int run_doc_settings(const CommandLine& command_line) {
     }
 
     ConfigurationManager configuration_manager;
-    Configuration config = configuration_manager.CreateConfiguration(layers.selected_layers, "Config");
-    config.parameters = GatherParameters(config.parameters, layers.selected_layers);
+    Configuration config = configuration_manager.CreateConfiguration(layers, "Config");
+    config.parameters = GatherParameters(config.parameters, layers);
     config.parameters[0].control = LAYER_CONTROL_ON;
     ExportSettingsDoc(layers.selected_layers, config, command_line.doc_out_dir + "/vk_layer_settings.txt");
 
