@@ -28,8 +28,7 @@
 
 static int RunLayersOverride(Configurator& configurator, const CommandLine& command_line) {
     Configuration configuration;
-    const bool load_result =
-        configuration.Load(command_line.layers_configuration_path.c_str(), configurator.layers.selected_layers);
+    const bool load_result = configuration.Load(command_line.layers_configuration_path.c_str(), configurator.layers);
     if (!load_result) {
         printf("\nFailed to load the layers configuration file...\n");
         return -1;
