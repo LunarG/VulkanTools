@@ -217,6 +217,8 @@ bool operator==(const Path& a, const Path& b) { return a.AbsolutePath() == b.Abs
 
 Path operator+(const Path& path, const std::string& extend) { return Path(path.data + extend); }
 
+bool operator<(const Path& a, const Path& b) { return a.RelativePath() < b.RelativePath(); }
+
 static const Path GetHomePath() {
     std::string result = qgetenv("VK_HOME").toStdString();
 

@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 
     const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
 
-    if (vulkan_info.loaderVersion == Version::VERSION_NULL) {
+    if (vulkan_info.loaderVersion == Version::NONE) {
         Alert::StartLoaderFailure();
         return -1;
     }

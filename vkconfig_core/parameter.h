@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "layer.h"
+#include "layer_manager.h"
 #include "setting.h"
 #include "type_layer_control.h"
 
@@ -49,7 +49,7 @@ struct Parameter {
     int platform_flags = PLATFORM_DESKTOP_BIT;
     SettingDataSet settings;
     int overridden_rank = NO_RANK;
-    Version api_version = Version::VERSION_NULL;
+    Version api_version = Version::LATEST;
     QByteArray setting_tree_state;  // Recall editor tree state
 };
 
@@ -57,7 +57,7 @@ ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, c
 Version ComputeMinApiVersion(const Version api_version, const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
 void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
 void FilterParameters(std::vector<Parameter>& parameters, const LayerControl control);
-std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const std::vector<Layer>& available_layers);
+std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const LayerManager& layers);
 
 bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers, std::string& missing_layer);
 

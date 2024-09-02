@@ -33,6 +33,6 @@ void AppendRegistryEntriesForLayers(QString override_file, QString settings_file
 
 void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file);
 
-std::vector<Path> LoadRegistryLayers(const QString &path);
+std::vector<LayersPathInfo> LoadRegistryLayers(const QString &path);
 
 #endif  // VKC_PLATFORM == VKC_PLATFORM_WINDOWS

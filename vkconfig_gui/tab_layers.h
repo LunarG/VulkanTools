@@ -34,4 +34,10 @@ struct TabLayers : public Tab {
     virtual bool EventFilter(QObject *target, QEvent *event) override;
 
     void UpdateUI_LayersPaths(UpdateUIMode ui_update_mode);
+
+   public Q_SLOTS:
+    void on_check_box_paths_toggled(bool checked);
+    void on_layers_lineEdit_textEdited(const QString &text);
+    void on_layers_add_pushButton_pressed();
+    void on_layers_browse_pushButton_pressed();
 };
