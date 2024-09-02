@@ -25,7 +25,10 @@
 
 const char *GLOBAL_CONFIGURATION_TOKEN = "GLOBAL";
 
-ConfigurationManager::ConfigurationManager() {}
+ConfigurationManager::ConfigurationManager() {
+    ConfigurationInfo info;
+    this->configuration_infos.insert(std::make_pair(GLOBAL_CONFIGURATION_TOKEN, info));
+}
 
 ConfigurationManager::~ConfigurationManager() {}
 
@@ -125,7 +128,7 @@ void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &avail
 void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &available_layers) {
     const std::vector<Path> &configuration_files = CollectFilePaths(":/configurations/");
 
-    for (int i = 0, n = configuration_files.size(); i < n; ++i) {
+    for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {
         Configuration configuration;
         const bool result = configuration.Load(configuration_files[i], available_layers);
         assert(result);
@@ -174,7 +177,7 @@ void ConfigurationManager::SortConfigurations() {
 
 void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &available_layers) {
     const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
-    for (int i = 0, n = configuration_files.size(); i < n; ++i) {
+    for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {
         Configuration configuration;
         const bool result = configuration.Load(configuration_files[i], available_layers);
         if (!result) {
@@ -289,14 +292,14 @@ bool ConfigurationManager::HasFile(const Configuration &configuration) const {
 
 void ConfigurationManager::RemoveConfigurationFiles() {
     const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
-    for (int i = 0, n = configuration_files.size(); i < n; ++i) {
+    for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {
         configuration_files[i].Remove();
     }
 }
 
 void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
     const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
-    for (int j = 0, o = configuration_files.size(); j < o; ++j) {
+    for (std::size_t j = 0, o = configuration_files.size(); j < o; ++j) {
         if (configuration_files[j].Basename() == key) {
             configuration_files[j].Remove();
         }
