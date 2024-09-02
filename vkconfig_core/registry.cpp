@@ -83,7 +83,7 @@ void RemoveRegistryEntriesForLayers(QString loader_settings_file, QString layers
 }
 
 /// Look for device specific layers
-static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Path> &layers_paths) {
+static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<LayersPathInfo> &layers_paths) {
     HKEY key;
     if (CM_Open_DevNode_Key(id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &key, CM_REGISTRY_SOFTWARE) != CR_SUCCESS) return;
 
@@ -103,7 +103,9 @@ static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Pat
 
     if (data_type == REG_SZ || data_type == REG_MULTI_SZ) {
         for (wchar_t *curr_filename = path; curr_filename[0] != '\0'; curr_filename += wcslen(curr_filename) + 1) {
-            layers_paths.push_back(QString::fromWCharArray(curr_filename).toStdString());
+            LayersPathInfo path_info;
+            path_info.path = QString::fromWCharArray(curr_filename).toStdString();
+            layers_paths.push_back(path_info);
             Layer layer;
 
             if (data_type == REG_SZ) {
@@ -117,8 +119,8 @@ static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Pat
 }
 
 /// This is for Windows only. It looks for device specific layers in the Windows registry.
-std::vector<Path> LoadRegistryLayers(const QString &path) {
-    std::vector<Path> layers_paths;
+std::vector<LayersPathInfo> LoadRegistryLayers(const QString &path) {
+    std::vector<LayersPathInfo> layers_paths;
 
     QString root_string = path.section('\\', 0, 0);
     static QHash<QString, HKEY> root_keys = {

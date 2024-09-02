@@ -20,49 +20,44 @@
 
 #include "widget_tab_layers_path.h"
 
+#include "../vkconfig_core/configurator.h"
+
 #include <QFileDialog>
 
-LayersPathWidget::LayersPathWidget(const std::string &layer_path) {
-    this->button_edit = new QPushButton(this);
-    this->button_edit->setText("...");
-    this->button_edit->show();
+LayersPathWidget::LayersPathWidget(LayersPathInfo* path_info) : path_info(path_info) {
+    this->setChecked(this->path_info->enabled);
+
     this->buttom_remove = new QPushButton(this);
     this->buttom_remove->setText("x");
     this->buttom_remove->show();
 
-    this->setText(layer_path.c_str());
+    this->setText(path_info->path.RelativePath().c_str());
     this->setToolTip("Load layers in this location");
 
-    this->connect(this->button_edit, SIGNAL(clicked(bool)), this, SLOT(on_button_edit_clicked(bool)));
-    this->connect(this->button_edit, SIGNAL(clicked(bool)), this, SLOT(on_button_edit_clicked(bool)));
+    this->connect(this, SIGNAL(toggled(bool)), this, SLOT(on_toggled(bool)));
     this->connect(this->buttom_remove, SIGNAL(clicked(bool)), this, SLOT(on_buttom_remove_clicked(bool)));
 }
 
-void LayersPathWidget::resizeEvent(QResizeEvent *event) {
+void LayersPathWidget::resizeEvent(QResizeEvent* event) {
     QSize size = event->size();
 
-    const QFontMetrics fm = this->button_edit->fontMetrics();
+    const QFontMetrics fm = this->buttom_remove->fontMetrics();
     const int button_width_state = 30;
-
-    const QRect edit_button_rect =
-        QRect(size.width() - button_width_state - button_width_state, 0, button_width_state, size.height());
-    this->button_edit->setGeometry(edit_button_rect);
 
     const QRect remove_button_rect = QRect(size.width() - button_width_state, 0, button_width_state, size.height());
     this->buttom_remove->setGeometry(remove_button_rect);
 }
 
-void LayersPathWidget::on_button_edit_clicked(bool checked) {
-    (void)checked;
-
-    const std::string selected_path =
-        QFileDialog::getExistingDirectory(this->button_edit, "Select Folder", this->text()).toStdString();
-}
-
 void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
-    (void)checked;
+    Configurator& configurator = Configurator::Get();
+    configurator.layers.RemovePath(*this->path_info);
 
-    // emit itemChanged();
+    emit toggled(checked);
 }
 
-void LayersPathWidget::on_checkStateChanged(Qt::CheckState state) {}
+void LayersPathWidget::on_toggled(bool checked) {
+    this->path_info->enabled = checked;
+
+    Configurator& configurator = Configurator::Get();
+    configurator.layers.UpdatePath(*this->path_info);
+}

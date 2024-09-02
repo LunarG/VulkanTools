@@ -39,7 +39,7 @@ class ConfigurationManager : public Serialize {
     bool Save(QJsonObject& json_root_object) const override;
     void Reset() override;
 
-    void LoadAllConfigurations(const std::vector<Layer>& available_layers);
+    void LoadAllConfigurations(const LayerManager& layers);
     void SaveAllConfigurations() const;
 
     const ConfigurationInfo* GetActiveConfigurationInfo() const;
@@ -48,14 +48,12 @@ class ConfigurationManager : public Serialize {
     const std::map<std::string, ConfigurationInfo>& GetConfigurationInfos() const;
     bool HasActiveConfiguration() const;
 
-    Configuration& CreateConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name,
-                                       bool duplicate = false);
+    Configuration& CreateConfiguration(const LayerManager& layers, const std::string& configuration_name, bool duplicate = false);
 
     void RemoveConfiguration(const std::string& configuration_name);
 
-    void ImportConfiguration(const std::vector<Layer>& available_layers, const Path& full_import_path);
-    void ExportConfiguration(const std::vector<Layer>& available_layers, const Path& full_export_path,
-                             const std::string& configuration_name);
+    void ImportConfiguration(const LayerManager& layers, const Path& full_import_path);
+    void ExportConfiguration(const LayerManager& layers, const Path& full_export_path, const std::string& configuration_name);
 
     const Configuration* FindConfiguration(const std::string& configuration_name) const;
     Configuration* FindConfiguration(const std::string& configuration_name);
@@ -86,8 +84,8 @@ class ConfigurationManager : public Serialize {
 
     void RemoveConfigurationFiles();
 
-    void LoadConfigurationsPath(const std::vector<Layer>& available_layers);
-    void LoadDefaultConfigurations(const std::vector<Layer>& available_layers);
+    void LoadConfigurationsPath(const LayerManager& layers);
+    void LoadDefaultConfigurations(const LayerManager& layers);
 
     std::map<std::string, int> removed_built_in_configuration;
     bool use_system_tray = false;

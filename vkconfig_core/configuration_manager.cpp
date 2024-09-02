@@ -65,7 +65,7 @@ bool ConfigurationManager::Load(const QJsonObject &json_root_object) {
         }
     }
 
-    this->LoadAllConfigurations(Configurator::Get().layers.selected_layers);
+    this->LoadAllConfigurations(Configurator::Get().layers);
 
     return true;
 }
@@ -107,30 +107,30 @@ void ConfigurationManager::Reset() {
     this->configuration_infos.clear();
     this->available_configurations.clear();
 
-    this->LoadDefaultConfigurations(Configurator::Get().layers.selected_layers);
+    this->LoadDefaultConfigurations(Configurator::Get().layers);
     this->SortConfigurations();
 
     ConfigurationInfo info;
     this->configuration_infos.insert(std::make_pair(GLOBAL_CONFIGURATION_TOKEN, info));
 }
 
-void ConfigurationManager::LoadAllConfigurations(const std::vector<Layer> &available_layers) {
+void ConfigurationManager::LoadAllConfigurations(const LayerManager &layers) {
     this->available_configurations.clear();
 
-    this->LoadConfigurationsPath(available_layers);
+    this->LoadConfigurationsPath(layers);
 
     // If built-in configurations were updated, replace the stored configuration
-    this->LoadDefaultConfigurations(available_layers);
+    this->LoadDefaultConfigurations(layers);
 
     this->SortConfigurations();
 }
 
-void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &available_layers) {
+void ConfigurationManager::LoadDefaultConfigurations(const LayerManager &layers) {
     const std::vector<Path> &configuration_files = CollectFilePaths(":/configurations/");
 
     for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {
         Configuration configuration;
-        const bool result = configuration.Load(configuration_files[i], available_layers);
+        const bool result = configuration.Load(configuration_files[i], layers);
         assert(result);
 
         if (!IsPlatformSupported(configuration.platform_flags)) {
@@ -145,7 +145,7 @@ void ConfigurationManager::LoadDefaultConfigurations(const std::vector<Layer> &a
         }
 #endif
 
-        OrderParameter(configuration.parameters, available_layers);
+        OrderParameter(configuration.parameters, layers.selected_layers);
 
         Configuration *found_configuration = this->FindConfiguration(configuration.key);
         if (found_configuration == nullptr) {
@@ -175,11 +175,11 @@ void ConfigurationManager::SortConfigurations() {
     std::sort(this->available_configurations.begin(), this->available_configurations.end(), Compare());
 }
 
-void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &available_layers) {
+void ConfigurationManager::LoadConfigurationsPath(const LayerManager &layers) {
     const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
     for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {
         Configuration configuration;
-        const bool result = configuration.Load(configuration_files[i], available_layers);
+        const bool result = configuration.Load(configuration_files[i], layers);
         if (!result) {
             continue;
         }
@@ -189,8 +189,8 @@ void ConfigurationManager::LoadConfigurationsPath(const std::vector<Layer> &avai
         }
 
         std::string missing_layer;
-        if (!HasMissingLayer(configuration.parameters, available_layers, missing_layer)) {
-            OrderParameter(configuration.parameters, available_layers);
+        if (!HasMissingLayer(configuration.parameters, layers.selected_layers, missing_layer)) {
+            OrderParameter(configuration.parameters, layers.selected_layers);
         }
 
         available_configurations.push_back(configuration);
@@ -253,8 +253,8 @@ bool ConfigurationManager::HasActiveConfiguration() const {
     return false;
 }
 
-Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer> &available_layers,
-                                                         const std::string &configuration_name, bool duplicate) {
+Configuration &ConfigurationManager::CreateConfiguration(const LayerManager &layers, const std::string &configuration_name,
+                                                         bool duplicate) {
     Configuration *duplicate_configuration = FindByKey(available_configurations, configuration_name.c_str());
 
     Configuration new_configuration = duplicate_configuration != nullptr && duplicate ? *duplicate_configuration : Configuration();
@@ -265,7 +265,7 @@ Configuration &ConfigurationManager::CreateConfiguration(const std::vector<Layer
 
     // Reload from file to workaround the lack of SettingSet copy support
     Configuration configuration;
-    const bool result = configuration.Load(path, available_layers);
+    const bool result = configuration.Load(path, layers);
     assert(result);
 
     this->available_configurations.push_back(configuration);
@@ -359,11 +359,11 @@ const Configuration *ConfigurationManager::FindConfiguration(const std::string &
     return FindByKey(this->available_configurations, configuration_name.c_str());
 }
 
-void ConfigurationManager::ImportConfiguration(const std::vector<Layer> &available_layers, const Path &full_import_path) {
+void ConfigurationManager::ImportConfiguration(const LayerManager &layers, const Path &full_import_path) {
     assert(!full_import_path.Empty());
 
     Configuration configuration;
-    if (!configuration.Load(full_import_path, available_layers)) {
+    if (!configuration.Load(full_import_path, layers)) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowTitle("Import of Layers Configuration error");
@@ -380,7 +380,7 @@ void ConfigurationManager::ImportConfiguration(const std::vector<Layer> &availab
     this->GetActiveConfigurationInfo()->name = configuration.key;
 }
 
-void ConfigurationManager::ExportConfiguration(const std::vector<Layer> &available_layers, const Path &full_export_path,
+void ConfigurationManager::ExportConfiguration(const LayerManager &layers, const Path &full_export_path,
                                                const std::string &configuration_name) {
     assert(!configuration_name.empty());
     assert(!full_export_path.Empty());
@@ -405,7 +405,7 @@ bool ConfigurationManager::CheckApiVersions(const std::vector<Layer> &available_
 
 bool ConfigurationManager::CheckLayersVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,
                                                std::string &log_versions) const {
-    return this->CompareLayersVersions(available_layers, selected_configuration, Version::VERSION_NULL, log_versions, false);
+    return this->CompareLayersVersions(available_layers, selected_configuration, Version::NONE, log_versions, false);
 }
 
 bool ConfigurationManager::CompareLayersVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,
@@ -428,7 +428,7 @@ bool ConfigurationManager::CompareLayersVersions(const std::vector<Layer> &avail
             const Layer &layer = available_layers[layer_index];
 
             if (layer.key == parameter.key) {
-                if (current_version == Version::VERSION_NULL) {
+                if (current_version == Version::NONE) {
                     current_version = layer.api_version;
                 }
 
