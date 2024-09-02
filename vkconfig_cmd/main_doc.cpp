@@ -65,7 +65,7 @@ int run_doc_settings(const CommandLine& command_line) {
 
     LayerManager layers;
 
-    Layer* layer = layers.Find(command_line.doc_layer_name.c_str());
+    const Layer* layer = layers.FindFromVersion(command_line.doc_layer_name.c_str(), Version::VERSION_NULL);
     if (!layer) {
         fprintf(stderr, "vkconfig: Could not load layer %s\n", command_line.doc_layer_name.c_str());
         fprintf(stderr, "Run \"vkconfig layers --list\" to get list of available layers\n");

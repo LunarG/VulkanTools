@@ -74,7 +74,9 @@ SOURCES += \
     ../vkconfig_core/version.cpp \
     ../vkconfig_core/vulkan_info.cpp \
     ../vkconfig_core/vulkan_util.cpp \
-    configuration_layer_widget.cpp \
+    widget_tab_configurations_layer.cpp \
+    widget_tab_layers_path.cpp \
+    widget_tree_friendly_combobox.cpp \
     widget_preset.cpp \
     widget_setting.cpp \
     widget_setting_bool.cpp \
@@ -87,7 +89,6 @@ SOURCES += \
     widget_setting_string.cpp \
     widget_setting_list_element.cpp \
     widget_setting_list.cpp \
-    widget_tree_friendly_combobox.cpp \
     dialog_vulkan_analysis.cpp \
     dialog_vulkan_info.cpp \
     main.cpp \
@@ -149,7 +150,9 @@ HEADERS += \
     ../vkconfig_core/version.h \
     ../vkconfig_core/vulkan_info.h \
     ../vkconfig_core/vulkan_util.h \
-    configuration_layer_widget.h \
+    widget_tab_configurations_layer.h \
+    widget_tab_layers_path.h \
+    widget_tree_friendly_combobox.h \
     widget_preset.h \
     widget_setting.h \
     widget_setting_bool.h \
@@ -162,7 +165,6 @@ HEADERS += \
     widget_setting_string.h \
     widget_setting_list_element.h \
     widget_setting_list.h \
-    widget_tree_friendly_combobox.h \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
     mainwindow.h \
