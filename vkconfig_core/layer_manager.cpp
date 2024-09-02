@@ -181,6 +181,7 @@ bool LayerManager::Save(QJsonObject &json_root_object) const {
 }
 
 void LayerManager::Reset() {
+    this->selected_layers.clear();
     this->layers_validated.clear();
     this->paths[LAYERS_PATHS_SDK].clear();
 }
@@ -190,18 +191,6 @@ void LayerManager::Clear() { this->selected_layers.clear(); }
 bool LayerManager::Empty() const { return this->selected_layers.empty(); }
 
 std::size_t LayerManager::Size() const { return this->selected_layers.size(); }
-
-Layer *LayerManager::Find(const std::string &layer_name) {
-    assert(!layer_name.empty());
-
-    return FindByKey(this->selected_layers, layer_name.c_str());
-}
-
-const Layer *LayerManager::Find(const std::string &layer_name) const {
-    assert(!layer_name.empty());
-
-    return FindByKey(this->selected_layers, layer_name.c_str());
-}
 
 std::vector<Version> LayerManager::GatherVersions(const std::string &layer_name) const {
     std::vector<Version> result;
@@ -259,6 +248,15 @@ const Layer *LayerManager::FindFromManifest(const Path &manifest_path) const {
     return nullptr;
 }
 
+Layer *LayerManager::FindFromManifest(const Path &manifest_path) {
+    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
+        if (this->selected_layers[i].manifest_path == manifest_path) {
+            return &this->selected_layers[i];
+        }
+    }
+    return nullptr;
+}
+
 // Find all installed layers on the system.
 void LayerManager::LoadAllInstalledLayers() {
     this->selected_layers.clear();
@@ -277,23 +275,25 @@ void LayerManager::LoadLayersFromPath(const Path &layers_path, LayerType type) {
     const std::vector<Path> &layers_paths = layers_path.IsDir() ? CollectFilePaths(layers_path) : GetVector(layers_path);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        Layer layer;
-        if (layer.Load(layers_paths[i], this->layers_validated, type)) {
-            if (this->IsAvailable(layer)) {
-                continue;
+        const std::string &last_modified = layers_paths[i].LastModified();
+
+        Layer *already_loaded_layer = this->FindFromManifest(layers_paths[i]);
+        if (already_loaded_layer != nullptr) {
+            // Already loaded
+            auto it = this->layers_validated.find(layers_paths[i].AbsolutePath());
+            if (it != layers_validated.end()) {
+                if (last_modified == it->second) {
+                    continue;  // Already loaded and up to date
+                }
             }
 
-            this->selected_layers.push_back(layer);
+            // Reload
+            already_loaded_layer->Load(layers_paths[i], this->layers_validated, type);
+        } else {
+            Layer layer;
+            if (layer.Load(layers_paths[i], this->layers_validated, type)) {
+                this->selected_layers.push_back(layer);
+            }
         }
     }
-}
-
-bool LayerManager::IsAvailable(const Layer &layer) const {
-    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-        if (this->selected_layers[i].key == layer.key && this->selected_layers[i].api_version == layer.api_version) {
-            return true;
-        }
-    }
-
-    return false;
 }

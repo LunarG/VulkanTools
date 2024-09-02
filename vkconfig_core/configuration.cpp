@@ -366,7 +366,7 @@ Parameter* Configuration::Find(std::string parameter_key) {
 void Configuration::Reset(const std::vector<Layer>& available_layers) {
     // Case 1: reset using built-in configuration files
     const std::vector<Path>& builtin_configuration_files = CollectFilePaths(":/configurations/");
-    for (int i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
+    for (std::size_t i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
         const std::string& basename = builtin_configuration_files[i].Basename();
 
         if (this->key == basename) {
@@ -421,7 +421,7 @@ bool Configuration::HasOverride() const {
 
 bool Configuration::IsBuiltIn() const {
     const std::vector<Path>& builtin_configuration_files = CollectFilePaths(":/configurations/");
-    for (int i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
+    for (std::size_t i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
         const std::string& basename = builtin_configuration_files[i].Basename();
 
         if (basename == this->key) {

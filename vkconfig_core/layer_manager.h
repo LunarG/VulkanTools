@@ -64,15 +64,15 @@ class LayerManager : public Serialize {
     bool Empty() const;
     std::size_t Size() const;
 
-    Layer* Find(const std::string& layer_name);
-    const Layer* Find(const std::string& layer_name) const;
+    // Layer* Find(const std::string& layer_name);
+    // const Layer* Find(const std::string& layer_name) const;
 
     std::vector<Version> GatherVersions(const std::string& layer_name) const;
     const Layer* FindFromVersion(const std::string& layer_name, const Version& version) const;
     const Layer* FindFromManifest(const Path& manifest_path) const;
+    Layer* FindFromManifest(const Path& manifest_path);
 
     void LoadAllInstalledLayers();
-
     void LoadLayersFromPath(const Path& layers_path, LayerType type = LAYER_TYPE_EXPLICIT);
 
     std::vector<Layer> selected_layers;
@@ -80,6 +80,4 @@ class LayerManager : public Serialize {
 
    private:
     std::map<std::string, std::string> layers_validated;
-
-    bool IsAvailable(const Layer& layer) const;
 };
