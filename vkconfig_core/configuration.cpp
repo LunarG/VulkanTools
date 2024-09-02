@@ -20,6 +20,7 @@
  */
 
 #include "configuration.h"
+#include "layer_manager.h"
 #include "util.h"
 #include "path.h"
 #include "json.h"
@@ -78,21 +79,21 @@ static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) 
     }
 }
 
-Configuration Configuration::Create(const std::vector<Layer>& available_layers, const std::string& key) {
+Configuration Configuration::Create(const LayerManager& layers, const std::string& key) {
     Configuration result;
 
     result.key = key;
-    result.parameters = GatherParameters(result.parameters, available_layers);
+    result.parameters = GatherParameters(result.parameters, layers);
 
     AddApplicationEnabledParameters(result.parameters);
 
     return result;
 }
 
-Configuration Configuration::CreateDisabled(const std::vector<Layer>& available_layers) {
+Configuration Configuration::CreateDisabled(const LayerManager& layers) {
     Configuration result;
     result.key = "_DisablingConfiguration";
-    result.parameters = GatherParameters(result.parameters, available_layers);
+    result.parameters = GatherParameters(result.parameters, layers);
 
     for (std::size_t i = 0, n = result.parameters.size(); i < n; ++i) {
         result.parameters[i].control = LAYER_CONTROL_OFF;
@@ -103,7 +104,7 @@ Configuration Configuration::CreateDisabled(const std::vector<Layer>& available_
     return result;
 }
 
-bool Configuration::Load(const Path& full_path, const std::vector<Layer>& available_layers) {
+bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
     assert(!full_path.Empty());
 
     this->parameters.clear();
@@ -196,7 +197,7 @@ bool Configuration::Load(const Path& full_path, const std::vector<Layer>& availa
         parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
         parameter.control = GetLayerControl(ReadStringValue(json_layer_object, "control").c_str());
         const std::string& version = ReadStringValue(json_layer_object, "version");
-        parameter.api_version = version == "latest" ? Version::VERSION_NULL : Version(version.c_str());
+        parameter.api_version = version == "latest" ? Version::LATEST : Version(version.c_str());
 
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
@@ -208,23 +209,7 @@ bool Configuration::Load(const Path& full_path, const std::vector<Layer>& availa
             parameter.setting_tree_state = json_layer_object.value("expanded_states").toVariant().toByteArray();
         }
 
-        const Layer* layer = nullptr;
-        for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
-            const Layer& current_layer = available_layers[i];
-            if (current_layer.key != parameter.key) {
-                continue;
-            }
-
-            if (parameter.api_version == Version::VERSION_NULL) {
-                if (layer == nullptr) {
-                    layer = &current_layer;
-                } else if (layer->api_version < current_layer.api_version) {
-                    layer = &current_layer;
-                }
-            } else if (parameter.api_version == current_layer.api_version) {
-                layer = &current_layer;
-            }
-        }
+        const Layer* layer = layers.Find(parameter.key, parameter.api_version);
 
         if (layer != nullptr) {
             CollectDefaultSettingData(layer->settings, parameter.settings);
@@ -254,7 +239,7 @@ bool Configuration::Load(const Path& full_path, const std::vector<Layer>& availa
         this->parameters.push_back(parameter);
     }
 
-    this->parameters = GatherParameters(this->parameters, available_layers);
+    this->parameters = GatherParameters(this->parameters, layers);
 
     AddApplicationEnabledParameters(this->parameters);
 
@@ -285,8 +270,7 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
         json_layer.insert("name", parameter.key.c_str());
         json_layer.insert("rank", parameter.overridden_rank);
         json_layer.insert("control", GetToken(parameter.control));
-        json_layer.insert("version",
-                          parameter.api_version == Version::VERSION_NULL ? "latest" : parameter.api_version.str().c_str());
+        json_layer.insert("version", parameter.api_version == Version::LATEST ? "latest" : parameter.api_version.str().c_str());
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
         if (!exporter && !parameter.setting_tree_state.isEmpty()) {
             json_layer.insert("expanded_states", parameter.setting_tree_state.data());
@@ -363,17 +347,17 @@ Parameter* Configuration::Find(std::string parameter_key) {
     return nullptr;
 }
 
-void Configuration::Reset(const std::vector<Layer>& available_layers) {
+void Configuration::Reset(const LayerManager& layers) {
     // Case 1: reset using built-in configuration files
     const std::vector<Path>& builtin_configuration_files = CollectFilePaths(":/configurations/");
     for (std::size_t i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
         const std::string& basename = builtin_configuration_files[i].Basename();
 
         if (this->key == basename) {
-            const bool result = this->Load(builtin_configuration_files[i], available_layers);
+            const bool result = this->Load(builtin_configuration_files[i], layers);
             assert(result);
 
-            OrderParameter(this->parameters, available_layers);
+            OrderParameter(this->parameters, layers.selected_layers);
             return;
         }
     }
@@ -384,10 +368,10 @@ void Configuration::Reset(const std::vector<Layer>& available_layers) {
     std::FILE* file = std::fopen(full_path.AbsolutePath().c_str(), "r");
     if (file) {
         std::fclose(file);
-        const bool result = this->Load(full_path, available_layers);
+        const bool result = this->Load(full_path, layers);
         assert(result);
 
-        OrderParameter(this->parameters, available_layers);
+        OrderParameter(this->parameters, layers.selected_layers);
         return;
     }
 
@@ -401,7 +385,7 @@ void Configuration::Reset(const std::vector<Layer>& available_layers) {
             }
         }
 
-        OrderParameter(this->parameters, available_layers);
+        OrderParameter(this->parameters, layers.selected_layers);
     }
 }
 

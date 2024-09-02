@@ -65,8 +65,8 @@ Layer::Layer(const std::string& key, const Version& file_format_version, const V
 
 // Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
-    return file_format_version != Version::VERSION_NULL && !key.empty() && !binary_path.Empty() &&
-           api_version != Version::VERSION_NULL && !implementation_version.empty();
+    return file_format_version != Version::NONE && !key.empty() && !binary_path.Empty() && api_version != Version::NONE &&
+           !implementation_version.empty();
 }
 
 std::string Layer::FindPresetLabel(const SettingDataSet& settings) const {
@@ -134,7 +134,7 @@ SettingMeta* Layer::Instantiate(SettingMetaSet& meta_set, const std::string& key
     return setting_meta;
 }
 
-bool Layer::Load(const Path& full_path_to_file, const std::map<std::string, std::string>& layers_validated, LayerType type) {
+bool Layer::Load(const Path& full_path_to_file, const std::map<Path, std::string>& layers_validated, LayerType type) {
     this->type = type;  // Set layer type, no way to know this from the json file
 
     if (full_path_to_file.Empty()) {

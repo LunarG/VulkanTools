@@ -71,9 +71,10 @@ struct TestBuilin {
     ~TestBuilin() {}
 
     Configuration Load(const char* configuration_name) {
+        const std::string& path = format(":/configurations/%s.json", configuration_name);
+
         Configuration configuration_loaded;
-        const bool result = configuration_loaded.Load(format(":/configurations/%s.json", configuration_name).c_str(),
-                                                      layer_manager.selected_layers);
+        const bool result = configuration_loaded.Load(path.c_str(), this->layer_manager);
         return result ? configuration_loaded : Configuration();
     }
 
@@ -83,7 +84,7 @@ struct TestBuilin {
         EXPECT_TRUE(saved);
 
         Configuration configuration_saved;
-        EXPECT_TRUE(configuration_saved.Load(filename.c_str(), this->layer_manager.selected_layers));
+        EXPECT_TRUE(configuration_saved.Load(filename.c_str(), this->layer_manager));
         return configuration_saved;
     }
 
