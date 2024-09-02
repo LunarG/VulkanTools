@@ -29,17 +29,19 @@
 #include <vector>
 #include <string>
 
+class LayerManager;
+
 class Configuration {
    public:
-    static Configuration CreateDisabled(const std::vector<Layer>& available_layers);
-    static Configuration Create(const std::vector<Layer>& available_layers, const std::string& key);
+    static Configuration CreateDisabled(const LayerManager& layers);
+    static Configuration Create(const LayerManager& layers, const std::string& key);
 
-    bool Load(const Path& full_path, const std::vector<Layer>& available_layers);
+    bool Load(const Path& full_path, const LayerManager& layers);
     bool Save(const Path& full_path, bool exporter = false) const;
     bool HasOverride() const;
     Parameter* Find(std::string parameter_key);
 
-    void Reset(const std::vector<Layer>& available_layers);
+    void Reset(const LayerManager& layers);
 
     std::size_t Size() const { return this->parameters.size(); };
 

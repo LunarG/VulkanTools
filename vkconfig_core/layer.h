@@ -34,6 +34,12 @@
 #include <vector>
 #include <string>
 
+struct LayersPathInfo {
+    Path path;
+    LayerType type = LAYER_TYPE_EXPLICIT;
+    bool enabled = true;
+};
+
 class Layer {
    public:
     static const char* NO_PRESET;
@@ -72,11 +78,12 @@ class Layer {
     std::string enable_env;
     bool disable_value;
     bool enable_value;
+    bool visible = true;
 
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
-    bool Load(const Path& full_path_to_file, const std::map<std::string, std::string>& layers_validated,
+    bool Load(const Path& full_path_to_file, const std::map<Path, std::string>& layers_validated,
               LayerType type = LAYER_TYPE_EXPLICIT);
 
    private:

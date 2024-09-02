@@ -418,7 +418,7 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
     if (preset_label == Layer::NO_PRESET) return;
 
     Configurator &configurator = Configurator::Get();
-    const Layer *layer = configurator.layers.FindFromVersion(this->parameter->key.c_str(), Version::VERSION_NULL);
+    const Layer *layer = configurator.layers.Find(this->parameter->key.c_str(), this->parameter->api_version);
 
     const LayerPreset *preset = GetPreset(layer->presets, preset_label.c_str());
     assert(preset != nullptr);

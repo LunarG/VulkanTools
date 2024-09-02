@@ -23,22 +23,18 @@
 #include <gtest/gtest.h>
 
 TEST(test_configuration_manager, create_remove) {
-    std::vector<Layer> available_layers;
-    Layer layer;
-    layer.key = "VK_LAYER_KHRONOS_validation";
-    layer.manifest_path = "VK_LAYER_KHRONOS_validation.dummy_path";
-    available_layers.push_back(layer);
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
 
     ConfigurationManager configuration_manager;
 
     // Create configuration
-    configuration_manager.CreateConfiguration(available_layers, "Configuration A");
-    configuration_manager.CreateConfiguration(available_layers, "Configuration B");
+    configuration_manager.CreateConfiguration(layer_manager, "Configuration A");
+    configuration_manager.CreateConfiguration(layer_manager, "Configuration B");
     EXPECT_EQ(2, configuration_manager.available_configurations.size());
 
     // Create configuration with the same name, updating the name
-    const std::string configuration_duplicate_key =
-        configuration_manager.CreateConfiguration(available_layers, "Configuration A").key;
+    const std::string configuration_duplicate_key = configuration_manager.CreateConfiguration(layer_manager, "Configuration A").key;
     EXPECT_EQ(3, configuration_manager.available_configurations.size());
     EXPECT_STREQ("Configuration A (2)", configuration_duplicate_key.c_str());
 

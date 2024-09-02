@@ -44,13 +44,6 @@ enum { LAYERS_PATHS_COUNT = LAYERS_PATHS_LAST - LAYERS_PATHS_FIRST + 1 };
 
 LayerType GetLayerType(LayersPaths Layers_paths_type);
 
-struct LayersPathInfo {
-    Path path;
-    std::vector<Layer> layers;
-
-    bool enabled = true;
-};
-
 class LayerManager : public Serialize {
    public:
     LayerManager();
@@ -64,20 +57,24 @@ class LayerManager : public Serialize {
     bool Empty() const;
     std::size_t Size() const;
 
-    // Layer* Find(const std::string& layer_name);
-    // const Layer* Find(const std::string& layer_name) const;
-
     std::vector<Version> GatherVersions(const std::string& layer_name) const;
-    const Layer* FindFromVersion(const std::string& layer_name, const Version& version) const;
+    const Layer* Find(const std::string& layer_name, const Version& version = Version::LATEST) const;
     const Layer* FindFromManifest(const Path& manifest_path) const;
     Layer* FindFromManifest(const Path& manifest_path);
 
     void LoadAllInstalledLayers();
     void LoadLayersFromPath(const Path& layers_path, LayerType type = LAYER_TYPE_EXPLICIT);
 
+    void AddPath(const LayersPathInfo& path_info);
+    void RemovePath(const LayersPathInfo& path_info);
+    void UpdatePath(const LayersPathInfo& path_info);
+
+    std::vector<std::string> BuildLayerNameList() const;
+
     std::vector<Layer> selected_layers;
-    std::array<std::vector<Path>, LAYERS_PATHS_COUNT> paths;
+    std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> paths;
+    std::vector<Path> removed_paths;
 
    private:
-    std::map<std::string, std::string> layers_validated;
+    std::map<Path, std::string> layers_validated;
 };
