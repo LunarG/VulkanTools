@@ -30,7 +30,8 @@
 
 const Version Version::VKCONFIG(3, 0, 0);
 const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
-const Version Version::VERSION_NULL(0u);
+const Version Version::NONE(0, 0, 0);
+const Version Version::LATEST(~0, ~0, ~0);
 
 const char *VKCONFIG_NAME = "Vulkan Configurator";
 const char *VKCONFIG_SHORT_NAME = "vkconfig";

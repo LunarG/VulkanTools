@@ -79,18 +79,26 @@ ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, c
 
 Version ComputeMinApiVersion(const Version api_version, const std::vector<Parameter>& parameters,
                              const std::vector<Layer>& layers) {
-    if (parameters.empty()) return Version::VERSION_NULL;
+    if (parameters.empty()) {
+        return Version::NONE;
+    }
 
     Version min_version = api_version;
 
     for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
         const Layer* layer = FindByKey(layers, parameters[i].key.c_str());
-        if (layer == nullptr) continue;
+        if (layer == nullptr) {
+            continue;
+        }
 
         const ParameterRank state = GetParameterOrdering(layers, parameters[i]);
 
-        if (state == PARAMETER_RANK_EXCLUDED) continue;
-        if (state == PARAMETER_RANK_MISSING) continue;
+        if (state == PARAMETER_RANK_EXCLUDED) {
+            continue;
+        }
+        if (state == PARAMETER_RANK_MISSING) {
+            continue;
+        }
 
         min_version = min_version < layer->api_version ? min_version : layer->api_version;
     }
@@ -212,7 +220,7 @@ std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const 
     return count;
 }
 
-std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const std::vector<Layer>& available_layers) {
+std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const LayerManager& layers) {
     std::vector<Parameter> gathered_parameters;
 
     // Loop through the layers. They are expected to be in order
@@ -223,19 +231,21 @@ std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters
         gathered_parameters.push_back(parameter);
     }
 
-    for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
-        const Layer& layer = available_layers[i];
+    const std::vector<std::string>& list = layers.BuildLayerNameList();
+
+    for (std::size_t i = 0, n = list.size(); i < n; ++i) {
+        const Layer* layer = layers.Find(list[i], Version::LATEST);
 
         // The layer is already in the layer tree
-        if (IsFound(parameters, layer.key.c_str())) {
+        if (IsFound(parameters, layer->key.c_str())) {
             continue;
         }
 
         Parameter parameter;
-        parameter.key = layer.key;
+        parameter.key = layer->key;
         parameter.control = LAYER_CONTROL_AUTO;
-        parameter.api_version = Version::VERSION_NULL;
-        CollectDefaultSettingData(layer.settings, parameter.settings);
+        parameter.api_version = Version::LATEST;
+        CollectDefaultSettingData(layer->settings, parameter.settings);
 
         gathered_parameters.push_back(parameter);
     }

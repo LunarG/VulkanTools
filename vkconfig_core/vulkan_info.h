@@ -34,7 +34,7 @@ struct VulkanPhysicalDeviceInfo {
 };
 
 struct VulkanSystemInfo {
-    Version loaderVersion;
+    Version loaderVersion = Version::NONE;
     std::vector<VkLayerProperties> instanceLayerProperties;
     std::vector<VkExtensionProperties> instanceExtensionPropertie;
     std::vector<VulkanPhysicalDeviceInfo> physicalDevices;

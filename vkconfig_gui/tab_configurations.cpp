@@ -199,6 +199,7 @@ void TabConfigurations::UpdateUI_LoaderMessages() {
 }
 
 void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
+    ui->configurations_layers_list->blockSignals(true);
     ui->configurations_layers_list->clear();
 
     Configurator &configurator = Configurator::Get();
@@ -249,6 +250,8 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
 
     ui->execute_closer_application_label->setVisible(true);
     ui->execute_closer_driver_label->setVisible(true);
+
+    ui->configurations_layers_list->blockSignals(false);
 }
 
 void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
@@ -294,7 +297,7 @@ static const Layer *GetLayer(QListWidget *tree, QListWidgetItem *item) {
         Configurator &configurator = Configurator::Get();
 
         const std::string &layer_key = ExtractLayerName(configurator.layers, layer_string);
-        return configurator.layers.FindFromVersion(layer_key, Version::VERSION_NULL);
+        return configurator.layers.Find(layer_key, Version::LATEST);
     }
 
     return nullptr;
@@ -567,7 +570,7 @@ void TabConfigurations::OnContextMenuNewClicked(ConfigurationListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, "New Configuration");
+    configurator.configurations.CreateConfiguration(configurator.layers, "New Configuration");
     configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
@@ -588,7 +591,7 @@ void TabConfigurations::OnContextMenuImportClicked(ConfigurationListItem *item) 
     }
 
     configurator.environment.path_import = selected_path;
-    configurator.configurations.ImportConfiguration(configurator.layers.selected_layers, selected_path);
+    configurator.configurations.ImportConfiguration(configurator.layers, selected_path);
 
     configurator.Override(OVERRIDE_AREA_ALL);
 
@@ -614,7 +617,7 @@ void TabConfigurations::OnContextMenuDuplicateClicked(ConfigurationListItem *ite
 
     Configurator &configurator = Configurator::Get();
     const Configuration &duplicated_configuration =
-        configurator.configurations.CreateConfiguration(configurator.layers.selected_layers, item->configuration_name, true);
+        configurator.configurations.CreateConfiguration(configurator.layers, item->configuration_name, true);
 
     item->configuration_name = duplicated_configuration.key;
 
@@ -679,7 +682,7 @@ void TabConfigurations::OnContextMenuResetClicked(ConfigurationListItem *item) {
         return;
     }
 
-    configuration->Reset(configurator.layers.selected_layers);
+    configuration->Reset(configurator.layers);
 
     this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
 }
@@ -706,7 +709,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
         return;
     }
 
-    configurator.configurations.ExportConfiguration(configurator.layers.selected_layers, selected_path, item->configuration_name);
+    configurator.configurations.ExportConfiguration(configurator.layers, selected_path, item->configuration_name);
 }
 
 void TabConfigurations::OnContextMenuExportSettingsClicked(ConfigurationListItem *item) {
