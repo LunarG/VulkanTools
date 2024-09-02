@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "../vkconfig_core/layer.h"
+
 #include <QCheckBox>
 #include <QPushButton>
 #include <QResizeEvent>
@@ -28,17 +30,16 @@ class LayersPathWidget : public QCheckBox {
     Q_OBJECT
 
    public:
-    LayersPathWidget(const std::string &layer_path);
+    LayersPathWidget(LayersPathInfo *path_info);
 
    protected:
     void resizeEvent(QResizeEvent *event) override;
 
    public Q_SLOTS:
-    void on_button_edit_clicked(bool checked = false);
     void on_buttom_remove_clicked(bool checked = false);
-    void on_checkStateChanged(Qt::CheckState state);
+    void on_toggled(bool checked);
 
    public:
-    QPushButton *button_edit = nullptr;
+    LayersPathInfo *path_info = nullptr;
     QPushButton *buttom_remove = nullptr;
 };

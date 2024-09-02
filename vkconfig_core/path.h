@@ -79,8 +79,8 @@ std::string AbsolutePath(Path::Builtin path);
 std::string RelativePath(Path::Builtin path);
 
 bool operator==(const Path& a, const Path& b);
-
 Path operator+(const Path& path, const std::string& extend);
+bool operator<(const Path& a, const Path& b);
 
 std::vector<Path> CollectFilePaths(const Path& directory, const char* filter = "*json");
 
