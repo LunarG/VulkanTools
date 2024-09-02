@@ -32,7 +32,8 @@ class Version {
    public:
     static const Version VKCONFIG;
     static const Version VKHEADER;
-    static const Version VERSION_NULL;
+    static const Version NONE;
+    static const Version LATEST;
 
     explicit Version() : _major(0), _minor(0), _patch(0) {}
     explicit Version(uint32_t version_complete);

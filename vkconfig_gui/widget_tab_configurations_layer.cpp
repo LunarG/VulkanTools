@@ -99,7 +99,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     // const bool is_implicit_layer = layers.empty() ? false : layers[0]->type == LAYER_TYPE_IMPLICIT;
 
     const Configurator &configurator = Configurator::Get();
-    const Layer *layer = configurator.layers.FindFromVersion(parameter.key, parameter.api_version);
+    const Layer *layer = configurator.layers.Find(parameter.key, parameter.api_version);
 
     if (parameter.control != LAYER_CONTROL_APPLICATIONS_API && parameter.control != LAYER_CONTROL_APPLICATIONS_ENV) {
         assert(layer != nullptr);
@@ -149,7 +149,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     } else {
         assert(layer != nullptr);
 
-        if (!advanced_view && parameter.api_version != Version::VERSION_NULL) {
+        if (!advanced_view && parameter.api_version != Version::LATEST) {
             decorated_name += format(" - %s", parameter.api_version.str().c_str());
         }
 
@@ -199,7 +199,7 @@ void ConfigurationLayerWidget::resizeEvent(QResizeEvent *event) {
 void ConfigurationLayerWidget::on_layer_version_currentIndexChanged(int index) {
     assert(index >= 0);
     const std::string &text = this->layer_version->itemText(index).toStdString();
-    Version version = text == "latest" ? Version::VERSION_NULL : Version(text.c_str());
+    Version version = text == "latest" ? Version::LATEST : Version(text.c_str());
 
     Configuration *configuration = Configurator::Get().GetActiveConfiguration();
     Parameter *parameter = configuration->Find(this->layer_name);

@@ -27,7 +27,7 @@
 TEST(test_vulkan, system_info) {
     const VulkanSystemInfo& vulkan_system_info = BuildVulkanSystemInfo();
 
-    EXPECT_TRUE(vulkan_system_info.loaderVersion != Version::VERSION_NULL);
+    EXPECT_TRUE(vulkan_system_info.loaderVersion != Version::NONE);
     EXPECT_TRUE(!vulkan_system_info.instanceLayerProperties.empty());
     EXPECT_TRUE(!vulkan_system_info.instanceExtensionPropertie.empty());
     EXPECT_TRUE(!vulkan_system_info.physicalDevices.empty());

@@ -155,7 +155,7 @@ void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std:
     LoaderSettings result;
     result.executable_path = executable_path;
 
-    static Configuration disbled_configuration = Configuration::CreateDisabled(this->layers.selected_layers);
+    static Configuration disbled_configuration = Configuration::CreateDisabled(this->layers);
     const Configuration* configuration = nullptr;
 
     switch (info.mode) {
@@ -323,7 +323,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                     continue;
                 }
 
-                const Layer* layer = this->layers.FindFromVersion(parameter.key.c_str(), parameter.api_version);
+                const Layer* layer = this->layers.Find(parameter.key.c_str(), parameter.api_version);
                 if (layer == nullptr) {
                     has_missing_layers = true;
                     continue;
