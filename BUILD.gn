@@ -18,6 +18,10 @@ import("//build_overrides/lunarg_vulkantools.gni")
 # This is not currently implemented for Fuchsia
 assert(!is_fuchsia)
 
+is_primary_toolchain =
+  !(defined(android_secondary_abi_toolchain) &&
+   (current_toolchain == android_secondary_abi_toolchain))
+
 vulkan_undefine_configs = []
 if (is_win) {
   vulkan_undefine_configs += [ "//build/config/win:unicode" ]
@@ -68,21 +72,23 @@ config("vulkan_layer_config") {
   }
 }
 
-vt_sources = [
-  "layersvt/generated/api_dump.cpp",
-  "layersvt/generated/api_dump_text.h",
-  "layersvt/generated/api_dump_html.h",
-  "layersvt/generated/api_dump_json.h",
-  "layersvt/generated/api_dump_text.cpp",
-  "layersvt/generated/api_dump_html.cpp",
-  "layersvt/generated/api_dump_json.cpp",
-  "layersvt/generated/api_dump_video_text.h",
-  "layersvt/generated/api_dump_video_html.h",
-  "layersvt/generated/api_dump_video_json.h",
-  "layersvt/api_dump.h",
-  "layersvt/vk_layer_table.cpp",
-  "layersvt/vk_layer_table.h",
-]
+if (is_primary_toolchain) {
+  vt_sources = [
+    "layersvt/generated/api_dump.cpp",
+    "layersvt/generated/api_dump_text.h",
+    "layersvt/generated/api_dump_html.h",
+    "layersvt/generated/api_dump_json.h",
+    "layersvt/generated/api_dump_text.cpp",
+    "layersvt/generated/api_dump_html.cpp",
+    "layersvt/generated/api_dump_json.cpp",
+    "layersvt/generated/api_dump_video_text.h",
+    "layersvt/generated/api_dump_video_html.h",
+    "layersvt/generated/api_dump_video_json.h",
+    "layersvt/api_dump.h",
+    "layersvt/vk_layer_table.cpp",
+    "layersvt/vk_layer_table.h",
+  ]
+}
 
 if (!is_android) {
   vulkan_data_dir = "$root_out_dir/$vulkan_data_subdir"
@@ -142,31 +148,33 @@ library_type = "shared_library"
 target(library_type, "VkLayer_lunarg_api_dump") {
   defines = []
   ldflags = []
-  configs -= [ "//build/config/compiler:chromium_code" ]
-  configs += [ "//build/config/compiler:no_chromium_code" ]
-  configs -= [ "//build/config/compiler:no_rtti" ]
-  configs += [ "//build/config/compiler:rtti" ]
-  configs -= vulkan_undefine_configs
-  configs += [ ":generated_layers_config" ]
-  public_configs = [ ":vulkan_layer_config" ]
-  deps = [
-    ":vulkan_layer_utils",
-    "$vulkan_utility_libraries_dir:vulkan_layer_settings",
-  ]
-  sources = vt_sources
-  if (is_win) {
-    defines += [ "NOMINMAX" ]
-    sources += [ "layers/VkLayer_lunarg_api_dump.def" ]
-  }
-  if (defined(ozone_platform_x11) && ozone_platform_x11) {
-    defines += [ "VK_USE_PLATFORM_XLIB_KHR" ]
-  }
-  if (is_android) {
-    libs = [
-      "log",
-      "nativewindow",
+  if (is_primary_toolchain) {
+    configs -= [ "//build/config/compiler:chromium_code" ]
+    configs += [ "//build/config/compiler:no_chromium_code" ]
+    configs -= [ "//build/config/compiler:no_rtti" ]
+    configs += [ "//build/config/compiler:rtti" ]
+    configs -= vulkan_undefine_configs
+    configs += [ ":generated_layers_config" ]
+    public_configs = [ ":vulkan_layer_config" ]
+    deps = [
+      ":vulkan_layer_utils",
+      "$vulkan_utility_libraries_dir:vulkan_layer_settings",
     ]
-    configs -= [ "//build/config/android:hide_all_but_jni_onload" ]
+    sources = vt_sources
+    if (is_win) {
+      defines += [ "NOMINMAX" ]
+      sources += [ "layers/VkLayer_lunarg_api_dump.def" ]
+    }
+    if (defined(ozone_platform_x11) && ozone_platform_x11) {
+      defines += [ "VK_USE_PLATFORM_XLIB_KHR" ]
+    }
+    if (is_android) {
+      libs = [
+        "log",
+        "nativewindow",
+      ]
+      configs -= [ "//build/config/android:hide_all_but_jni_onload" ]
+    }
   }
 }
 
