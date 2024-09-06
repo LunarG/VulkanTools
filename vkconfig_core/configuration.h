@@ -34,16 +34,19 @@ class LayerManager;
 class Configuration {
    public:
     static Configuration CreateDisabled(const LayerManager& layers);
-    static Configuration Create(const LayerManager& layers, const std::string& key);
+    static Configuration Create(const LayerManager& layers, const std::string& layer_key);
 
     bool Load(const Path& full_path, const LayerManager& layers);
     bool Save(const Path& full_path, bool exporter = false) const;
-    bool HasOverride() const;
-    Parameter* Find(std::string parameter_key);
-
     void Reset(const LayerManager& layers);
 
+    bool HasOverride() const;
+    Parameter* Find(const std::string& layer_key);
     std::size_t Size() const { return this->parameters.size(); };
+
+    void SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Version& version);
+    void GatherParameters(const LayerManager& layers);
+    void Reorder(const std::vector<std::string>& layer_names);
 
     std::string key = "New Configuration";  // User readable display of the configuration name (may contain spaces)
     int version = 1;
