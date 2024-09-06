@@ -29,6 +29,18 @@
 
 #include <cassert>
 
+template <typename T>
+static const T* FindByKey(const std::vector<T>& container, const char* key) {
+    assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
+
+    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
+        if (container[i].key == key) return &container[i];
+    }
+
+    return nullptr;
+}
+
 WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaFlags& meta,
                                      SettingDataSet& data_set, const std::string& flag)
     : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), flag(flag), field(new QCheckBox(this)) {

@@ -121,7 +121,7 @@ bool IsValueFound(const std::vector<EnabledNumberOrString>& list, const NumberOr
 QStringList ConvertValues(const std::vector<NumberOrString>& values);
 
 std::string GetLayerSettingPrefix(const std::string& key);
-
+/*
 template <typename T>
 T* FindByKey(std::vector<T>& container, const char* key) {
     assert(key != nullptr);
@@ -158,7 +158,7 @@ template <typename T>
 bool IsFound(const std::vector<T>& container, const char* key) {
     return FindByKey(container, key) != nullptr;
 }
-
+*/
 template <typename T>
 std::vector<T> GetVector(const T& value) {
     std::vector<T> result;

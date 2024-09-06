@@ -74,7 +74,7 @@ int run_doc_settings(const CommandLine& command_line) {
 
     ConfigurationManager configuration_manager;
     Configuration config = configuration_manager.CreateConfiguration(layers, "Config");
-    config.parameters = GatherParameters(config.parameters, layers);
+    config.GatherParameters(layers);
     config.parameters[0].control = LAYER_CONTROL_ON;
     ExportSettingsDoc(layers.selected_layers, config, command_line.doc_out_dir + "/vk_layer_settings.txt");
 
