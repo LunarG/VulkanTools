@@ -42,7 +42,7 @@ bool IsFrames(const std::string& s);
 bool IsNumber(const std::string& s);
 
 bool IsFloat(const std::string& s);
-
+/*
 template <typename T>
 T* FindByKey(std::vector<T>& container, const char* key) {
     assert(key != nullptr);
@@ -66,12 +66,13 @@ const T* FindByKey(const std::vector<T>& container, const char* key) {
 
     return nullptr;
 }
-
+*/
+/*
 template <typename T>
 bool IsFound(const std::vector<T>& container, const char* key) {
     return FindByKey(container, key) != nullptr;
 }
-
+*/
 // Remove a value if it's present
 void RemoveString(std::vector<std::string>& list, const std::string& value);
 
