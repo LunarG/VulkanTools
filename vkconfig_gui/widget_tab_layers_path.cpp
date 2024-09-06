@@ -28,7 +28,7 @@ LayersPathWidget::LayersPathWidget(LayersPathInfo* path_info) : path_info(path_i
     this->setChecked(this->path_info->enabled);
 
     this->buttom_remove = new QPushButton(this);
-    this->buttom_remove->setText("x");
+    this->buttom_remove->setText("-");
     this->buttom_remove->show();
 
     this->setText(path_info->path.RelativePath().c_str());

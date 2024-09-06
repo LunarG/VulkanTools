@@ -53,13 +53,12 @@ struct Parameter {
     QByteArray setting_tree_state;  // Recall editor tree state
 };
 
-ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);
-Version ComputeMinApiVersion(const Version api_version, const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
-void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
+ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& parameter);
+Version ComputeMinApiVersion(const Version api_version, const std::vector<Parameter>& parameters, const LayerManager& layers);
+void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& layers);
 void FilterParameters(std::vector<Parameter>& parameters, const LayerControl control);
-std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const LayerManager& layers);
 
-bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers, std::string& missing_layer);
+bool HasMissingLayer(const std::vector<Parameter>& parameters, const LayerManager& layers, std::string& missing_layer);
 
 std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters);
-std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
+std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const LayerManager& layers);
