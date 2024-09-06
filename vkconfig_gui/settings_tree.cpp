@@ -64,8 +64,10 @@ void SettingsTreeManager::CreateGUI(QComboBox *preset_combobox, QTreeWidget *bui
 
     Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration == nullptr) {
+        preset_combobox->setVisible(false);
         return;
     } else if (configuration->selected_layer_name.empty()) {
+        preset_combobox->setVisible(false);
         return;
     }
 
@@ -115,8 +117,7 @@ void SettingsTreeManager::CreateGUI(QComboBox *preset_combobox, QTreeWidget *bui
 
             this->parameter = &parameter;
 
-            const std::vector<Layer> &selected_layers = configurator.layers.selected_layers;
-            const Layer *layer = FindByKey(selected_layers, parameter.key.c_str());
+            const Layer *layer = configurator.layers.Find(parameter.key, parameter.api_version);
             /*
                         QTreeWidgetItem *layer_item = new QTreeWidgetItem();
                         this->tree->addTopLevelItem(layer_item);
@@ -373,11 +374,12 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, Parameter &para
 }
 
 void SettingsTreeManager::BuildGenericTree(Parameter &parameter) {
-    std::vector<Layer> &available_layers = Configurator::Get().layers.selected_layers;
+    Configurator &configurator = Configurator::Get();
+    const Layer *layer = configurator.layers.Find(parameter.key, parameter.api_version);
+    assert(layer != nullptr);
 
-    const SettingMetaSet &settings = FindByKey(available_layers, parameter.key.c_str())->settings;
-    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
-        this->BuildTreeItem(nullptr, parameter, *settings[i]);
+    for (std::size_t i = 0, n = layer->settings.size(); i < n; ++i) {
+        this->BuildTreeItem(nullptr, parameter, *layer->settings[i]);
     }
 
     if (!parameter.setting_tree_state.isEmpty()) {

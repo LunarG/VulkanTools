@@ -186,7 +186,7 @@ void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std:
         if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
             loader_layer_settings.control = parameter.control;
         } else {
-            const Layer* layer = FindByKey(this->layers.selected_layers, parameter.key.c_str());
+            const Layer* layer = this->layers.Find(parameter.key, parameter.api_version);
             if (layer == nullptr) {
                 continue;
             }
