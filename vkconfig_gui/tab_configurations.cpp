@@ -259,6 +259,7 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
 
     if (configurator.configurations.GetActiveConfigurationInfo() == nullptr) {
         this->_settings_tree_manager.CleanupGUI();
+        ui->configurations_presets_comboBox->setVisible(false);
     } else {
         this->_settings_tree_manager.CreateGUI(ui->configurations_presets_comboBox, ui->configurations_settings_tree);
     }
@@ -312,7 +313,18 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 
     if (event_type == QEvent::ChildRemoved) {
         // Layers were reordered, we need to update the configuration
-        Configurator::Get().Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+        Configurator &configurator = Configurator::Get();
+        Configuration *configuration = configurator.GetActiveConfiguration();
+
+        std::vector<std::string> layer_names;
+        for (int i = 0, n = ui->configurations_layers_list->count(); i < n; ++i) {
+            QWidget *widget = ui->configurations_layers_list->itemWidget(ui->configurations_layers_list->item(i));
+            const std::string &layer_name = static_cast<ConfigurationLayerWidget *>(widget)->layer_name;
+            layer_names.push_back(layer_name);
+        }
+        configuration->Reorder(layer_names);
+
+        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
         return true;
     }
 
@@ -469,6 +481,7 @@ void TabConfigurations::OnSelectConfiguration(int currentRow) {
         this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
         this->UpdateUI_LoaderMessages();
         this->UpdateUI_Layers(UPDATE_REBUILD_UI);
+        this->UpdateUI_Settings(UPDATE_REBUILD_UI);
     }
 }
 
@@ -656,8 +669,7 @@ void TabConfigurations::OnContextMenuResetClicked(ConfigurationListItem *item) {
     assert(!item->configuration_name.empty());
 
     Configurator &configurator = Configurator::Get();
-    Configuration *configuration =
-        FindByKey(configurator.configurations.available_configurations, item->configuration_name.c_str());
+    Configuration *configuration = configurator.configurations.FindConfiguration(item->configuration_name);
     assert(configuration != nullptr);
 
     QMessageBox alert;

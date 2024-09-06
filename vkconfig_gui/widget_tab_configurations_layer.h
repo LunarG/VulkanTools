@@ -40,6 +40,8 @@ class ConfigurationLayerWidget : public QLabel {
     ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter, const std::vector<Version> &layer_version,
                              bool advanced_view);
 
+    std::string layer_name;
+
    protected:
     bool eventFilter(QObject *target, QEvent *event);
     void resizeEvent(QResizeEvent *event) override;
@@ -50,7 +52,6 @@ class ConfigurationLayerWidget : public QLabel {
 
    private:
     TabConfigurations *tab;
-    std::string layer_name;
 
     QComboBox *layer_version = nullptr;
     QComboBox *layer_state = nullptr;
