@@ -67,7 +67,7 @@ TEST(test_configuration, load_and_save) {
     EXPECT_EQ(3, configuration_loaded.parameters.size());
     EXPECT_TRUE(!configuration_loaded.description.empty());
 
-    Parameter* parameter = FindByKey(configuration_loaded.parameters, "VK_LAYER_LUNARG_reference_1_2_1");
+    Parameter* parameter = configuration_loaded.Find("VK_LAYER_LUNARG_reference_1_2_1");
     EXPECT_TRUE(parameter != nullptr);
     EXPECT_EQ(LAYER_CONTROL_ON, parameter->control);
 

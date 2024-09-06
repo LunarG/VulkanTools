@@ -41,6 +41,8 @@ bool ConfigurationManager::Load(const QJsonObject &json_root_object) {
         this->active_application = json_configurations_object.value("active_application").toString().toStdString();
 
         if (json_configurations_object.value("infos") != QJsonValue::Undefined) {
+            this->configuration_infos.clear();
+
             const QJsonObject &json_infos_object = json_configurations_object.value("infos").toObject();
             const QStringList &json_infos_keys = json_infos_object.keys();
             for (int i = 0, n = json_infos_keys.length(); i < n; ++i) {
@@ -145,7 +147,7 @@ void ConfigurationManager::LoadDefaultConfigurations(const LayerManager &layers)
         }
 #endif
 
-        OrderParameter(configuration.parameters, layers.selected_layers);
+        OrderParameter(configuration.parameters, layers);
 
         Configuration *found_configuration = this->FindConfiguration(configuration.key);
         if (found_configuration == nullptr) {
@@ -184,13 +186,13 @@ void ConfigurationManager::LoadConfigurationsPath(const LayerManager &layers) {
             continue;
         }
 
-        if (FindByKey(available_configurations, configuration.key.c_str()) != nullptr) {
+        if (this->FindConfiguration(configuration.key) != nullptr) {
             continue;
         }
 
         std::string missing_layer;
-        if (!HasMissingLayer(configuration.parameters, layers.selected_layers, missing_layer)) {
-            OrderParameter(configuration.parameters, layers.selected_layers);
+        if (!HasMissingLayer(configuration.parameters, layers, missing_layer)) {
+            OrderParameter(configuration.parameters, layers);
         }
 
         available_configurations.push_back(configuration);
@@ -255,7 +257,7 @@ bool ConfigurationManager::HasActiveConfiguration() const {
 
 Configuration &ConfigurationManager::CreateConfiguration(const LayerManager &layers, const std::string &configuration_name,
                                                          bool duplicate) {
-    Configuration *duplicate_configuration = FindByKey(available_configurations, configuration_name.c_str());
+    Configuration *duplicate_configuration = this->FindConfiguration(configuration_name);
 
     Configuration new_configuration = duplicate_configuration != nullptr && duplicate ? *duplicate_configuration : Configuration();
     new_configuration.key = MakeConfigurationName(available_configurations, configuration_name);
@@ -273,7 +275,7 @@ Configuration &ConfigurationManager::CreateConfiguration(const LayerManager &lay
 
     this->GetActiveConfigurationInfo()->name = configuration.key;
 
-    return *FindByKey(this->available_configurations, configuration.key.c_str());
+    return *this->FindConfiguration(configuration.key);
 }
 
 bool ConfigurationManager::HasFile(const Configuration &configuration) const {
@@ -314,8 +316,10 @@ void ConfigurationManager::RemoveConfiguration(const std::string &configuration_
     // Update the configuration in the list
     std::vector<Configuration> updated_configurations;
 
+    const std::string key = ToLowerCase(std::string(configuration_name));
+
     for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
-        if (this->available_configurations[i].key == configuration_name) {
+        if (ToLowerCase(this->available_configurations[i].key) == key) {
             int version = this->available_configurations[i].version;
 
             auto result = this->removed_built_in_configuration.insert(std::make_pair(configuration_name, version));
@@ -344,7 +348,15 @@ Configuration *ConfigurationManager::FindConfiguration(const std::string &config
         return nullptr;
     }
 
-    return FindByKey(this->available_configurations, configuration_name.c_str());
+    const std::string key = ToLowerCase(std::string(configuration_name));
+
+    for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
+        if (ToLowerCase(this->available_configurations[i].key) == key) {
+            return &this->available_configurations[i];
+        }
+    }
+
+    return nullptr;
 }
 
 const Configuration *ConfigurationManager::FindConfiguration(const std::string &configuration_name) const {
@@ -356,7 +368,15 @@ const Configuration *ConfigurationManager::FindConfiguration(const std::string &
         return nullptr;
     }
 
-    return FindByKey(this->available_configurations, configuration_name.c_str());
+    const std::string key = ToLowerCase(std::string(configuration_name));
+
+    for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
+        if (ToLowerCase(this->available_configurations[i].key) == key) {
+            return &this->available_configurations[i];
+        }
+    }
+
+    return nullptr;
 }
 
 void ConfigurationManager::ImportConfiguration(const LayerManager &layers, const Path &full_import_path) {
@@ -385,7 +405,7 @@ void ConfigurationManager::ExportConfiguration(const LayerManager &layers, const
     assert(!configuration_name.empty());
     assert(!full_export_path.Empty());
 
-    Configuration *configuration = FindByKey(available_configurations, configuration_name.c_str());
+    Configuration *configuration = this->FindConfiguration(configuration_name);
     assert(configuration);
 
     if (!configuration->Save(full_export_path, true)) {
