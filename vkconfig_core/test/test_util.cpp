@@ -27,6 +27,35 @@
 
 #include <gtest/gtest.h>
 
+template <typename T>
+T* FindByKey(std::vector<T>& container, const char* key) {
+    assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
+
+    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
+        if (container[i].key == key) return &container[i];
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+const T* FindByKey(const std::vector<T>& container, const char* key) {
+    assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
+
+    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
+        if (container[i].key == key) return &container[i];
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+bool IsFound(const std::vector<T>& container, const char* key) {
+    return FindByKey(container, key) != nullptr;
+}
+
 TEST(test_util, format_int_1) { EXPECT_EQ("Test 1", format("Test %d", 1)); }
 
 TEST(test_util, format_strings_list) {
