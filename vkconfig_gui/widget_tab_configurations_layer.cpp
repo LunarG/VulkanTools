@@ -201,9 +201,12 @@ void ConfigurationLayerWidget::on_layer_version_currentIndexChanged(int index) {
     const std::string &text = this->layer_version->itemText(index).toStdString();
     Version version = text == "latest" ? Version::LATEST : Version(text.c_str());
 
-    Configuration *configuration = Configurator::Get().GetActiveConfiguration();
-    Parameter *parameter = configuration->Find(this->layer_name);
-    parameter->api_version = version;
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    configuration->SwitchLayerVersion(configurator.layers, this->layer_name, version);
+
+    this->tab->UpdateUI_Settings(UPDATE_REBUILD_UI);
 }
 
 void ConfigurationLayerWidget::on_layer_state_currentIndexChanged(int index) {

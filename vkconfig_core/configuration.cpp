@@ -83,7 +83,7 @@ Configuration Configuration::Create(const LayerManager& layers, const std::strin
     Configuration result;
 
     result.key = key;
-    result.parameters = GatherParameters(result.parameters, layers);
+    result.GatherParameters(layers);
 
     AddApplicationEnabledParameters(result.parameters);
 
@@ -93,7 +93,7 @@ Configuration Configuration::Create(const LayerManager& layers, const std::strin
 Configuration Configuration::CreateDisabled(const LayerManager& layers) {
     Configuration result;
     result.key = "_DisablingConfiguration";
-    result.parameters = GatherParameters(result.parameters, layers);
+    result.GatherParameters(layers);
 
     for (std::size_t i = 0, n = result.parameters.size(); i < n; ++i) {
         result.parameters[i].control = LAYER_CONTROL_OFF;
@@ -239,7 +239,7 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
         this->parameters.push_back(parameter);
     }
 
-    this->parameters = GatherParameters(this->parameters, layers);
+    this->GatherParameters(layers);
 
     AddApplicationEnabledParameters(this->parameters);
 
@@ -337,9 +337,9 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
     }
 }
 
-Parameter* Configuration::Find(std::string parameter_key) {
+Parameter* Configuration::Find(const std::string& layer_key) {
     for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
-        if (this->parameters[i].key == parameter_key) {
+        if (this->parameters[i].key == layer_key) {
             return &this->parameters[i];
         }
     }
@@ -357,7 +357,7 @@ void Configuration::Reset(const LayerManager& layers) {
             const bool result = this->Load(builtin_configuration_files[i], layers);
             assert(result);
 
-            OrderParameter(this->parameters, layers.selected_layers);
+            OrderParameter(this->parameters, layers);
             return;
         }
     }
@@ -371,7 +371,7 @@ void Configuration::Reset(const LayerManager& layers) {
         const bool result = this->Load(full_path, layers);
         assert(result);
 
-        OrderParameter(this->parameters, layers.selected_layers);
+        OrderParameter(this->parameters, layers);
         return;
     }
 
@@ -385,7 +385,7 @@ void Configuration::Reset(const LayerManager& layers) {
             }
         }
 
-        OrderParameter(this->parameters, layers.selected_layers);
+        OrderParameter(this->parameters, layers);
     }
 }
 
@@ -401,6 +401,82 @@ bool Configuration::HasOverride() const {
     }
 
     return false;
+}
+
+void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Version& version) {
+    Parameter* parameter = this->Find(layer_key);
+    assert(parameter != nullptr);
+
+    const Layer* new_layer = layers.Find(layer_key, version);
+
+    parameter->api_version = version;
+    CollectDefaultSettingData(new_layer->settings, parameter->settings);
+}
+
+void Configuration::GatherParameters(const LayerManager& layers) {
+    const std::vector<Parameter>& previous_parameters = this->parameters;
+
+    std::vector<Parameter> gathered_parameters;
+
+    // Loop through the layers. They are expected to be in order
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        const Parameter& parameter = parameters[i];
+        assert(!parameter.key.empty());
+
+        gathered_parameters.push_back(parameter);
+    }
+
+    const std::vector<std::string>& list = layers.BuildLayerNameList();
+
+    for (std::size_t i = 0, n = list.size(); i < n; ++i) {
+        const Layer* layer = layers.Find(list[i], Version::LATEST);
+
+        // The layer is already in the layer tree
+        if (this->Find(layer->key.c_str())) {
+            continue;
+        }
+
+        Parameter parameter;
+        parameter.key = layer->key;
+        parameter.control = LAYER_CONTROL_AUTO;
+        parameter.api_version = Version::LATEST;
+        CollectDefaultSettingData(layer->settings, parameter.settings);
+
+        gathered_parameters.push_back(parameter);
+    }
+
+    // OrderParameter(gathered_parameters, layers);
+
+    this->parameters = gathered_parameters;
+}
+
+void Configuration::Reorder(const std::vector<std::string>& layer_names) {
+    std::vector<Parameter> ordered_parameters;
+
+    for (std::size_t i = 0, n = layer_names.size(); i < n; ++i) {
+        Parameter* parameter = this->Find(layer_names[i]);
+        assert(parameter != nullptr);
+        ordered_parameters.push_back(*parameter);
+    }
+
+    if (!this->view_advanced_layers) {
+        for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
+            Parameter& parameter = this->parameters[i];
+
+            bool found = false;
+            for (std::size_t j = 0, o = ordered_parameters.size(); j < o; ++j) {
+                if (ordered_parameters[j].key == parameter.key) {
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                ordered_parameters.push_back(parameter);
+            }
+        }
+    }
+
+    this->parameters = ordered_parameters;
 }
 
 bool Configuration::IsBuiltIn() const {
@@ -420,13 +496,19 @@ static const size_t NOT_FOUND = static_cast<size_t>(-1);
 
 static std::size_t ExtractDuplicateNumber(const std::string& configuration_name) {
     const std::size_t name_open = configuration_name.find_last_of("(");
-    if (name_open == NOT_FOUND) return NOT_FOUND;
+    if (name_open == NOT_FOUND) {
+        return NOT_FOUND;
+    }
 
     const std::size_t name_close = configuration_name.find_last_of(")");
-    if (name_close == NOT_FOUND) return NOT_FOUND;
+    if (name_close == NOT_FOUND) {
+        return NOT_FOUND;
+    }
 
     const std::string number = configuration_name.substr(name_open + 1, name_close - (name_open + 1));
-    if (!IsNumber(number)) return NOT_FOUND;
+    if (!IsNumber(number)) {
+        return NOT_FOUND;
+    }
 
     return std::stoi(number);
 }
