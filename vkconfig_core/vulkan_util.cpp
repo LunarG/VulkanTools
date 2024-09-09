@@ -53,10 +53,12 @@ struct VulkanFunctions {
 
 static const char *GetVulkanLibrary() {
     static const char *TABLE[] = {
-        "vulkan-1.dll",              // PLATFORM_WINDOWS
+        "vulkan-1.dll",              // PLATFORM_WINDOWS_X86
+        "vulkan-1.dll",              // PLATFORM_WINDOWS_ARM
         "libvulkan",                 // PLATFORM_LINUX
         "/usr/local/lib/libvulkan",  // PLATFORM_MACOS
         "N/A",                       // PLATFORM_ANDROID
+        "N/A",                       // PLATFORM_IOS
     };
     static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

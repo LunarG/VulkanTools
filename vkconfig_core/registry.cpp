@@ -22,7 +22,7 @@
 
 #include <QTextStream>
 
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#if VKC_ENV == VKC_ENV_WIN32
 #include <windows.h>
 #include <winreg.h>
 #include <Cfgmgr32.h>
@@ -200,4 +200,4 @@ std::vector<LayersPathInfo> LoadRegistryLayers(const QString &path) {
     return layers_paths;
 }
 
-#endif  // VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#endif  // VKC_ENV == VKC_ENV_WIN32
