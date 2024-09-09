@@ -419,7 +419,7 @@ bool Configurator::Override(OverrideArea override_area) {
     bool result_layers_settings = this->WriteLayersSettings(override_area, layers_settings_path);
 
     // On Windows only, we need to write these values to the registry
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#if VKC_ENV == VKC_ENV_WIN32
     AppendRegistryEntriesForLayers(loader_settings_path.AbsolutePath().c_str(), layers_settings_path.AbsolutePath().c_str());
 #endif
 
@@ -441,7 +441,7 @@ bool Configurator::Surrender(OverrideArea override_area) {
         result_layers_settings = layers_settings_path.Remove();
     }
 
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#if VKC_ENV == VKC_ENV_WIN32
     RemoveRegistryEntriesForLayers(loader_settings_path.AbsolutePath().c_str(), layers_settings_path.AbsolutePath().c_str());
 #endif
 
