@@ -24,10 +24,10 @@
 
 #include "../vkconfig_core/configurator.h"
 
-#if VKC_PLATFORM == VKC_PLATFORM_LINUX || VKC_PLATFORM == VKC_PLATFORM_MACOS
+#if VKC_ENV == VKC_ENV_UNIX
 #include <unistd.h>
 
-#elif VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#elif VKC_ENV == VKC_ENV_WIN32
 #include <windows.h>
 
 // From Stack Overflow.
@@ -56,11 +56,11 @@ static PE_ARCHITECTURE GetImageArchitecture(void *pImageBase) {
 }
 
 // End Stack Overflow
-#endif  // VKC_PLATFORM
+#endif  // VKC_ENV
 
 /// Utility function to see if the file is 32-bit
 static bool IsDLL32Bit(const std::string full_path) {
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#if VKC_ENV == VKC_ENV_WIN32
     if (full_path.empty()) {
         return false;
     }
@@ -90,7 +90,7 @@ static bool IsDLL32Bit(const std::string full_path) {
 #else
     (void)full_path;
     return false;
-#endif
+#endif  // VKC_ENV
 }
 
 ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter,

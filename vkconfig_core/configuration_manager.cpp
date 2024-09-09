@@ -139,13 +139,13 @@ void ConfigurationManager::LoadDefaultConfigurations(const LayerManager &layers)
             continue;
         }
 
-#ifdef _M_ARM64
-        if (configuration.key == "Frame Capture") {
-            continue;
-        } else if (configuration.key == "Crash Diagnostic") {
-            continue;
+        if (VKC_PLATFORM == PLATFORM_WINDOWS_ARM) {
+            if (configuration.key == "Frame Capture") {
+                continue;
+            } else if (configuration.key == "Crash Diagnostic") {
+                continue;
+            }
         }
-#endif
 
         OrderParameter(configuration.parameters, layers);
 

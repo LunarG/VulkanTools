@@ -336,10 +336,12 @@ static const Path GetLoaderSettingsPath() {
 
 static const Path GetSDKPath() {
     const char* TABLE[] = {
-        "",                         // PLATFORM_WINDOWS
+        "",                         // PLATFORM_WINDOWS_X86
+        "",                         // PLATFORM_WINDOWS_ARM
         "/usr",                     // PLATFORM_LINUX
         "/usr/local/share/vulkan",  // PLATFORM_MACOS
-        ""                          // PLATFORM_ANDROID
+        "",                         // PLATFORM_ANDROID
+        ""                          // PLATFORM_IOS
     };
     static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -347,7 +349,7 @@ static const Path GetSDKPath() {
     if (result.empty()) {
         result = TABLE[VKC_PLATFORM];
     } else {  // VULKAN_SDK may be set on macOS
-        if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
+        if (VKC_PLATFORM == PLATFORM_MACOS) {
             result += "/share/vulkan";
         }
     }
@@ -377,10 +379,12 @@ static const Path GetExplicitLayersPath() {
 
 static const Path GetVulkanContentPath() {
     static const std::string TABLE[] = {
-        "/Config",               // PLATFORM_WINDOWS
+        "/Config",               // PLATFORM_WINDOWS_86
+        "/Config",               // PLATFORM_WINDOWS_ARM
         "/share/vulkan/config",  // PLATFORM_LINUX
         "/config",               // PLATFORM_MACOS
-        "N/A"                    // PLATFORM_ANDROID
+        "N/A",                   // PLATFORM_ANDROID
+        "N/A"                    // PLATFORM_IOS
     };
     static_assert(std::size(TABLE) == PLATFORM_COUNT);
 

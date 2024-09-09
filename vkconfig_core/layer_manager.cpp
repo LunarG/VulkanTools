@@ -36,7 +36,7 @@ LayerType GetLayerType(LayersPaths Layers_paths_type) {
 std::vector<LayersPathInfo> GetImplicitLayerPaths() {
     std::vector<LayersPathInfo> result;
 
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#if VKC_ENV == VKC_ENV_WIN32
     static const char *REGISTRY_PATHS[] = {
         "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers",
         "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers",
@@ -74,7 +74,7 @@ std::vector<LayersPathInfo> GetImplicitLayerPaths() {
 std::vector<LayersPathInfo> GetExplicitLayerPaths() {
     std::vector<LayersPathInfo> result;
 
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#if VKC_ENV == VKC_ENV_WIN32
     static const char *REGISTRY_PATHS[] = {
         "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers",
         "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers",
