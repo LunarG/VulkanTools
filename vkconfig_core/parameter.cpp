@@ -77,34 +77,6 @@ ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& 
     }
 }
 
-Version ComputeMinApiVersion(const Version api_version, const std::vector<Parameter>& parameters, const LayerManager& layers) {
-    if (parameters.empty()) {
-        return Version::NONE;
-    }
-
-    Version min_version = api_version;
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Layer* layer = layers.Find(parameters[i].key, parameters[i].api_version);
-        if (layer == nullptr) {
-            continue;
-        }
-
-        const ParameterRank state = GetParameterOrdering(layers, parameters[i]);
-
-        if (state == PARAMETER_RANK_EXCLUDED) {
-            continue;
-        }
-        if (state == PARAMETER_RANK_MISSING) {
-            continue;
-        }
-
-        min_version = min_version < layer->api_version ? min_version : layer->api_version;
-    }
-
-    return min_version;
-}
-
 void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& layers) {
     struct ParameterCompare {
         ParameterCompare(const LayerManager& layers) : layers(layers) {}
@@ -144,20 +116,6 @@ void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& laye
     }
 }
 
-void FilterParameters(std::vector<Parameter>& parameters, const LayerControl control) {
-    std::vector<Parameter> filtered_parameters;
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        if (parameters[i].control == control) {
-            continue;
-        }
-
-        filtered_parameters.push_back(parameters[i]);
-    }
-
-    parameters = filtered_parameters;
-}
-
 bool HasMissingLayer(const std::vector<Parameter>& parameters, const LayerManager& layers, std::string& missing_layer) {
     for (auto it = parameters.begin(), end = parameters.end(); it != end; ++it) {
         if (it->control == LAYER_CONTROL_OFF) {
@@ -187,30 +145,6 @@ std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters) {
 
         if (parameter.control != LAYER_CONTROL_ON) {
             continue;
-        }
-
-        ++count;
-    }
-
-    return count;
-}
-
-std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const LayerManager& layers) {
-    std::size_t count = 0;
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Parameter& parameter = parameters[i];
-        if (!IsPlatformSupported(parameter.platform_flags)) {
-            continue;
-        }
-
-        if (parameter.control != LAYER_CONTROL_OFF) {
-            continue;
-        }
-
-        const Layer* layer = layers.Find(parameter.key, parameter.api_version);
-        if (layer == nullptr) {
-            continue;  // Do not display missing excluded layers
         }
 
         ++count;
