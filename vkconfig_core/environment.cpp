@@ -41,10 +41,12 @@
 
 static const char* GetApplicationSuffix() {
     static const char* TABLE[] = {
-        ".exe",  // PLATFORM_WINDOWS
+        ".exe",  // PLATFORM_WINDOWS_X86
+        ".exe",  // PLATFORM_WINDOWS_ARM
         "",      // PLATFORM_LINUX
         ".app",  // PLATFORM_MACOS
-        "N/A"    // PLATFORM_ANDROID
+        "N/A",   // PLATFORM_ANDROID
+        "N/A"    // PLATFORM_IOS
     };
     static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -356,7 +358,7 @@ bool ExactExecutableFromAppBundle(Path& app_path) {
 }
 
 DefaultPath Environment::GetDefaultExecutablePath(const std::string& executable_name) const {
-    static const char* DEFAULT_PATH = VKC_PLATFORM == VKC_PLATFORM_MACOS ? "/../.." : "";
+    static const char* DEFAULT_PATH = VKC_PLATFORM == PLATFORM_MACOS ? "/../.." : "";
 
     DefaultPath default_path{"." + executable_name, "."};
 
@@ -372,14 +374,14 @@ DefaultPath Environment::GetDefaultExecutablePath(const std::string& executable_
     }
 
     // Search the default applications from package installation (Linux)
-    if (VKC_PLATFORM == VKC_PLATFORM_LINUX) {
+    if (VKC_PLATFORM == PLATFORM_LINUX) {
         const Path search_path(std::string("/usr/bin") + DEFAULT_PATH + executable_name);
         if (search_path.Exists()) {
             default_path.executable_path = Path(search_path.AbsolutePath(), true);
             default_path.working_folder = Path(search_path.AbsoluteDir(), true);
             return default_path;
         }
-    } else if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
+    } else if (VKC_PLATFORM == PLATFORM_MACOS) {
         Path search_path(std::string("/Applications") + executable_name);
         if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
             default_path.executable_path = Path(search_path.AbsolutePath(), true);
@@ -389,7 +391,7 @@ DefaultPath Environment::GetDefaultExecutablePath(const std::string& executable_
     }
 
     // Using relative path to vkconfig in case SDK is not "installed"
-    if (VKC_PLATFORM == VKC_PLATFORM_MACOS) {
+    if (VKC_PLATFORM == PLATFORM_MACOS) {
         Path search_path(std::string("..") + DEFAULT_PATH + executable_name);
         if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
             default_path.executable_path = Path(search_path.AbsolutePath(), true);
