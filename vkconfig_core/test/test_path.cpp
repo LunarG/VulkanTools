@@ -37,7 +37,7 @@ TEST(test_path, native_path) {
     for (std::size_t i = 0, n = std::size(table); i < n; ++i) {
         const std::string test_case = table[i];
 
-        if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) {
+        if (VKC_ENV == VKC_ENV_WIN32) {
             EXPECT_STREQ("\\vkconfig\\test\\path\\format", Path(test_case).RelativePath().c_str());
         } else {
             EXPECT_STREQ("/vkconfig/test/path/format", Path(test_case).RelativePath().c_str());
@@ -51,7 +51,7 @@ TEST(test_path, native_path_with_file) {
     for (std::size_t i = 0, n = std::size(table); i < n; ++i) {
         const std::string test_case = table[i];
 
-        if (VKC_PLATFORM == VKC_PLATFORM_WINDOWS) {
+        if (VKC_ENV == VKC_ENV_WIN32) {
             EXPECT_STREQ("\\vkconfig\\test\\path\\format\\file.txt", Path(test_case).RelativePath().c_str());
         } else {
             EXPECT_STREQ("/vkconfig/test/path/format/file.txt", Path(test_case).RelativePath().c_str());
