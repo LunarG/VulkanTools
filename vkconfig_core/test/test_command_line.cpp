@@ -23,10 +23,9 @@
 #include "../util.h"
 #include "../type_platform.h"
 
-#if VKC_PLATFORM == VKC_PLATFORM_LINUX
+#if VKC_ENV == VKC_ENV_UNIX
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wwrite-strings"
-#elif VKC_PLATFORM == VKC_PLATFORM_MACOS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wwrite-strings"
 #endif
@@ -203,8 +202,7 @@ TEST(test_command_line, usage_mode_layers_override_invalid_args) {
     EXPECT_TRUE(command_line.layers_configuration_path.empty());
 }
 
-#if VKC_PLATFORM == VKC_PLATFORM_LINUX
+#if VKC_ENV == VKC_ENV_UNIX
 #pragma GCC diagnostic pop
-#elif VKC_PLATFORM == VKC_PLATFORM_MACOS
 #pragma clang diagnostic pop
 #endif

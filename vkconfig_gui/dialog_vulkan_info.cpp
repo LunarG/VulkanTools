@@ -49,10 +49,12 @@ VulkanInfoDialog::VulkanInfoDialog(QWidget *parent) : QDialog(parent), ui(new Ui
 
 void VulkanInfoDialog::Run() {
     static const char *VULKAN_INFO_PATH[] = {
-        "vulkaninfoSDK",              // PLATFORM_WINDOWS
+        "vulkaninfoSDK",              // PLATFORM_WINDOWS_X86
+        "vulkaninfoSDK",              // PLATFORM_WINDOWS_ARM
         "vulkaninfo",                 // PLATFORM_LINUX
         "/usr/local/bin/vulkaninfo",  // PLATFORM_MACOS
         "N/A",                        // PLATFORM_ANDROID
+        "N/A",                        // PLATFORM_IOS
     };
     static_assert(std::size(VULKAN_INFO_PATH) == PLATFORM_COUNT,
                   "The tranlation table size doesn't match the enum number of elements");

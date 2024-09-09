@@ -18,23 +18,27 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "path.h"
 #include "util.h"
 #include "type_platform.h"
 
-#include <array>
-#include <cstring>
-#include <cassert>
-#include <vector>
-#include <string>
+#include <map>
 
-#include <QDir>
+static std::map<std::string, int> const translation = {std::pair("WINDOWS_X86", PLATFORM_WINDOWS_X86_BIT),
+                                                       std::pair("WINDOWS_ARM", PLATFORM_WINDOWS_ARM_BIT),
+                                                       std::pair("WINDOWS", PLATFORM_WINDOWS_X86_BIT | PLATFORM_WINDOWS_ARM_BIT),
+                                                       std::pair("LINUX", PLATFORM_LINUX_BIT),
+                                                       std::pair("MACOS", PLATFORM_MACOS_BIT),
+                                                       std::pair("ANDROID", PLATFORM_ANDROID_BIT),
+                                                       std::pair("IOS", PLATFORM_IOS_BIT)};
 
 int GetPlatformFlags(const std::vector<std::string>& platform_strings) {
     int result = 0;
 
     for (std::size_t i = 0, n = platform_strings.size(); i < n; ++i) {
-        result |= (1 << GetPlatformType(platform_strings[i].c_str()));
+        auto it = translation.find(platform_strings[i]);
+        if (it != translation.end()) {
+            result |= it->second;
+        }
     }
 
     return result;
@@ -44,34 +48,21 @@ std::vector<std::string> GetPlatformTokens(int platform_flags) {
     std::vector<std::string> result;
 
     for (std::size_t i = 0, n = PLATFORM_COUNT; i < n; ++i) {
-        if (platform_flags & (1 << i)) {
-            result.push_back(GetToken(static_cast<PlatformType>(i)));
+        const int flag = platform_flags & (1 << i);
+        if (!flag) {
+            continue;
+        }
+
+        for (auto it = translation.begin(), end = translation.end(); it != end; ++it) {
+            if (it->second != flag) {
+                continue;
+            }
+
+            result.push_back(it->first);
         }
     }
 
     return result;
-}
-
-const char* GetToken(PlatformType type) {
-    static const char* table[] = {
-        "WINDOWS",  // PLATFORM_WINDOWS
-        "LINUX",    // PLATFORM_LINUX
-        "MACOS",    // PLATFORM_MACOS
-        "ANDROID",  // PLATFORM_ANDROID
-    };
-    static_assert(std::size(table) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    return table[type];
-}
-
-PlatformType GetPlatformType(const char* token) {
-    for (std::size_t i = 0, n = PLATFORM_COUNT; i < n; ++i) {
-        const PlatformType platform_type = static_cast<PlatformType>(i);
-        if (std::strcmp(GetToken(platform_type), token) == 0) return platform_type;
-    }
-
-    assert(0);
-    return static_cast<PlatformType>(-1);
 }
 
 bool IsPlatformSupported(int platform_flags) { return platform_flags & (1 << VKC_PLATFORM); }
