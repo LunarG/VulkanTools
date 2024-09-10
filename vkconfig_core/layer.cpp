@@ -49,6 +49,8 @@
 
 const char* Layer::NO_PRESET = "User-Defined Settings";
 
+bool operator<(const LayersPathInfo& a, const LayersPathInfo& b) { return a.path.RelativePath() < b.path.RelativePath(); }
+
 Layer::Layer() : status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT) {}
 
 Layer::Layer(const std::string& key) : key(key), status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT) {}
