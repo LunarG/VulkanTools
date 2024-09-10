@@ -481,7 +481,10 @@ QStringList MainWindow::BuildEnvVariables() const {
     return env;
 }
 
-void MainWindow::on_tab_widget_currentChanged(int index) { this->tabs[index]->UpdateUI(UPDATE_REBUILD_UI); }
+void MainWindow::on_tab_widget_currentChanged(int index) {
+    assert(index >= 0);
+    this->tabs[index]->UpdateUI(UPDATE_REBUILD_UI);
+}
 
 void MainWindow::on_push_button_launcher_clicked() {
     // Are we already monitoring a running app? If so, terminate it

@@ -26,9 +26,9 @@
 const char* GetToken(TabType type) {
     static const char* TOKENS[]{
         "DIAGNOSTIC",      // TAB_DIAGNOSTIC
-        "APPLICATIONS",    // TAB_APPLICATIONS
-        "LAYERS",          // TAB_LAYERS
         "CONFIGURATIONS",  // TAB_CONFIGURATIONS
+        "LAYERS",          // TAB_LAYERS
+        "APPLICATIONS",    // TAB_APPLICATIONS
         "PREFERENCES",     // TAB_PREFERENCES
         "HELP"             // TAB_HELP
     };
