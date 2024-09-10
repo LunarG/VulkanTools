@@ -23,11 +23,11 @@
 
 #include "widget_setting_flags.h"
 #include "widget_setting_filesystem.h"
-#include "widget_preset.h"
 
 #include "../vkconfig_core/configuration.h"
 
 #include <QObject>
+#include <QComboBox>
 #include <QTreeWidget>
 
 #include <vector>

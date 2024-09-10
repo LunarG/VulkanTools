@@ -276,6 +276,9 @@ const Layer *LayerManager::Find(const std::string &layer_name, const Version &la
         return this->Find(layer_name, latest);
     } else {
         for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
+            if (this->selected_layers[i].visible == false) {
+                continue;
+            }
             if (this->selected_layers[i].key != layer_name) {
                 continue;
             }
@@ -359,6 +362,8 @@ void LayerManager::AddPath(const LayersPathInfo &info) {
     } else {
         this->paths[LAYERS_PATHS_GUI].push_back(info);
     }
+
+    std::sort(this->paths[LAYERS_PATHS_GUI].begin(), this->paths[LAYERS_PATHS_GUI].end());
 }
 
 void LayerManager::RemovePath(const LayersPathInfo &path_info) {
