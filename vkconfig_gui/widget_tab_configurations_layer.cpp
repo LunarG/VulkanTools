@@ -102,10 +102,11 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     const Layer *layer = configurator.layers.Find(parameter.key, parameter.api_version);
 
     if (parameter.control != LAYER_CONTROL_APPLICATIONS_API && parameter.control != LAYER_CONTROL_APPLICATIONS_ENV) {
-        assert(layer != nullptr);
+        this->setEnabled(layer != nullptr);
 
         this->layer_version = new QComboBox(this);
         this->layer_version->setVisible(advanced_view);
+        this->layer_version->setEnabled(layer != nullptr);
         this->layer_version->addItem("Latest");
 
         int version_index = 0;
@@ -113,7 +114,9 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
             if (layer_versions[i] == parameter.api_version) {
                 version_index = this->layer_version->count();
 
-                this->layer_version->setToolTip(layer->manifest_path.AbsolutePath().c_str());
+                if (layer != nullptr) {
+                    this->layer_version->setToolTip(layer->manifest_path.AbsolutePath().c_str());
+                }
             }
 
             this->layer_version->addItem(layer_versions[i].str().c_str());
@@ -130,6 +133,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         }
         this->layer_state->setEnabled(!layer_versions.empty());
         this->layer_state->setCurrentIndex(parameter.control);
+        this->layer_state->setEnabled(layer != nullptr);
         this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
         // this->layer_state->installEventFilter(this);
     }
