@@ -40,6 +40,8 @@ struct LayersPathInfo {
     bool enabled = true;
 };
 
+bool operator<(const LayersPathInfo& a, const LayersPathInfo& b);
+
 class Layer {
    public:
     static const char* NO_PRESET;
