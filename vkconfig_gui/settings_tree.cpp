@@ -139,7 +139,12 @@ void SettingsTreeManager::CreateGUI(QComboBox *preset_combobox, QTreeWidget *bui
                         layer_item->setExpanded(parameter.control == LAYER_CONTROL_ON);
             */
             if (layer == nullptr) {
+                preset_combobox->setVisible(false);
                 continue;
+            }
+
+            if (layer->api_version != this->parameter->api_version) {
+                configuration->SwitchLayerVersion(configurator.layers, layer->key, layer->api_version);
             }
 
             preset_combobox->blockSignals(true);
@@ -163,9 +168,6 @@ void SettingsTreeManager::CreateGUI(QComboBox *preset_combobox, QTreeWidget *bui
                     preset_labels.push_back(layer_preset.label);
                 }
 
-                // QTreeWidgetItem *presets_item = new QTreeWidgetItem();
-                // this->tree->addTopLevelItem(presets_item);
-                // WidgetPreset *presets_combobox = new WidgetPreset(this->tree, presets_item, *layer, parameter);
                 this->connect(preset_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
                 preset_combobox->setVisible(true);
             } else {

@@ -109,6 +109,7 @@ void TabLayers::on_layers_add_pushButton_pressed() {
     LayersPathInfo info;
     info.path = ui->layers_lineEdit->text().toStdString();
     configurator.layers.AddPath(info);
+    configurator.layers.LoadLayersFromPath(info.path);
 
     this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
 }
@@ -118,13 +119,14 @@ void TabLayers::on_layers_browse_pushButton_pressed() {
                                                                     this->ui->layers_lineEdit->text());
 
     if (!selected_path.isEmpty()) {
-        this->ui->layers_lineEdit->setText(selected_path);
+        this->ui->layers_lineEdit->setText(Path(selected_path.toStdString()).AbsolutePath().c_str());
 
         LayersPathInfo info;
         info.path = selected_path.toStdString();
 
         Configurator &configurator = Configurator::Get();
         configurator.layers.AddPath(info);
+        configurator.layers.LoadLayersFromPath(info.path);
 
         this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
     }
