@@ -78,7 +78,6 @@ SOURCES += \
     widget_tab_configurations_layer.cpp \
     widget_tab_layers_path.cpp \
     widget_tree_friendly_combobox.cpp \
-    widget_preset.cpp \
     widget_setting.cpp \
     widget_setting_bool.cpp \
     widget_setting_enum.cpp \
@@ -155,7 +154,6 @@ HEADERS += \
     widget_tab_configurations_layer.h \
     widget_tab_layers_path.h \
     widget_tree_friendly_combobox.h \
-    widget_preset.h \
     widget_setting.h \
     widget_setting_bool.h \
     widget_setting_enum.h \
