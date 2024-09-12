@@ -26,7 +26,6 @@
 
 #include <QProcess>
 #include <QFile>
-#include <QTextStream>
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonParseError>
