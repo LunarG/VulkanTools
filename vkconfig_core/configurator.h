@@ -22,10 +22,10 @@
 #pragma once
 
 #include "../vkconfig_core/version.h"
-#include "../vkconfig_core/layer.h"
-#include "../vkconfig_core/layer_manager.h"
-#include "../vkconfig_core/environment.h"
 #include "../vkconfig_core/configuration_manager.h"
+#include "../vkconfig_core/layer_manager.h"
+#include "../vkconfig_core/executable_manager.h"
+#include "../vkconfig_core/environment.h"
 #include "../vkconfig_core/type_platform.h"
 #include "../vkconfig_core/type_override_area.h"
 #include "../vkconfig_core/vulkan_info.h"
@@ -85,5 +85,6 @@ class Configurator {
     Environment environment;
     LayerManager layers;
     ConfigurationManager configurations;
+    ExecutableManager executables;
     VulkanSystemInfo vulkan_system_info;
 };

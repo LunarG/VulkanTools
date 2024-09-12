@@ -50,6 +50,7 @@ Configurator::~Configurator() {
     this->environment.Save(json_root_object);
     this->configurations.Save(json_root_object);
     this->layers.Save(json_root_object);
+    this->executables.Save(json_root_object);
 
     QJsonDocument json_doc(json_root_object);
 
@@ -98,9 +99,11 @@ bool Configurator::Init(Mode mode) {
             this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
             this->environment.Reset();
+            this->executables.Reset();
             this->layers.Reset();
             this->configurations.Reset();
         } else {
+            this->executables.Load(json_root_object);
             this->layers.Load(json_root_object);
             this->configurations.Load(json_root_object);
         }
@@ -108,6 +111,7 @@ bool Configurator::Init(Mode mode) {
         this->Override(OVERRIDE_AREA_ALL);
     } else {
         this->environment.Reset();
+        this->executables.Reset();
         this->layers.Reset();
         this->configurations.Reset();
     }
@@ -215,7 +219,7 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
 
         const std::map<std::string, ConfigurationInfo>& infos = this->configurations.GetConfigurationInfos();
         for (auto it = infos.begin(), end = infos.end(); it != end; ++it) {
-            if (this->configurations.GetPerApplicationConfig()) {
+            if (this->configurations.GetPerExecutableConfig()) {
                 if (it->first == GLOBAL_CONFIGURATION_TOKEN) {
                     continue;
                 }
@@ -264,15 +268,14 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
     if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
         std::vector<LayersSettings> layers_settings_array;
 
-        if (this->configurations.GetPerApplicationConfig()) {
-            const std::vector<Application>& applications = this->environment.GetApplications();
+        if (this->configurations.GetPerExecutableConfig()) {
+            const std::vector<Executable>& executables = this->executables.GetExecutables();
 
-            for (std::size_t i = 0, n = applications.size(); i < n; ++i) {
+            for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
                 LayersSettings settings;
-                settings.configuration_name =
-                    this->configurations.FindConfigurationInfo(applications[i].executable_path.AbsolutePath())->name;
-                settings.executable_path = applications[i].executable_path;
-                settings.settings_path = applications[i].GetActiveOptions().working_folder;
+                settings.configuration_name = this->configurations.FindConfigurationInfo(executables[i].path.AbsolutePath())->name;
+                settings.executable_path = executables[i].path;
+                settings.settings_path = executables[i].GetActiveOptions()->working_folder;
                 layers_settings_array.push_back(settings);
             }
         } else {
