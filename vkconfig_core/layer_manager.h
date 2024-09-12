@@ -46,9 +46,6 @@ LayerType GetLayerType(LayersPaths Layers_paths_type);
 
 class LayerManager : public Serialize {
    public:
-    LayerManager();
-    ~LayerManager();
-
     bool Load(const QJsonObject& json_root_object) override;
     bool Save(QJsonObject& json_root_object) const override;
     void Reset() override;
