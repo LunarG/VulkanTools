@@ -28,8 +28,6 @@ linux: QMAKE_CXXFLAGS += -Wunused-variable
 
 SOURCES += \
     ../vkconfig_core/alert.cpp \
-    ../vkconfig_core/application.cpp \
-    ../vkconfig_core/application_manager.cpp \
     ../vkconfig_core/application_singleton.cpp \
     ../vkconfig_core/bitfield.cpp \
     ../vkconfig_core/command_line.cpp \
@@ -41,6 +39,7 @@ SOURCES += \
     ../vkconfig_core/date.cpp \
     ../vkconfig_core/doc.cpp \
     ../vkconfig_core/environment.cpp \
+    ../vkconfig_core/executable_manager.cpp \
     ../vkconfig_core/header.cpp \
     ../vkconfig_core/help.cpp \
     ../vkconfig_core/json.cpp \
@@ -104,8 +103,6 @@ SOURCES += \
 
 HEADERS += \
     ../vkconfig_core/alert.h \
-    ../vkconfig_core/application.h \
-    ../vkconfig_core/application_manager.h \
     ../vkconfig_core/application_singleton.h \
     ../vkconfig_core/bitfield.h \
     ../vkconfig_core/command_line.h \
@@ -117,6 +114,7 @@ HEADERS += \
     ../vkconfig_core/date.h \
     ../vkconfig_core/doc.h \
     ../vkconfig_core/environment.h \
+    ../vkconfig_core/executable_manager.h \
     ../vkconfig_core/header.h \
     ../vkconfig_core/help.h \
     ../vkconfig_core/json.h \
