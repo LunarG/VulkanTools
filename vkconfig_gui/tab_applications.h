@@ -34,6 +34,18 @@ struct TabApplications : public Tab {
     virtual bool EventFilter(QObject* target, QEvent* event) override;
 
    public Q_SLOTS:
+    void on_applications_remove_application_pushButton_pressed();
+    void on_applications_append_application_pushButton_pressed();
+    void on_applications_list_comboBox_activated(int index);
+    void on_applications_list_comboBox_textEdited(const QString& text);
+
+    void on_applications_options_remove_pushButton_pressed();
+    void on_applications_options_duplicate_pushButton_pressed();
+    void on_applications_options_comboBox_activated(int index);
+    void on_applications_options_comboBox_textEdited(const QString& text);
+
+    void on_applications_layers_mode_comboBox_activated(int index);
+    void on_applications_configuration_comboBox_activated(int index);
 
    private:
 };

@@ -36,9 +36,9 @@ bool ConfigurationManager::Load(const QJsonObject &json_root_object) {
     // configurations json object
     if (json_root_object.value("configurations") != QJsonValue::Undefined) {
         const QJsonObject &json_configurations_object = json_root_object.value("configurations").toObject();
-        this->use_per_application_configuration = json_configurations_object.value("use_per_application").toBool();
+        this->use_per_executable_configuration = json_configurations_object.value("use_per_executable").toBool();
         this->use_system_tray = json_configurations_object.value("use_system_tray").toBool();
-        this->active_application = json_configurations_object.value("active_application").toString().toStdString();
+        this->active_executable = json_configurations_object.value("active_application").toString().toStdString();
 
         if (json_configurations_object.value("infos") != QJsonValue::Undefined) {
             this->configuration_infos.clear();
@@ -90,9 +90,9 @@ bool ConfigurationManager::Save(QJsonObject &json_root_object) const {
     }
 
     QJsonObject json_configurations_object;
-    json_configurations_object.insert("use_per_application", this->use_per_application_configuration);
+    json_configurations_object.insert("use_per_executable", this->use_per_executable_configuration);
     json_configurations_object.insert("use_system_tray", this->use_system_tray);
-    json_configurations_object.insert("active_application", this->active_application.c_str());
+    json_configurations_object.insert("active_executable", this->active_executable.c_str());
     json_configurations_object.insert("infos", json_infos_object);
     json_configurations_object.insert("removed_builtin", json_removed_builtin_configurations_object);
 
@@ -103,9 +103,9 @@ bool ConfigurationManager::Save(QJsonObject &json_root_object) const {
 
 void ConfigurationManager::Reset() {
     this->removed_built_in_configuration.clear();
-    this->use_per_application_configuration = false;
+    this->use_per_executable_configuration = false;
     this->use_system_tray = false;
-    this->active_application.clear();
+    this->active_executable.clear();
     this->configuration_infos.clear();
     this->available_configurations.clear();
 
@@ -212,16 +212,16 @@ void ConfigurationManager::SaveAllConfigurations() const {
 }
 
 const ConfigurationInfo *ConfigurationManager::GetActiveConfigurationInfo() const {
-    if (this->use_per_application_configuration) {
-        return &this->configuration_infos.find(this->active_application.c_str())->second;
+    if (this->use_per_executable_configuration) {
+        return &this->configuration_infos.find(this->active_executable.c_str())->second;
     } else {
         return &this->configuration_infos.find(GLOBAL_CONFIGURATION_TOKEN)->second;
     }
 }
 
 ConfigurationInfo *ConfigurationManager::GetActiveConfigurationInfo() {
-    if (this->use_per_application_configuration) {
-        return &this->configuration_infos.find(this->active_application.c_str())->second;
+    if (this->use_per_executable_configuration) {
+        return &this->configuration_infos.find(this->active_executable.c_str())->second;
     } else {
         return &this->configuration_infos.find(GLOBAL_CONFIGURATION_TOKEN)->second;
     }
@@ -339,6 +339,17 @@ void ConfigurationManager::RemoveConfiguration(const std::string &configuration_
     }
 }
 
+int ConfigurationManager::GetConfigurationIndex(const std::string &configuration_name) const {
+    for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
+        if (this->available_configurations[i].key == configuration_name) {
+            return static_cast<int>(i);
+        }
+    }
+
+    assert(0);
+    return -1;
+}
+
 Configuration *ConfigurationManager::FindConfiguration(const std::string &configuration_name) {
     if (configuration_name.empty()) {
         return nullptr;
@@ -382,6 +393,8 @@ const Configuration *ConfigurationManager::FindConfiguration(const std::string &
 void ConfigurationManager::ImportConfiguration(const LayerManager &layers, const Path &full_import_path) {
     assert(!full_import_path.Empty());
 
+    this->last_path_import = full_import_path;
+
     Configuration configuration;
     if (!configuration.Load(full_import_path, layers)) {
         QMessageBox msg;
@@ -404,6 +417,8 @@ void ConfigurationManager::ExportConfiguration(const LayerManager &layers, const
                                                const std::string &configuration_name) {
     assert(!configuration_name.empty());
     assert(!full_export_path.Empty());
+
+    this->last_path_export = full_export_path;
 
     Configuration *configuration = this->FindConfiguration(configuration_name);
     assert(configuration);
@@ -466,9 +481,9 @@ bool ConfigurationManager::CompareLayersVersions(const std::vector<Layer> &avail
     return result;
 }
 
-bool ConfigurationManager::GetPerApplicationConfig() const { return this->use_per_application_configuration; }
+bool ConfigurationManager::GetPerExecutableConfig() const { return this->use_per_executable_configuration; }
 
-void ConfigurationManager::SetPerApplicationConfig(bool enabled) { this->use_per_application_configuration = enabled; }
+void ConfigurationManager::SetPerExecutableConfig(bool enabled) { this->use_per_executable_configuration = enabled; }
 
 bool ConfigurationManager::GetUseSystemTray() const { return this->use_system_tray; }
 
