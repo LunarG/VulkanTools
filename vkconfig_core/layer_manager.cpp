@@ -121,10 +121,6 @@ static LayersPathInfo *FindPathInfo(std::array<std::vector<LayersPathInfo>, LAYE
     return nullptr;
 }
 
-LayerManager::LayerManager() {}
-
-LayerManager::~LayerManager() {}
-
 bool LayerManager::Load(const QJsonObject &json_root_object) {
     this->paths[LAYERS_PATHS_IMPLICIT] = GetImplicitLayerPaths();
 

@@ -82,7 +82,6 @@ TabConfigurations::~TabConfigurations() {
 
 void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
     Configurator &configurator = Configurator::Get();
-    Environment &environment = configurator.environment;
 
     const ConfigurationInfo *configuration_info = configurator.configurations.GetActiveConfigurationInfo();
     assert(configuration_info != nullptr);
@@ -142,32 +141,33 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
 
 void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
     Configurator &configurator = Configurator::Get();
-    Environment &environment = configurator.environment;
 
-    if (environment.GetApplications().empty()) {
+    const std::vector<Executable> &executables = configurator.executables.GetExecutables();
+
+    if (executables.empty()) {
         ui->check_box_per_application->setEnabled(false);
         ui->check_box_per_application->setVisible(false);
         ui->combo_box_applications->setVisible(false);
     } else {
         ui->check_box_per_application->setEnabled(true);
-        ui->check_box_per_application->setChecked(configurator.configurations.GetPerApplicationConfig());
+        ui->check_box_per_application->setChecked(configurator.configurations.GetPerExecutableConfig());
 
-        ui->combo_box_applications->setEnabled(configurator.configurations.GetPerApplicationConfig());
+        ui->combo_box_applications->setEnabled(configurator.configurations.GetPerExecutableConfig());
 
         ui->combo_box_applications->blockSignals(true);
 
         if (ui_update_mode == UPDATE_REBUILD_UI) {
             ui->combo_box_applications->clear();
-            for (std::size_t i = 0, n = environment.GetApplications().size(); i < n; ++i) {
-                const Application &application = environment.GetApplications()[i];
+            for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
+                const Executable &executable = executables[i];
 
-                ui->combo_box_applications->addItem(application.executable_path.RelativePath().c_str());
+                ui->combo_box_applications->addItem(executable.path.RelativePath().c_str());
             }
         }
 
-        Application &application = configurator.environment.GetActiveApplication();
-        ui->combo_box_applications->setCurrentIndex(environment.GetActiveApplicationIndex());
-        ui->combo_box_applications->setToolTip(application.executable_path.AbsolutePath().c_str());
+        const Executable *executable = configurator.executables.GetActiveExecutable();
+        ui->combo_box_applications->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
+        ui->combo_box_applications->setToolTip(executable->path.AbsolutePath().c_str());
         ui->combo_box_applications->blockSignals(false);
     }
 }
@@ -594,7 +594,7 @@ void TabConfigurations::OnContextMenuImportClicked(ConfigurationListItem *item) 
 
     Configurator &configurator = Configurator::Get();
 
-    const Path &path_import = configurator.environment.path_import;
+    const Path &path_import = configurator.configurations.last_path_import;
     const std::string selected_path = QFileDialog::getOpenFileName(&this->window, "Import Layers Configuration File",
                                                                    path_import.AbsolutePath().c_str(), "JSON configuration(*.json)")
                                           .toStdString();
@@ -603,7 +603,6 @@ void TabConfigurations::OnContextMenuImportClicked(ConfigurationListItem *item) 
         return;
     }
 
-    configurator.environment.path_import = selected_path;
     configurator.configurations.ImportConfiguration(configurator.layers, selected_path);
 
     configurator.Override(OVERRIDE_AREA_ALL);
@@ -711,7 +710,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
 
     Configurator &configurator = Configurator::Get();
 
-    const Path &path_export = configurator.environment.path_export;
+    const Path &path_export = configurator.configurations.last_path_export;
     const std::string &selected_path =
         QFileDialog::getSaveFileName(&this->window, "Export Layers Configuration File", path_export.AbsolutePath().c_str(),
                                      "JSON configuration(*.json)")
@@ -743,7 +742,7 @@ void TabConfigurations::on_combo_box_mode_currentIndexChanged(int index) {
 
 void TabConfigurations::on_combo_box_applications_currentIndexChanged(int index) {
     Configurator &configurator = Configurator::Get();
-    configurator.environment.SelectActiveApplication(index);
+    configurator.executables.SelectActiveExecutable(index);
 
     this->UpdateUI(UPDATE_REFRESH_UI);
     this->window.UpdateUI_Status();
@@ -752,7 +751,7 @@ void TabConfigurations::on_combo_box_applications_currentIndexChanged(int index)
 void TabConfigurations::on_check_box_per_application_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
 
-    configurator.configurations.SetPerApplicationConfig(checked);
+    configurator.configurations.SetPerExecutableConfig(checked);
     configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI(UPDATE_REFRESH_UI);
