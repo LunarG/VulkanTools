@@ -61,7 +61,6 @@ MainWindow::MainWindow(QWidget *parent)
       _tray_quit_action(nullptr),
       ui(new Ui::MainWindow) {
     ui->setupUi(this);
-    ui->application_list->installEventFilter(this);
 
     this->InitTray();
 
@@ -273,14 +272,13 @@ void MainWindow::UpdateUI() {
     assert(check_recurse <= 1);
 
     Configurator &configurator = Configurator::Get();
-    const Environment &environment = Configurator::Get().environment;
 
     this->blockSignals(true);
     ui->configurations_list->blockSignals(true);
 
-    const bool has_application_list = !environment.GetApplications().empty();
+    const bool has_application_list = !configurator.executables.GetExecutables().empty();
     ui->push_button_launcher->setText(_launch_application ? "Terminate" : "Launch");
-    ui->check_box_clear_on_launch->setChecked(environment.launcher_clear_on_launch);
+    ui->check_box_clear_on_launch->setChecked(configurator.executables.launcher_clear_on_launch);
 
     // Mode states
     // this->UpdateUI_Status();
@@ -292,7 +290,7 @@ void MainWindow::UpdateUI() {
 }
 
 void MainWindow::on_check_box_clear_on_launch_clicked() {
-    Configurator::Get().environment.launcher_clear_on_launch = ui->check_box_clear_on_launch->isChecked();
+    Configurator::Get().executables.launcher_clear_on_launch = ui->check_box_clear_on_launch->isChecked();
 }
 
 void MainWindow::toolsResetToDefault(bool checked) {
@@ -312,7 +310,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 void MainWindow::StartTool(Tool tool) {
     Configurator &configurator = Configurator::Get();
 
-    if (!configurator.configurations.GetPerApplicationConfig()) {
+    if (!configurator.configurations.GetPerExecutableConfig()) {
         configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 
@@ -325,7 +323,7 @@ void MainWindow::StartTool(Tool tool) {
             break;
     }
 
-    if (!configurator.configurations.GetPerApplicationConfig()) {
+    if (!configurator.configurations.GetPerExecutableConfig()) {
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 }
@@ -497,39 +495,39 @@ void MainWindow::on_push_button_launcher_clicked() {
     std::string launch_log = "Launching Vulkan Application:\n";
 
     Configurator &configurator = Configurator::Get();
-    const Application &active_application = configurator.environment.GetActiveApplication();
+    const Executable *active_executable = configurator.executables.GetActiveExecutable();
 
-    assert(!active_application.executable_path.Empty());
-    launch_log += format("- Executable: %s\n", active_application.executable_path.AbsolutePath().c_str());
-    if (!active_application.executable_path.Exists()) {
+    assert(!active_executable->path.Empty());
+    launch_log += format("- Executable: %s\n", active_executable->path.AbsolutePath().c_str());
+    if (!active_executable->path.Exists()) {
         Alert::PathInvalid(
-            active_application.executable_path,
-            format("The '%s' application will fail to launch.", active_application.executable_path.AbsolutePath().c_str()).c_str());
+            active_executable->path,
+            format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
     }
 
-    const ApplicationOptions &options = active_application.GetActiveOptions();
+    const ExecutableOptions *options = active_executable->GetActiveOptions();
 
-    launch_log += format("- Working Directory: %s\n", options.working_folder.AbsolutePath().c_str());
-    if (!options.working_folder.Exists()) {
+    launch_log += format("- Working Directory: %s\n", options->working_folder.AbsolutePath().c_str());
+    if (!options->working_folder.Exists()) {
         Alert::PathInvalid(
-            options.working_folder,
-            format("The '%s' application will fail to launch.", active_application.executable_path.AbsolutePath().c_str()).c_str());
+            options->working_folder,
+            format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
     }
     /*
     if (!_launcher_arguments->text().isEmpty()) {
         launch_log += format("- Command-line Arguments: %s\n", _launcher_arguments->text().toStdString().c_str());
     }
     */
-    if (!options.log_file.Empty()) {
-        launch_log += format("- Log file: %s\n", options.log_file.AbsolutePath().c_str());
+    if (!options->log_file.Empty()) {
+        launch_log += format("- Log file: %s\n", options->log_file.AbsolutePath().c_str());
     }
 
-    if (!options.log_file.Empty()) {
+    if (!options->log_file.Empty()) {
         // Start logging
         // Make sure the log file is not already opened. This can occur if the
         // launched application is closed from the applicaiton.
         if (!_log_file.isOpen()) {
-            _log_file.setFileName(options.log_file.AbsolutePath().c_str());
+            _log_file.setFileName(options->log_file.AbsolutePath().c_str());
 
             // Open and append, or open and truncate?
             QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
@@ -555,8 +553,8 @@ void MainWindow::on_push_button_launcher_clicked() {
     //_launch_application->setWorkingDirectory(ui->edit_dir->text());
     //_launch_application->setEnvironment(BuildEnvVariables() + ui->edit_env->text().split(","));
 
-    if (!options.arguments.empty()) {
-        const QStringList args = ConvertString(options.arguments);
+    if (!options->args.empty()) {
+        const QStringList args = ConvertString(options->args);
         _launch_application->setArguments(args);
     }
 
@@ -569,8 +567,7 @@ void MainWindow::on_push_button_launcher_clicked() {
         _launch_application->deleteLater();
         _launch_application = nullptr;
 
-        const std::string failed_log =
-            std::string("Failed to launch ") + active_application.executable_path.AbsolutePath().c_str() + "!\n";
+        const std::string failed_log = std::string("Failed to launch ") + active_executable->path.AbsolutePath().c_str() + "!\n";
         Log(failed_log);
     }
 
