@@ -49,8 +49,8 @@ class ConfigurationManager : public Serialize {
     bool HasActiveConfiguration() const;
 
     Configuration& CreateConfiguration(const LayerManager& layers, const std::string& configuration_name, bool duplicate = false);
-
     void RemoveConfiguration(const std::string& configuration_name);
+    int GetConfigurationIndex(const std::string& configuration_name) const;
 
     void ImportConfiguration(const LayerManager& layers, const Path& full_import_path);
     void ExportConfiguration(const LayerManager& layers, const Path& full_export_path, const std::string& configuration_name);
@@ -70,13 +70,15 @@ class ConfigurationManager : public Serialize {
     bool HasFile(const Configuration& configuration) const;
     void RemoveConfigurationFile(const std::string& key);
 
-    bool GetPerApplicationConfig() const;
-    void SetPerApplicationConfig(bool enabled);
+    bool GetPerExecutableConfig() const;
+    void SetPerExecutableConfig(bool enabled);
 
     bool GetUseSystemTray() const;
     void SetUseSystemTray(bool enabled);
 
     std::vector<Configuration> available_configurations;
+    Path last_path_import;
+    Path last_path_export;
 
    private:
     bool CompareLayersVersions(const std::vector<Layer>& available_layers, Configuration* selected_configuration,
@@ -89,7 +91,7 @@ class ConfigurationManager : public Serialize {
 
     std::map<std::string, int> removed_built_in_configuration;
     bool use_system_tray = false;
-    bool use_per_application_configuration = false;
-    std::string active_application;
+    bool use_per_executable_configuration = false;
+    std::string active_executable;
     std::map<std::string, ConfigurationInfo> configuration_infos;
 };

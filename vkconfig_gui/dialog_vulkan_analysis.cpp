@@ -27,7 +27,6 @@
 #include <QProcess>
 #include <QDir>
 #include <QByteArray>
-#include <QTextStream>
 #include <QMessageBox>
 #include <QJsonDocument>
 
