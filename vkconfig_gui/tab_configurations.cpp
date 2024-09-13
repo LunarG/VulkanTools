@@ -193,7 +193,7 @@ void TabConfigurations::UpdateUI_LoaderMessages() {
         ui->configuration_loader_layers_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_LAYER));
         ui->configuration_loader_layers_checkBox->blockSignals(false);
         ui->configuration_loader_drivers_checkBox->blockSignals(true);
-        ui->configuration_loader_drivers_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_IMPLEM));
+        ui->configuration_loader_drivers_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DRIVER));
         ui->configuration_loader_drivers_checkBox->blockSignals(false);
     }
 }
@@ -572,7 +572,7 @@ void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
         loader_log_messages_bits |= ui->configuration_loader_infos_checkBox->isChecked() ? GetBit(LOG_INFO) : 0;
         loader_log_messages_bits |= ui->configuration_loader_debug_checkBox->isChecked() ? GetBit(LOG_DEBUG) : 0;
         loader_log_messages_bits |= ui->configuration_loader_layers_checkBox->isChecked() ? GetBit(LOG_LAYER) : 0;
-        loader_log_messages_bits |= ui->configuration_loader_drivers_checkBox->isChecked() ? GetBit(LOG_IMPLEM) : 0;
+        loader_log_messages_bits |= ui->configuration_loader_drivers_checkBox->isChecked() ? GetBit(LOG_DRIVER) : 0;
 
         active_configuration->loader_log_messages_flags = loader_log_messages_bits;
     }
