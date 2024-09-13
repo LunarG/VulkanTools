@@ -31,10 +31,10 @@ enum LogType {
     LOG_DEBUG,
     LOG_PERF,
     LOG_LAYER,
-    LOG_IMPLEM,
+    LOG_DRIVER,
 
     LOG_FIRST = LOG_ERROR,
-    LOG_LAST = LOG_IMPLEM,
+    LOG_LAST = LOG_DRIVER,
 
     LOG_MESSAGE_INVALID = ~0,
 };
