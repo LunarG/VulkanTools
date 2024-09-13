@@ -33,7 +33,7 @@ const char* GetToken(LogType value) {
         "debug",   // LOG_DEBUG
         "perf",    // LOG_PERF
         "layer",   // LOG_LAYER
-        "implem",  // LOG_IMPLEM
+        "driver",  // LOG_DRIVER
     };
     static_assert(std::size(TOKENS) == LOG_COUNT);
 
