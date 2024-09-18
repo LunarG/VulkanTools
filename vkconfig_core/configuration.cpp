@@ -494,32 +494,6 @@ bool Configuration::IsBuiltIn() const {
 
 static const size_t NOT_FOUND = static_cast<size_t>(-1);
 
-static std::size_t ExtractDuplicateNumber(const std::string& configuration_name) {
-    const std::size_t name_open = configuration_name.find_last_of("(");
-    if (name_open == NOT_FOUND) {
-        return NOT_FOUND;
-    }
-
-    const std::size_t name_close = configuration_name.find_last_of(")");
-    if (name_close == NOT_FOUND) {
-        return NOT_FOUND;
-    }
-
-    const std::string number = configuration_name.substr(name_open + 1, name_close - (name_open + 1));
-    if (!IsNumber(number)) {
-        return NOT_FOUND;
-    }
-
-    return std::stoi(number);
-}
-
-static std::string ExtractDuplicateBaseName(const std::string& configuration_name) {
-    assert(ExtractDuplicateNumber(configuration_name) != NOT_FOUND);
-    const std::size_t found = configuration_name.find_last_of("(");
-    assert(found != NOT_FOUND);
-    return configuration_name.substr(0, found - 1);
-}
-
 std::string MakeConfigurationName(const std::vector<Configuration>& configurations, const std::string& configuration_name) {
     const std::string key = configuration_name;
     const std::string base_name = ExtractDuplicateNumber(key) != NOT_FOUND ? ExtractDuplicateBaseName(key) : key;

@@ -158,3 +158,7 @@ std::vector<T> GetVector(const T& value) {
     result.push_back(value);
     return result;
 }
+
+std::size_t ExtractDuplicateNumber(const std::string& name);
+
+std::string ExtractDuplicateBaseName(const std::string& name);
