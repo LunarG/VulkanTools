@@ -22,6 +22,10 @@
 
 #include "tab.h"
 
+#include <memory>
+
+#include <QProcess>
+
 struct TabApplications : public Tab {
     Q_OBJECT
 
@@ -33,6 +37,8 @@ struct TabApplications : public Tab {
     virtual void CleanUI() override;
     virtual bool EventFilter(QObject* target, QEvent* event) override;
 
+    void ResetLaunchApplication();
+
    public Q_SLOTS:
     void on_applications_remove_application_pushButton_pressed();
     void on_applications_append_application_pushButton_pressed();
@@ -40,12 +46,26 @@ struct TabApplications : public Tab {
     void on_applications_list_comboBox_textEdited(const QString& text);
 
     void on_applications_options_remove_pushButton_pressed();
-    void on_applications_options_duplicate_pushButton_pressed();
+    void on_applications_options_append_pushButton_pressed();
     void on_applications_options_comboBox_activated(int index);
     void on_applications_options_comboBox_textEdited(const QString& text);
 
     void on_applications_layers_mode_comboBox_activated(int index);
     void on_applications_configuration_comboBox_activated(int index);
 
+    void on_applications_launcher_pushButton_pressed();
+    void on_applications_clear_log_pushButton_pressed();
+    void on_check_box_clear_on_launch_clicked();
+
+    void standardOutputAvailable();                                 // stdout output is available
+    void errorOutputAvailable();                                    // Layeroutput is available
+    void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
+
    private:
+    void EnableOptions();
+
+    void Log(const std::string& log);
+
+    std::unique_ptr<QProcess> _launch_application;  // Keeps track of the monitored app
+    QFile _log_file;                                // Log file for layer output
 };
