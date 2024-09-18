@@ -31,16 +31,11 @@
 
 #include "ui_mainwindow.h"
 
-#include <QDialog>
 #include <QMainWindow>
-#include <QLabel>
-#include <QRadioButton>
 #include <QShowEvent>
 #include <QResizeEvent>
-#include <QProcess>
 #include <QSystemTrayIcon>
 
-#include <memory>
 #include <string>
 
 enum Tool { TOOL_VULKAN_INFO, TOOL_VULKAN_INSTALL };
@@ -55,17 +50,12 @@ class MainWindow : public QMainWindow {
     void UpdateUI();
 
    private:
-    std::unique_ptr<QProcess> _launch_application;  // Keeps track of the monitored app
-    QFile _log_file;                                // Log file for layer output
-
     void closeEvent(QCloseEvent *event) override;
     void showEvent(QShowEvent *event) override;
     bool eventFilter(QObject *target, QEvent *event) override;
 
     std::unique_ptr<QDialog> vk_info_dialog;
     std::unique_ptr<QDialog> vk_installation_dialog;
-
-    void Log(const std::string &log);
 
     QSystemTrayIcon *_tray_icon;
     QMenu *_tray_icon_menu;
@@ -98,28 +88,6 @@ class MainWindow : public QMainWindow {
 
     void on_tab_widget_currentChanged(int index);
 
-    // Applications tabs
-    void on_push_button_launcher_clicked();
-    void on_push_button_clear_log_clicked();
-    void on_check_box_clear_on_launch_clicked();
-
-    void standardOutputAvailable();                                 // stdout output is available
-    void errorOutputAvailable();                                    // Layeroutput is available
-    void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
-
-    /*
-    void launchItemExpanded(QTreeWidgetItem *item);
-    void launchItemCollapsed(QTreeWidgetItem *item);
-    void launchItemChanged(int index);
-    void launchSetLogFile();
-    void launchSetExecutable();
-    void launchSetWorkingFolder();
-    void launchChangeLogFile(const QString &new_text);
-    void launchChangeExecutable(const QString &new_text);
-    void launchChangeWorkingFolder(const QString &new_text);
-    void launchArgsEdited(const QString &new_text);
-    */
-
     void UpdateUI_Status();
 
    private:
@@ -127,9 +95,7 @@ class MainWindow : public QMainWindow {
     MainWindow &operator=(const MainWindow &) = delete;
 
     void InitTray();
-    void ResetLaunchApplication();
     void StartTool(Tool tool);
-    QStringList BuildEnvVariables() const;
 
     std::shared_ptr<Ui::MainWindow> ui;
     std::array<std::shared_ptr<Tab>, TAB_COUNT> tabs;
