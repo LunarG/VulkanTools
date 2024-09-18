@@ -876,7 +876,7 @@
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <layout class="QHBoxLayout" name="applications_options_list_layout">
               <property name="spacing">
                <number>0</number>
               </property>
@@ -944,7 +944,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="applications_options_duplicate_pushButton">
+               <widget class="QPushButton" name="applications_options_append_pushButton">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -971,7 +971,7 @@
              </layout>
             </item>
             <item>
-             <layout class="QGridLayout" name="gridLayout_5">
+             <layout class="QGridLayout" name="applications_options_layout">
               <property name="leftMargin">
                <number>0</number>
               </property>
@@ -991,7 +991,14 @@
                <number>0</number>
               </property>
               <item row="5" column="2">
-               <widget class="QListWidget" name="application_args_list"/>
+               <widget class="QListWidget" name="applications_args_list">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
               </item>
               <item row="6" column="0">
                <widget class="QLabel" name="label_6">
@@ -1046,7 +1053,14 @@
                </layout>
               </item>
               <item row="6" column="2">
-               <widget class="QListWidget" name="application_envs_list"/>
+               <widget class="QListWidget" name="applications_envs_list">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_21">
@@ -1085,7 +1099,7 @@
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QLineEdit" name="application_output_log_edit">
+                 <widget class="QLineEdit" name="applications_output_log_edit">
                   <property name="maximumSize">
                    <size>
                     <width>16777215</width>
@@ -1095,7 +1109,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="application_output_log_pushButton">
+                 <widget class="QPushButton" name="applications_output_log_pushButton">
                   <property name="maximumSize">
                    <size>
                     <width>32</width>
@@ -1125,7 +1139,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="application_directory_edit_pushButton">
+                 <widget class="QPushButton" name="applications_directory_edit_pushButton">
                   <property name="maximumSize">
                    <size>
                     <width>32</width>
@@ -1189,7 +1203,7 @@
             </spacer>
            </item>
            <item row="1" column="1">
-            <widget class="QPushButton" name="push_button_clear_log">
+            <widget class="QPushButton" name="applications_push_button_clear_log">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -1202,7 +1216,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QCheckBox" name="check_box_clear_on_launch">
+            <widget class="QCheckBox" name="applications_check_box_clear_on_launch">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -1218,7 +1232,7 @@
             </widget>
            </item>
            <item row="1" column="4">
-            <widget class="QPushButton" name="push_button_launcher">
+            <widget class="QPushButton" name="applications_push_button_launcher">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -1285,7 +1299,7 @@
             <item>
              <widget class="QCheckBox" name="checkBox">
               <property name="text">
-               <string>VK_LOCAL</string>
+               <string>VK_HOME</string>
               </property>
              </widget>
             </item>
@@ -1363,7 +1377,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/resourcefiles/lunarg_logo.png</pixmap>
+          <pixmap>:/resourcefiles/lunarg_logo.png</pixmap>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::TextBrowserInteraction</set>
@@ -1382,7 +1396,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/resourcefiles/qt_logo.png</pixmap>
+          <pixmap>:/resourcefiles/qt_logo.png</pixmap>
          </property>
         </widget>
         <widget class="QLabel" name="label_7">
@@ -1649,7 +1663,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="resources.qrc">:/resourcefiles/vulkan_configurator.png</pixmap>
+         <pixmap>:/resourcefiles/vulkan_configurator.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -1759,8 +1773,6 @@
    </property>
   </action>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

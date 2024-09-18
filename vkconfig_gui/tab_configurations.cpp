@@ -742,7 +742,7 @@ void TabConfigurations::on_combo_box_mode_currentIndexChanged(int index) {
 
 void TabConfigurations::on_combo_box_applications_currentIndexChanged(int index) {
     Configurator &configurator = Configurator::Get();
-    configurator.executables.SelectActiveExecutable(index);
+    configurator.executables.SetActiveExecutable(index);
 
     this->UpdateUI(UPDATE_REFRESH_UI);
     this->window.UpdateUI_Status();

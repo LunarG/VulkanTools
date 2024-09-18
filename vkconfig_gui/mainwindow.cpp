@@ -51,7 +51,6 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      _launch_application(nullptr),
       _tray_icon(nullptr),
       _tray_icon_menu(nullptr),
       _tray_restore_action(nullptr),
@@ -103,7 +102,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->UpdateUI();
 }
 
-MainWindow::~MainWindow() { this->ResetLaunchApplication(); }
+MainWindow::~MainWindow() {}
 
 void MainWindow::InitTray() {
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -277,8 +276,6 @@ void MainWindow::UpdateUI() {
     ui->configurations_list->blockSignals(true);
 
     const bool has_application_list = !configurator.executables.GetExecutables().empty();
-    ui->push_button_launcher->setText(_launch_application ? "Terminate" : "Launch");
-    ui->check_box_clear_on_launch->setChecked(configurator.executables.launcher_clear_on_launch);
 
     // Mode states
     // this->UpdateUI_Status();
@@ -287,10 +284,6 @@ void MainWindow::UpdateUI() {
     this->blockSignals(false);
 
     --check_recurse;
-}
-
-void MainWindow::on_check_box_clear_on_launch_clicked() {
-    Configurator::Get().executables.launcher_clear_on_launch = ui->check_box_clear_on_launch->isChecked();
 }
 
 void MainWindow::toolsResetToDefault(bool checked) {
@@ -410,11 +403,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         }
     }
 
-    // If a child process is still running, destroy it
-    if (_launch_application) {
-        ResetLaunchApplication();
-    }
-
     this->tabs[this->ui->tab_widget->currentIndex()]->CleanUI();
 
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
@@ -446,13 +434,6 @@ void MainWindow::showEvent(QShowEvent *event) {
     event->accept();
 }
 
-// Clear the browser window
-void MainWindow::on_push_button_clear_log_clicked() {
-    ui->log_browser->clear();
-    ui->log_browser->update();
-    ui->push_button_clear_log->setEnabled(false);
-}
-
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     if (this->tabs[this->ui->tab_widget->currentIndex()] == nullptr) {
         return false;
@@ -461,166 +442,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     return this->tabs[this->ui->tab_widget->currentIndex()]->EventFilter(target, event);
 }
 
-void MainWindow::ResetLaunchApplication() {
-    if (_launch_application) {
-        _launch_application->kill();
-        _launch_application->waitForFinished();
-        _launch_application.reset();
-
-        UpdateUI();
-    }
-}
-
-QStringList MainWindow::BuildEnvVariables() const {
-    Configurator &configurator = Configurator::Get();
-
-    QStringList env = QProcess::systemEnvironment();
-    env << (QString("VK_LOADER_DEBUG=") + ::GetLogString(configurator.environment.GetLoaderMessageFlags()).c_str());
-    return env;
-}
-
 void MainWindow::on_tab_widget_currentChanged(int index) {
     assert(index >= 0);
     this->tabs[index]->UpdateUI(UPDATE_REBUILD_UI);
-}
-
-void MainWindow::on_push_button_launcher_clicked() {
-    // Are we already monitoring a running app? If so, terminate it
-    if (_launch_application != nullptr) {
-        ResetLaunchApplication();
-        return;
-    }
-
-    // We are logging, let's add that we've launched a new application
-    std::string launch_log = "Launching Vulkan Application:\n";
-
-    Configurator &configurator = Configurator::Get();
-    const Executable *active_executable = configurator.executables.GetActiveExecutable();
-
-    assert(!active_executable->path.Empty());
-    launch_log += format("- Executable: %s\n", active_executable->path.AbsolutePath().c_str());
-    if (!active_executable->path.Exists()) {
-        Alert::PathInvalid(
-            active_executable->path,
-            format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
-    }
-
-    const ExecutableOptions *options = active_executable->GetActiveOptions();
-
-    launch_log += format("- Working Directory: %s\n", options->working_folder.AbsolutePath().c_str());
-    if (!options->working_folder.Exists()) {
-        Alert::PathInvalid(
-            options->working_folder,
-            format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
-    }
-    /*
-    if (!_launcher_arguments->text().isEmpty()) {
-        launch_log += format("- Command-line Arguments: %s\n", _launcher_arguments->text().toStdString().c_str());
-    }
-    */
-    if (!options->log_file.Empty()) {
-        launch_log += format("- Log file: %s\n", options->log_file.AbsolutePath().c_str());
-    }
-
-    if (!options->log_file.Empty()) {
-        // Start logging
-        // Make sure the log file is not already opened. This can occur if the
-        // launched application is closed from the applicaiton.
-        if (!_log_file.isOpen()) {
-            _log_file.setFileName(options->log_file.AbsolutePath().c_str());
-
-            // Open and append, or open and truncate?
-            QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
-            if (!ui->check_box_clear_on_launch->isChecked()) mode |= QIODevice::Append;
-
-            if (!_log_file.open(mode)) {
-                Alert::LogFileFailed();
-            }
-        }
-    }
-
-    if (ui->check_box_clear_on_launch->isChecked()) ui->log_browser->clear();
-    Log(launch_log.c_str());
-
-    // Launch the test application
-    _launch_application.reset(new QProcess(this));
-    connect(_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
-    connect(_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-    connect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
-            SLOT(processClosed(int, QProcess::ExitStatus)));
-
-    //_launch_application->setProgram(ui->edit_executable->text());
-    //_launch_application->setWorkingDirectory(ui->edit_dir->text());
-    //_launch_application->setEnvironment(BuildEnvVariables() + ui->edit_env->text().split(","));
-
-    if (!options->args.empty()) {
-        const QStringList args = ConvertString(options->args);
-        _launch_application->setArguments(args);
-    }
-
-    _launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
-    _launch_application->setProcessChannelMode(QProcess::MergedChannels);
-    _launch_application->closeWriteChannel();
-
-    // Wait... did we start? Give it 4 seconds, more than enough time
-    if (!_launch_application->waitForStarted(4000)) {
-        _launch_application->deleteLater();
-        _launch_application = nullptr;
-
-        const std::string failed_log = std::string("Failed to launch ") + active_executable->path.AbsolutePath().c_str() + "!\n";
-        Log(failed_log);
-    }
-
-    UpdateUI();
-}
-
-/// The process we are following is closed. We don't actually care about the
-/// exit status/code, we just need to know to destroy the QProcess object
-/// and set it back to nullptr so that we know we can launch a new app.
-/// Also, if we are logging, it's time to close the log file.
-void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
-    (void)exit_code;
-    (void)status;
-
-    assert(_launch_application);
-
-    disconnect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
-               SLOT(processClosed(int, QProcess::ExitStatus)));
-    disconnect(_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-    disconnect(_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
-
-    Log("Process terminated");
-
-    if (_log_file.isOpen()) {
-        _log_file.close();
-    }
-
-    ResetLaunchApplication();
-}
-
-/// This signal get's raised whenever the spawned Vulkan appliction writes
-/// to stdout and there is data to be read. The layers flush after all stdout
-/// writes, so we should see layer output here in realtime, as we just read
-/// the string and append it to the text browser.
-/// If a log file is open, we also write the output to the log.
-void MainWindow::standardOutputAvailable() {
-    if (_launch_application) {
-        Log(_launch_application->readAllStandardOutput().toStdString());
-    }
-}
-
-void MainWindow::errorOutputAvailable() {
-    if (_launch_application) {
-        Log(_launch_application->readAllStandardError().toStdString());
-    }
-}
-
-void MainWindow::Log(const std::string &log) {
-    ui->log_browser->setPlainText(ui->log_browser->toPlainText() + "\n" + log.c_str());
-    ui->push_button_clear_log->setEnabled(true);
-
-    if (_log_file.isOpen()) {
-        _log_file.write(log.c_str(), log.size());
-        _log_file.flush();
-    }
 }

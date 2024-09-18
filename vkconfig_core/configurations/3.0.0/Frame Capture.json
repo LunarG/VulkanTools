@@ -16,7 +16,7 @@
                     {
                         "key": "capture_file",
                         "type": "SAVE_FILE",
-                        "value": "${VK_LOCAL}/gfxrecon_capture.gfxr"
+                        "value": "${VK_HOME}/gfxrecon_capture.gfxr"
                     }
                 ],
                 "control": "on",
