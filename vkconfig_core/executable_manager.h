@@ -39,7 +39,7 @@ struct DefaultPath {
 };
 
 struct ExecutableOptions {
-    std::string label = "Default";
+    std::string label = "Default Options";
     LayersMode layers_mode = LAYERS_CONTROLLED_BY_APPLICATIONS;
     std::string configuration = "Validation";
     Path working_folder;
@@ -68,7 +68,9 @@ class ExecutableManager : public Serialize {
     bool Empty() const;
     std::size_t Size() const;
 
-    void SelectActiveExecutable(std::size_t executable_index);
+    std::string MakeOptionsName(const std::string& name) const;
+
+    void SetActiveExecutable(int executable_index);
     int GetActiveExecutableIndex() const;
     bool AppendExecutable(const Executable& executable);
     bool AppendExecutable(const Path& executable_path);
