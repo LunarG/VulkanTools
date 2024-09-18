@@ -21,6 +21,7 @@
 #include "executable_manager.h"
 #include "version.h"
 #include "type_platform.h"
+#include "util.h"
 
 #include <QJsonArray>
 #include <QTextStream>
@@ -57,6 +58,29 @@ bool ExecutableManager::Empty() const { return this->data.empty(); }
 
 std::size_t ExecutableManager::Size() const { return this->data.size(); }
 
+static const size_t NOT_FOUND = static_cast<size_t>(-1);
+
+std::string ExecutableManager::MakeOptionsName(const std::string& name) const {
+    const std::string key = name;
+    const std::string base_name = ExtractDuplicateNumber(key) != NOT_FOUND ? ExtractDuplicateBaseName(key) : key;
+
+    const Executable* executable = GetActiveExecutable();
+
+    std::size_t max_duplicate = 0;
+    for (std::size_t i = 0, n = executable->options.size(); i < n; ++i) {
+        const std::string& search_name = executable->options[i].label;
+
+        if (search_name.compare(0, base_name.length(), base_name) != 0) {
+            continue;
+        }
+
+        const std::size_t found_number = ExtractDuplicateNumber(search_name);
+        max_duplicate = std::max<std::size_t>(max_duplicate, found_number != NOT_FOUND ? found_number : 1);
+    }
+
+    return base_name + (max_duplicate > 0 ? format(" (%d)", max_duplicate + 1).c_str() : "");
+}
+
 bool ExecutableManager::Load(const QJsonObject& json_root_object) {
     // applications json object
     const QJsonObject& json_executables_object = json_root_object.value("executables").toObject();
@@ -88,6 +112,9 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object) {
             ExecutableOptions executable_options;
 
             executable_options.label = json_options_object.value("label").toString().toStdString();
+            executable_options.layers_mode =
+                GetLayersMode(json_options_object.value("layers_mode").toString().toStdString().c_str());
+            executable_options.configuration = json_options_object.value("configuration").toString().toStdString();
             executable_options.working_folder = json_options_object.value("working_folder").toString().toStdString();
 
             const QJsonArray& json_command_lines_array = json_options_object.value("arguments").toArray();
@@ -165,9 +192,14 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
     return true;
 }
 
-void ExecutableManager::SelectActiveExecutable(std::size_t executable_index) {
-    assert(executable_index < this->data.size());
-    this->active_executable = this->data[executable_index].path;
+void ExecutableManager::SetActiveExecutable(int executable_index) {
+    assert(executable_index < static_cast<int>(this->data.size()));
+
+    if (executable_index < 0) {
+        this->active_executable.Clear();
+    } else {
+        this->active_executable = this->data[executable_index].path;
+    }
 }
 
 int ExecutableManager::GetActiveExecutableIndex() const {
@@ -177,7 +209,6 @@ int ExecutableManager::GetActiveExecutableIndex() const {
         }
     }
 
-    assert(0);
     return -1;  // Not found, but the list is present, so return the first item.
 }
 
@@ -222,6 +253,13 @@ bool ExecutableManager::RemoveExecutable(std::size_t executable_index) {
     }
 
     std::swap(this->data, new_executables);
+
+    if (this->data.empty()) {
+        this->active_executable.Clear();
+    } else {
+        this->active_executable = this->data[0].path;
+    }
+
     return true;
 }
 
@@ -376,12 +414,14 @@ Executable ExecutableManager::CreateDefaultExecutable(const DefaultExecutable& d
     ExecutableOptions options;
     options.label = "Default";
     options.working_folder = default_paths.working_folder;
+    options.args.push_back(default_executable.arguments);
+
     // On all operating systems, but Windows we keep running into problems with this ending up
     // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
     // initially will be set to the users home folder across all OS's. This is highly visible
     // in the application launcher and should not present a usability issue. The developer can
     // easily change this later to anywhere they like.
-    options.log_file = std::string("${VK_LOCAL}") + default_executable.key + ".txt";
+    options.log_file = std::string("${VK_HOME}") + default_executable.key + ".txt";
 
     Executable executable;
     executable.path = Path(default_paths.executable_path.AbsolutePath(), true);

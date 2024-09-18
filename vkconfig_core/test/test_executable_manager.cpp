@@ -38,10 +38,10 @@ TEST(test_executable_manager, reset_default_applications_sdk_found) {
         // Make sure the variable are not replaced
         EXPECT_TRUE(executables[0].path.RelativePath().find("${VULKAN_SDK}") != std::string::npos);
         EXPECT_TRUE(executables[0].options[0].working_folder.RelativePath().find("${VULKAN_SDK}") != std::string::npos);
-        EXPECT_TRUE(executables[0].options[0].log_file.RelativePath().find("${VK_LOCAL}") != std::string::npos);
+        EXPECT_TRUE(executables[0].options[0].log_file.RelativePath().find("${VK_HOME}") != std::string::npos);
         EXPECT_TRUE(executables[1].path.RelativePath().find("${VULKAN_SDK}") != std::string::npos);
         EXPECT_TRUE(executables[1].options[0].working_folder.RelativePath().find("${VULKAN_SDK}") != std::string::npos);
-        EXPECT_TRUE(executables[1].options[0].log_file.RelativePath().find("${VK_LOCAL}") != std::string::npos);
+        EXPECT_TRUE(executables[1].options[0].log_file.RelativePath().find("${VK_HOME}") != std::string::npos);
     }
 }
 
@@ -58,10 +58,10 @@ TEST(test_executable_manager, reset_default_applications_no_sdk) {
     // Make sure the variable are not replaced
     EXPECT_TRUE(executables[0].path.RelativePath().find("vkcube") != std::string::npos);
     EXPECT_TRUE(executables[0].options[0].working_folder.RelativePath().find(".") != std::string::npos);
-    EXPECT_TRUE(executables[0].options[0].log_file.RelativePath().find("${VK_LOCAL}") != std::string::npos);
+    EXPECT_TRUE(executables[0].options[0].log_file.RelativePath().find("${VK_HOME}") != std::string::npos);
     EXPECT_TRUE(executables[1].path.RelativePath().find("vkcubepp") != std::string::npos);
     EXPECT_TRUE(executables[1].options[0].working_folder.RelativePath().find(".") != std::string::npos);
-    EXPECT_TRUE(executables[1].options[0].log_file.RelativePath().find("${VK_LOCAL}") != std::string::npos);
+    EXPECT_TRUE(executables[1].options[0].log_file.RelativePath().find("${VK_HOME}") != std::string::npos);
 }
 
 TEST(test_executable_manager, remove_missing_applications) {
