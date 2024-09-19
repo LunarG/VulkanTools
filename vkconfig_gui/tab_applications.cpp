@@ -51,12 +51,29 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->connect(this->ui->applications_configuration_comboBox, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_applications_configuration_comboBox_activated(int)));
 
+    this->connect(this->ui->applications_directory_edit, SIGNAL(textEdited(QString)), this,
+                  SLOT(on_applications_directory_edit_textEdited(QString)));
+    this->connect(this->ui->applications_directory_edit_pushButton, SIGNAL(pressed()), this,
+                  SLOT(on_applications_directory_edit_pushButton_pressed()));
+    this->connect(this->ui->applications_args_list, SIGNAL(textEdited(QString)), this,
+                  SLOT(on_applications_args_list_textEdited(QString)));
+    this->connect(this->ui->applications_envs_list, SIGNAL(textEdited(QString)), this,
+                  SLOT(on_applications_envs_list_textEdited(QString)));
+    this->connect(this->ui->applications_output_log_edit, SIGNAL(textEdited(QString)), this,
+                  SLOT(on_applications_output_log_edit_textEdited(QString)));
+    this->connect(this->ui->applications_output_log_pushButton, SIGNAL(pressed()), this,
+                  SLOT(on_applications_output_log_pushButton_pressed()));
+
     this->connect(this->ui->applications_push_button_launcher, SIGNAL(pressed()), this,
                   SLOT(on_applications_launcher_pushButton_pressed()));
     this->connect(this->ui->applications_push_button_clear_log, SIGNAL(pressed()), this,
                   SLOT(on_applications_clear_log_pushButton_pressed()));
     this->connect(this->ui->applications_check_box_clear_on_launch, SIGNAL(pressed()), this,
                   SLOT(on_applications_check_box_clear_on_launch_pressed()));
+
+    this->ui->applications_args_list->setToolTip("Eg: '--argA --argB'");
+    this->ui->applications_envs_list->setToolTip(VKC_ENV == VKC_ENV_WIN32 ? "Eg: 'ENV_A=ValueA;ENV_B=ValueB'"
+                                                                          : "Eg: 'ENV_A=ValueA:ENV_B=ValueB'");
 }
 
 TabApplications::~TabApplications() { this->ResetLaunchApplication(); }
@@ -154,7 +171,7 @@ void TabApplications::on_applications_list_comboBox_activated(int index) {
         }
     }
     ui->applications_options_comboBox->blockSignals(false);
-    ui->applications_options_comboBox->setCurrentIndex(index);
+    ui->applications_options_comboBox->setCurrentIndex(executable->active_option_index);
 }
 
 void TabApplications::on_applications_list_comboBox_textEdited(const QString &text) {
@@ -183,6 +200,8 @@ void TabApplications::on_applications_options_append_pushButton_pressed() {
     executable->active_option_index = static_cast<int>(executable->options.size());
     executable->options.push_back(options);
 
+    // this->ui->applications_options_comboBox->setCurrentIndex(executable->active_option_index);
+
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
@@ -200,21 +219,8 @@ void TabApplications::on_applications_options_comboBox_activated(int index) {
 
     ui->applications_directory_edit->setText(options->working_folder.RelativePath().c_str());
     ui->applications_directory_edit->setToolTip(options->working_folder.AbsolutePath().c_str());
-
-    ui->applications_args_list->blockSignals(true);
-    ui->applications_args_list->clear();
-    for (std::size_t i = 0, n = options->args.size(); i < n; ++i) {
-        ui->applications_args_list->addItem(options->args[i].c_str());
-    }
-    ui->applications_args_list->blockSignals(false);
-
-    ui->applications_envs_list->blockSignals(true);
-    ui->applications_envs_list->clear();
-    for (std::size_t i = 0, n = options->envs.size(); i < n; ++i) {
-        ui->applications_envs_list->addItem(options->envs[i].c_str());
-    }
-    ui->applications_envs_list->blockSignals(false);
-
+    ui->applications_args_list->setText(Merge(options->args, " ").c_str());
+    ui->applications_envs_list->setText(Merge(options->envs, ",").c_str());
     ui->applications_output_log_edit->setText(options->log_file.RelativePath().c_str());
     ui->applications_output_log_edit->setToolTip(options->log_file.AbsolutePath().c_str());
 }
@@ -244,6 +250,73 @@ void TabApplications::on_applications_configuration_comboBox_activated(int index
     ExecutableOptions *options = executable->GetActiveOptions();
 
     options->configuration = ui->applications_configuration_comboBox->itemText(index).toStdString();
+}
+
+void TabApplications::on_applications_directory_edit_textEdited(const QString &text) {
+    Configurator &configurator = Configurator::Get();
+
+    Executable *executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions *options = executable->GetActiveOptions();
+
+    options->working_folder = text.toStdString();
+}
+
+void TabApplications::on_applications_directory_edit_pushButton_pressed() {
+    Configurator &configurator = Configurator::Get();
+
+    Executable *executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions *options = executable->GetActiveOptions();
+
+    const QString selected_path =
+        QFileDialog::getExistingDirectory(this->ui->applications_directory_edit_pushButton, "Select Working Directory...",
+                                          this->ui->applications_directory_edit->text());
+
+    if (!selected_path.isEmpty()) {
+        options->working_folder = selected_path.toStdString();
+        this->ui->applications_directory_edit->setText(options->working_folder.RelativePath().c_str());
+    }
+}
+
+void TabApplications::on_applications_args_list_textEdited(const QString &text) {
+    Configurator &configurator = Configurator::Get();
+
+    Executable *executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions *options = executable->GetActiveOptions();
+
+    options->args = Split(text.toStdString(), " ");
+}
+
+void TabApplications::on_applications_envs_list_textEdited(const QString &text) {
+    Configurator &configurator = Configurator::Get();
+
+    Executable *executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions *options = executable->GetActiveOptions();
+
+    options->envs = Split(text.toStdString(), VKC_ENV == VKC_ENV_WIN32 ? ";" : ":");
+}
+
+void TabApplications::on_applications_output_log_edit_textEdited(const QString &text) {
+    Configurator &configurator = Configurator::Get();
+
+    Executable *executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions *options = executable->GetActiveOptions();
+
+    options->log_file = text.toStdString();
+}
+
+void TabApplications::on_applications_output_log_pushButton_pressed() {
+    Configurator &configurator = Configurator::Get();
+
+    Executable *executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions *options = executable->GetActiveOptions();
+
+    const QString selected_path = QFileDialog::getSaveFileName(this->ui->applications_output_log_pushButton, "Select Log file...",
+                                                               this->ui->applications_output_log_edit->text(), "Log (*.txt)");
+
+    if (!selected_path.isEmpty()) {
+        options->log_file = selected_path.toStdString();
+        this->ui->applications_output_log_edit->setText(options->log_file.RelativePath().c_str());
+    }
 }
 
 void TabApplications::on_check_box_clear_on_launch_clicked() {
@@ -392,9 +465,11 @@ void TabApplications::EnableOptions() {
 }
 
 void TabApplications::ResetLaunchApplication() {
-    if (_launch_application->processId() > 0) {
-        this->_launch_application->kill();
-        this->_launch_application->waitForFinished();
+    if (_launch_application != nullptr) {
+        if (_launch_application->processId() > 0) {
+            this->_launch_application->kill();
+            this->_launch_application->waitForFinished();
+        }
     }
 
     ui->applications_push_button_launcher->setText("Launch");
