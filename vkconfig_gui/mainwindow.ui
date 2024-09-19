@@ -990,16 +990,6 @@
               <property name="verticalSpacing">
                <number>0</number>
               </property>
-              <item row="5" column="2">
-               <widget class="QListWidget" name="applications_args_list">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
               <item row="6" column="0">
                <widget class="QLabel" name="label_6">
                 <property name="text">
@@ -1051,16 +1041,6 @@
                  </widget>
                 </item>
                </layout>
-              </item>
-              <item row="6" column="2">
-               <widget class="QListWidget" name="applications_envs_list">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_21">
@@ -1152,6 +1132,12 @@
                  </widget>
                 </item>
                </layout>
+              </item>
+              <item row="5" column="2">
+               <widget class="QLineEdit" name="applications_args_list"/>
+              </item>
+              <item row="6" column="2">
+               <widget class="QLineEdit" name="applications_envs_list"/>
               </item>
              </layout>
             </item>
