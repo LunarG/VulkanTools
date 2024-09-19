@@ -128,8 +128,16 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         // this->layer_version->installEventFilter(this);
 
         this->layer_state = new QComboBox(this);
-        for (int i = LAYER_CONTROL_UI_FIRST; i <= LAYER_CONTROL_UI_LAST; ++i) {
-            this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
+        if (layer != nullptr) {
+            if (layer->type == LAYER_TYPE_EXPLICIT) {
+                for (int i = LAYER_CONTROL_EXPLICIT_FIRST; i <= LAYER_CONTROL_EXPLICIT_LAST; ++i) {
+                    this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
+                }
+            } else {
+                for (int i = LAYER_CONTROL_IMPLICIT_FIRST; i <= LAYER_CONTROL_IMPLICIT_LAST; ++i) {
+                    this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
+                }
+            }
         }
         this->layer_state->setEnabled(!layer_versions.empty());
         this->layer_state->setCurrentIndex(parameter.control);
