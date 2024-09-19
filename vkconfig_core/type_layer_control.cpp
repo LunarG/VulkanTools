@@ -28,8 +28,8 @@
 const char* GetToken(LayerControl control) {
     static const char* TOKENS[] = {
         "Auto",                        // LAYER_CONTROL_AUTO
-        "On",                          // LAYER_CONTROL_ON
         "Off",                         // LAYER_CONTROL_OFF
+        "On",                          // LAYER_CONTROL_ON
         "application_enabled_layers",  // LAYER_CONTROL_APPLICATIONS
         "unordered_layer_location"     // LAYER_CONTROL_UNORDERED
     };
