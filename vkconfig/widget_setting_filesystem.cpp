@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,7 +136,8 @@ void WidgetSettingFilesystem::LoadPath(const std::string& path) {
 }
 
 void WidgetSettingFilesystem::browseButtonClicked() {
-    std::string path = field->text().toStdString();
+    std::string path = this->field->text().toStdString();
+
     if (path.empty()) {
         path = "${VK_LOCAL}";
         this->data().SetValue(path.c_str());
@@ -203,25 +204,24 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     this->field->setText(this->data().GetValue());
     this->field->setToolTip(ReplaceBuiltInVariable(this->field->text().toStdString()).c_str());
 
-    LoadPath(new_path);
+    this->LoadPath(new_path);
 
     emit itemChanged();
 }
 
 void WidgetSettingFilesystem::textFieldChanged(const QString& value) {
-    std::string file = value.toStdString();
+    std::string path = ConvertNativeSeparators(value.toStdString());
 
-    if (!file.empty()) {
-        LoadPath(file);
-
-        if (VKC_ENV == VKC_ENV_WIN32) {
-            file = ConvertNativeSeparators(file);
-        }
+    if (path.empty()) {
+        path = "${VK_LOCAL}";
+        this->data().SetValue(path.c_str());
     }
 
-    if (QFileInfo(ReplaceBuiltInVariable(file).c_str()).exists()) {
-        this->data().SetValue(file.c_str());
-        this->field->setToolTip(ReplaceBuiltInVariable(file.c_str()).c_str());
+    this->data().SetValue(path.c_str());
+    this->field->setToolTip(ReplaceBuiltInVariable(this->field->text().toStdString()).c_str());
+
+    if (QFileInfo(ReplaceBuiltInVariable(path).c_str()).exists()) {
+        this->LoadPath(path);
     }
 
     emit itemChanged();
