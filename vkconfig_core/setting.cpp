@@ -309,9 +309,13 @@ SettingDependenceMode CheckDependence(const SettingMeta& meta, const SettingData
                 const SettingDependenceMode mode =
                     meta.dependence[i]->type == SETTING_ENUM ? SETTING_DEPENDENCE_HIDE : SETTING_DEPENDENCE_DISABLE;
                 const SettingData* data = FindSetting(data_set, meta.dependence[i]->key.c_str());
-                if (data == nullptr) return mode;
+                if (data == nullptr) {
+                    return mode;
+                }
 
-                if (*data != *meta.dependence[i]) return mode;
+                if (*data != *meta.dependence[i]) {
+                    return mode;
+                }
             }
             return SETTING_DEPENDENCE_ENABLE;
         }
