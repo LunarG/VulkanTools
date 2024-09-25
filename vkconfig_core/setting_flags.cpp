@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,7 +154,9 @@ bool SettingMetaFlags::Equal(const SettingMeta& other) const {
     for (std::size_t i = 0, n = flags.default_value.size(); i < n; ++i) {
         const char* flag = flags.default_value[i].c_str();
 
-        if (!IsStringFound(this->default_value, flag)) return false;
+        if (!IsStringFound(this->default_value, flag)) {
+            return false;
+        }
     }
 
     return true;
@@ -211,17 +213,41 @@ std::string SettingDataFlags::Export(ExportMode export_mode) const {
 }
 
 bool SettingDataFlags::Equal(const SettingData& other) const {
-    if (!SettingData::Equal(other)) return false;
+    if (!SettingData::Equal(other)) {
+        return false;
+    }
 
     const SettingDataFlags& flags = static_cast<const SettingDataFlags&>(other);
 
-    if (this->value.size() != flags.value.size()) return false;
+    if (this->type == SETTING_FLAGS) {
+        if (this->value.empty() && flags.value.empty()) {
+            return true;
+        }
 
-    for (std::size_t i = 0, n = flags.value.size(); i < n; ++i) {
-        const char* flag = flags.value[i].c_str();
+        bool result = this->value.size() == flags.value.size();
+        for (std::size_t i = 0, n = flags.value.size(); i < n; ++i) {
+            const char* flag = flags.value[i].c_str();
 
-        if (!IsStringFound(this->value, flag)) return false;
+            result = result && IsStringFound(this->value, flag);
+            if (!result) {
+                break;
+            }
+        }
+
+        return result;
+    } else {
+        if (this->value.size() != flags.value.size()) {
+            return false;
+        }
+
+        for (std::size_t i = 0, n = flags.value.size(); i < n; ++i) {
+            const char* flag = flags.value[i].c_str();
+
+            if (!IsStringFound(this->value, flag)) {
+                return false;
+            }
+        }
+
+        return true;
     }
-
-    return true;
 }

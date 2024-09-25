@@ -1723,15 +1723,16 @@ bool MainWindow::SelectConfigurationItem(const std::string &configuration_name) 
 }
 
 void MainWindow::ResetLaunchApplication() {
-    if (_launch_application) {
-        _launch_application->kill();
-        _launch_application->waitForFinished();
-        _launch_application.reset();
+    if (_launch_application != nullptr) {
+        if (_launch_application->processId() > 0) {
+            _launch_application->kill();
+            _launch_application->waitForFinished();
 
-        ui->push_button_launcher->setText("Launch");
-
-        _settings_tree_manager.launched_application = false;
+            _settings_tree_manager.launched_application = false;
+        }
     }
+
+    ui->push_button_launcher->setText("Launch");
 }
 
 QStringList MainWindow::BuildEnvVariables() const {
@@ -1745,8 +1746,10 @@ QStringList MainWindow::BuildEnvVariables() const {
 void MainWindow::on_push_button_launcher_clicked() {
     // Are we already monitoring a running app? If so, terminate it
     if (_launch_application != nullptr) {
-        ResetLaunchApplication();
-        return;
+        if (_launch_application->processId() > 0) {
+            ResetLaunchApplication();
+            return;
+        }
     }
 
     std::string launch_log;
@@ -1809,12 +1812,14 @@ void MainWindow::on_push_button_launcher_clicked() {
 
     Log(launch_log.c_str());
 
+    if (_launch_application == nullptr) {
+        _launch_application.reset(new QProcess(this));
+        connect(_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
+        connect(_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
+        connect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
+                SLOT(processClosed(int, QProcess::ExitStatus)));
+    }
     // Launch the test application
-    _launch_application.reset(new QProcess(this));
-    connect(_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
-    connect(_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-    connect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
-            SLOT(processClosed(int, QProcess::ExitStatus)));
 
     _launch_application->setProgram(ReplaceBuiltInVariable(_launcher_executable->text().toStdString()).c_str());
     _launch_application->setWorkingDirectory(ReplaceBuiltInVariable(_launcher_working->text().toStdString()).c_str());
@@ -1832,8 +1837,7 @@ void MainWindow::on_push_button_launcher_clicked() {
 
     // Wait... did we start? Give it 4 seconds, more than enough time
     if (!_launch_application->waitForStarted(4000)) {
-        _launch_application->deleteLater();
-        _launch_application = nullptr;
+        //_launch_application->deleteLater();
 
         ui->push_button_launcher->setText("Launch");
 
@@ -1854,11 +1858,6 @@ void MainWindow::processClosed(int exit_code, QProcess::ExitStatus status) {
     (void)status;
 
     assert(_launch_application);
-
-    disconnect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
-               SLOT(processClosed(int, QProcess::ExitStatus)));
-    disconnect(_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-    disconnect(_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
 
     Log("Process terminated");
 
