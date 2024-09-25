@@ -100,7 +100,10 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
         bool operator()(const Parameter& a, const Parameter& b) const {
             const ParameterRank rankA = GetParameterOrdering(layers, a);
             const ParameterRank rankB = GetParameterOrdering(layers, b);
-            if (rankA == rankB && a.state == LAYER_STATE_OVERRIDDEN) {
+
+            const bool both_ranked = a.overridden_rank != Parameter::NO_RANK && b.overridden_rank != Parameter::NO_RANK;
+
+            if (rankA == rankB && a.state == LAYER_STATE_OVERRIDDEN)
                 if (a.overridden_rank != Parameter::NO_RANK && b.overridden_rank != Parameter::NO_RANK)
                     return a.overridden_rank < b.overridden_rank;
                 else if (a.key == VK_LAYER_KHRONOS_PROFILES_NAME)
@@ -113,10 +116,16 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
                     return false;
                 else
                     return a.key < b.key;
-            } else if (rankA == rankB && a.state != LAYER_STATE_OVERRIDDEN)
+            else if (both_ranked && rankA == PARAMETER_RANK_IMPLICIT_OVERRIDDEN && rankB == PARAMETER_RANK_EXPLICIT_OVERRIDDEN)
+                return a.overridden_rank < b.overridden_rank;
+            else if (both_ranked && rankA == PARAMETER_RANK_EXPLICIT_OVERRIDDEN && rankB == PARAMETER_RANK_IMPLICIT_OVERRIDDEN)
+                return a.overridden_rank < b.overridden_rank;
+            else if (rankA == rankB && a.state != LAYER_STATE_OVERRIDDEN)
                 return a.key < b.key;
-            else
+            else if (rankA != rankB)
                 return rankA < rankB;
+            else
+                return a.key < b.key;
         }
 
         const std::vector<Layer>& layers;
