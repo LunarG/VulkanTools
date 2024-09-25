@@ -88,15 +88,15 @@ void Alert::PathInvalid(const char* path, const char* message) {
     alert.exec();
 }
 
-QMessageBox::Button Alert::LayerImplicitExcluded(const char* layer_name) {
-    const char* text = "%s was excluded but it is an implicit layer. This may cause undefined behavior, including crashes.";
+QMessageBox::Button Alert::LayerImplicit(const char* layer_name) {
+    const char* text = "%s was overridden but it is an implicit layer. This may cause undefined behavior, including crashes.";
 
     QMessageBox alert;
-    alert.QDialog::setWindowTitle("Implicit layer excluded...");
+    alert.QDialog::setWindowTitle("Implicit layer was overridden...");
     alert.setText(format(text, layer_name).c_str());
     alert.setInformativeText("Do you want to continue?");
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    alert.setIcon(QMessageBox::Warning);
+    alert.setIcon(QMessageBox::Critical);
     return static_cast<QMessageBox::Button>(alert.exec());
 }
 

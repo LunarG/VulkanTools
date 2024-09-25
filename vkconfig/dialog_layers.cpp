@@ -285,7 +285,9 @@ void LayersDialog::AddLayerItem(const Parameter &parameter) {
     } else {
         // A layers configuration may have excluded layer that are misssing because they are not available on this platform
         // We simply hide these layers to avoid confusing the Vulkan developers
-        if (parameter.state == LAYER_STATE_EXCLUDED) return;
+        if (parameter.state == LAYER_STATE_EXCLUDED) {
+            return;
+        }
 
         decorated_name += " (Missing)";
     }
@@ -600,13 +602,13 @@ void LayersDialog::layerUseChanged(QTreeWidgetItem *item, int selection) {
         if (Alert::LayerProfiles() == QMessageBox::Yes) {
             OverrideAllExplicitLayers();
         }
-    } else if (layer_state == LAYER_STATE_EXCLUDED) {
+    } else if (layer_state != LAYER_STATE_APPLICATION_CONTROLLED) {
         const std::vector<Layer> &selected_layers = Configurator::Get().layers.selected_layers;
         const Layer *layer = FindByKey(selected_layers, tree_layer_item->layer_name.c_str());
 
         if (layer != nullptr) {
             if (layer->type == LAYER_TYPE_IMPLICIT) {
-                if (Alert::LayerImplicitExcluded(tree_layer_item->layer_name.c_str()) == QMessageBox::No) {
+                if (Alert::LayerImplicit(tree_layer_item->layer_name.c_str()) == QMessageBox::No) {
                     layer_state = LAYER_STATE_APPLICATION_CONTROLLED;
                 }
             }
