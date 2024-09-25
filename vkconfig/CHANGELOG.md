@@ -19,6 +19,7 @@
 ### Fixes:
 - Fix flag settings dependencies
 - Fix filesystem settings update
+- Fix overridden implicit layer ordering
 
 ## [Vulkan Configurator 2.6.1](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.290.0) - July 2024
 

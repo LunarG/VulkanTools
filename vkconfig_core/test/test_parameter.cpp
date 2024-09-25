@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,15 @@ static std::vector<Parameter> GenerateTestParametersExist() {
     parameters.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
     parameters.push_back(Parameter("Layer E1", LAYER_STATE_EXCLUDED));
     parameters.push_back(Parameter("Layer C1", LAYER_STATE_APPLICATION_CONTROLLED));
+    return parameters;
+}
+
+static std::vector<Parameter> GenerateTestParametersImplicitOrdering() {
+    std::vector<Parameter> parameters;
+    parameters.push_back(Parameter("Layer I0", LAYER_STATE_OVERRIDDEN));
+    parameters.push_back(Parameter("Layer I1", LAYER_STATE_OVERRIDDEN));
+    parameters.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
+    parameters.push_back(Parameter("Layer E1", LAYER_STATE_OVERRIDDEN));
     return parameters;
 }
 
@@ -427,4 +436,22 @@ TEST(test_parameter, compute_min_api_version_missing_all) {
 
     Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
     EXPECT_EQ(Version(1, 2, 170), min_version_A);
+}
+
+TEST(test_parameter, OrderParameter_ImplicitLayer) {
+    std::vector<Layer> layers = GenerateTestLayers();
+    std::vector<Parameter> sources = GenerateTestParametersImplicitOrdering();
+    std::vector<Parameter> parameters = sources;
+
+    parameters[0].overridden_rank = 3;
+    parameters[1].overridden_rank = 1;
+    parameters[2].overridden_rank = 2;
+    parameters[3].overridden_rank = 0;
+
+    OrderParameter(parameters, layers);
+
+    EXPECT_STREQ(parameters[0].key.c_str(), "Layer E1");
+    EXPECT_STREQ(parameters[1].key.c_str(), "Layer I1");
+    EXPECT_STREQ(parameters[2].key.c_str(), "Layer E0");
+    EXPECT_STREQ(parameters[3].key.c_str(), "Layer I0");
 }
