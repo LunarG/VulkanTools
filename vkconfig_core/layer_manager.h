@@ -62,15 +62,15 @@ class LayerManager : public Serialize {
     void LoadAllInstalledLayers();
     void LoadLayersFromPath(const Path& layers_path, LayerType type = LAYER_TYPE_EXPLICIT);
 
-    void AddPath(const LayersPathInfo& path_info);
+    void AppendPath(const LayersPathInfo& path_info);
     void RemovePath(const LayersPathInfo& path_info);
-    void UpdatePath(const LayersPathInfo& path_info);
+    void UpdatePathEnabled(const LayersPathInfo& path_info);
 
     std::vector<std::string> BuildLayerNameList() const;
 
     std::vector<Layer> selected_layers;
     std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> paths;
-    std::vector<Path> removed_paths;
+    std::vector<Path> removed_paths;  // TODO: Remove?
 
    private:
     std::map<Path, std::string> layers_validated;
