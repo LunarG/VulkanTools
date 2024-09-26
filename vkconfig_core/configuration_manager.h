@@ -48,7 +48,8 @@ class ConfigurationManager : public Serialize {
     const std::map<std::string, ConfigurationInfo>& GetConfigurationInfos() const;
     bool HasActiveConfiguration() const;
 
-    Configuration& CreateConfiguration(const LayerManager& layers, const std::string& configuration_name, bool duplicate = false);
+    Configuration& CreateConfiguration(const LayerManager& layers, const std::string& configuration_name);
+    Configuration& DuplicateConfiguration(const LayerManager& layers, const std::string& configuration_name);
     void RemoveConfiguration(const std::string& configuration_name);
     int GetConfigurationIndex(const std::string& configuration_name) const;
 
