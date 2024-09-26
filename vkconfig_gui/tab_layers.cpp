@@ -108,7 +108,7 @@ void TabLayers::on_layers_add_pushButton_pressed() {
     Configurator &configurator = Configurator::Get();
     LayersPathInfo info;
     info.path = ui->layers_lineEdit->text().toStdString();
-    configurator.layers.AddPath(info);
+    configurator.layers.AppendPath(info);
     configurator.layers.LoadLayersFromPath(info.path);
 
     this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
@@ -125,7 +125,7 @@ void TabLayers::on_layers_browse_pushButton_pressed() {
         info.path = selected_path.toStdString();
 
         Configurator &configurator = Configurator::Get();
-        configurator.layers.AddPath(info);
+        configurator.layers.AppendPath(info);
         configurator.layers.LoadLayersFromPath(info.path);
 
         this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
