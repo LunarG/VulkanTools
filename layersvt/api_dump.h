@@ -932,6 +932,10 @@ class ApiDumpInstance {
     VkDescriptorType getDescriptorType() { return this->descriptor_type; }
     void setIsGPLPreRasterOrFragmentShader(bool in) { this->GPLPreRasterOrFragmentShader = in; }
     bool getIsGPLPreRasterOrFragmentShader() { return this->GPLPreRasterOrFragmentShader; }
+    void setIndirectExecutionSetInfoType(VkIndirectExecutionSetInfoTypeEXT type) { this->indirectExecutionSetInfoType = type; }
+    VkIndirectExecutionSetInfoTypeEXT getIndirectExecutionSetInfoType() { return this->indirectExecutionSetInfoType; }
+    void setIndirectCommandsLayoutToken(VkIndirectCommandsTokenTypeEXT type) { this->indirectCommandsLayoutToken = type; }
+    VkIndirectCommandsTokenTypeEXT getIndirectCommandsLayoutToken() { return this->indirectCommandsLayoutToken; }
 
     std::chrono::microseconds current_time_since_start() {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -1007,6 +1011,12 @@ class ApiDumpInstance {
     // True when creating a graphics pipeline library with VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT or
     // VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT set in the VkGraphicsPipelineLibraryCreateInfoEXT struct.
     bool GPLPreRasterOrFragmentShader;
+
+    // Storage for the VkIndirectExecutionSetInfoEXT union to know which is the active element
+    VkIndirectExecutionSetInfoTypeEXT indirectExecutionSetInfoType;
+
+    // Storage for the VkIndirectCommandsTokenDataEXT union to know which is the active element
+    VkIndirectCommandsTokenTypeEXT indirectCommandsLayoutToken;
 };
 
 // Helper function to determine the value of GPLPreRasterOrFragmentShader;
