@@ -587,6 +587,9 @@ void TabConfigurations::OnContextMenuNewClicked(ConfigurationListItem *item) {
     configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
+    this->UpdateUI_LoaderMessages();
+    this->UpdateUI_Layers(UPDATE_REBUILD_UI);
+    this->UpdateUI_Settings(UPDATE_REBUILD_UI);
 }
 
 void TabConfigurations::OnContextMenuImportClicked(ConfigurationListItem *item) {
@@ -629,7 +632,7 @@ void TabConfigurations::OnContextMenuDuplicateClicked(ConfigurationListItem *ite
 
     Configurator &configurator = Configurator::Get();
     const Configuration &duplicated_configuration =
-        configurator.configurations.CreateConfiguration(configurator.layers, item->configuration_name, true);
+        configurator.configurations.DuplicateConfiguration(configurator.layers, item->configuration_name);
 
     item->configuration_name = duplicated_configuration.key;
 
