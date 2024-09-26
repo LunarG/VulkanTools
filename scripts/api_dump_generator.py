@@ -1981,6 +1981,14 @@ PARAMETER_STATE = {
     'VkDescriptorDataEXT': {
         'VkDescriptorGetInfoEXT':
             'ApiDumpInstance::current().setDescriptorType(object.type);',
+    },
+    'VkIndirectExecutionSetInfoEXT':{
+        'VkIndirectExecutionSetInfoEXT':
+            'ApiDumpInstance::current().setIndirectExecutionSetInfoType(object.type);',
+    },
+    'VkIndirectCommandsTokenDataEXT':{
+        'VkIndirectCommandsLayoutTokenEXT':
+            'ApiDumpInstance::current().setIndirectCommandsLayoutToken(object.type);',
     }
 }
 
@@ -2040,6 +2048,17 @@ VALIDITY_CHECKS = {
         'pColorAttachmentFormats': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
         'depthAttachmentFormat': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
         'stencilAttachmentFormat': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
+    },
+    'VkIndirectExecutionSetInfoEXT':{
+        'pPipelineInfo': 'ApiDumpInstance::current().getIndirectExecutionSetInfoType() == VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT',
+        'pShaderInfo': 'ApiDumpInstance::current().getIndirectExecutionSetInfoType() == VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT',
+    },
+    'VkIndirectCommandsTokenDataEXT':{
+        'pPushConstant': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT || ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT',
+        'pVertexBuffer': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT',
+        'pIndexBuffer': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT',
+        'pExecutionSet': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT',
+
     }
 }
 
