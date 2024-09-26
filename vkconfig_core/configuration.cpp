@@ -79,10 +79,10 @@ static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) 
     }
 }
 
-Configuration Configuration::Create(const LayerManager& layers, const std::string& key) {
+Configuration Configuration::Create(const LayerManager& layers, const std::string& configuration_key) {
     Configuration result;
 
-    result.key = key;
+    result.key = configuration_key;
     result.GatherParameters(layers);
 
     AddApplicationEnabledParameters(result.parameters);
@@ -409,7 +409,7 @@ void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::st
 
     const Layer* new_layer = layers.Find(layer_key, version);
 
-    parameter->api_version = version;
+    parameter->api_version = new_layer->api_version == version ? version : Version::LATEST;
     CollectDefaultSettingData(new_layer->settings, parameter->settings);
 }
 
@@ -455,7 +455,9 @@ void Configuration::Reorder(const std::vector<std::string>& layer_names) {
 
     for (std::size_t i = 0, n = layer_names.size(); i < n; ++i) {
         Parameter* parameter = this->Find(layer_names[i]);
-        assert(parameter != nullptr);
+        if (parameter == nullptr) {
+            continue;
+        }
         ordered_parameters.push_back(*parameter);
     }
 
