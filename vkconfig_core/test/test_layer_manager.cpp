@@ -186,3 +186,72 @@ TEST(test_layer_manager, avoid_duplicate) {
 
     EXPECT_EQ(first_load_count, second_load_count);
 }
+
+TEST(test_layer_manager, custom_path_append_remove) {
+    LayerManager layer_manager;
+
+    LayersPathInfo infoA;
+    infoA.path = ":/layers";
+    LayersPathInfo infoB;
+    infoB.path = ":/layersB";
+    LayersPathInfo infoC;
+    infoC.path = ":/layersC";
+
+    layer_manager.AppendPath(infoA);
+    layer_manager.AppendPath(infoB);
+    layer_manager.AppendPath(infoC);
+
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 3);
+
+    layer_manager.AppendPath(infoA);
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 3);
+
+    layer_manager.RemovePath(infoA);
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 2);
+
+    layer_manager.AppendPath(infoA);
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 3);
+
+    layer_manager.RemovePath(infoA);
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 2);
+
+    layer_manager.RemovePath(infoA);  // Check that removing an already removed path doesn't cause any issue
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 2);
+
+    layer_manager.RemovePath(infoB);
+    layer_manager.RemovePath(infoC);
+
+    EXPECT_TRUE(layer_manager.paths[LAYERS_PATHS_GUI].empty());
+}
+
+TEST(test_layer_manager, custom_path_update_layers) {
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
+
+    LayersPathInfo info;
+    info.path = ":/layers";
+    // info.enabled = true; default value
+
+    layer_manager.AppendPath(info);
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 1);
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, true);
+    for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
+        EXPECT_TRUE(layer_manager.selected_layers[i].visible);
+    }
+
+    info.enabled = false;
+    layer_manager.UpdatePathEnabled(info);
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, false);
+    for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
+        EXPECT_FALSE(layer_manager.selected_layers[i].visible);
+    }
+
+    info.enabled = true;
+    layer_manager.UpdatePathEnabled(info);
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, true);
+    for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
+        EXPECT_TRUE(layer_manager.selected_layers[i].visible);
+    }
+
+    EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 1);
+}
