@@ -180,7 +180,7 @@ bool LayerManager::Load(const QJsonObject &json_root_object) {
                 LayersPathInfo info;
                 info.path = json_paths_keys[i].toStdString();
                 info.enabled = json_paths_object.value(json_paths_keys[i].toStdString().c_str()).toBool();
-                this->AddPath(info);
+                this->AppendPath(info);
             }
         }
     }
@@ -351,7 +351,7 @@ void LayerManager::LoadLayersFromPath(const Path &layers_path, LayerType type) {
     }
 }
 
-void LayerManager::AddPath(const LayersPathInfo &info) {
+void LayerManager::AppendPath(const LayersPathInfo &info) {
     LayersPathInfo *existing_info = FindPathInfo(this->paths, info.path.RelativePath());
     if (existing_info != nullptr) {
         existing_info->enabled = info.enabled;
@@ -389,7 +389,16 @@ void LayerManager::RemovePath(const LayersPathInfo &path_info) {
     }
 }
 
-void LayerManager::UpdatePath(const LayersPathInfo &path_info) {
+void LayerManager::UpdatePathEnabled(const LayersPathInfo &path_info) {
+    for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
+        for (std::size_t i = 0, n = this->paths[paths_type_index].size(); i < n; ++i) {
+            if (path_info.path == this->paths[paths_type_index][i].path) {
+                this->paths[paths_type_index][i].enabled = path_info.enabled;
+                break;
+            }
+        }
+    }
+
     const std::vector<Path> &layers_paths = CollectFilePaths(path_info.path);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
