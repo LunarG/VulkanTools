@@ -255,27 +255,40 @@ bool ConfigurationManager::HasActiveConfiguration() const {
     return false;
 }
 
-Configuration &ConfigurationManager::CreateConfiguration(const LayerManager &layers, const std::string &configuration_name,
-                                                         bool duplicate) {
-    Configuration *duplicate_configuration = this->FindConfiguration(configuration_name);
+Configuration &ConfigurationManager::CreateConfiguration(const LayerManager &layers, const std::string &configuration_name) {
+    std::string configuration_key = MakeConfigurationName(available_configurations, configuration_name);
 
-    Configuration new_configuration = duplicate_configuration != nullptr && duplicate ? *duplicate_configuration : Configuration();
-    new_configuration.key = MakeConfigurationName(available_configurations, configuration_name);
+    Configuration new_configuration = Configuration::Create(layers, configuration_key);
 
-    const Path &path(MakeConfigurationPath(new_configuration.key));
-    new_configuration.Save(path);
-
-    // Reload from file to workaround the lack of SettingSet copy support
-    Configuration configuration;
-    const bool result = configuration.Load(path, layers);
-    assert(result);
-
-    this->available_configurations.push_back(configuration);
+    this->available_configurations.push_back(new_configuration);
     this->SortConfigurations();
 
-    this->GetActiveConfigurationInfo()->name = configuration.key;
+    this->GetActiveConfigurationInfo()->name = new_configuration.key;
 
-    return *this->FindConfiguration(configuration.key);
+    return *this->FindConfiguration(new_configuration.key);
+}
+
+Configuration &ConfigurationManager::DuplicateConfiguration(const LayerManager &layers, const std::string &configuration_name) {
+    Configuration *source_configuration = this->FindConfiguration(configuration_name);
+    assert(source_configuration != nullptr);
+
+    Configuration duplicated_configuration = *source_configuration;
+    duplicated_configuration.key = MakeConfigurationName(available_configurations, configuration_name);
+
+    const Path &path = MakeConfigurationPath(duplicated_configuration.key);
+    duplicated_configuration.Save(path);
+
+    // Reload from file to workaround the lack of SettingSet copy support
+    Configuration reloaded_configuration;
+    const bool result = reloaded_configuration.Load(path, layers);
+    assert(result);
+
+    this->available_configurations.push_back(reloaded_configuration);
+    this->SortConfigurations();  // invalidated all pointers to configuration object
+
+    this->GetActiveConfigurationInfo()->name = reloaded_configuration.key;
+
+    return *this->FindConfiguration(reloaded_configuration.key);
 }
 
 bool ConfigurationManager::HasFile(const Configuration &configuration) const {
