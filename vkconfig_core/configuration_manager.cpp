@@ -213,7 +213,10 @@ void ConfigurationManager::SaveAllConfigurations() const {
 
 const ConfigurationInfo *ConfigurationManager::GetActiveConfigurationInfo() const {
     if (this->use_per_executable_configuration) {
-        return &this->configuration_infos.find(this->active_executable.c_str())->second;
+        if (this->active_executable.empty())
+            return nullptr;
+        else
+            return &this->configuration_infos.find(this->active_executable.c_str())->second;
     } else {
         return &this->configuration_infos.find(GLOBAL_CONFIGURATION_TOKEN)->second;
     }
@@ -237,10 +240,6 @@ const ConfigurationInfo *ConfigurationManager::FindConfigurationInfo(const std::
     return nullptr;
 }
 
-const std::map<std::string, ConfigurationInfo> &ConfigurationManager::GetConfigurationInfos() const {
-    return this->configuration_infos;
-}
-
 bool ConfigurationManager::HasActiveConfiguration() const {
     if (this->GetActiveConfigurationInfo() == nullptr) {
         return false;
@@ -253,6 +252,10 @@ bool ConfigurationManager::HasActiveConfiguration() const {
     }
 
     return false;
+}
+
+const std::map<std::string, ConfigurationInfo> &ConfigurationManager::GetConfigurationInfos() const {
+    return this->configuration_infos;
 }
 
 Configuration &ConfigurationManager::CreateConfiguration(const LayerManager &layers, const std::string &configuration_name) {
@@ -359,7 +362,6 @@ int ConfigurationManager::GetConfigurationIndex(const std::string &configuration
         }
     }
 
-    assert(0);
     return -1;
 }
 
@@ -444,54 +446,6 @@ void ConfigurationManager::ExportConfiguration(const LayerManager &layers, const
         msg.setInformativeText(full_export_path.AbsolutePath().c_str());
         msg.exec();
     }
-}
-
-bool ConfigurationManager::CheckApiVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,
-                                            std::string &log_versions) const {
-    return this->CompareLayersVersions(available_layers, selected_configuration, Version::VKCONFIG, log_versions, true);
-}
-
-bool ConfigurationManager::CheckLayersVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,
-                                               std::string &log_versions) const {
-    return this->CompareLayersVersions(available_layers, selected_configuration, Version::NONE, log_versions, false);
-}
-
-bool ConfigurationManager::CompareLayersVersions(const std::vector<Layer> &available_layers, Configuration *selected_configuration,
-                                                 const Version &version, std::string &log_versions, bool is_less) const {
-    assert(selected_configuration != nullptr);
-
-    Version current_version = version;
-
-    bool result = true;
-
-    for (std::size_t param_index = 0, param_count = selected_configuration->parameters.size(); param_index < param_count;
-         ++param_index) {
-        const Parameter &parameter = selected_configuration->parameters[param_index];
-
-        if (parameter.control != LAYER_CONTROL_ON) {
-            continue;
-        }
-
-        for (std::size_t layer_index = 0, layer_count = available_layers.size(); layer_index < layer_count; ++layer_index) {
-            const Layer &layer = available_layers[layer_index];
-
-            if (layer.key == parameter.key) {
-                if (current_version == Version::NONE) {
-                    current_version = layer.api_version;
-                }
-
-                if (is_less) {
-                    if (layer.api_version.GetMinor() > version.GetMinor()) result = false;
-                } else {
-                    if (layer.api_version.GetMinor() != current_version.GetMinor()) result = false;
-                }
-
-                log_versions += format("%s - %s\n", layer.key.c_str(), layer.api_version.str().c_str());
-            }
-        }
-    }
-
-    return result;
 }
 
 bool ConfigurationManager::GetPerExecutableConfig() const { return this->use_per_executable_configuration; }
