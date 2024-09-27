@@ -33,6 +33,7 @@
 
 #include <cctype>
 #include <regex>
+#include <set>
 
 std::string format(const char* message, ...) {
     std::size_t const STRING_BUFFER(4096);
@@ -309,6 +310,12 @@ QStringList ConvertString(const std::vector<std::string>& strings) {
     }
 
     return string_list;
+}
+
+std::vector<std::string> UniqueStrings(const std::vector<std::string>& strings) {
+    std::set<std::string> uniques(strings.begin(), strings.end());
+    std::vector<std::string> results(uniques.begin(), uniques.end());
+    return results;
 }
 
 std::string ToLowerCase(const std::string& value) {
