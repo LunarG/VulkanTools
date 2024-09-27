@@ -24,11 +24,11 @@
 #include "../setting_string.h"
 
 #include <gtest/gtest.h>
-/*
+
 inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaString*>(layer.Instantiate(layer.settings, key, SETTING_STRING));
 }
-
+/*
 static std::vector<Layer> GenerateTestLayers() {
     std::vector<Layer> layers;
     layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
@@ -42,7 +42,7 @@ static std::vector<Layer> GenerateTestLayers() {
     layers.push_back(Layer("Layer C2", LAYER_TYPE_USER_DEFINED, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
     return layers;
 }
-
+*/
 static std::vector<Parameter> GenerateTestParametersExist() {
     std::vector<Parameter> parameters;
     parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_ON));
@@ -53,10 +53,10 @@ static std::vector<Parameter> GenerateTestParametersExist() {
 
 static std::vector<Parameter> GenerateTestParametersImplicitOrdering() {
     std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer I0", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer I1", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer E0", LAYER_STATE_OVERRIDDEN));
-    parameters.push_back(Parameter("Layer E1", LAYER_STATE_OVERRIDDEN));
+    parameters.push_back(Parameter("Layer I0", LAYER_CONTROL_ON));
+    parameters.push_back(Parameter("Layer I1", LAYER_CONTROL_ON));
+    parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_ON));
+    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_ON));
     return parameters;
 }
 
@@ -93,14 +93,48 @@ static std::vector<Parameter> GenerateTestParametersAll() {
     return parameters;
 }
 
-TEST(test_parameter, ordering_no_layers) {
-    std::vector<Layer> layers;
+TEST(test_parameter, apply_settings) {
+    Layer layer;
 
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer", LAYER_CONTROL_AUTO)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer", LAYER_CONTROL_OFF)));
+    SettingMetaString* metaA = InstantiateString(layer, "A");
+    SettingMetaString* metaB = InstantiateString(layer, "B");
+
+    SettingDataString* preset_setting = Instantiate<SettingDataString>(metaA);
+    preset_setting->value = "preset value";
+
+    LayerPreset preset;
+    preset.settings.push_back(preset_setting);
+
+    SettingDataString* layer_setting_a = Instantiate<SettingDataString>(metaA);
+    layer_setting_a->value = "setting value";
+
+    SettingDataString* layer_setting_b = Instantiate<SettingDataString>(metaB);
+    layer_setting_b->value = "setting value";
+
+    Parameter parameter;
+    parameter.settings.push_back(layer_setting_a);
+    parameter.settings.push_back(layer_setting_b);
+
+    EXPECT_EQ(1, preset.settings.size());
+    EXPECT_EQ(2, parameter.settings.size());
+
+    parameter.ApplyPresetSettings(preset);
+
+    EXPECT_EQ(1, preset.settings.size());
+    EXPECT_EQ(2, parameter.settings.size());
+
+    EXPECT_STREQ("preset value", static_cast<SettingDataString*>(FindSetting(parameter.settings, "A"))->value.c_str());
+    EXPECT_STREQ("setting value", static_cast<SettingDataString*>(FindSetting(parameter.settings, "B"))->value.c_str());
 }
 
+TEST(test_parameter, ordering_no_layers) {
+    LayerManager layer_manager;
+
+    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_AUTO)));
+    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_ON)));
+    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_OFF)));
+}
+/*
 TEST(test_parameter, ordering_found_custom_layers) {
     const std::vector<Layer>& layers = GenerateTestLayers();
 
@@ -129,35 +163,6 @@ TEST(test_parameter, ordering_found_implicit_layers) {
     EXPECT_EQ(PARAMETER_RANK_EXCLUDED, GetParameterOrdering(layers, Parameter("Layer I1", LAYER_CONTROL_OFF)));
     EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer I3", LAYER_CONTROL_ON)));
     EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer I4", LAYER_CONTROL_OFF)));
-}
-
-TEST(test_parameter, missing_layers) {
-    std::vector<Layer> layers_empty;
-    std::vector<Layer> layers = GenerateTestLayers();
-
-    std::string missing_layer;
-
-    std::vector<Parameter> parameters_exist = GenerateTestParametersExist();
-    EXPECT_EQ(true, HasMissingLayer(parameters_exist, layers_empty, missing_layer));
-    EXPECT_EQ(false, HasMissingLayer(parameters_exist, layers, missing_layer));
-
-    std::vector<Parameter> parameters_missing = GenerateTestParametersMissing();
-    EXPECT_EQ(true, HasMissingLayer(parameters_missing, layers_empty, missing_layer));
-    EXPECT_EQ(true, HasMissingLayer(parameters_missing, layers, missing_layer));
-}
-
-TEST(test_parameter, filter) {
-    std::vector<Parameter> parameters_app_controlled = GenerateTestParametersExist();
-    FilterParameters(parameters_app_controlled, LAYER_CONTROL_AUTO);
-    EXPECT_EQ(2, parameters_app_controlled.size());
-
-    std::vector<Parameter> parameters_overridden = GenerateTestParametersExist();
-    FilterParameters(parameters_overridden, LAYER_CONTROL_ON);
-    EXPECT_EQ(2, parameters_overridden.size());
-
-    std::vector<Parameter> parameters_excluded = GenerateTestParametersExist();
-    FilterParameters(parameters_excluded, LAYER_CONTROL_OFF);
-    EXPECT_EQ(2, parameters_excluded.size());
 }
 
 TEST(test_parameter, order_automatic) {
@@ -238,201 +243,6 @@ TEST(test_parameter, order_manual) {
     // Explicit application controlled
     EXPECT_STREQ("Layer C2", parameters[16].key.c_str());
     EXPECT_STREQ("Layer E2", parameters[17].key.c_str());
-}
-
-TEST(test_parameter, apply_settings) {
-    Layer layer;
-
-    SettingMetaString* metaA = InstantiateString(layer, "A");
-    SettingMetaString* metaB = InstantiateString(layer, "B");
-
-    SettingDataString* preset_setting = Instantiate<SettingDataString>(metaA);
-    preset_setting->value = "preset value";
-
-    LayerPreset preset;
-    preset.settings.push_back(preset_setting);
-
-    SettingDataString* layer_setting_a = Instantiate<SettingDataString>(metaA);
-    layer_setting_a->value = "setting value";
-
-    SettingDataString* layer_setting_b = Instantiate<SettingDataString>(metaB);
-    layer_setting_b->value = "setting value";
-
-    Parameter parameter;
-    parameter.settings.push_back(layer_setting_a);
-    parameter.settings.push_back(layer_setting_b);
-
-    EXPECT_EQ(1, preset.settings.size());
-    EXPECT_EQ(2, parameter.settings.size());
-
-    parameter.ApplyPresetSettings(preset);
-
-    EXPECT_EQ(1, preset.settings.size());
-    EXPECT_EQ(2, parameter.settings.size());
-
-    EXPECT_STREQ("preset value", static_cast<SettingDataString*>(FindSetting(parameter.settings, "A"))->value.c_str());
-    EXPECT_STREQ("setting value", static_cast<SettingDataString*>(FindSetting(parameter.settings, "B"))->value.c_str());
-}
-
-TEST(test_parameter, gather_parameters_exist) {
-    std::vector<Parameter> parameters = GatherParameters(GenerateTestParametersExist(), GenerateTestLayers());
-
-    EXPECT_EQ(9, parameters.size());
-
-    EXPECT_STREQ("Layer E1", parameters[0].key.c_str());
-    EXPECT_STREQ("Layer I0", parameters[1].key.c_str());
-    EXPECT_STREQ("Layer I1", parameters[2].key.c_str());
-    EXPECT_STREQ("Layer I2", parameters[3].key.c_str());
-    EXPECT_STREQ("Layer E0", parameters[4].key.c_str());
-    EXPECT_STREQ("Layer C0", parameters[5].key.c_str());
-    EXPECT_STREQ("Layer C1", parameters[6].key.c_str());
-    EXPECT_STREQ("Layer C2", parameters[7].key.c_str());
-    EXPECT_STREQ("Layer E2", parameters[8].key.c_str());
-}
-
-TEST(test_parameter, gather_parameters_missing) {
-    std::vector<Parameter> parameters = GatherParameters(GenerateTestParametersMissing(), GenerateTestLayers());
-
-    EXPECT_EQ(10, parameters.size());
-
-    EXPECT_STREQ("Layer E3", parameters[0].key.c_str());
-    EXPECT_STREQ("Layer E1", parameters[1].key.c_str());
-    EXPECT_STREQ("Layer I0", parameters[2].key.c_str());
-    EXPECT_STREQ("Layer I1", parameters[3].key.c_str());
-    EXPECT_STREQ("Layer I2", parameters[4].key.c_str());
-    EXPECT_STREQ("Layer C0", parameters[5].key.c_str());
-    EXPECT_STREQ("Layer C1", parameters[6].key.c_str());
-    EXPECT_STREQ("Layer C2", parameters[7].key.c_str());
-    EXPECT_STREQ("Layer E0", parameters[8].key.c_str());
-    EXPECT_STREQ("Layer E2", parameters[9].key.c_str());
-}
-
-TEST(test_parameter, gather_parameters_all) {
-    std::vector<Parameter> parameters = GatherParameters(GenerateTestParametersAll(), GenerateTestLayers());
-
-    EXPECT_EQ(18, parameters.size());
-
-    EXPECT_STREQ("Layer C3", parameters[0].key.c_str());
-    EXPECT_STREQ("Layer C4", parameters[1].key.c_str());
-    EXPECT_STREQ("Layer C5", parameters[2].key.c_str());
-    EXPECT_STREQ("Layer E3", parameters[3].key.c_str());
-    EXPECT_STREQ("Layer E4", parameters[4].key.c_str());
-    EXPECT_STREQ("Layer E5", parameters[5].key.c_str());
-    EXPECT_STREQ("Layer I3", parameters[6].key.c_str());
-    EXPECT_STREQ("Layer I4", parameters[7].key.c_str());
-    EXPECT_STREQ("Layer I5", parameters[8].key.c_str());
-    EXPECT_STREQ("Layer C1", parameters[9].key.c_str());
-    EXPECT_STREQ("Layer E1", parameters[10].key.c_str());
-    EXPECT_STREQ("Layer I1", parameters[11].key.c_str());
-    EXPECT_STREQ("Layer I2", parameters[12].key.c_str());
-    EXPECT_STREQ("Layer I0", parameters[13].key.c_str());
-    EXPECT_STREQ("Layer C0", parameters[14].key.c_str());
-    EXPECT_STREQ("Layer E0", parameters[15].key.c_str());
-    EXPECT_STREQ("Layer C2", parameters[16].key.c_str());
-    EXPECT_STREQ("Layer E2", parameters[17].key.c_str());
-}
-
-TEST(test_parameter, compute_min_api_version) {
-    std::vector<Parameter> parameters = GenerateTestParametersExist();
-    std::vector<Layer> layers = GenerateTestLayers();
-
-    Version min_version = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
-    EXPECT_EQ(Version(1, 2, 148), min_version);
-}
-
-TEST(test_parameter, compute_min_api_version_exclude_middle) {
-    std::vector<Layer> layers;
-    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 162), "1", "layer.json"));
-    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 176), "1", "layer.json"));
-
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer E2", LAYER_CONTROL_AUTO));
-
-    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
-    EXPECT_EQ(Version(1, 2, 148), min_version_A);
-
-    Version min_version_B = ComputeMinApiVersion(Version(1, 2, 140), parameters, layers);
-    EXPECT_EQ(Version(1, 2, 140), min_version_B);
-}
-
-TEST(test_parameter, compute_min_api_version_exclude_older) {
-    std::vector<Layer> layers;
-    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 162), "1", "layer.json"));
-    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 176), "1", "layer.json"));
-
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E2", LAYER_CONTROL_AUTO));
-
-    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
-    EXPECT_EQ(Version(1, 2, 162), min_version_A);
-
-    Version min_version_B = ComputeMinApiVersion(Version(1, 2, 160), parameters, layers);
-    EXPECT_EQ(Version(1, 2, 160), min_version_B);
-}
-
-TEST(test_parameter, compute_min_api_version_exclude_newer) {
-    std::vector<Layer> layers;
-    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 162), "1", "layer.json"));
-    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 176), "1", "layer.json"));
-
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_AUTO));
-    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E2", LAYER_CONTROL_OFF));
-
-    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
-    EXPECT_EQ(Version(1, 2, 148), min_version_A);
-
-    Version min_version_B = ComputeMinApiVersion(Version(1, 2, 140), parameters, layers);
-    EXPECT_EQ(Version(1, 2, 140), min_version_B);
-}
-
-TEST(test_parameter, compute_min_api_version_exclude_all) {
-    std::vector<Layer> layers;
-    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 162), "1", "layer.json"));
-    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 176), "1", "layer.json"));
-
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer E2", LAYER_CONTROL_OFF));
-
-    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
-    EXPECT_EQ(Version(1, 2, 170), min_version_A);
-}
-
-TEST(test_parameter, compute_min_api_version_missing_one) {
-    std::vector<Layer> layers;
-    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 176), "1", "layer.json"));
-
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_AUTO));
-    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E2", LAYER_CONTROL_ON));
-
-    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
-    EXPECT_EQ(Version(1, 2, 148), min_version_A);
-}
-
-TEST(test_parameter, compute_min_api_version_missing_all) {
-    std::vector<Layer> layers;
-
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_AUTO));
-    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E2", LAYER_CONTROL_ON));
-
-    Version min_version_A = ComputeMinApiVersion(Version(1, 2, 170), parameters, layers);
-    EXPECT_EQ(Version(1, 2, 170), min_version_A);
 }
 
 TEST(test_parameter, OrderParameter_ImplicitLayer) {

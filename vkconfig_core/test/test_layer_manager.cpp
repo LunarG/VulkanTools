@@ -30,6 +30,31 @@ TEST(test_layer_manager, clear) {
     EXPECT_TRUE(layer_manager.Size() == 0);
 }
 
+TEST(test_layer_manager, load_json) {
+    QJsonObject json_object;
+
+    LayerManager layer_manager;
+    bool result = layer_manager.Load(json_object);
+    EXPECT_TRUE(result);
+}
+
+TEST(test_layer_manager, save_json) {
+    QJsonObject json_root_object;
+
+    LayerManager layer_manager;
+    bool result = layer_manager.Save(json_root_object);
+    EXPECT_TRUE(result);
+
+    EXPECT_TRUE(json_root_object.value("layers") != QJsonValue::Undefined);
+
+    if (json_root_object.value("layers") != QJsonValue::Undefined) {
+        const QJsonObject& json_layers_object = json_root_object.value("layers").toObject();
+
+        EXPECT_TRUE(json_layers_object.value("validated") != QJsonValue::Undefined);
+        EXPECT_TRUE(json_layers_object.value("paths") != QJsonValue::Undefined);
+    }
+}
+
 TEST(test_layer_manager, load_all) {
     LayerManager layer_manager;
     layer_manager.LoadLayersFromPath(":/layers");
