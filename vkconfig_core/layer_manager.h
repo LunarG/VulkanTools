@@ -70,7 +70,6 @@ class LayerManager : public Serialize {
 
     std::vector<Layer> selected_layers;
     std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> paths;
-    std::vector<Path> removed_paths;  // TODO: Remove?
 
    private:
     std::map<Path, std::string> layers_validated;
