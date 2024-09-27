@@ -248,8 +248,9 @@ bool Environment::Load() {
     // assemble a list of paths that take precidence for layer discovery.
     const QString VK_LAYER_PATH(qgetenv("VK_LAYER_PATH"));
     if (!VK_LAYER_PATH.isEmpty()) {
-        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET] =
-            ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(SEPARATOR));
+        std::vector<std::string> paths = ConvertString(QString(qgetenv("VK_LAYER_PATH")).split(SEPARATOR));
+        paths = UniqueStrings(paths);
+        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET] = paths;
     } else {
         this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_SET].clear();
     }
@@ -258,8 +259,9 @@ bool Environment::Load() {
     // assemble a list of paths that take precidence for layer discovery.
     const QString VK_ADD_LAYER_PATH(qgetenv("VK_ADD_LAYER_PATH"));
     if (!VK_ADD_LAYER_PATH.isEmpty()) {
-        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD] =
-            ConvertString(QString(qgetenv("VK_ADD_LAYER_PATH")).split(SEPARATOR));
+        std::vector<std::string> paths = ConvertString(QString(qgetenv("VK_ADD_LAYER_PATH")).split(SEPARATOR));
+        paths = UniqueStrings(paths);
+        this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD] = paths;
     } else {
         this->user_defined_layers_paths[USER_DEFINED_LAYERS_PATHS_ENV_ADD].clear();
     }
