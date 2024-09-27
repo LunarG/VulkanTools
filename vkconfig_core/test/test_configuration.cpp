@@ -275,6 +275,150 @@ TEST(test_configuration, SwitchLayerVersion) {
     EXPECT_EQ(parameter_version_not_found->api_version, Version::LATEST);
 }
 
+TEST(test_configuration, gather_parameters_exist) {
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
+
+    Configuration configuration;
+    configuration.key = "New Configuration";
+
+    configuration.GatherParameters(layer_manager);
+
+    EXPECT_STREQ(configuration.parameters[0].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
+    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
+    EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
+
+    EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_test_00");
+    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_test_01");
+    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_test_02");
+    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_test_03");
+    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_test_04");
+    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_05");
+    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_06");
+
+    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_version");
+
+    std::string missing_layer;
+    EXPECT_FALSE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));
+    EXPECT_TRUE(missing_layer.empty());
+}
+
+TEST(test_configuration, gather_parameters_repeat) {
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
+
+    Configuration configuration;
+    configuration.key = "New Configuration";
+
+    configuration.GatherParameters(layer_manager);
+    configuration.GatherParameters(layer_manager);  // Again, check for no duplication!
+
+    EXPECT_STREQ(configuration.parameters[0].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
+    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
+    EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
+
+    EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_test_00");
+    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_test_01");
+    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_test_02");
+    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_test_03");
+    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_test_04");
+    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_05");
+    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_06");
+
+    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_version");
+}
+
+TEST(test_configuration, gather_parameters_missing) {
+    LayerManager layer_manager;
+
+    Configuration configuration;
+    configuration.key = "New Configuration";
+
+    layer_manager.LoadLayersFromPath(":/layers");
+    configuration.GatherParameters(layer_manager);
+
+    layer_manager.Clear();
+    configuration.GatherParameters(layer_manager);
+
+    EXPECT_STREQ(configuration.parameters[0].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
+    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
+    EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
+
+    EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_test_00");
+    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_test_01");
+    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_test_02");
+    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_test_03");
+    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_test_04");
+    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_05");
+    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_06");
+
+    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_version");
+
+    std::string missing_layer;
+    EXPECT_TRUE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));
+    EXPECT_STREQ(missing_layer.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
+}
+
+TEST(test_configuration, HasMissingLayer_UnsupportPlatform) {
+    LayerManager layer_manager;
+
+    Configuration configuration;
+    configuration.key = "New Configuration";
+
+    layer_manager.LoadLayersFromPath(":/layers");
+    configuration.GatherParameters(layer_manager);
+
+    layer_manager.Clear();
+
+    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+        configuration.parameters[i].platform_flags = 0;
+    }
+
+    std::string missing_layer;
+    EXPECT_FALSE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));
+    EXPECT_TRUE(missing_layer.empty());
+}
+
+TEST(test_configuration, HasMissingLayer_Off) {
+    LayerManager layer_manager;
+
+    Configuration configuration;
+    configuration.key = "New Configuration";
+
+    layer_manager.LoadLayersFromPath(":/layers");
+    configuration.GatherParameters(layer_manager);
+
+    layer_manager.Clear();
+
+    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+        configuration.parameters[i].control = LAYER_CONTROL_OFF;
+    }
+
+    std::string missing_layer;
+    EXPECT_FALSE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));
+    EXPECT_TRUE(missing_layer.empty());
+}
+
+TEST(test_configuration, gather_parameters_missing_but_unsupported_platform) {
+    LayerManager layer_manager;
+
+    Configuration configuration;
+    configuration.key = "New Configuration";
+
+    layer_manager.LoadLayersFromPath(":/layers");
+    configuration.GatherParameters(layer_manager);
+
+    layer_manager.Clear();
+
+    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+        configuration.parameters[i].platform_flags = 0;
+    }
+
+    std::string missing_layer;
+    EXPECT_FALSE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));
+    EXPECT_TRUE(missing_layer.empty());
+}
+
 TEST(test_configuration, Reorder_full) {
     LayerManager layer_manager;
     layer_manager.LoadLayersFromPath(":/layers");
