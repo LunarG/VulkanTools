@@ -61,11 +61,6 @@ class ConfigurationManager : public Serialize {
 
     void SortConfigurations();
 
-    bool CheckLayersVersions(const std::vector<Layer>& available_layers, Configuration* selected_configuration,
-                             std::string& log_versions) const;
-    bool CheckApiVersions(const std::vector<Layer>& available_layers, Configuration* selected_configuration,
-                          std::string& log_versions) const;
-
     bool Empty() const { return available_configurations.empty(); }
 
     bool HasFile(const Configuration& configuration) const;
@@ -82,9 +77,6 @@ class ConfigurationManager : public Serialize {
     Path last_path_export;
 
    private:
-    bool CompareLayersVersions(const std::vector<Layer>& available_layers, Configuration* selected_configuration,
-                               const Version& version, std::string& log_versions, bool is_less) const;
-
     void RemoveConfigurationFiles();
 
     void LoadConfigurationsPath(const LayerManager& layers);

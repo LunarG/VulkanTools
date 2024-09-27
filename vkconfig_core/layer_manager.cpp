@@ -140,7 +140,8 @@ bool LayerManager::Load(const QJsonObject &json_root_object) {
 
     // LAYERS_PATHS_ENV_ADD: VK_ADD_LAYER_PATH env variables
     {
-        const std::vector<std::string> &VK_ADD_LAYER_PATH = UniqueStrings(Split(qgetenv("VK_ADD_LAYER_PATH").toStdString(), SEPARATOR));
+        const std::vector<std::string> &VK_ADD_LAYER_PATH =
+            UniqueStrings(Split(qgetenv("VK_ADD_LAYER_PATH").toStdString(), SEPARATOR));
         this->paths[LAYERS_PATHS_ENV_ADD].resize(VK_ADD_LAYER_PATH.size());
         for (std::size_t i = 0, n = VK_ADD_LAYER_PATH.size(); i < n; ++i) {
             this->paths[LAYERS_PATHS_ENV_ADD][i].path = VK_ADD_LAYER_PATH[i];
@@ -206,15 +207,9 @@ bool LayerManager::Save(QJsonObject &json_root_object) const {
         }
     }
 
-    QJsonArray json_removed_paths_array;
-    for (std::size_t i = 0, n = this->removed_paths.size(); i < n; ++i) {
-        json_removed_paths_array.append(this->removed_paths[i].RelativePath().c_str());
-    }
-
     QJsonObject json_layers_object;
     json_layers_object.insert("validated", json_layers_paths_object);
     json_layers_object.insert("paths", json_paths_object);
-    json_layers_object.insert("removed_paths", json_removed_paths_array);
 
     json_root_object.insert("layers", json_layers_object);
 
@@ -363,8 +358,6 @@ void LayerManager::AppendPath(const LayersPathInfo &info) {
 }
 
 void LayerManager::RemovePath(const LayersPathInfo &path_info) {
-    this->removed_paths.push_back(path_info.path);
-
     const std::vector<Path> &layers_paths = CollectFilePaths(path_info.path);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
