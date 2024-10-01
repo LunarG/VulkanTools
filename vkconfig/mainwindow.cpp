@@ -416,7 +416,6 @@ void MainWindow::UpdateUI() {
     // Launcher states
     const bool has_application_list = !environment.GetApplications().empty();
     ui->push_button_launcher->setEnabled(has_application_list);
-    ui->push_button_launcher->setText(_launch_application ? "Terminate" : "Launch");
     ui->check_box_clear_on_launch->setChecked(environment.Get(LAYOUT_LAUNCHER_NOT_CLEAR) != "true");
     ui->launcher_loader_debug->blockSignals(true);  // avoid calling again UpdateUI
     ui->launcher_loader_debug->setCurrentIndex(GetLoaderMessageType(environment.GetLoaderMessageTypes()));

@@ -60,35 +60,6 @@ bool IsNumber(const std::string& s);
 
 bool IsFloat(const std::string& s);
 
-template <typename T>
-T* FindByKey(std::vector<T>& container, const char* key) {
-    assert(key != nullptr);
-    assert(std::strcmp(key, "") != 0);
-
-    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
-        if (container[i].key == key) return &container[i];
-    }
-
-    return nullptr;
-}
-
-template <typename T>
-const T* FindByKey(const std::vector<T>& container, const char* key) {
-    assert(key != nullptr);
-    assert(std::strcmp(key, "") != 0);
-
-    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
-        if (container[i].key == key) return &container[i];
-    }
-
-    return nullptr;
-}
-
-template <typename T>
-bool IsFound(const std::vector<T>& container, const char* key) {
-    return FindByKey(container, key) != nullptr;
-}
-
 // Remove a value if it's present
 void RemoveString(std::vector<std::string>& list, const std::string& value);
 
@@ -167,3 +138,40 @@ bool IsValueFound(const std::vector<EnabledNumberOrString>& list, const NumberOr
 QStringList ConvertValues(const std::vector<NumberOrString>& values);
 
 std::string GetLayerSettingPrefix(const std::string& key);
+
+template <typename T>
+T* FindByKey(std::vector<T>& container, const char* key) {
+    assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
+
+    const std::string low_key = ToLowerCase(std::string(key));
+
+    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
+        if (ToLowerCase(container[i].key) == low_key) {
+            return &container[i];
+        }
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+const T* FindByKey(const std::vector<T>& container, const char* key) {
+    assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
+
+    const std::string low_key = ToLowerCase(std::string(key));
+
+    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
+        if (ToLowerCase(container[i].key) == low_key) {
+            return &container[i];
+        }
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+bool IsFound(const std::vector<T>& container, const char* key) {
+    return FindByKey(container, key) != nullptr;
+}
