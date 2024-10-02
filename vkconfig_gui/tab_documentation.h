@@ -22,12 +22,12 @@
 
 #include "tab.h"
 
-struct TabHelp : public Tab {
+struct TabDocumentation : public Tab {
     Q_OBJECT
 
    public:
-    TabHelp(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
-    virtual ~TabHelp();
+    TabDocumentation(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
+    virtual ~TabDocumentation();
 
     virtual void UpdateUI(UpdateUIMode mode) override;
     virtual void CleanUI() override;

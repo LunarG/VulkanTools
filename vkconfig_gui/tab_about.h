@@ -18,15 +18,24 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "tab_help.h"
-#include "mainwindow.h"
+#pragma once
 
-TabHelp::TabHelp(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_HELP, window, ui) {}
+#include "tab.h"
 
-TabHelp::~TabHelp() {}
+struct TabAbout : public Tab {
+    Q_OBJECT
 
-void TabHelp::UpdateUI(UpdateUIMode mode) {}
+   public:
+    TabAbout(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
+    virtual ~TabAbout();
 
-void TabHelp::CleanUI() {}
+    virtual void UpdateUI(UpdateUIMode mode) override;
+    virtual void CleanUI() override;
+    virtual bool EventFilter(QObject* target, QEvent* event) override;
 
-bool TabHelp::EventFilter(QObject *target, QEvent *event) { return false; }
+   public Q_SLOTS:
+    void on_about_lunarg_pushButton_pressed();
+    void on_about_qt_pushButton_pressed();
+
+   private:
+};

@@ -21,7 +21,6 @@
 #include "mainwindow.h"
 
 #include "../vkconfig_core/vulkan_util.h"
-#include "../vkconfig_core/vulkan_util.h"
 #include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/application_singleton.h"
 #include "../vkconfig_core/configurator.h"
