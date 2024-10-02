@@ -11,8 +11,16 @@
 
 # Release notes
 
-<<<<<<< HEAD:vkconfig/CHANGELOG.md
-## [Vulkan Configurator 2.6.2](https://github.com/LunarG/VulkanTools/tree/main) - October 2024
+## [Vulkan Configurator 3.0.0](https://github.com/LunarG/VulkanTools/tree/main) - January 2025
+
+### Features:
+- UI redesign: per use case tabs
+- Enable loading multiple versions of the same layer
+- Enable ordering all layers executed by Vulkan application
+- Enable ordering layers independently from enabling them
+- Enable storing multiple set applications options for the application launcher
+
+## [Vulkan Configurator 2.6.2](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.296.0) - October 2024
 
 ### Improvements:
 - Show message warnings when overriding implicit layer, either disabling or enabling
@@ -23,9 +31,6 @@
 - Fix overridden implicit layer ordering
 
 ## [Vulkan Configurator 2.6.1](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.290.0) - July 2024
-=======
-## [Vulkan Configurator 3.0.0](https://github.com/LunarG/VulkanTools/tree/main) - ??? 2024
->>>>>>> a680297a5... vkconfig3: UI for new Vulkan Loader settings:vkconfig_gui/CHANGELOG.md
 
 ### Features:
 - Redesign main window UI around tabs

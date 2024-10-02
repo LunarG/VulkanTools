@@ -550,6 +550,10 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
     }
 
     QWidget *widget = ui->configurations_layers_list->itemWidget(ui->configurations_layers_list->item(currentRow));
+    if (widget == nullptr) {
+        return;
+    }
+
     const std::string &layer_string = static_cast<ConfigurationLayerWidget *>(widget)->text().toStdString();
 
     Configurator &configurator = Configurator::Get();

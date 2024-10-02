@@ -46,12 +46,12 @@ class Environment : public Serialize {
 
     bool has_crashed = false;
     int hide_message_boxes_flags = 0;
+    TabType active_tab = TAB_CONFIGURATIONS;
 
    private:
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
 
-    TabType active_tab = TAB_DIAGNOSTIC;
     LogFlags loader_message_types_flags;
     Path home_sdk_path;
 };
