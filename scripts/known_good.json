@@ -54,7 +54,7 @@
             "cmake_options": [
                 "-DVOLK_INSTALL=ON"
             ],
-            "commit": "1.3.295",
+            "commit": "vulkan-sdk-1.3.296",
             "deps": [
                 {
                     "var_name": "VULKAN_HEADERS_INSTALL_DIR",
@@ -125,7 +125,7 @@
             "sub_dir": "valijson",
             "build_dir": "valijson/build",
             "install_dir": "valijson/build/install",
-            "commit": "v1.0.1"
+            "commit": "v1.0.2"
         },
         {
             "name": "googletest",
