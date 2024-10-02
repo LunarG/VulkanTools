@@ -68,7 +68,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->tabs[TAB_LAYERS].reset(new TabLayers(*this, ui));
     this->tabs[TAB_CONFIGURATIONS].reset(new TabConfigurations(*this, ui));
     this->tabs[TAB_PREFERENCES].reset(new TabPreferences(*this, ui));
-    this->tabs[TAB_HELP].reset(new TabHelp(*this, ui));
+    this->tabs[TAB_DOCUMENTATION].reset(new TabDocumentation(*this, ui));
+    this->tabs[TAB_ABOUT].reset(new TabAbout(*this, ui));
 
     connect(ui->action_find_more_layers, SIGNAL(triggered(bool)), this, SLOT(OnHelpFindLayers(bool)));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(OnHelpAbout(bool)));
@@ -96,7 +97,10 @@ MainWindow::MainWindow(QWidget *parent)
     this->restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
     this->restoreState(settings.value("mainwindow/state").toByteArray());
 
-    this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
+    const Configurator &configurator = Configurator::Get();
+
+    this->ui->tab_widget->setCurrentIndex(configurator.environment.active_tab);
+    this->tabs[configurator.environment.active_tab]->UpdateUI(UPDATE_REBUILD_UI);
 
     this->UpdateUI_Status();
     this->UpdateUI();
@@ -444,5 +448,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
 void MainWindow::on_tab_widget_currentChanged(int index) {
     assert(index >= 0);
+
+    Configurator &configurator = Configurator::Get();
+    configurator.environment.active_tab = static_cast<TabType>(index);
+
     this->tabs[index]->UpdateUI(UPDATE_REBUILD_UI);
 }

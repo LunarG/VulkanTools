@@ -25,6 +25,7 @@
 #include <memory>
 
 #include <QProcess>
+#include <QFile>
 
 struct TabApplications : public Tab {
     Q_OBJECT

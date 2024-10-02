@@ -33,7 +33,7 @@ std::string ExtractLayerName(const LayerManager& layer_manager, const std::strin
 }
 
 std::string GetMainWindowTitle(bool active, bool display_date) {
-    std::string title = format("%s %s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
+    std::string title = format("%s %s-Alpha", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
 
 #if VKCONFIG_DATE
     if (display_date) {

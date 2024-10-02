@@ -11,6 +11,15 @@
 
 # Release notes
 
+## [Vulkan Configurator 3.0.0](https://github.com/LunarG/VulkanTools/tree/main) - January 2025
+
+### Features:
+- UI redesign: per use case tabs
+- Enable loading multiple versions of the same layer
+- Enable ordering all layers executed by Vulkan application
+- Enable ordering layers independently from enabling them
+- Enable storing multiple set applications options for the application launcher
+
 ## [Vulkan Configurator 2.6.3](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.304.0) - January 2025
 - Final build
 
