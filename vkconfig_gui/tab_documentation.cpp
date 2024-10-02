@@ -18,23 +18,15 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
+#include "tab_documentation.h"
+#include "mainwindow.h"
 
-enum TabType {
-    TAB_DIAGNOSTIC = 0,
-    TAB_CONFIGURATIONS,
-    TAB_LAYERS,
-    TAB_APPLICATIONS,
-    TAB_PREFERENCES,
-    TAB_DOCUMENTATION,
-    TAB_ABOUT,
+TabDocumentation::TabDocumentation(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DOCUMENTATION, window, ui) {}
 
-    TAB_FIRST = TAB_DIAGNOSTIC,
-    TAB_LAST = TAB_ABOUT
-};
+TabDocumentation::~TabDocumentation() {}
 
-enum { TAB_COUNT = TAB_LAST - TAB_FIRST + 1 };
+void TabDocumentation::UpdateUI(UpdateUIMode mode) {}
 
-const char* GetToken(TabType type);
+void TabDocumentation::CleanUI() {}
 
-TabType GetTabType(const char* token);
+bool TabDocumentation::EventFilter(QObject *target, QEvent *event) { return false; }

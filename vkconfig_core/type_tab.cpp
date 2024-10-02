@@ -30,7 +30,8 @@ const char* GetToken(TabType type) {
         "LAYERS",          // TAB_LAYERS
         "APPLICATIONS",    // TAB_APPLICATIONS
         "PREFERENCES",     // TAB_PREFERENCES
-        "HELP"             // TAB_HELP
+        "DOCUMENTATION",   // TAB_DOCUMENTATION
+        "ABOUT"            // TAB_ABOUT
     };
 
     static_assert(std::size(TOKENS) == TAB_COUNT, "The tranlation table size doesn't match the enum number of elements");
