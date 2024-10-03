@@ -15,6 +15,7 @@
 
 ### Improvements:
 - Show message warnings when overriding implicit layer, either disabling or enabling
+- Removing layers override when closing OS session
 
 ### Fixes:
 - Fix flag settings dependencies
