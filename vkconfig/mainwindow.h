@@ -119,6 +119,8 @@ class MainWindow : public QMainWindow {
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
    public Q_SLOTS:
+    void commitDataRequest(QSessionManager &manager);
+
     void toolsVulkanInfo(bool checked);
     void toolsVulkanInstallation(bool checked);
     void toolsResetToDefault(bool checked);
