@@ -37,6 +37,7 @@
 #include "../vkconfig_core/help.h"
 #include "../vkconfig_core/doc.h"
 #include "../vkconfig_core/date.h"
+#include "../vkconfig_core/override.h"
 
 #include <QProcess>
 #include <QMessageBox>
@@ -92,6 +93,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->settings_tree->installEventFilter(this);
 
     SetupLauncherTree();
+
+    connect(qApp, &QGuiApplication::commitDataRequest, this, &MainWindow::commitDataRequest);
 
     connect(ui->action_find_more_layers, SIGNAL(triggered(bool)), this, SLOT(OnHelpFindLayers(bool)));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(OnHelpAbout(bool)));
@@ -154,6 +157,16 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() { ResetLaunchApplication(); }
+
+void MainWindow::commitDataRequest(QSessionManager &manager) {
+    (void)manager;
+
+    Configurator &configurator = Configurator::Get();
+
+    const Environment &environment = configurator.environment;
+
+    SurrenderConfiguration(configurator.environment);
+}
 
 void MainWindow::InitTray() {
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
