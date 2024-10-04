@@ -7,6 +7,7 @@
             "WINDOWS",
             "LINUX"
         ],
+        "selected_layer_name": "VK_LAYER_LUNARG_gfxreconstruct",
         "description": "Capture a range of frames",
         "layers": [
             {

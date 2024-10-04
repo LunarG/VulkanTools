@@ -38,8 +38,7 @@ struct CommandHelpDesc {
 };
 
 static const CommandHelpDesc command_help_desc[] = {
-    {HELP_HELP, "help"},     {HELP_VERSION, "version"}, {HELP_GUI, "gui"},
-    {HELP_LAYERS, "layers"}, {HELP_DOC, "doc"},         {HELP_RESET, "reset"},
+    {HELP_HELP, "help"}, {HELP_VERSION, "version"}, {HELP_LAYERS, "layers"}, {HELP_DOC, "doc"}, {HELP_RESET, "reset"},
 };
 
 static HelpType GetCommandHelpId(const char* token) {
@@ -66,8 +65,11 @@ static const ModeDesc mode_desc[] = {
     {COMMAND_VERSION, "-v", HELP_VERSION},         // COMMAND_VERSION
     {COMMAND_VERSION, "--version", HELP_VERSION},  // COMMAND_VERSION
     {COMMAND_VERSION, "version", HELP_VERSION},    // COMMAND_VERSION
+    {COMMAND_LAYERS, "--layers", HELP_LAYERS},     // COMMAND_LAYERS
     {COMMAND_LAYERS, "layers", HELP_LAYERS},       // COMMAND_LAYERS
+    {COMMAND_DOC, "--doc", HELP_DOC},              // COMMAND_DOC
     {COMMAND_DOC, "doc", HELP_DOC},                // COMMAND_DOC
+    {COMMAND_RESET, "--reset", HELP_RESET},        // COMMAND_RESET
     {COMMAND_RESET, "reset", HELP_RESET}           // COMMAND_RESET
 };
 
@@ -345,12 +347,11 @@ void CommandLine::usage() const {
         }
         case HELP_DEFAULT: {
             printf("Usage\n");
-            printf("\tvkconfig [[help] | [version] | [gui] | [layers <args>]]\n");
+            printf("\tvkconfig [[help] | [version] | [layers <args>]]\n");
             printf("\n");
             printf("Command:\n");
             printf("\thelp                      = Display usage and documentation.\n");
             printf("\tversion                   = Display %s version.\n", VKCONFIG_NAME);
-            printf("\tgui                       = Launch the %s GUI.\n", VKCONFIG_NAME);
             printf("\tlayers                    = Manage system Vulkan Layers.\n");
             printf("\tdoc                       = Create doc files for layer.\n");
             printf("\treset                     = Reset layers configurations.\n");
@@ -372,14 +373,6 @@ void CommandLine::usage() const {
             printf("\n");
             printf("Synopsis\n");
             printf("\tvkconfig version\n");
-            break;
-        }
-        case HELP_GUI: {
-            printf("Name\n");
-            printf("\t'gui' - Command to launch %s GUI\n", VKCONFIG_NAME);
-            printf("\n");
-            printf("Synopsis\n");
-            printf("\tvkconfig gui\n");
             break;
         }
         case HELP_LAYERS: {
@@ -449,4 +442,8 @@ void CommandLine::usage() const {
     }
 }
 
-void CommandLine::version() const { printf("%s version %s\n", VKCONFIG_NAME, Version::VKCONFIG.str().c_str()); }
+void CommandLine::version() const {
+    const std::string& version = Version::VKCONFIG.str();
+
+    printf("%s version %s\n", VKCONFIG_NAME, version.c_str());
+}

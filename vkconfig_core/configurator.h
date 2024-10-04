@@ -61,7 +61,7 @@ class Configurator {
     bool Override(OverrideArea override_area);
     bool HasOverride() const;
 
-    void Reset();
+    void Reset(bool hard);
 
     Configuration* GetActiveConfiguration();
     const Configuration* GetActiveConfiguration() const;
