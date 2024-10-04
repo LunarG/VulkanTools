@@ -71,6 +71,12 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->connect(this->ui->applications_check_box_clear_on_launch, SIGNAL(pressed()), this,
                   SLOT(on_applications_check_box_clear_on_launch_pressed()));
 
+    // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
+    // Whenever the control surpasses this block count, old blocks are discarded.
+    // Note: We could make this a user configurable setting down the road should this be
+    // insufficinet.
+    ui->log_browser->document()->setMaximumBlockCount(2048);
+
     this->ui->applications_args_list->setToolTip("Eg: '--argA --argB'");
     this->ui->applications_envs_list->setToolTip(VKC_ENV == VKC_ENV_WIN32 ? "Eg: 'ENV_A=ValueA;ENV_B=ValueB'"
                                                                           : "Eg: 'ENV_A=ValueA:ENV_B=ValueB'");
