@@ -50,8 +50,6 @@ int main(int argc, char* argv[]) {
     // keeping this as 'vkconfig' will ensure that it picks up the
     // settings from the previous version (assuming that's ever an issue)
     QCoreApplication::setApplicationName(VKCONFIG_SHORT_NAME);
-
-    // Qt::AA_EnableHighDpiScaling = 20  from qnamespace.h in Qt 5.6 or later
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication app(argc, argv);
@@ -64,9 +62,6 @@ int main(int argc, char* argv[]) {
             return -1;
         }
     }
-
-    Configurator& configurator = Configurator::Get();
-    // configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
 
@@ -84,6 +79,9 @@ int main(int argc, char* argv[]) {
         Alert::StartPhysicalDeviceFailure();
         return -1;
     }
+
+    Configurator& configurator = Configurator::Get();
+    // configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     if (!configurator.Init()) {
         return -1;

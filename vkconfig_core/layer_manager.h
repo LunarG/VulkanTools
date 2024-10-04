@@ -72,5 +72,7 @@ class LayerManager : public Serialize {
     std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> paths;
 
    private:
+    void InitSystemPaths();
+
     std::map<Path, std::string> layers_validated;
 };
