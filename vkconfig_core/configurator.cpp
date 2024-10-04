@@ -98,10 +98,7 @@ bool Configurator::Init(Mode mode) {
         if (request_reset) {
             this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-            this->environment.Reset();
-            this->executables.Reset();
-            this->layers.Reset();
-            this->configurations.Reset();
+            this->Reset(true);
         } else {
             this->executables.Load(json_root_object);
             this->layers.Load(json_root_object);
@@ -110,10 +107,7 @@ bool Configurator::Init(Mode mode) {
 
         this->Override(OVERRIDE_AREA_ALL);
     } else {
-        this->environment.Reset();
-        this->executables.Reset();
-        this->layers.Reset();
-        this->configurations.Reset();
+        this->Reset(false);
     }
 
     return true;
@@ -458,9 +452,17 @@ bool Configurator::HasOverride() const {
     return loader_settings_path.Exists() || layers_settings_path.Exists();
 }
 
-void Configurator::Reset() {
+void Configurator::Reset(bool hard) {
+    this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+
     this->environment.Reset();
+    this->executables.Reset();
     this->layers.Reset();
+
+    if (hard) {
+        this->configurations.RemoveConfigurationFiles();
+    }
+
     this->configurations.Reset();
 }
 

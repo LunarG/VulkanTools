@@ -8,6 +8,7 @@
             "LINUX",
             "MACOS"
         ],
+        "selected_layer_name": "VK_LAYER_KHRONOS_validation",
         "description": "Identify resource access conflicts due to missing or incorrect synchronization operations between actions reading or writing the same regions of memory.",
         "layers": [
             {
