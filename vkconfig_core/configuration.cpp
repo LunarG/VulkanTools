@@ -72,7 +72,7 @@ static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) 
 
     if (!found_applications_env) {
         Parameter applications_enabled_layers_env;
-        applications_enabled_layers_env.key = "Vulkan Layers from Application Environment Variables";
+        applications_enabled_layers_env.key = "Vulkan Layers from the Application Environment Variables";
         applications_enabled_layers_env.control = LAYER_CONTROL_APPLICATIONS_ENV;
         applications_enabled_layers_env.overridden_rank = 999;
         parameters.push_back(applications_enabled_layers_env);
