@@ -67,9 +67,10 @@ class Configurator {
     const Configuration* GetActiveConfiguration() const;
     bool HasActiveConfiguration() const;
 
+    ~Configurator();
+
    private:
     Configurator();
-    ~Configurator();
 
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
