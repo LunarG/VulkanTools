@@ -47,7 +47,7 @@ class MainWindow : public QMainWindow {
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void UpdateUI();
+    void UpdateUI(UpdateUIMode mode);
 
    private:
     void closeEvent(QCloseEvent *event) override;
