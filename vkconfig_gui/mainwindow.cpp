@@ -71,6 +71,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->tabs[TAB_DOCUMENTATION].reset(new TabDocumentation(*this, ui));
     this->tabs[TAB_ABOUT].reset(new TabAbout(*this, ui));
 
+    connect(qApp, &QGuiApplication::commitDataRequest, this, &MainWindow::commitDataRequest);
+
     connect(ui->action_find_more_layers, SIGNAL(triggered(bool)), this, SLOT(OnHelpFindLayers(bool)));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(OnHelpAbout(bool)));
     connect(ui->actionVulkan_Info, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInfo(bool)));
@@ -83,16 +85,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionVulkan_Installation, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInstallation(bool)));
     connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetToDefault(bool)));
 
-    // connect(ui->launcher_loader_debug, SIGNAL(currentIndexChanged(int)), this, SLOT(OnLauncherLoaderMessageChanged(int)));
-
-    // connect(_launcher_apps_browse_button, SIGNAL(clicked()), this, SLOT(on_push_button_applications_clicked()));
-
-    // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
-    // Whenever the control surpasses this block count, old blocks are discarded.
-    // Note: We could make this a user configurable setting down the road should this be
-    // insufficinet.
-    ui->log_browser->document()->setMaximumBlockCount(2048);
-
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
     this->restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
     this->restoreState(settings.value("mainwindow/state").toByteArray());
@@ -100,13 +92,25 @@ MainWindow::MainWindow(QWidget *parent)
     const Configurator &configurator = Configurator::Get();
 
     this->ui->tab_widget->setCurrentIndex(configurator.environment.active_tab);
-    this->tabs[configurator.environment.active_tab]->UpdateUI(UPDATE_REBUILD_UI);
-
-    this->UpdateUI_Status();
-    this->UpdateUI();
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 MainWindow::~MainWindow() {}
+
+void MainWindow::commitDataRequest(QSessionManager &manager) {
+    (void)manager;
+
+    Configurator &configurator = Configurator::Get();
+    configurator.~Configurator();
+}
+
+void MainWindow::UpdateUI(UpdateUIMode mode) {
+    if (this->tabs[this->ui->tab_widget->currentIndex()] != nullptr) {
+        this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(mode);
+    }
+
+    this->UpdateUI_Status();
+}
 
 void MainWindow::InitTray() {
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -213,8 +217,7 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
                 this->hide();
             }
 
-            this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
-            this->UpdateUI_Status();
+            this->UpdateUI(UPDATE_REBUILD_UI);
             break;
     }
 }
@@ -222,9 +225,7 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
 void MainWindow::trayActionRestore() {
     this->hide();
     this->showNormal();
-    this->UpdateUI();
-    this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
-    this->UpdateUI_Status();
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void MainWindow::trayActionControlledByApplications(bool checked) {
@@ -233,11 +234,7 @@ void MainWindow::trayActionControlledByApplications(bool checked) {
         configurator.configurations.GetActiveConfigurationInfo()->mode = LAYERS_CONTROLLED_BY_APPLICATIONS;
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-        this->UpdateUI();
-        if (this->tabs[this->ui->tab_widget->currentIndex()] != nullptr) {
-            this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
-        }
-        this->UpdateUI_Status();
+        this->UpdateUI(UPDATE_REBUILD_UI);
     }
 }
 
@@ -247,11 +244,7 @@ void MainWindow::trayActionControlledByConfigurator(bool checked) {
         configurator.configurations.GetActiveConfigurationInfo()->mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-        this->UpdateUI();
-        if (this->tabs[this->ui->tab_widget->currentIndex()] != nullptr) {
-            this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
-        }
-        this->UpdateUI_Status();
+        this->UpdateUI(UPDATE_REBUILD_UI);
     }
 }
 
@@ -261,33 +254,8 @@ void MainWindow::trayActionDisabledByApplications(bool checked) {
         configurator.configurations.GetActiveConfigurationInfo()->mode = LAYERS_DISABLED_BY_CONFIGURATOR;
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-        this->UpdateUI();
-        if (this->tabs[this->ui->tab_widget->currentIndex()] != nullptr) {
-            this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REBUILD_UI);
-        }
-        this->UpdateUI_Status();
+        this->UpdateUI(UPDATE_REBUILD_UI);
     }
-}
-
-void MainWindow::UpdateUI() {
-    static int check_recurse = 0;
-    ++check_recurse;
-    assert(check_recurse <= 1);
-
-    Configurator &configurator = Configurator::Get();
-
-    this->blockSignals(true);
-    ui->configurations_list->blockSignals(true);
-
-    const bool has_application_list = !configurator.executables.GetExecutables().empty();
-
-    // Mode states
-    // this->UpdateUI_Status();
-
-    ui->configurations_list->blockSignals(false);
-    this->blockSignals(false);
-
-    --check_recurse;
 }
 
 void MainWindow::toolsResetToDefault(bool checked) {
@@ -300,8 +268,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.Reset();
 
-    this->tabs[this->ui->tab_widget->currentIndex()]->UpdateUI(UPDATE_REFRESH_UI);
-    this->UpdateUI();
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void MainWindow::StartTool(Tool tool) {
@@ -415,25 +382,11 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     QMainWindow::closeEvent(event);
 }
-/*
-/// Resizing needs a little help. Yes please, there has to be
-/// a better way of doing this.
-void MainWindow::resizeEvent(QResizeEvent *event) {
-    if (event != nullptr) {
-        event->accept();
-    }
 
-    const QFontMetrics fm = ui->layers_list->fontMetrics();
-    const int combo_width = (fm.size(Qt::TextSingleLine, "Auto").width() * 1.6);
-    const int width = ui->layers_list->width() - combo_width;
-
-    // ui->tree_layers_list->setColumnWidth(0, width);
-}
-*/
 void MainWindow::showEvent(QShowEvent *event) {
     (void)event;
 
-    this->UpdateUI();
+    this->UpdateUI(UPDATE_REBUILD_UI);
 
     event->accept();
 }
