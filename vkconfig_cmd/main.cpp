@@ -18,14 +18,29 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
+#include <QApplication>
+
 #include "main_reset.h"
 #include "main_layers.h"
 #include "main_doc.h"
 
 #include "../vkconfig_core/path.h"
+#include "../vkconfig_core/version.h"
 #include "../vkconfig_core/configurator_signal.h"
 
 int main(int argc, char* argv[]) {
+    QCoreApplication::setOrganizationName("LunarG");
+    QCoreApplication::setOrganizationDomain("lunarg.com");
+
+    // This is used by QSettings for .ini, registry, and .plist files.
+    // It needs to not have spaces in it, and by default is the same as
+    // the executable name. If we rename the executable at a later date,
+    // keeping this as 'vkconfig' will ensure that it picks up the
+    // settings from the previous version (assuming that's ever an issue)
+    QCoreApplication::setApplicationName(VKCONFIG_SHORT_NAME);
+
+    QApplication app(argc, argv);
+
     const CommandLine command_line(argc, argv);
 
     if (command_line.error != ERROR_NONE) {

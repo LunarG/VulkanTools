@@ -430,7 +430,7 @@ TEST(test_configuration, Reorder_full) {
     layer_names.push_back("VK_LAYER_LUNARG_test_01");
     layer_names.push_back("VK_LAYER_LUNARG_test_02");
     layer_names.push_back("Vulkan Layers from the Application Vulkan API");
-    layer_names.push_back("Vulkan Layers from Application Environment Variables");
+    layer_names.push_back("Vulkan Layers from the Application Environment Variables");
     layer_names.push_back("VK_LAYER_LUNARG_version");
     layer_names.push_back("VK_LAYER_LUNARG_reference_1_2_1");
     layer_names.push_back("VK_LAYER_LUNARG_reference_1_2_0");
@@ -446,7 +446,7 @@ TEST(test_configuration, Reorder_full) {
     EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_test_01");
     EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_test_02");
     EXPECT_STREQ(configuration.parameters[3].key.c_str(), "Vulkan Layers from the Application Vulkan API");
-    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "Vulkan Layers from Application Environment Variables");
+    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "Vulkan Layers from the Application Environment Variables");
     EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_version");
     EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
     EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");

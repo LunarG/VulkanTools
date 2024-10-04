@@ -48,7 +48,7 @@ enum CommandError {
     ERROR_FILE_NOTFOUND
 };
 
-enum HelpType { HELP_NONE, HELP_DEFAULT, HELP_HELP, HELP_VERSION, HELP_GUI, HELP_LAYERS, HELP_DOC, HELP_RESET };
+enum HelpType { HELP_NONE, HELP_DEFAULT, HELP_HELP, HELP_VERSION, HELP_LAYERS, HELP_DOC, HELP_RESET };
 
 class CommandLine {
    public:
@@ -72,16 +72,16 @@ class CommandLine {
     CommandLine(const CommandLine&) = delete;
     CommandLine& operator=(const CommandLine&) = delete;
 
-    CommandType _command;
-    CommandResetArg _command_reset_arg;
-    CommandLayersArg _command_layers_arg;
+    CommandType _command = COMMAND_SHOW_USAGE;
+    CommandResetArg _command_reset_arg = COMMAND_RESET_NONE;
+    CommandLayersArg _command_layers_arg = COMMAND_LAYERS_NONE;
     std::string _layers_configuration_path;
-    CommandDocArg _command_doc_arg;
+    CommandDocArg _command_doc_arg = COMMAND_DOC_NONE;
     std::string _doc_layer_name;
     std::string _doc_out_dir;
 
-    CommandError _error;
+    CommandError _error = ERROR_NONE;
     std::vector<std::string> _error_args;
 
-    HelpType _help;
+    HelpType _help = HELP_NONE;
 };

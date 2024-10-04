@@ -65,6 +65,7 @@ class ConfigurationManager : public Serialize {
 
     bool HasFile(const Configuration& configuration) const;
     void RemoveConfigurationFile(const std::string& key);
+    void RemoveConfigurationFiles();
 
     bool GetPerExecutableConfig() const;
     void SetPerExecutableConfig(bool enabled);
@@ -77,8 +78,6 @@ class ConfigurationManager : public Serialize {
     Path last_path_export;
 
    private:
-    void RemoveConfigurationFiles();
-
     void LoadConfigurationsPath(const LayerManager& layers);
     void LoadDefaultConfigurations(const LayerManager& layers);
 
