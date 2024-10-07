@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022 Valve Corporation
- * Copyright (c) 2020-2022 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,10 @@
  * - David Pinedo <david@lunarg.com>
  */
 
-#include "layer.h"
-#include "environment.h"
-#include "configuration.h"
+#include "configurator.h"
 
-void ExportHtmlDoc(const Layer& layer, const std::string& path);
+bool ExportHtmlDoc(const Layer& layer, const std::string& path);
 
-void ExportMarkdownDoc(const Layer& layer, const std::string& path);
+bool ExportMarkdownDoc(const Layer& layer, const std::string& path);
 
-void ExportSettingsDoc(const std::vector<Layer>& available_layers,
-                       const Configuration& configuration, const std::string& path);
+bool ExportSettingsDoc(Configurator& configurator, const std::string& path);

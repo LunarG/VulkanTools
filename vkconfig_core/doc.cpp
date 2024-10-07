@@ -21,6 +21,7 @@
 #include "doc.h"
 #include "setting_flags.h"
 #include "configurator.h"
+#include "vulkan_util.h"
 
 #include <QFileInfo>
 
@@ -64,11 +65,13 @@ static void WriteSettingsOverviewHtml(std::string& text, const Layer& layer, con
 
             text +=
                 format("\t<td><span class=\"code\">%s</span></td>\n", (GetLayerSettingPrefix(layer.key) + setting->key).c_str());
-            if (setting->env.empty()) {
-                text += format("\t<td>N/A</td>\n", setting->env.c_str());
-            } else {
-                text += format("\t<td><span class=\"code\">%s</span></td>\n", setting->env.c_str());
+
+            std::vector<std::string> envs = BuildEnvVariablesList(layer.key.c_str(), setting->key.c_str());
+            if (!setting->env.empty()) {
+                envs.push_back(setting->env);
             }
+
+            text += format("\t<td><span class=\"code\">%s</span></td>\n", Merge(envs, "<BR/>").c_str());
 
             text += format("\t<td>%s</td>\n", BuildPlatformsHtml(setting->platform_flags).c_str());
             text += "</tr>\n";
@@ -96,11 +99,12 @@ static void WriteSettingsOverviewMarkdown(std::string& text, const Layer& layer,
 
             text += GetLayerSettingPrefix(layer.key) + setting->key + "|";
 
-            if (setting->env.empty()) {
-                text += "N/A";
-            } else {
-                text += setting->env;
+            std::vector<std::string> envs = BuildEnvVariablesList(layer.key.c_str(), setting->key.c_str());
+            if (!setting->env.empty()) {
+                envs.push_back(setting->env);
             }
+            text += Merge(envs, ", ");
+
             text += "|";
             text += BuildPlatformsMarkdown(setting->platform_flags) + "|\n";
         }
@@ -147,11 +151,14 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
             text += "<ul>\n";
             text += format("\t<li><a href=\"%s\">vk_layer_settings.txt</a> Variable: <span class=\"code\">%s</span></li>\n",
                            GetLayerSettingsDocURL(layer).c_str(), (GetLayerSettingPrefix(layer.key) + setting->key).c_str());
-            if (setting->env.empty()) {
-                text += format("\t<li>Environment Variable: <span class=\"code\">%s</span></li>\n", "N/A");
-            } else {
-                text += format("\t<li>Environment Variable: <span class=\"code\">%s</span></li>\n", setting->env.c_str());
+
+            std::vector<std::string> envs = BuildEnvVariablesList(layer.key.c_str(), setting->key.c_str());
+            if (!setting->env.empty()) {
+                envs.push_back(setting->env);
             }
+            text +=
+                format("\t<li>Environment Variables: <BR/> <span class=\"code\">%s</span></li>\n", Merge(envs, "<BR/>").c_str());
+
             text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHtml(setting->platform_flags).c_str());
 
             if (setting->view != SETTING_VIEW_STANDARD) {
@@ -222,11 +229,13 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
 
             text += "##### Setting Properties:\n";
             text += "- vk_layer_settings.txt Variable: " + GetLayerSettingPrefix(layer.key) + setting->key + "\n";
-            if (setting->env.empty()) {
-                text += "- Environment Variable: N/A\n";
-            } else {
-                text += "- Environment Variable: " + setting->env + "\n";
+
+            std::vector<std::string> envs = BuildEnvVariablesList(layer.key.c_str(), setting->key.c_str());
+            if (!setting->env.empty()) {
+                envs.push_back(setting->env);
             }
+            text += "- Environment Variables: " + Merge(envs, ", ") + "\n";
+
             text += "- Platforms: " + BuildPlatformsMarkdown(setting->platform_flags) + "\n";
 
             if (setting->view != SETTING_VIEW_STANDARD) {
@@ -281,7 +290,7 @@ size_t GetNumSettings(const Layer& layer) {
     return rval;
 }
 
-void ExportHtmlDoc(const Layer& layer, const std::string& path) {
+bool ExportHtmlDoc(const Layer& layer, const std::string& path) {
     std::string text;
 
     text += "<!DOCTYPE html>\n";
@@ -386,13 +395,15 @@ void ExportHtmlDoc(const Layer& layer, const std::string& path) {
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         file.write(text.c_str());
         file.close();
-        printf("vkconfig: html file written to %s\n", path.c_str());
+        printf("vkconfig: HTML file written to %s\n", path.c_str());
+        return true;
     } else {
         printf("vkconfig: could not write %s\n", path.c_str());
+        return false;
     }
 }
 
-void ExportMarkdownDoc(const Layer& layer, const std::string& path) {
+bool ExportMarkdownDoc(const Layer& layer, const std::string& path) {
     std::string text;
 
     text += format("## %s\n", layer.key.c_str());
@@ -461,16 +472,21 @@ void ExportMarkdownDoc(const Layer& layer, const std::string& path) {
         file.write(text.c_str());
         file.close();
         printf("vkconfig: markdown file written to %s\n", path.c_str());
+        return true;
     } else {
         printf("vkconfig: could not write %s\n", path.c_str());
+        return false;
     }
 }
 
-void ExportSettingsDoc(const std::vector<Layer>& available_layers, const Configuration& configuration, const std::string& path) {
-    /* TODO
-    if (WriteLayersSettings(available_layers, configuration, path))
+bool ExportSettingsDoc(Configurator& configurator, const std::string& path) {
+    const bool result = configurator.WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT, path);
+
+    if (result)
         printf("vkconfig: settings written to %s\n", path.c_str());
-    else
+    else {
         printf("vkconfig: could not write %s\n", path.c_str());
-    */
+    }
+
+    return result;
 }

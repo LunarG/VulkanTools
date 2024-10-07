@@ -347,14 +347,14 @@ void CommandLine::usage() const {
         }
         case HELP_DEFAULT: {
             printf("Usage\n");
-            printf("\tvkconfig [[help] | [version] | [layers <args>]]\n");
+            printf("\tvkconfig [[help] | [version] | [layers <args>] | [reset] | [doc]]\n");
             printf("\n");
             printf("Command:\n");
             printf("\thelp                      = Display usage and documentation.\n");
             printf("\tversion                   = Display %s version.\n", VKCONFIG_NAME);
             printf("\tlayers                    = Manage system Vulkan Layers.\n");
-            printf("\tdoc                       = Create doc files for layer.\n");
             printf("\treset                     = Reset layers configurations.\n");
+            printf("\tdoc                       = Create doc files for layer.\n");
             printf("\n");
             printf("  (Use 'vkconfig help <command>' for detailed usage of %s commands.)\n", VKCONFIG_NAME);
             break;
