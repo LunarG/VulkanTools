@@ -67,6 +67,9 @@ class Configurator {
     const Configuration* GetActiveConfiguration() const;
     bool HasActiveConfiguration() const;
 
+    bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
+    bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
+
     ~Configurator();
 
    private:
@@ -74,9 +77,6 @@ class Configurator {
 
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
-
-    bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
-    bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
 
     void BuildLoaderSettings(const ConfigurationInfo& info, const std::string& executable_path,
                              std::vector<LoaderSettings>& loader_settings_array) const;

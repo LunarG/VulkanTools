@@ -31,6 +31,8 @@ TEST(test_layer_manager, clear) {
 }
 
 TEST(test_layer_manager, load_json) {
+    qunsetenv("VULKAN_SDK");
+
     QJsonObject json_object;
 
     LayerManager layer_manager;
@@ -78,6 +80,8 @@ TEST(test_layer_manager, load_dir) {
 }
 
 TEST(test_layer_manager, load_file) {
+    qunsetenv("VULKAN_SDK");
+
     LayerManager layer_manager;
     EXPECT_TRUE(layer_manager.Empty());
 
@@ -96,10 +100,15 @@ TEST(test_layer_manager, reset) {
     LayerManager layer_manager;
 
     layer_manager.LoadLayersFromPath(":/layers");
+    std::size_t Count = layer_manager.Size();
+
     EXPECT_FALSE(layer_manager.Empty());
 
-    layer_manager.Reset();
+    layer_manager.Clear();
     EXPECT_TRUE(layer_manager.Empty());
+
+    layer_manager.Reset();
+    EXPECT_TRUE(layer_manager.Size() < Count);
 }
 
 TEST(test_layer_manager, find_single) {
@@ -200,6 +209,8 @@ TEST(test_layer_manager, BuildLayerNameList) {
 }
 
 TEST(test_layer_manager, avoid_duplicate) {
+    qunsetenv("VULKAN_SDK");
+
     LayerManager layer_manager;
     EXPECT_TRUE(layer_manager.Empty());
 

@@ -21,5 +21,9 @@
 #pragma once
 
 #include "../vkconfig_core/vulkan_info.h"
+#include <string>
+#include <vector>
 
 VulkanSystemInfo BuildVulkanSystemInfo();
+
+std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char *setting_key);
