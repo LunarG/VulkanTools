@@ -45,24 +45,24 @@ Configurator& Configurator::Get() {
 Configurator::Configurator() {}
 
 Configurator::~Configurator() {
-    QJsonObject json_root_object;
-
-    this->environment.Save(json_root_object);
-    this->configurations.Save(json_root_object);
-    this->layers.Save(json_root_object);
-    this->executables.Save(json_root_object);
-
-    QJsonDocument json_doc(json_root_object);
-
-    const Path& vkconfig_init_path = ::Get(Path::INIT);
-    QFile file(vkconfig_init_path.AbsolutePath().c_str());
-    const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
-    assert(result);
-
-    file.write(json_doc.toJson());
-    file.close();
-
     if (this->mode == GUI) {
+        QJsonObject json_root_object;
+
+        this->environment.Save(json_root_object);
+        this->configurations.Save(json_root_object);
+        this->layers.Save(json_root_object);
+        this->executables.Save(json_root_object);
+
+        QJsonDocument json_doc(json_root_object);
+
+        const Path& vkconfig_init_path = ::Get(Path::INIT);
+        QFile file(vkconfig_init_path.AbsolutePath().c_str());
+        const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
+        assert(result);
+
+        file.write(json_doc.toJson());
+        file.close();
+
         this->Surrender(OVERRIDE_AREA_ALL);
     }
 }
@@ -75,7 +75,7 @@ bool Configurator::Init(Mode mode) {
     QString init_data;
 
     QFile file(vkconfig_init_path.AbsolutePath().c_str());
-    const bool has_init_file = file.open(QIODevice::ReadOnly | QIODevice::Text);
+    const bool has_init_file = this->mode == GUI ? file.open(QIODevice::ReadOnly | QIODevice::Text) : false;
 
     if (has_init_file) {
         init_data = file.readAll();
@@ -320,13 +320,14 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                     continue;
                 }
 
-                const Layer* layer = this->layers.Find(parameter.key.c_str(), parameter.api_version);
-                if (layer == nullptr) {
-                    has_missing_layers = true;
+                if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV ||
+                    parameter.control == LAYER_CONTROL_OFF) {
                     continue;
                 }
 
-                if (parameter.control != LAYER_CONTROL_ON) {
+                const Layer* layer = this->layers.Find(parameter.key.c_str(), parameter.api_version);
+                if (layer == nullptr) {
+                    has_missing_layers = true;
                     continue;
                 }
 
