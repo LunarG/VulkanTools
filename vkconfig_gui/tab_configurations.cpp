@@ -610,22 +610,23 @@ void TabConfigurations::OnContextMenuImportClicked(ConfigurationListItem *item) 
         return;
     }
 
-    configurator.configurations.ImportConfiguration(configurator.layers, selected_path);
+    const bool result = configurator.configurations.ImportConfiguration(configurator.layers, selected_path);
 
-    configurator.Override(OVERRIDE_AREA_ALL);
-
-    this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
+    if (result) {
+        configurator.Override(OVERRIDE_AREA_ALL);
+        this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
+    } else {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle("Import of Layers Configuration error");
+        msg.setText("Cannot access the source configuration file.");
+        msg.setInformativeText(selected_path.c_str());
+        msg.exec();
+    }
 }
 
 void TabConfigurations::OnContextMenuRenameClicked(ConfigurationListItem *item) {
     assert(item);
-
-    //    ui->configurations_list->blockSignals(true);
-
-    //    item->widget->setVisible(false);
-    //    item->setText(item->widget->text());
-
-    //    ui->configurations_list->blockSignals(false);
 
     ui->configurations_list->editItem(item);
 }
@@ -727,7 +728,17 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
         return;
     }
 
-    configurator.configurations.ExportConfiguration(configurator.layers, selected_path, item->configuration_name);
+    const bool result =
+        configurator.configurations.ExportConfiguration(configurator.layers, selected_path, item->configuration_name);
+
+    if (!result) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle("Export of Layers Configuration error");
+        msg.setText("Cannot create the destination configuration file.");
+        msg.setInformativeText(selected_path.c_str());
+        msg.exec();
+    }
 }
 
 void TabConfigurations::OnContextMenuExportSettingsClicked(ConfigurationListItem *item) {

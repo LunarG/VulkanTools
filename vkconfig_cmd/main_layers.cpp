@@ -27,29 +27,30 @@
 #include <cassert>
 
 static int RunLayersOverride(Configurator& configurator, const CommandLine& command_line) {
-    Configuration configuration;
-    const bool load_result = configuration.Load(command_line.layers_configuration_path.c_str(), configurator.layers);
+    const bool load_result =
+        configurator.configurations.ImportConfiguration(configurator.layers, command_line.layers_configuration_path);
     if (!load_result) {
-        printf("\nFailed to load the layers configuration file...\n");
+        fprintf(stderr, "vkconfig: Failed to load %s layers configuration file...\n",
+                command_line.layers_configuration_path.c_str());
         return -1;
     }
 
     const bool override_result = configurator.Override(OVERRIDE_AREA_ALL);
-
     if (override_result) {
-        printf("\nLayers configuration \"%s\" applied to all Vulkan Applications, including Vulkan layers:\n",
+        printf("vkconfig: Layers configuration \"%s\" applied to all Vulkan Applications, including Vulkan layers:\n",
                command_line.layers_configuration_path.c_str());
-        for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-            const Parameter& parameter = configuration.parameters[i];
-            if (parameter.control == LAYER_CONTROL_AUTO) {
-                continue;
-            }
+        const Configuration* configuration = configurator.GetActiveConfiguration();
 
-            printf("\t%s (%s)\n", parameter.key.c_str(), parameter.control == LAYER_CONTROL_ON ? "Overridden" : "Excluded");
+        printf(" (Execute Closer to the Vulkan Application)\n");
+        for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+            const Parameter& parameter = configuration->parameters[i];
+            printf("- %s (%s)\n", parameter.key.c_str(), GetToken(parameter.control));
         }
-        printf("\n  (Use \"vkconfig layers --surrender\" to return Vulkan layers control to Vulkan applications.)\n");
+        printf(" (Execute Closer to the Vulkan Driver)\n");
+
+        printf("\n  (Run \"vkconfig layers --surrender\" to return Vulkan layers control to Vulkan applications)\n");
     } else {
-        printf("\nFailed to override Vulkan applications layers...\n");
+        fprintf(stderr, "vkconfig: Failed to override Vulkan applications layers...\n");
     }
 
     return override_result ? 0 : -1;
@@ -61,13 +62,13 @@ static int RunLayersSurrender(Configurator& configurator, const CommandLine& com
 
     if (has_overridden_layers) {
         if (surrender_result) {
-            printf("\nFull Vulkan layers control returned to Vulkan applications.\n");
-            printf("\n  (Use \"vkconfig layers --override <layers_configuration_file> to take control of Vulkan layers.)\n");
+            printf("vkconfig: Full Vulkan layers control returned to Vulkan applications.\n");
+            printf("\n  (Run \"vkconfig layers --override <layers_configuration_file> to take control of Vulkan layers)\n");
         } else {
-            printf("\nFailed to surrender Vulkan applications layers...\n");
+            fprintf(stderr, "vkconfig: Failed to surrender Vulkan applications layers...\n");
         }
     } else {
-        printf("\nNo overridden Vulkan layers, nothing to surrender.\n");
+        fprintf(stderr, "vkconfig: No overridden Vulkan layers, nothing to surrender\n");
     }
 
     return surrender_result ? 0 : -1;
@@ -75,7 +76,7 @@ static int RunLayersSurrender(Configurator& configurator, const CommandLine& com
 
 static int RunLayersList(Configurator& configurator, const CommandLine& command_line) {
     if (configurator.layers.selected_layers.empty()) {
-        printf("No Vulkan layer found\n");
+        printf("vkconfig: No Vulkan layer found\n");
     } else {
         for (std::size_t i = 0, n = configurator.layers.selected_layers.size(); i < n; ++i) {
             const Layer& layer = configurator.layers.selected_layers[i];
@@ -91,11 +92,15 @@ static int RunLayersVerbose(Configurator& configurator, const CommandLine& comma
     for (std::size_t i = 0, n = configurator.layers.selected_layers.size(); i < n; ++i) {
         const Layer& layer = configurator.layers.selected_layers[i];
 
-        printf("%s (%s) %s-%s\n", layer.key.c_str(), GetToken(layer.type), layer.api_version.str().c_str(),
-               layer.implementation_version.c_str());
+        printf("%s %s-%s\n", layer.key.c_str(), layer.api_version.str().c_str(), layer.implementation_version.c_str());
         printf("- %s\n", layer.description.c_str());
         printf("- %s\n", layer.manifest_path.AbsolutePath().c_str());
         printf("- %s\n", layer.binary_path.AbsolutePath().c_str());
+        printf("- %s layer\n", GetToken(layer.type));
+
+        if (i < (n - 1)) {
+            printf("\n");
+        }
     }
 
     return 0;

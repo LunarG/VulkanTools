@@ -53,8 +53,8 @@ class ConfigurationManager : public Serialize {
     void RemoveConfiguration(const std::string& configuration_name);
     int GetConfigurationIndex(const std::string& configuration_name) const;
 
-    void ImportConfiguration(const LayerManager& layers, const Path& full_import_path);
-    void ExportConfiguration(const LayerManager& layers, const Path& full_export_path, const std::string& configuration_name);
+    bool ImportConfiguration(const LayerManager& layers, const Path& full_import_path);
+    bool ExportConfiguration(const LayerManager& layers, const Path& full_export_path, const std::string& configuration_name);
 
     const Configuration* FindConfiguration(const std::string& configuration_name) const;
     Configuration* FindConfiguration(const std::string& configuration_name);

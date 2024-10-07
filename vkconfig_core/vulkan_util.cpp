@@ -27,6 +27,7 @@
 #include <QLibrary>
 
 #include <cassert>
+#include <sstream>
 
 static std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
     std::string result;
@@ -186,4 +187,100 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
     vk.DestroyInstance(instance, NULL);
 
     return vulkan_system_info;
+}
+
+static const char *GetDefaultPrefix() {
+#ifdef __ANDROID__
+    return "vulkan";
+#else
+    return "";
+#endif
+}
+
+enum TrimMode {
+    TRIM_NONE,
+    TRIM_VENDOR,
+    TRIM_NAMESPACE,
+
+    TRIM_FIRST = TRIM_NONE,
+    TRIM_LAST = TRIM_NAMESPACE,
+};
+
+static std::string TrimPrefix(const std::string &layer_key) {
+    std::string key{};
+    if (layer_key.find("VK_LAYER_") == 0) {
+        std::size_t prefix = std::strlen("VK_LAYER_");
+        key = layer_key.substr(prefix, layer_key.size() - prefix);
+    } else {
+        key = layer_key;
+    }
+    return key;
+}
+
+static std::string TrimVendor(const std::string &layer_key) {
+    static const char *separator = "_";
+
+    const std::string &namespace_key = TrimPrefix(layer_key);
+
+    const auto trimmed_beg = namespace_key.find_first_of(separator);
+    if (trimmed_beg == std::string::npos) return namespace_key;
+
+    assert(namespace_key.find_last_not_of(separator) != std::string::npos &&
+           trimmed_beg <= namespace_key.find_last_not_of(separator));
+
+    return namespace_key.substr(trimmed_beg + 1, namespace_key.size());
+}
+
+static std::string GetEnvSettingName(const char *layer_key, const char *requested_prefix, const char *setting_key,
+                                     TrimMode trim_mode) {
+    std::stringstream result;
+    const std::string prefix = (requested_prefix == nullptr || trim_mode != TRIM_NAMESPACE) ? GetDefaultPrefix() : requested_prefix;
+
+#if defined(__ANDROID__)
+    const std::string full_prefix = std::string("debug.") + prefix + ".";
+    switch (trim_mode) {
+        default:
+        case TRIM_NONE: {
+            result << full_prefix << GetFileSettingName(layer_key, setting_key);
+            break;
+        }
+        case TRIM_VENDOR: {
+            result << full_prefix << GetFileSettingName(TrimVendor(layer_key).c_str(), setting_key);
+            break;
+        }
+        case TRIM_NAMESPACE: {
+            result << full_prefix << setting_key;
+            break;
+        }
+    }
+#else
+    const std::string full_prefix = std::string("VK_") + (prefix.empty() ? "" : prefix + "_");
+    switch (trim_mode) {
+        default:
+        case TRIM_NONE: {
+            result << full_prefix << ToUpperCase(TrimPrefix(layer_key)) << "_" << ToUpperCase(setting_key);
+            break;
+        }
+        case TRIM_VENDOR: {
+            result << full_prefix << ToUpperCase(TrimVendor(layer_key)) << "_" << ToUpperCase(setting_key);
+            break;
+        }
+        case TRIM_NAMESPACE: {
+            result << full_prefix << ToUpperCase(setting_key);
+            break;
+        }
+    }
+
+#endif
+    return result.str();
+}
+
+std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char *setting_key) {
+    std::vector<std::string> results;
+
+    for (int trim_index = TRIM_FIRST; trim_index <= TRIM_LAST; ++trim_index) {
+        results.push_back(GetEnvSettingName(layer_key, GetDefaultPrefix(), setting_key, static_cast<TrimMode>(trim_index)));
+    }
+
+    return results;
 }
