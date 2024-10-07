@@ -104,7 +104,7 @@ static std::string GetEnv(const std::string& layer_key, const std::string& setti
 }
 
 SettingMeta::SettingMeta(Layer& layer, const std::string& key, const SettingType type)
-    : key(key), type(type), env(GetEnv(layer.key, key)), dependence_mode(DEPENDENCE_NONE), layer(layer) {
+    : key(key), type(type), env(), dependence_mode(DEPENDENCE_NONE), layer(layer) {
     assert(!this->key.empty());
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 }

@@ -450,7 +450,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("enum_required_only", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_ENUM_REQUIRED_ONLY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_ENUM, setting_meta->type);
         EXPECT_STREQ("enum", setting_meta->label.c_str());
         EXPECT_STREQ("enum case", setting_meta->description.c_str());
@@ -536,7 +536,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("flags_required_only", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_FLAGS_REQUIRED_ONLY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_FLAGS, setting_meta->type);
         EXPECT_STREQ("flags", setting_meta->label.c_str());
         EXPECT_STREQ("flags case", setting_meta->description.c_str());
@@ -624,7 +624,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("string_required_only", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_STRING_REQUIRED_ONLY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_STRING, setting_meta->type);
         EXPECT_STREQ("String", setting_meta->label.c_str());
         EXPECT_STREQ("string", setting_meta->description.c_str());
@@ -660,7 +660,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("bool_required_only", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_BOOL_REQUIRED_ONLY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_BOOL, setting_meta->type);
         EXPECT_STREQ("bool", setting_meta->label.c_str());
         EXPECT_STREQ("true or false", setting_meta->description.c_str());
@@ -697,7 +697,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("load_file_required_only", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_LOAD_FILE_REQUIRED_ONLY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_LOAD_FILE, setting_meta->type);
         EXPECT_STREQ("Load file", setting_meta->label.c_str());
         EXPECT_STREQ("Load file path", setting_meta->description.c_str());
@@ -737,7 +737,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("save_file_required_only", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_SAVE_FILE_REQUIRED_ONLY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_SAVE_FILE, setting_meta->type);
         EXPECT_STREQ("Save file", setting_meta->label.c_str());
         EXPECT_STREQ("Save file path", setting_meta->description.c_str());
@@ -777,7 +777,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("save_folder_required_only", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_SAVE_FOLDER_REQUIRED_ONLY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_SAVE_FOLDER, setting_meta->type);
         EXPECT_STREQ("Save folder", setting_meta->label.c_str());
         EXPECT_STREQ("Save folder path", setting_meta->description.c_str());
@@ -814,7 +814,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("int_required_only", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_INT_REQUIRED_ONLY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_INT, setting_meta->type);
         EXPECT_STREQ("Integer", setting_meta->label.c_str());
         EXPECT_STREQ("Integer Description", setting_meta->description.c_str());
@@ -856,7 +856,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("frames_required_only", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_FRAMES_REQUIRED_ONLY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_FRAMES, setting_meta->type);
         EXPECT_STREQ("Frames", setting_meta->label.c_str());
         EXPECT_STREQ("Frames Description", setting_meta->description.c_str());
@@ -893,7 +893,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("list_required_only", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_LIST_REQUIRED_ONLY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_LIST, setting_meta->type);
         EXPECT_STREQ("List", setting_meta->label.c_str());
         EXPECT_STREQ("List description", setting_meta->description.c_str());
@@ -983,7 +983,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
         ASSERT_TRUE(setting_meta != nullptr);
 
         EXPECT_STREQ("list_empty", setting_meta->key.c_str());
-        EXPECT_STREQ("VK_LUNARG_REFERENCE_1_2_0_LIST_EMPTY", setting_meta->env.c_str());
+        EXPECT_TRUE(setting_meta->env.empty());
         EXPECT_EQ(SETTING_LIST, setting_meta->type);
         EXPECT_STREQ("List", setting_meta->label.c_str());
         EXPECT_STREQ("List description", setting_meta->description.c_str());

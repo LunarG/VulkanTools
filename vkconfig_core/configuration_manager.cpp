@@ -405,20 +405,14 @@ const Configuration *ConfigurationManager::FindConfiguration(const std::string &
     return nullptr;
 }
 
-void ConfigurationManager::ImportConfiguration(const LayerManager &layers, const Path &full_import_path) {
+bool ConfigurationManager::ImportConfiguration(const LayerManager &layers, const Path &full_import_path) {
     assert(!full_import_path.Empty());
 
     this->last_path_import = full_import_path;
 
     Configuration configuration;
     if (!configuration.Load(full_import_path, layers)) {
-        QMessageBox msg;
-        msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Import of Layers Configuration error");
-        msg.setText("Cannot access the source configuration file.");
-        msg.setInformativeText(full_import_path.AbsolutePath().c_str());
-        msg.exec();
-        return;
+        return false;
     }
 
     configuration.key = MakeConfigurationName(this->available_configurations, configuration.key + " (Imported)");
@@ -426,9 +420,11 @@ void ConfigurationManager::ImportConfiguration(const LayerManager &layers, const
     this->SortConfigurations();
 
     this->GetActiveConfigurationInfo()->name = configuration.key;
+
+    return true;
 }
 
-void ConfigurationManager::ExportConfiguration(const LayerManager &layers, const Path &full_export_path,
+bool ConfigurationManager::ExportConfiguration(const LayerManager &layers, const Path &full_export_path,
                                                const std::string &configuration_name) {
     assert(!configuration_name.empty());
     assert(!full_export_path.Empty());
@@ -438,14 +434,7 @@ void ConfigurationManager::ExportConfiguration(const LayerManager &layers, const
     Configuration *configuration = this->FindConfiguration(configuration_name);
     assert(configuration);
 
-    if (!configuration->Save(full_export_path, true)) {
-        QMessageBox msg;
-        msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Export of Layers Configuration error");
-        msg.setText("Cannot create the destination configuration file.");
-        msg.setInformativeText(full_export_path.AbsolutePath().c_str());
-        msg.exec();
-    }
+    return configuration->Save(full_export_path, true);
 }
 
 bool ConfigurationManager::GetPerExecutableConfig() const { return this->use_per_executable_configuration; }
