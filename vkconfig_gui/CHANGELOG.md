@@ -1,29 +1,48 @@
-<!-- markdownlint-disable MD041 -->
-<p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width="263" height="113" /></p>
-<p align="left">Copyright � 2015-2022 LunarG, Inc.</p>
+## Vulkan Configurator 3.0.0 - January 2025
+<a href="https://github.com/LunarG/VulkanTools/tree/vkconfig3-dev" target="_blank">https://github.com/LunarG/VulkanTools/tree/vkconfig3-dev</a>
 
-[![Creative Commons][3]][4]
-
-[3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
-[4]: https://creativecommons.org/licenses/by-nd/4.0/
-
-<p align="center"><img src="./images/vulkan_configurator.png" width="400" /></p>
-
-# Release notes
-
-## [Vulkan Configurator 3.0.0](https://github.com/LunarG/VulkanTools/tree/main) - January 2025
+### TODO:
+- Implement diagnostic tab
+- The documentation tab is partially implemented
+- Update Vulkan Configurator documentation
+- Fix preset label display
+- Per application vk_layer_settings.txt is not implemented
+- Command line layer settings is not implemented
+- Extend setting dependencies with messages is not implemented
 
 ### Features:
-- UI redesign: per use case tabs
-- Enable loading multiple versions of the same layer
-- Enable ordering all layers executed by Vulkan application
-- Enable ordering layers independently from enabling them
-- Enable storing multiple set applications options for the application launcher
+- UI redesign with per use case tabs
+- Improve layers loading and selection:
+  * Add loading of multiple versions of the same layer
+  * Add explicit selection of the layer version used by a configuration
+  * No longer load and unload layer manifest when switching configuations
+  * Json validation caching based on layer manifest modified date and time
+- Improve layers ordering:
+  * Allow ordering of all (implicit layers, unkown layers) layers executed by Vulkan application
+  * Allow ordering layers independently from enabling them
+  * Allow ordering of layers using drag and drop
+- Improve executable list:
+  * Add storing multiple set of options per executable
+  * Add per-application layers configuration
+- Add *Vulkan Loader* logging support:
+  * Add *Vulkan Loader* logging outside of application launcher
+  * Add *Vulkan Loader* selection of each logging message type
+  * Add per-application *Vulkan Loader* logging message types
+- Split GUI and command line into two separated executables
 
-## [Vulkan Configurator 2.6.3](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.304.0) - January 2025
+### Improvements:
+- Almost all Vulkan Configurator data is stored in a `$HOME` directory JSON file
+- Fix default applications (`vkcube`) during SDK upgrade
+- Fix upgrade of built-in configuration that got updated using layers configuration versioning
+- Add the list of all availalble environment variables for each settings in documentation generation
+
+## Vulkan Configurator 2.6.3 - January 2025
+[Vulkan SDK 1.4.304.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.304.0)
 - Final build
 
-## [Vulkan Configurator 2.6.2](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.296.0) - October 2024
+---
+## Vulkan Configurator 2.6.2 - October 2024
+[Vulkan SDK 1.3.296.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.296.0)
 
 ### Improvements:
 - Show message warnings when overriding implicit layer, either disabling or enabling
@@ -35,7 +54,9 @@
 - Fix overridden implicit layer ordering
 - Fix renaming configuration with the same name but different cases
 
-## [Vulkan Configurator 2.6.1](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.290.0) - July 2024
+---
+## Vulkan Configurator 2.6.1 - July 2024
+[Vulkan SDK 1.3.290.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.290.0)
 
 ### Features:
 - Redesign main window UI around tabs
@@ -48,7 +69,9 @@
 - Requires Vulkan Loader 1.3.284 or newer on Windows.
 - Highly recommand Validation layer 1.3.250 or newer.
 
-## [Vulkan Configurator 2.6.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.283.0) - May 2024
+---
+## Vulkan Configurator 2.6.0 - May 2024
+[Vulkan SDK 1.3.283.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.283.0)
 
 ### Features:
 - Add system tray
@@ -66,12 +89,16 @@
 - Fix 'Use of application list' check box not being saved
 - Clean up UI update
 
-## [Vulkan Configurator 2.5.6](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.280.0) - March 2024
+---
+## Vulkan Configurator 2.5.6 - March 2024
+[Vulkan SDK 1.3.280.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.280.0)
 
 ### Fixes:
 - Fix confusing synchronization built-in configuration
 
-## [Vulkan Configurator 2.5.5](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.275.0) - January 2024
+---
+## Vulkan Configurator 2.5.5 - January 2024
+[Vulkan SDK 1.3.275.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.275.0)
 
 ### Improvements:
 - Add `LOAD_FOLDER` setting type
@@ -80,22 +107,30 @@
 - Remove default settings values from built-in layer configurations
 - Fix doc generator using default environment variable names
 
-## [Vulkan Configurator 2.5.4](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.250.0) - May 2023
+---
+## Vulkan Configurator 2.5.4 - May 2023
+[Vulkan SDK 1.3.250.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.250.0)
 
 ### Improvements:
 - Display `deviceUUID` and `driverUUID` in the "Development Status" when available for each physical device
 
-## [Vulkan Configurator 2.5.3](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.243.0) - March 2023
+---
+## Vulkan Configurator 2.5.3 - March 2023
+[Vulkan SDK 1.3.243.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.243.0)
 
 ### Improvements:
 - Enabling fully generic layer settings for the validation layer settings
 
-## [Vulkan Configurator 2.5.2](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.236.0) - December 2022
+---
+## Vulkan Configurator 2.5.2 - December 2022
+[Vulkan SDK 1.3.236.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.236.0)
 
 ### Improvements:
 - Add `warn_on_robust_oob` validation layer setting handling
 
-## [Vulkan Configurator 2.5.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.231.0) - October 2022
+---
+## Vulkan Configurator 2.5.1 - October 2022
+[Vulkan SDK 1.3.231.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.231.0)
 
 ### Features:
 - Add ENUM setting type children settings #1746
@@ -106,7 +141,9 @@
 ### Fixes:
 - Fix override layer version when some layers are excluded or missing #1743
 
-## [Vulkan Configurator 2.5.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.224.0) - August 2022
+---
+## Vulkan Configurator 2.5.0 - August 2022
+[Vulkan SDK 1.3.224.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.224.0)
 
 ### Features:
 - Add per layers-configuration user-defined layers paths #1711
@@ -115,7 +152,9 @@
 - Add reordering of configurations when renaming a configuration
 - Improve handling of missing layers
 
-## [Vulkan Configurator 2.4.6](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.216.0) - June 2022
+---
+## Vulkan Configurator 2.4.6 - June 2022
+[Vulkan SDK 1.3.216.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.216.0)
 
 ### Features:
 - Add `VK_KHR_portability_enumeration` extension support
@@ -123,7 +162,9 @@
 ### Improvements:
 - Allow using multiple layers built with different Vulkan header version when Loader 212 or newer is installed on the system
 
-## [Vulkan Configurator 2.4.5](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.211.0) - April 2022
+---
+## Vulkan Configurator 2.4.5 - April 2022
+[Vulkan SDK 1.3.211.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.211.0)
 
 ### Features:
 - Add `VK_ADD_LAYER_PATH` Vulkan Loader variable handling
@@ -134,7 +175,9 @@
 - Improve the Portability built-in configuration to check only what's necessary, reducing validation overhead
 - Refinement of the layers window UI design
 
-## [Vulkan Configurator 2.4.4](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.204.1) - March 2022
+---
+## Vulkan Configurator 2.4.4 - March 2022
+[Vulkan SDK 1.3.204.1](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.204.1)
 
 ### Features:
 - Add markdown documentation export
@@ -148,7 +191,9 @@
 - Fix layer presets that could be modified by accident #1653
 - Fix loading of profiles file from the UI #1653
 
-## [Vulkan Configurator 2.4.3](https://github.com/LunarG/VulkanTools/tree/sdk-1.3.204.0) - February 2022
+---
+## Vulkan Configurator 2.4.3 - February 2022
+[Vulkan SDK 1.3.204.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.204.0)
 
 ### Improvements:
 - Upgrade the built-in "Portability" to use the Profiles layer
@@ -159,7 +204,9 @@
 ### Fixes:
 - Fix ANY dependence when using FLAGS setting type
 
-## [Vulkan Configurator 2.4.2](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.196.0) - November 2021
+---
+## Vulkan Configurator 2.4.2 - November 2021
+[Vulkan SDK 1.2.196.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.2.196.0)
 
 ### Improvements:
 - Discard applied layers configuration to ensure the layers never crash Vulkan Configurator
@@ -167,13 +214,17 @@
 ### Fixes:
 - Fix 'Edit Layers' button being enabled when there is no active configuration #1616
 
-## [Vulkan Configurator 2.4.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.189.0) - September 2021
+---
+## Vulkan Configurator 2.4.1 - September 2021
+[Vulkan SDK 1.2.189.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.2.189.0)
 
 ### Fixes:
 - Fix user-defined layer settings not loaded, for older Vulkan API than 1.2.176
 - Fix settings written in 'vk_layer_settings.txt' even when the dependence is not met #1582
 
-## [Vulkan Configurator 2.4.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.182.0) - July 2021
+---
+## Vulkan Configurator 2.4.0 - July 2021
+[Vulkan SDK 1.2.182.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.2.182.0)
 
 ### Features:
 - Add support for `VK_LAYER_SETTINGS_PATH` override for 'vk_layer_settings.txt' path
@@ -201,7 +252,9 @@
 - Fix validation layer bool setting written in 'vk_layer-setting.txt' #1551
 - Fix upgrade of 'vkcube' path when the path is no longer valid
 
-## [Vulkan Configurator 2.3.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.176.0) - May 2021
+---
+## Vulkan Configurator 2.3.0 - May 2021
+[Vulkan SDK 1.2.176.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.2.176.0)
 
 ### Features:
 - Add Vulkan loader debug message to application launcher #1372
@@ -226,7 +279,9 @@
 - Fix 'Reset To Default' than wasn't bringing back notification pop-ups
 - Fix creating a new 'Configuration' can be cancelled
 
-## [Vulkan Configurator 2.2.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.170.0) - March 2021
+---
+## Vulkan Configurator 2.2.0 - March 2021
+[Vulkan SDK 1.2.170.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.2.170.0)
 
 ### Features:
 - Add *Synchronization* default configuration #1304
@@ -255,7 +310,9 @@
 - Fix *Vulkan Info* and *Vulkan Installation Analysis* dialog no longer running with overridden layers
 - Fix preset changed causing the setting tree to be rebuild #1300
 
-## [Vulkan Configurator 2.1.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162.1) - January 2021
+---
+## Vulkan Configurator 2.1.0 - January 2021
+[Vulkan SDK 1.2.162.1](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.2.162.1)
 
 ### Features:
 - Refactor built-in configurations #1247
@@ -272,7 +329,9 @@
 ### Fixes:
 - Expose missing `VK_LAYER_LUNARG_gfxreconstruct` 'Log Detailed' setting
 
-## [Vulkan Configurator 2.0.3](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.162.0) - December 2020
+---
+## Vulkan Configurator 2.0.3 - December 2020
+[Vulkan SDK 1.2.162.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.2.162.0)
 
 ### Features:
 - Add command line arguments to manage layers override #1213
@@ -289,7 +348,9 @@
 - Fix warning about old loader when trying to use application list #1230
 - Fix initialization of added applications on macOS #1249 
 
-## [Vulkan Configurator 2.0.2](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.154.0) - October 2020
+---
+## Vulkan Configurator 2.0.2 - October 2020
+[Vulkan SDK 1.2.154.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.2.154.0)
 
 ### Features:
 - Add multiple debug actions simultaneously #1119
@@ -301,7 +362,7 @@
 - Add selected path from dialog window cache #1107
 - Add unit test framework #1100
 - Add button to browse working directory #1099
-- Add version in the title bar and show <ACTIVE> state #1109
+- Add version in the title bar and show `<ACTIVE>` state #1109
 - Add default settings state in the layer configuration settings #1076
 - Make *Validation - Standard*, the default configuration #1076
 - Update `vkcube` to use the version from the same *Vulkan SDK* than *Vulkan Configurator* #1112
@@ -317,14 +378,18 @@
 - Fix `debug_output` setting displayed on Linux and macOS but not available #1086
 - Fix `numeric_bool` setting display #1166
 
-## [Vulkan Configurator 2.0.1](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.148.1) - August 2020 (revision 1)
+---
+## Vulkan Configurator 2.0.1 - August 2020
+[Vulkan SDK 1.2.148.1](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.2.148.1)
 
 ### Fixes:
 - Fix *Shader Printf* built-in configuration that was setup for *GPU-Assisted* validation instead
 - Fix layer configurations selection on Linux
 - Fix debug output setting not working
 
-## [Vulkan Configurator 2.0.0](https://github.com/LunarG/VulkanTools/tree/sdk-1.2.148.0) - August 2020
+---
+## Vulkan Configurator 2.0.0 - August 2020
+[Vulkan SDK 1.2.148.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.2.148.0)
 
 ### Features:
 - Design GUI

@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+extern const Version REQUIRED_LOADER_VERSION;
+
 VulkanSystemInfo BuildVulkanSystemInfo();
 
 std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char *setting_key);

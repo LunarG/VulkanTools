@@ -36,8 +36,8 @@ TEST(test_configuration_manager, init_default) {
     EXPECT_FALSE(configuration_manager.GetPerExecutableConfig());
     EXPECT_TRUE(configuration_manager.HasActiveConfiguration());
     EXPECT_TRUE(configuration_manager.Empty());
-    EXPECT_TRUE(configuration_manager.last_path_import.Empty());
-    EXPECT_TRUE(configuration_manager.last_path_export.Empty());
+    EXPECT_STREQ(configuration_manager.last_path_import.RelativePath().c_str(), Get(Path::HOME).RelativePath().c_str());
+    EXPECT_STREQ(configuration_manager.last_path_export.RelativePath().c_str(), Get(Path::HOME).RelativePath().c_str());
 }
 
 TEST(test_configuration_manager, create_remove) {
