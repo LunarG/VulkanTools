@@ -26,6 +26,7 @@
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/ui.h"
 #include "../vkconfig_core/doc.h"
+#include "../vkconfig_core/type_hide_message.h"
 
 #include <QSettings>
 #include <QMenu>
@@ -314,7 +315,6 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
     if (event_type == QEvent::ChildRemoved) {
         // Layers were reordered, we need to update the configuration
         Configurator &configurator = Configurator::Get();
-        Configuration *configuration = configurator.GetActiveConfiguration();
 
         std::vector<std::string> layer_names;
         for (int i = 0, n = ui->configurations_layers_list->count(); i < n; ++i) {
@@ -322,9 +322,13 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             const std::string &layer_name = static_cast<ConfigurationLayerWidget *>(widget)->layer_name;
             layer_names.push_back(layer_name);
         }
-        configuration->Reorder(layer_names);
 
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+        Configuration *configuration = configurator.GetActiveConfiguration();
+        if (configuration != nullptr) {
+            configuration->Reorder(layer_names);
+            configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+        }
+
         return true;
     }
 
@@ -618,9 +622,8 @@ void TabConfigurations::OnContextMenuImportClicked(ConfigurationListItem *item) 
     } else {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Import of Layers Configuration error");
-        msg.setText("Cannot access the source configuration file.");
-        msg.setInformativeText(selected_path.c_str());
+        msg.setWindowTitle("Importing of a layers Configuration file failed...");
+        msg.setText(format("%s is not a valid layers configuration file or it could not be read.", selected_path.c_str()).c_str());
         msg.exec();
     }
 }
@@ -711,6 +714,10 @@ void TabConfigurations::OnContextMenuReloadClicked(ConfigurationListItem *item) 
     assert(!item->configuration_name.empty());
 
     // TODO
+    QMessageBox msg;
+    msg.setIcon(QMessageBox::Critical);
+    msg.setWindowTitle("TODO");
+    msg.exec();
 }
 
 void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem *item) {
@@ -718,7 +725,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
 
     Configurator &configurator = Configurator::Get();
 
-    const Path &path_export = configurator.configurations.last_path_export;
+    const Path path_export = configurator.configurations.last_path_export + "/" + item->configuration_name + ".json";
     const std::string &selected_path =
         QFileDialog::getSaveFileName(&this->window, "Export Layers Configuration File", path_export.AbsolutePath().c_str(),
                                      "JSON configuration(*.json)")
@@ -734,10 +741,20 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
     if (!result) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Export of Layers Configuration error");
-        msg.setText("Cannot create the destination configuration file.");
-        msg.setInformativeText(selected_path.c_str());
+        msg.setWindowTitle("Exporting of a layers Configuration file failed...");
+        msg.setText(format("Couldn't be create %s layers configuration file.", selected_path.c_str()).c_str());
         msg.exec();
+    } else if (!(configurator.environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_NOTIFICATION_EXPORT))) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Information);
+        msg.setWindowTitle("Exporting of a layers Configuration file successful.");
+        msg.setText(format("%s layers configuration file was created.", selected_path.c_str()).c_str());
+        msg.setCheckBox(new QCheckBox("Do not show again."));
+        msg.exec();
+
+        if (msg.checkBox()->isChecked()) {
+            configurator.environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_NOTIFICATION_EXPORT);
+        }
     }
 }
 
@@ -745,7 +762,12 @@ void TabConfigurations::OnContextMenuExportSettingsClicked(ConfigurationListItem
     assert(item);
 
     Configurator &configurator = Configurator::Get();
+
     // TODO
+    QMessageBox msg;
+    msg.setIcon(QMessageBox::Critical);
+    msg.setWindowTitle("TODO");
+    msg.exec();
 }
 
 void TabConfigurations::on_combo_box_mode_currentIndexChanged(int index) {

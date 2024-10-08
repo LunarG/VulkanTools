@@ -38,7 +38,14 @@ bool ConfigurationManager::Load(const QJsonObject &json_root_object) {
         const QJsonObject &json_configurations_object = json_root_object.value("configurations").toObject();
         this->use_per_executable_configuration = json_configurations_object.value("use_per_executable").toBool();
         this->use_system_tray = json_configurations_object.value("use_system_tray").toBool();
-        this->active_executable = json_configurations_object.value("active_application").toString().toStdString();
+        this->active_executable = json_configurations_object.value("active_executable").toString().toStdString();
+
+        if (json_configurations_object.value("last_path_export") != QJsonValue::Undefined) {
+            this->last_path_export = json_configurations_object.value("last_path_export").toString().toStdString();
+        }
+        if (json_configurations_object.value("last_path_import") != QJsonValue::Undefined) {
+            this->last_path_import = json_configurations_object.value("last_path_import").toString().toStdString();
+        }
 
         if (json_configurations_object.value("infos") != QJsonValue::Undefined) {
             this->configuration_infos.clear();
@@ -93,6 +100,8 @@ bool ConfigurationManager::Save(QJsonObject &json_root_object) const {
     json_configurations_object.insert("use_per_executable", this->use_per_executable_configuration);
     json_configurations_object.insert("use_system_tray", this->use_system_tray);
     json_configurations_object.insert("active_executable", this->active_executable.c_str());
+    json_configurations_object.insert("last_path_export", this->last_path_export.RelativePath().c_str());
+    json_configurations_object.insert("last_path_import", this->last_path_import.RelativePath().c_str());
     json_configurations_object.insert("infos", json_infos_object);
     json_configurations_object.insert("removed_builtin", json_removed_builtin_configurations_object);
 
@@ -108,6 +117,8 @@ void ConfigurationManager::Reset() {
     this->active_executable.clear();
     this->configuration_infos.clear();
     this->available_configurations.clear();
+    this->last_path_import = Get(Path::HOME);
+    this->last_path_export = Get(Path::HOME);
 
     this->LoadDefaultConfigurations(Configurator::Get().layers);
     this->SortConfigurations();
@@ -408,7 +419,7 @@ const Configuration *ConfigurationManager::FindConfiguration(const std::string &
 bool ConfigurationManager::ImportConfiguration(const LayerManager &layers, const Path &full_import_path) {
     assert(!full_import_path.Empty());
 
-    this->last_path_import = full_import_path;
+    this->last_path_import = full_import_path.AbsoluteDir();
 
     Configuration configuration;
     if (!configuration.Load(full_import_path, layers)) {
@@ -429,7 +440,7 @@ bool ConfigurationManager::ExportConfiguration(const LayerManager &layers, const
     assert(!configuration_name.empty());
     assert(!full_export_path.Empty());
 
-    this->last_path_export = full_export_path;
+    this->last_path_export = full_export_path.AbsoluteDir();
 
     Configuration *configuration = this->FindConfiguration(configuration_name);
     assert(configuration);

@@ -24,7 +24,7 @@
 
 #include "type_platform.h"
 #include "type_layers_mode.h"
-#include "type_log.h"
+#include "type_hide_message.h"
 
 #include <QMessageBox>
 #include <QCheckBox>
@@ -86,7 +86,7 @@ bool Environment::Load(const QJsonObject& json_root_object) {
     this->hide_message_boxes_flags = 0;
     for (int i = 0, n = json_hide_message_boxes_array.size(); i < n; ++i) {
         const std::string& token = json_hide_message_boxes_array[i].toString().toStdString();
-        this->hide_message_boxes_flags |= GetLogBit(token.c_str());
+        this->hide_message_boxes_flags |= GetHideMessageBit(token.c_str());
     }
 
     return true;
@@ -117,8 +117,8 @@ bool Environment::Save(QJsonObject& json_root_object) const {
     json_preferences_object.insert("VK_HOME", this->home_sdk_path.RelativePath().c_str());
 
     QJsonArray json_hide_message_boxes_array;
-    for (int i = LOG_FIRST, n = LOG_COUNT; i < n; ++i) {
-        LogType type = static_cast<LogType>(i);
+    for (int i = HIDE_MESSAGE_FIRST, n = HIDE_MESSAGE_COUNT; i < n; ++i) {
+        HideMessageType type = static_cast<HideMessageType>(i);
         if (this->hide_message_boxes_flags & (1 << i)) {
             json_hide_message_boxes_array.append(GetToken(type));
         }
