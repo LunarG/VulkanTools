@@ -74,8 +74,8 @@ class ConfigurationManager : public Serialize {
     void SetUseSystemTray(bool enabled);
 
     std::vector<Configuration> available_configurations;
-    Path last_path_import;
-    Path last_path_export;
+    Path last_path_import = Get(Path::HOME);
+    Path last_path_export = Get(Path::HOME);
 
    private:
     void LoadConfigurationsPath(const LayerManager& layers);

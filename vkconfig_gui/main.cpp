@@ -30,14 +30,6 @@
 
 #include <cassert>
 
-// TODO, until Loader 284 release...
-#if true || VKC_ENV == VKC_ENV_UNIX
-static const Version REQUIRED_LOADER_VERSION(1, 3, 261);
-#elif VKC_ENV == VKC_ENV_WIN32
-static const Version REQUIRED_LOADER_VERSION(1, 3, 284);
-#else
-#endif
-
 int main(int argc, char* argv[]) {
     InitSignals();
 
