@@ -26,7 +26,9 @@
 
 #include "../vkconfig_core/path.h"
 #include "../vkconfig_core/version.h"
+#include "../vkconfig_core/application_singleton.h"
 #include "../vkconfig_core/configurator_signal.h"
+#include "../vkconfig_core/vulkan_util.h"
 
 int main(int argc, char* argv[]) {
     QCoreApplication::setOrganizationName("LunarG");
@@ -40,6 +42,35 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setApplicationName(VKCONFIG_SHORT_NAME);
 
     QApplication app(argc, argv);
+
+    // This has to go after the construction of QApplication in
+    // order to use a QMessageBox and avoid some QThread warnings.
+    ApplicationSingleton singleton("vkconfig_single_instance");
+    if (!singleton.IsFirstInstance()) {
+        fprintf(stderr, "%s: [ERROR] %s GUI is running which is incompatible with %s command line.", VKCONFIG_SHORT_NAME,
+                VKCONFIG_NAME, VKCONFIG_NAME);
+        return -1;
+    }
+
+    const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
+
+    if (vulkan_info.loaderVersion == Version::NONE) {
+        fprintf(stderr, "%s: [ERROR] Could not find a Vulkan Loader.", VKCONFIG_SHORT_NAME);
+        return -1;
+    }
+
+    if (vulkan_info.loaderVersion < REQUIRED_LOADER_VERSION) {
+        fprintf(stderr,
+                "%s: [ERROR] The system has Vulkan Loader version %s but version %s is requered. Please update the Vulkan Runtime "
+                "at https://vulkan.lunarg.com/sdk/home",
+                VKCONFIG_SHORT_NAME, vulkan_info.loaderVersion.str().c_str(), REQUIRED_LOADER_VERSION.str().c_str());
+        return -1;
+    }
+
+    if (vulkan_info.physicalDevices.empty()) {
+        fprintf(stderr, "%s: [ERROR] Cannot find any Vulkan Physical Devices.", VKCONFIG_SHORT_NAME);
+        return -1;
+    }
 
     const CommandLine command_line(argc, argv);
 

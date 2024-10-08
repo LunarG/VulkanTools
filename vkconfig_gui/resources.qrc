@@ -8,6 +8,7 @@
         <file>resourcefiles/config-off.png</file>
         <file>resourcefiles/config-on.png</file>
         <file>resourcefiles/config-invalid.png</file>
+        <file>CHANGELOG.md</file>
     </qresource>
 
     <qresource prefix="/configurations">

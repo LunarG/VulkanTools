@@ -9,11 +9,23 @@
 
 <p align="center"><img src="./images/vulkan_configurator.png" width=400 /></p>
 
-*Vulkan Configurator* allows overriding the [layers configuration](https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderInterfaceArchitecture.md#layers) used by Vulkan applications at runtime.
+[Vulkan layers](https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderInterfaceArchitecture.md#layers) allow application developers to add functionality to Vulkan applications without modifying the application itself, e.g.: validating API usages, dumping API entry points or generating screenshots of specified frames.
 
-A Vulkan application may configure layers when creating a Vulkan Instance. This layers configuration may be overridden using *Vulkan Configurator* globally or for a selected list of Vulkan applications.
+Configuring layers means multiple tasks:
+* Enabling layers, selecting which layer will be executed
+* Ordering layers, choosing the order of the layer execution between the Vulkan application and the Vulkan driver.
+* Configuring each layer capabilities
 
-Finally *Vulkan Configurator* allows using layers from user-defined directories.
+[Vulkan layers can be configured using three different methods](https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html) to match specific Vulkan developers' workflows:
+* Using Vulkan Loader and Vulkan Layers environment variables.
+* Using the Vulkan API: `vkCreateInstance()` and the `VK_EXT_layer_settings` extension since *Vulkan 1.3.272*.
+* Using Vulkan Loader settings and the `vk_layer_settings.txt` file using *Vulkan Configurator* since *Vulkan 1.3.284*.
+
+*Vulkan Configurator* allows configuring [Vulkan layers](https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderInterfaceArchitecture.md#layers) used by Vulkan applications at runtime.
+
+A Vulkan application may configure layers when creating a Vulkan Instance or using environment variables. This layers configuration may be overridden using *Vulkan Configurator* globally or for a selected list of Vulkan applications.
+
+*Vulkan Configurator 3* requires *Vulkan Loader 1.3.284* or newer to run.
 
 * **[Change Log](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/CHANGELOG.md)**: The history of *Vulkan Configurator* releases.
 * **[Bug reports](https://github.com/LunarG/VulkanTools/issues)**: Open a GitHub issue when you encounter a bug.
@@ -35,13 +47,13 @@ Finally *Vulkan Configurator* allows using layers from user-defined directories.
 --------------
 ## Using the Vulkan Configurator
 
-Vulkan Configurator is a graphical user interface (GUI) that may be launched from the console using `vkconfig`.
+Vulkan Configurator is a graphical user interface (GUI) that may be launched from the console using `vkconfig_gui` and a command line tool `vkconfig`.
 
 The tool is distributed differently, depending on the platform:
-- Ubuntu packages: Upon installing the `lunarg-vkconfig` package, the tools will be available from the command line as `vkconfig`.
-- Linux tarball: The vkconfig executable comes pre-built; be sure Qt is installed to run it. Run vkconfig on the command line.
+- Ubuntu packages: Upon installing the `lunarg-vkconfig` package.
+- Linux tarball: The vkconfig executable comes pre-built; be sure Qt is installed to run it.
   - On Ubuntu 20.04 Qt can be installed by running `sudo apt install qt5-default`
-- Windows: The tool will be present on the start menu, in the Vulkan SDK menu. User can also invoke from a command line.
+- Windows: The tool will be present on the start menu, in the Vulkan SDK menu.
 - macOS: The tool is provided as an application bundle. Run it by double-clicking the bundle from a Finder window.
 
 Vulkan Configurator may be used with command line arguments to override layers. Use `vkconfig --help` in the console for more information.
@@ -109,6 +121,8 @@ arguments.
 
 ***Vulkan Layer settings***: Per-layer settings loaded by each layer library and stored in the `vk_layer_settings.txt` file. This file is located either next to the Vulkan application executable or set globally and applied to all Vulkan applications thanks to *Vulkan Configurator*. These settings are described [here for VK_LAYER_KHRONOS_validation](https://github.com/KhronosGroup/Vulkan-ValidationLayers/blob/main/layers/vk_layer_settings.txt) and [here for other layers created by LunarG](https://github.com/LunarG/VulkanTools/blob/main/layersvt/vk_layer_settings.txt).
 
+https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html
+
 --------------
 ## Vulkan Layers execution order overview
 
@@ -151,8 +165,4 @@ In addition, Windows system create registry entries in the following locations:
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\ImplicitLayers` will have an entry that points to the JSON file above
 - `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` will have an entry that points to the text file above
 - `HKEY_CURRENT_USER\Software\LunarG\vkconfig` stores the application settings for `vkconfig`
-
-### Environment Variables (Deprecated)
-
-OS Environment Variables are the legacy approach to configure layers however they should be considered deprecated in favor of using `vk_layer_settings.txt` either locally, next to the Vulkan Applications or globally, generated from *Vulkan Configurator*.
 
