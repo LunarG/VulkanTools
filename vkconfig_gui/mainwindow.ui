@@ -75,7 +75,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="tab_diagnostic">
        <attribute name="title">
@@ -1513,8 +1513,26 @@
         <string>About</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_13">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QGroupBox" name="groupBox">
+          <property name="minimumSize">
+           <size>
+            <width>800</width>
+            <height>270</height>
+           </size>
+          </property>
           <property name="title">
            <string/>
           </property>
@@ -1524,8 +1542,8 @@
           <widget class="QLabel" name="label_11">
            <property name="geometry">
             <rect>
-             <x>210</x>
-             <y>300</y>
+             <x>640</x>
+             <y>20</y>
              <width>141</width>
              <height>61</height>
             </rect>
@@ -1543,8 +1561,8 @@
           <widget class="QLabel" name="label_10">
            <property name="geometry">
             <rect>
-             <x>10</x>
-             <y>470</y>
+             <x>640</x>
+             <y>190</y>
              <width>91</width>
              <height>81</height>
             </rect>
@@ -1556,13 +1574,13 @@
             <pixmap resource="resources.qrc">:/resourcefiles/qt_logo.png</pixmap>
            </property>
           </widget>
-          <widget class="QLabel" name="label_7">
+          <widget class="QLabel" name="about_label_licenced">
            <property name="geometry">
             <rect>
-             <x>360</x>
-             <y>250</y>
+             <x>760</x>
+             <y>90</y>
              <width>201</width>
-             <height>31</height>
+             <height>41</height>
             </rect>
            </property>
            <property name="font">
@@ -1574,10 +1592,10 @@
             </font>
            </property>
            <property name="text">
-            <string>Licensed under Apache 2.0</string>
+            <string>Vulkan Configurator licensed under Apache 2.0</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -1586,9 +1604,9 @@
           <widget class="QLabel" name="label_9">
            <property name="geometry">
             <rect>
-             <x>380</x>
-             <y>310</y>
-             <width>191</width>
+             <x>680</x>
+             <y>130</y>
+             <width>281</width>
              <height>41</height>
             </rect>
            </property>
@@ -1607,7 +1625,7 @@
             <string>Copyright (c) 2020-2024 LunarG, Inc.</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -1616,8 +1634,8 @@
           <widget class="QPushButton" name="about_qt_pushButton">
            <property name="geometry">
             <rect>
-             <x>140</x>
-             <y>510</y>
+             <x>880</x>
+             <y>230</y>
              <width>81</width>
              <height>32</height>
             </rect>
@@ -1629,8 +1647,8 @@
           <widget class="QLabel" name="label_8">
            <property name="geometry">
             <rect>
-             <x>140</x>
-             <y>470</y>
+             <x>760</x>
+             <y>190</y>
              <width>231</width>
              <height>41</height>
             </rect>
@@ -1687,8 +1705,8 @@
           <widget class="QPushButton" name="about_lunarg_pushButton">
            <property name="geometry">
             <rect>
-             <x>440</x>
-             <y>360</y>
+             <x>840</x>
+             <y>30</y>
              <width>121</width>
              <height>31</height>
             </rect>
@@ -1697,6 +1715,74 @@
             <string>About LunarG</string>
            </property>
           </widget>
+          <widget class="QLabel" name="about_version_label">
+           <property name="geometry">
+            <rect>
+             <x>380</x>
+             <y>20</y>
+             <width>171</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="palette">
+            <palette>
+             <active>
+              <colorrole role="WindowText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>164</red>
+                 <green>30</green>
+                 <blue>34</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </active>
+             <inactive>
+              <colorrole role="WindowText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>164</red>
+                 <green>30</green>
+                 <blue>34</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </inactive>
+             <disabled>
+              <colorrole role="WindowText">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>120</red>
+                 <green>120</green>
+                 <blue>120</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </disabled>
+            </palette>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>3.0.0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="about_changelog_textEdit">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
          </widget>
         </item>
        </layout>
