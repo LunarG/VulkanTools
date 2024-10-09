@@ -9,9 +9,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-        <string>vkconfig</string>
+        <string>vkconfig_gui</string>
 	<key>CFBundleGetInfoString</key>
-	<string>VkConfig</string>
+	<string>VkConfig_gui</string>
 	<key>CFBundleIconFile</key>
 	<string>VulkanIcon.icns</string>
 	<key>CFBundleIdentifier</key>
