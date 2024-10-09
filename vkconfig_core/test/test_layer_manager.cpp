@@ -191,7 +191,7 @@ TEST(test_layer_manager, GatherVersions) {
     EXPECT_TRUE(layer193 != nullptr);
 
     Layer* layer_edit = layer_manager.FindFromManifest(layer193->manifest_path);
-    layer_edit->visible = false;
+    layer_edit->enabled = false;
 
     const std::vector<Version>& versions_found_b = layer_manager.GatherVersions("VK_LAYER_LUNARG_version");
     EXPECT_FALSE(versions_found_b.empty());
@@ -272,21 +272,21 @@ TEST(test_layer_manager, custom_path_update_layers) {
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 1);
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, true);
     for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
-        EXPECT_TRUE(layer_manager.selected_layers[i].visible);
+        EXPECT_TRUE(layer_manager.selected_layers[i].enabled);
     }
 
     info.enabled = false;
     layer_manager.UpdatePathEnabled(info);
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, false);
     for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
-        EXPECT_FALSE(layer_manager.selected_layers[i].visible);
+        EXPECT_FALSE(layer_manager.selected_layers[i].enabled);
     }
 
     info.enabled = true;
     layer_manager.UpdatePathEnabled(info);
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, true);
     for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
-        EXPECT_TRUE(layer_manager.selected_layers[i].visible);
+        EXPECT_TRUE(layer_manager.selected_layers[i].enabled);
     }
 
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 1);
