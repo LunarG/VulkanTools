@@ -18,29 +18,4 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
-
-#include "../vkconfig_core/layer.h"
-#include "../vkconfig_core/type_layers_paths.h"
-
-#include <QCheckBox>
-#include <QPushButton>
-#include <QResizeEvent>
-
-class LayersPathWidget : public QCheckBox {
-    Q_OBJECT
-
-   public:
-    LayersPathWidget(LayersPathInfo *path_info, LayersPaths layers_path);
-
-   protected:
-    void resizeEvent(QResizeEvent *event) override;
-
-   public Q_SLOTS:
-    void on_buttom_remove_clicked(bool checked = false);
-    void on_toggled(bool checked);
-
-   public:
-    LayersPathInfo *path_info = nullptr;
-    QPushButton *buttom_remove = nullptr;
-};
+#include "type_layer_path_view.h"

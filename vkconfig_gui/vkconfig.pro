@@ -62,8 +62,10 @@ SOURCES += \
     ../vkconfig_core/setting_string.cpp \
     ../vkconfig_core/type_hide_message.cpp \
     ../vkconfig_core/type_layer_control.cpp \
+    ../vkconfig_core/type_layer_path_view.cpp \
     ../vkconfig_core/type_layer_type.cpp \
     ../vkconfig_core/type_layers_mode.cpp \
+    ../vkconfig_core/type_layers_paths.cpp \
     ../vkconfig_core/type_log.cpp \
     ../vkconfig_core/type_platform.cpp \
     ../vkconfig_core/type_status.cpp \
@@ -138,8 +140,10 @@ HEADERS += \
     ../vkconfig_core/setting_string.h \
     ../vkconfig_core/type_hide_message.h \
     ../vkconfig_core/type_layer_control.h \
+    ../vkconfig_core/type_layer_path_view.h \
     ../vkconfig_core/type_layer_type.h \
     ../vkconfig_core/type_layers_mode.h \
+    ../vkconfig_core/type_layers_paths.h \
     ../vkconfig_core/type_log.h \
     ../vkconfig_core/type_platform.h \
     ../vkconfig_core/type_status.h \

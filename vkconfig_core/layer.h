@@ -80,7 +80,7 @@ class Layer {
     std::string enable_env;
     bool disable_value;
     bool enable_value;
-    bool visible = true;
+    bool enabled = true;
 
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
