@@ -24,7 +24,7 @@
 
 #include <QFileDialog>
 
-LayersPathWidget::LayersPathWidget(LayersPathInfo* path_info) : path_info(path_info) {
+LayersPathWidget::LayersPathWidget(LayersPathInfo* path_info, LayersPaths layers_path) : path_info(path_info) {
     this->setChecked(this->path_info->enabled);
 
     this->buttom_remove = new QPushButton(this);
@@ -32,7 +32,7 @@ LayersPathWidget::LayersPathWidget(LayersPathInfo* path_info) : path_info(path_i
     this->buttom_remove->show();
 
     this->setText(path_info->path.RelativePath().c_str());
-    this->setToolTip("Load layers in this location");
+    this->setToolTip(GetLabel(layers_path));
 
     this->connect(this, SIGNAL(toggled(bool)), this, SLOT(on_toggled(bool)));
     this->connect(this->buttom_remove, SIGNAL(clicked(bool)), this, SLOT(on_buttom_remove_clicked(bool)));
@@ -52,12 +52,17 @@ void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
     Configurator& configurator = Configurator::Get();
     configurator.layers.RemovePath(*this->path_info);
 
+    this->path_info = nullptr;
+
     emit toggled(checked);
 }
 
 void LayersPathWidget::on_toggled(bool checked) {
-    this->path_info->enabled = checked;
+    // Check the path is not removed
+    if (this->path_info != nullptr) {
+        this->path_info->enabled = checked;
 
-    Configurator& configurator = Configurator::Get();
-    configurator.layers.UpdatePathEnabled(*this->path_info);
+        Configurator& configurator = Configurator::Get();
+        configurator.layers.UpdatePathEnabled(*this->path_info);
+    }
 }

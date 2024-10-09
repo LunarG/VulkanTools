@@ -229,11 +229,8 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
                     new ConfigurationLayerWidget(this, parameter, layer_versions, configuration->view_advanced_layers);
                 item_state->widget = layer_widget;
 
-                if (parameter.control == LAYER_CONTROL_APPLICATIONS_API) {
-                    item_state->widget->setToolTip("Located and Enabled Layers using the Vulkan API by the Vulkan Application");
-                } else if (parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
-                    item_state->widget->setToolTip(
-                        "Located and Enabled Layers using Environment Variables by the Vulkan Application");
+                if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
+                    item_state->widget->setToolTip(GetDescription(parameter.control));
                 }
 
                 ui->configurations_layers_list->setItemWidget(item_state, layer_widget);
@@ -619,6 +616,9 @@ void TabConfigurations::OnContextMenuImportClicked(ConfigurationListItem *item) 
     if (result) {
         configurator.Override(OVERRIDE_AREA_ALL);
         this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
+        this->UpdateUI_LoaderMessages();
+        this->UpdateUI_Layers(UPDATE_REBUILD_UI);
+        this->UpdateUI_Settings(UPDATE_REBUILD_UI);
     } else {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);

@@ -23,16 +23,24 @@
 #include "mainwindow.h"
 
 #include "../vkconfig_core/configurator.h"
+#include "../vkconfig_core/type_layer_path_view.h"
 
 #include <QFileDialog>
 
 TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_LAYERS, window, ui) {
-    this->connect(this->ui->layers_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(on_layers_lineEdit_textEdited(QString)));
-    this->connect(this->ui->layers_lineEdit, SIGNAL(returnPressed()), this, SLOT(on_layers_add_pushButton_pressed()));
-    this->connect(this->ui->layers_add_pushButton, SIGNAL(pressed()), this, SLOT(on_layers_add_pushButton_pressed()));
-    this->connect(this->ui->layers_browse_pushButton, SIGNAL(pressed()), this, SLOT(on_layers_browse_pushButton_pressed()));
+    Configurator &configurator = Configurator::Get();
 
-    this->on_layers_lineEdit_textEdited("");
+    this->ui->layers_progress->setValue(0);
+    this->ui->layers_progress->setVisible(false);
+    this->ui->layers_path_lineedit->setVisible(true);
+    this->ui->layers_path_lineedit->setText(configurator.layers.last_layers_path.RelativePath().c_str());
+
+    this->ui->layers_paths_view_comboBox->setCurrentIndex(configurator.layers.paths_view);
+
+    this->connect(this->ui->layers_browse_pushButton, SIGNAL(pressed()), this, SLOT(on_layers_browse_pushButton_pressed()));
+    this->connect(this->ui->layers_path_lineedit, SIGNAL(returnPressed()), this, SLOT(on_layers_add_pushButton_pressed()));
+    this->connect(this->ui->layers_paths_view_comboBox, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_layers_paths_view_comboBox_currentIndexChanged(int)));
 }
 
 TabLayers::~TabLayers() {}
@@ -40,10 +48,22 @@ TabLayers::~TabLayers() {}
 void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
     Configurator &configurator = Configurator::Get();
 
-    ui->layers_paths_tree->blockSignals(true);
-    ui->layers_paths_tree->clear();
+    this->ui->layers_paths_tree->blockSignals(true);
+    this->ui->layers_paths_tree->clear();
+
+    LayersPathViewType view = static_cast<LayersPathViewType>(this->ui->layers_paths_view_comboBox->currentIndex());
 
     for (std::size_t group_index = 0, group_count = configurator.layers.paths.size(); group_index < group_count; ++group_index) {
+        if (view == LAYERS_PATH_ONLY_USER_DEFINED) {
+            if (group_index != LAYERS_PATHS_GUI) {
+                continue;
+            }
+        } else if (view == LAYERS_PATH_ONLY_ACTIVE_SDK) {
+            if (group_index != LAYERS_PATHS_SDK) {
+                continue;
+            }
+        }
+
         const LayerType layer_type = ::GetLayerType(static_cast<LayersPaths>(group_index));
 
         std::vector<LayersPathInfo> &paths_group = configurator.layers.paths[group_index];
@@ -51,7 +71,7 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
             QTreeWidgetItem *item_state = new QTreeWidgetItem;
             item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
             item_state->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            LayersPathWidget *layer_path_widget = new LayersPathWidget(&paths_group[i]);
+            LayersPathWidget *layer_path_widget = new LayersPathWidget(&paths_group[i], static_cast<LayersPaths>(group_index));
             this->connect(layer_path_widget, SIGNAL(toggled(bool)), this, SLOT(on_check_box_paths_toggled(bool)));
 
             ui->layers_paths_tree->addTopLevelItem(item_state);
@@ -67,8 +87,7 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
                     continue;  // When the directory has JSON files that are not layer manifest
                 }
 
-                std::string label =
-                    layer->key + " - " + layer->api_version.str() + " - " + format("%s layer", GetToken(layer->type));
+                std::string label = layer->key + " - " + layer->api_version.str();
                 if (layer->status != STATUS_STABLE) {
                     label += format(" (%s)", GetToken(layer->status));
                 }
@@ -76,17 +95,21 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
                 QTreeWidgetItem *item = new QTreeWidgetItem;
                 item->setText(0, label.c_str());
                 item->setToolTip(0, layer->manifest_path.AbsolutePath().c_str());
-                item->setDisabled(!layer_path_widget->isChecked());
+                item->setDisabled(!layer->enabled);
                 item_state->addChild(item);
             }
         }
     }
 
-    ui->layers_paths_tree->expandAll();
-    ui->layers_paths_tree->blockSignals(false);
+    this->ui->layers_paths_tree->expandAll();
+    this->ui->layers_paths_tree->blockSignals(false);
 }
 
-void TabLayers::UpdateUI(UpdateUIMode ui_update_mode) { this->UpdateUI_LayersPaths(ui_update_mode); }
+void TabLayers::UpdateUI(UpdateUIMode ui_update_mode) {
+    this->ui->layers_progress->resetFormat();
+    this->ui->layers_progress->setValue(0);
+    this->UpdateUI_LayersPaths(ui_update_mode);
+}
 
 void TabLayers::CleanUI() {}
 
@@ -98,36 +121,71 @@ void TabLayers::on_check_box_paths_toggled(bool checked) {
     this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
 }
 
-void TabLayers::on_layers_lineEdit_textEdited(const QString &text) {
-    // Path new_path(ui->layers_lineEdit->text().toStdString());
-    Path new_path(text.toStdString());
-    ui->layers_add_pushButton->setEnabled(new_path.Exists());
+void TabLayers::on_layers_browse_pushButton_pressed() {
+    Configurator &configurator = Configurator::Get();
+
+    this->ui->layers_paths_view_comboBox->setVisible(false);
+    this->ui->layers_path_lineedit->setVisible(false);
+    this->ui->layers_browse_pushButton->setVisible(false);
+    this->ui->layers_progress->setVisible(true);
+
+    const QString selected_path =
+        QFileDialog::getExistingDirectory(this->ui->layers_browse_pushButton, "Select Layers Manifest Folder...",
+                                          configurator.layers.last_layers_path.AbsolutePath().c_str());
+
+    this->LoadLayersManifest(selected_path);
 }
 
 void TabLayers::on_layers_add_pushButton_pressed() {
+    this->ui->layers_paths_view_comboBox->setVisible(false);
+    this->ui->layers_path_lineedit->setVisible(false);
+    this->ui->layers_browse_pushButton->setVisible(false);
+    this->ui->layers_progress->setVisible(true);
+
+    this->LoadLayersManifest(this->ui->layers_path_lineedit->text());
+}
+
+void TabLayers::on_layers_paths_view_comboBox_currentIndexChanged(int index) {
     Configurator &configurator = Configurator::Get();
-    LayersPathInfo info;
-    info.path = ui->layers_lineEdit->text().toStdString();
-    configurator.layers.AppendPath(info);
-    configurator.layers.LoadLayersFromPath(info.path);
+    configurator.layers.paths_view = static_cast<LayersPathViewType>(index);
 
     this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
 }
 
-void TabLayers::on_layers_browse_pushButton_pressed() {
-    const QString selected_path = QFileDialog::getExistingDirectory(this->ui->layers_browse_pushButton, "Select Folder...",
-                                                                    this->ui->layers_lineEdit->text());
+void TabLayers::LoadLayersManifest(const QString &selected_path) {
+    Configurator &configurator = Configurator::Get();
 
     if (!selected_path.isEmpty()) {
-        this->ui->layers_lineEdit->setText(Path(selected_path.toStdString()).AbsolutePath().c_str());
+        configurator.layers.last_layers_path = selected_path.toStdString();
+        this->ui->layers_path_lineedit->setText(configurator.layers.last_layers_path.AbsolutePath().c_str());
 
         LayersPathInfo info;
         info.path = selected_path.toStdString();
 
-        Configurator &configurator = Configurator::Get();
-        configurator.layers.AppendPath(info);
-        configurator.layers.LoadLayersFromPath(info.path);
+        const std::vector<Path> &layers_paths = CollectFilePaths(info.path);
 
+        this->ui->layers_progress->setMaximum(layers_paths.size());
+        this->ui->layers_progress->setValue(0);
+
+        configurator.layers.AppendPath(info);
+
+        for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
+            this->ui->layers_progress->setFormat(
+                format("Validating %s... - %d/%d", layers_paths[i].AbsolutePath().c_str(), i, layers_paths.size()).c_str());
+            this->ui->layers_progress->setValue(i);
+            configurator.layers.LoadLayer(layers_paths[i]);
+            this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
+        }
+
+        configurator.layers.UpdatePathEnabled(info);
         this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
+
+        this->ui->layers_progress->setFormat("Layers validated!");
+        this->ui->layers_progress->setValue(layers_paths.size());
     }
+
+    this->ui->layers_paths_view_comboBox->setVisible(true);
+    this->ui->layers_path_lineedit->setVisible(true);
+    this->ui->layers_browse_pushButton->setVisible(true);
+    this->ui->layers_progress->setVisible(false);
 }
