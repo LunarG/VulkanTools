@@ -25,14 +25,6 @@
 
 #include <QJsonArray>
 
-LayerType GetLayerType(LayersPaths Layers_paths_type) {
-    if (Layers_paths_type == LAYERS_PATHS_IMPLICIT) {
-        return LAYER_TYPE_IMPLICIT;
-    } else {
-        return LAYER_TYPE_EXPLICIT;
-    }
-}
-
 std::vector<LayersPathInfo> GetImplicitLayerPaths() {
     std::vector<LayersPathInfo> result;
 
@@ -128,6 +120,14 @@ bool LayerManager::Load(const QJsonObject &json_root_object) {
     if (json_root_object.value("layers") != QJsonValue::Undefined) {
         const QJsonObject &json_layers_object = json_root_object.value("layers").toObject();
 
+        if (json_layers_object.value("last_layers_path") != QJsonValue::Undefined) {
+            this->last_layers_path = json_layers_object.value("last_layers_path").toString().toStdString();
+        }
+
+        if (json_layers_object.value("paths_view") != QJsonValue::Undefined) {
+            this->paths_view = static_cast<LayersPathViewType>(json_layers_object.value("paths_view").toInt());
+        }
+
         if (json_layers_object.value("validated") != QJsonValue::Undefined) {
             const QJsonObject &json_layers_validated_object = json_layers_object.value("validated").toObject();
             const QStringList &json_layers_validated_keys = json_layers_validated_object.keys();
@@ -175,6 +175,8 @@ bool LayerManager::Save(QJsonObject &json_root_object) const {
     }
 
     QJsonObject json_layers_object;
+    json_layers_object.insert("last_layers_path", this->last_layers_path.RelativePath().c_str());
+    json_layers_object.insert("paths_view", this->paths_view);
     json_layers_object.insert("validated", json_layers_paths_object);
     json_layers_object.insert("paths", json_paths_object);
 
@@ -239,7 +241,7 @@ std::vector<Version> LayerManager::GatherVersions(const std::string &layer_name)
     std::vector<Version> result;
 
     for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-        if (!this->selected_layers[i].visible) {
+        if (!this->selected_layers[i].enabled) {
             continue;
         }
 
@@ -274,7 +276,7 @@ const Layer *LayerManager::Find(const std::string &layer_name, const Version &la
         return this->Find(layer_name, latest);
     } else {
         for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-            if (this->selected_layers[i].visible == false) {
+            if (this->selected_layers[i].enabled == false) {
                 continue;
             }
             if (this->selected_layers[i].key != layer_name) {
@@ -330,25 +332,29 @@ void LayerManager::LoadLayersFromPath(const Path &layers_path, LayerType type) {
     const std::vector<Path> &layers_paths = CollectFilePaths(layers_path);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        const std::string &last_modified = layers_paths[i].LastModified();
+        this->LoadLayer(layers_paths[i], type);
+    }
+}
 
-        Layer *already_loaded_layer = this->FindFromManifest(layers_paths[i]);
-        if (already_loaded_layer != nullptr) {
-            // Already loaded
-            auto it = this->layers_validated.find(layers_paths[i]);
-            if (it != layers_validated.end()) {
-                if (last_modified == it->second) {
-                    continue;  // Already loaded and up to date
-                }
-            }
+void LayerManager::LoadLayer(const Path &layer_path, LayerType type) {
+    const std::string &last_modified = layer_path.LastModified();
 
-            // Reload
-            already_loaded_layer->Load(layers_paths[i], this->layers_validated, type);
-        } else {
-            Layer layer;
-            if (layer.Load(layers_paths[i], this->layers_validated, type)) {
-                this->selected_layers.push_back(layer);
+    Layer *already_loaded_layer = this->FindFromManifest(layer_path);
+    if (already_loaded_layer != nullptr) {
+        // Already loaded
+        auto it = this->layers_validated.find(layer_path);
+        if (it != layers_validated.end()) {
+            if (last_modified == it->second) {
+                return;
             }
+        }
+
+        // Modified to reload
+        already_loaded_layer->Load(layer_path, this->layers_validated, type);
+    } else {
+        Layer layer;
+        if (layer.Load(layer_path, this->layers_validated, type)) {
+            this->selected_layers.push_back(layer);
         }
     }
 }
@@ -373,7 +379,7 @@ void LayerManager::RemovePath(const LayersPathInfo &path_info) {
             continue;
         }
 
-        layer->visible = false;
+        layer->enabled = false;
     }
 
     for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
@@ -407,7 +413,7 @@ void LayerManager::UpdatePathEnabled(const LayersPathInfo &path_info) {
             continue;
         }
 
-        layer->visible = path_info.enabled;
+        layer->enabled = path_info.enabled;
     }
 }
 

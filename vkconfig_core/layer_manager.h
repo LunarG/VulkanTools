@@ -23,26 +23,12 @@
 #include "layer.h"
 #include "path.h"
 #include "serialization.h"
+#include "type_layer_path_view.h"
+#include "type_layers_paths.h"
 
 #include <string>
 #include <vector>
 #include <memory>
-
-enum LayersPaths {
-    LAYERS_PATHS_IMPLICIT = 0,
-    LAYERS_PATHS_EXPLICIT,
-    LAYERS_PATHS_ENV_SET,  // From $VK_LAYER_PATH
-    LAYERS_PATHS_ENV_ADD,  // from $VK_ADD_LAYER_PATH
-    LAYERS_PATHS_GUI,
-    LAYERS_PATHS_SDK,
-
-    LAYERS_PATHS_FIRST = LAYERS_PATHS_IMPLICIT,
-    LAYERS_PATHS_LAST = LAYERS_PATHS_SDK,
-};
-
-enum { LAYERS_PATHS_COUNT = LAYERS_PATHS_LAST - LAYERS_PATHS_FIRST + 1 };
-
-LayerType GetLayerType(LayersPaths Layers_paths_type);
 
 class LayerManager : public Serialize {
    public:
@@ -61,6 +47,7 @@ class LayerManager : public Serialize {
 
     void LoadAllInstalledLayers();
     void LoadLayersFromPath(const Path& layers_path, LayerType type = LAYER_TYPE_EXPLICIT);
+    void LoadLayer(const Path& layer_path, LayerType type = LAYER_TYPE_EXPLICIT);
 
     void AppendPath(const LayersPathInfo& path_info);
     void RemovePath(const LayersPathInfo& path_info);
@@ -70,6 +57,8 @@ class LayerManager : public Serialize {
 
     std::vector<Layer> selected_layers;
     std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> paths;
+    Path last_layers_path = Get(Path::HOME);
+    LayersPathViewType paths_view = LAYERS_PATH_ONLY_USER_DEFINED;
 
    private:
     void InitSystemPaths();

@@ -113,15 +113,15 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         for (std::size_t i = 0, n = layer_versions.size(); i < n; ++i) {
             if (layer_versions[i] == parameter.api_version) {
                 version_index = this->layer_version->count();
-
-                if (layer != nullptr) {
-                    this->layer_version->setToolTip(layer->manifest_path.AbsolutePath().c_str());
-                }
             }
 
             this->layer_version->addItem(layer_versions[i].str().c_str());
         }
         this->layer_version->setCurrentIndex(version_index);
+        if (layer != nullptr) {
+            this->layer_version->setToolTip(layer->manifest_path.AbsolutePath().c_str());
+            this->setToolTip(layer->description.c_str());
+        }
 
         // this->layer_version->setEnabled(layers.size() > 1);
         this->connect(this->layer_version, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_version_currentIndexChanged(int)));
@@ -141,6 +141,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         }
         this->layer_state->setEnabled(!layer_versions.empty());
         this->layer_state->setCurrentIndex(parameter.control);
+        this->layer_state->setToolTip(GetDescription(parameter.control));
         this->layer_state->setEnabled(layer != nullptr);
         this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
         // this->layer_state->installEventFilter(this);
@@ -218,6 +219,12 @@ void ConfigurationLayerWidget::on_layer_version_currentIndexChanged(int index) {
     Configuration *configuration = configurator.GetActiveConfiguration();
     configuration->SwitchLayerVersion(configurator.layers, this->layer_name, version);
 
+    const Layer *layer = configurator.layers.Find(this->layer_name, version);
+    if (layer != nullptr) {
+        this->layer_version->setToolTip(layer->manifest_path.AbsolutePath().c_str());
+        this->setToolTip(layer->description.c_str());
+    }
+
     this->tab->UpdateUI_Settings(UPDATE_REBUILD_UI);
 }
 
@@ -228,6 +235,8 @@ void ConfigurationLayerWidget::on_layer_state_currentIndexChanged(int index) {
     Configuration *configuration = Configurator::Get().GetActiveConfiguration();
     Parameter *parameter = configuration->Find(this->layer_name);
     parameter->control = GetLayerControl(text.c_str());
+
+    this->layer_state->setToolTip(GetDescription(parameter->control));
 
     this->tab->UpdateUI_Settings(UPDATE_REFRESH_UI);
 }
