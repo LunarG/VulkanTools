@@ -20,27 +20,12 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer.h"
-#include "../vkconfig_core/type_layers_paths.h"
+enum LayersPathViewType {
+    LAYERS_PATH_ONLY_USER_DEFINED = 0,
+    LAYERS_PATH_ONLY_ACTIVE_SDK,
+    LAYERS_PATH_ALL,
 
-#include <QCheckBox>
-#include <QPushButton>
-#include <QResizeEvent>
-
-class LayersPathWidget : public QCheckBox {
-    Q_OBJECT
-
-   public:
-    LayersPathWidget(LayersPathInfo *path_info, LayersPaths layers_path);
-
-   protected:
-    void resizeEvent(QResizeEvent *event) override;
-
-   public Q_SLOTS:
-    void on_buttom_remove_clicked(bool checked = false);
-    void on_toggled(bool checked);
-
-   public:
-    LayersPathInfo *path_info = nullptr;
-    QPushButton *buttom_remove = nullptr;
+    LAYERS_PATH_FIRST = LAYERS_PATH_ONLY_USER_DEFINED,
+    LAYERS_PATH_LAST = LAYERS_PATH_ALL,
 };
+enum { LAYERS_PATH_COUNT = LAYERS_PATH_LAST - LAYERS_PATH_FIRST + 1 };
