@@ -20,27 +20,22 @@
 
 #pragma once
 
-#include "../vkconfig_core/layer.h"
-#include "../vkconfig_core/type_layers_paths.h"
+#include "type_layer_type.h"
 
-#include <QCheckBox>
-#include <QPushButton>
-#include <QResizeEvent>
+enum LayersPaths {
+    LAYERS_PATHS_IMPLICIT = 0,
+    LAYERS_PATHS_EXPLICIT,
+    LAYERS_PATHS_ENV_SET,  // From $VK_LAYER_PATH
+    LAYERS_PATHS_ENV_ADD,  // from $VK_ADD_LAYER_PATH
+    LAYERS_PATHS_GUI,
+    LAYERS_PATHS_SDK,
 
-class LayersPathWidget : public QCheckBox {
-    Q_OBJECT
-
-   public:
-    LayersPathWidget(LayersPathInfo *path_info, LayersPaths layers_path);
-
-   protected:
-    void resizeEvent(QResizeEvent *event) override;
-
-   public Q_SLOTS:
-    void on_buttom_remove_clicked(bool checked = false);
-    void on_toggled(bool checked);
-
-   public:
-    LayersPathInfo *path_info = nullptr;
-    QPushButton *buttom_remove = nullptr;
+    LAYERS_PATHS_FIRST = LAYERS_PATHS_IMPLICIT,
+    LAYERS_PATHS_LAST = LAYERS_PATHS_SDK,
 };
+
+enum { LAYERS_PATHS_COUNT = LAYERS_PATHS_LAST - LAYERS_PATHS_FIRST + 1 };
+
+LayerType GetLayerType(LayersPaths Layers_paths_type);
+
+const char* GetLabel(LayersPaths Layers_paths_type);

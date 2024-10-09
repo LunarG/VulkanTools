@@ -75,7 +75,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>6</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_diagnostic">
        <attribute name="title">
@@ -698,7 +698,60 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QLineEdit" name="layers_lineEdit"/>
+             <widget class="QComboBox" name="layers_paths_view_comboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+              <item>
+               <property name="text">
+                <string>Show Only User-Defined Layers Paths</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Show Only Active SDK Layers Paths</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Show All Layers</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QProgressBar" name="layers_progress">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="value">
+               <number>24</number>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="textVisible">
+               <bool>true</bool>
+              </property>
+              <property name="invertedAppearance">
+               <bool>false</bool>
+              </property>
+              <property name="format">
+               <string>Loading layers... %p%</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="layers_path_lineedit"/>
             </item>
             <item>
              <widget class="QPushButton" name="layers_browse_pushButton">
@@ -708,21 +761,11 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>Add user-defined layers path</string>
+              </property>
               <property name="text">
                <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="layers_add_pushButton">
-              <property name="maximumSize">
-               <size>
-                <width>32</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>+</string>
               </property>
              </widget>
             </item>

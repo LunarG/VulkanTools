@@ -30,8 +30,21 @@ const char* GetToken(LayerControl control) {
         "Auto",                        // LAYER_CONTROL_AUTO
         "Off",                         // LAYER_CONTROL_OFF
         "On",                          // LAYER_CONTROL_ON
-        "application_enabled_layers",  // LAYER_CONTROL_APPLICATIONS
-        "unordered_layer_location"     // LAYER_CONTROL_UNORDERED
+        "application_enabled_layers",  // LAYER_CONTROL_APPLICATIONS_API
+        "unordered_layer_location"     // LAYER_CONTROL_APPLICATIONS_ENV
+    };
+    static_assert(std::size(TOKENS) == LAYER_CONTROL_COUNT);
+
+    return TOKENS[control];
+}
+
+const char* GetDescription(LayerControl control) {
+    static const char* TOKENS[] = {
+        "Auto, let Vulkan applications or environment variables to enable or disable the layer",  // LAYER_CONTROL_AUTO
+        "Force Off the layer, preventing its execution",                                          // LAYER_CONTROL_OFF
+        "Force On the layer, insuring its execution",                                             // LAYER_CONTROL_ON
+        "Located and Enabled Layers using the Vulkan API by the Vulkan Application",              // LAYER_CONTROL_APPLICATIONS_API
+        "Located and Enabled Layers using Environment Variables by the Vulkan Application"        // LAYER_CONTROL_APPLICATIONS_ENV
     };
     static_assert(std::size(TOKENS) == LAYER_CONTROL_COUNT);
 
