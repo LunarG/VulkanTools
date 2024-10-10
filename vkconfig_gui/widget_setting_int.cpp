@@ -97,7 +97,7 @@ void WidgetSettingInt::OnErrorValue() {
 
     Environment& environment = Configurator::Get().environment;
 
-    if (!(environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_WIDGET_SETTING_INT))) {
+    if (!(environment.Get(HIDE_MESSAGE_WIDGET_SETTING_INT))) {
         const std::string info = format("Do you want to reset to the setting default value? '%d'", this->meta.default_value);
         const std::string range = format("Enter a number in the range [%d, %d].", this->meta.min_value, this->meta.max_value);
 
@@ -137,7 +137,7 @@ void WidgetSettingInt::OnErrorValue() {
             this->Resize();
         }
         if (alert.checkBox()->isChecked()) {
-            environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_WIDGET_SETTING_INT);
+            environment.Set(HIDE_MESSAGE_WIDGET_SETTING_INT);
         }
     }
 

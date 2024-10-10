@@ -698,31 +698,10 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QComboBox" name="layers_paths_view_comboBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             <widget class="QCheckBox" name="layers_validate_checkBox">
+              <property name="text">
+               <string>Validate Layer Manifests on Load</string>
               </property>
-              <property name="sizeAdjustPolicy">
-               <enum>QComboBox::AdjustToContents</enum>
-              </property>
-              <item>
-               <property name="text">
-                <string>Show Only User-Defined Layers Paths</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Show Only Active SDK Layers Paths</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Show All Layers</string>
-               </property>
-              </item>
              </widget>
             </item>
             <item>
