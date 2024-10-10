@@ -95,9 +95,9 @@ void WidgetSettingInt::OnErrorValue() {
     palette.setColor(QPalette::Base, QColor(255, 192, 192));
     this->field->setPalette(palette);
 
-    Environment& environment = Configurator::Get().environment;
+    Configurator& configurator = Configurator::Get();
 
-    if (!(environment.Get(HIDE_MESSAGE_WIDGET_SETTING_INT))) {
+    if (!(configurator.Get(HIDE_MESSAGE_WIDGET_SETTING_INT))) {
         const std::string info = format("Do you want to reset to the setting default value? '%d'", this->meta.default_value);
         const std::string range = format("Enter a number in the range [%d, %d].", this->meta.min_value, this->meta.max_value);
 
@@ -137,7 +137,7 @@ void WidgetSettingInt::OnErrorValue() {
             this->Resize();
         }
         if (alert.checkBox()->isChecked()) {
-            environment.Set(HIDE_MESSAGE_WIDGET_SETTING_INT);
+            configurator.Set(HIDE_MESSAGE_WIDGET_SETTING_INT);
         }
     }
 

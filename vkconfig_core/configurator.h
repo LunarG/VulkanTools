@@ -21,16 +21,20 @@
 
 #pragma once
 
-#include "../vkconfig_core/version.h"
-#include "../vkconfig_core/configuration_manager.h"
-#include "../vkconfig_core/layer_manager.h"
-#include "../vkconfig_core/executable_manager.h"
-#include "../vkconfig_core/environment.h"
-#include "../vkconfig_core/type_platform.h"
-#include "../vkconfig_core/type_override_area.h"
-#include "../vkconfig_core/vulkan_info.h"
+#include "version.h"
+#include "configuration_manager.h"
+#include "configuration_manager.h"
+#include "layer_manager.h"
+#include "executable_manager.h"
+#include "type_platform.h"
+#include "type_override_area.h"
+#include "type_hide_message.h"
+#include "type_layers_view.h"
+#include "type_tab.h"
+#include "vulkan_info.h"
+#include "serialization.h"
 
-class Configurator {
+class Configurator : public Serialize {
    public:
     enum Mode { CMD, GUI };
 
@@ -57,11 +61,20 @@ class Configurator {
     bool Init(Mode mode = GUI);
 
    public:
+    bool Load(const QJsonObject& json_root_object) override;
+    bool Save(QJsonObject& json_root_object) const override;
+    void Reset() override;
+
     bool Surrender(OverrideArea override_area);
     bool Override(OverrideArea override_area);
     bool HasOverride() const;
 
     void Reset(bool hard);
+
+    void SetActiveConfigurationName(const std::string& configuration_name);
+    std::string GetActionConfigurationName() const;
+    void SetActiveLayersMode(LayersMode mode);
+    LayersMode GetActiveLayersMode() const;
 
     Configuration* GetActiveConfiguration();
     const Configuration* GetActiveConfiguration() const;
@@ -69,6 +82,18 @@ class Configurator {
 
     bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
     bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
+
+    void Set(HideMessageType type);
+    bool Get(HideMessageType type) const;
+
+    bool GetPerExecutableConfig() const;
+    void SetPerExecutableConfig(bool enabled);
+
+    bool GetUseSystemTray() const;
+    void SetUseSystemTray(bool enabled);
+
+    LayersView GetLayersView() const;
+    void SetLayersView(LayersView view);
 
     ~Configurator();
 
@@ -78,14 +103,25 @@ class Configurator {
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
-    void BuildLoaderSettings(const ConfigurationInfo& info, const std::string& executable_path,
+    void BuildLoaderSettings(const std::string& configuration_key, LayersMode mode, const std::string& executable_path,
                              std::vector<LoaderSettings>& loader_settings_array) const;
 
    public:
     Mode mode;
-    Environment environment;
     LayerManager layers;
     ConfigurationManager configurations;
     ExecutableManager executables;
     VulkanSystemInfo vulkan_system_info;
+
+    bool has_crashed = false;
+    TabType active_tab = TAB_CONFIGURATIONS;
+
+   private:
+    Path home_sdk_path;
+    int hide_message_boxes_flags = 0;
+    bool use_system_tray = false;
+    bool use_per_executable_configuration = false;
+    std::string selected_global_configuration;
+    LayersMode selected_global_layers_mode;
+    LayersView selected_layers_view;
 };

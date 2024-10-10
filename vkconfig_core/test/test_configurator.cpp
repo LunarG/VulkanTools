@@ -22,4 +22,11 @@
 
 #include <gtest/gtest.h>
 
-TEST(test_configurator, init) { EXPECT_TRUE(true); }
+TEST(test_configurator, get) {
+    Configurator& configurator = Configurator::Get();
+
+    EXPECT_EQ(configurator.has_crashed, false);
+    EXPECT_EQ(configurator.active_tab, TAB_CONFIGURATIONS);
+    EXPECT_FALSE(configurator.GetUseSystemTray());
+    EXPECT_FALSE(configurator.GetPerExecutableConfig());
+}

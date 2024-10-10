@@ -19,7 +19,6 @@
  */
 
 #include "../configurator.h"
-#include "../environment.h"
 #include "../layer.h"
 #include "../layer_manager.h"
 
