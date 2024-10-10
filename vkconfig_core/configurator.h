@@ -23,6 +23,7 @@
 
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/configuration_manager.h"
+#include "../vkconfig_core/configuration_manager.h"
 #include "../vkconfig_core/layer_manager.h"
 #include "../vkconfig_core/executable_manager.h"
 #include "../vkconfig_core/environment.h"
@@ -63,6 +64,11 @@ class Configurator {
 
     void Reset(bool hard);
 
+    void SetActiveConfigurationName(const std::string& configuration_name);
+    std::string GetActionConfigurationName() const;
+    void SetActiveLayersMode(LayersMode mode);
+    LayersMode GetActiveLayersMode() const;
+
     Configuration* GetActiveConfiguration();
     const Configuration* GetActiveConfiguration() const;
     bool HasActiveConfiguration() const;
@@ -78,7 +84,7 @@ class Configurator {
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
-    void BuildLoaderSettings(const ConfigurationInfo& info, const std::string& executable_path,
+    void BuildLoaderSettings(const std::string& configuration_key, LayersMode mode, const std::string& executable_path,
                              std::vector<LoaderSettings>& loader_settings_array) const;
 
    public:
@@ -88,4 +94,7 @@ class Configurator {
     ConfigurationManager configurations;
     ExecutableManager executables;
     VulkanSystemInfo vulkan_system_info;
+
+    std::string selected_global_configuration;
+    LayersMode selected_global_layers_mode;
 };
