@@ -19,7 +19,6 @@
  */
 
 #include "../layer_manager.h"
-#include "../environment.h"
 
 #include <gtest/gtest.h>
 

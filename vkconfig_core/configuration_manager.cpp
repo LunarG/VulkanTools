@@ -23,12 +23,7 @@
 #include "configurator.h"
 #include "alert.h"
 
-const char *GLOBAL_CONFIGURATION_TOKEN = "GLOBAL";
-
-ConfigurationManager::ConfigurationManager() {
-    ConfigurationInfo info;
-    this->configuration_infos.insert(std::make_pair(GLOBAL_CONFIGURATION_TOKEN, info));
-}
+ConfigurationManager::ConfigurationManager() {}
 
 ConfigurationManager::~ConfigurationManager() {}
 
@@ -36,9 +31,6 @@ bool ConfigurationManager::Load(const QJsonObject &json_root_object) {
     // configurations json object
     if (json_root_object.value("configurations") != QJsonValue::Undefined) {
         const QJsonObject &json_configurations_object = json_root_object.value("configurations").toObject();
-        this->use_per_executable_configuration = json_configurations_object.value("use_per_executable").toBool();
-        this->use_system_tray = json_configurations_object.value("use_system_tray").toBool();
-        this->active_executable = json_configurations_object.value("active_executable").toString().toStdString();
 
         if (json_configurations_object.value("last_path_export") != QJsonValue::Undefined) {
             this->last_path_export = json_configurations_object.value("last_path_export").toString().toStdString();
@@ -47,23 +39,8 @@ bool ConfigurationManager::Load(const QJsonObject &json_root_object) {
             this->last_path_import = json_configurations_object.value("last_path_import").toString().toStdString();
         }
 
-        if (json_configurations_object.value("infos") != QJsonValue::Undefined) {
-            this->configuration_infos.clear();
-
-            const QJsonObject &json_infos_object = json_configurations_object.value("infos").toObject();
-            const QStringList &json_infos_keys = json_infos_object.keys();
-            for (int i = 0, n = json_infos_keys.length(); i < n; ++i) {
-                const std::string &key = json_infos_keys[i].toStdString();
-                const QJsonObject &json_info_object = json_infos_object.value(key.c_str()).toObject();
-                ConfigurationInfo info;
-                info.name = json_info_object.value("name").toString().toStdString();
-                info.mode = ::GetLayersMode(json_info_object.value("mode").toString().toStdString().c_str());
-                this->configuration_infos.insert(std::make_pair(key, info));
-            }
-        }
-
-        if (json_configurations_object.value("removed_builtin") != QJsonValue::Undefined) {
-            const QJsonObject &json_removed_builtin_object = json_configurations_object.value("removed_builtin").toObject();
+        if (json_configurations_object.value("removed") != QJsonValue::Undefined) {
+            const QJsonObject &json_removed_builtin_object = json_configurations_object.value("removed").toObject();
             const QStringList &json_removed_builtin_keys = json_removed_builtin_object.keys();
 
             for (int i = 0, n = json_removed_builtin_keys.length(); i < n; ++i) {
@@ -88,22 +65,10 @@ bool ConfigurationManager::Save(QJsonObject &json_root_object) const {
         json_removed_builtin_configurations_object.insert(it->first.c_str(), it->second);
     }
 
-    QJsonObject json_infos_object;
-    for (auto it = this->configuration_infos.begin(), end = this->configuration_infos.end(); it != end; ++it) {
-        QJsonObject json_info_object;
-        json_info_object.insert("name", it->second.name.c_str());
-        json_info_object.insert("mode", GetToken(it->second.mode));
-        json_infos_object.insert(it->first.c_str(), json_info_object);
-    }
-
     QJsonObject json_configurations_object;
-    json_configurations_object.insert("use_per_executable", this->use_per_executable_configuration);
-    json_configurations_object.insert("use_system_tray", this->use_system_tray);
-    json_configurations_object.insert("active_executable", this->active_executable.c_str());
     json_configurations_object.insert("last_path_export", this->last_path_export.RelativePath().c_str());
     json_configurations_object.insert("last_path_import", this->last_path_import.RelativePath().c_str());
-    json_configurations_object.insert("infos", json_infos_object);
-    json_configurations_object.insert("removed_builtin", json_removed_builtin_configurations_object);
+    json_configurations_object.insert("removed", json_removed_builtin_configurations_object);
 
     json_root_object.insert("configurations", json_configurations_object);
 
@@ -112,19 +77,12 @@ bool ConfigurationManager::Save(QJsonObject &json_root_object) const {
 
 void ConfigurationManager::Reset() {
     this->removed_built_in_configuration.clear();
-    this->use_per_executable_configuration = false;
-    this->use_system_tray = false;
-    this->active_executable.clear();
-    this->configuration_infos.clear();
     this->available_configurations.clear();
     this->last_path_import = Get(Path::HOME);
     this->last_path_export = Get(Path::HOME);
 
     this->LoadDefaultConfigurations(Configurator::Get().layers);
     this->SortConfigurations();
-
-    ConfigurationInfo info;
-    this->configuration_infos.insert(std::make_pair(GLOBAL_CONFIGURATION_TOKEN, info));
 }
 
 void ConfigurationManager::LoadAllConfigurations(const LayerManager &layers) {
@@ -222,53 +180,6 @@ void ConfigurationManager::SaveAllConfigurations() const {
     }
 }
 
-const ConfigurationInfo *ConfigurationManager::GetActiveConfigurationInfo() const {
-    if (this->use_per_executable_configuration) {
-        if (this->active_executable.empty())
-            return nullptr;
-        else
-            return &this->configuration_infos.find(this->active_executable.c_str())->second;
-    } else {
-        return &this->configuration_infos.find(GLOBAL_CONFIGURATION_TOKEN)->second;
-    }
-}
-
-ConfigurationInfo *ConfigurationManager::GetActiveConfigurationInfo() {
-    if (this->use_per_executable_configuration) {
-        return &this->configuration_infos.find(this->active_executable.c_str())->second;
-    } else {
-        return &this->configuration_infos.find(GLOBAL_CONFIGURATION_TOKEN)->second;
-    }
-}
-
-const ConfigurationInfo *ConfigurationManager::FindConfigurationInfo(const std::string &key) const {
-    for (auto it = this->configuration_infos.begin(), end = this->configuration_infos.end(); it != end; ++it) {
-        if (it->first == key) {
-            return &it->second;
-        }
-    }
-
-    return nullptr;
-}
-
-bool ConfigurationManager::HasActiveConfiguration() const {
-    if (this->GetActiveConfigurationInfo() == nullptr) {
-        return false;
-    }
-
-    for (auto it = configuration_infos.begin(), end = configuration_infos.end(); it != end; ++it) {
-        if (it->second.mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-const std::map<std::string, ConfigurationInfo> &ConfigurationManager::GetConfigurationInfos() const {
-    return this->configuration_infos;
-}
-
 Configuration &ConfigurationManager::CreateConfiguration(const LayerManager &layers, const std::string &configuration_name) {
     std::string configuration_key = MakeConfigurationName(available_configurations, configuration_name);
 
@@ -276,8 +187,6 @@ Configuration &ConfigurationManager::CreateConfiguration(const LayerManager &lay
 
     this->available_configurations.push_back(new_configuration);
     this->SortConfigurations();
-
-    this->GetActiveConfigurationInfo()->name = new_configuration.key;
 
     return *this->FindConfiguration(new_configuration.key);
 }
@@ -299,8 +208,6 @@ Configuration &ConfigurationManager::DuplicateConfiguration(const LayerManager &
 
     this->available_configurations.push_back(reloaded_configuration);
     this->SortConfigurations();  // invalidated all pointers to configuration object
-
-    this->GetActiveConfigurationInfo()->name = reloaded_configuration.key;
 
     return *this->FindConfiguration(reloaded_configuration.key);
 }
@@ -360,10 +267,6 @@ void ConfigurationManager::RemoveConfiguration(const std::string &configuration_
 
     std::swap(updated_configurations, this->available_configurations);
     this->SortConfigurations();
-
-    if (this->GetActiveConfigurationInfo()->name == configuration_name) {
-        this->GetActiveConfigurationInfo()->name.clear();
-    }
 }
 
 int ConfigurationManager::GetConfigurationIndex(const std::string &configuration_name) const {
@@ -430,7 +333,7 @@ bool ConfigurationManager::ImportConfiguration(const LayerManager &layers, const
     this->available_configurations.push_back(configuration);
     this->SortConfigurations();
 
-    this->GetActiveConfigurationInfo()->name = configuration.key;
+    // this->GetActiveConfigurationInfo()->name = configuration.key;
 
     return true;
 }
@@ -447,11 +350,3 @@ bool ConfigurationManager::ExportConfiguration(const LayerManager &layers, const
 
     return configuration->Save(full_export_path, true);
 }
-
-bool ConfigurationManager::GetPerExecutableConfig() const { return this->use_per_executable_configuration; }
-
-void ConfigurationManager::SetPerExecutableConfig(bool enabled) { this->use_per_executable_configuration = enabled; }
-
-bool ConfigurationManager::GetUseSystemTray() const { return this->use_system_tray; }
-
-void ConfigurationManager::SetUseSystemTray(bool enabled) { this->use_system_tray = enabled; }
