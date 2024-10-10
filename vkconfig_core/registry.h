@@ -20,10 +20,10 @@
 
 #pragma once
 
-#include "platform.h"
+#include "type_platform.h"
 #include "layer.h"
 
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#if VKC_ENV == VKC_ENV_WIN32
 
 #include <QString>
 
@@ -33,6 +33,6 @@ void AppendRegistryEntriesForLayers(QString override_file, QString settings_file
 
 void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file);
 
-void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerType type);
+std::vector<LayersPathInfo> LoadRegistryLayers(const QString &path);
 
-#endif  // VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#endif  // VKC_ENV == VKC_ENV_WIN32

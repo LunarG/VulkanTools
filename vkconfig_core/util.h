@@ -35,23 +35,6 @@
 #include <vector>
 #include <array>
 
-// Based on https://www.g-truc.net/post-0708.html#menu
-template <typename T, std::size_t N>
-inline constexpr std::size_t countof(T const (&)[N]) noexcept {
-    return N;
-}
-
-template <typename T, std::size_t N>
-inline constexpr std::size_t countof(std::array<T, N> const& data) noexcept {
-    return data.size();
-}
-
-// For C++ container
-template <typename T, typename Alloc, template <typename, typename> class C>
-inline constexpr std::size_t countof(C<T, Alloc> const& data) noexcept {
-    return data.size();
-}
-
 std::string format(const char* message, ...);
 
 bool IsFrames(const std::string& s);
@@ -140,38 +123,12 @@ QStringList ConvertValues(const std::vector<NumberOrString>& values);
 std::string GetLayerSettingPrefix(const std::string& key);
 
 template <typename T>
-T* FindByKey(std::vector<T>& container, const char* key) {
-    assert(key != nullptr);
-    assert(std::strcmp(key, "") != 0);
-
-    const std::string low_key = ToLowerCase(std::string(key));
-
-    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
-        if (ToLowerCase(container[i].key) == low_key) {
-            return &container[i];
-        }
-    }
-
-    return nullptr;
+std::vector<T> GetVector(const T& value) {
+    std::vector<T> result;
+    result.push_back(value);
+    return result;
 }
 
-template <typename T>
-const T* FindByKey(const std::vector<T>& container, const char* key) {
-    assert(key != nullptr);
-    assert(std::strcmp(key, "") != 0);
+std::size_t ExtractDuplicateNumber(const std::string& name);
 
-    const std::string low_key = ToLowerCase(std::string(key));
-
-    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
-        if (ToLowerCase(container[i].key) == low_key) {
-            return &container[i];
-        }
-    }
-
-    return nullptr;
-}
-
-template <typename T>
-bool IsFound(const std::vector<T>& container, const char* key) {
-    return FindByKey(container, key) != nullptr;
-}
+std::string ExtractDuplicateBaseName(const std::string& name);
