@@ -129,3 +129,7 @@ bool Environment::Save(QJsonObject& json_root_object) const {
 
     return true;
 }
+
+void Environment::Set(HideMessageType type) { this->hide_message_boxes_flags |= GetBit(type); }
+
+bool Environment::Get(HideMessageType type) const { return this->hide_message_boxes_flags & GetBit(type); }
