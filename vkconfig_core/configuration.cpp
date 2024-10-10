@@ -148,10 +148,6 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
         this->view_advanced_settings = ReadBoolValue(json_configuration_object, "view_advanced_settings");
     }
 
-    if (json_configuration_object.value("view_advanced_layers") != QJsonValue::Undefined) {
-        this->view_advanced_layers = ReadBoolValue(json_configuration_object, "view_advanced_layers");
-    }
-
     if (json_configuration_object.value("selected_layer_name") != QJsonValue::Undefined) {
         this->selected_layer_name = ReadString(json_configuration_object, "selected_layer_name");
     }
@@ -304,7 +300,6 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
     json_configuration.insert("description", this->description.c_str());
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
     json_configuration.insert("view_advanced_settings", this->view_advanced_settings);
-    json_configuration.insert("view_advanced_layers", this->view_advanced_layers);
     json_configuration.insert("selected_layer_name", this->selected_layer_name.c_str());
     SaveStringArray(json_configuration, "loader_message_types", GetLogTokens(this->loader_log_messages_flags));
     json_configuration.insert("layers", json_layers);
@@ -461,20 +456,19 @@ void Configuration::Reorder(const std::vector<std::string>& layer_names) {
         ordered_parameters.push_back(*parameter);
     }
 
-    if (!this->view_advanced_layers) {
-        for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
-            Parameter& parameter = this->parameters[i];
+    // Add the remaining parameters not listed in `layer_names`
+    for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
+        Parameter& parameter = this->parameters[i];
 
-            bool found = false;
-            for (std::size_t j = 0, o = ordered_parameters.size(); j < o; ++j) {
-                if (ordered_parameters[j].key == parameter.key) {
-                    found = true;
-                }
+        bool found = false;
+        for (std::size_t j = 0, o = ordered_parameters.size(); j < o; ++j) {
+            if (ordered_parameters[j].key == parameter.key) {
+                found = true;
             }
+        }
 
-            if (!found) {
-                ordered_parameters.push_back(parameter);
-            }
+        if (!found) {
+            ordered_parameters.push_back(parameter);
         }
     }
 

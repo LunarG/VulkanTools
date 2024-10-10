@@ -25,7 +25,7 @@
 #include "../vkconfig_core/configurator.h"
 
 ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter,
-                                                   const std::vector<Version> &layer_versions, bool advanced_view)
+                                                   const std::vector<Version> &layer_versions, LayersView view)
     : tab(tab), layer_name(parameter.key) {
     // const bool is_implicit_layer = layers.empty() ? false : layers[0]->type == LAYER_TYPE_IMPLICIT;
 
@@ -36,7 +36,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         this->setEnabled(layer != nullptr);
 
         this->layer_version = new QComboBox(this);
-        this->layer_version->setVisible(advanced_view);
+        this->layer_version->setVisible(view == LAYERS_VIEW_ALL_AVAILABLE);
         this->layer_version->setEnabled(layer != nullptr);
         this->layer_version->addItem("Latest");
 
@@ -103,7 +103,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     } else {
         assert(layer != nullptr);
 
-        if (!advanced_view && parameter.api_version != Version::LATEST) {
+        if (view == LAYERS_VIEW_OVERRIDDEN_ONLY && parameter.api_version != Version::LATEST) {
             decorated_name += format(" - %s", parameter.api_version.str().c_str());
         }
 

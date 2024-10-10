@@ -18,4 +18,18 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "type_layer_path_view.h"
+#pragma once
+
+enum LayersView {
+    LAYERS_VIEW_OVERRIDDEN_ONLY = 0,
+    LAYERS_VIEW_ALL_AVAILABLE,
+
+    LAYERS_PATH_VIEW_FIRST = LAYERS_VIEW_OVERRIDDEN_ONLY,
+    LAYERS_PATH_VIEW_LAST = LAYERS_VIEW_ALL_AVAILABLE
+};
+
+enum { LAYERS_PATH_VIEW_COUNT = LAYERS_PATH_VIEW_LAST - LAYERS_PATH_VIEW_FIRST + 1 };
+
+const char* GetToken(LayersView type);
+
+LayersView GetLayersView(const char* token);
