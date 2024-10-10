@@ -35,7 +35,8 @@ const char* GetToken(HideMessageType value) {
                                 "HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED",
                                 "HIDE_MESSAGE_WARN_NO_LAYER_FOUND",
                                 "HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE",
-                                "HIDE_MESSAGE_WARN_CORE_SHADER_IGNORE"};
+                                "HIDE_MESSAGE_WARN_CORE_SHADER_IGNORE",
+                                "HIDE_MESSAGE_ERROR_32BIT"};
     static_assert(std::size(TOKENS) == HIDE_MESSAGE_COUNT);
 
     if (value >= HIDE_MESSAGE_FIRST && value <= HIDE_MESSAGE_LAST) {
