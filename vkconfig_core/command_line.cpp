@@ -357,6 +357,7 @@ void CommandLine::usage() const {
             printf("\tdoc                       = Create doc files for layer.\n");
             printf("\n");
             printf("  (Use 'vkconfig help <command>' for detailed usage of %s commands.)\n", VKCONFIG_NAME);
+            printf("  (Use 'vkconfig-gui' to open %s graphics interface.)\n", VKCONFIG_NAME);
             break;
         }
         case HELP_HELP: {
