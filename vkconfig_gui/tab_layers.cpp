@@ -25,6 +25,7 @@
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/type_layer_path_view.h"
 #include "../vkconfig_core/type_hide_message.h"
+#include "../vkconfig_core/is_dll_32.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -160,6 +161,21 @@ void TabLayers::LoadLayersManifest(const QString &selected_path) {
             this->ui->layers_progress->setFormat(
                 format("%s %s... - %d/%d", label, layers_paths[i].AbsolutePath().c_str(), i, layers_paths.size()).c_str());
             this->ui->layers_progress->setValue(i);
+            if (IsDLL32Bit(layers_paths[i])) {
+                if (!configurator.environment.Get(HIDE_MESSAGE_ERROR_32BIT)) {
+                    QMessageBox message;
+                    message.setIcon(QMessageBox::Information);
+                    message.setWindowTitle("32 bits layers are not supported...");
+                    message.setText(format("%s refers to a 32 bit layer", layers_paths[i].AbsolutePath().c_str()).c_str());
+                    message.setCheckBox(new QCheckBox("Do not show again."));
+                    message.exec();
+                    if (message.checkBox()->isChecked()) {
+                        configurator.environment.Set(HIDE_MESSAGE_ERROR_32BIT);
+                    }
+                }
+                continue;
+            }
+
             if (configurator.layers.LoadLayer(layers_paths[i])) {
                 ++loaded;
             }

@@ -54,4 +54,3 @@ else()
         include(macOS/vkconfig.cmake)
     endif()
 endif()
-
