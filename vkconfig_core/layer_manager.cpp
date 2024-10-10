@@ -124,8 +124,8 @@ bool LayerManager::Load(const QJsonObject &json_root_object) {
             this->last_layers_path = json_layers_object.value("last_layers_path").toString().toStdString();
         }
 
-        if (json_layers_object.value("paths_view") != QJsonValue::Undefined) {
-            this->paths_view = static_cast<LayersPathViewType>(json_layers_object.value("paths_view").toInt());
+        if (json_layers_object.value("validate_manifests") != QJsonValue::Undefined) {
+            this->validate_manifests = json_layers_object.value("validate_manifests").toBool();
         }
 
         if (json_layers_object.value("validated") != QJsonValue::Undefined) {
@@ -175,8 +175,8 @@ bool LayerManager::Save(QJsonObject &json_root_object) const {
     }
 
     QJsonObject json_layers_object;
+    json_layers_object.insert("validate_manifests", this->validate_manifests);
     json_layers_object.insert("last_layers_path", this->last_layers_path.RelativePath().c_str());
-    json_layers_object.insert("paths_view", this->paths_view);
     json_layers_object.insert("validated", json_layers_paths_object);
     json_layers_object.insert("paths", json_paths_object);
 
@@ -188,6 +188,8 @@ bool LayerManager::Save(QJsonObject &json_root_object) const {
 void LayerManager::Reset() {
     this->InitSystemPaths();
     this->LoadAllInstalledLayers();
+    this->last_layers_path = Get(Path::HOME);
+    this->validate_manifests = true;
 }
 
 void LayerManager::InitSystemPaths() {
@@ -336,7 +338,7 @@ void LayerManager::LoadLayersFromPath(const Path &layers_path, LayerType type) {
     }
 }
 
-void LayerManager::LoadLayer(const Path &layer_path, LayerType type) {
+bool LayerManager::LoadLayer(const Path &layer_path, LayerType type) {
     const std::string &last_modified = layer_path.LastModified();
 
     Layer *already_loaded_layer = this->FindFromManifest(layer_path);
@@ -345,18 +347,22 @@ void LayerManager::LoadLayer(const Path &layer_path, LayerType type) {
         auto it = this->layers_validated.find(layer_path);
         if (it != layers_validated.end()) {
             if (last_modified == it->second) {
-                return;
+                return true;
             }
         }
 
         // Modified to reload
-        already_loaded_layer->Load(layer_path, this->layers_validated, type);
+        already_loaded_layer->Load(layer_path, type, this->validate_manifests, this->layers_validated);
     } else {
         Layer layer;
-        if (layer.Load(layer_path, this->layers_validated, type)) {
+        if (layer.Load(layer_path, type, this->validate_manifests, this->layers_validated)) {
             this->selected_layers.push_back(layer);
+        } else {
+            return false;
         }
     }
+
+    return true;
 }
 
 void LayerManager::AppendPath(const LayersPathInfo &info) {

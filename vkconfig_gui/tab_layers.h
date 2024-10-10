@@ -37,9 +37,9 @@ struct TabLayers : public Tab {
 
    public Q_SLOTS:
     void on_check_box_paths_toggled(bool checked);
+    void on_layers_validate_checkBox_toggled(bool checked);
     void on_layers_browse_pushButton_pressed();
     void on_layers_add_pushButton_pressed();
-    void on_layers_paths_view_comboBox_currentIndexChanged(int index);
 
    private:
     void LoadLayersManifest(const QString &selected_path);

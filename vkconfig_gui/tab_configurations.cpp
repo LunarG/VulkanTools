@@ -744,7 +744,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
         msg.setWindowTitle("Exporting of a layers Configuration file failed...");
         msg.setText(format("Couldn't be create %s layers configuration file.", selected_path.c_str()).c_str());
         msg.exec();
-    } else if (!(configurator.environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_NOTIFICATION_EXPORT))) {
+    } else if (!(configurator.environment.Get(HIDE_MESSAGE_NOTIFICATION_EXPORT))) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Information);
         msg.setWindowTitle("Exporting of a layers Configuration file successful.");
@@ -753,7 +753,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
         msg.exec();
 
         if (msg.checkBox()->isChecked()) {
-            configurator.environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_NOTIFICATION_EXPORT);
+            configurator.environment.Set(HIDE_MESSAGE_NOTIFICATION_EXPORT);
         }
     }
 }

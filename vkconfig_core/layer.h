@@ -85,8 +85,8 @@ class Layer {
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
-    bool Load(const Path& full_path_to_file, const std::map<Path, std::string>& layers_validated,
-              LayerType type = LAYER_TYPE_EXPLICIT);
+    bool Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
+              const std::map<Path, std::string>& layers_validated);
 
    private:
     Layer& operator=(const Layer&) = delete;

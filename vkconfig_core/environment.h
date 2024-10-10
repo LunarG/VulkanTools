@@ -23,6 +23,7 @@
 #include "version.h"
 #include "type_tab.h"
 #include "type_log.h"
+#include "type_hide_message.h"
 #include "path.h"
 #include "serialization.h"
 
@@ -44,8 +45,10 @@ class Environment : public Serialize {
     LogFlags GetLoaderMessageFlags() const { return this->loader_message_types_flags; }
     void SetLoaderMessageFlags(LogFlags flags) { this->loader_message_types_flags = flags; }
 
+    void Set(HideMessageType type);
+    bool Get(HideMessageType type) const;
+
     bool has_crashed = false;
-    int hide_message_boxes_flags = 0;
     TabType active_tab = TAB_CONFIGURATIONS;
 
    private:
@@ -54,4 +57,5 @@ class Environment : public Serialize {
 
     LogFlags loader_message_types_flags;
     Path home_sdk_path;
+    int hide_message_boxes_flags = 0;
 };
