@@ -446,8 +446,8 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     this->tree->blockSignals(false);
 
     if (this->launched_application) {
-        if (!(configurator.environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_NEED_APPLICATION_RESTART))) {
-            configurator.environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_NEED_APPLICATION_RESTART);
+        if (!(configurator.environment.Get(HIDE_MESSAGE_NEED_APPLICATION_RESTART))) {
+            configurator.environment.Set(HIDE_MESSAGE_NEED_APPLICATION_RESTART);
 
             Alert::ConfiguratorRestart();
         }
