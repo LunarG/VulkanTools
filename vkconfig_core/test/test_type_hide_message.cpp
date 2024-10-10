@@ -72,7 +72,7 @@ TEST(test_type_hide_message, convert_type_to_bit) {
 }
 
 TEST(test_type_hide_message, convert_specific_flags) {
-    const std::vector<std::string> TOKENS = {"NEED_APPLICATION_RESTART", "WARN_CORE_SHADER_IGNORE"};
+    const std::vector<std::string> TOKENS = {"HIDE_MESSAGE_NEED_APPLICATION_RESTART", "HIDE_MESSAGE_NOTIFICATION_EXPORT"};
 
     HideMessageFlags flags = GetHideMessageFlags(TOKENS);
     const std::vector<std::string>& back = GetHideMessageTokens(flags);
@@ -104,7 +104,7 @@ TEST(test_type_hide_message, convert_all_flags_merge) {
 }
 
 TEST(test_type_hide_message, convert_specific_flags_merge) {
-    const std::string cases[] = {"NEED_APPLICATION_RESTART", "NEED_APPLICATION_RESTART,"};
+    const std::string cases[] = {"HIDE_MESSAGE_NEED_APPLICATION_RESTART", "HIDE_MESSAGE_NEED_APPLICATION_RESTART,"};
 
     for (std::size_t i = 0, n = std::size(cases); i < n; ++i) {
         HideMessageFlags flags = GetHideMessageFlags(cases[i]);
@@ -113,7 +113,8 @@ TEST(test_type_hide_message, convert_specific_flags_merge) {
 }
 
 TEST(test_type_hide_message, convert_invalid_flags) {
-    const std::vector<std::string> TOKENS = {"NEED_APPLICATION_RESTART", "UNKNOWN_VALUE", "WARN_CORE_SHADER_IGNORE"};
+    const std::vector<std::string> TOKENS = {"HIDE_MESSAGE_NEED_APPLICATION_RESTART", "UNKNOWN_VALUE",
+                                             "HIDE_MESSAGE_WARN_CORE_SHADER_IGNORE"};
 
     HideMessageFlags flags = GetHideMessageFlags(TOKENS);
     const std::vector<std::string>& back = GetHideMessageTokens(flags);
