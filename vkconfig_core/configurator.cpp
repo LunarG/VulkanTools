@@ -148,7 +148,7 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
     return json_settings;
 }
 
-void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std::string& executable_path,
+void Configurator::BuildLoaderSettings(const std::string& configuration_key, LayersMode mode, const std::string& executable_path,
                                        std::vector<LoaderSettings>& loader_settings_array) const {
     LoaderSettings result;
     result.executable_path = executable_path;
@@ -156,11 +156,11 @@ void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std:
     static Configuration disbled_configuration = Configuration::CreateDisabled(this->layers);
     const Configuration* configuration = nullptr;
 
-    switch (info.mode) {
+    switch (mode) {
         case LAYERS_CONTROLLED_BY_APPLICATIONS:
             return;
         case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
-            configuration = this->configurations.FindConfiguration(info.name);
+            configuration = this->configurations.FindConfiguration(configuration_key);
             if (configuration == nullptr) {
                 return;
             }
@@ -211,22 +211,16 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
     if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
         std::vector<LoaderSettings> loader_settings_array;
 
-        const std::map<std::string, ConfigurationInfo>& infos = this->configurations.GetConfigurationInfos();
-        for (auto it = infos.begin(), end = infos.end(); it != end; ++it) {
-            if (this->configurations.GetPerExecutableConfig()) {
-                if (it->first == GLOBAL_CONFIGURATION_TOKEN) {
-                    continue;
-                }
-
-                this->BuildLoaderSettings(it->second, it->first, loader_settings_array);
-            } else {
-                if (it->first != GLOBAL_CONFIGURATION_TOKEN) {
-                    continue;
-                }
-
-                this->BuildLoaderSettings(it->second, "", loader_settings_array);
-                break;
+        if (this->configurations.GetPerExecutableConfig()) {
+            const std::vector<Executable>& collection = this->executables.GetExecutables();
+            for (std::size_t i = 0, n = collection.size(); i < n; ++i) {
+                this->BuildLoaderSettings(collection[i].GetActiveOptions()->configuration,
+                                          collection[i].GetActiveOptions()->layers_mode, collection[i].path.AbsolutePath(),
+                                          loader_settings_array);
             }
+        } else {
+            this->BuildLoaderSettings(this->selected_global_configuration, this->selected_global_layers_mode, "",
+                                      loader_settings_array);
         }
 
         if (!loader_settings_array.empty()) {
@@ -267,14 +261,14 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
 
             for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
                 LayersSettings settings;
-                settings.configuration_name = this->configurations.FindConfigurationInfo(executables[i].path.AbsolutePath())->name;
                 settings.executable_path = executables[i].path;
+                settings.configuration_name = executables[i].GetActiveOptions()->configuration;
                 settings.settings_path = executables[i].GetActiveOptions()->working_folder;
                 layers_settings_array.push_back(settings);
             }
         } else {
             LayersSettings settings;
-            settings.configuration_name = this->configurations.FindConfigurationInfo(GLOBAL_CONFIGURATION_TOKEN)->name;
+            settings.configuration_name = this->selected_global_configuration;
             settings.settings_path = layers_settings_path;
             layers_settings_array.push_back(settings);
         }
@@ -467,14 +461,71 @@ void Configurator::Reset(bool hard) {
     this->configurations.Reset();
 }
 
+void Configurator::SetActiveConfigurationName(const std::string& configuration_name) {
+    if (this->configurations.GetPerExecutableConfig()) {
+        Executable* executable = this->executables.GetActiveExecutable();
+        executable->GetActiveOptions()->configuration = configuration_name;
+    } else {
+        this->selected_global_configuration = configuration_name;
+    }
+}
+
+std::string Configurator::GetActionConfigurationName() const {
+    if (this->configurations.GetPerExecutableConfig()) {
+        const Executable* executable = this->executables.GetActiveExecutable();
+        return executable->GetActiveOptions()->configuration;
+    } else {
+        return this->selected_global_configuration;
+    }
+}
+
+void Configurator::SetActiveLayersMode(LayersMode mode) {
+    if (this->configurations.GetPerExecutableConfig()) {
+        Executable* executable = this->executables.GetActiveExecutable();
+        executable->GetActiveOptions()->layers_mode = mode;
+    } else {
+        this->selected_global_layers_mode = mode;
+    }
+}
+
+LayersMode Configurator::GetActiveLayersMode() const {
+    if (this->configurations.GetPerExecutableConfig()) {
+        const Executable* executable = this->executables.GetActiveExecutable();
+        return executable->GetActiveOptions()->layers_mode;
+    } else {
+        return this->selected_global_layers_mode;
+    }
+}
+
 Configuration* Configurator::GetActiveConfiguration() {
-    const ConfigurationInfo* info = this->configurations.GetActiveConfigurationInfo();
-    return this->configurations.FindConfiguration(info->name);
+    if (this->configurations.GetPerExecutableConfig()) {
+        const Executable* executable = this->executables.GetActiveExecutable();
+        return this->configurations.FindConfiguration(executable->GetActiveOptions()->configuration);
+    } else {
+        return this->configurations.FindConfiguration(this->selected_global_configuration);
+    }
 }
 
 const Configuration* Configurator::GetActiveConfiguration() const {
-    const ConfigurationInfo* info = this->configurations.GetActiveConfigurationInfo();
-    return this->configurations.FindConfiguration(info->name);
+    if (this->configurations.GetPerExecutableConfig()) {
+        const Executable* executable = this->executables.GetActiveExecutable();
+        return this->configurations.FindConfiguration(executable->GetActiveOptions()->configuration);
+    } else {
+        return this->configurations.FindConfiguration(this->selected_global_configuration);
+    }
 }
 
-bool Configurator::HasActiveConfiguration() const { return this->configurations.HasActiveConfiguration(); }
+bool Configurator::HasActiveConfiguration() const {
+    if (this->configurations.GetPerExecutableConfig()) {
+        const std::vector<Executable>& data = this->executables.GetExecutables();
+        for (std::size_t i = 0, n = data.size(); i < n; ++i) {
+            if (data[i].GetActiveOptions()->layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
+                return true;
+            }
+        }
+    } else {
+        return this->selected_global_layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS;
+    }
+
+    return false;
+}
