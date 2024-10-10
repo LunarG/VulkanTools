@@ -136,7 +136,8 @@ SettingMeta* Layer::Instantiate(SettingMetaSet& meta_set, const std::string& key
     return setting_meta;
 }
 
-bool Layer::Load(const Path& full_path_to_file, const std::map<Path, std::string>& layers_validated, LayerType type) {
+bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
+                 const std::map<Path, std::string>& layers_validated) {
     this->type = type;  // Set layer type, no way to know this from the json file
 
     if (full_path_to_file.Empty()) {
@@ -202,7 +203,7 @@ bool Layer::Load(const Path& full_path_to_file, const std::map<Path, std::string
         cached_last_modified = it->second;
     }
     const bool should_validate = !this->manifest_path.IsBuiltIn() && last_modified != cached_last_modified;
-    const bool is_valid = should_validate ? validator.Check(json_text) : true;
+    const bool is_valid = should_validate && request_validate_manifest ? validator.Check(json_text) : true;
 
     if (!is_valid) {
         this->validated_last_modified.clear();
