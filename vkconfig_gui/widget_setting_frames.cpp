@@ -94,9 +94,9 @@ void WidgetSettingFrames::OnErrorValue() {
     palette.setColor(QPalette::Base, QColor(255, 192, 192));
     this->field->setPalette(palette);
 
-    Environment& environment = Configurator::Get().environment;
+    Configurator& configurator = Configurator::Get();
 
-    if (!environment.Get(HIDE_MESSAGE_WIDGET_SETTING_FRAMES)) {
+    if (!configurator.Get(HIDE_MESSAGE_WIDGET_SETTING_FRAMES)) {
         const std::string text =
             format("The setting input '%s' is invalid. Use list of comma separated integer ranges. Example: '0-2,16'.",
                    this->data().GetValue());
@@ -118,7 +118,7 @@ void WidgetSettingFrames::OnErrorValue() {
             this->Resize();
         }
         if (alert.checkBox()->isChecked()) {
-            environment.Set(HIDE_MESSAGE_WIDGET_SETTING_FRAMES);
+            configurator.Set(HIDE_MESSAGE_WIDGET_SETTING_FRAMES);
         }
     }
 

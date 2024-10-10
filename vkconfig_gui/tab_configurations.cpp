@@ -40,10 +40,10 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
 
     this->connect(this->ui->check_box_per_application, SIGNAL(toggled(bool)), this,
                   SLOT(on_check_box_per_application_toggled(bool)));
-    this->connect(this->ui->combo_box_mode, SIGNAL(currentIndexChanged(int)), this,
-                  SLOT(on_combo_box_mode_currentIndexChanged(int)));
     this->connect(this->ui->combo_box_applications, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_combo_box_applications_currentIndexChanged(int)));
+    this->connect(this->ui->combo_box_mode, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_combo_box_mode_currentIndexChanged(int)));
 
     this->connect(this->ui->combo_box_layers_view, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_combo_box_layers_view_currentIndexChanged(int)));
@@ -72,6 +72,9 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->ui->splitter_main->restoreState(settings.value("mainwindow/splitter_main_state").toByteArray());
     this->ui->splitter_configurations->restoreState(settings.value("mainwindow/splitter_configurations_state").toByteArray());
     this->ui->splitter_settings->restoreState(settings.value("mainwindow/splitter_settings_state").toByteArray());
+
+    Configurator &configurator = Configurator::Get();
+    this->ui->combo_box_mode->setCurrentIndex(configurator.GetActiveLayersMode());
 }
 
 TabConfigurations::~TabConfigurations() {
@@ -84,13 +87,10 @@ TabConfigurations::~TabConfigurations() {
 void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
     Configurator &configurator = Configurator::Get();
 
-    const ConfigurationInfo *configuration_info = configurator.configurations.GetActiveConfigurationInfo();
-    assert(configuration_info != nullptr);
-
-    const bool enabled_ui = configuration_info->mode == LAYERS_CONTROLLED_BY_CONFIGURATOR;
+    const bool enabled_ui = configurator.GetActiveLayersMode() == LAYERS_CONTROLLED_BY_CONFIGURATOR;
 
     ui->combo_box_mode->blockSignals(true);
-    ui->combo_box_mode->setCurrentIndex(configuration_info->mode);
+    ui->combo_box_mode->setCurrentIndex(configurator.GetActiveLayersMode());
     ui->combo_box_mode->blockSignals(false);
 
     ui->configurations_list->blockSignals(true);
@@ -125,7 +125,7 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
         Configuration *configuration = configurator.configurations.FindConfiguration(item->configuration_name);
         assert(configuration != nullptr);
 
-        if (item->configuration_name == configuration_info->name) {
+        if (item->configuration_name == configurator.GetActionConfigurationName()) {
             // TODO: add PartiallyChecked when the configuration is not working
             // HasMissingLayer(configuration.parameters, configurator.layers.available_layers)
             // item->setIcon(QIcon(":/resourcefiles/config-invalid.png"));
@@ -151,9 +151,9 @@ void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
         ui->combo_box_applications->setVisible(false);
     } else {
         ui->check_box_per_application->setEnabled(true);
-        ui->check_box_per_application->setChecked(configurator.configurations.GetPerExecutableConfig());
+        ui->check_box_per_application->setChecked(configurator.GetPerExecutableConfig());
 
-        ui->combo_box_applications->setEnabled(configurator.configurations.GetPerExecutableConfig());
+        ui->combo_box_applications->setEnabled(configurator.GetPerExecutableConfig());
 
         ui->combo_box_applications->blockSignals(true);
 
@@ -204,7 +204,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
     ui->configurations_layers_list->clear();
 
     Configurator &configurator = Configurator::Get();
-    const std::string &selected_contiguration_name = configurator.configurations.GetActiveConfigurationInfo()->name;
+    const std::string &selected_contiguration_name = configurator.GetActionConfigurationName();
     const bool has_selected_configuration = !selected_contiguration_name.empty();
 
     if (has_selected_configuration) {
@@ -213,7 +213,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
             for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
                 Parameter &parameter = configuration->parameters[i];
 
-                if (!configuration->view_advanced_layers) {
+                if (configurator.GetLayersView() == LAYERS_VIEW_OVERRIDDEN_ONLY) {
                     if (parameter.control == LAYER_CONTROL_AUTO) {
                         continue;
                     }
@@ -226,7 +226,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
                 const std::vector<Version> &layer_versions = configurator.layers.GatherVersions(parameter.key);
 
                 ConfigurationLayerWidget *layer_widget =
-                    new ConfigurationLayerWidget(this, parameter, layer_versions, configuration->view_advanced_layers);
+                    new ConfigurationLayerWidget(this, parameter, layer_versions, configurator.GetLayersView());
                 item_state->widget = layer_widget;
 
                 if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
@@ -240,7 +240,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
             }
             // resizeEvent(nullptr);
 
-            ui->combo_box_layers_view->setCurrentIndex(configuration->view_advanced_layers);
+            ui->combo_box_layers_view->setCurrentIndex(configurator.GetLayersView());
 
             ui->configurations_layers_list->update();
         }
@@ -255,7 +255,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
 void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
     Configurator &configurator = Configurator::Get();
 
-    if (configurator.configurations.GetActiveConfigurationInfo() == nullptr) {
+    if (configurator.GetActionConfigurationName().empty()) {
         this->_settings_tree_manager.CleanupGUI();
         ui->configurations_presets_comboBox->setVisible(false);
     } else {
@@ -273,7 +273,7 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     Configurator &configurator = Configurator::Get();
 
     // Update the layers configuration area
-    LayersMode mode = configurator.configurations.GetActiveConfigurationInfo()->mode;
+    LayersMode mode = configurator.GetActiveLayersMode();
     const bool enabled_ui = mode == LAYERS_CONTROLLED_BY_CONFIGURATOR;
 
     ui->combo_box_mode->setCurrentIndex(mode);
@@ -474,8 +474,8 @@ void TabConfigurations::OnSelectConfiguration(int currentRow) {
     }
 
     Configurator &configurator = Configurator::Get();
-    if (configurator.configurations.GetActiveConfigurationInfo()->name != configuration_item->configuration_name) {
-        configurator.configurations.GetActiveConfigurationInfo()->name = configuration_item->configuration_name;
+    if (configurator.GetActionConfigurationName() != configuration_item->configuration_name) {
+        configurator.SetActiveConfigurationName(configuration_item->configuration_name);
 
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
@@ -526,7 +526,7 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *item) {
         // Rename configuration ; Remove old configuration file ; change the name of the configuration
         configurator.configurations.RemoveConfigurationFile(old_name);
         configuration->key = configuration_item->configuration_name = new_name;
-        configurator.configurations.GetActiveConfigurationInfo()->name = new_name;
+        configurator.SetActiveConfigurationName(new_name);
 
         this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
         this->UpdateUI_LoaderMessages();
@@ -537,7 +537,7 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *item) {
         item->setText(old_name.c_str());
         ui->configurations_list->blockSignals(false);
 
-        configurator.configurations.GetActiveConfigurationInfo()->name = old_name;
+        configurator.SetActiveConfigurationName(old_name);
     }
 
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
@@ -744,7 +744,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
         msg.setWindowTitle("Exporting of a layers Configuration file failed...");
         msg.setText(format("Couldn't be create %s layers configuration file.", selected_path.c_str()).c_str());
         msg.exec();
-    } else if (!(configurator.environment.Get(HIDE_MESSAGE_NOTIFICATION_EXPORT))) {
+    } else if (!(configurator.Get(HIDE_MESSAGE_NOTIFICATION_EXPORT))) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Information);
         msg.setWindowTitle("Exporting of a layers Configuration file successful.");
@@ -753,7 +753,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
         msg.exec();
 
         if (msg.checkBox()->isChecked()) {
-            configurator.environment.Set(HIDE_MESSAGE_NOTIFICATION_EXPORT);
+            configurator.Set(HIDE_MESSAGE_NOTIFICATION_EXPORT);
         }
     }
 }
@@ -773,7 +773,7 @@ void TabConfigurations::OnContextMenuExportSettingsClicked(ConfigurationListItem
 void TabConfigurations::on_combo_box_mode_currentIndexChanged(int index) {
     Configurator &configurator = Configurator::Get();
 
-    configurator.configurations.GetActiveConfigurationInfo()->mode = static_cast<LayersMode>(index);
+    configurator.SetActiveLayersMode(static_cast<LayersMode>(index));
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     this->UpdateUI(UPDATE_REFRESH_UI);
@@ -791,7 +791,7 @@ void TabConfigurations::on_combo_box_applications_currentIndexChanged(int index)
 void TabConfigurations::on_check_box_per_application_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
 
-    configurator.configurations.SetPerExecutableConfig(checked);
+    configurator.SetPerExecutableConfig(checked);
     configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI(UPDATE_REFRESH_UI);
@@ -832,9 +832,7 @@ void TabConfigurations::on_combo_box_layers_view_currentIndexChanged(int index) 
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
 
     Configurator &configurator = Configurator::Get();
-
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    configuration->view_advanced_layers = index != 0;
+    configurator.SetLayersView(static_cast<LayersView>(index));
 
     this->UpdateUI_Layers(UPDATE_REBUILD_UI);
 }

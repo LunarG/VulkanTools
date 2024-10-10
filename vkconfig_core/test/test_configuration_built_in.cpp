@@ -21,7 +21,6 @@
 #include "../configuration.h"
 #include "../util.h"
 #include "../layer_manager.h"
-#include "../environment.h"
 
 #include <array>
 #include <string>
@@ -63,7 +62,7 @@ static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parame
 std::map<std::string, std::string> Dummy() { return std::map<std::string, std::string>(); }
 
 struct TestBuilin {
-    TestBuilin() : environment(), layer_manager() {
+    TestBuilin() : layer_manager() {
         this->layer_manager.LoadLayersFromPath(":/sdk");
         EXPECT_TRUE(!this->layer_manager.selected_layers.empty());
     }
@@ -90,7 +89,6 @@ struct TestBuilin {
 
     std::string layers_version;
     std::string configurations_version;
-    Environment environment;
     LayerManager layer_manager;
 };
 

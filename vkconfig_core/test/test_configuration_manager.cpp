@@ -25,17 +25,10 @@
 TEST(test_configuration_manager, init_default) {
     ConfigurationManager configuration_manager;
 
-    const ConfigurationInfo* info_global = configuration_manager.FindConfigurationInfo(GLOBAL_CONFIGURATION_TOKEN);
-    EXPECT_TRUE(info_global != nullptr);
-    const ConfigurationInfo* info_unknown = configuration_manager.FindConfigurationInfo("unknown");
+    const Configuration* info_unknown = configuration_manager.FindConfiguration("unknown");
     EXPECT_TRUE(info_unknown == nullptr);
-    const ConfigurationInfo* info_active = configuration_manager.GetActiveConfigurationInfo();
-    EXPECT_EQ(info_active, info_global);
-
-    EXPECT_FALSE(configuration_manager.GetUseSystemTray());
-    EXPECT_FALSE(configuration_manager.GetPerExecutableConfig());
-    EXPECT_TRUE(configuration_manager.HasActiveConfiguration());
     EXPECT_TRUE(configuration_manager.Empty());
+
     EXPECT_STREQ(configuration_manager.last_path_import.RelativePath().c_str(), Get(Path::HOME).RelativePath().c_str());
     EXPECT_STREQ(configuration_manager.last_path_export.RelativePath().c_str(), Get(Path::HOME).RelativePath().c_str());
 }
@@ -118,7 +111,6 @@ TEST(test_configuration_manager, duplicate_object) {
     EXPECT_EQ(configuration_ori->platform_flags, configuration_dup->platform_flags);
     EXPECT_EQ(configuration_ori->description, configuration_dup->description);
     EXPECT_EQ(configuration_ori->view_advanced_settings, configuration_dup->view_advanced_settings);
-    EXPECT_EQ(configuration_ori->view_advanced_layers, configuration_dup->view_advanced_layers);
     EXPECT_EQ(configuration_ori->loader_log_messages_flags, configuration_dup->loader_log_messages_flags);
     EXPECT_EQ(configuration_ori->selected_layer_name, configuration_dup->selected_layer_name);
     EXPECT_EQ(configuration_ori->parameters.size(), configuration_dup->parameters.size());

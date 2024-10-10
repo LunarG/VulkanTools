@@ -177,7 +177,10 @@ void TabApplications::on_applications_list_comboBox_activated(int index) {
         }
     }
     ui->applications_options_comboBox->blockSignals(false);
-    ui->applications_options_comboBox->setCurrentIndex(executable->active_option_index);
+
+    if (executable != nullptr) {
+        ui->applications_options_comboBox->setCurrentIndex(executable->active_option_index);
+    }
 }
 
 void TabApplications::on_applications_list_comboBox_textEdited(const QString &text) {
