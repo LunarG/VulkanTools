@@ -21,7 +21,7 @@
 #pragma once
 
 #include "configuration.h"
-#include "configuration_info.h"
+//#include "configuration_info.h"
 #include "path.h"
 #include "serialization.h"
 
@@ -42,12 +42,6 @@ class ConfigurationManager : public Serialize {
     void LoadAllConfigurations(const LayerManager& layers);
     void SaveAllConfigurations() const;
 
-    const ConfigurationInfo* GetActiveConfigurationInfo() const;
-    ConfigurationInfo* GetActiveConfigurationInfo();
-    const ConfigurationInfo* FindConfigurationInfo(const std::string& key) const;
-    const std::map<std::string, ConfigurationInfo>& GetConfigurationInfos() const;
-    bool HasActiveConfiguration() const;
-
     Configuration& CreateConfiguration(const LayerManager& layers, const std::string& configuration_name);
     Configuration& DuplicateConfiguration(const LayerManager& layers, const std::string& configuration_name);
     void RemoveConfiguration(const std::string& configuration_name);
@@ -67,12 +61,6 @@ class ConfigurationManager : public Serialize {
     void RemoveConfigurationFile(const std::string& key);
     void RemoveConfigurationFiles();
 
-    bool GetPerExecutableConfig() const;
-    void SetPerExecutableConfig(bool enabled);
-
-    bool GetUseSystemTray() const;
-    void SetUseSystemTray(bool enabled);
-
     std::vector<Configuration> available_configurations;
     Path last_path_import = Get(Path::HOME);
     Path last_path_export = Get(Path::HOME);
@@ -82,8 +70,4 @@ class ConfigurationManager : public Serialize {
     void LoadDefaultConfigurations(const LayerManager& layers);
 
     std::map<std::string, int> removed_built_in_configuration;
-    bool use_system_tray = false;
-    bool use_per_executable_configuration = false;
-    std::string active_executable;
-    std::map<std::string, ConfigurationInfo> configuration_infos;
 };

@@ -39,7 +39,6 @@ SOURCES += \
     ../vkconfig_core/configurator_signal.cpp \
     ../vkconfig_core/date.cpp \
     ../vkconfig_core/doc.cpp \
-    ../vkconfig_core/environment.cpp \
     ../vkconfig_core/executable_manager.cpp \
     ../vkconfig_core/header.cpp \
     ../vkconfig_core/help.cpp \
@@ -63,10 +62,10 @@ SOURCES += \
     ../vkconfig_core/setting_string.cpp \
     ../vkconfig_core/type_hide_message.cpp \
     ../vkconfig_core/type_layer_control.cpp \
-    ../vkconfig_core/type_layer_path_view.cpp \
     ../vkconfig_core/type_layer_type.cpp \
     ../vkconfig_core/type_layers_mode.cpp \
     ../vkconfig_core/type_layers_paths.cpp \
+    ../vkconfig_core/type_layers_view.cpp \
     ../vkconfig_core/type_log.cpp \
     ../vkconfig_core/type_platform.cpp \
     ../vkconfig_core/type_status.cpp \
@@ -118,7 +117,6 @@ HEADERS += \
     ../vkconfig_core/configurator_signal.h \
     ../vkconfig_core/date.h \
     ../vkconfig_core/doc.h \
-    ../vkconfig_core/environment.h \
     ../vkconfig_core/executable_manager.h \
     ../vkconfig_core/header.h \
     ../vkconfig_core/help.h \
@@ -146,6 +144,7 @@ HEADERS += \
     ../vkconfig_core/type_layer_type.h \
     ../vkconfig_core/type_layers_mode.h \
     ../vkconfig_core/type_layers_paths.h \
+    ../vkconfig_core/type_layers_view.h \
     ../vkconfig_core/type_log.h \
     ../vkconfig_core/type_platform.h \
     ../vkconfig_core/type_status.h \

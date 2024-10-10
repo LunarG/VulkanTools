@@ -21,6 +21,7 @@
 #pragma once
 
 #include "../vkconfig_core/parameter.h"
+#include "../vkconfig_core/type_layers_view.h"
 
 #include "ui_mainwindow.h"
 
@@ -38,7 +39,7 @@ class ConfigurationLayerWidget : public QLabel {
 
    public:
     ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter, const std::vector<Version> &layer_version,
-                             bool advanced_view);
+                             LayersView view);
 
     std::string layer_name;
 
