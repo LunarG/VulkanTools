@@ -109,14 +109,25 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         this->layer_version->setEnabled(layer != nullptr);
         this->layer_version->addItem("Latest");
 
+        const Layer *layer_latest = configurator.layers.Find(parameter.key, Version::LATEST);
+        if (layer_latest != nullptr) {
+            this->layer_version->setItemData(0, layer_latest->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
+        }
+
         int version_index = 0;
         for (std::size_t i = 0, n = layer_versions.size(); i < n; ++i) {
             if (layer_versions[i] == parameter.api_version) {
                 version_index = this->layer_version->count();
             }
 
+            const Layer *layer_version = configurator.layers.Find(parameter.key, layer_versions[i]);
+
+            const int current_index = this->layer_version->count();
+
             this->layer_version->addItem(layer_versions[i].str().c_str());
+            this->layer_version->setItemData(current_index, layer_version->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
         }
+
         this->layer_version->setCurrentIndex(version_index);
         if (layer != nullptr) {
             this->layer_version->setToolTip(layer->manifest_path.AbsolutePath().c_str());

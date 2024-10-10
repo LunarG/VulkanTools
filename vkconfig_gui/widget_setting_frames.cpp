@@ -96,7 +96,7 @@ void WidgetSettingFrames::OnErrorValue() {
 
     Environment& environment = Configurator::Get().environment;
 
-    if (!(environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_WIDGET_SETTING_FRAMES))) {
+    if (!environment.Get(HIDE_MESSAGE_WIDGET_SETTING_FRAMES)) {
         const std::string text =
             format("The setting input '%s' is invalid. Use list of comma separated integer ranges. Example: '0-2,16'.",
                    this->data().GetValue());
@@ -118,7 +118,7 @@ void WidgetSettingFrames::OnErrorValue() {
             this->Resize();
         }
         if (alert.checkBox()->isChecked()) {
-            environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_WIDGET_SETTING_FRAMES);
+            environment.Set(HIDE_MESSAGE_WIDGET_SETTING_FRAMES);
         }
     }
 

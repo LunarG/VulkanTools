@@ -343,7 +343,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     // Alert the user to the current state of the vulkan configurator and
     // give them the option to not shutdown.
     if (configurator.configurations.GetUseSystemTray()) {
-        if (!(environment.hide_message_boxes_flags & GetBit(HIDE_MESSAGE_USE_SYSTEM_TRAY))) {
+        if (!(environment.Get(HIDE_MESSAGE_USE_SYSTEM_TRAY))) {
             std::string shut_down_state;
 
             if (configurator.configurations.GetActiveConfigurationInfo()->mode == LAYERS_CONTROLLED_BY_CONFIGURATOR) {
@@ -364,7 +364,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
             int ret_val = alert.exec();
             if (alert.checkBox()->isChecked()) {
-                environment.hide_message_boxes_flags |= GetBit(HIDE_MESSAGE_USE_SYSTEM_TRAY);
+                environment.Set(HIDE_MESSAGE_USE_SYSTEM_TRAY);
             }
 
             if (ret_val == QMessageBox::No) {
