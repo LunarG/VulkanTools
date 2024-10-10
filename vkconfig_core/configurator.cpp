@@ -48,7 +48,7 @@ Configurator::~Configurator() {
     if (this->mode == GUI) {
         QJsonObject json_root_object;
 
-        this->environment.Save(json_root_object);
+        this->Save(json_root_object);
         this->configurations.Save(json_root_object);
         this->layers.Save(json_root_object);
         this->executables.Save(json_root_object);
@@ -84,11 +84,11 @@ bool Configurator::Init(Mode mode) {
         const QJsonDocument& json_doc = QJsonDocument::fromJson(init_data.toLocal8Bit());
         const QJsonObject& json_root_object = json_doc.object();
 
-        this->environment.Load(json_root_object);
+        this->Load(json_root_object);
 
         bool request_reset = false;
-        if (this->environment.has_crashed) {
-            this->environment.has_crashed = false;
+        if (this->has_crashed) {
+            this->has_crashed = false;
 
             if (Alert::ConfiguratorCrashed() == QMessageBox::Yes) {
                 request_reset = true;
@@ -148,7 +148,7 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
     return json_settings;
 }
 
-void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std::string& executable_path,
+void Configurator::BuildLoaderSettings(const std::string& configuration_key, LayersMode mode, const std::string& executable_path,
                                        std::vector<LoaderSettings>& loader_settings_array) const {
     LoaderSettings result;
     result.executable_path = executable_path;
@@ -156,11 +156,11 @@ void Configurator::BuildLoaderSettings(const ConfigurationInfo& info, const std:
     static Configuration disbled_configuration = Configuration::CreateDisabled(this->layers);
     const Configuration* configuration = nullptr;
 
-    switch (info.mode) {
+    switch (mode) {
         case LAYERS_CONTROLLED_BY_APPLICATIONS:
             return;
         case LAYERS_CONTROLLED_BY_CONFIGURATOR: {
-            configuration = this->configurations.FindConfiguration(info.name);
+            configuration = this->configurations.FindConfiguration(configuration_key);
             if (configuration == nullptr) {
                 return;
             }
@@ -211,22 +211,16 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
     if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
         std::vector<LoaderSettings> loader_settings_array;
 
-        const std::map<std::string, ConfigurationInfo>& infos = this->configurations.GetConfigurationInfos();
-        for (auto it = infos.begin(), end = infos.end(); it != end; ++it) {
-            if (this->configurations.GetPerExecutableConfig()) {
-                if (it->first == GLOBAL_CONFIGURATION_TOKEN) {
-                    continue;
-                }
-
-                this->BuildLoaderSettings(it->second, it->first, loader_settings_array);
-            } else {
-                if (it->first != GLOBAL_CONFIGURATION_TOKEN) {
-                    continue;
-                }
-
-                this->BuildLoaderSettings(it->second, "", loader_settings_array);
-                break;
+        if (this->GetPerExecutableConfig()) {
+            const std::vector<Executable>& collection = this->executables.GetExecutables();
+            for (std::size_t i = 0, n = collection.size(); i < n; ++i) {
+                this->BuildLoaderSettings(collection[i].GetActiveOptions()->configuration,
+                                          collection[i].GetActiveOptions()->layers_mode, collection[i].path.AbsolutePath(),
+                                          loader_settings_array);
             }
+        } else {
+            this->BuildLoaderSettings(this->selected_global_configuration, this->selected_global_layers_mode, "",
+                                      loader_settings_array);
         }
 
         if (!loader_settings_array.empty()) {
@@ -262,19 +256,19 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
     if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
         std::vector<LayersSettings> layers_settings_array;
 
-        if (this->configurations.GetPerExecutableConfig()) {
+        if (this->use_per_executable_configuration) {
             const std::vector<Executable>& executables = this->executables.GetExecutables();
 
             for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
                 LayersSettings settings;
-                settings.configuration_name = this->configurations.FindConfigurationInfo(executables[i].path.AbsolutePath())->name;
                 settings.executable_path = executables[i].path;
+                settings.configuration_name = executables[i].GetActiveOptions()->configuration;
                 settings.settings_path = executables[i].GetActiveOptions()->working_folder;
                 layers_settings_array.push_back(settings);
             }
         } else {
             LayersSettings settings;
-            settings.configuration_name = this->configurations.FindConfigurationInfo(GLOBAL_CONFIGURATION_TOKEN)->name;
+            settings.configuration_name = this->selected_global_configuration;
             settings.settings_path = layers_settings_path;
             layers_settings_array.push_back(settings);
         }
@@ -456,7 +450,7 @@ bool Configurator::HasOverride() const {
 void Configurator::Reset(bool hard) {
     this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-    this->environment.Reset();
+    this->Reset();
     this->executables.Reset();
     this->layers.Reset();
 
@@ -467,14 +461,211 @@ void Configurator::Reset(bool hard) {
     this->configurations.Reset();
 }
 
+void Configurator::SetActiveConfigurationName(const std::string& configuration_name) {
+    if (this->use_per_executable_configuration) {
+        Executable* executable = this->executables.GetActiveExecutable();
+        executable->GetActiveOptions()->configuration = configuration_name;
+    } else {
+        this->selected_global_configuration = configuration_name;
+    }
+}
+
+std::string Configurator::GetActionConfigurationName() const {
+    if (this->use_per_executable_configuration) {
+        const Executable* executable = this->executables.GetActiveExecutable();
+        return executable->GetActiveOptions()->configuration;
+    } else {
+        return this->selected_global_configuration;
+    }
+}
+
+void Configurator::SetActiveLayersMode(LayersMode mode) {
+    if (this->use_per_executable_configuration) {
+        Executable* executable = this->executables.GetActiveExecutable();
+        executable->GetActiveOptions()->layers_mode = mode;
+    } else {
+        this->selected_global_layers_mode = mode;
+    }
+}
+
+LayersMode Configurator::GetActiveLayersMode() const {
+    if (this->use_per_executable_configuration) {
+        const Executable* executable = this->executables.GetActiveExecutable();
+        return executable->GetActiveOptions()->layers_mode;
+    } else {
+        return this->selected_global_layers_mode;
+    }
+}
+
 Configuration* Configurator::GetActiveConfiguration() {
-    const ConfigurationInfo* info = this->configurations.GetActiveConfigurationInfo();
-    return this->configurations.FindConfiguration(info->name);
+    if (this->use_per_executable_configuration) {
+        const Executable* executable = this->executables.GetActiveExecutable();
+        return this->configurations.FindConfiguration(executable->GetActiveOptions()->configuration);
+    } else {
+        return this->configurations.FindConfiguration(this->selected_global_configuration);
+    }
 }
 
 const Configuration* Configurator::GetActiveConfiguration() const {
-    const ConfigurationInfo* info = this->configurations.GetActiveConfigurationInfo();
-    return this->configurations.FindConfiguration(info->name);
+    if (this->use_per_executable_configuration) {
+        const Executable* executable = this->executables.GetActiveExecutable();
+        return this->configurations.FindConfiguration(executable->GetActiveOptions()->configuration);
+    } else {
+        return this->configurations.FindConfiguration(this->selected_global_configuration);
+    }
 }
 
-bool Configurator::HasActiveConfiguration() const { return this->configurations.HasActiveConfiguration(); }
+bool Configurator::HasActiveConfiguration() const {
+    if (this->use_per_executable_configuration) {
+        const std::vector<Executable>& data = this->executables.GetExecutables();
+        for (std::size_t i = 0, n = data.size(); i < n; ++i) {
+            if (data[i].GetActiveOptions()->layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
+                return true;
+            }
+        }
+    } else {
+        return this->selected_global_layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS;
+    }
+
+    return false;
+}
+
+void Configurator::Reset() {
+    this->use_per_executable_configuration = false;
+    this->use_system_tray = false;
+}
+
+bool Configurator::Load(const QJsonObject& json_root_object) {
+    const Version file_format_version = Version(json_root_object.value("file_format_version").toString().toStdString());
+    if (file_format_version > Version::VKCONFIG) {
+        return false;  // Vulkan Configurator needs to be updated
+    }
+
+    // interface json object
+    const QJsonObject& json_interface_object = json_root_object.value("interface").toObject();
+    this->has_crashed = json_interface_object.value("has_crashed").toBool();
+
+    const QJsonArray& json_hide_message_boxes_array = json_interface_object.value("hide_message_boxes").toArray();
+    this->hide_message_boxes_flags = 0;
+    for (int i = 0, n = json_hide_message_boxes_array.size(); i < n; ++i) {
+        const std::string& token = json_hide_message_boxes_array[i].toString().toStdString();
+        this->hide_message_boxes_flags |= GetHideMessageBit(token.c_str());
+    }
+
+    this->active_tab = GetTabType(json_interface_object.value("active_tab").toString().toStdString().c_str());
+
+    // TAB_DIAGNOSTIC
+    if (json_interface_object.value(GetToken(TAB_DIAGNOSTIC)) != QJsonValue::Undefined) {
+        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_DIAGNOSTIC)).toObject();
+    }
+
+    // TAB_CONFIGURATIONS
+    if (json_interface_object.value(GetToken(TAB_CONFIGURATIONS)) != QJsonValue::Undefined) {
+        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_CONFIGURATIONS)).toObject();
+        this->use_per_executable_configuration = json_object.value("use_per_executable").toBool();
+        this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
+        this->selected_global_layers_mode =
+            ::GetLayersMode(json_object.value("selected_global_layers_mode").toString().toStdString().c_str());
+        this->selected_layers_view = ::GetLayersView(json_object.value("selected_layers_view").toString().toStdString().c_str());
+        this->use_system_tray = json_object.value("use_system_tray").toBool();
+    }
+
+    // TAB_LAYERS
+    if (json_interface_object.value(GetToken(TAB_LAYERS)) != QJsonValue::Undefined) {
+        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_LAYERS)).toObject();
+    }
+
+    // TAB_APPLICATIONS
+    if (json_interface_object.value(GetToken(TAB_APPLICATIONS)) != QJsonValue::Undefined) {
+        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_APPLICATIONS)).toObject();
+    }
+
+    // TAB_PREFERENCES
+    if (json_interface_object.value(GetToken(TAB_PREFERENCES)) != QJsonValue::Undefined) {
+        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_PREFERENCES)).toObject();
+        this->home_sdk_path = json_object.value("VK_HOME").toString().toStdString();
+        if (this->home_sdk_path.Empty()) {
+            this->home_sdk_path = ::Get(Path::HOME);
+        }
+    }
+
+    return true;
+}
+
+bool Configurator::Save(QJsonObject& json_root_object) const {
+    json_root_object.insert("file_format_version", Version::VKCONFIG.str().c_str());
+
+    QJsonObject json_interface_object;
+
+    // TAB_DIAGNOSTIC
+    {
+        QJsonObject json_object;
+        json_interface_object.insert(GetToken(TAB_DIAGNOSTIC), json_object);
+    }
+
+    // TAB_CONFIGURATIONS
+    {
+        QJsonObject json_object;
+        json_object.insert("use_per_executable", this->use_per_executable_configuration);
+        json_object.insert("selected_global_configuration", this->selected_global_configuration.c_str());
+        json_object.insert("selected_global_layers_mode", ::GetToken(this->selected_global_layers_mode));
+        json_object.insert("selected_layers_view", ::GetToken(this->selected_layers_view));
+        json_object.insert("use_system_tray", this->use_system_tray);
+        json_interface_object.insert(GetToken(TAB_CONFIGURATIONS), json_object);
+    }
+
+    // TAB_LAYERS
+    {
+        QJsonObject json_object;
+        json_interface_object.insert(GetToken(TAB_LAYERS), json_object);
+    }
+
+    // TAB_APPLICATIONS
+    {
+        QJsonObject json_object;
+        json_interface_object.insert(GetToken(TAB_APPLICATIONS), json_object);
+    }
+
+    // TAB_PREFERENCES
+    {
+        QJsonObject json_object;
+        json_object.insert("VK_HOME", this->home_sdk_path.RelativePath().c_str());
+
+        json_interface_object.insert(GetToken(TAB_PREFERENCES), json_object);
+    }
+
+    // interface json object
+    {
+        json_interface_object.insert("has_crashed", this->has_crashed);
+
+        QJsonArray json_hide_message_boxes_array;
+        for (int i = HIDE_MESSAGE_FIRST, n = HIDE_MESSAGE_COUNT; i < n; ++i) {
+            HideMessageType type = static_cast<HideMessageType>(i);
+            if (this->hide_message_boxes_flags & (1 << i)) {
+                json_hide_message_boxes_array.append(GetToken(type));
+            }
+        }
+        json_interface_object.insert("hide_message_boxes", json_hide_message_boxes_array);
+        json_interface_object.insert("active_tab", GetToken(this->active_tab));
+
+        json_root_object.insert("interface", json_interface_object);
+    }
+
+    return true;
+}
+
+void Configurator::Set(HideMessageType type) { this->hide_message_boxes_flags |= GetBit(type); }
+
+bool Configurator::Get(HideMessageType type) const { return this->hide_message_boxes_flags & GetBit(type); }
+
+bool Configurator::GetPerExecutableConfig() const { return this->use_per_executable_configuration; }
+
+void Configurator::SetPerExecutableConfig(bool enabled) { this->use_per_executable_configuration = enabled; }
+
+bool Configurator::GetUseSystemTray() const { return this->use_system_tray; }
+
+void Configurator::SetUseSystemTray(bool enabled) { this->use_system_tray = enabled; }
+
+LayersView Configurator::GetLayersView() const { return this->selected_layers_view; }
+
+void Configurator::SetLayersView(LayersView view) { this->selected_layers_view = view; }

@@ -98,9 +98,9 @@ void WidgetSettingFloat::OnErrorValue() {
     palette.setColor(QPalette::Base, QColor(255, 192, 192));
     this->field->setPalette(palette);
 
-    Environment& environment = Configurator::Get().environment;
+    Configurator& configurator = Configurator::Get();
 
-    if (!(environment.Get(HIDE_MESSAGE_WIDGET_SETTING_FLOAT))) {
+    if (!(configurator.Get(HIDE_MESSAGE_WIDGET_SETTING_FLOAT))) {
         const std::string float_format = this->meta.GetFloatFormat();
         const std::string info = format("Do you want to reset to the setting default value? '%s'", float_format.c_str());
         const std::string range = this->meta.HasRange()
@@ -148,7 +148,7 @@ void WidgetSettingFloat::OnErrorValue() {
             this->Resize();
         }
         if (alert.checkBox()->isChecked()) {
-            environment.Set(HIDE_MESSAGE_WIDGET_SETTING_FLOAT);
+            configurator.Set(HIDE_MESSAGE_WIDGET_SETTING_FLOAT);
         }
     }
 

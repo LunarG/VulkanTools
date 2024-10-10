@@ -520,9 +520,10 @@ TEST(test_configuration, Reorder_empty) {
     layer_manager.LoadLayersFromPath(":/layers");
 
     Configuration configuration = Configuration::Create(layer_manager, "New Configuration");
+    std::size_t size = configuration.parameters.size();
 
     std::vector<std::string> layer_names;
     configuration.Reorder(layer_names);
 
-    EXPECT_TRUE(configuration.parameters.empty());
+    EXPECT_EQ(configuration.parameters.size(), size);
 }

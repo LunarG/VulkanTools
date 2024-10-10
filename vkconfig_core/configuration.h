@@ -53,7 +53,6 @@ class Configuration {
     int platform_flags = PLATFORM_DESKTOP_BIT;
     std::string description;  // A friendly description of what this profile does
     bool view_advanced_settings = false;
-    bool view_advanced_layers = true;
     int loader_log_messages_flags = GetBit(LOG_ERROR) | GetBit(LOG_WARN);
     std::string selected_layer_name;
 

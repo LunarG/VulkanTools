@@ -30,7 +30,7 @@ void SurrenderConfiguration(int signal) {
     Configurator& configurator = Configurator::Get();
 
     // Indicate that Vulkan Configurator crashed to handle it on next run
-    configurator.environment.has_crashed = true;
+    configurator.has_crashed = true;
 
     // Delete the layers configurations files
     configurator.Surrender(OVERRIDE_AREA_ALL);

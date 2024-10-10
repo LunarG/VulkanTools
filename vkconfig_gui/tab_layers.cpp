@@ -23,7 +23,6 @@
 #include "mainwindow.h"
 
 #include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/type_layer_path_view.h"
 #include "../vkconfig_core/type_hide_message.h"
 #include "../vkconfig_core/is_dll_32.h"
 
@@ -161,8 +160,8 @@ void TabLayers::LoadLayersManifest(const QString &selected_path) {
             this->ui->layers_progress->setFormat(
                 format("%s %s... - %d/%d", label, layers_paths[i].AbsolutePath().c_str(), i, layers_paths.size()).c_str());
             this->ui->layers_progress->setValue(i);
-            if (IsDLL32Bit(layers_paths[i])) {
-                if (!configurator.environment.Get(HIDE_MESSAGE_ERROR_32BIT)) {
+            if (::IsDLL32Bit(layers_paths[i])) {
+                if (!configurator.Get(HIDE_MESSAGE_ERROR_32BIT)) {
                     QMessageBox message;
                     message.setIcon(QMessageBox::Information);
                     message.setWindowTitle("32 bits layers are not supported...");
@@ -170,7 +169,7 @@ void TabLayers::LoadLayersManifest(const QString &selected_path) {
                     message.setCheckBox(new QCheckBox("Do not show again."));
                     message.exec();
                     if (message.checkBox()->isChecked()) {
-                        configurator.environment.Set(HIDE_MESSAGE_ERROR_32BIT);
+                        configurator.Set(HIDE_MESSAGE_ERROR_32BIT);
                     }
                 }
                 continue;
@@ -188,35 +187,37 @@ void TabLayers::LoadLayersManifest(const QString &selected_path) {
         this->ui->layers_progress->setValue(layers_paths.size());
 
         if (loaded > 0) {
-            const char *label_result = configurator.layers.validate_manifests ? "Validated!" : "Loaded or Reloaded!";
-            const std::string text = format("%d layers were %s.", loaded, label_result);
+            const char *label_result = configurator.layers.validate_manifests ? "validated" : "loaded or reloaded";
+            const std::string text = format("%d layers %s!", loaded, label_result);
             this->ui->layers_progress->setFormat(text.c_str());
 
-            if (!configurator.environment.Get(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED)) {
+            if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED)) {
+                const std::string text =
+                    format("%d layers %s from '%s' folder.", loaded, label_result, info.path.AbsolutePath().c_str());
+
                 QMessageBox message;
                 message.setIcon(QMessageBox::Information);
                 message.setWindowTitle("Loading Layers Successful!");
                 message.setText(text.c_str());
-                message.setInformativeText(info.path.AbsolutePath().c_str());
                 message.setCheckBox(new QCheckBox("Do not show again."));
                 message.exec();
                 if (message.checkBox()->isChecked()) {
-                    configurator.environment.Set(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED);
+                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED);
                 }
             }
         } else {
             const std::string text = "No Layer Found...";
             this->ui->layers_progress->setFormat(text.c_str());
 
-            if (!configurator.environment.Get(HIDE_MESSAGE_WARN_NO_LAYER_FOUND)) {
+            if (!configurator.Get(HIDE_MESSAGE_WARN_NO_LAYER_FOUND)) {
                 QMessageBox message;
                 message.setIcon(QMessageBox::Warning);
                 message.setWindowTitle(text.c_str());
-                message.setText(format("No layer were found in '%s' folder.", info.path.AbsolutePath().c_str()).c_str());
+                message.setText(format("No layer found in '%s' folder.", info.path.AbsolutePath().c_str()).c_str());
                 message.setCheckBox(new QCheckBox("Do not show again."));
                 message.exec();
                 if (message.checkBox()->isChecked()) {
-                    configurator.environment.Set(HIDE_MESSAGE_WARN_NO_LAYER_FOUND);
+                    configurator.Set(HIDE_MESSAGE_WARN_NO_LAYER_FOUND);
                 }
             }
         }
