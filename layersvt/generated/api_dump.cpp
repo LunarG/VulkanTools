@@ -8464,7 +8464,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateExecutionGraphPipelinesAMDX(VkDevice     
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineScratchSizeAMDX(VkDevice                                        device, VkPipeline                                      executionGraph, VkExecutionGraphPipelineScratchSizeAMDX*         pSizeInfo)
+VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineScratchSizeAMDX(VkDevice                                        device, VkPipeline                                      executionGraph, VkExecutionGraphPipelineScratchSizeAMDX*        pSizeInfo)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     dump_function_head(ApiDumpInstance::current(), "vkGetExecutionGraphPipelineScratchSizeAMDX", "device, executionGraph, pSizeInfo", "VkResult");
@@ -8488,7 +8488,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineScratchSizeAMDX(VkDevi
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineNodeIndexAMDX(VkDevice                                        device, VkPipeline                                      executionGraph, const VkPipelineShaderStageNodeCreateInfoAMDX*   pNodeInfo, uint32_t*                                       pNodeIndex)
+VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineNodeIndexAMDX(VkDevice                                        device, VkPipeline                                      executionGraph, const VkPipelineShaderStageNodeCreateInfoAMDX*  pNodeInfo, uint32_t*                                       pNodeIndex)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     dump_function_head(ApiDumpInstance::current(), "vkGetExecutionGraphPipelineNodeIndexAMDX", "device, executionGraph, pNodeInfo, pNodeIndex", "VkResult");
@@ -8512,92 +8512,92 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineNodeIndexAMDX(VkDevice
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-VKAPI_ATTR void VKAPI_CALL vkCmdInitializeGraphScratchMemoryAMDX(VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch)
+VKAPI_ATTR void VKAPI_CALL vkCmdInitializeGraphScratchMemoryAMDX(VkCommandBuffer                                 commandBuffer, VkPipeline                                      executionGraph, VkDeviceAddress                                 scratch, VkDeviceSize                                    scratchSize)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-    dump_function_head(ApiDumpInstance::current(), "vkCmdInitializeGraphScratchMemoryAMDX", "commandBuffer, scratch", "void");
-    device_dispatch_table(commandBuffer)->CmdInitializeGraphScratchMemoryAMDX(commandBuffer, scratch);
+    dump_function_head(ApiDumpInstance::current(), "vkCmdInitializeGraphScratchMemoryAMDX", "commandBuffer, executionGraph, scratch, scratchSize", "void");
+    device_dispatch_table(commandBuffer)->CmdInitializeGraphScratchMemoryAMDX(commandBuffer, executionGraph, scratch, scratchSize);
     
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         switch(ApiDumpInstance::current().settings().format())
         {
             case ApiDumpFormat::Text:
-                dump_text_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance::current(), commandBuffer, scratch);
+                dump_text_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance::current(), commandBuffer, executionGraph, scratch, scratchSize);
                 break;
             case ApiDumpFormat::Html:
-                dump_html_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance::current(), commandBuffer, scratch);
+                dump_html_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance::current(), commandBuffer, executionGraph, scratch, scratchSize);
                 break;
             case ApiDumpFormat::Json:
-                dump_json_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance::current(), commandBuffer, scratch);
+                dump_json_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance::current(), commandBuffer, executionGraph, scratch, scratchSize);
                 break;
         }
     }
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphAMDX(VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, const VkDispatchGraphCountInfoAMDX*              pCountInfo)
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphAMDX(VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, VkDeviceSize                                    scratchSize, const VkDispatchGraphCountInfoAMDX*             pCountInfo)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-    dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchGraphAMDX", "commandBuffer, scratch, pCountInfo", "void");
-    device_dispatch_table(commandBuffer)->CmdDispatchGraphAMDX(commandBuffer, scratch, pCountInfo);
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchGraphAMDX", "commandBuffer, scratch, scratchSize, pCountInfo", "void");
+    device_dispatch_table(commandBuffer)->CmdDispatchGraphAMDX(commandBuffer, scratch, scratchSize, pCountInfo);
     
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         switch(ApiDumpInstance::current().settings().format())
         {
             case ApiDumpFormat::Text:
-                dump_text_vkCmdDispatchGraphAMDX(ApiDumpInstance::current(), commandBuffer, scratch, pCountInfo);
+                dump_text_vkCmdDispatchGraphAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, pCountInfo);
                 break;
             case ApiDumpFormat::Html:
-                dump_html_vkCmdDispatchGraphAMDX(ApiDumpInstance::current(), commandBuffer, scratch, pCountInfo);
+                dump_html_vkCmdDispatchGraphAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, pCountInfo);
                 break;
             case ApiDumpFormat::Json:
-                dump_json_vkCmdDispatchGraphAMDX(ApiDumpInstance::current(), commandBuffer, scratch, pCountInfo);
+                dump_json_vkCmdDispatchGraphAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, pCountInfo);
                 break;
         }
     }
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphIndirectAMDX(VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, const VkDispatchGraphCountInfoAMDX*              pCountInfo)
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphIndirectAMDX(VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, VkDeviceSize                                    scratchSize, const VkDispatchGraphCountInfoAMDX*             pCountInfo)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-    dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchGraphIndirectAMDX", "commandBuffer, scratch, pCountInfo", "void");
-    device_dispatch_table(commandBuffer)->CmdDispatchGraphIndirectAMDX(commandBuffer, scratch, pCountInfo);
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchGraphIndirectAMDX", "commandBuffer, scratch, scratchSize, pCountInfo", "void");
+    device_dispatch_table(commandBuffer)->CmdDispatchGraphIndirectAMDX(commandBuffer, scratch, scratchSize, pCountInfo);
     
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         switch(ApiDumpInstance::current().settings().format())
         {
             case ApiDumpFormat::Text:
-                dump_text_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance::current(), commandBuffer, scratch, pCountInfo);
+                dump_text_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, pCountInfo);
                 break;
             case ApiDumpFormat::Html:
-                dump_html_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance::current(), commandBuffer, scratch, pCountInfo);
+                dump_html_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, pCountInfo);
                 break;
             case ApiDumpFormat::Json:
-                dump_json_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance::current(), commandBuffer, scratch, pCountInfo);
+                dump_json_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, pCountInfo);
                 break;
         }
     }
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphIndirectCountAMDX(VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, VkDeviceAddress                                 countInfo)
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphIndirectCountAMDX(VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, VkDeviceSize                                    scratchSize, VkDeviceAddress                                 countInfo)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-    dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchGraphIndirectCountAMDX", "commandBuffer, scratch, countInfo", "void");
-    device_dispatch_table(commandBuffer)->CmdDispatchGraphIndirectCountAMDX(commandBuffer, scratch, countInfo);
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchGraphIndirectCountAMDX", "commandBuffer, scratch, scratchSize, countInfo", "void");
+    device_dispatch_table(commandBuffer)->CmdDispatchGraphIndirectCountAMDX(commandBuffer, scratch, scratchSize, countInfo);
     
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         switch(ApiDumpInstance::current().settings().format())
         {
             case ApiDumpFormat::Text:
-                dump_text_vkCmdDispatchGraphIndirectCountAMDX(ApiDumpInstance::current(), commandBuffer, scratch, countInfo);
+                dump_text_vkCmdDispatchGraphIndirectCountAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, countInfo);
                 break;
             case ApiDumpFormat::Html:
-                dump_html_vkCmdDispatchGraphIndirectCountAMDX(ApiDumpInstance::current(), commandBuffer, scratch, countInfo);
+                dump_html_vkCmdDispatchGraphIndirectCountAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, countInfo);
                 break;
             case ApiDumpFormat::Json:
-                dump_json_vkCmdDispatchGraphIndirectCountAMDX(ApiDumpInstance::current(), commandBuffer, scratch, countInfo);
+                dump_json_vkCmdDispatchGraphIndirectCountAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, countInfo);
                 break;
         }
     }

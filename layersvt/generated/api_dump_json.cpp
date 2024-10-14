@@ -3001,6 +3001,9 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000356000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT\"";
         break;
+    case 1000361000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT\"";
+        break;
     case 1000364000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA\"";
         break;
@@ -6371,6 +6374,9 @@ void dump_json_VkPresentModeKHR(VkPresentModeKHR object, const ApiDumpSettings& 
         break;
     case 1000111001:
         settings.stream() << "\"VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR\"";
+        break;
+    case 1000361000:
+        settings.stream() << "\"VK_PRESENT_MODE_FIFO_LATEST_READY_EXT\"";
         break;
     default:
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
@@ -11977,6 +11983,9 @@ void dump_json_VkPipelineCreateFlagBits2KHR(VkPipelineCreateFlagBits2KHR object,
     if(object & 4) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR"; is_first = false;
     }
+    if(object & 4294967296) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_EXECUTION_GRAPH_BIT_AMDX"; is_first = false;
+    }
     if(object & 68719476736) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_RESERVED_36_BIT_KHR"; is_first = false;
     }
@@ -12069,9 +12078,6 @@ void dump_json_VkPipelineCreateFlagBits2KHR(VkPipelineCreateFlagBits2KHR object,
     }
     if(object & 536870912) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT"; is_first = false;
-    }
-    if(object & 4294967296) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_32_BIT_KHR"; is_first = false;
     }
     if(object & 2147483648) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR"; is_first = false;
@@ -22337,6 +22343,8 @@ void dump_json_VkPhysicalDeviceShaderEnqueueFeaturesAMDX(const VkPhysicalDeviceS
     }
     settings.stream() << ",\n";
     dump_json_value<const VkBool32>(object.shaderEnqueue, NULL, settings, "VkBool32", "shaderEnqueue", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.shaderMeshEnqueue, NULL, settings, "VkBool32", "shaderMeshEnqueue", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
@@ -22361,6 +22369,10 @@ void dump_json_VkPhysicalDeviceShaderEnqueuePropertiesAMDX(const VkPhysicalDevic
     dump_json_value<const uint32_t>(object.maxExecutionGraphShaderPayloadCount, NULL, settings, "uint32_t", "maxExecutionGraphShaderPayloadCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.executionGraphDispatchAddressAlignment, NULL, settings, "uint32_t", "executionGraphDispatchAddressAlignment", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_array<const uint32_t>(object.maxExecutionGraphWorkgroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxExecutionGraphWorkgroupCount", false, false, indents + 1, dump_json_uint32_t); // IQA
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxExecutionGraphWorkgroups, NULL, settings, "uint32_t", "maxExecutionGraphWorkgroups", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
@@ -22376,7 +22388,11 @@ void dump_json_VkExecutionGraphPipelineScratchSizeAMDX(const VkExecutionGraphPip
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_value<const VkDeviceSize>(object.size, NULL, settings, "VkDeviceSize", "size", false, false, indents + 1, dump_json_VkDeviceSize);
+    dump_json_value<const VkDeviceSize>(object.minSize, NULL, settings, "VkDeviceSize", "minSize", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.maxSize, NULL, settings, "VkDeviceSize", "maxSize", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.sizeGranularity, NULL, settings, "VkDeviceSize", "sizeGranularity", false, false, indents + 1, dump_json_VkDeviceSize);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
@@ -28247,6 +28263,20 @@ void dump_json_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT(const VkP
     dump_json_value<const VkBool32>(object.primitiveTopologyPatchListRestart, NULL, settings, "VkBool32", "primitiveTopologyPatchListRestart", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
+void dump_json_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT(const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.presentModeFifoLatestReady, NULL, settings, "VkBool32", "presentModeFifoLatestReady", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
 #if defined(VK_USE_PLATFORM_FUCHSIA)
 void dump_json_VkImportMemoryZirconHandleInfoFUCHSIA(const VkImportMemoryZirconHandleInfoFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
@@ -32314,7 +32344,7 @@ void dump_json_VkGeneratedCommandsMemoryRequirementsInfoEXT(const VkGeneratedCom
     if(object.pNext != nullptr){
         dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
     } else {
-        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
     dump_json_value<const VkIndirectExecutionSetEXT>(object.indirectExecutionSet, NULL, settings, "VkIndirectExecutionSetEXT", "indirectExecutionSet", false, false, indents + 1, dump_json_VkIndirectExecutionSetEXT);
@@ -35024,6 +35054,9 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         break;
     case 1000356000:
         dump_json_pNext<const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT>(static_cast<const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT*>(object), settings, "VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT", indents, dump_json_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT);
+        break;
+    case 1000361000:
+        dump_json_pNext<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT>(static_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(object), settings, "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT", indents, dump_json_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case 1000364000:
@@ -43637,7 +43670,7 @@ void dump_json_vkCreateExecutionGraphPipelinesAMDX(ApiDumpInstance& dump_inst, V
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_json_vkGetExecutionGraphPipelineScratchSizeAMDX(ApiDumpInstance& dump_inst, VkResult result, VkDevice                                        device, VkPipeline                                      executionGraph, VkExecutionGraphPipelineScratchSizeAMDX*         pSizeInfo)
+void dump_json_vkGetExecutionGraphPipelineScratchSizeAMDX(ApiDumpInstance& dump_inst, VkResult result, VkDevice                                        device, VkPipeline                                      executionGraph, VkExecutionGraphPipelineScratchSizeAMDX*        pSizeInfo)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
     settings.stream() << settings.indentation(3) << "\"returnValue\" : ";
@@ -43662,7 +43695,7 @@ void dump_json_vkGetExecutionGraphPipelineScratchSizeAMDX(ApiDumpInstance& dump_
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_json_vkGetExecutionGraphPipelineNodeIndexAMDX(ApiDumpInstance& dump_inst, VkResult result, VkDevice                                        device, VkPipeline                                      executionGraph, const VkPipelineShaderStageNodeCreateInfoAMDX*   pNodeInfo, uint32_t*                                       pNodeIndex)
+void dump_json_vkGetExecutionGraphPipelineNodeIndexAMDX(ApiDumpInstance& dump_inst, VkResult result, VkDevice                                        device, VkPipeline                                      executionGraph, const VkPipelineShaderStageNodeCreateInfoAMDX*  pNodeInfo, uint32_t*                                       pNodeIndex)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
     settings.stream() << settings.indentation(3) << "\"returnValue\" : ";
@@ -43689,7 +43722,7 @@ void dump_json_vkGetExecutionGraphPipelineNodeIndexAMDX(ApiDumpInstance& dump_in
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_json_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance& dump_inst, VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch)
+void dump_json_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance& dump_inst, VkCommandBuffer                                 commandBuffer, VkPipeline                                      executionGraph, VkDeviceAddress                                 scratch, VkDeviceSize                                    scratchSize)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
     // Display parameter values
@@ -43699,7 +43732,11 @@ void dump_json_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance& dump_inst,
         settings.stream() << settings.indentation(3) << "[\n";
         dump_json_value<const VkCommandBuffer>(commandBuffer, NULL, settings, "VkCommandBuffer", "commandBuffer", false, false, 4, dump_json_VkCommandBuffer);
         settings.stream() << ",\n";
+        dump_json_value<const VkPipeline>(executionGraph, NULL, settings, "VkPipeline", "executionGraph", false, false, 4, dump_json_VkPipeline);
+        settings.stream() << ",\n";
         dump_json_value<const VkDeviceAddress>(scratch, NULL, settings, "VkDeviceAddress", "scratch", false, false, 4, dump_json_VkDeviceAddress);
+        settings.stream() << ",\n";
+        dump_json_value<const VkDeviceSize>(scratchSize, NULL, settings, "VkDeviceSize", "scratchSize", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     settings.stream() << settings.indentation(2) << "}";
@@ -43707,7 +43744,7 @@ void dump_json_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance& dump_inst,
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_json_vkCmdDispatchGraphAMDX(ApiDumpInstance& dump_inst, VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, const VkDispatchGraphCountInfoAMDX*              pCountInfo)
+void dump_json_vkCmdDispatchGraphAMDX(ApiDumpInstance& dump_inst, VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, VkDeviceSize                                    scratchSize, const VkDispatchGraphCountInfoAMDX*             pCountInfo)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
     // Display parameter values
@@ -43718,6 +43755,8 @@ void dump_json_vkCmdDispatchGraphAMDX(ApiDumpInstance& dump_inst, VkCommandBuffe
         dump_json_value<const VkCommandBuffer>(commandBuffer, NULL, settings, "VkCommandBuffer", "commandBuffer", false, false, 4, dump_json_VkCommandBuffer);
         settings.stream() << ",\n";
         dump_json_value<const VkDeviceAddress>(scratch, NULL, settings, "VkDeviceAddress", "scratch", false, false, 4, dump_json_VkDeviceAddress);
+        settings.stream() << ",\n";
+        dump_json_value<const VkDeviceSize>(scratchSize, NULL, settings, "VkDeviceSize", "scratchSize", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << ",\n";
         dump_json_pointer<const VkDispatchGraphCountInfoAMDX>(pCountInfo, settings, "const VkDispatchGraphCountInfoAMDX*", "pCountInfo", true, false, 4, dump_json_VkDispatchGraphCountInfoAMDX);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
@@ -43727,7 +43766,7 @@ void dump_json_vkCmdDispatchGraphAMDX(ApiDumpInstance& dump_inst, VkCommandBuffe
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_json_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance& dump_inst, VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, const VkDispatchGraphCountInfoAMDX*              pCountInfo)
+void dump_json_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance& dump_inst, VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, VkDeviceSize                                    scratchSize, const VkDispatchGraphCountInfoAMDX*             pCountInfo)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
     // Display parameter values
@@ -43738,6 +43777,8 @@ void dump_json_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance& dump_inst, VkComm
         dump_json_value<const VkCommandBuffer>(commandBuffer, NULL, settings, "VkCommandBuffer", "commandBuffer", false, false, 4, dump_json_VkCommandBuffer);
         settings.stream() << ",\n";
         dump_json_value<const VkDeviceAddress>(scratch, NULL, settings, "VkDeviceAddress", "scratch", false, false, 4, dump_json_VkDeviceAddress);
+        settings.stream() << ",\n";
+        dump_json_value<const VkDeviceSize>(scratchSize, NULL, settings, "VkDeviceSize", "scratchSize", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << ",\n";
         dump_json_pointer<const VkDispatchGraphCountInfoAMDX>(pCountInfo, settings, "const VkDispatchGraphCountInfoAMDX*", "pCountInfo", true, false, 4, dump_json_VkDispatchGraphCountInfoAMDX);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
@@ -43747,7 +43788,7 @@ void dump_json_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance& dump_inst, VkComm
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_json_vkCmdDispatchGraphIndirectCountAMDX(ApiDumpInstance& dump_inst, VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, VkDeviceAddress                                 countInfo)
+void dump_json_vkCmdDispatchGraphIndirectCountAMDX(ApiDumpInstance& dump_inst, VkCommandBuffer                                 commandBuffer, VkDeviceAddress                                 scratch, VkDeviceSize                                    scratchSize, VkDeviceAddress                                 countInfo)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
     // Display parameter values
@@ -43758,6 +43799,8 @@ void dump_json_vkCmdDispatchGraphIndirectCountAMDX(ApiDumpInstance& dump_inst, V
         dump_json_value<const VkCommandBuffer>(commandBuffer, NULL, settings, "VkCommandBuffer", "commandBuffer", false, false, 4, dump_json_VkCommandBuffer);
         settings.stream() << ",\n";
         dump_json_value<const VkDeviceAddress>(scratch, NULL, settings, "VkDeviceAddress", "scratch", false, false, 4, dump_json_VkDeviceAddress);
+        settings.stream() << ",\n";
+        dump_json_value<const VkDeviceSize>(scratchSize, NULL, settings, "VkDeviceSize", "scratchSize", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << ",\n";
         dump_json_value<const VkDeviceAddress>(countInfo, NULL, settings, "VkDeviceAddress", "countInfo", false, false, 4, dump_json_VkDeviceAddress);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
