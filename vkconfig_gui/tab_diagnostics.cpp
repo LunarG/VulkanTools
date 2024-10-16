@@ -21,7 +21,15 @@
 #include "tab_diagnostics.h"
 #include "mainwindow.h"
 
-TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {}
+#include "../vkconfig_core/configurator.h"
+
+TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
+    this->connect(this->ui->diagnostic_executable_mode, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_diagnostics_executable_mode_currentIndexChanged(int)));
+
+    Configurator &configurator = Configurator::Get();
+    this->ui->diagnostic_executable_mode->setCurrentIndex(configurator.GetExecutableMode());
+}
 
 TabDiagnostics::~TabDiagnostics() {}
 
@@ -30,3 +38,13 @@ void TabDiagnostics::UpdateUI(UpdateUIMode mode) {}
 void TabDiagnostics::CleanUI() {}
 
 bool TabDiagnostics::EventFilter(QObject *target, QEvent *event) { return false; }
+
+void TabDiagnostics::on_diagnostics_executable_mode_currentIndexChanged(int index) {
+    Configurator &configurator = Configurator::Get();
+
+    configurator.SetExecutableMode(static_cast<ExecutableMode>(index));
+    configurator.Override(OVERRIDE_AREA_ALL);
+
+    this->UpdateUI(UPDATE_REFRESH_UI);
+    this->window.UpdateUI_Status();
+}
