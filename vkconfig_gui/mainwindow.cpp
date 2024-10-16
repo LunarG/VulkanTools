@@ -67,7 +67,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->tabs[TAB_APPLICATIONS].reset(new TabApplications(*this, ui));
     this->tabs[TAB_LAYERS].reset(new TabLayers(*this, ui));
     this->tabs[TAB_CONFIGURATIONS].reset(new TabConfigurations(*this, ui));
-    this->tabs[TAB_PREFERENCES].reset(new TabPreferences(*this, ui));
     this->tabs[TAB_DOCUMENTATION].reset(new TabDocumentation(*this, ui));
     this->tabs[TAB_ABOUT].reset(new TabAbout(*this, ui));
 
@@ -273,7 +272,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 void MainWindow::StartTool(Tool tool) {
     Configurator &configurator = Configurator::Get();
 
-    if (!configurator.GetPerExecutableConfig()) {
+    if (configurator.GetExecutableMode() == EXECUTABLE_MODE_ALL) {
         configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 
@@ -286,7 +285,7 @@ void MainWindow::StartTool(Tool tool) {
             break;
     }
 
-    if (!configurator.GetPerExecutableConfig()) {
+    if (configurator.GetExecutableMode() == EXECUTABLE_MODE_ALL) {
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 }

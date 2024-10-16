@@ -75,28 +75,11 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
-      <widget class="QWidget" name="tab_diagnostic">
-       <attribute name="title">
-        <string>Diagnostic</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_6">
-        <item>
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>TODO</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
-        <string>Configurations</string>
+        <string>Vulkan Layers Management</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
         <property name="leftMargin">
@@ -138,6 +121,9 @@
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
+           <property name="childrenCollapsible">
+            <bool>false</bool>
+           </property>
            <widget class="QWidget" name="widgetTopLeft" native="true">
             <layout class="QVBoxLayout" name="verticalLayout_12">
              <property name="spacing">
@@ -171,7 +157,7 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_11">
                 <property name="spacing">
-                 <number>6</number>
+                 <number>0</number>
                 </property>
                 <property name="leftMargin">
                  <number>0</number>
@@ -193,61 +179,22 @@
                   <property name="bottomMargin">
                    <number>0</number>
                   </property>
-                  <item row="0" column="0">
-                   <widget class="QCheckBox" name="check_box_per_application">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="toolTip">
-                     <string>Check to apply Vulkan Layers configurations per executable instead of to all executables</string>
-                    </property>
-                    <property name="text">
-                     <string>Per-executable: </string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="2">
-                   <widget class="QComboBox" name="combo_box_applications">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <item row="2" column="0">
+                   <widget class="QComboBox" name="configurations_layers_mode">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_19">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
+                    <property name="maximumSize">
                      <size>
-                      <width>0</width>
-                      <height>0</height>
+                      <width>16777215</width>
+                      <height>32</height>
                      </size>
-                    </property>
-                    <property name="text">
-                     <string>Layers Mode: </string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="2">
-                   <widget class="QComboBox" name="combo_box_mode">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
                     </property>
                     <item>
                      <property name="text">
@@ -265,6 +212,60 @@
                      </property>
                     </item>
                    </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <layout class="QHBoxLayout" name="configurations_executable_layout">
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QComboBox" name="configurations_executable_list">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>32</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="configurations_executable_append">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>32</width>
+                        <height>32</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>...</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </item>
                  </layout>
                 </item>
@@ -291,7 +292,7 @@
                      <enum>QFrame::Sunken</enum>
                     </property>
                     <property name="lineWidth">
-                     <number>0</number>
+                     <number>1</number>
                     </property>
                     <property name="verticalScrollBarPolicy">
                      <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -385,7 +386,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="combo_box_layers_view">
+                <widget class="QComboBox" name="configurations_layers_view">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -631,7 +632,7 @@
               <number>0</number>
              </property>
              <item row="1" column="0">
-              <widget class="QTreeWidget" name="configurations_settings_tree">
+              <widget class="QTreeWidget" name="configurations_settings">
                <property name="font">
                 <font>
                  <family>Arial</family>
@@ -688,7 +689,7 @@
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QComboBox" name="configurations_presets_comboBox"/>
+              <widget class="QComboBox" name="configurations_presets"/>
              </item>
             </layout>
            </widget>
@@ -699,7 +700,7 @@
       </widget>
       <widget class="QWidget" name="tab_layers">
        <attribute name="title">
-        <string>Layers</string>
+        <string>Vulkan Layers </string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <property name="spacing">
@@ -811,7 +812,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_applications">
+      <widget class="QWidget" name="tab_launcher">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -819,7 +820,7 @@
         </size>
        </property>
        <attribute name="title">
-        <string>Applications</string>
+        <string>Application Launcher</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,0,0">
         <property name="spacing">
@@ -877,7 +878,7 @@
                <number>0</number>
               </property>
               <property name="bottomMargin">
-               <number>3</number>
+               <number>7</number>
               </property>
               <item>
                <widget class="QComboBox" name="applications_list_comboBox">
@@ -935,7 +936,7 @@
                <number>0</number>
               </property>
               <property name="bottomMargin">
-               <number>3</number>
+               <number>7</number>
               </property>
               <item>
                <widget class="QComboBox" name="applications_options_comboBox">
@@ -1018,7 +1019,7 @@
             <item>
              <layout class="QGridLayout" name="applications_options_layout">
               <property name="leftMargin">
-               <number>0</number>
+               <number>14</number>
               </property>
               <property name="topMargin">
                <number>0</number>
@@ -1029,11 +1030,8 @@
               <property name="bottomMargin">
                <number>0</number>
               </property>
-              <property name="horizontalSpacing">
+              <property name="spacing">
                <number>7</number>
-              </property>
-              <property name="verticalSpacing">
-               <number>0</number>
               </property>
               <item row="6" column="0">
                <widget class="QLabel" name="label_6">
@@ -1086,13 +1084,6 @@
                  </widget>
                 </item>
                </layout>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_21">
-                <property name="text">
-                 <string>Layers Mode:</string>
-                </property>
-               </widget>
               </item>
               <item row="7" column="0">
                <widget class="QLabel" name="label">
@@ -1184,6 +1175,13 @@
               <item row="6" column="2">
                <widget class="QLineEdit" name="applications_envs_list"/>
               </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_21">
+                <property name="text">
+                 <string>Layers Mode:</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
            </layout>
@@ -1212,7 +1210,7 @@
             <number>0</number>
            </property>
            <property name="topMargin">
-            <number>0</number>
+            <number>7</number>
            </property>
            <property name="rightMargin">
             <number>0</number>
@@ -1299,77 +1297,159 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_preference">
+      <widget class="QWidget" name="tab_diagnostic">
        <attribute name="title">
-        <string>Preferences</string>
+        <string>System Diagnostic</string>
        </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_61">
+       <layout class="QVBoxLayout" name="verticalLayout_14">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_101">
-          <property name="leftMargin">
-           <number>32</number>
+         <widget class="QCheckBox" name="checkBox_3">
+          <property name="text">
+           <string>Keep Vulkan Configurator running in system tray</string>
           </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
           <property name="topMargin">
-           <number>32</number>
-          </property>
-          <property name="rightMargin">
-           <number>32</number>
+           <number>7</number>
           </property>
           <property name="bottomMargin">
-           <number>32</number>
+           <number>7</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_23">
+           <widget class="QLabel" name="label_19">
             <property name="text">
-             <string>TODO</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
+             <string>Vulkan Layers Management Mode:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="checkBox_2">
-            <property name="text">
-             <string>Keep Vulkan Configurator running in system tray</string>
+           <widget class="QComboBox" name="diagnostic_executable_mode">
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
             </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
-             <widget class="QCheckBox" name="checkBox">
-              <property name="text">
-               <string>VK_HOME</string>
-              </property>
-             </widget>
+             <property name="text">
+              <string>Apply to all Vulkan Executables running</string>
+             </property>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit"/>
+             <property name="text">
+              <string>Apply only to selected Vulkan Executables</string>
+             </property>
             </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton1">
-            <property name="text">
-             <string>PushButton</string>
-            </property>
            </widget>
           </item>
           <item>
-           <spacer name="verticalSpacer2">
+           <spacer name="horizontalSpacer_2">
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>20</width>
-              <height>40</height>
+              <width>40</width>
+              <height>20</height>
              </size>
             </property>
            </spacer>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox">
+          <property name="text">
+           <string>Manage Vulkan Layers per executable</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <property name="leftMargin">
+           <number>7</number>
+          </property>
+          <property name="topMargin">
+           <number>7</number>
+          </property>
+          <property name="rightMargin">
+           <number>7</number>
+          </property>
+          <property name="bottomMargin">
+           <number>7</number>
+          </property>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>${VK_LAYER_PATH}: </string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLineEdit" name="lineEdit"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_23">
+            <property name="text">
+             <string>${VK_ADD_LAYER_PATH}: </string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>${VULKAN_SDK}: </string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLineEdit" name="lineEdit_2"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>${VK_HOME}:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_24">
+            <property name="text">
+             <string>${VK_APPDATA}:</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QPushButton" name="pushButton_2">
+            <property name="text">
+             <string>Vulkan Info</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>Vulkan Installation Analysis</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -1393,48 +1473,6 @@
         <property name="bottomMargin">
          <number>0</number>
         </property>
-        <item>
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="title">
-           <string/>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_4">
-             <item>
-              <widget class="QPushButton" name="pushButton_6">
-               <property name="text">
-                <string>Vulkan Info</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_7">
-               <property name="text">
-                <string>Vulkan Installation Analysis</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
         <item>
          <widget class="QGroupBox" name="groupBox_3">
           <property name="title">
@@ -1499,13 +1537,6 @@
               <widget class="QLabel" name="label_15">
                <property name="text">
                 <string>&lt;a href=&quot;https://&quot;&gt;Vulkan GPU Info Reports&lt;/a&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_22">
-               <property name="text">
-                <string>TODO more?</string>
                </property>
               </widget>
              </item>

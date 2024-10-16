@@ -75,11 +75,11 @@ struct TabConfigurations : public Tab {
     void UpdateUI_Settings(UpdateUIMode ui_update_mode);
 
    public Q_SLOTS:
-    void on_check_box_per_application_toggled(bool checked);
-    void on_combo_box_mode_currentIndexChanged(int index);
-    void on_combo_box_applications_currentIndexChanged(int index);
+    void on_configurations_executable_list_currentIndexChanged(int index);
+    void on_configurations_layers_mode_currentIndexChanged(int index);
+    void on_configurations_layers_view_currentIndexChanged(int index);
 
-    void on_combo_box_layers_view_currentIndexChanged(int index);
+    void on_configurations_executable_append_pressed();
 
     void on_configuration_loader_errors_checkBox_toggled(bool checked);
     void on_configuration_loader_warns_checkBox_toggled(bool checked);
