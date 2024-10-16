@@ -211,7 +211,7 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
     if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
         std::vector<LoaderSettings> loader_settings_array;
 
-        if (this->GetPerExecutableConfig()) {
+        if (this->executable_mode == EXECUTABLE_MODE_PER) {
             const std::vector<Executable>& collection = this->executables.GetExecutables();
             for (std::size_t i = 0, n = collection.size(); i < n; ++i) {
                 this->BuildLoaderSettings(collection[i].GetActiveOptions()->configuration,
@@ -256,7 +256,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
     if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
         std::vector<LayersSettings> layers_settings_array;
 
-        if (this->use_per_executable_configuration) {
+        if (this->executable_mode == EXECUTABLE_MODE_PER) {
             const std::vector<Executable>& executables = this->executables.GetExecutables();
 
             for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
@@ -462,7 +462,7 @@ void Configurator::Reset(bool hard) {
 }
 
 void Configurator::SetActiveConfigurationName(const std::string& configuration_name) {
-    if (this->use_per_executable_configuration) {
+    if (this->executable_mode == EXECUTABLE_MODE_PER) {
         Executable* executable = this->executables.GetActiveExecutable();
         executable->GetActiveOptions()->configuration = configuration_name;
     } else {
@@ -471,7 +471,7 @@ void Configurator::SetActiveConfigurationName(const std::string& configuration_n
 }
 
 std::string Configurator::GetActionConfigurationName() const {
-    if (this->use_per_executable_configuration) {
+    if (this->executable_mode == EXECUTABLE_MODE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
         return executable->GetActiveOptions()->configuration;
     } else {
@@ -480,7 +480,7 @@ std::string Configurator::GetActionConfigurationName() const {
 }
 
 void Configurator::SetActiveLayersMode(LayersMode mode) {
-    if (this->use_per_executable_configuration) {
+    if (this->executable_mode == EXECUTABLE_MODE_PER) {
         Executable* executable = this->executables.GetActiveExecutable();
         executable->GetActiveOptions()->layers_mode = mode;
     } else {
@@ -489,7 +489,7 @@ void Configurator::SetActiveLayersMode(LayersMode mode) {
 }
 
 LayersMode Configurator::GetActiveLayersMode() const {
-    if (this->use_per_executable_configuration) {
+    if (this->executable_mode == EXECUTABLE_MODE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
         return executable->GetActiveOptions()->layers_mode;
     } else {
@@ -498,7 +498,7 @@ LayersMode Configurator::GetActiveLayersMode() const {
 }
 
 Configuration* Configurator::GetActiveConfiguration() {
-    if (this->use_per_executable_configuration) {
+    if (this->executable_mode == EXECUTABLE_MODE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
         return this->configurations.FindConfiguration(executable->GetActiveOptions()->configuration);
     } else {
@@ -507,7 +507,7 @@ Configuration* Configurator::GetActiveConfiguration() {
 }
 
 const Configuration* Configurator::GetActiveConfiguration() const {
-    if (this->use_per_executable_configuration) {
+    if (this->executable_mode == EXECUTABLE_MODE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
         return this->configurations.FindConfiguration(executable->GetActiveOptions()->configuration);
     } else {
@@ -516,7 +516,7 @@ const Configuration* Configurator::GetActiveConfiguration() const {
 }
 
 bool Configurator::HasActiveConfiguration() const {
-    if (this->use_per_executable_configuration) {
+    if (this->executable_mode == EXECUTABLE_MODE_PER) {
         const std::vector<Executable>& data = this->executables.GetExecutables();
         for (std::size_t i = 0, n = data.size(); i < n; ++i) {
             if (data[i].GetActiveOptions()->layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
@@ -531,8 +531,12 @@ bool Configurator::HasActiveConfiguration() const {
 }
 
 void Configurator::Reset() {
-    this->use_per_executable_configuration = false;
+    this->has_crashed = false;
     this->use_system_tray = false;
+    this->executable_mode = EXECUTABLE_MODE_ALL;
+    this->selected_global_configuration = "Validation";
+    this->selected_global_layers_mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
+    this->selected_layers_view = LAYERS_VIEW_OVERRIDDEN_ONLY;
 }
 
 bool Configurator::Load(const QJsonObject& json_root_object) {
@@ -554,20 +558,15 @@ bool Configurator::Load(const QJsonObject& json_root_object) {
 
     this->active_tab = GetTabType(json_interface_object.value("active_tab").toString().toStdString().c_str());
 
-    // TAB_DIAGNOSTIC
-    if (json_interface_object.value(GetToken(TAB_DIAGNOSTIC)) != QJsonValue::Undefined) {
-        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_DIAGNOSTIC)).toObject();
-    }
-
     // TAB_CONFIGURATIONS
     if (json_interface_object.value(GetToken(TAB_CONFIGURATIONS)) != QJsonValue::Undefined) {
         const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_CONFIGURATIONS)).toObject();
-        this->use_per_executable_configuration = json_object.value("use_per_executable").toBool();
+        this->use_system_tray = json_object.value("use_system_tray").toBool();
+        this->executable_mode = ::GetExecutableMode(json_object.value("executable_mode").toString().toStdString().c_str());
         this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
         this->selected_global_layers_mode =
             ::GetLayersMode(json_object.value("selected_global_layers_mode").toString().toStdString().c_str());
         this->selected_layers_view = ::GetLayersView(json_object.value("selected_layers_view").toString().toStdString().c_str());
-        this->use_system_tray = json_object.value("use_system_tray").toBool();
     }
 
     // TAB_LAYERS
@@ -580,9 +579,10 @@ bool Configurator::Load(const QJsonObject& json_root_object) {
         const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_APPLICATIONS)).toObject();
     }
 
-    // TAB_PREFERENCES
-    if (json_interface_object.value(GetToken(TAB_PREFERENCES)) != QJsonValue::Undefined) {
-        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_PREFERENCES)).toObject();
+    // TAB_DIAGNOSTIC
+    if (json_interface_object.value(GetToken(TAB_DIAGNOSTIC)) != QJsonValue::Undefined) {
+        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_DIAGNOSTIC)).toObject();
+
         this->home_sdk_path = json_object.value("VK_HOME").toString().toStdString();
         if (this->home_sdk_path.Empty()) {
             this->home_sdk_path = ::Get(Path::HOME);
@@ -597,21 +597,15 @@ bool Configurator::Save(QJsonObject& json_root_object) const {
 
     QJsonObject json_interface_object;
 
-    // TAB_DIAGNOSTIC
-    {
-        QJsonObject json_object;
-        json_interface_object.insert(GetToken(TAB_DIAGNOSTIC), json_object);
-    }
-
     // TAB_CONFIGURATIONS
     {
         QJsonObject json_object;
-        json_object.insert("use_per_executable", this->use_per_executable_configuration);
+        json_object.insert("use_system_tray", this->use_system_tray);
+        json_object.insert("executable_mode", ::GetToken(this->executable_mode));
         json_object.insert("selected_global_configuration", this->selected_global_configuration.c_str());
         json_object.insert("selected_global_layers_mode", ::GetToken(this->selected_global_layers_mode));
         json_object.insert("selected_layers_view", ::GetToken(this->selected_layers_view));
-        json_object.insert("use_system_tray", this->use_system_tray);
-        json_interface_object.insert(GetToken(TAB_CONFIGURATIONS), json_object);
+        json_interface_object.insert(::GetToken(TAB_CONFIGURATIONS), json_object);
     }
 
     // TAB_LAYERS
@@ -626,12 +620,11 @@ bool Configurator::Save(QJsonObject& json_root_object) const {
         json_interface_object.insert(GetToken(TAB_APPLICATIONS), json_object);
     }
 
-    // TAB_PREFERENCES
+    // TAB_DIAGNOSTIC
     {
         QJsonObject json_object;
         json_object.insert("VK_HOME", this->home_sdk_path.RelativePath().c_str());
-
-        json_interface_object.insert(GetToken(TAB_PREFERENCES), json_object);
+        json_interface_object.insert(GetToken(TAB_DIAGNOSTIC), json_object);
     }
 
     // interface json object
@@ -654,13 +647,19 @@ bool Configurator::Save(QJsonObject& json_root_object) const {
     return true;
 }
 
-void Configurator::Set(HideMessageType type) { this->hide_message_boxes_flags |= GetBit(type); }
+void Configurator::Set(HideMessageType type) {
+    assert(type >= HIDE_MESSAGE_FIRST && type <= HIDE_MESSAGE_LAST);
+    this->hide_message_boxes_flags |= GetBit(type);
+}
 
 bool Configurator::Get(HideMessageType type) const { return this->hide_message_boxes_flags & GetBit(type); }
 
-bool Configurator::GetPerExecutableConfig() const { return this->use_per_executable_configuration; }
+ExecutableMode Configurator::GetExecutableMode() const { return this->executable_mode; }
 
-void Configurator::SetPerExecutableConfig(bool enabled) { this->use_per_executable_configuration = enabled; }
+void Configurator::SetExecutableMode(ExecutableMode mode) {
+    assert(mode >= EXECUTABLE_MODE_FIRST && mode <= EXECUTABLE_MODE_LAST);
+    this->executable_mode = mode;
+}
 
 bool Configurator::GetUseSystemTray() const { return this->use_system_tray; }
 
@@ -668,4 +667,7 @@ void Configurator::SetUseSystemTray(bool enabled) { this->use_system_tray = enab
 
 LayersView Configurator::GetLayersView() const { return this->selected_layers_view; }
 
-void Configurator::SetLayersView(LayersView view) { this->selected_layers_view = view; }
+void Configurator::SetLayersView(LayersView view) {
+    assert(view >= LAYERS_PATH_VIEW_FIRST && view <= LAYERS_PATH_VIEW_LAST);
+    this->selected_layers_view = view;
+}

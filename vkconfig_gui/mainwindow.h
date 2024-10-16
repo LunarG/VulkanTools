@@ -21,13 +21,11 @@
 
 #pragma once
 
-//#include "configuration_layer_widget.h"
-#include "tab_applications.h"
 #include "tab_configurations.h"
+#include "tab_layers.h"
+#include "tab_applications.h"
 #include "tab_diagnostics.h"
 #include "tab_documentation.h"
-#include "tab_layers.h"
-#include "tab_preferences.h"
 #include "tab_about.h"
 #include "ui_mainwindow.h"
 

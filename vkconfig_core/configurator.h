@@ -31,6 +31,7 @@
 #include "type_hide_message.h"
 #include "type_layers_view.h"
 #include "type_tab.h"
+#include "type_executable_mode.h"
 #include "vulkan_info.h"
 #include "serialization.h"
 
@@ -86,8 +87,8 @@ class Configurator : public Serialize {
     void Set(HideMessageType type);
     bool Get(HideMessageType type) const;
 
-    bool GetPerExecutableConfig() const;
-    void SetPerExecutableConfig(bool enabled);
+    ExecutableMode GetExecutableMode() const;
+    void SetExecutableMode(ExecutableMode mode);
 
     bool GetUseSystemTray() const;
     void SetUseSystemTray(bool enabled);
@@ -120,8 +121,8 @@ class Configurator : public Serialize {
     Path home_sdk_path;
     int hide_message_boxes_flags = 0;
     bool use_system_tray = false;
-    bool use_per_executable_configuration = false;
-    std::string selected_global_configuration;
-    LayersMode selected_global_layers_mode;
-    LayersView selected_layers_view;
+    ExecutableMode executable_mode = EXECUTABLE_MODE_ALL;
+    std::string selected_global_configuration = "Validation";
+    LayersMode selected_global_layers_mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
+    LayersView selected_layers_view = LAYERS_VIEW_OVERRIDDEN_ONLY;
 };
