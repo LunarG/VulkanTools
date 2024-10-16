@@ -22,38 +22,44 @@
 #pragma once
 
 #include "parameter.h"
-#include "path_manager.h"
+#include "type_log.h"
 
 #include <QByteArray>
 
 #include <vector>
 #include <string>
 
+class LayerManager;
+
 class Configuration {
    public:
-    Configuration();
+    static Configuration CreateDisabled(const LayerManager& layers);
+    static Configuration Create(const LayerManager& layers, const std::string& configuration_key);
 
-    bool Load(const std::vector<Layer>& available_layers, const std::string& full_path);
-    bool Save(const std::vector<Layer>& available_layers, const std::string& full_path, bool exporter = false) const;
+    bool Load(const Path& full_path, const LayerManager& layers);
+    bool Save(const Path& full_path, bool exporter = false) const;
+    void Reset(const LayerManager& layers);
+
     bool HasOverride() const;
-
-    void Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager);
-
+    Parameter* Find(const std::string& layer_key);
     std::size_t Size() const { return this->parameters.size(); };
 
-    std::string key;  // User readable display of the configuration name (may contain spaces)
-    int platform_flags;
-    std::string description;        // A friendly description of what this profile does
-    QByteArray setting_tree_state;  // Recall editor tree state
-    bool view_advanced_settings;
+    void SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Version& version);
+    void GatherParameters(const LayerManager& layers);
+    void Reorder(const std::vector<std::string>& layer_names);
+
+    std::string key = "New Configuration";  // User readable display of the configuration name (may contain spaces)
+    int version = 1;
+    int platform_flags = PLATFORM_DESKTOP_BIT;
+    std::string description;  // A friendly description of what this profile does
+    bool view_advanced_settings = false;
+    int loader_log_messages_flags = GetBit(LOG_ERROR) | GetBit(LOG_WARN);
+    std::string selected_layer_name;
 
     std::vector<Parameter> parameters;
-    std::vector<std::string> user_defined_paths;
+    std::vector<Path> user_defined_paths;
 
     bool IsBuiltIn() const;
-
-   private:
-    bool Load2_2(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object);
 };
 
 std::string MakeConfigurationName(const std::vector<Configuration>& configurations, const std::string& configuration_name);

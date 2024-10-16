@@ -45,10 +45,6 @@ SettingType GetSettingType(const char* token) {
     assert(token != nullptr);
     assert(std::strcmp(token, "") != 0);
 
-    if (SUPPORT_LAYER_CONFIG_2_2_0 && ToUpperCase(token) == "MULTI_ENUM") return SETTING_FLAGS;
-    if (SUPPORT_LAYER_CONFIG_2_2_0 && ToUpperCase(token) == "VUID_EXCLUDE") return SETTING_LIST;
-    if (SUPPORT_LAYER_CONFIG_2_2_0 && ToUpperCase(token) == "INT_RANGES") return SETTING_FRAMES;
-
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
         const SettingType type = static_cast<SettingType>(i);
         if (ToUpperCase(token) == GetToken(type)) return type;
@@ -77,7 +73,7 @@ const char* GetToken(SettingType type) {
         "FRAMES",        // SETTING_FRAMES
         "LIST"           // SETTING_LIST
     };
-    static_assert(countof(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return table[type];
 }
@@ -108,7 +104,7 @@ static std::string GetEnv(const std::string& layer_key, const std::string& setti
 }
 
 SettingMeta::SettingMeta(Layer& layer, const std::string& key, const SettingType type)
-    : key(key), type(type), env(GetEnv(layer.key, key)), dependence_mode(DEPENDENCE_NONE), layer(layer) {
+    : key(key), type(type), env(), dependence_mode(DEPENDENCE_NONE), layer(layer) {
     assert(!this->key.empty());
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 }
@@ -352,7 +348,7 @@ const char* GetToken(DependenceMode type) {
         "ALL",   // DEPENDENCE_ALL
         "ANY"    // DEPENDENCE_ANY
     };
-    static_assert(countof(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return table[type];
 }
