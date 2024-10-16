@@ -26,6 +26,20 @@
 #include <QJsonArray>
 #include <QTextStream>
 
+const char* GetExecutableFilter() {
+    static const char* TABLE[] = {
+        "Executables (*.exe)",     // PLATFORM_WINDOWS_X86
+        "Executables (*.exe)",     // PLATFORM_WINDOWS_ARM
+        "Executables (*)",         // PLATFORM_LINUX
+        "Executables (*.app, *)",  // PLATFORM_MACOS
+        "N/A",                     // PLATFORM_ANDROID
+        "N/A"                      // PLATFORM_IOS
+    };
+    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[VKC_PLATFORM];
+}
+
 static const char* GetExecutableSuffix() {
     static const char* TABLE[] = {
         ".exe",  // PLATFORM_WINDOWS_X86
@@ -40,8 +54,9 @@ static const char* GetExecutableSuffix() {
     return TABLE[VKC_PLATFORM];
 }
 
-static const DefaultExecutable defaults_executables[] = {{"vkcube", "/vkcube", "--suppress_popups"},
-                                                         {"vkcubepp", "/vkcubepp", "--suppress_popups"}};
+static const DefaultExecutable defaults_executables[] = {
+    {"vkcube", "/vkcube", "--suppress_popups", "VkCube launcher options"},
+    {"vkcubepp", "/vkcubepp", "--suppress_popups", "VkCubepp launcher options"}};
 
 void ExecutableManager::Reset() {
     this->data = this->CreateDefaultExecutables();
@@ -410,7 +425,7 @@ Executable ExecutableManager::CreateDefaultExecutable(const DefaultExecutable& d
     }
 
     ExecutableOptions options;
-    options.label = "Default";
+    options.label = default_executable.label;
     options.working_folder = default_paths.working_folder;
     options.args.push_back(default_executable.arguments);
 

@@ -71,11 +71,15 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->connect(this->ui->applications_check_box_clear_on_launch, SIGNAL(pressed()), this,
                   SLOT(on_applications_check_box_clear_on_launch_pressed()));
 
+    const Configurator &configurator = Configurator::Get();
+
     // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
     // Whenever the control surpasses this block count, old blocks are discarded.
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
-    ui->log_browser->document()->setMaximumBlockCount(2048);
+    this->ui->log_browser->document()->setMaximumBlockCount(2048);
+
+    this->ui->applications_push_button_launcher->setEnabled(!configurator.executables.Empty());
 
     this->ui->applications_args_list->setToolTip("Eg: '--argA --argB'");
     this->ui->applications_envs_list->setToolTip(VKC_ENV == VKC_ENV_WIN32 ? "Eg: 'ENV_A=ValueA;ENV_B=ValueB'"
@@ -128,23 +132,12 @@ void TabApplications::on_applications_remove_application_pushButton_pressed() {
 }
 
 void TabApplications::on_applications_append_application_pushButton_pressed() {
-    static const char *TABLE[] = {
-        "Applications (*.exe)",     // PLATFORM_WINDOWS_X86
-        "Applications (*.exe)",     // PLATFORM_WINDOWS_ARM
-        "Applications (*)",         // PLATFORM_LINUX
-        "Applications (*.app, *)",  // PLATFORM_MACOS
-        "N/A",                      // PLATFORM_ANDROID
-        "N/A"                       // PLATFORM_IOS
-    };
-    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    const std::string filter = TABLE[VKC_PLATFORM];
-
     Configurator &configurator = Configurator::Get();
 
     const Path &path = configurator.executables.last_path_executable;
     const Path &selected_path =
-        QFileDialog::getOpenFileName(&this->window, "Executable Path", path.AbsolutePath().c_str(), filter.c_str()).toStdString();
+        QFileDialog::getOpenFileName(&this->window, "Executable Path", path.AbsolutePath().c_str(), ::GetExecutableFilter())
+            .toStdString();
 
     if (selected_path.Empty()) {
         return;
@@ -194,7 +187,6 @@ void TabApplications::on_applications_list_comboBox_textEdited(const QString &te
 
 void TabApplications::on_applications_options_remove_pushButton_pressed() {
     Configurator &configurator = Configurator::Get();
-    Executable *executable = configurator.executables.GetActiveExecutable();
 
     this->EnableOptions();
 }
@@ -450,6 +442,7 @@ void TabApplications::EnableOptions() {
     const Executable *executable = configurator.executables.GetActiveExecutable();
     const bool options_enabled = executable_enabled && (executable == nullptr ? false : !executable->options.empty());
 
+    this->ui->applications_push_button_launcher->setEnabled(executable_enabled);
     this->ui->applications_list_comboBox->setEnabled(executable_enabled);
     this->ui->applications_remove_application_pushButton->setEnabled(executable_enabled);
 
