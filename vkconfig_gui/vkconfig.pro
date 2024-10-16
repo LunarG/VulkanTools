@@ -60,6 +60,7 @@ SOURCES += \
     ../vkconfig_core/setting_int.cpp \
     ../vkconfig_core/setting_list.cpp \
     ../vkconfig_core/setting_string.cpp \
+    ../vkconfig_core/type_executable_mode.cpp \
     ../vkconfig_core/type_hide_message.cpp \
     ../vkconfig_core/type_layer_control.cpp \
     ../vkconfig_core/type_layer_type.cpp \
@@ -101,7 +102,6 @@ SOURCES += \
     tab_diagnostics.cpp \
     tab_documentation.cpp \
     tab_layers.cpp \
-    tab_preferences.cpp \
     settings_tree.cpp
 
 HEADERS += \
@@ -138,6 +138,7 @@ HEADERS += \
     ../vkconfig_core/setting_int.h \
     ../vkconfig_core/setting_list.h \
     ../vkconfig_core/setting_string.h \
+    ../vkconfig_core/type_executable_mode.h \
     ../vkconfig_core/type_hide_message.h \
     ../vkconfig_core/type_layer_control.h \
     ../vkconfig_core/type_layer_path_view.h \
@@ -179,7 +180,6 @@ HEADERS += \
     tab_diagnostics.h \
     tab_documentation.h \
     tab_layers.h \
-    tab_preferences.h \
     settings_tree.h
 
 FORMS += \
