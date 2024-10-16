@@ -20,20 +20,16 @@
 
 #pragma once
 
-#include "tab.h"
+enum ExecutableMode {  // Enum value can't be changed
+    EXECUTABLE_MODE_ALL = 0,
+    EXECUTABLE_MODE_PER,
 
-struct TabPreferences : public Tab {
-    Q_OBJECT
-
-   public:
-    TabPreferences(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
-    virtual ~TabPreferences();
-
-    virtual void UpdateUI(UpdateUIMode mode) override;
-    virtual void CleanUI() override;
-    virtual bool EventFilter(QObject* target, QEvent* event) override;
-
-   public Q_SLOTS:
-
-   private:
+    EXECUTABLE_MODE_FIRST = EXECUTABLE_MODE_ALL,
+    EXECUTABLE_MODE_LAST = EXECUTABLE_MODE_PER
 };
+
+enum { EXECUTABLE_MODE_COUNT = EXECUTABLE_MODE_LAST - EXECUTABLE_MODE_FIRST + 1 };
+
+const char* GetToken(ExecutableMode mode);
+
+ExecutableMode GetExecutableMode(const char* token);

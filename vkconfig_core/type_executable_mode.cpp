@@ -18,33 +18,30 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "type_tab.h"
+#include "type_executable_mode.h"
 
 #include <array>
 #include <cstring>
 
-const char* GetToken(TabType type) {
+const char* GetToken(ExecutableMode mode) {
     static const char* TOKENS[]{
-        "CONFIGURATIONS",  // TAB_CONFIGURATIONS
-        "LAYERS",          // TAB_LAYERS
-        "APPLICATIONS",    // TAB_APPLICATIONS
-        "DIAGNOSTIC",      // TAB_DIAGNOSTIC
-        "DOCUMENTATION",   // TAB_DOCUMENTATION
-        "ABOUT"            // TAB_ABOUT
+        "All Executables",  // EXECUTABLE_MODE_ALL
+        "Per-Executable",   // EXECUTABLE_MODE_PER
     };
 
-    static_assert(std::size(TOKENS) == TAB_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(TOKENS) == EXECUTABLE_MODE_COUNT,
+                  "The tranlation table size doesn't match the enum number of elements");
 
-    return TOKENS[type - TAB_FIRST];
+    return TOKENS[mode - EXECUTABLE_MODE_FIRST];
 }
 
-TabType GetTabType(const char* token) {
-    for (int i = TAB_FIRST, n = TAB_LAST; i <= n; ++i) {
-        const TabType type = static_cast<TabType>(i);
-        if (std::strcmp(::GetToken(type), token) == 0) {
-            return type;
+ExecutableMode GetExecutableMode(const char* token) {
+    for (int i = EXECUTABLE_MODE_FIRST, n = EXECUTABLE_MODE_LAST; i <= n; ++i) {
+        const ExecutableMode mode = static_cast<ExecutableMode>(i);
+        if (std::strcmp(::GetToken(mode), token) == 0) {
+            return mode;
         }
     }
 
-    return TAB_DIAGNOSTIC;
+    return EXECUTABLE_MODE_FIRST;
 }

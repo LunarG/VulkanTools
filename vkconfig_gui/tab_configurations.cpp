@@ -36,17 +36,18 @@
 TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_CONFIGURATIONS, window, ui) {
     ui->configurations_list->installEventFilter(&window);
     ui->configurations_layers_list->installEventFilter(&window);
-    ui->configurations_settings_tree->installEventFilter(&window);
+    ui->configurations_settings->installEventFilter(&window);
 
-    this->connect(this->ui->check_box_per_application, SIGNAL(toggled(bool)), this,
-                  SLOT(on_check_box_per_application_toggled(bool)));
-    this->connect(this->ui->combo_box_applications, SIGNAL(currentIndexChanged(int)), this,
-                  SLOT(on_combo_box_applications_currentIndexChanged(int)));
-    this->connect(this->ui->combo_box_mode, SIGNAL(currentIndexChanged(int)), this,
-                  SLOT(on_combo_box_mode_currentIndexChanged(int)));
+    this->connect(this->ui->configurations_executable_list, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_configurations_executable_list_currentIndexChanged(int)));
+    this->connect(this->ui->configurations_layers_mode, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_configurations_layers_mode_currentIndexChanged(int)));
 
-    this->connect(this->ui->combo_box_layers_view, SIGNAL(currentIndexChanged(int)), this,
-                  SLOT(on_combo_box_layers_view_currentIndexChanged(int)));
+    this->connect(this->ui->configurations_executable_append, SIGNAL(pressed()), this,
+                  SLOT(on_configurations_executable_append_pressed()));
+
+    this->connect(this->ui->configurations_layers_view, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_configurations_layers_view_currentIndexChanged(int)));
 
     this->connect(this->ui->configuration_loader_errors_checkBox, SIGNAL(toggled(bool)), this,
                   SLOT(on_configuration_loader_errors_checkBox_toggled(bool)));
@@ -74,7 +75,13 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->ui->splitter_settings->restoreState(settings.value("mainwindow/splitter_settings_state").toByteArray());
 
     Configurator &configurator = Configurator::Get();
-    this->ui->combo_box_mode->setCurrentIndex(configurator.GetActiveLayersMode());
+
+    this->ui->configurations_executable_list->setVisible(configurator.GetExecutableMode() == EXECUTABLE_MODE_PER);
+    this->ui->configurations_executable_append->setVisible(configurator.GetExecutableMode() == EXECUTABLE_MODE_PER);
+
+    this->ui->configurations_layers_mode->blockSignals(true);
+    this->ui->configurations_layers_mode->setCurrentIndex(configurator.GetActiveLayersMode());
+    this->ui->configurations_layers_mode->blockSignals(false);
 }
 
 TabConfigurations::~TabConfigurations() {
@@ -89,9 +96,9 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
 
     const bool enabled_ui = configurator.GetActiveLayersMode() == LAYERS_CONTROLLED_BY_CONFIGURATOR;
 
-    ui->combo_box_mode->blockSignals(true);
-    ui->combo_box_mode->setCurrentIndex(configurator.GetActiveLayersMode());
-    ui->combo_box_mode->blockSignals(false);
+    ui->configurations_layers_mode->blockSignals(true);
+    ui->configurations_layers_mode->setCurrentIndex(configurator.GetActiveLayersMode());
+    ui->configurations_layers_mode->blockSignals(false);
 
     ui->configurations_list->blockSignals(true);
 
@@ -146,30 +153,27 @@ void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
     const std::vector<Executable> &executables = configurator.executables.GetExecutables();
 
     if (executables.empty()) {
-        ui->check_box_per_application->setEnabled(false);
-        ui->check_box_per_application->setVisible(false);
-        ui->combo_box_applications->setVisible(false);
+        ui->configurations_executable_list->setVisible(false);
+        ui->configurations_executable_append->setVisible(false);
     } else {
-        ui->check_box_per_application->setEnabled(true);
-        ui->check_box_per_application->setChecked(configurator.GetPerExecutableConfig());
+        ui->configurations_executable_list->setVisible(configurator.GetExecutableMode() == EXECUTABLE_MODE_PER);
+        ui->configurations_executable_append->setVisible(configurator.GetExecutableMode() == EXECUTABLE_MODE_PER);
 
-        ui->combo_box_applications->setEnabled(configurator.GetPerExecutableConfig());
-
-        ui->combo_box_applications->blockSignals(true);
+        ui->configurations_executable_list->blockSignals(true);
 
         if (ui_update_mode == UPDATE_REBUILD_UI) {
-            ui->combo_box_applications->clear();
+            ui->configurations_executable_list->clear();
             for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
                 const Executable &executable = executables[i];
 
-                ui->combo_box_applications->addItem(executable.path.RelativePath().c_str());
+                ui->configurations_executable_list->addItem(executable.path.RelativePath().c_str());
             }
         }
 
         const Executable *executable = configurator.executables.GetActiveExecutable();
-        ui->combo_box_applications->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
-        ui->combo_box_applications->setToolTip(executable->path.AbsolutePath().c_str());
-        ui->combo_box_applications->blockSignals(false);
+        ui->configurations_executable_list->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
+        ui->configurations_executable_list->setToolTip(executable->path.AbsolutePath().c_str());
+        ui->configurations_executable_list->blockSignals(false);
     }
 }
 
@@ -240,7 +244,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
             }
             // resizeEvent(nullptr);
 
-            ui->combo_box_layers_view->setCurrentIndex(configurator.GetLayersView());
+            ui->configurations_layers_view->setCurrentIndex(configurator.GetLayersView());
 
             ui->configurations_layers_list->update();
         }
@@ -257,9 +261,9 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
 
     if (configurator.GetActionConfigurationName().empty()) {
         this->_settings_tree_manager.CleanupGUI();
-        ui->configurations_presets_comboBox->setVisible(false);
+        this->ui->configurations_presets->setVisible(false);
     } else {
-        this->_settings_tree_manager.CreateGUI(ui->configurations_presets_comboBox, ui->configurations_settings_tree);
+        this->_settings_tree_manager.CreateGUI(this->ui->configurations_presets, this->ui->configurations_settings);
     }
 }
 
@@ -276,7 +280,7 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     LayersMode mode = configurator.GetActiveLayersMode();
     const bool enabled_ui = mode == LAYERS_CONTROLLED_BY_CONFIGURATOR;
 
-    ui->combo_box_mode->setCurrentIndex(mode);
+    ui->configurations_layers_mode->setCurrentIndex(mode);
     ui->configurations_list->setEnabled(enabled_ui);
     ui->group_box_settings->setEnabled(enabled_ui);
     ui->group_box_layers->setEnabled(enabled_ui);
@@ -550,7 +554,7 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
         return;  // No row selected
     }
 
-    QWidget *widget = ui->configurations_layers_list->itemWidget(ui->configurations_layers_list->item(currentRow));
+    QWidget *widget = this->ui->configurations_layers_list->itemWidget(this->ui->configurations_layers_list->item(currentRow));
     if (widget == nullptr) {
         return;
     }
@@ -560,7 +564,7 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
     Configurator &configurator = Configurator::Get();
     configurator.GetActiveConfiguration()->selected_layer_name = ExtractLayerName(configurator.layers, layer_string);
 
-    this->_settings_tree_manager.CreateGUI(ui->configurations_presets_comboBox, ui->configurations_settings_tree);
+    this->_settings_tree_manager.CreateGUI(this->ui->configurations_presets, this->ui->configurations_settings);
 }
 
 void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
@@ -572,12 +576,12 @@ void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
     if (active_configuration != nullptr) {
         int loader_log_messages_bits = 0;
 
-        loader_log_messages_bits |= ui->configuration_loader_errors_checkBox->isChecked() ? GetBit(LOG_ERROR) : 0;
-        loader_log_messages_bits |= ui->configuration_loader_warns_checkBox->isChecked() ? GetBit(LOG_WARN) : 0;
-        loader_log_messages_bits |= ui->configuration_loader_infos_checkBox->isChecked() ? GetBit(LOG_INFO) : 0;
-        loader_log_messages_bits |= ui->configuration_loader_debug_checkBox->isChecked() ? GetBit(LOG_DEBUG) : 0;
-        loader_log_messages_bits |= ui->configuration_loader_layers_checkBox->isChecked() ? GetBit(LOG_LAYER) : 0;
-        loader_log_messages_bits |= ui->configuration_loader_drivers_checkBox->isChecked() ? GetBit(LOG_DRIVER) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_errors_checkBox->isChecked() ? GetBit(LOG_ERROR) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_warns_checkBox->isChecked() ? GetBit(LOG_WARN) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_infos_checkBox->isChecked() ? GetBit(LOG_INFO) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_debug_checkBox->isChecked() ? GetBit(LOG_DEBUG) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_layers_checkBox->isChecked() ? GetBit(LOG_LAYER) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_drivers_checkBox->isChecked() ? GetBit(LOG_DRIVER) : 0;
 
         active_configuration->loader_log_messages_flags = loader_log_messages_bits;
     }
@@ -770,7 +774,15 @@ void TabConfigurations::OnContextMenuExportSettingsClicked(ConfigurationListItem
     msg.exec();
 }
 
-void TabConfigurations::on_combo_box_mode_currentIndexChanged(int index) {
+void TabConfigurations::on_configurations_executable_list_currentIndexChanged(int index) {
+    Configurator &configurator = Configurator::Get();
+    configurator.executables.SetActiveExecutable(index);
+
+    this->UpdateUI(UPDATE_REFRESH_UI);
+    this->window.UpdateUI_Status();
+}
+
+void TabConfigurations::on_configurations_layers_mode_currentIndexChanged(int index) {
     Configurator &configurator = Configurator::Get();
 
     configurator.SetActiveLayersMode(static_cast<LayersMode>(index));
@@ -780,22 +792,32 @@ void TabConfigurations::on_combo_box_mode_currentIndexChanged(int index) {
     this->window.UpdateUI_Status();
 }
 
-void TabConfigurations::on_combo_box_applications_currentIndexChanged(int index) {
-    Configurator &configurator = Configurator::Get();
-    configurator.executables.SetActiveExecutable(index);
+void TabConfigurations::on_configurations_layers_view_currentIndexChanged(int index) {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
 
-    this->UpdateUI(UPDATE_REFRESH_UI);
-    this->window.UpdateUI_Status();
+    Configurator &configurator = Configurator::Get();
+    configurator.SetLayersView(static_cast<LayersView>(index));
+
+    this->UpdateUI_Layers(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::on_check_box_per_application_toggled(bool checked) {
+void TabConfigurations::on_configurations_executable_append_pressed() {
+    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
+
     Configurator &configurator = Configurator::Get();
 
-    configurator.SetPerExecutableConfig(checked);
-    configurator.Override(OVERRIDE_AREA_ALL);
+    const Path &last_path = configurator.executables.last_path_executable;
+    const Path selected_path =
+        QFileDialog::getOpenFileName(&this->window, "Executable Path", last_path.AbsolutePath().c_str(), ::GetExecutableFilter())
+            .toStdString();
 
-    this->UpdateUI(UPDATE_REFRESH_UI);
-    this->window.UpdateUI_Status();
+    if (selected_path.Empty()) {
+        return;
+    }
+
+    configurator.executables.AppendExecutable(selected_path);
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void TabConfigurations::on_configuration_loader_errors_checkBox_toggled(bool checked) {
@@ -826,15 +848,6 @@ void TabConfigurations::on_configuration_loader_layers_checkBox_toggled(bool che
 void TabConfigurations::on_configuration_loader_drivers_checkBox_toggled(bool checked) {
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
     this->OnCheckedLoaderMessageTypes(checked);
-}
-
-void TabConfigurations::on_combo_box_layers_view_currentIndexChanged(int index) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-
-    Configurator &configurator = Configurator::Get();
-    configurator.SetLayersView(static_cast<LayersView>(index));
-
-    this->UpdateUI_Layers(UPDATE_REBUILD_UI);
 }
 
 /// An item has been changed. Check for edit of the items name (configuration name)

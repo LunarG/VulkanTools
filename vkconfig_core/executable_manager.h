@@ -31,6 +31,7 @@ struct DefaultExecutable {
     std::string name;
     std::string key;
     std::string arguments;
+    std::string label;
 };
 
 struct DefaultPath {
@@ -40,7 +41,7 @@ struct DefaultPath {
 
 struct ExecutableOptions {
     std::string label = "Default Options";
-    LayersMode layers_mode = LAYERS_CONTROLLED_BY_APPLICATIONS;
+    LayersMode layers_mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
     std::string configuration = "Validation";
     Path working_folder;
     std::vector<std::string> args;
@@ -97,3 +98,5 @@ class ExecutableManager : public Serialize {
     Executable CreateDefaultExecutable(const DefaultExecutable& default_executable) const;
     DefaultPath GetDefaultExecutablePath(const std::string& executable_name) const;
 };
+
+const char* GetExecutableFilter();
