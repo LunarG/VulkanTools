@@ -23,6 +23,7 @@
 
 #include "widget_setting_flags.h"
 #include "widget_setting_filesystem.h"
+#include "ui_mainwindow.h"
 
 #include "../vkconfig_core/configuration.h"
 
@@ -40,7 +41,7 @@ class SettingsTreeManager : QObject {
 
     bool launched_application;
 
-    void CreateGUI(QComboBox *preset_combobox, QTreeWidget *build_tree);
+    void CreateGUI(std::shared_ptr<Ui::MainWindow> ui);
     void CleanupGUI();
 
     void GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item);
@@ -57,8 +58,8 @@ class SettingsTreeManager : QObject {
     SettingsTreeManager(const SettingsTreeManager &) = delete;
     SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
 
-    void BuildGenericTree(Parameter &parameter);
-    void BuildTreeItem(QTreeWidgetItem *parent, Parameter &parameter, const SettingMeta &meta);
+    void BuildTree();
+    void BuildTreeItem(QTreeWidgetItem *parent, const SettingMeta &meta);
 
     void RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent);
 

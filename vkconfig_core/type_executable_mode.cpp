@@ -23,25 +23,55 @@
 #include <array>
 #include <cstring>
 
-const char* GetToken(ExecutableMode mode) {
-    static const char* TOKENS[]{
-        "All Executables",  // EXECUTABLE_MODE_ALL
-        "Per-Executable",   // EXECUTABLE_MODE_PER
+const char* GetLabel(ExecutableScope scope) {
+    static const char* TABLE[]{
+        "Any Vulkan Executable",            // EXECUTABLE_ANY
+        "All Enabled Vulkan Executable: ",  // EXECUTABLE_ALL
+        "Per-Listed Vulkan Executable: ",   // EXECUTABLE_PER
+        "No Vulkan Executable",             // EXECUTABLE_NONE
     };
 
-    static_assert(std::size(TOKENS) == EXECUTABLE_MODE_COUNT,
+    static_assert(std::size(TABLE) == EXECUTABLE_SCOPE_COUNT,
                   "The tranlation table size doesn't match the enum number of elements");
 
-    return TOKENS[mode - EXECUTABLE_MODE_FIRST];
+    return TABLE[scope - EXECUTABLE_SCOPE_FIRST];
 }
 
-ExecutableMode GetExecutableMode(const char* token) {
-    for (int i = EXECUTABLE_MODE_FIRST, n = EXECUTABLE_MODE_LAST; i <= n; ++i) {
-        const ExecutableMode mode = static_cast<ExecutableMode>(i);
+const char* GetTooltip(ExecutableScope scope) {
+    static const char* TABLE[]{
+        "Apply the selected layers configuration to any executable running",  // EXECUTABLE_ANY
+        "Apply the selected layers configuration to all enabled executable",  // EXECUTABLE_ALL
+        "Apply a dedicated layers configuration per executable",              // EXECUTABLE_PER
+        "Don't affect any executable running on the system",                  // EXECUTABLE_NONE
+    };
+
+    static_assert(std::size(TABLE) == EXECUTABLE_SCOPE_COUNT,
+                  "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[scope - EXECUTABLE_SCOPE_FIRST];
+}
+
+const char* GetToken(ExecutableScope scope) {
+    static const char* TABLE[]{
+        "ANY",   // EXECUTABLE_ANY
+        "ALL",   // EXECUTABLE_ALL
+        "PER",   // EXECUTABLE_PER
+        "NONE",  // EXECUTABLE_NONE
+    };
+
+    static_assert(std::size(TABLE) == EXECUTABLE_SCOPE_COUNT,
+                  "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[scope - EXECUTABLE_SCOPE_FIRST];
+}
+
+ExecutableScope GetExecutableScope(const char* token) {
+    for (int i = EXECUTABLE_SCOPE_FIRST, n = EXECUTABLE_SCOPE_LAST; i <= n; ++i) {
+        const ExecutableScope mode = static_cast<ExecutableScope>(i);
         if (std::strcmp(::GetToken(mode), token) == 0) {
             return mode;
         }
     }
 
-    return EXECUTABLE_MODE_FIRST;
+    return EXECUTABLE_NONE;
 }

@@ -40,9 +40,12 @@ class Configuration {
     bool Save(const Path& full_path, bool exporter = false) const;
     void Reset(const LayerManager& layers);
 
-    bool HasOverride() const;
     Parameter* Find(const std::string& layer_key);
+    const Parameter* Find(const std::string& layer_key) const;
     std::size_t Size() const { return this->parameters.size(); };
+
+    Parameter* GetActiveParameter();
+    const Parameter* GetActiveParameter() const;
 
     void SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Version& version);
     void GatherParameters(const LayerManager& layers);
@@ -52,6 +55,8 @@ class Configuration {
     int version = 1;
     int platform_flags = PLATFORM_DESKTOP_BIT;
     std::string description;  // A friendly description of what this profile does
+    bool override_layers = true;
+    bool override_loader = true;
     bool view_advanced_settings = false;
     int loader_log_messages_flags = GetBit(LOG_ERROR) | GetBit(LOG_WARN);
     std::string selected_layer_name;

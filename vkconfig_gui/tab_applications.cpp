@@ -46,8 +46,6 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->connect(this->ui->applications_options_comboBox, SIGNAL(editTextChanged(QString)), this,
                   SLOT(on_applications_options_comboBox_textEdited(QString)));
 
-    this->connect(this->ui->applications_layers_mode_comboBox, SIGNAL(currentIndexChanged(int)), this,
-                  SLOT(on_applications_layers_mode_comboBox_activated(int)));
     this->connect(this->ui->applications_configuration_comboBox, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_applications_configuration_comboBox_activated(int)));
 
@@ -157,7 +155,7 @@ void TabApplications::on_applications_list_comboBox_activated(int index) {
     if (executable != nullptr) {
         ui->applications_list_comboBox->setToolTip(executable->path.AbsolutePath().c_str());
         ui->applications_options_remove_pushButton->setEnabled(executable->options.size() > 1);
-        this->on_applications_options_comboBox_activated(executable->active_option_index);
+        this->on_applications_options_comboBox_activated(executable->GetActiveOptionsIndex());
     }
     ui->applications_options_list_layout->setEnabled(executable != nullptr);
     ui->applications_options_layout->setEnabled(executable != nullptr);
@@ -172,7 +170,7 @@ void TabApplications::on_applications_list_comboBox_activated(int index) {
     ui->applications_options_comboBox->blockSignals(false);
 
     if (executable != nullptr) {
-        ui->applications_options_comboBox->setCurrentIndex(executable->active_option_index);
+        ui->applications_options_comboBox->setCurrentIndex(executable->GetActiveOptionsIndex());
     }
 }
 
@@ -198,10 +196,8 @@ void TabApplications::on_applications_options_append_pushButton_pressed() {
     ExecutableOptions options = *executable->GetActiveOptions();
     options.label = configurator.executables.MakeOptionsName(options.label);
 
-    executable->active_option_index = static_cast<int>(executable->options.size());
+    executable->active_option = options.label;
     executable->options.push_back(options);
-
-    // this->ui->applications_options_comboBox->setCurrentIndex(executable->active_option_index);
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
@@ -210,11 +206,11 @@ void TabApplications::on_applications_options_comboBox_activated(int index) {
     Configurator &configurator = Configurator::Get();
     Executable *executable = configurator.executables.GetActiveExecutable();
 
-    executable->active_option_index = index;
+    executable->active_option = executable->options[index].label;
     const ExecutableOptions *options = executable->GetActiveOptions();
 
-    ui->applications_layers_mode_comboBox->setCurrentIndex(options->layers_mode);
-    ui->applications_configuration_comboBox->setEnabled(options->layers_mode == LAYERS_CONTROLLED_BY_CONFIGURATOR);
+    // ui->applications_layers_mode_comboBox->setCurrentIndex(options->layers_mode);
+    // ui->applications_configuration_comboBox->setEnabled(options->layers_mode == LAYERS_CONTROLLED_BY_CONFIGURATOR);
     ui->applications_configuration_comboBox->setCurrentIndex(
         configurator.configurations.GetConfigurationIndex(options->configuration));
 
@@ -232,16 +228,6 @@ void TabApplications::on_applications_options_comboBox_textEdited(const QString 
 
     ExecutableOptions *options = executable->GetActiveOptions();
     options->label = text.toStdString();
-}
-
-void TabApplications::on_applications_layers_mode_comboBox_activated(int index) {
-    Configurator &configurator = Configurator::Get();
-
-    Executable *executable = configurator.executables.GetActiveExecutable();
-    ExecutableOptions *options = executable->GetActiveOptions();
-
-    ui->applications_configuration_comboBox->setEnabled(index == LAYERS_CONTROLLED_BY_CONFIGURATOR);
-    options->layers_mode = static_cast<LayersMode>(index);
 }
 
 void TabApplications::on_applications_configuration_comboBox_activated(int index) {
@@ -450,7 +436,6 @@ void TabApplications::EnableOptions() {
     this->ui->applications_options_remove_pushButton->setEnabled(executable_enabled ? (executable->options.size() > 1) : false);
     this->ui->applications_options_append_pushButton->setEnabled(executable_enabled);
 
-    this->ui->applications_layers_mode_comboBox->setEnabled(options_enabled);
     this->ui->applications_directory_edit->setEnabled(options_enabled);
     this->ui->applications_directory_edit_pushButton->setEnabled(options_enabled);
     this->ui->applications_args_list->setEnabled(options_enabled);

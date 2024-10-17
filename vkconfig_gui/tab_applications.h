@@ -51,7 +51,6 @@ struct TabApplications : public Tab {
     void on_applications_options_comboBox_activated(int index);
     void on_applications_options_comboBox_textEdited(const QString& text);
 
-    void on_applications_layers_mode_comboBox_activated(int index);
     void on_applications_configuration_comboBox_activated(int index);
 
     void on_applications_directory_edit_textEdited(const QString& text);
