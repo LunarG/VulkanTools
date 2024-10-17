@@ -272,7 +272,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 void MainWindow::StartTool(Tool tool) {
     Configurator &configurator = Configurator::Get();
 
-    if (configurator.GetExecutableMode() == EXECUTABLE_MODE_ALL) {
+    if (configurator.GetExecutableMode() == EXECUTABLE_ANY) {
         configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 
@@ -285,7 +285,7 @@ void MainWindow::StartTool(Tool tool) {
             break;
     }
 
-    if (configurator.GetExecutableMode() == EXECUTABLE_MODE_ALL) {
+    if (configurator.GetExecutableMode() == EXECUTABLE_ANY) {
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 }

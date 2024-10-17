@@ -76,8 +76,9 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
 
     Configurator &configurator = Configurator::Get();
 
-    this->ui->configurations_executable_list->setVisible(configurator.GetExecutableMode() == EXECUTABLE_MODE_PER);
-    this->ui->configurations_executable_append->setVisible(configurator.GetExecutableMode() == EXECUTABLE_MODE_PER);
+    this->ui->configurations_executable_list->setVisible(configurator.GetExecutableMode() != EXECUTABLE_ANY);
+    this->ui->configurations_executable_append->setVisible(configurator.GetExecutableMode() != EXECUTABLE_ANY);
+    this->ui->configurations_executable_select->setVisible(configurator.GetExecutableMode() == EXECUTABLE_ALL);
 
     this->ui->configurations_layers_mode->blockSignals(true);
     this->ui->configurations_layers_mode->setCurrentIndex(configurator.GetActiveLayersMode());
@@ -153,27 +154,30 @@ void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
     const std::vector<Executable> &executables = configurator.executables.GetExecutables();
 
     if (executables.empty()) {
-        ui->configurations_executable_list->setVisible(false);
-        ui->configurations_executable_append->setVisible(false);
+        this->ui->configurations_executable_list->setVisible(false);
+        this->ui->configurations_executable_append->setVisible(false);
     } else {
-        ui->configurations_executable_list->setVisible(configurator.GetExecutableMode() == EXECUTABLE_MODE_PER);
-        ui->configurations_executable_append->setVisible(configurator.GetExecutableMode() == EXECUTABLE_MODE_PER);
+        this->ui->configurations_executable_list->setVisible(configurator.GetExecutableMode() != EXECUTABLE_ANY);
+        this->ui->configurations_executable_append->setVisible(configurator.GetExecutableMode() != EXECUTABLE_ANY);
+        this->ui->configurations_executable_select->setVisible(configurator.GetExecutableMode() == EXECUTABLE_ALL);
 
-        ui->configurations_executable_list->blockSignals(true);
+        this->ui->configurations_executable_list->blockSignals(true);
 
         if (ui_update_mode == UPDATE_REBUILD_UI) {
-            ui->configurations_executable_list->clear();
+            this->ui->configurations_executable_list->clear();
             for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
                 const Executable &executable = executables[i];
 
-                ui->configurations_executable_list->addItem(executable.path.RelativePath().c_str());
+                this->ui->configurations_executable_list->addItem(executable.path.RelativePath().c_str());
             }
         }
 
         const Executable *executable = configurator.executables.GetActiveExecutable();
-        ui->configurations_executable_list->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
-        ui->configurations_executable_list->setToolTip(executable->path.AbsolutePath().c_str());
-        ui->configurations_executable_list->blockSignals(false);
+        this->ui->configurations_executable_list->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
+        this->ui->configurations_executable_list->setToolTip(executable->path.AbsolutePath().c_str());
+        this->ui->configurations_executable_list->blockSignals(false);
+
+        this->ui->configurations_executable_select->setChecked(executable->overridden);
     }
 }
 

@@ -27,8 +27,16 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->diagnostic_executable_mode, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_diagnostics_executable_mode_currentIndexChanged(int)));
 
+    this->ui->diagnostic_executable_mode->blockSignals(true);
+    this->ui->diagnostic_executable_mode->clear();
+    for (int i = 0, n = EXECUTABLE_MODE_COUNT; i < n; ++i) {
+        ExecutableMode mode = static_cast<ExecutableMode>(i);
+        this->ui->diagnostic_executable_mode->addItem(::GetLabel(mode));
+    }
+
     Configurator &configurator = Configurator::Get();
     this->ui->diagnostic_executable_mode->setCurrentIndex(configurator.GetExecutableMode());
+    this->ui->diagnostic_executable_mode->blockSignals(false);
 }
 
 TabDiagnostics::~TabDiagnostics() {}

@@ -27,7 +27,7 @@ TEST(test_configurator, get) {
 
     EXPECT_EQ(configurator.has_crashed, false);
     EXPECT_FALSE(configurator.GetUseSystemTray());
-    EXPECT_EQ(configurator.GetExecutableMode(), EXECUTABLE_MODE_ALL);
+    EXPECT_EQ(configurator.GetExecutableMode(), EXECUTABLE_ANY);
     EXPECT_EQ(configurator.GetActiveLayersMode(), LAYERS_CONTROLLED_BY_CONFIGURATOR);
     EXPECT_EQ(configurator.GetLayersView(), LAYERS_VIEW_OVERRIDDEN_ONLY);
 }
