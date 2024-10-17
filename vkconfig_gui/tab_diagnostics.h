@@ -34,7 +34,7 @@ struct TabDiagnostics : public Tab {
     virtual bool EventFilter(QObject* target, QEvent* event) override;
 
    public Q_SLOTS:
-    void on_diagnostics_executable_mode_currentIndexChanged(int index);
+    void on_diagnostic_keep_running_toggled(bool checked);
 
    private:
 };

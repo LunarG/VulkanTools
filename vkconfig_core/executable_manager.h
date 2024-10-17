@@ -22,7 +22,6 @@
 
 #include "serialization.h"
 #include "path.h"
-#include "type_layers_mode.h"
 
 #include <string>
 #include <vector>
@@ -41,7 +40,6 @@ struct DefaultPath {
 
 struct ExecutableOptions {
     std::string label = "Default Options";
-    LayersMode layers_mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
     std::string configuration = "Validation";
     Path working_folder;
     std::vector<std::string> args;
@@ -51,12 +49,14 @@ struct ExecutableOptions {
 
 struct Executable {
     Path path;
-    int active_option_index = 0;
+    bool enabled;
+    std::string active_option;
     std::vector<ExecutableOptions> options;
 
-    ExecutableOptions* GetActiveOptions() { return &this->options[active_option_index]; }
+    ExecutableOptions* GetActiveOptions();
+    const ExecutableOptions* GetActiveOptions() const;
 
-    const ExecutableOptions* GetActiveOptions() const { return &this->options[active_option_index]; }
+    int GetActiveOptionsIndex() const;
 };
 
 class ExecutableManager : public Serialize {

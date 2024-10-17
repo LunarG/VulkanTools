@@ -142,22 +142,3 @@ bool HasMissingLayer(const std::vector<Parameter>& parameters, const LayerManage
     }
     return false;
 }
-
-std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters) {
-    std::size_t count = 0;
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Parameter& parameter = parameters[i];
-        if (!IsPlatformSupported(parameter.platform_flags)) {
-            continue;
-        }
-
-        if (parameter.control != LAYER_CONTROL_ON) {
-            continue;
-        }
-
-        ++count;
-    }
-
-    return count;
-}
