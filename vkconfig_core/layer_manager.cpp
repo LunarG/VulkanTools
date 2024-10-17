@@ -103,7 +103,7 @@ std::vector<LayersPathInfo> GetExplicitLayerPaths() {
 
 static LayersPathInfo *FindPathInfo(std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> &paths, const std::string &path) {
     for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
-        for (int i = 0, n = paths[paths_type_index].size(); i < n; ++i) {
+        for (std::size_t i = 0, n = paths[paths_type_index].size(); i < n; ++i) {
             if (paths[paths_type_index][i].path == path) {
                 return &paths[paths_type_index][i];
             }

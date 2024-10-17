@@ -342,6 +342,20 @@ Parameter* Configuration::Find(const std::string& layer_key) {
     return nullptr;
 }
 
+const Parameter* Configuration::Find(const std::string& layer_key) const {
+    for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
+        if (this->parameters[i].key == layer_key) {
+            return &this->parameters[i];
+        }
+    }
+
+    return nullptr;
+}
+
+Parameter* Configuration::GetActiveParameter() { return this->Find(this->selected_layer_name); }
+
+const Parameter* Configuration::GetActiveParameter() const { return this->Find(this->selected_layer_name); }
+
 void Configuration::Reset(const LayerManager& layers) {
     // Case 1: reset using built-in configuration files
     const std::vector<Path>& builtin_configuration_files = CollectFilePaths(":/configurations/");
@@ -382,20 +396,6 @@ void Configuration::Reset(const LayerManager& layers) {
 
         OrderParameter(this->parameters, layers);
     }
-}
-
-bool Configuration::HasOverride() const {
-    for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
-        if (!IsPlatformSupported(this->parameters[i].platform_flags)) {
-            continue;
-        }
-
-        if (this->parameters[i].control != LAYER_CONTROL_AUTO) {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Version& version) {

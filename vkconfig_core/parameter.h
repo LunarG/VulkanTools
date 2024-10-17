@@ -51,11 +51,10 @@ struct Parameter {
     int overridden_rank = NO_RANK;
     Version api_version = Version::LATEST;
     QByteArray setting_tree_state;  // Recall editor tree state
+    bool override_settings = true;
 };
 
 ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& parameter);
 void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& layers);
 
 bool HasMissingLayer(const std::vector<Parameter>& parameters, const LayerManager& layers, std::string& missing_layer);
-
-std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters);

@@ -61,3 +61,7 @@ LayerControl GetLayerControl(const char* token) {
 
     return LAYER_CONTROL_AUTO;
 }
+
+bool IsVisibleLayer(LayerControl control) {
+    return control >= LAYER_CONTROL_EXPLICIT_FIRST && control <= LAYER_CONTROL_EXPLICIT_LAST;
+}

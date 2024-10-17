@@ -75,11 +75,14 @@ struct TabConfigurations : public Tab {
     void UpdateUI_Settings(UpdateUIMode ui_update_mode);
 
    public Q_SLOTS:
+    void on_configurations_executable_scope_currentIndexChanged(int index);
     void on_configurations_executable_list_currentIndexChanged(int index);
-    void on_configurations_layers_mode_currentIndexChanged(int index);
-    void on_configurations_layers_view_currentIndexChanged(int index);
-
     void on_configurations_executable_append_pressed();
+
+    void on_configurations_list_toggled(bool checked);
+    void on_configurations_layers_ordering_toggled(bool checked);
+    void on_configurations_loader_messages_toggled(bool checked);
+    void on_configurations_layers_settings_toggled(bool checked);
 
     void on_configuration_loader_errors_checkBox_toggled(bool checked);
     void on_configuration_loader_warns_checkBox_toggled(bool checked);
@@ -104,4 +107,8 @@ struct TabConfigurations : public Tab {
     void OnContextMenuReloadClicked(ConfigurationListItem *item);
     void OnContextMenuExportConfigsClicked(ConfigurationListItem *item);
     void OnContextMenuExportSettingsClicked(ConfigurationListItem *item);
+
+   private:
+    void ui_configurations_group_box_list_tooltip();
+    void ui_configurations_group_box_settings_tooltip();
 };
