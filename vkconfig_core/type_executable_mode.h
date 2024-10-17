@@ -20,16 +20,20 @@
 
 #pragma once
 
-enum ExecutableMode {  // Enum value can't be changed
-    EXECUTABLE_MODE_ALL = 0,
-    EXECUTABLE_MODE_PER,
+enum ExecutableScope {  // Enum value can't be changed
+    EXECUTABLE_ANY = 0,
+    EXECUTABLE_ALL,
+    EXECUTABLE_PER,
+    EXECUTABLE_NONE,
 
-    EXECUTABLE_MODE_FIRST = EXECUTABLE_MODE_ALL,
-    EXECUTABLE_MODE_LAST = EXECUTABLE_MODE_PER
+    EXECUTABLE_SCOPE_FIRST = EXECUTABLE_ANY,
+    EXECUTABLE_SCOPE_LAST = EXECUTABLE_NONE
 };
 
-enum { EXECUTABLE_MODE_COUNT = EXECUTABLE_MODE_LAST - EXECUTABLE_MODE_FIRST + 1 };
+enum { EXECUTABLE_SCOPE_COUNT = EXECUTABLE_SCOPE_LAST - EXECUTABLE_SCOPE_FIRST + 1 };
 
-const char* GetToken(ExecutableMode mode);
+const char* GetLabel(ExecutableScope scope);
+const char* GetTooltip(ExecutableScope scope);
+const char* GetToken(ExecutableScope scope);
 
-ExecutableMode GetExecutableMode(const char* token);
+ExecutableScope GetExecutableScope(const char* token);

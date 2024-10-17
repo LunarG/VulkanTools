@@ -44,3 +44,5 @@ const char* GetToken(LayerControl control);
 const char* GetDescription(LayerControl control);
 
 LayerControl GetLayerControl(const char* token);
+
+bool IsVisibleLayer(LayerControl control);

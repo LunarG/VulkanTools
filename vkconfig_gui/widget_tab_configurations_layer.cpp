@@ -25,7 +25,7 @@
 #include "../vkconfig_core/configurator.h"
 
 ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter,
-                                                   const std::vector<Version> &layer_versions, LayersView view)
+                                                   const std::vector<Version> &layer_versions)
     : tab(tab), layer_name(parameter.key) {
     // const bool is_implicit_layer = layers.empty() ? false : layers[0]->type == LAYER_TYPE_IMPLICIT;
 
@@ -36,9 +36,12 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         this->setEnabled(layer != nullptr);
 
         this->layer_version = new QComboBox(this);
-        this->layer_version->setVisible(view == LAYERS_VIEW_ALL_AVAILABLE);
         this->layer_version->setEnabled(layer != nullptr);
-        this->layer_version->addItem("Latest");
+        if (layer != nullptr) {
+            this->layer_version->addItem("Latest");
+        } else {
+            this->layer_version->addItem("Missing");
+        }
 
         const Layer *layer_latest = configurator.layers.Find(parameter.key, Version::LATEST);
         if (layer_latest != nullptr) {
@@ -96,16 +99,14 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         if (parameter.control == LAYER_CONTROL_OFF) {
             return;
         }
-
-        if (parameter.control != LAYER_CONTROL_APPLICATIONS_API && parameter.control != LAYER_CONTROL_APPLICATIONS_ENV) {
-            decorated_name += " (Missing)";
-        }
     } else {
         assert(layer != nullptr);
 
-        if (view == LAYERS_VIEW_OVERRIDDEN_ONLY && parameter.api_version != Version::LATEST) {
+        /*
+        if (parameter.api_version != Version::LATEST) {
             decorated_name += format(" - %s", parameter.api_version.str().c_str());
         }
+        */
 
         if (layer->status != STATUS_STABLE) {
             decorated_name += format(" (%s)", GetToken(layer->status));
