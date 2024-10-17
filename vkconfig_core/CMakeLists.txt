@@ -36,3 +36,4 @@ if(Qt5_FOUND)
         add_subdirectory(test)
     endif()
 endif()
+

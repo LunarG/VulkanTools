@@ -155,10 +155,11 @@ void MainWindow::UpdateUI_Status() {
     bool display_date = false;
 #endif
 
-    const LayersMode layers_mode = configurator.GetActiveLayersMode();
+    // const LayersMode layers_mode = configurator.GetActiveLayersMode();
 
     this->setWindowTitle(GetMainWindowTitle(has_active_configuration, display_date).c_str());
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        /*
         switch (layers_mode) {
             default:
             case LAYERS_CONTROLLED_BY_APPLICATIONS:
@@ -177,9 +178,10 @@ void MainWindow::UpdateUI_Status() {
                 this->_tray_layers_disabled_by_configurator->setChecked(true);
                 break;
         }
+        */
     }
 
-    if (has_active_configuration && layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
+    if (has_active_configuration) {  // && layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
         const QIcon icon(":/resourcefiles/vkconfig-on.png");
         this->setWindowIcon(icon);
         if (QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -229,7 +231,7 @@ void MainWindow::trayActionRestore() {
 void MainWindow::trayActionControlledByApplications(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-        configurator.SetActiveLayersMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
+        // configurator.SetActiveLayersMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI(UPDATE_REBUILD_UI);
@@ -239,7 +241,7 @@ void MainWindow::trayActionControlledByApplications(bool checked) {
 void MainWindow::trayActionControlledByConfigurator(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-        configurator.SetActiveLayersMode(LAYERS_CONTROLLED_BY_CONFIGURATOR);
+        // configurator.SetActiveLayersMode(LAYERS_CONTROLLED_BY_CONFIGURATOR);
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI(UPDATE_REBUILD_UI);
@@ -249,7 +251,7 @@ void MainWindow::trayActionControlledByConfigurator(bool checked) {
 void MainWindow::trayActionDisabledByApplications(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-        configurator.SetActiveLayersMode(LAYERS_DISABLED_BY_CONFIGURATOR);
+        // configurator.SetActiveLayersMode(LAYERS_DISABLED_BY_CONFIGURATOR);
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
         this->UpdateUI(UPDATE_REBUILD_UI);
@@ -272,7 +274,7 @@ void MainWindow::toolsResetToDefault(bool checked) {
 void MainWindow::StartTool(Tool tool) {
     Configurator &configurator = Configurator::Get();
 
-    if (configurator.GetExecutableMode() == EXECUTABLE_MODE_ALL) {
+    if (configurator.GetExecutableScope() == EXECUTABLE_ANY) {
         configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 
@@ -285,7 +287,7 @@ void MainWindow::StartTool(Tool tool) {
             break;
     }
 
-    if (configurator.GetExecutableMode() == EXECUTABLE_MODE_ALL) {
+    if (configurator.GetExecutableScope() == EXECUTABLE_ANY) {
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 }
@@ -343,7 +345,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         if (!(configurator.Get(HIDE_MESSAGE_USE_SYSTEM_TRAY))) {
             std::string shut_down_state;
 
-            if (configurator.GetActiveLayersMode() == LAYERS_CONTROLLED_BY_CONFIGURATOR) {
+            if (configurator.GetExecutableScope() != EXECUTABLE_NONE) {
                 shut_down_state =
                     "Vulkan Layers override will remain in effect while Vulkan Configurator remain active in the system tray.";
             } else {

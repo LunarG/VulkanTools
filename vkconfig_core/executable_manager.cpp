@@ -58,6 +58,52 @@ static const DefaultExecutable defaults_executables[] = {
     {"vkcube", "/vkcube", "--suppress_popups", "VkCube launcher options"},
     {"vkcubepp", "/vkcubepp", "--suppress_popups", "VkCubepp launcher options"}};
 
+ExecutableOptions* Executable::GetActiveOptions() {
+    assert(!this->options.empty());
+
+    if (this->active_option.empty()) {
+        return &this->options[0];
+    }
+
+    for (std::size_t i = 0, n = this->options.size(); i < n; ++i) {
+        if (this->options[i].label == this->active_option) {
+            return &this->options[i];
+        }
+    }
+    return nullptr;
+}
+
+const ExecutableOptions* Executable::GetActiveOptions() const {
+    assert(!this->options.empty());
+
+    if (this->active_option.empty()) {
+        return &this->options[0];
+    }
+
+    for (std::size_t i = 0, n = this->options.size(); i < n; ++i) {
+        if (this->options[i].label == this->active_option) {
+            return &this->options[i];
+        }
+    }
+    return nullptr;
+}
+
+int Executable::GetActiveOptionsIndex() const {
+    assert(!this->options.empty());
+
+    if (this->active_option.empty()) {
+        return 0;
+    }
+
+    for (std::size_t i = 0, n = this->options.size(); i < n; ++i) {
+        if (this->options[i].label == this->active_option) {
+            return static_cast<int>(i);
+        }
+    }
+
+    return 0;
+}
+
 void ExecutableManager::Reset() {
     this->data = this->CreateDefaultExecutables();
     this->active_executable = this->data[0].path;
@@ -117,7 +163,8 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object) {
 
         const QJsonObject& json_application_object = json_list_object.value(json_list_keys[i]).toObject();
         executable.path = json_list_keys[i].toStdString();
-        executable.active_option_index = json_application_object.value("active_option_index").toInt();
+        executable.enabled = json_application_object.value("enabled").toBool();
+        executable.active_option = json_application_object.value("active_option").toString().toStdString();
 
         const QJsonArray& json_options_array = json_application_object.value("options").toArray();
         for (int j = 0, o = json_options_array.size(); j < o; ++j) {
@@ -126,8 +173,6 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object) {
             ExecutableOptions executable_options;
 
             executable_options.label = json_options_object.value("label").toString().toStdString();
-            executable_options.layers_mode =
-                GetLayersMode(json_options_object.value("layers_mode").toString().toStdString().c_str());
             executable_options.configuration = json_options_object.value("configuration").toString().toStdString();
             executable_options.working_folder = json_options_object.value("working_folder").toString().toStdString();
 
@@ -166,7 +211,8 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
         const Executable& executable = this->data[i];
 
         QJsonObject json_executable_object;
-        json_executable_object.insert("active_option", executable.active_option_index);
+        json_executable_object.insert("enabled", executable.enabled);
+        json_executable_object.insert("active_option", executable.active_option.c_str());
 
         QJsonArray json_options_array;
         for (std::size_t j = 0, o = executable.options.size(); j < o; ++j) {
@@ -184,7 +230,6 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
 
             QJsonObject json_option_object;
             json_option_object.insert("label", options.label.c_str());
-            json_option_object.insert("layers_mode", GetToken(options.layers_mode));
             json_option_object.insert("configuration", options.configuration.c_str());
             json_option_object.insert("working_folder", options.working_folder.RelativePath().c_str());
             json_option_object.insert("arguments", json_arg_array);
@@ -240,7 +285,7 @@ bool ExecutableManager::AppendExecutable(const Path& executable_path) {
     Executable executable;
     executable.path = executable_path;
     executable.options.push_back(options);
-    executable.active_option_index = 0;
+    executable.active_option.clear();
 
     this->data.push_back(executable);
     return true;
@@ -439,7 +484,7 @@ Executable ExecutableManager::CreateDefaultExecutable(const DefaultExecutable& d
     Executable executable;
     executable.path = Path(default_paths.executable_path.AbsolutePath(), true);
     executable.options.push_back(options);
-    executable.active_option_index = 0;
+    executable.active_option.clear();
     return executable;
 }
 
