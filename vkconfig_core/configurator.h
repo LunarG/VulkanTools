@@ -121,7 +121,7 @@ class Configurator : public Serialize {
     Path home_sdk_path;
     int hide_message_boxes_flags = 0;
     bool use_system_tray = false;
-    ExecutableMode executable_mode = EXECUTABLE_MODE_ALL;
+    ExecutableMode executable_mode = EXECUTABLE_ANY;
     std::string selected_global_configuration = "Validation";
     LayersMode selected_global_layers_mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
     LayersView selected_layers_view = LAYERS_VIEW_OVERRIDDEN_ONLY;

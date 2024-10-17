@@ -21,11 +21,12 @@
 #pragma once
 
 enum ExecutableMode {  // Enum value can't be changed
-    EXECUTABLE_MODE_ALL = 0,
-    EXECUTABLE_MODE_PER,
+    EXECUTABLE_ANY = 0,
+    EXECUTABLE_ALL,
+    EXECUTABLE_PER,
 
-    EXECUTABLE_MODE_FIRST = EXECUTABLE_MODE_ALL,
-    EXECUTABLE_MODE_LAST = EXECUTABLE_MODE_PER
+    EXECUTABLE_MODE_FIRST = EXECUTABLE_ANY,
+    EXECUTABLE_MODE_LAST = EXECUTABLE_PER
 };
 
 enum { EXECUTABLE_MODE_COUNT = EXECUTABLE_MODE_LAST - EXECUTABLE_MODE_FIRST + 1 };
@@ -33,3 +34,7 @@ enum { EXECUTABLE_MODE_COUNT = EXECUTABLE_MODE_LAST - EXECUTABLE_MODE_FIRST + 1 
 const char* GetToken(ExecutableMode mode);
 
 ExecutableMode GetExecutableMode(const char* token);
+
+const char* GetLabel(ExecutableMode mode);
+
+ExecutableMode GetExecutableModeFromLabel(const char* label);

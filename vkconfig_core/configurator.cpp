@@ -211,12 +211,18 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
     if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
         std::vector<LoaderSettings> loader_settings_array;
 
-        if (this->executable_mode == EXECUTABLE_MODE_PER) {
+        std::string configuration = this->selected_global_configuration;
+        LayersMode layers_mode = this->selected_global_layers_mode;
+
+        if (this->executable_mode != EXECUTABLE_ANY) {
             const std::vector<Executable>& collection = this->executables.GetExecutables();
             for (std::size_t i = 0, n = collection.size(); i < n; ++i) {
-                this->BuildLoaderSettings(collection[i].GetActiveOptions()->configuration,
-                                          collection[i].GetActiveOptions()->layers_mode, collection[i].path.AbsolutePath(),
-                                          loader_settings_array);
+                if (this->executable_mode == EXECUTABLE_PER) {
+                    configuration = collection[i].GetActiveOptions()->configuration;
+                    layers_mode = collection[i].GetActiveOptions()->layers_mode;
+                }
+
+                this->BuildLoaderSettings(configuration, layers_mode, collection[i].path.AbsolutePath(), loader_settings_array);
             }
         } else {
             this->BuildLoaderSettings(this->selected_global_configuration, this->selected_global_layers_mode, "",
@@ -256,13 +262,19 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
     if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
         std::vector<LayersSettings> layers_settings_array;
 
-        if (this->executable_mode == EXECUTABLE_MODE_PER) {
+        if (this->executable_mode != EXECUTABLE_ANY) {
             const std::vector<Executable>& executables = this->executables.GetExecutables();
 
+            std::string configuration_name = this->selected_global_configuration;
+
             for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
+                if (this->executable_mode == EXECUTABLE_PER) {
+                    configuration_name = executables[i].GetActiveOptions()->configuration;
+                }
+
                 LayersSettings settings;
                 settings.executable_path = executables[i].path;
-                settings.configuration_name = executables[i].GetActiveOptions()->configuration;
+                settings.configuration_name = configuration_name;
                 settings.settings_path = executables[i].GetActiveOptions()->working_folder;
                 layers_settings_array.push_back(settings);
             }
@@ -462,7 +474,7 @@ void Configurator::Reset(bool hard) {
 }
 
 void Configurator::SetActiveConfigurationName(const std::string& configuration_name) {
-    if (this->executable_mode == EXECUTABLE_MODE_PER) {
+    if (this->executable_mode == EXECUTABLE_PER) {
         Executable* executable = this->executables.GetActiveExecutable();
         executable->GetActiveOptions()->configuration = configuration_name;
     } else {
@@ -471,7 +483,7 @@ void Configurator::SetActiveConfigurationName(const std::string& configuration_n
 }
 
 std::string Configurator::GetActionConfigurationName() const {
-    if (this->executable_mode == EXECUTABLE_MODE_PER) {
+    if (this->executable_mode == EXECUTABLE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
         return executable->GetActiveOptions()->configuration;
     } else {
@@ -480,7 +492,7 @@ std::string Configurator::GetActionConfigurationName() const {
 }
 
 void Configurator::SetActiveLayersMode(LayersMode mode) {
-    if (this->executable_mode == EXECUTABLE_MODE_PER) {
+    if (this->executable_mode == EXECUTABLE_PER) {
         Executable* executable = this->executables.GetActiveExecutable();
         executable->GetActiveOptions()->layers_mode = mode;
     } else {
@@ -489,7 +501,7 @@ void Configurator::SetActiveLayersMode(LayersMode mode) {
 }
 
 LayersMode Configurator::GetActiveLayersMode() const {
-    if (this->executable_mode == EXECUTABLE_MODE_PER) {
+    if (this->executable_mode == EXECUTABLE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
         return executable->GetActiveOptions()->layers_mode;
     } else {
@@ -498,7 +510,7 @@ LayersMode Configurator::GetActiveLayersMode() const {
 }
 
 Configuration* Configurator::GetActiveConfiguration() {
-    if (this->executable_mode == EXECUTABLE_MODE_PER) {
+    if (this->executable_mode == EXECUTABLE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
         return this->configurations.FindConfiguration(executable->GetActiveOptions()->configuration);
     } else {
@@ -507,7 +519,7 @@ Configuration* Configurator::GetActiveConfiguration() {
 }
 
 const Configuration* Configurator::GetActiveConfiguration() const {
-    if (this->executable_mode == EXECUTABLE_MODE_PER) {
+    if (this->executable_mode == EXECUTABLE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
         return this->configurations.FindConfiguration(executable->GetActiveOptions()->configuration);
     } else {
@@ -516,7 +528,7 @@ const Configuration* Configurator::GetActiveConfiguration() const {
 }
 
 bool Configurator::HasActiveConfiguration() const {
-    if (this->executable_mode == EXECUTABLE_MODE_PER) {
+    if (this->executable_mode == EXECUTABLE_PER) {
         const std::vector<Executable>& data = this->executables.GetExecutables();
         for (std::size_t i = 0, n = data.size(); i < n; ++i) {
             if (data[i].GetActiveOptions()->layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
@@ -533,7 +545,7 @@ bool Configurator::HasActiveConfiguration() const {
 void Configurator::Reset() {
     this->has_crashed = false;
     this->use_system_tray = false;
-    this->executable_mode = EXECUTABLE_MODE_ALL;
+    this->executable_mode = EXECUTABLE_ANY;
     this->selected_global_configuration = "Validation";
     this->selected_global_layers_mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
     this->selected_layers_view = LAYERS_VIEW_OVERRIDDEN_ONLY;

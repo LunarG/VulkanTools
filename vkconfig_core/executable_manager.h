@@ -53,6 +53,7 @@ struct Executable {
     Path path;
     int active_option_index = 0;
     std::vector<ExecutableOptions> options;
+    bool overridden = true;
 
     ExecutableOptions* GetActiveOptions() { return &this->options[active_option_index]; }
 

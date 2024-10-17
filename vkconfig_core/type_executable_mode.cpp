@@ -24,21 +24,44 @@
 #include <cstring>
 
 const char* GetToken(ExecutableMode mode) {
-    static const char* TOKENS[]{
-        "All Executables",  // EXECUTABLE_MODE_ALL
-        "Per-Executable",   // EXECUTABLE_MODE_PER
+    static const char* TABLE[]{
+        "Any Executables",           // EXECUTABLE_ANY
+        "All-Selected Executables",  // EXECUTABLE_ALL
+        "Per-Selected Executable",   // EXECUTABLE_PER
     };
 
-    static_assert(std::size(TOKENS) == EXECUTABLE_MODE_COUNT,
-                  "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(TABLE) == EXECUTABLE_MODE_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
-    return TOKENS[mode - EXECUTABLE_MODE_FIRST];
+    return TABLE[mode - EXECUTABLE_MODE_FIRST];
 }
 
 ExecutableMode GetExecutableMode(const char* token) {
     for (int i = EXECUTABLE_MODE_FIRST, n = EXECUTABLE_MODE_LAST; i <= n; ++i) {
         const ExecutableMode mode = static_cast<ExecutableMode>(i);
         if (std::strcmp(::GetToken(mode), token) == 0) {
+            return mode;
+        }
+    }
+
+    return EXECUTABLE_MODE_FIRST;
+}
+
+const char* GetLabel(ExecutableMode mode) {
+    static const char* TABLE[]{
+        "Apply a layers configuration to any Vulkan Executables running",   // EXECUTABLE_ANY
+        "Apply a layers configuration to all selected Vulkan Executables",  // EXECUTABLE_ALL
+        "Apply a layers configuration per selected Vulkan Executable",      // EXECUTABLE_PER
+    };
+
+    static_assert(std::size(TABLE) == EXECUTABLE_MODE_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[mode - EXECUTABLE_MODE_FIRST];
+}
+
+ExecutableMode GetExecutableModeFromLabel(const char* token) {
+    for (int i = EXECUTABLE_MODE_FIRST, n = EXECUTABLE_MODE_LAST; i <= n; ++i) {
+        const ExecutableMode mode = static_cast<ExecutableMode>(i);
+        if (std::strcmp(::GetLabel(mode), token) == 0) {
             return mode;
         }
     }
