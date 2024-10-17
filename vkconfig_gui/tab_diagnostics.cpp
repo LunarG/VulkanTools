@@ -24,11 +24,12 @@
 #include "../vkconfig_core/configurator.h"
 
 TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
-    this->connect(this->ui->diagnostic_executable_mode, SIGNAL(currentIndexChanged(int)), this,
-                  SLOT(on_diagnostics_executable_mode_currentIndexChanged(int)));
+    this->connect(this->ui->diagnostic_keep_running, SIGNAL(toggled(bool)), this, SLOT(on_diagnostic_keep_running_toggled(bool)));
 
     Configurator &configurator = Configurator::Get();
-    this->ui->diagnostic_executable_mode->setCurrentIndex(configurator.GetExecutableMode());
+    this->ui->diagnostic_keep_running->blockSignals(false);
+    this->ui->diagnostic_keep_running->setChecked(configurator.GetUseSystemTray());
+    this->ui->diagnostic_keep_running->blockSignals(false);
 }
 
 TabDiagnostics::~TabDiagnostics() {}
@@ -39,12 +40,7 @@ void TabDiagnostics::CleanUI() {}
 
 bool TabDiagnostics::EventFilter(QObject *target, QEvent *event) { return false; }
 
-void TabDiagnostics::on_diagnostics_executable_mode_currentIndexChanged(int index) {
+void TabDiagnostics::on_diagnostic_keep_running_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
-
-    configurator.SetExecutableMode(static_cast<ExecutableMode>(index));
-    configurator.Override(OVERRIDE_AREA_ALL);
-
-    this->UpdateUI(UPDATE_REFRESH_UI);
-    this->window.UpdateUI_Status();
+    configurator.SetUseSystemTray(checked);
 }

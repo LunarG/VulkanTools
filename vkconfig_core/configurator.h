@@ -29,7 +29,6 @@
 #include "type_platform.h"
 #include "type_override_area.h"
 #include "type_hide_message.h"
-#include "type_layers_view.h"
 #include "type_tab.h"
 #include "type_executable_mode.h"
 #include "vulkan_info.h"
@@ -74,12 +73,17 @@ class Configurator : public Serialize {
 
     void SetActiveConfigurationName(const std::string& configuration_name);
     std::string GetActionConfigurationName() const;
-    void SetActiveLayersMode(LayersMode mode);
-    LayersMode GetActiveLayersMode() const;
 
     Configuration* GetActiveConfiguration();
     const Configuration* GetActiveConfiguration() const;
     bool HasActiveConfiguration() const;
+
+    Parameter* GetActiveParameter();
+    const Parameter* GetActiveParameter() const;
+    bool HasActiveParameter() const;
+
+    Executable* GetActiveExecutable();
+    const Executable* GetActiveExecutable() const;
 
     bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
     bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
@@ -87,14 +91,13 @@ class Configurator : public Serialize {
     void Set(HideMessageType type);
     bool Get(HideMessageType type) const;
 
-    ExecutableMode GetExecutableMode() const;
-    void SetExecutableMode(ExecutableMode mode);
+    ExecutableScope GetExecutableScope() const;
+    void SetExecutableScope(ExecutableScope scope);
 
     bool GetUseSystemTray() const;
     void SetUseSystemTray(bool enabled);
 
-    LayersView GetLayersView() const;
-    void SetLayersView(LayersView view);
+    bool HasActiveSettings() const;
 
     ~Configurator();
 
@@ -104,7 +107,7 @@ class Configurator : public Serialize {
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
-    void BuildLoaderSettings(const std::string& configuration_key, LayersMode mode, const std::string& executable_path,
+    void BuildLoaderSettings(const std::string& configuration_key, const std::string& executable_path,
                              std::vector<LoaderSettings>& loader_settings_array) const;
 
    public:
@@ -121,8 +124,6 @@ class Configurator : public Serialize {
     Path home_sdk_path;
     int hide_message_boxes_flags = 0;
     bool use_system_tray = false;
-    ExecutableMode executable_mode = EXECUTABLE_MODE_ALL;
+    ExecutableScope executable_scope = EXECUTABLE_ANY;
     std::string selected_global_configuration = "Validation";
-    LayersMode selected_global_layers_mode = LAYERS_CONTROLLED_BY_CONFIGURATOR;
-    LayersView selected_layers_view = LAYERS_VIEW_OVERRIDDEN_ONLY;
 };
