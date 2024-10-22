@@ -54,17 +54,17 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
                   SLOT(on_configurations_layers_settings_toggled(bool)));
 
     this->connect(this->ui->configuration_loader_errors, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_errors_checkBox_toggled(bool)));
+                  SLOT(on_configuration_loader_errors_toggled(bool)));
     this->connect(this->ui->configuration_loader_warns, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_warns_checkBox_toggled(bool)));
+                  SLOT(on_configuration_loader_warns_toggled(bool)));
     this->connect(this->ui->configuration_loader_infos, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_infos_checkBox_toggled(bool)));
+                  SLOT(on_configuration_loader_infos_toggled(bool)));
     this->connect(this->ui->configuration_loader_debug, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_debug_checkBox_toggled(bool)));
+                  SLOT(on_configuration_loader_debug_toggled(bool)));
     this->connect(this->ui->configuration_loader_layers, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_layers_checkBox_toggled(bool)));
+                  SLOT(on_configuration_loader_layers_toggled(bool)));
     this->connect(this->ui->configuration_loader_drivers, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_drivers_checkBox_toggled(bool)));
+                  SLOT(on_configuration_loader_drivers_toggled(bool)));
 
     this->connect(this->ui->configurations_list, SIGNAL(itemChanged(QListWidgetItem *)), this,
                   SLOT(on_configurations_list_itemChanged(QListWidgetItem *)));
@@ -74,9 +74,10 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
                   SLOT(on_configurations_layers_list_currentRowChanged(int)));
 
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-    this->ui->splitter_main->restoreState(settings.value("mainwindow/splitter_main_state").toByteArray());
-    this->ui->splitter_configurations->restoreState(settings.value("mainwindow/splitter_configurations_state").toByteArray());
-    this->ui->splitter_settings->restoreState(settings.value("mainwindow/splitter_settings_state").toByteArray());
+    this->ui->splitter_main->restoreState(settings.value("vkconfig3/mainwindow/splitter_main_state").toByteArray());
+    this->ui->splitter_configurations->restoreState(
+        settings.value("vkconfig3/mainwindow/splitter_configurations_state").toByteArray());
+    this->ui->splitter_settings->restoreState(settings.value("vkconfig3/mainwindow/splitter_settings_state").toByteArray());
 
     Configurator &configurator = Configurator::Get();
 
@@ -99,9 +100,9 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
 
 TabConfigurations::~TabConfigurations() {
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-    settings.setValue("mainwindow/splitter_main_state", ui->splitter_main->saveState());
-    settings.setValue("mainwindow/splitter_configurations_state", ui->splitter_configurations->saveState());
-    settings.setValue("mainwindow/splitter_settings_state", ui->splitter_settings->saveState());
+    settings.setValue("vkconfig3/mainwindow/splitter_main_state", ui->splitter_main->saveState());
+    settings.setValue("vkconfig3/mainwindow/splitter_configurations_state", ui->splitter_configurations->saveState());
+    settings.setValue("vkconfig3/mainwindow/splitter_settings_state", ui->splitter_settings->saveState());
 }
 
 void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
@@ -184,26 +185,24 @@ void TabConfigurations::UpdateUI_LoaderMessages() {
 
     const Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
-        /*
-        ui->configuration_loader_errors_checkBox->blockSignals(true);
-        ui->configuration_loader_errors_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_ERROR));
-        ui->configuration_loader_errors_checkBox->blockSignals(false);
-        ui->configuration_loader_warns_checkBox->blockSignals(true);
-        ui->configuration_loader_warns_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_WARN));
-        ui->configuration_loader_warns_checkBox->blockSignals(false);
-        ui->configuration_loader_infos_checkBox->blockSignals(true);
-        ui->configuration_loader_infos_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_INFO));
-        ui->configuration_loader_infos_checkBox->blockSignals(false);
-        ui->configuration_loader_debug_checkBox->blockSignals(true);
-        ui->configuration_loader_debug_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DEBUG));
-        ui->configuration_loader_debug_checkBox->blockSignals(false);
-        ui->configuration_loader_layers_checkBox->blockSignals(true);
-        ui->configuration_loader_layers_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_LAYER));
-        ui->configuration_loader_layers_checkBox->blockSignals(false);
-        ui->configuration_loader_drivers_checkBox->blockSignals(true);
-        ui->configuration_loader_drivers_checkBox->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DRIVER));
-        ui->configuration_loader_drivers_checkBox->blockSignals(false);
-        */
+        ui->configuration_loader_errors->blockSignals(true);
+        ui->configuration_loader_errors->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_ERROR));
+        ui->configuration_loader_errors->blockSignals(false);
+        ui->configuration_loader_warns->blockSignals(true);
+        ui->configuration_loader_warns->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_WARN));
+        ui->configuration_loader_warns->blockSignals(false);
+        ui->configuration_loader_infos->blockSignals(true);
+        ui->configuration_loader_infos->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_INFO));
+        ui->configuration_loader_infos->blockSignals(false);
+        ui->configuration_loader_debug->blockSignals(true);
+        ui->configuration_loader_debug->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DEBUG));
+        ui->configuration_loader_debug->blockSignals(false);
+        ui->configuration_loader_layers->blockSignals(true);
+        ui->configuration_loader_layers->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_LAYER));
+        ui->configuration_loader_layers->blockSignals(false);
+        ui->configuration_loader_drivers->blockSignals(true);
+        ui->configuration_loader_drivers->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DRIVER));
+        ui->configuration_loader_drivers->blockSignals(false);
     }
 }
 
@@ -553,15 +552,60 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
         return;
     }
 
-    const std::string &layer_string = static_cast<ConfigurationLayerWidget *>(widget)->text().toStdString();
+    const std::string &layer_string = static_cast<ConfigurationLayerWidget *>(widget)->layer_name;
 
     Configurator &configurator = Configurator::Get();
+
     Configuration *configuration = configurator.GetActiveConfiguration();
     assert(configuration != nullptr);
 
-    configuration->selected_layer_name = ExtractLayerName(configurator.layers, layer_string);
+    if (configuration->selected_layer_name != layer_string) {
+        if (layer_string == ::GetLabel(LAYER_CONTROL_APPLICATIONS_API)) {
+            if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_API)) {
+                QMessageBox message;
+                message.setIcon(QMessageBox::Information);
+                message.setWindowTitle(::GetLabel(LAYER_CONTROL_APPLICATIONS_API));
+                message.setText(
+                    "This item refers to Vulkan Layers not visible by Vulkan Configurator but at Vulkan Application launched, but "
+                    "enabled by the Vulkan Application at "
+                    "Vulkan Layers that are located using 'VK_ADD_LAYER_PATH' and enabled using 'vkCreateInstance'.");
+                message.setInformativeText(
+                    format("If the Vulkan application is enabling a layer already controlled by Vulkan Configurator, the Vulkan "
+                           "Application setup is ignored.\n\nTo force ignoring these Vulkan Layers, set '%s' to 'Off'.",
+                           ::GetLabel(LAYER_CONTROL_APPLICATIONS_API))
+                        .c_str());
+                message.setCheckBox(new QCheckBox("Do not show again."));
+                message.exec();
+                if (message.checkBox()->isChecked()) {
+                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_API);
+                }
+            }
+        } else if (layer_string == ::GetLabel(LAYER_CONTROL_APPLICATIONS_ENV)) {
+            if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_ENV)) {
+                QMessageBox message;
+                message.setIcon(QMessageBox::Information);
+                message.setWindowTitle(::GetLabel(LAYER_CONTROL_APPLICATIONS_ENV));
+                message.setText(
+                    "This item refers to Vulkan Layers not visible by Vulkan Configurator but at Vulkan Application launched, "
+                    "Vulkan Layers that are located using 'VK_ADD_LAYER_PATH' and enabled using 'VK_LOADER_LAYERS_ENABLE' "
+                    "Environment Variables.");
+                message.setInformativeText(format("If the Vulkan application is enabling a layer already controlled by Vulkan "
+                                                  "Configurator, the Vulkan Application "
+                                                  "setup is ignored.\n\nTo force ignoring these Vulkan Layers, set '%s' to 'Off'.",
+                                                  ::GetLabel(LAYER_CONTROL_APPLICATIONS_ENV))
+                                               .c_str());
+                message.setCheckBox(new QCheckBox("Do not show again."));
+                message.exec();
+                if (message.checkBox()->isChecked()) {
+                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_ENV);
+                }
+            }
+        }
 
-    this->_settings_tree_manager.CreateGUI(this->ui);
+        configuration->selected_layer_name = layer_string;
+
+        this->_settings_tree_manager.CreateGUI(this->ui);
+    }
 }
 
 void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
@@ -572,14 +616,12 @@ void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
     Configuration *active_configuration = configurator.GetActiveConfiguration();
     if (active_configuration != nullptr) {
         int loader_log_messages_bits = 0;
-        /*
-        loader_log_messages_bits |= this->ui->configuration_loader_errors_checkBox->isChecked() ? GetBit(LOG_ERROR) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_warns_checkBox->isChecked() ? GetBit(LOG_WARN) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_infos_checkBox->isChecked() ? GetBit(LOG_INFO) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_debug_checkBox->isChecked() ? GetBit(LOG_DEBUG) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_layers_checkBox->isChecked() ? GetBit(LOG_LAYER) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_drivers_checkBox->isChecked() ? GetBit(LOG_DRIVER) : 0;
-        */
+        loader_log_messages_bits |= this->ui->configuration_loader_errors->isChecked() ? GetBit(LOG_ERROR) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_warns->isChecked() ? GetBit(LOG_WARN) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_infos->isChecked() ? GetBit(LOG_INFO) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_debug->isChecked() ? GetBit(LOG_DEBUG) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_layers->isChecked() ? GetBit(LOG_LAYER) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_drivers->isChecked() ? GetBit(LOG_DRIVER) : 0;
         active_configuration->loader_log_messages_flags = loader_log_messages_bits;
     }
 }
@@ -929,32 +971,32 @@ void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) 
     this->ui_configurations_group_box_settings_tooltip();
 }
 
-void TabConfigurations::on_configuration_loader_errors_checkBox_toggled(bool checked) {
+void TabConfigurations::on_configuration_loader_errors_toggled(bool checked) {
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
     this->OnCheckedLoaderMessageTypes(checked);
 }
 
-void TabConfigurations::on_configuration_loader_warns_checkBox_toggled(bool checked) {
+void TabConfigurations::on_configuration_loader_warns_toggled(bool checked) {
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
     this->OnCheckedLoaderMessageTypes(checked);
 }
 
-void TabConfigurations::on_configuration_loader_infos_checkBox_toggled(bool checked) {
+void TabConfigurations::on_configuration_loader_infos_toggled(bool checked) {
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
     this->OnCheckedLoaderMessageTypes(checked);
 }
 
-void TabConfigurations::on_configuration_loader_debug_checkBox_toggled(bool checked) {
+void TabConfigurations::on_configuration_loader_debug_toggled(bool checked) {
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
     this->OnCheckedLoaderMessageTypes(checked);
 }
 
-void TabConfigurations::on_configuration_loader_layers_checkBox_toggled(bool checked) {
+void TabConfigurations::on_configuration_loader_layers_toggled(bool checked) {
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
     this->OnCheckedLoaderMessageTypes(checked);
 }
 
-void TabConfigurations::on_configuration_loader_drivers_checkBox_toggled(bool checked) {
+void TabConfigurations::on_configuration_loader_drivers_toggled(bool checked) {
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
     this->OnCheckedLoaderMessageTypes(checked);
 }

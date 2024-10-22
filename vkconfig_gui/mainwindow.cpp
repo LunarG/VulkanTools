@@ -89,8 +89,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetToDefault(bool)));
 
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-    this->restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
-    this->restoreState(settings.value("mainwindow/state").toByteArray());
+    this->restoreGeometry(settings.value("vkconfig3/mainwindow/geometry").toByteArray());
+    this->restoreState(settings.value("vkconfig3/mainwindow/state").toByteArray());
 
     const Configurator &configurator = Configurator::Get();
 
@@ -380,8 +380,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     this->tabs[this->ui->tab_widget->currentIndex()]->CleanUI();
 
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-    settings.setValue("mainwindow/geometry", this->saveGeometry());
-    settings.setValue("mainwindow/state", this->saveState());
+    settings.setValue("vkconfig3/mainwindow/geometry", this->saveGeometry());
+    settings.setValue("vkconfig3/mainwindow/state", this->saveState());
 
     QMainWindow::closeEvent(event);
 }

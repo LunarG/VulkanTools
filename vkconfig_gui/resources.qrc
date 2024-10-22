@@ -12,6 +12,9 @@
         <file>resourcefiles/system-off.png</file>
         <file>resourcefiles/system-on.png</file>
         <file>resourcefiles/system-invalid.png</file>
+        <file>resourcefiles/reload.png</file>
+        <file>resourcefiles/folder_append.png</file>
+        <file>resourcefiles/folder_remove.png</file>
         <file>CHANGELOG.md</file>
     </qresource>
 
