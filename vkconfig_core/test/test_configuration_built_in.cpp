@@ -32,8 +32,6 @@ static bool operator==(const Configuration& a, const Configuration& b) {
         return false;
     else if (a.platform_flags != b.platform_flags)
         return false;
-    else if (a.description != b.description)
-        return false;
     else if (a.parameters != b.parameters)
         return false;
     return true;
@@ -100,7 +98,6 @@ TEST(test_built_in_load, sdk_layers_with_configuration) {
         Configuration load_api_dump = test.Load("API dump");
         Configuration save_api_dump = test.Restore(load_api_dump);
         EXPECT_STREQ(save_api_dump.key.c_str(), load_api_dump.key.c_str());
-        EXPECT_STREQ(save_api_dump.description.c_str(), load_api_dump.description.c_str());
         EXPECT_EQ(save_api_dump.version, load_api_dump.version);
         EXPECT_EQ(save_api_dump.platform_flags, load_api_dump.platform_flags);
         EXPECT_EQ(save_api_dump.parameters.size(), load_api_dump.parameters.size());

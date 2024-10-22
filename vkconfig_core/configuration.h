@@ -47,6 +47,7 @@ class Configuration {
     Parameter* GetActiveParameter();
     const Parameter* GetActiveParameter() const;
 
+    bool HasMissingLayer(const LayerManager& layers, std::vector<std::string>& missing_layers) const;
     void SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Version& version);
     void GatherParameters(const LayerManager& layers);
     void Reorder(const std::vector<std::string>& layer_names);
@@ -54,7 +55,6 @@ class Configuration {
     std::string key = "New Configuration";  // User readable display of the configuration name (may contain spaces)
     int version = 1;
     int platform_flags = PLATFORM_DESKTOP_BIT;
-    std::string description;  // A friendly description of what this profile does
     bool override_layers = true;
     bool override_loader = true;
     bool view_advanced_settings = false;

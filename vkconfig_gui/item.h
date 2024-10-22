@@ -15,33 +15,20 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
 
-#include <QComboBox>
-#include <QTreeWidgetItem>
+#include <QListWidgetItem>
 
-class WidgetTreeFriendlyComboBox : public QComboBox {
-    Q_OBJECT
+class ListItem : public QListWidgetItem {
    public:
-    WidgetTreeFriendlyComboBox(QTreeWidgetItem *item);
+    ListItem(const char *key) : key(key) { assert(key != nullptr); }
 
-    void wheelEvent(QWheelEvent *e) {
-        if (hasFocus()) QComboBox::wheelEvent(e);
-    }
-
-   public Q_SLOTS:
-    void indexChanged(int nIndex);
-
-   Q_SIGNALS:
-    void selectionMade(QTreeWidgetItem *tree_item, int index);
+    std::string key;
 
    private:
-    WidgetTreeFriendlyComboBox(const WidgetTreeFriendlyComboBox &) = delete;
-    WidgetTreeFriendlyComboBox &operator=(const WidgetTreeFriendlyComboBox &) = delete;
-
-    QTreeWidgetItem *item;
+    ListItem(const ListItem &) = delete;
+    ListItem &operator=(const ListItem &) = delete;
 };
