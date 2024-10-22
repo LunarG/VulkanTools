@@ -22,6 +22,4 @@
 
 #include "layer_manager.h"
 
-std::string ExtractLayerName(const LayerManager& layer_manager, const std::string& layer_string);
-
 std::string GetMainWindowTitle(bool active, bool display_date);
