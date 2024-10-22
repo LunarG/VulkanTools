@@ -23,6 +23,21 @@
 #include <array>
 #include <cstring>
 
+const char* GetLabel(TabType type) {
+    static const char* TOKENS[]{
+        "Vulkan Loader Management",  // TAB_CONFIGURATIONS
+        "Vulkan Layers Location",    // TAB_LAYERS
+        "Application Launcher",      // TAB_APPLICATIONS
+        "System Diagnostic",         // TAB_DIAGNOSTIC
+        "Documentation",             // TAB_DOCUMENTATION
+        "About"                      // TAB_ABOUT
+    };
+
+    static_assert(std::size(TOKENS) == TAB_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TOKENS[type - TAB_FIRST];
+}
+
 const char* GetToken(TabType type) {
     static const char* TOKENS[]{
         "CONFIGURATIONS",  // TAB_CONFIGURATIONS

@@ -113,41 +113,44 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
 
     ui->configurations_list->blockSignals(true);
 
-    if (ui_update_mode == UPDATE_REBUILD_UI) {
-        ui->configurations_list->clear();
+    ui->configurations_list->clear();
 
-        for (std::size_t i = 0, n = configurator.configurations.available_configurations.size(); i < n; ++i) {
-            const Configuration &configuration = configurator.configurations.available_configurations[i];
+    int current_row = -1;
 
-            // Hide built-in configuration when the layer is missing. The Vulkan user may have not installed the necessary layer
-            // if (configuration.IsBuiltIn() && HasMissingLayer(configuration.parameters, configurator.layers.available_layers))
-            // continue;
+    for (std::size_t i = 0, n = configurator.configurations.available_configurations.size(); i < n; ++i) {
+        const Configuration &configuration = configurator.configurations.available_configurations[i];
 
-            ConfigurationListItem *item = new ConfigurationListItem(configuration.key.c_str());
-            item->setFlags(item->flags() | Qt::ItemIsEditable);
-            item->setText(configuration.key.c_str());
-            item->setToolTip(configuration.description.c_str());
-            ui->configurations_list->addItem(item);
+        std::vector<std::string> missing_layers;
+        const bool has_missing_layer = configuration.HasMissingLayer(configurator.layers, missing_layers);
+
+        // Hide built-in configuration when the layer is missing. The Vulkan user may have not installed the necessary layer
+        if (configuration.IsBuiltIn() && has_missing_layer) {
+            continue;
         }
+
+        ListItem *item = new ListItem(configuration.key.c_str());
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
+        item->setText(configuration.key.c_str());
+        if (configurator.GetActionConfigurationName() == configuration.key) {
+            item->setIcon(QIcon(":/resourcefiles/system-on.png"));
+            item->setToolTip(format("Using the %s configuration with Vulkan executables", configuration.key.c_str()).c_str());
+            ui->configurations_group_box_layers->setChecked(configuration.override_layers);
+            ui->configurations_group_box_loader->setChecked(configuration.override_loader);
+            current_row = static_cast<int>(i);
+        } else if (has_missing_layer) {
+            item->setIcon(QIcon(":/resourcefiles/system-invalid.png"));
+            item->setToolTip(
+                format("The %s configuration has missing layers. These layers are ignored.", configuration.key.c_str()).c_str());
+        } else {
+            item->setIcon(QIcon(":/resourcefiles/system-off.png"));
+            item->setToolTip(
+                format("Select the %s configuration to use it with Vulkan executables", configuration.key.c_str()).c_str());
+        }
+        ui->configurations_list->addItem(item);
     }
 
-    for (int i = 0, n = ui->configurations_list->count(); i < n; ++i) {
-        ConfigurationListItem *item = dynamic_cast<ConfigurationListItem *>(ui->configurations_list->item(i));
-        assert(item);
-        assert(!item->configuration_name.empty());
-
-        if (item->configuration_name == configurator.GetActionConfigurationName()) {
-            ui->configurations_list->setCurrentItem(item);
-
-            Configuration *configuration = configurator.configurations.FindConfiguration(item->configuration_name);
-            assert(configuration != nullptr);
-
-            ui->configurations_group_box_layers->setChecked(configuration->override_layers);
-            ui->configurations_group_box_loader->setChecked(configuration->override_loader);
-            item->setIcon(QIcon(":/resourcefiles/config-on.png"));
-        } else {
-            item->setIcon(QIcon(":/resourcefiles/config-off.png"));
-        }
+    if (current_row != -1) {
+        ui->configurations_list->setCurrentRow(current_row);
     }
 
     ui->configurations_list->blockSignals(false);
@@ -218,30 +221,22 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
             for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
                 Parameter &parameter = configuration->parameters[i];
 
-                /*
-                                if (configurator.GetLayersView() == LAYERS_VIEW_OVERRIDDEN_ONLY) {
-                                    if (parameter.control == LAYER_CONTROL_AUTO) {
-                                        continue;
-                                    }
-                                }
-                */
-
-                ListWidgetItemParameter *item_state = new ListWidgetItemParameter(parameter.key.c_str());
-                item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
-                ui->configurations_layers_list->addItem(item_state);
+                ListItem *item = new ListItem(parameter.key.c_str());
+                item->setFlags(item->flags() | Qt::ItemIsSelectable);
+                item->setIcon(QIcon(":/resourcefiles/drag.png"));
+                ui->configurations_layers_list->addItem(item);
 
                 const std::vector<Version> &layer_versions = configurator.layers.GatherVersions(parameter.key);
 
                 ConfigurationLayerWidget *layer_widget = new ConfigurationLayerWidget(this, parameter, layer_versions);
-                item_state->widget = layer_widget;
 
                 if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
-                    item_state->widget->setToolTip(GetDescription(parameter.control));
+                    layer_widget->setToolTip(GetDescription(parameter.control));
                 }
 
-                ui->configurations_layers_list->setItemWidget(item_state, layer_widget);
+                ui->configurations_layers_list->setItemWidget(item, layer_widget);
                 if (configuration->selected_layer_name == parameter.key) {
-                    ui->configurations_layers_list->setCurrentItem(item_state);
+                    ui->configurations_layers_list->setCurrentItem(item);
                 }
             }
             // resizeEvent(nullptr);
@@ -277,24 +272,6 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
 
 void TabConfigurations::CleanUI() { this->_settings_tree_manager.CleanupGUI(); }
 
-static const Layer *GetLayer(QListWidget *tree, QListWidgetItem *item) {
-    if (item == nullptr) {
-        return nullptr;
-    }
-
-    ListWidgetItemParameter *item_parameter = static_cast<ListWidgetItemParameter *>(item);
-
-    const std::string &layer_string = item_parameter->layer_name;
-    if (!layer_string.empty()) {
-        Configurator &configurator = Configurator::Get();
-
-        const std::string &layer_key = ExtractLayerName(configurator.layers, layer_string);
-        return configurator.layers.Find(layer_key, Version::LATEST);
-    }
-
-    return nullptr;
-}
-
 bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
     QEvent::Type event_type = event->type();
 
@@ -328,12 +305,12 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
     } else if (target == ui->configurations_list) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
         if (right_click) {
-            ConfigurationListItem *item = static_cast<ConfigurationListItem *>(ui->configurations_list->itemAt(right_click->pos()));
+            ListItem *item = static_cast<ListItem *>(ui->configurations_list->itemAt(right_click->pos()));
 
             std::string name;
 
             if (item != nullptr) {
-                name = item->configuration_name;
+                name = item->key;
             }
 
             QMenu menu(ui->configurations_list);
@@ -410,9 +387,9 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
     } else if (target == ui->configurations_layers_list) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
         if (right_click) {
-            QListWidgetItem *item = ui->configurations_layers_list->itemAt(right_click->pos());
+            ListItem *item = static_cast<ListItem *>(ui->configurations_layers_list->itemAt(right_click->pos()));
 
-            const Layer *layer = GetLayer(ui->configurations_layers_list, item);
+            const Layer *layer = configurator.layers.Find(item->key, Version::LATEST);
 
             QMenu menu(ui->configurations_layers_list);
 
@@ -462,16 +439,41 @@ void TabConfigurations::OnSelectConfiguration(int currentRow) {
         return;  // No row selected
     }
 
-    QListWidgetItem *item = ui->configurations_list->item(currentRow);
-    ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
+    QListWidgetItem *list_item = ui->configurations_list->item(currentRow);
+    ListItem *item = dynamic_cast<ListItem *>(list_item);
 
-    if (configuration_item == nullptr) {
+    if (item == nullptr) {
         return;
     }
 
     Configurator &configurator = Configurator::Get();
-    if (configurator.GetActionConfigurationName() != configuration_item->configuration_name) {
-        configurator.SetActiveConfigurationName(configuration_item->configuration_name);
+    if (configurator.GetActionConfigurationName() != item->key) {
+        configurator.SetActiveConfigurationName(item->key);
+
+        if (!configurator.Get(HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE)) {
+            std::vector<std::string> missing_layers;
+
+            const Configuration *configuration = configurator.GetActiveConfiguration();
+            if (configuration->HasMissingLayer(configurator.layers, missing_layers)) {
+                std::string text = format("The selected '%s' configuration is missing the layers:\n", configuration->key.c_str());
+                for (std::size_t i = 0, n = missing_layers.size(); i < n; ++i) {
+                    text += format(" - %s\n", missing_layers[i].c_str());
+                }
+                text += "These layers will be ignored.";
+
+                QMessageBox alert;
+                alert.setWindowTitle("Missing Vulkan layers...");
+                alert.setText(text.c_str());
+                alert.setIcon(QMessageBox::Warning);
+                alert.setCheckBox(new QCheckBox("Do not show again."));
+                alert.setInformativeText(format("Use the '%s' tab to add the missing layers.", GetLabel(TAB_LAYERS)).c_str());
+
+                int ret_val = alert.exec();
+                if (alert.checkBox()->isChecked()) {
+                    configurator.Set(HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE);
+                }
+            }
+        }
 
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
@@ -482,9 +484,9 @@ void TabConfigurations::OnSelectConfiguration(int currentRow) {
     }
 }
 
-void TabConfigurations::OnRenameConfiguration(QListWidgetItem *item) {
-    ConfigurationListItem *configuration_item = dynamic_cast<ConfigurationListItem *>(item);
-    if (configuration_item == nullptr) {
+void TabConfigurations::OnRenameConfiguration(QListWidgetItem *list_item) {
+    ListItem *item = dynamic_cast<ListItem *>(list_item);
+    if (item == nullptr) {
         return;
     }
 
@@ -496,7 +498,7 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *item) {
     //    ConvertNativeSeparators(GetPath(BUILTIN_PATH_CONFIG_LAST) + "/" + configuration_item->configuration_name + ".json");
 
     // This is the new name we want to use for the configuration
-    const std::string &new_name = configuration_item->text().toStdString();
+    const std::string &new_name = item->text().toStdString();
     bool valid_new_name = true;
 
     if (new_name.empty()) {
@@ -515,13 +517,13 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *item) {
     }
 
     // Find existing configuration using it's old name
-    const std::string &old_name = configuration_item->configuration_name;
+    const std::string &old_name = item->key;
     Configuration *configuration = configurator.configurations.FindConfiguration(old_name);
 
     if (valid_new_name) {
         // Rename configuration ; Remove old configuration file ; change the name of the configuration
         configurator.configurations.RemoveConfigurationFile(old_name);
-        configuration->key = configuration_item->configuration_name = new_name;
+        configuration->key = item->key = new_name;
         configurator.SetActiveConfigurationName(new_name);
 
         this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
@@ -582,7 +584,7 @@ void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
     }
 }
 
-void TabConfigurations::OnContextMenuNewClicked(ConfigurationListItem *item) {
+void TabConfigurations::OnContextMenuNewClicked(ListItem *item) {
     (void)item;  // We don't need this
 
     Configurator &configurator = Configurator::Get();
@@ -596,7 +598,7 @@ void TabConfigurations::OnContextMenuNewClicked(ConfigurationListItem *item) {
     this->UpdateUI_Settings(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuImportClicked(ConfigurationListItem *item) {
+void TabConfigurations::OnContextMenuImportClicked(ListItem *item) {
     (void)item;  // We don't need this
 
     Configurator &configurator = Configurator::Get();
@@ -627,35 +629,35 @@ void TabConfigurations::OnContextMenuImportClicked(ConfigurationListItem *item) 
     }
 }
 
-void TabConfigurations::OnContextMenuRenameClicked(ConfigurationListItem *item) {
+void TabConfigurations::OnContextMenuRenameClicked(ListItem *item) {
     assert(item);
 
     ui->configurations_list->editItem(item);
 }
 
-void TabConfigurations::OnContextMenuDuplicateClicked(ConfigurationListItem *item) {
+void TabConfigurations::OnContextMenuDuplicateClicked(ListItem *item) {
     assert(item);
-    assert(!item->configuration_name.empty());
+    assert(!item->key.empty());
 
     Configurator &configurator = Configurator::Get();
     const Configuration &duplicated_configuration =
-        configurator.configurations.DuplicateConfiguration(configurator.layers, item->configuration_name);
+        configurator.configurations.DuplicateConfiguration(configurator.layers, item->key);
 
-    item->configuration_name = duplicated_configuration.key;
+    item->key = duplicated_configuration.key;
 
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuDeleteClicked(ConfigurationListItem *item) {
+void TabConfigurations::OnContextMenuDeleteClicked(ListItem *item) {
     assert(item);
-    assert(!item->configuration_name.empty());
+    assert(!item->key.empty());
 
     // Let make sure...
     QMessageBox alert;
-    alert.setWindowTitle(format("Removing *%s* configuration...", item->configuration_name.c_str()).c_str());
-    alert.setText(format("Are you sure you want to remove the *%s* configuration?", item->configuration_name.c_str()).c_str());
+    alert.setWindowTitle(format("Removing *%s* configuration...", item->key.c_str()).c_str());
+    alert.setText(format("Are you sure you want to remove the *%s* configuration?", item->key.c_str()).c_str());
     alert.setInformativeText("All the data from this configuration will be lost.");
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     alert.setDefaultButton(QMessageBox::Yes);
@@ -665,7 +667,7 @@ void TabConfigurations::OnContextMenuDeleteClicked(ConfigurationListItem *item) 
     }
 
     Configurator &configurator = Configurator::Get();
-    configurator.configurations.RemoveConfiguration(item->configuration_name);
+    configurator.configurations.RemoveConfiguration(item->key);
     configurator.SetActiveConfigurationName("");
 
     this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
@@ -674,12 +676,12 @@ void TabConfigurations::OnContextMenuDeleteClicked(ConfigurationListItem *item) 
     this->UpdateUI_Layers(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuResetClicked(ConfigurationListItem *item) {
+void TabConfigurations::OnContextMenuResetClicked(ListItem *item) {
     assert(item);
-    assert(!item->configuration_name.empty());
+    assert(!item->key.empty());
 
     Configurator &configurator = Configurator::Get();
-    Configuration *configuration = configurator.configurations.FindConfiguration(item->configuration_name);
+    Configuration *configuration = configurator.configurations.FindConfiguration(item->key);
     assert(configuration != nullptr);
 
     QMessageBox alert;
@@ -709,9 +711,9 @@ void TabConfigurations::OnContextMenuResetClicked(ConfigurationListItem *item) {
     this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
 }
 
-void TabConfigurations::OnContextMenuReloadClicked(ConfigurationListItem *item) {
+void TabConfigurations::OnContextMenuReloadClicked(ListItem *item) {
     assert(item);
-    assert(!item->configuration_name.empty());
+    assert(!item->key.empty());
 
     // TODO
     QMessageBox msg;
@@ -720,12 +722,12 @@ void TabConfigurations::OnContextMenuReloadClicked(ConfigurationListItem *item) 
     msg.exec();
 }
 
-void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem *item) {
+void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
     assert(item);
 
     Configurator &configurator = Configurator::Get();
 
-    const Path path_export = configurator.configurations.last_path_export + "/" + item->configuration_name + ".json";
+    const Path path_export = configurator.configurations.last_path_export + "/" + item->key + ".json";
     const std::string &selected_path =
         QFileDialog::getSaveFileName(&this->window, "Export Layers Configuration File", path_export.AbsolutePath().c_str(),
                                      "JSON configuration(*.json)")
@@ -735,8 +737,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
         return;
     }
 
-    const bool result =
-        configurator.configurations.ExportConfiguration(configurator.layers, selected_path, item->configuration_name);
+    const bool result = configurator.configurations.ExportConfiguration(configurator.layers, selected_path, item->key);
 
     if (!result) {
         QMessageBox msg;
@@ -758,7 +759,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ConfigurationListItem 
     }
 }
 
-void TabConfigurations::OnContextMenuExportSettingsClicked(ConfigurationListItem *item) {
+void TabConfigurations::OnContextMenuExportSettingsClicked(ListItem *item) {
     assert(item);
 
     Configurator &configurator = Configurator::Get();

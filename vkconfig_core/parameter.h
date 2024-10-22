@@ -50,6 +50,7 @@ struct Parameter {
     SettingDataSet settings;
     int overridden_rank = NO_RANK;
     Version api_version = Version::LATEST;
+    Path manifest;
     QByteArray setting_tree_state;  // Recall editor tree state
     bool override_settings = true;
 };

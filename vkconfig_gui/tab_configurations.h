@@ -22,35 +22,9 @@
 
 #include "tab.h"
 #include "settings_tree.h"
+#include "item.h"
 
 #include <QAbstractItemView>
-
-class ListWidgetItemParameter : public QListWidgetItem {
-   public:
-    ListWidgetItemParameter(const char *layer_name) : widget(nullptr), layer_name(layer_name) { assert(layer_name != nullptr); }
-
-    std::string layer_name;
-    QWidget *widget;
-
-   private:
-    ListWidgetItemParameter(const ListWidgetItemParameter &) = delete;
-    ListWidgetItemParameter &operator=(const ListWidgetItemParameter &) = delete;
-};
-
-/// This just allows me to associate a specific profile definition
-/// with a list widget item.
-class ConfigurationListItem : public QListWidgetItem {
-   public:
-    ConfigurationListItem(const char *configuration_name) : configuration_name(configuration_name) {
-        assert(configuration_name != nullptr);
-    }
-
-    std::string configuration_name;
-
-   private:
-    ConfigurationListItem(const ConfigurationListItem &) = delete;
-    ConfigurationListItem &operator=(const ConfigurationListItem &) = delete;
-};
 
 struct TabConfigurations : public Tab {
     Q_OBJECT
@@ -98,15 +72,15 @@ struct TabConfigurations : public Tab {
    private:
     SettingsTreeManager _settings_tree_manager;
 
-    void OnContextMenuNewClicked(ConfigurationListItem *item);
-    void OnContextMenuImportClicked(ConfigurationListItem *item);
-    void OnContextMenuRenameClicked(ConfigurationListItem *item);
-    void OnContextMenuDuplicateClicked(ConfigurationListItem *item);
-    void OnContextMenuDeleteClicked(ConfigurationListItem *item);
-    void OnContextMenuResetClicked(ConfigurationListItem *item);
-    void OnContextMenuReloadClicked(ConfigurationListItem *item);
-    void OnContextMenuExportConfigsClicked(ConfigurationListItem *item);
-    void OnContextMenuExportSettingsClicked(ConfigurationListItem *item);
+    void OnContextMenuNewClicked(ListItem *item);
+    void OnContextMenuImportClicked(ListItem *item);
+    void OnContextMenuRenameClicked(ListItem *item);
+    void OnContextMenuDuplicateClicked(ListItem *item);
+    void OnContextMenuDeleteClicked(ListItem *item);
+    void OnContextMenuResetClicked(ListItem *item);
+    void OnContextMenuReloadClicked(ListItem *item);
+    void OnContextMenuExportConfigsClicked(ListItem *item);
+    void OnContextMenuExportSettingsClicked(ListItem *item);
 
    private:
     void ui_configurations_group_box_list_tooltip();
