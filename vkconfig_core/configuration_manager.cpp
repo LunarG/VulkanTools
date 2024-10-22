@@ -146,6 +146,14 @@ void ConfigurationManager::SortConfigurations() {
     std::sort(this->available_configurations.begin(), this->available_configurations.end(), Compare());
 }
 
+std::vector<ReferencedLayer> ConfigurationManager::BuildReferencedLayers(const LayerManager &layers, const Path &path) {
+    std::vector<ReferencedLayer> result;
+
+    layers.BuildLayerNameList();
+
+    return result;
+}
+
 void ConfigurationManager::LoadConfigurationsPath(const LayerManager &layers) {
     const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
     for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {

@@ -21,14 +21,16 @@
 #pragma once
 
 #include "configuration.h"
-//#include "configuration_info.h"
 #include "path.h"
 #include "serialization.h"
 
 #include <string>
 #include <vector>
 
-extern const char* GLOBAL_CONFIGURATION_TOKEN;
+struct ReferencedLayer {
+    std::string layer;
+    std::string configuration;
+};
 
 class ConfigurationManager : public Serialize {
    public:
@@ -54,6 +56,8 @@ class ConfigurationManager : public Serialize {
     Configuration* FindConfiguration(const std::string& configuration_name);
 
     void SortConfigurations();
+
+    std::vector<ReferencedLayer> BuildReferencedLayers(const LayerManager& layers, const Path& path);
 
     bool Empty() const { return available_configurations.empty(); }
 

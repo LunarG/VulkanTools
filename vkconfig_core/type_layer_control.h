@@ -41,6 +41,8 @@ enum { LAYER_CONTROL_COUNT = LAYER_CONTROL_LAST - LAYER_CONTROL_FIRST + 1 };
 
 const char* GetToken(LayerControl control);
 
+const char* GetLabel(LayerControl control);
+
 const char* GetDescription(LayerControl control);
 
 LayerControl GetLayerControl(const char* token);

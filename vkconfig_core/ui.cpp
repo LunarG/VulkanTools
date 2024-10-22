@@ -21,17 +21,6 @@
 #include "ui.h"
 #include "date.h"
 
-std::string ExtractLayerName(const LayerManager& layer_manager, const std::string& layer_string) {
-    for (std::size_t i = 0, n = layer_manager.Size(); i < n; ++i) {
-        const Layer& layer = layer_manager.selected_layers[i];
-        if (layer_string.find(layer.key) != std::string::npos) {
-            return layer.key;
-        }
-    }
-
-    return std::string();
-}
-
 std::string GetMainWindowTitle(bool active, bool display_date) {
     std::string title = format("%s %s-Alpha", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
 
