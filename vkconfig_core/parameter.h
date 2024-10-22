@@ -53,6 +53,7 @@ struct Parameter {
     Path manifest;
     QByteArray setting_tree_state;  // Recall editor tree state
     bool override_settings = true;
+    bool enabled = true;
 };
 
 ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& parameter);

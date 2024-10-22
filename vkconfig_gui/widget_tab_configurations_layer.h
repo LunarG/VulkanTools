@@ -26,6 +26,7 @@
 
 #include <QListWidgetItem>
 #include <QLabel>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QResizeEvent>
 
@@ -48,10 +49,12 @@ class ConfigurationLayerWidget : public QLabel {
    public Q_SLOTS:
     void on_layer_version_currentIndexChanged(int index);
     void on_layer_state_currentIndexChanged(int index);
+    void on_layer_toggled(bool checked);
 
    private:
     TabConfigurations *tab;
 
+    QCheckBox *layer_enabled = nullptr;
     QComboBox *layer_version = nullptr;
     QComboBox *layer_state = nullptr;
 };

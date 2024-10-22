@@ -40,7 +40,6 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QJsonArray>
-#include <QSettings>
 #include <QDateTime>
 
 #include <cassert>

@@ -58,12 +58,12 @@ struct TabConfigurations : public Tab {
     void on_configurations_loader_messages_toggled(bool checked);
     void on_configurations_layers_settings_toggled(bool checked);
 
-    void on_configuration_loader_errors_checkBox_toggled(bool checked);
-    void on_configuration_loader_warns_checkBox_toggled(bool checked);
-    void on_configuration_loader_infos_checkBox_toggled(bool checked);
-    void on_configuration_loader_debug_checkBox_toggled(bool checked);
-    void on_configuration_loader_layers_checkBox_toggled(bool checked);
-    void on_configuration_loader_drivers_checkBox_toggled(bool checked);
+    void on_configuration_loader_errors_toggled(bool checked);
+    void on_configuration_loader_warns_toggled(bool checked);
+    void on_configuration_loader_infos_toggled(bool checked);
+    void on_configuration_loader_debug_toggled(bool checked);
+    void on_configuration_loader_layers_toggled(bool checked);
+    void on_configuration_loader_drivers_toggled(bool checked);
 
     void on_configurations_list_itemChanged(QListWidgetItem *item);
     void on_configurations_list_currentRowChanged(int currentRow);

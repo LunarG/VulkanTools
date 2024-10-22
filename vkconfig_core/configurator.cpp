@@ -162,6 +162,10 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
         LoaderLayerSettings loader_layer_settings;
 
         const Parameter& parameter = configuration->parameters[i];
+        if (!parameter.enabled) {
+            continue;
+        }
+
         if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
             continue;
         }
