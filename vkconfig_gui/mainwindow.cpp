@@ -72,6 +72,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(qApp, &QGuiApplication::commitDataRequest, this, &MainWindow::commitDataRequest);
 
+    for (int i = TAB_FIRST, l = TAB_LAST; i <= l; ++i) {
+        this->ui->tab_widget->setTabText(i, GetLabel(static_cast<TabType>(i)));
+    }
+
     connect(ui->action_find_more_layers, SIGNAL(triggered(bool)), this, SLOT(OnHelpFindLayers(bool)));
     connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(OnHelpAbout(bool)));
     connect(ui->actionVulkan_Info, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInfo(bool)));

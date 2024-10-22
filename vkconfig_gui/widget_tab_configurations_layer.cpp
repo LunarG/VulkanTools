@@ -113,7 +113,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         }
     }
 
-    this->setText((" =  " + decorated_name).c_str());
+    this->setText(decorated_name.c_str());
 }
 
 bool ConfigurationLayerWidget::eventFilter(QObject *target, QEvent *event) {
