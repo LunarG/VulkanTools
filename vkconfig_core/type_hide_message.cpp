@@ -28,14 +28,17 @@
 const char* GetToken(HideMessageType value) {
     static const char* TOKENS[]{"HIDE_MESSAGE_NEED_APPLICATION_RESTART",
                                 "HIDE_MESSAGE_USE_SYSTEM_TRAY",
-                                "WIDGET_SETTING_FLOAT",
-                                "WIDGET_SETTING_INT",
-                                "WIDGET_SETTING_FRAMES",
+                                "HIDE_MESSAGE_WIDGET_SETTING_FLOAT",
+                                "HIDE_MESSAGE_WIDGET_SETTING_INT",
+                                "HIDE_MESSAGE_WIDGET_SETTING_FRAMES",
                                 "HIDE_MESSAGE_NOTIFICATION_EXPORT",
                                 "HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED",
+                                "HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_API",
+                                "HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_ENV",
                                 "HIDE_MESSAGE_WARN_NO_LAYER_FOUND",
                                 "HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE",
                                 "HIDE_MESSAGE_WARN_CORE_SHADER_IGNORE",
+                                "HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH",
                                 "HIDE_MESSAGE_ERROR_32BIT"};
     static_assert(std::size(TOKENS) == HIDE_MESSAGE_COUNT);
 

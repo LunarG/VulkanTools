@@ -54,9 +54,10 @@ static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) 
 
     if (!found_applications_api) {
         Parameter applications_enabled_layers_api;
-        applications_enabled_layers_api.key = "Vulkan Layers from the Application Vulkan API";
+        applications_enabled_layers_api.key = ::GetLabel(LAYER_CONTROL_APPLICATIONS_API);
         applications_enabled_layers_api.control = LAYER_CONTROL_APPLICATIONS_API;
         applications_enabled_layers_api.overridden_rank = 998;
+        applications_enabled_layers_api.enabled = false;
         parameters.push_back(applications_enabled_layers_api);
     }
 
@@ -72,9 +73,10 @@ static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) 
 
     if (!found_applications_env) {
         Parameter applications_enabled_layers_env;
-        applications_enabled_layers_env.key = "Vulkan Layers from the Application Environment Variables";
+        applications_enabled_layers_env.key = ::GetLabel(LAYER_CONTROL_APPLICATIONS_ENV);
         applications_enabled_layers_env.control = LAYER_CONTROL_APPLICATIONS_ENV;
         applications_enabled_layers_env.overridden_rank = 999;
+        applications_enabled_layers_env.enabled = false;
         parameters.push_back(applications_enabled_layers_env);
     }
 }
@@ -196,6 +198,9 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
         if (json_layer_object.value("manifest") != QJsonValue::Undefined) {
             parameter.manifest = ReadString(json_layer_object, "manifest");
         }
+        if (json_layer_object.value("enabled") != QJsonValue::Undefined) {
+            parameter.enabled = ReadBoolValue(json_layer_object, "enabled");
+        }
 
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
@@ -270,6 +275,7 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
         json_layer.insert("control", GetToken(parameter.control));
         json_layer.insert("version", parameter.api_version == Version::LATEST ? "latest" : parameter.api_version.str().c_str());
         json_layer.insert("manifest", parameter.manifest.RelativePath().c_str());
+        json_layer.insert("enabled", parameter.enabled);
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
         if (!exporter && !parameter.setting_tree_state.isEmpty()) {
             json_layer.insert("expanded_states", parameter.setting_tree_state.data());

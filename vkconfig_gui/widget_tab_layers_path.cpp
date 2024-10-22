@@ -23,12 +23,15 @@
 #include "../vkconfig_core/configurator.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
 
 LayersPathWidget::LayersPathWidget(LayersPathInfo* path_info, LayersPaths layers_path) : path_info(path_info) {
     this->setChecked(this->path_info->enabled);
 
     this->buttom_remove = new QPushButton(this);
-    this->buttom_remove->setText("-");
+    this->buttom_remove->setIcon(QIcon(":/resourcefiles/folder_remove.png"));
+    this->buttom_remove->setToolTip("Remove the layers path");
+    this->buttom_remove->setFixedSize(32, 32);
     this->buttom_remove->show();
 
     this->setText(path_info->path.RelativePath().c_str());
@@ -42,7 +45,7 @@ void LayersPathWidget::resizeEvent(QResizeEvent* event) {
     QSize size = event->size();
 
     const QFontMetrics fm = this->buttom_remove->fontMetrics();
-    const int button_width_state = 30;
+    const int button_width_state = this->buttom_remove->width();
 
     const QRect remove_button_rect = QRect(size.width() - button_width_state, 0, button_width_state, size.height());
     this->buttom_remove->setGeometry(remove_button_rect);
@@ -50,6 +53,50 @@ void LayersPathWidget::resizeEvent(QResizeEvent* event) {
 
 void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
     Configurator& configurator = Configurator::Get();
+
+    std::vector<ReferencedLayer> referenced_layers;
+    // TODO: configurator.configurations.BuildReferencedLayers(configurator.layers, this->path_info);
+    if (!referenced_layers.empty()) {
+        std::string text = format("'%s' contains layers that are referenced by some configurations:",
+                                  this->path_info->path.AbsolutePath().c_str());
+        for (std::size_t i = 0, n = referenced_layers.size(); i < n; ++i) {
+            const ReferencedLayer& data = referenced_layers[i];
+            text += format(" - %s by '%s' configuration\n", data.layer.c_str(), data.configuration.c_str());
+        }
+        text += format("\nAre you sure you want to remove the following path from %s?", VKCONFIG_NAME).c_str();
+
+        QMessageBox alert;
+        alert.setWindowTitle("Removing layers that are used by existing configuration...");
+        alert.setIcon(QMessageBox::Warning);
+        alert.setDefaultButton(QMessageBox::No);
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setText(format("Are you sure you want to remove the following path from %s?", VKCONFIG_NAME).c_str());
+        alert.setInformativeText(this->path_info->path.AbsolutePath().c_str());
+        int ret_val = alert.exec();
+        if (alert.checkBox()->isChecked()) {
+            configurator.Set(HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH);
+        }
+        if (ret_val == QMessageBox::No) {
+            return;
+        }
+    } else if (!(configurator.Get(HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH))) {
+        QMessageBox alert;
+        alert.setWindowTitle("Removing a layers path...");
+        alert.setIcon(QMessageBox::Question);
+        alert.setDefaultButton(QMessageBox::No);
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setCheckBox(new QCheckBox("Do not show again."));
+        alert.setText(format("Are you sure you want to remove the following path from %s?", VKCONFIG_NAME).c_str());
+        alert.setInformativeText(this->path_info->path.AbsolutePath().c_str());
+        int ret_val = alert.exec();
+        if (alert.checkBox()->isChecked()) {
+            configurator.Set(HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH);
+        }
+        if (ret_val == QMessageBox::No) {
+            return;
+        }
+    }
+
     configurator.layers.RemovePath(*this->path_info);
 
     this->path_info = nullptr;

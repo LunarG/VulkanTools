@@ -32,14 +32,19 @@
 TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_LAYERS, window, ui) {
     Configurator &configurator = Configurator::Get();
 
+    this->ui->layers_browse_button->setText("");
+    this->ui->layers_browse_button->setIcon(QIcon(":/resourcefiles/folder_append.png"));
+    this->ui->layers_reload_button->setText("");
+    this->ui->layers_reload_button->setIcon(QIcon(":/resourcefiles/reload.png"));
     this->ui->layers_progress->setValue(0);
     this->ui->layers_progress->setVisible(false);
     this->ui->layers_path_lineedit->setVisible(true);
     this->ui->layers_path_lineedit->setText(configurator.layers.last_layers_path.RelativePath().c_str());
     this->ui->layers_validate_checkBox->setChecked(configurator.layers.validate_manifests);
 
-    this->connect(this->ui->layers_browse_pushButton, SIGNAL(pressed()), this, SLOT(on_layers_browse_pushButton_pressed()));
-    this->connect(this->ui->layers_path_lineedit, SIGNAL(returnPressed()), this, SLOT(on_layers_add_pushButton_pressed()));
+    this->connect(this->ui->layers_browse_button, SIGNAL(pressed()), this, SLOT(on_layers_browse_pressed()));
+    this->connect(this->ui->layers_reload_button, SIGNAL(pressed()), this, SLOT(on_layers_reload_pressed()));
+    this->connect(this->ui->layers_path_lineedit, SIGNAL(returnPressed()), this, SLOT(on_layers_append_pressed()));
     this->connect(this->ui->layers_validate_checkBox, SIGNAL(toggled(bool)), this, SLOT(on_layers_validate_checkBox_toggled(bool)));
 }
 
@@ -58,7 +63,7 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
             QTreeWidgetItem *item_state = new QTreeWidgetItem;
             item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
-            item_state->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+            item_state->setSizeHint(0, QSize(0, 32));
             LayersPathWidget *layer_path_widget = new LayersPathWidget(&paths_group[i], static_cast<LayersPaths>(group_index));
             this->connect(layer_path_widget, SIGNAL(toggled(bool)), this, SLOT(on_check_box_paths_toggled(bool)));
 
@@ -114,27 +119,29 @@ void TabLayers::on_layers_validate_checkBox_toggled(bool checked) {
     configurator.layers.validate_manifests = checked;
 }
 
-void TabLayers::on_layers_browse_pushButton_pressed() {
+void TabLayers::on_layers_append_pressed() {
+    this->ui->layers_path_lineedit->setVisible(false);
+    this->ui->layers_browse_button->setVisible(false);
+    this->ui->layers_progress->setVisible(true);
+
+    this->LoadLayersManifest(this->ui->layers_path_lineedit->text());
+}
+
+void TabLayers::on_layers_browse_pressed() {
     Configurator &configurator = Configurator::Get();
 
     this->ui->layers_path_lineedit->setVisible(false);
-    this->ui->layers_browse_pushButton->setVisible(false);
+    this->ui->layers_browse_button->setVisible(false);
     this->ui->layers_progress->setVisible(true);
 
     const QString selected_path =
-        QFileDialog::getExistingDirectory(this->ui->layers_browse_pushButton, "Select Layer Manifests Folder...",
+        QFileDialog::getExistingDirectory(this->ui->layers_browse_button, "Select Layer Manifests Folder...",
                                           configurator.layers.last_layers_path.AbsolutePath().c_str());
 
     this->LoadLayersManifest(selected_path);
 }
 
-void TabLayers::on_layers_add_pushButton_pressed() {
-    this->ui->layers_path_lineedit->setVisible(false);
-    this->ui->layers_browse_pushButton->setVisible(false);
-    this->ui->layers_progress->setVisible(true);
-
-    this->LoadLayersManifest(this->ui->layers_path_lineedit->text());
-}
+void TabLayers::on_layers_reload_pressed() {}
 
 void TabLayers::LoadLayersManifest(const QString &selected_path) {
     Configurator &configurator = Configurator::Get();
@@ -224,6 +231,6 @@ void TabLayers::LoadLayersManifest(const QString &selected_path) {
     }
 
     this->ui->layers_path_lineedit->setVisible(true);
-    this->ui->layers_browse_pushButton->setVisible(true);
+    this->ui->layers_browse_button->setVisible(true);
     this->ui->layers_progress->setVisible(false);
 }
