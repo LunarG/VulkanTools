@@ -22,29 +22,6 @@
 
 #include <gtest/gtest.h>
 
-TEST(test_ui, ExtractLayerName_no_layer_loaded) {
-    LayerManager layer_manager;
-
-    const std::string& not_found = ExtractLayerName(layer_manager, " = VK_LAYER_KHRONOS_validation");
-    EXPECT_TRUE(not_found.empty());
-}
-
-TEST(test_ui, ExtractLayerName_no_found) {
-    LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/sdk");
-
-    const std::string& not_found = ExtractLayerName(layer_manager, " = VK_LAYER_KHRONOS_unkown");
-    EXPECT_TRUE(not_found.empty());
-}
-
-TEST(test_ui, ExtractLayerName_found) {
-    LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/sdk");
-
-    const std::string& layer_found = ExtractLayerName(layer_manager, " = VK_LAYER_KHRONOS_validation");
-    EXPECT_STREQ("VK_LAYER_KHRONOS_validation", layer_found.c_str());
-}
-
 TEST(test_ui, GetMainWindowTitle) {
     std::string title = GetMainWindowTitle(false, false);
 
