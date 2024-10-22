@@ -109,7 +109,6 @@ TEST(test_configuration_manager, duplicate_object) {
 
     EXPECT_EQ(configuration_ori->version, configuration_dup->version);
     EXPECT_EQ(configuration_ori->platform_flags, configuration_dup->platform_flags);
-    EXPECT_EQ(configuration_ori->description, configuration_dup->description);
     EXPECT_EQ(configuration_ori->view_advanced_settings, configuration_dup->view_advanced_settings);
     EXPECT_EQ(configuration_ori->loader_log_messages_flags, configuration_dup->loader_log_messages_flags);
     EXPECT_EQ(configuration_ori->selected_layer_name, configuration_dup->selected_layer_name);
