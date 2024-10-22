@@ -137,7 +137,6 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
 
     // Required configuration values
     this->key = ReadString(json_configuration_object, "name").c_str();
-    this->description = ReadString(json_configuration_object, "description").c_str();
 
     // Optional configuration values
     if (json_configuration_object.value("version") != QJsonValue::Undefined) {
@@ -194,6 +193,9 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
         parameter.control = GetLayerControl(ReadStringValue(json_layer_object, "control").c_str());
         const std::string& version = ReadStringValue(json_layer_object, "version");
         parameter.api_version = version == "latest" ? Version::LATEST : Version(version.c_str());
+        if (json_layer_object.value("manifest") != QJsonValue::Undefined) {
+            parameter.manifest = ReadString(json_layer_object, "manifest");
+        }
 
         const QJsonValue& json_platform_value = json_layer_object.value("platforms");
         if (json_platform_value != QJsonValue::Undefined) {
@@ -267,6 +269,7 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
         json_layer.insert("rank", parameter.overridden_rank);
         json_layer.insert("control", GetToken(parameter.control));
         json_layer.insert("version", parameter.api_version == Version::LATEST ? "latest" : parameter.api_version.str().c_str());
+        json_layer.insert("manifest", parameter.manifest.RelativePath().c_str());
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
         if (!exporter && !parameter.setting_tree_state.isEmpty()) {
             json_layer.insert("expanded_states", parameter.setting_tree_state.data());
@@ -297,7 +300,6 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
     QJsonObject json_configuration;
     json_configuration.insert("name", this->key.c_str());
     json_configuration.insert("version", this->version);
-    json_configuration.insert("description", this->description.c_str());
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
     json_configuration.insert("view_advanced_settings", this->view_advanced_settings);
     json_configuration.insert("selected_layer_name", this->selected_layer_name.c_str());
@@ -398,6 +400,35 @@ void Configuration::Reset(const LayerManager& layers) {
     }
 }
 
+bool Configuration::HasMissingLayer(const LayerManager& layers, std::vector<std::string>& missing_layers) const {
+    for (auto it = parameters.begin(), end = parameters.end(); it != end; ++it) {
+        if (!(it->platform_flags & (1 << VKC_PLATFORM))) {
+            continue;  // If unsupported are missing, it doesn't matter
+        }
+
+        if (!IsVisibleLayer(it->control)) {
+            continue;
+        }
+
+        if (it->control == LAYER_CONTROL_OFF) {
+            continue;  // If excluded are missing, it doesn't matter
+        }
+
+        if (layers.Find(it->key, it->api_version) == nullptr) {
+            missing_layers.push_back(it->key);
+            continue;
+        }
+        /*
+        if (layers.FindFromManifest(it->manifest) == nullptr) {
+            missing_layers.push_back(it->key);
+            continue;
+        }
+        */
+    }
+
+    return !missing_layers.empty();
+}
+
 void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Version& version) {
     Parameter* parameter = this->Find(layer_key);
     assert(parameter != nullptr);
@@ -405,6 +436,7 @@ void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::st
     const Layer* new_layer = layers.Find(layer_key, version);
 
     parameter->api_version = new_layer->api_version == version ? version : Version::LATEST;
+    parameter->manifest = new_layer->manifest_path;
     CollectDefaultSettingData(new_layer->settings, parameter->settings);
 }
 
@@ -435,6 +467,7 @@ void Configuration::GatherParameters(const LayerManager& layers) {
         parameter.key = layer->key;
         parameter.control = LAYER_CONTROL_AUTO;
         parameter.api_version = Version::LATEST;
+        parameter.manifest = layer->manifest_path;
         CollectDefaultSettingData(layer->settings, parameter.settings);
 
         gathered_parameters.push_back(parameter);

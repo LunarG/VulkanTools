@@ -15,20 +15,7 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "widget_tree_friendly_combobox.h"
-
-#include <cassert>
-
-WidgetTreeFriendlyComboBox::WidgetTreeFriendlyComboBox(QTreeWidgetItem *item) : QComboBox(), item(item) {
-    assert(item);
-
-    setFocusPolicy(Qt::StrongFocus);
-
-    connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(indexChanged(int)));
-}
-
-void WidgetTreeFriendlyComboBox::indexChanged(int index) { emit selectionMade(item, index); }
+#include "item.h"
