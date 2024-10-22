@@ -87,7 +87,7 @@
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
-        <string>Vulkan Loader Management</string>
+        <string>Tab 1</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
         <property name="leftMargin">
@@ -765,7 +765,7 @@
       </widget>
       <widget class="QWidget" name="tab_layers">
        <attribute name="title">
-        <string>Vulkan Layers Location</string>
+        <string>Tab 2</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <property name="spacing">
@@ -885,7 +885,7 @@
         </size>
        </property>
        <attribute name="title">
-        <string>Application Launcher</string>
+        <string>Tab 3</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,0,0">
         <property name="spacing">
@@ -1347,7 +1347,7 @@
       </widget>
       <widget class="QWidget" name="tab_diagnostic">
        <attribute name="title">
-        <string>System Diagnostic</string>
+        <string>Tab 4</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_14">
         <item>
@@ -1449,7 +1449,7 @@
       </widget>
       <widget class="QWidget" name="tab_documentation">
        <attribute name="title">
-        <string>Documentation</string>
+        <string>Tab 5</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <property name="spacing">
@@ -1590,7 +1590,7 @@
         </size>
        </property>
        <attribute name="title">
-        <string>About</string>
+        <string>Tab 6</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_13">
         <property name="leftMargin">

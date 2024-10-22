@@ -76,7 +76,6 @@ SOURCES += \
     ../vkconfig_core/vulkan_util.cpp \
     widget_tab_configurations_layer.cpp \
     widget_tab_layers_path.cpp \
-    widget_tree_friendly_combobox.cpp \
     widget_setting.cpp \
     widget_setting_bool.cpp \
     widget_setting_enum.cpp \
@@ -90,6 +89,7 @@ SOURCES += \
     widget_setting_list.cpp \
     dialog_vulkan_analysis.cpp \
     dialog_vulkan_info.cpp \
+    item.cpp \
     main.cpp \
     mainwindow.cpp \
     tab.cpp \
@@ -139,7 +139,6 @@ HEADERS += \
     ../vkconfig_core/type_layer_control.h \
     ../vkconfig_core/type_layer_type.h \
     ../vkconfig_core/type_layers_paths.h \
-    ../vkconfig_core/type_layers_view.h \
     ../vkconfig_core/type_log.h \
     ../vkconfig_core/type_platform.h \
     ../vkconfig_core/type_status.h \
@@ -152,7 +151,6 @@ HEADERS += \
     ../vkconfig_core/vulkan_util.h \
     widget_tab_configurations_layer.h \
     widget_tab_layers_path.h \
-    widget_tree_friendly_combobox.h \
     widget_setting.h \
     widget_setting_bool.h \
     widget_setting_enum.h \
@@ -166,6 +164,7 @@ HEADERS += \
     widget_setting_list.h \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
+    item.h \
     mainwindow.h \
     tab.h \
     tab_about.h \

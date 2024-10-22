@@ -34,6 +34,8 @@ enum TabType {
 
 enum { TAB_COUNT = TAB_LAST - TAB_FIRST + 1 };
 
+const char* GetLabel(TabType type);
+
 const char* GetToken(TabType type);
 
 TabType GetTabType(const char* token);
