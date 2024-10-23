@@ -121,6 +121,7 @@ class Configurator : public Serialize {
 
     bool has_crashed = false;
     TabType active_tab = TAB_CONFIGURATIONS;
+    bool advanced = true;
 
    private:
     Path home_sdk_path;

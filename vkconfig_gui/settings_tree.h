@@ -36,10 +36,9 @@
 
 class SettingsTreeManager : QObject {
     Q_OBJECT
+
    public:
     SettingsTreeManager();
-
-    bool launched_application;
 
     void CreateGUI(std::shared_ptr<Ui::MainWindow> ui);
     void CleanupGUI();
