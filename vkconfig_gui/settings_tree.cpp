@@ -50,7 +50,7 @@
 static const char *TOOLTIP_ORDER =
     "Layers are executed between the Vulkan application and driver in the specific order represented here";
 
-SettingsTreeManager::SettingsTreeManager() : launched_application(false), tree(nullptr), parameter(nullptr) {}
+SettingsTreeManager::SettingsTreeManager() : tree(nullptr), parameter(nullptr) {}
 
 void SettingsTreeManager::CreateGUI(std::shared_ptr<Ui::MainWindow> ui) {
     assert(ui.get() != nullptr);
@@ -64,17 +64,24 @@ void SettingsTreeManager::CreateGUI(std::shared_ptr<Ui::MainWindow> ui) {
 
     Configuration *configuration = configurator.GetActiveConfiguration();
     this->parameter = configuration != nullptr ? configuration->GetActiveParameter() : nullptr;
+    const bool no_selected_layer = configuration != nullptr ? configuration->selected_layer_name.empty() : false;
 
     // Group box things
     const Layer *layer = this->parameter ? configurator.layers.Find(parameter->key, parameter->api_version) : nullptr;
-    if (!configurator.HasActiveSettings()) {
+
+    if (no_selected_layer) {
+        ui->configurations_group_box_settings->setTitle("Select a layer to display settings");
+        ui->configurations_group_box_settings->setCheckable(false);
+        ui->configurations_presets->setVisible(false);
+        return;
+    } else if (!configurator.HasActiveSettings()) {
         ui->configurations_group_box_settings->setTitle("No Layer Settings");
         ui->configurations_group_box_settings->setCheckable(false);
         ui->configurations_presets->setVisible(false);
         return;
     } else {
         ui->configurations_group_box_settings->setTitle(format("%s:", parameter->key.c_str()).c_str());
-        ui->configurations_group_box_settings->setCheckable(true);
+        ui->configurations_group_box_settings->setCheckable(configurator.advanced);
         ui->configurations_group_box_settings->setChecked(parameter->override_settings);
         ui->configurations_presets->setVisible(!layer->presets.empty());
     }
@@ -381,12 +388,10 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
 
     this->tree->blockSignals(false);
 
-    if (this->launched_application) {
-        if (!(configurator.Get(HIDE_MESSAGE_NEED_APPLICATION_RESTART))) {
-            configurator.Set(HIDE_MESSAGE_NEED_APPLICATION_RESTART);
+    if (!(configurator.Get(HIDE_MESSAGE_NEED_APPLICATION_RESTART))) {
+        configurator.Set(HIDE_MESSAGE_NEED_APPLICATION_RESTART);
 
-            Alert::ConfiguratorRestart();
-        }
+        Alert::ConfiguratorRestart();
     }
 
     // Refresh layer configuration

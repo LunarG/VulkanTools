@@ -25,6 +25,25 @@
 #include "item.h"
 
 #include <QAbstractItemView>
+#include <QPushButton>
+
+class ResizeButton : public QPushButton {
+    Q_OBJECT
+
+   public:
+    ResizeButton(QWidget *parent) : QPushButton(parent), parent(parent) {}
+
+    bool eventFilter(QObject *o, QEvent *e) override {
+        if (e->type() == QEvent::Resize) {
+            const QRect enabled_button_rect = QRect(this->parent->width() - 24 - 5, 0, 24, 24);
+            this->setGeometry(enabled_button_rect);
+        }
+        return false;
+    }
+
+   private:
+    QWidget *parent = nullptr;
+};
 
 struct TabConfigurations : public Tab {
     Q_OBJECT
@@ -49,6 +68,8 @@ struct TabConfigurations : public Tab {
     void UpdateUI_Settings(UpdateUIMode ui_update_mode);
 
    public Q_SLOTS:
+    void on_configurations_advanced_toggle_pressed();
+
     void on_configurations_executable_scope_currentIndexChanged(int index);
     void on_configurations_executable_list_currentIndexChanged(int index);
     void on_configurations_executable_append_pressed();
@@ -71,6 +92,7 @@ struct TabConfigurations : public Tab {
 
    private:
     SettingsTreeManager _settings_tree_manager;
+    QPushButton *advanced_mode = nullptr;
 
     void OnContextMenuNewClicked(ListItem *item);
     void OnContextMenuImportClicked(ListItem *item);
@@ -85,4 +107,5 @@ struct TabConfigurations : public Tab {
    private:
     void ui_configurations_group_box_list_tooltip();
     void ui_configurations_group_box_settings_tooltip();
+    void ui_configurations_advanced_toggle();
 };
