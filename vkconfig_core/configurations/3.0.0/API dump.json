@@ -9,6 +9,17 @@
             "MACOS"
         ],
         "selected_layer_name": "VK_LAYER_LUNARG_api_dump",
+        "override_layers": true,
+        "override_loader": false,
+        "loader_message_types": [
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "perf",
+            "layer",
+            "driver"
+        ],
         "layers": [
             {
                 "name": "VK_LAYER_LUNARG_api_dump",
