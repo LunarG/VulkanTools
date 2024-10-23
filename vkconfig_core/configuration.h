@@ -55,6 +55,7 @@ class Configuration {
     std::string key = "New Configuration";  // User readable display of the configuration name (may contain spaces)
     int version = 1;
     int platform_flags = PLATFORM_DESKTOP_BIT;
+    LayerControl default_control = LAYER_CONTROL_AUTO;
     bool override_layers = true;
     bool override_loader = true;
     int loader_log_messages_flags = GetBit(LOG_ERROR) | GetBit(LOG_WARN);

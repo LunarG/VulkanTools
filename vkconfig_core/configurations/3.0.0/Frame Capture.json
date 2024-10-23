@@ -8,7 +8,8 @@
             "LINUX"
         ],
         "selected_layer_name": "VK_LAYER_LUNARG_gfxreconstruct",
-        "description": "Capture a range of frames",
+        "override_layers": true,
+        "override_loader": false,
         "layers": [
             {
                 "name": "VK_LAYER_LUNARG_gfxreconstruct",
