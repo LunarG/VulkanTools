@@ -9,7 +9,6 @@
             "MACOS"
         ],
         "selected_layer_name": "VK_LAYER_KHRONOS_validation",
-        "description": "This configuration is a good default validation setting and should serve most needs most of the time.",
         "layers": [
             {
                 "name": "VK_LAYER_KHRONOS_validation",
