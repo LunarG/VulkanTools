@@ -184,7 +184,7 @@
                    <number>5</number>
                   </property>
                   <property name="topMargin">
-                   <number>0</number>
+                   <number>5</number>
                   </property>
                   <property name="rightMargin">
                    <number>5</number>
@@ -194,6 +194,12 @@
                   </property>
                   <item>
                    <widget class="QComboBox" name="configurations_executable_scope">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="maximumSize">
                      <size>
                       <width>16777215</width>
@@ -228,7 +234,7 @@
                   <item>
                    <widget class="QComboBox" name="configurations_executable_list">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -282,7 +288,7 @@
                    <number>5</number>
                   </property>
                   <property name="topMargin">
-                   <number>0</number>
+                   <number>5</number>
                   </property>
                   <property name="rightMargin">
                    <number>5</number>
@@ -383,7 +389,7 @@
                    <number>5</number>
                   </property>
                   <property name="topMargin">
-                   <number>0</number>
+                   <number>5</number>
                   </property>
                   <property name="rightMargin">
                    <number>5</number>
@@ -679,7 +685,7 @@
                  <number>5</number>
                 </property>
                 <property name="topMargin">
-                 <number>0</number>
+                 <number>5</number>
                 </property>
                 <property name="rightMargin">
                  <number>5</number>

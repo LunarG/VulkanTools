@@ -30,79 +30,83 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     const Configurator &configurator = Configurator::Get();
     const Layer *layer = configurator.layers.Find(parameter.key, parameter.api_version);
 
-    this->setDisabled(!parameter.enabled);
-
-    this->layer_enabled = new QCheckBox(this);
-    this->layer_enabled->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-    this->layer_enabled->adjustSize();
-    this->layer_enabled->setChecked(parameter.enabled);
-    if (IsVisibleLayer(parameter.control)) {
-        this->layer_enabled->setToolTip(
-            format("Check to control '%s' location, activation and execution order", parameter.key.c_str()).c_str());
-    } else {
-        this->layer_enabled->setToolTip(format("Check to let running '%s'", parameter.key.c_str()).c_str());
+    if (configurator.advanced) {
+        this->layer_enabled = new QCheckBox(this);
+        this->layer_enabled->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        this->layer_enabled->adjustSize();
+        this->layer_enabled->setChecked(parameter.enabled);
+        if (IsVisibleLayer(parameter.control)) {
+            this->layer_enabled->setToolTip(
+                format("Check to control '%s' location, activation and execution order", parameter.key.c_str()).c_str());
+        } else {
+            this->layer_enabled->setToolTip(format("Check to let running '%s'", parameter.key.c_str()).c_str());
+        }
+        this->connect(this->layer_enabled, SIGNAL(toggled(bool)), this, SLOT(on_layer_toggled(bool)));
     }
-    this->connect(this->layer_enabled, SIGNAL(toggled(bool)), this, SLOT(on_layer_toggled(bool)));
 
     if (IsVisibleLayer(parameter.control)) {
         this->setEnabled(layer != nullptr && parameter.enabled);
 
-        this->layer_version = new QComboBox(this);
-        this->layer_version->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-        this->layer_version->setEnabled(layer != nullptr);
-        if (layer != nullptr) {
-            this->layer_version->addItem("Latest");
-        } else {
-            this->layer_version->addItem("Missing");
-        }
-
-        const Layer *layer_latest = configurator.layers.Find(parameter.key, Version::LATEST);
-        if (layer_latest != nullptr) {
-            this->layer_version->setItemData(0, layer_latest->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
-        }
-
-        int version_index = 0;
-        for (std::size_t i = 0, n = layer_versions.size(); i < n; ++i) {
-            if (layer_versions[i] == parameter.api_version) {
-                version_index = this->layer_version->count();
-            }
-
-            const Layer *layer_version = configurator.layers.Find(parameter.key, layer_versions[i]);
-
-            const int current_index = this->layer_version->count();
-
-            this->layer_version->addItem(layer_versions[i].str().c_str());
-            this->layer_version->setItemData(current_index, layer_version->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
-        }
-
-        this->layer_version->setCurrentIndex(version_index);
-        if (layer != nullptr) {
-            this->layer_version->setToolTip(layer->manifest_path.AbsolutePath().c_str());
-            this->setToolTip(layer->description.c_str());
-        }
-
-        this->connect(this->layer_version, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_version_currentIndexChanged(int)));
-
-        this->layer_state = new QComboBox(this);
-        this->layer_state->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-        if (layer != nullptr) {
-            if (layer->type == LAYER_TYPE_EXPLICIT) {
-                for (int i = LAYER_CONTROL_EXPLICIT_FIRST; i <= LAYER_CONTROL_EXPLICIT_LAST; ++i) {
-                    this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
-                    this->layer_state->setItemData(i, GetDescription(static_cast<LayerControl>(i)), Qt::ToolTipRole);
-                }
+        if (configurator.advanced) {
+            this->layer_version = new QComboBox(this);
+            this->layer_version->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+            this->layer_version->setEnabled(layer != nullptr);
+            if (layer != nullptr) {
+                this->layer_version->addItem("Latest");
             } else {
-                for (int i = LAYER_CONTROL_IMPLICIT_FIRST; i <= LAYER_CONTROL_IMPLICIT_LAST; ++i) {
-                    this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
-                    this->layer_state->setItemData(i, GetDescription(static_cast<LayerControl>(i)), Qt::ToolTipRole);
+                this->layer_version->addItem("Missing");
+            }
+
+            const Layer *layer_latest = configurator.layers.Find(parameter.key, Version::LATEST);
+            if (layer_latest != nullptr) {
+                this->layer_version->setItemData(0, layer_latest->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
+            }
+
+            int version_index = 0;
+            for (std::size_t i = 0, n = layer_versions.size(); i < n; ++i) {
+                if (layer_versions[i] == parameter.api_version) {
+                    version_index = this->layer_version->count();
+                }
+
+                const Layer *layer_version = configurator.layers.Find(parameter.key, layer_versions[i]);
+
+                const int current_index = this->layer_version->count();
+
+                this->layer_version->addItem(layer_versions[i].str().c_str());
+                this->layer_version->setItemData(current_index, layer_version->manifest_path.AbsolutePath().c_str(),
+                                                 Qt::ToolTipRole);
+            }
+
+            this->layer_version->setCurrentIndex(version_index);
+            if (layer != nullptr) {
+                this->layer_version->setToolTip(layer->manifest_path.AbsolutePath().c_str());
+                this->setToolTip(layer->description.c_str());
+            }
+
+            this->connect(this->layer_version, SIGNAL(currentIndexChanged(int)), this,
+                          SLOT(on_layer_version_currentIndexChanged(int)));
+
+            this->layer_state = new QComboBox(this);
+            this->layer_state->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+            if (layer != nullptr) {
+                if (layer->type == LAYER_TYPE_EXPLICIT) {
+                    for (int i = LAYER_CONTROL_EXPLICIT_FIRST; i <= LAYER_CONTROL_EXPLICIT_LAST; ++i) {
+                        this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
+                        this->layer_state->setItemData(i, GetDescription(static_cast<LayerControl>(i)), Qt::ToolTipRole);
+                    }
+                } else {
+                    for (int i = LAYER_CONTROL_IMPLICIT_FIRST; i <= LAYER_CONTROL_IMPLICIT_LAST; ++i) {
+                        this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
+                        this->layer_state->setItemData(i, GetDescription(static_cast<LayerControl>(i)), Qt::ToolTipRole);
+                    }
                 }
             }
+            this->layer_state->setEnabled(!layer_versions.empty() && parameter.enabled);
+            this->layer_state->setCurrentIndex(parameter.control);
+            this->layer_state->setToolTip(GetDescription(parameter.control));
+            this->layer_state->setEnabled(layer != nullptr);
+            this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
         }
-        this->layer_state->setEnabled(!layer_versions.empty() && parameter.enabled);
-        this->layer_state->setCurrentIndex(parameter.control);
-        this->layer_state->setToolTip(GetDescription(parameter.control));
-        this->layer_state->setEnabled(layer != nullptr);
-        this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
     }
 
     std::string decorated_name = parameter.key;
@@ -140,25 +144,29 @@ bool ConfigurationLayerWidget::eventFilter(QObject *target, QEvent *event) {
 }
 
 void ConfigurationLayerWidget::resizeEvent(QResizeEvent *event) {
+    const Configurator &configurator = Configurator::Get();
+
     QSize size = event->size();
 
-    const int width_enabled = this->layer_enabled->width();
-    const QRect enabled_button_rect = QRect(size.width() - width_enabled, 0, width_enabled, size.height());
-    this->layer_enabled->setGeometry(enabled_button_rect);
+    if (configurator.advanced) {
+        const int width_enabled = this->layer_enabled->width();
+        const QRect enabled_button_rect = QRect(size.width() - width_enabled, 0, width_enabled, size.height());
+        this->layer_enabled->setGeometry(enabled_button_rect);
 
-    if (this->layer_state != nullptr) {
-        this->layer_state->adjustSize();
-        this->layer_version->adjustSize();
+        if (this->layer_version != nullptr) {
+            this->layer_state->adjustSize();
+            this->layer_version->adjustSize();
 
-        const int width_state = this->layer_state->width();
-        const int width_version = this->layer_version->width();
+            const int width_state = this->layer_state->width();
+            const int width_version = this->layer_version->width();
 
-        const QRect state_button_rect = QRect(size.width() - width_state - width_enabled, 0, width_state, size.height());
-        this->layer_state->setGeometry(state_button_rect);
+            const QRect state_button_rect = QRect(size.width() - width_state - width_enabled, 0, width_state, size.height());
+            this->layer_state->setGeometry(state_button_rect);
 
-        const QRect version_button_rect =
-            QRect(size.width() - width_state - width_version - width_enabled, 0, width_version, size.height());
-        this->layer_version->setGeometry(version_button_rect);
+            const QRect version_button_rect =
+                QRect(size.width() - width_state - width_version - width_enabled, 0, width_version, size.height());
+            this->layer_version->setGeometry(version_button_rect);
+        }
     }
 }
 
@@ -199,11 +207,11 @@ void ConfigurationLayerWidget::on_layer_toggled(bool checked) {
     this->setStyleSheet(checked ? "color: black" : "color: gray");
     this->setFont(font);
 
-    if (this->layer_version) {
+    if (this->layer_version != nullptr) {
         this->layer_version->setFont(font);
         this->layer_version->setEnabled(checked);
     }
-    if (this->layer_state) {
+    if (this->layer_state != nullptr) {
         this->layer_state->setFont(font);
         this->layer_state->setEnabled(checked);
     }
