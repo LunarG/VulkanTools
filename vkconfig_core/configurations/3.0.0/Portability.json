@@ -9,7 +9,6 @@
             "MACOS"
         ],
         "selected_layer_name": "VK_LAYER_KHRONOS_profiles",
-        "description": "Check the Vulkan application is portable to Apple platforms",
         "layers": [
             {
                 "name": "VK_LAYER_KHRONOS_validation",

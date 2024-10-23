@@ -57,12 +57,10 @@ class Configuration {
     int platform_flags = PLATFORM_DESKTOP_BIT;
     bool override_layers = true;
     bool override_loader = true;
-    bool view_advanced_settings = false;
     int loader_log_messages_flags = GetBit(LOG_ERROR) | GetBit(LOG_WARN);
     std::string selected_layer_name;
 
     std::vector<Parameter> parameters;
-    std::vector<Path> user_defined_paths;
 
     bool IsBuiltIn() const;
 };

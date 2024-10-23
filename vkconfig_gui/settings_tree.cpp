@@ -186,9 +186,6 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
     }
 
     Configurator &configurator = Configurator::Get();
-    if (meta_object.view == SETTING_VIEW_ADVANCED && !configurator.GetActiveConfiguration()->view_advanced_settings) {
-        return;
-    }
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));

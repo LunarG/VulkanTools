@@ -4,7 +4,7 @@
         "name": "Frame Capture",
         "version": 1,
         "platforms": [
-            "WINDOWS",
+            "WINDOWS_X86",
             "LINUX"
         ],
         "selected_layer_name": "VK_LAYER_LUNARG_gfxreconstruct",
