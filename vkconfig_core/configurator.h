@@ -55,6 +55,8 @@ class Configurator : public Serialize {
         std::string executable_path;
         std::vector<LoaderLayerSettings> layers;
         LogFlags stderr_log_flags = LOG_ERROR;
+        bool override_layers = true;
+        bool override_loader = true;
     };
 
     static Configurator& Get();

@@ -8,7 +8,6 @@
             "LINUX"
         ],
         "selected_layer_name": "VK_LAYER_LUNARG_crash_diagnostic",
-        "description": "Crash Diagnostic Layer is a crash/hang debugging tool that helps determines GPU progress in a Vulkan application.",
         "layers": [
             {
                 "name": "VK_LAYER_LUNARG_crash_diagnostic",
