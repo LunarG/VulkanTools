@@ -143,8 +143,12 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
         json_settings.insert("app_keys", json_app_keys);
     }
 
-    json_settings.insert("layers", json_layers);
-    json_settings.insert("stderr_log", json_stderr_log);
+    if (loader_settings.override_layers) {
+        json_settings.insert("layers", json_layers);
+    }
+    if (loader_settings.override_loader) {
+        json_settings.insert("stderr_log", json_stderr_log);
+    }
     return json_settings;
 }
 
@@ -156,6 +160,8 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
     const Configuration* configuration = this->configurations.FindConfiguration(configuration_key);
     assert(configuration != nullptr);
 
+    result.override_loader = configuration->override_loader;
+    result.override_layers = configuration->override_layers;
     result.stderr_log_flags = configuration->loader_log_messages_flags;
 
     for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
@@ -333,6 +339,10 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
             // Loop through all the layers
             for (std::size_t j = 0, n = configuration->parameters.size(); j < n; ++j) {
                 const Parameter& parameter = configuration->parameters[j];
+                if (!parameter.override_settings) {
+                    continue;
+                }
+
                 if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
                     continue;
                 }
