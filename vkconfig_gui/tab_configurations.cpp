@@ -96,6 +96,17 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->ui->configurations_executable_scope->blockSignals(false);
 
     this->ui_configurations_group_box_settings_tooltip();
+
+    this->advanced_mode = new ResizeButton(this->ui->configurations_group_box_layers);
+    this->advanced_mode->setMinimumSize(24, 24);
+    this->advanced_mode->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    this->advanced_mode->adjustSize();
+    this->ui->configurations_group_box_layers->installEventFilter(this->advanced_mode);
+    // this->ui->configurations_group_box_layers->setStyleSheet("QGroupBox::title { margin: 4px; }");
+
+    this->connect(this->advanced_mode, SIGNAL(pressed()), this, SLOT(on_configurations_advanced_toggle_pressed()));
+
+    this->ui_configurations_advanced_toggle();
 }
 
 TabConfigurations::~TabConfigurations() {
@@ -217,12 +228,25 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
     if (has_selected_configuration) {
         Configuration *configuration = configurator.configurations.FindConfiguration(selected_contiguration_name);
         if (configuration != nullptr) {
+            const bool has_multiple_parameter = configuration->HasMultipleActiveParameter();
+
+            ui->configurations_layers_list->setDragEnabled(has_multiple_parameter);
+
+            bool selected_layer = configuration->selected_layer_name.empty();
             for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
                 Parameter &parameter = configuration->parameters[i];
 
+                if (!configurator.advanced) {
+                    if (parameter.control != LAYER_CONTROL_ON && parameter.control != LAYER_CONTROL_OFF) {
+                        continue;
+                    }
+                }
+
                 ListItem *item = new ListItem(parameter.key.c_str());
                 item->setFlags(item->flags() | Qt::ItemIsSelectable);
-                item->setIcon(QIcon(":/resourcefiles/drag.png"));
+                if (has_multiple_parameter) {
+                    item->setIcon(QIcon(":/resourcefiles/drag.png"));
+                }
                 ui->configurations_layers_list->addItem(item);
 
                 const std::vector<Version> &layer_versions = configurator.layers.GatherVersions(parameter.key);
@@ -236,7 +260,12 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
                 ui->configurations_layers_list->setItemWidget(item, layer_widget);
                 if (configuration->selected_layer_name == parameter.key) {
                     ui->configurations_layers_list->setCurrentItem(item);
+                    selected_layer = true;
                 }
+            }
+
+            if (!selected_layer) {
+                configuration->selected_layer_name.clear();
             }
             // resizeEvent(nullptr);
 
@@ -848,6 +877,33 @@ void TabConfigurations::ui_configurations_group_box_settings_tooltip() {
 
         this->ui->configurations_group_box_settings->setToolTip(tooltip.c_str());
     }
+}
+
+void TabConfigurations::ui_configurations_advanced_toggle() {
+    Configurator &configurator = Configurator::Get();
+
+    if (this->advanced_mode) {
+        if (configurator.advanced) {
+            this->advanced_mode->setIcon(QIcon(":/resourcefiles/settings_basic.png"));
+            this->advanced_mode->setToolTip("Click to switch to basic Layers Configuration mode");
+        } else {
+            this->advanced_mode->setIcon(QIcon(":/resourcefiles/settings_advanced.png"));
+            this->advanced_mode->setToolTip("Click to switch to advanced Layers Configuration mode");
+        }
+    }
+
+    // this->ui->configurations_group_box_layers->setCheckable(configurator.advanced);
+    // this->ui->configurations_group_box_loader->setCheckable(configurator.advanced);
+    this->ui->configurations_group_box_settings->setCheckable(configurator.advanced);
+}
+
+void TabConfigurations::on_configurations_advanced_toggle_pressed() {
+    Configurator &configurator = Configurator::Get();
+    configurator.advanced = !configurator.advanced;
+
+    this->ui_configurations_advanced_toggle();
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(int index) {

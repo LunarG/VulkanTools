@@ -618,6 +618,7 @@ bool Configurator::Load(const QJsonObject& json_root_object) {
     if (json_interface_object.value(GetToken(TAB_CONFIGURATIONS)) != QJsonValue::Undefined) {
         const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_CONFIGURATIONS)).toObject();
         this->use_system_tray = json_object.value("use_system_tray").toBool();
+        this->advanced = json_object.value("advanced").toBool();
         this->executable_scope = ::GetExecutableScope(json_object.value("executable_scope").toString().toStdString().c_str());
         this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
     }
@@ -654,6 +655,7 @@ bool Configurator::Save(QJsonObject& json_root_object) const {
     {
         QJsonObject json_object;
         json_object.insert("use_system_tray", this->use_system_tray);
+        json_object.insert("advanced", this->advanced);
         json_object.insert("executable_scope", ::GetToken(this->executable_scope));
         json_object.insert("selected_global_configuration", this->selected_global_configuration.c_str());
         json_interface_object.insert(::GetToken(TAB_CONFIGURATIONS), json_object);
