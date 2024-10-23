@@ -149,6 +149,10 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
         this->platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
     }
 
+    if (json_configuration_object.value("default_layer_control") != QJsonValue::Undefined) {
+        this->default_control = ::GetLayerControl(ReadString(json_configuration_object, "default_layer_control").c_str());
+    }
+
     if (json_configuration_object.value("override_layers") != QJsonValue::Undefined) {
         this->override_layers = ReadBoolValue(json_configuration_object, "override_layers");
     }
@@ -173,9 +177,13 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
             const QJsonObject& json_layer_object = json_layers_array[layer_index].toObject();
 
             Parameter parameter;
-            parameter.key = ReadStringValue(json_layer_object, "name").c_str();
-            parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
             parameter.control = GetLayerControl(ReadStringValue(json_layer_object, "control").c_str());
+            if (IsVisibleLayer(parameter.control)) {
+                parameter.key = ReadStringValue(json_layer_object, "name").c_str();
+            } else {
+                parameter.key = ::GetLabel(parameter.control);
+            }
+            parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
             const std::string& version = ReadStringValue(json_layer_object, "version");
             parameter.api_version = version == "latest" ? Version::LATEST : Version(version.c_str());
             if (json_layer_object.value("manifest") != QJsonValue::Undefined) {
@@ -291,6 +299,7 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
     json_configuration.insert("name", this->key.c_str());
     json_configuration.insert("version", this->version);
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
+    json_configuration.insert("default_layer_control", ::GetToken(this->default_control));
     json_configuration.insert("override_layers", this->override_layers);
     json_configuration.insert("override_loader", this->override_loader);
     SaveStringArray(json_configuration, "loader_message_types", GetLogTokens(this->loader_log_messages_flags));
@@ -450,7 +459,7 @@ void Configuration::GatherParameters(const LayerManager& layers) {
 
         Parameter parameter;
         parameter.key = layer->key;
-        parameter.control = LAYER_CONTROL_AUTO;
+        parameter.control = this->default_control;
         parameter.api_version = Version::LATEST;
         parameter.manifest = layer->manifest_path;
         CollectDefaultSettingData(layer->settings, parameter.settings);
