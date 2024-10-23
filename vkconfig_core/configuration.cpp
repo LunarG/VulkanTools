@@ -145,12 +145,16 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
         this->version = json_configuration_object.value("version").toVariant().toInt();
     }
 
-    if (json_configuration_object.value("view_advanced_settings") != QJsonValue::Undefined) {
-        this->view_advanced_settings = ReadBoolValue(json_configuration_object, "view_advanced_settings");
+    if (json_configuration_object.value("platforms") != QJsonValue::Undefined) {
+        this->platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
     }
 
-    if (json_configuration_object.value("selected_layer_name") != QJsonValue::Undefined) {
-        this->selected_layer_name = ReadString(json_configuration_object, "selected_layer_name");
+    if (json_configuration_object.value("override_layers") != QJsonValue::Undefined) {
+        this->override_layers = ReadBoolValue(json_configuration_object, "override_layers");
+    }
+
+    if (json_configuration_object.value("override_loader") != QJsonValue::Undefined) {
+        this->override_loader = ReadBoolValue(json_configuration_object, "override_loader");
     }
 
     if (json_configuration_object.value("loader_message_types") != QJsonValue::Undefined) {
@@ -158,88 +162,68 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
         this->loader_log_messages_flags = GetLogFlags(loader_messsage_types);
     }
 
-    if (json_configuration_object.value("platforms") != QJsonValue::Undefined) {
-        this->platform_flags = GetPlatformFlags(ReadStringArray(json_configuration_object, "platforms"));
-    }
-
-    this->user_defined_paths.clear();
-    if (json_configuration_object.value("layers_paths") != QJsonValue::Undefined) {
-        std::vector<std::string> paths = ReadStringArray(json_configuration_object, "layers_paths");
-        for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
-            const QFileInfo info(paths[i].c_str());
-            if (info.exists()) {
-                this->user_defined_paths.push_back(Path(paths[i]));
-            } else {
-                QMessageBox alert;
-                alert.QDialog::setWindowTitle("User-defined layer path doesn't exist");
-                alert.setText(format("'%s' user-defined layer path doesn't exist.", paths[i].c_str()).c_str());
-                alert.setInformativeText(
-                    format("'%s' configuration specifies this path, some expected layers might not be found.", this->key.c_str())
-                        .c_str());
-                alert.setStandardButtons(QMessageBox::Ok);
-                alert.setDefaultButton(QMessageBox::Ok);
-                alert.setIcon(QMessageBox::Warning);
-                alert.exec();
-            }
-        }
+    if (json_configuration_object.value("selected_layer_name") != QJsonValue::Undefined) {
+        this->selected_layer_name = ReadString(json_configuration_object, "selected_layer_name");
     }
 
     // Required configuration layers values
-    const QJsonArray& json_layers_array = ReadArray(json_configuration_object, "layers");
-    for (int layer_index = 0, layer_count = json_layers_array.size(); layer_index < layer_count; ++layer_index) {
-        const QJsonObject& json_layer_object = json_layers_array[layer_index].toObject();
+    if (json_configuration_object.value("layers") != QJsonValue::Undefined) {
+        const QJsonArray& json_layers_array = ReadArray(json_configuration_object, "layers");
+        for (int layer_index = 0, layer_count = json_layers_array.size(); layer_index < layer_count; ++layer_index) {
+            const QJsonObject& json_layer_object = json_layers_array[layer_index].toObject();
 
-        Parameter parameter;
-        parameter.key = ReadStringValue(json_layer_object, "name").c_str();
-        parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
-        parameter.control = GetLayerControl(ReadStringValue(json_layer_object, "control").c_str());
-        const std::string& version = ReadStringValue(json_layer_object, "version");
-        parameter.api_version = version == "latest" ? Version::LATEST : Version(version.c_str());
-        if (json_layer_object.value("manifest") != QJsonValue::Undefined) {
-            parameter.manifest = ReadString(json_layer_object, "manifest");
-        }
-        if (json_layer_object.value("enabled") != QJsonValue::Undefined) {
-            parameter.enabled = ReadBoolValue(json_layer_object, "enabled");
-        }
-
-        const QJsonValue& json_platform_value = json_layer_object.value("platforms");
-        if (json_platform_value != QJsonValue::Undefined) {
-            parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
-        }
-
-        const QJsonValue& json_expanded_value = json_layer_object.value("expanded_states");
-        if (json_expanded_value != QJsonValue::Undefined) {
-            parameter.setting_tree_state = json_layer_object.value("expanded_states").toVariant().toByteArray();
-        }
-
-        const Layer* layer = layers.Find(parameter.key, parameter.api_version);
-
-        if (layer != nullptr) {
-            CollectDefaultSettingData(layer->settings, parameter.settings);
-        }
-
-        const QJsonArray& json_settings = ReadArray(json_layer_object, "settings");
-        for (int i = 0, n = json_settings.size(); i < n; ++i) {
-            const QJsonObject& json_setting_object = json_settings[i].toObject();
-
-            const std::string setting_key = ReadStringValue(json_setting_object, "key");
-            const SettingType setting_type = GetSettingType(ReadStringValue(json_setting_object, "type").c_str());
-
-            SettingData* setting_data = FindSetting(parameter.settings, setting_key.c_str());
-            if (setting_data == nullptr) {
-                continue;
+            Parameter parameter;
+            parameter.key = ReadStringValue(json_layer_object, "name").c_str();
+            parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
+            parameter.control = GetLayerControl(ReadStringValue(json_layer_object, "control").c_str());
+            const std::string& version = ReadStringValue(json_layer_object, "version");
+            parameter.api_version = version == "latest" ? Version::LATEST : Version(version.c_str());
+            if (json_layer_object.value("manifest") != QJsonValue::Undefined) {
+                parameter.manifest = ReadString(json_layer_object, "manifest");
+            }
+            if (json_layer_object.value("enabled") != QJsonValue::Undefined) {
+                parameter.enabled = ReadBoolValue(json_layer_object, "enabled");
             }
 
-            // Configuration type and layer type are differents, use layer default value
-            if (setting_data->type != setting_type) {
-                continue;
+            const QJsonValue& json_platform_value = json_layer_object.value("platforms");
+            if (json_platform_value != QJsonValue::Undefined) {
+                parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
             }
 
-            const bool result = setting_data->Load(json_setting_object);
-            assert(result);
-        }
+            const QJsonValue& json_expanded_value = json_layer_object.value("expanded_states");
+            if (json_expanded_value != QJsonValue::Undefined) {
+                parameter.setting_tree_state = json_layer_object.value("expanded_states").toVariant().toByteArray();
+            }
 
-        this->parameters.push_back(parameter);
+            const Layer* layer = layers.Find(parameter.key, parameter.api_version);
+
+            if (layer != nullptr) {
+                CollectDefaultSettingData(layer->settings, parameter.settings);
+            }
+
+            const QJsonArray& json_settings = ReadArray(json_layer_object, "settings");
+            for (int i = 0, n = json_settings.size(); i < n; ++i) {
+                const QJsonObject& json_setting_object = json_settings[i].toObject();
+
+                const std::string setting_key = ReadStringValue(json_setting_object, "key");
+                const SettingType setting_type = GetSettingType(ReadStringValue(json_setting_object, "type").c_str());
+
+                SettingData* setting_data = FindSetting(parameter.settings, setting_key.c_str());
+                if (setting_data == nullptr) {
+                    continue;
+                }
+
+                // Configuration type and layer type are differents, use layer default value
+                if (setting_data->type != setting_type) {
+                    continue;
+                }
+
+                const bool result = setting_data->Load(json_setting_object);
+                assert(result);
+            }
+
+            this->parameters.push_back(parameter);
+        }
     }
 
     this->GatherParameters(layers);
@@ -307,16 +291,11 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
     json_configuration.insert("name", this->key.c_str());
     json_configuration.insert("version", this->version);
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
-    json_configuration.insert("view_advanced_settings", this->view_advanced_settings);
-    json_configuration.insert("selected_layer_name", this->selected_layer_name.c_str());
+    json_configuration.insert("override_layers", this->override_layers);
+    json_configuration.insert("override_loader", this->override_loader);
     SaveStringArray(json_configuration, "loader_message_types", GetLogTokens(this->loader_log_messages_flags));
+    json_configuration.insert("selected_layer_name", this->selected_layer_name.c_str());
     json_configuration.insert("layers", json_layers);
-
-    QJsonArray json_paths;
-    for (std::size_t i = 0, n = this->user_defined_paths.size(); i < n; ++i) {
-        json_paths.append(this->user_defined_paths[i].AbsolutePath().c_str());
-    }
-    json_configuration.insert("layers_paths", json_paths);
 
     root.insert("configuration", json_configuration);
 
