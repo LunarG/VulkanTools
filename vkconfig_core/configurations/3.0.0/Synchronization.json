@@ -9,6 +9,12 @@
             "MACOS"
         ],
         "selected_layer_name": "VK_LAYER_KHRONOS_validation",
+        "override_layers": true,
+        "override_loader": true,
+        "loader_message_types": [
+            "error",
+            "warn"
+        ],
         "layers": [
             {
                 "name": "VK_LAYER_KHRONOS_validation",

@@ -8,6 +8,17 @@
             "LINUX"
         ],
         "selected_layer_name": "VK_LAYER_LUNARG_crash_diagnostic",
+        "override_layers": true,
+        "override_loader": true,
+        "loader_message_types": [
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "perf",
+            "layer",
+            "driver"
+        ],
         "layers": [
             {
                 "name": "VK_LAYER_LUNARG_crash_diagnostic",
