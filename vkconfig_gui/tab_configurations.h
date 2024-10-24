@@ -26,6 +26,7 @@
 
 #include <QAbstractItemView>
 #include <QPushButton>
+#include <QPushButton>
 
 class ResizeButton : public QPushButton {
     Q_OBJECT
@@ -89,6 +90,8 @@ struct TabConfigurations : public Tab {
     void on_configurations_list_itemChanged(QListWidgetItem *item);
     void on_configurations_list_currentRowChanged(int currentRow);
     void on_configurations_layers_list_currentRowChanged(int currentRow);
+
+    void on_configurations_layerVersionChanged();
 
    private:
     SettingsTreeManager _settings_tree_manager;

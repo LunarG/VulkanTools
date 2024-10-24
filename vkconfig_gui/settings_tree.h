@@ -23,6 +23,7 @@
 
 #include "widget_setting_flags.h"
 #include "widget_setting_filesystem.h"
+#include "widget_layer_version.h"
 #include "ui_mainwindow.h"
 
 #include "../vkconfig_core/configuration.h"
@@ -34,13 +35,13 @@
 #include <vector>
 #include <memory>
 
-class SettingsTreeManager : QObject {
+class SettingsTreeManager : public QObject {
     Q_OBJECT
 
    public:
-    SettingsTreeManager();
+    SettingsTreeManager(std::shared_ptr<Ui::MainWindow> ui);
 
-    void CreateGUI(std::shared_ptr<Ui::MainWindow> ui);
+    void CreateGUI();
     void CleanupGUI();
 
     void GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item);
@@ -49,9 +50,13 @@ class SettingsTreeManager : QObject {
     void Refresh(RefreshAreas refresh_areas);
 
    public Q_SLOTS:
+    void OnLayerVersionChanged();
     void OnSettingChanged();
     void OnPresetChanged(int combox_preset_index);
     void OnExpandedChanged(const QModelIndex &index);
+
+   Q_SIGNALS:
+    void signalLayerVersionChanged();
 
    private:
     SettingsTreeManager(const SettingsTreeManager &) = delete;
@@ -62,7 +67,7 @@ class SettingsTreeManager : QObject {
 
     void RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent);
 
+    std::shared_ptr<Ui::MainWindow> ui;
+    LayerVersionComboBox *layer_version = nullptr;
     std::vector<std::string> preset_labels;  // The preset in the combobox
-    QTreeWidget *tree;
-    Parameter *parameter;
 };
