@@ -1,0 +1,29 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Validation",
+        "version": 1,
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "selected_layer_name": "VK_LAYER_KHRONOS_validation",
+        "override_layers": true,
+        "override_loader": true,
+        "loader_message_types": [
+            "error",
+            "warn"
+        ],
+        "layers": [
+            {
+                "name": "VK_LAYER_KHRONOS_validation",
+                "rank": 0,
+                "settings": [
+                ],
+                "control": "on",
+                "version": "latest"
+            }
+        ]
+    }
+}

@@ -20,7 +20,7 @@
 
 #include "setting_filesystem.h"
 #include "parameter.h"
-#include "platform.h"
+#include "type_platform.h"
 #include "version.h"
 #include "util.h"
 #include "path.h"
@@ -40,8 +40,13 @@ bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
         for (std::size_t i = 0, n = this->settings.size(); i < n; ++i) {
             SettingData* current_setting = this->settings[i];
 
-            if (current_setting->key != preset_setting->key) continue;
-            if (current_setting->type != preset_setting->type) continue;
+            if (current_setting->key != preset_setting->key) {
+                continue;
+            }
+
+            if (current_setting->type != preset_setting->type) {
+                continue;
+            }
 
             this->settings[i]->Copy(preset_setting);
         }
@@ -50,21 +55,21 @@ bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
     return true;
 }
 
-ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter) {
+ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& parameter) {
     assert(!parameter.key.empty());
 
-    const Layer* layer = FindByKey(available_layers, parameter.key.c_str());
+    const Layer* layer = layers.Find(parameter.key, parameter.api_version);
     if (layer == nullptr) {
         return PARAMETER_RANK_MISSING;
-    } else if (parameter.state == LAYER_STATE_EXCLUDED) {
+    } else if (parameter.control == LAYER_CONTROL_OFF) {
         return PARAMETER_RANK_EXCLUDED;
-    } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->type == LAYER_TYPE_IMPLICIT) {
+    } else if (parameter.control == LAYER_CONTROL_AUTO && layer->type == LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_IMPLICIT_AVAILABLE;
-    } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->type == LAYER_TYPE_IMPLICIT) {
+    } else if (parameter.control == LAYER_CONTROL_ON && layer->type == LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_IMPLICIT_OVERRIDDEN;
-    } else if (parameter.state == LAYER_STATE_OVERRIDDEN && layer->type != LAYER_TYPE_IMPLICIT) {
+    } else if (parameter.control == LAYER_CONTROL_ON && layer->type != LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_EXPLICIT_OVERRIDDEN;
-    } else if (parameter.state == LAYER_STATE_APPLICATION_CONTROLLED && layer->type != LAYER_TYPE_IMPLICIT) {
+    } else if (parameter.control == LAYER_CONTROL_AUTO && layer->type != LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_EXPLICIT_AVAILABLE;
     } else {
         assert(0);  // Unknown ordering
@@ -72,30 +77,9 @@ ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, c
     }
 }
 
-Version ComputeMinApiVersion(const Version api_version, const std::vector<Parameter>& parameters,
-                             const std::vector<Layer>& layers) {
-    if (parameters.empty()) return Version::VERSION_NULL;
-
-    Version min_version = api_version;
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Layer* layer = FindByKey(layers, parameters[i].key.c_str());
-        if (layer == nullptr) continue;
-
-        const ParameterRank state = GetParameterOrdering(layers, parameters[i]);
-
-        if (state == PARAMETER_RANK_EXCLUDED) continue;
-        if (state == PARAMETER_RANK_MISSING) continue;
-
-        min_version = min_version < layer->api_version ? min_version : layer->api_version;
-    }
-
-    return min_version;
-}
-
-void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
+void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& layers) {
     struct ParameterCompare {
-        ParameterCompare(const std::vector<Layer>& layers) : layers(layers) {}
+        ParameterCompare(const LayerManager& layers) : layers(layers) {}
 
         bool operator()(const Parameter& a, const Parameter& b) const {
             const ParameterRank rankA = GetParameterOrdering(layers, a);
@@ -103,7 +87,7 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
 
             const bool both_ranked = a.overridden_rank != Parameter::NO_RANK && b.overridden_rank != Parameter::NO_RANK;
 
-            if (rankA == rankB && a.state == LAYER_STATE_OVERRIDDEN)
+            if (rankA == rankB && a.control == LAYER_CONTROL_ON)
                 if (a.overridden_rank != Parameter::NO_RANK && b.overridden_rank != Parameter::NO_RANK)
                     return a.overridden_rank < b.overridden_rank;
                 else if (a.key == VK_LAYER_KHRONOS_PROFILES_NAME)
@@ -120,7 +104,7 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
                 return a.overridden_rank < b.overridden_rank;
             else if (both_ranked && rankA == PARAMETER_RANK_EXPLICIT_OVERRIDDEN && rankB == PARAMETER_RANK_IMPLICIT_OVERRIDDEN)
                 return a.overridden_rank < b.overridden_rank;
-            else if (rankA == rankB && a.state != LAYER_STATE_OVERRIDDEN)
+            else if (rankA == rankB && a.control != LAYER_CONTROL_ON)
                 return a.key < b.key;
             else if (rankA != rankB)
                 return rankA < rankB;
@@ -128,34 +112,22 @@ void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>
                 return a.key < b.key;
         }
 
-        const std::vector<Layer>& layers;
+        const LayerManager& layers;
     };
 
     std::sort(parameters.begin(), parameters.end(), ParameterCompare(layers));
 
     for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        if (parameters[i].state == LAYER_STATE_OVERRIDDEN)
+        if (parameters[i].control == LAYER_CONTROL_ON)
             parameters[i].overridden_rank = static_cast<int>(i);
         else
             parameters[i].overridden_rank = Parameter::NO_RANK;
     }
 }
 
-void FilterParameters(std::vector<Parameter>& parameters, const LayerState state) {
-    std::vector<Parameter> filtered_parameters;
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        if (parameters[i].state == state) continue;
-
-        filtered_parameters.push_back(parameters[i]);
-    }
-
-    parameters = filtered_parameters;
-}
-
-bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers, std::string& missing_layer) {
+bool HasMissingLayer(const std::vector<Parameter>& parameters, const LayerManager& layers, std::string& missing_layer) {
     for (auto it = parameters.begin(), end = parameters.end(); it != end; ++it) {
-        if (it->state == LAYER_STATE_EXCLUDED) {
+        if (it->control == LAYER_CONTROL_OFF) {
             continue;  // If excluded are missing, it doesn't matter
         }
 
@@ -163,101 +135,10 @@ bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector
             continue;  // If unsupported are missing, it doesn't matter
         }
 
-        if (!IsFound(layers, it->key.c_str())) {
+        if (layers.Find(it->key, it->api_version) == nullptr) {
             missing_layer = it->key;
             return true;
         }
     }
     return false;
-}
-
-std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters) {
-    std::size_t count = 0;
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Parameter& parameter = parameters[i];
-        if (!IsPlatformSupported(parameter.platform_flags)) continue;
-
-        if (parameter.state != LAYER_STATE_OVERRIDDEN) continue;
-
-        ++count;
-    }
-
-    return count;
-}
-
-std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers) {
-    std::size_t count = 0;
-
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Parameter& parameter = parameters[i];
-        if (!IsPlatformSupported(parameter.platform_flags)) continue;
-
-        if (parameter.state != LAYER_STATE_EXCLUDED) continue;
-
-        const Layer* layer = FindByKey(layers, parameter.key.c_str());
-        if (layer == nullptr) continue;  // Do not display missing excluded layers
-
-        ++count;
-    }
-
-    return count;
-}
-
-std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const std::vector<Layer>& available_layers) {
-    std::vector<Parameter> gathered_parameters;
-    /*
-        Parameter application_enabled_layers;
-        application_enabled_layers.key = "Application Enabled Layers";
-        application_enabled_layers.control = LAYER_CONTROL_APPLICATIONS;
-        application_enabled_layers.overridden_rank = Parameter::NO_RANK;
-        gathered_parameters.push_back(application_enabled_layers);
-    */
-    // Loop through the layers. They are expected to be in order
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Parameter& parameter = parameters[i];
-        assert(!parameter.key.empty());
-
-        gathered_parameters.push_back(parameter);
-    }
-
-    for (std::size_t i = 0, n = available_layers.size(); i < n; ++i) {
-        const Layer& layer = available_layers[i];
-
-        // The layer is already in the layer tree
-        if (IsFound(parameters, layer.key.c_str())) continue;
-
-        Parameter parameter;
-        parameter.key = layer.key;
-        parameter.state = LAYER_STATE_APPLICATION_CONTROLLED;
-        parameter.api_version = layer.api_version;
-        CollectDefaultSettingData(layer.settings, parameter.settings);
-
-        gathered_parameters.push_back(parameter);
-    }
-
-    OrderParameter(gathered_parameters, available_layers);
-    /*
-        Parameter unordered_layer_location;
-        unordered_layer_location.key = "Unordered Layers";
-        unordered_layer_location.control = LAYER_CONTROL_UNORDERED;
-        unordered_layer_location.overridden_rank = 999;
-        gathered_parameters.push_back(unordered_layer_location);
-    */
-    return gathered_parameters;
-}
-
-bool UseBuiltinValidationSettings(const Parameter& parameter) {
-    if (parameter.key != "VK_LAYER_KHRONOS_validation") {
-        return false;
-    }
-
-    for (std::size_t j = 0, m = parameter.settings.size(); j < m; ++j) {
-        const SettingData* setting_data = parameter.settings[j];
-        if (setting_data->key == "validation_control") {
-            return false;
-        }
-    }
-
-    return true;
 }

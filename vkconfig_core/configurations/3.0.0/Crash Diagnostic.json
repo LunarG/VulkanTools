@@ -1,0 +1,100 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Crash Diagnostic",
+        "version": 1,
+        "platforms": [
+            "WINDOWS",
+            "LINUX"
+        ],
+        "selected_layer_name": "VK_LAYER_LUNARG_crash_diagnostic",
+        "override_layers": true,
+        "override_loader": true,
+        "loader_message_types": [
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "perf",
+            "layer",
+            "driver"
+        ],
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_crash_diagnostic",
+                "rank": 1,
+                "settings": [
+                    {
+                        "key": "watchdog_timeout_ms",
+                        "type": "INT",
+                        "value": 30000
+                    },
+                    {
+                        "key": "output_path",
+                        "type": "STRING",
+                        "value": ""
+                    },
+                    {
+                        "key": "dump_queue_submits",
+                        "type": "ENUM",
+                        "value": "running"
+                    },
+                    {
+                        "key": "dump_command_buffers",
+                        "type": "ENUM",
+                        "value": "running"
+                    },
+                    {
+                        "key": "dump_commands",
+                        "type": "ENUM",
+                        "value": "running"
+                    },
+                    {
+                        "key": "dump_shaders",
+                        "type": "ENUM",
+                        "value": "off"
+                    },
+                    {
+                        "key": "message_severity",
+                        "type": "FLAGS",
+                        "value": [
+                            "error"
+                        ]
+                    },
+                    {
+                        "key": "log_file",
+                        "type": "STRING",
+                        "value": "stderr"
+                    },
+                    {
+                        "key": "trace_on",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "trace_all_semaphores",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "sync_after_commands",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "instrument_all_commands",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "track_semaphores",
+                        "type": "BOOL",
+                        "value": true
+                    }
+                ],
+                "control": "on",
+                "version": "latest"
+            }
+        ]
+    }
+}

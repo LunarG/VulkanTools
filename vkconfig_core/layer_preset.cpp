@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,13 +38,19 @@ const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, const char
 }
 
 bool HasPreset(const SettingDataSet& layer_settings, const SettingDataSetConst& preset_settings) {
-    if (preset_settings.empty()) return false;
+    if (preset_settings.empty()) {
+        return false;
+    }
 
     for (std::size_t preset_index = 0, preset_count = preset_settings.size(); preset_index < preset_count; ++preset_index) {
         const SettingData* layer_setting = FindSetting(layer_settings, preset_settings[preset_index]->key.c_str());
-        if (layer_setting == nullptr) return false;
+        if (layer_setting == nullptr) {
+            return false;
+        }
 
-        if (*preset_settings[preset_index] != *layer_setting) return false;
+        if (*preset_settings[preset_index] != *layer_setting) {
+            return false;
+        }
     }
 
     return true;

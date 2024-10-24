@@ -101,3 +101,12 @@ TEST(test_setting_type_list, validation_list) {
 
     EXPECT_TRUE(!list.empty());
 }
+
+TEST(test_setting_type_list, validation_list_no_sdk) {
+    qunsetenv("VULKAN_SDK");
+
+    std::vector<NumberOrString> list;
+    LoadVUIDs(list);
+
+    EXPECT_TRUE(!list.empty());
+}

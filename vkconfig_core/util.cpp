@@ -20,16 +20,16 @@
  */
 
 #include "util.h"
-#include "platform.h"
+#include "type_platform.h"
+
+#include <QString>
+#include <QStringList>
 
 #include <cstddef>
 #include <cstring>
 #include <cassert>
 #include <cstdarg>
 #include <cctype>
-
-#include <QString>
-#include <QStringList>
 
 #include <cctype>
 #include <regex>
@@ -342,4 +342,32 @@ std::string GetLayerSettingPrefix(const std::string& key) {
     QString result(key.c_str());
     result.remove("VK_LAYER_");
     return ToLowerCase(result.toStdString()) + ".";
+}
+
+static const size_t NOT_FOUND = static_cast<size_t>(-1);
+
+std::size_t ExtractDuplicateNumber(const std::string& name) {
+    const std::size_t name_open = name.find_last_of("(");
+    if (name_open == NOT_FOUND) {
+        return NOT_FOUND;
+    }
+
+    const std::size_t name_close = name.find_last_of(")");
+    if (name_close == NOT_FOUND) {
+        return NOT_FOUND;
+    }
+
+    const std::string number = name.substr(name_open + 1, name_close - (name_open + 1));
+    if (!IsNumber(number)) {
+        return NOT_FOUND;
+    }
+
+    return std::stoi(number);
+}
+
+std::string ExtractDuplicateBaseName(const std::string& name) {
+    assert(ExtractDuplicateNumber(name) != NOT_FOUND);
+    const std::size_t found = name.find_last_of("(");
+    assert(found != NOT_FOUND);
+    return name.substr(0, found - 1);
 }

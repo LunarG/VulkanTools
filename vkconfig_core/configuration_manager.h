@@ -21,66 +21,57 @@
 #pragma once
 
 #include "configuration.h"
-#include "environment.h"
-#include "path_manager.h"
+#include "path.h"
+#include "serialization.h"
 
 #include <string>
 #include <vector>
 
-class ConfigurationManager {
+struct ReferencedLayer {
+    std::string layer;
+    std::string configuration;
+};
+
+class ConfigurationManager : public Serialize {
    public:
-    ConfigurationManager(Environment& environment);
+    ConfigurationManager();
     ~ConfigurationManager();
 
-    void LoadAllConfigurations(const std::vector<Layer>& available_layers);
+    bool Load(const QJsonObject& json_root_object) override;
+    bool Save(QJsonObject& json_root_object) const override;
+    void Reset() override;
 
-    void SaveAllConfigurations(const std::vector<Layer>& available_layers);
+    void LoadAllConfigurations(const LayerManager& layers);
+    void SaveAllConfigurations() const;
 
-    Configuration& CreateConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name,
-                                       bool duplicate = false);
+    Configuration& CreateConfiguration(const LayerManager& layers, const std::string& configuration_name);
+    Configuration& DuplicateConfiguration(const LayerManager& layers, const std::string& configuration_name);
+    void RemoveConfiguration(const std::string& configuration_name);
+    int GetConfigurationIndex(const std::string& configuration_name) const;
 
-    void RemoveConfiguration(const std::vector<Layer>& available_layers, const std::string& configuration_name);
+    bool ImportConfiguration(const LayerManager& layers, const Path& full_import_path);
+    bool ExportConfiguration(const LayerManager& layers, const Path& full_export_path, const std::string& configuration_name);
 
-    std::string ImportConfiguration(const std::vector<Layer>& available_layers, const std::string& full_import_path);
-    void ExportConfiguration(const std::vector<Layer>& available_layers, const std::string& full_export_path,
-                             const std::string& configuration_name);
-    Configuration* FindActiveConfiguration();
-
-    bool HasActiveConfiguration(const std::vector<Layer>& available_layers) const;
-
-    // The only function that actually configure the system, the Vulkan Loader, the Vulkan layer settings, creating and deleting
-    // system files
-    void Configure(const std::vector<Layer>& available_layers, const std::string& configuration_name);
-    void Configure(const std::vector<Layer>& available_layers);
-
-    void ResetDefaultsConfigurations(const std::vector<Layer>& available_layers);
-
-    void ReloadDefaultsConfigurations(const std::vector<Layer>& available_layers);
-
-    void FirstDefaultsConfigurations(const std::vector<Layer>& available_layers);
+    const Configuration* FindConfiguration(const std::string& configuration_name) const;
+    Configuration* FindConfiguration(const std::string& configuration_name);
 
     void SortConfigurations();
 
-    bool CheckLayersVersions(const std::vector<Layer>& available_layers, Configuration* selected_configuration,
-                             std::string& log_versions) const;
-    bool CheckApiVersions(const std::vector<Layer>& available_layers, Configuration* selected_configuration,
-                          std::string& log_versions) const;
+    std::vector<ReferencedLayer> BuildReferencedLayers(const LayerManager& layers, const Path& path);
 
     bool Empty() const { return available_configurations.empty(); }
 
     bool HasFile(const Configuration& configuration) const;
     void RemoveConfigurationFile(const std::string& key);
-
-    std::vector<Configuration> available_configurations;
-
-   private:
-    bool CompareLayersVersions(const std::vector<Layer>& available_layers, Configuration* selected_configuration,
-                               const Version& version, std::string& log_versions, bool is_less) const;
-
     void RemoveConfigurationFiles();
 
-    void LoadConfigurationsPath(const std::vector<Layer>& available_layers, const char* path);
-    void LoadDefaultConfigurations(const std::vector<Layer>& available_layers);
+    std::vector<Configuration> available_configurations;
+    Path last_path_import = Get(Path::HOME);
+    Path last_path_export = Get(Path::HOME);
 
-    Environment& environment;
+   private:
+    void LoadConfigurationsPath(const LayerManager& layers);
+    void LoadDefaultConfigurations(const LayerManager& layers);
+
+    std::map<std::string, int> removed_built_in_configuration;
 };
