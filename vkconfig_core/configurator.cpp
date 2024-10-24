@@ -719,6 +719,10 @@ bool Configurator::GetUseSystemTray() const { return this->use_system_tray; }
 void Configurator::SetUseSystemTray(bool enabled) { this->use_system_tray = enabled; }
 
 bool Configurator::HasActiveSettings() const {
+    if (this->executable_scope == EXECUTABLE_NONE) {
+        return false;
+    }
+
     const Configuration* configuration = this->GetActiveConfiguration();
     if (configuration != nullptr) {
         const Parameter* parameter = configuration->GetActiveParameter();
