@@ -50,54 +50,62 @@
 static const char *TOOLTIP_ORDER =
     "Layers are executed between the Vulkan application and driver in the specific order represented here";
 
-SettingsTreeManager::SettingsTreeManager() : tree(nullptr), parameter(nullptr) {}
-
-void SettingsTreeManager::CreateGUI(std::shared_ptr<Ui::MainWindow> ui) {
+SettingsTreeManager::SettingsTreeManager(std::shared_ptr<Ui::MainWindow> ui) : ui(ui) {
     assert(ui.get() != nullptr);
 
+    this->layer_version = new LayerVersionComboBox(this->ui->configurations_group_box_settings);
+    this->connect(this->layer_version, SIGNAL(itemChanged()), this, SLOT(OnLayerVersionChanged()));
+    this->ui->configurations_group_box_settings->installEventFilter(this->layer_version);
+}
+
+void SettingsTreeManager::CreateGUI() {
     // Do this first to make absolutely sure if these is an old configuration still active it's state gets saved.
     this->CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
 
-    this->tree = ui->configurations_settings;
-
     Configuration *configuration = configurator.GetActiveConfiguration();
-    this->parameter = configuration != nullptr ? configuration->GetActiveParameter() : nullptr;
+    Parameter *parameter = configuration != nullptr ? configuration->GetActiveParameter() : nullptr;
     const bool no_selected_layer = configuration != nullptr ? configuration->selected_layer_name.empty() : false;
 
     // Group box things
-    const Layer *layer = this->parameter ? configurator.layers.Find(parameter->key, parameter->api_version) : nullptr;
+    const Layer *layer = parameter != nullptr ? configurator.layers.Find(parameter->key, parameter->api_version) : nullptr;
 
     if (no_selected_layer) {
-        ui->configurations_group_box_settings->setTitle("Select a layer to display settings");
-        ui->configurations_group_box_settings->setCheckable(false);
-        ui->configurations_presets->setVisible(false);
+        this->ui->configurations_group_box_settings->setTitle("Select a layer to display settings");
+        this->ui->configurations_group_box_settings->setCheckable(false);
+        this->ui->configurations_presets->setVisible(false);
+        this->layer_version->setVisible(false);
         return;
     } else if (!configurator.HasActiveSettings()) {
-        ui->configurations_group_box_settings->setTitle("No Layer Settings");
-        ui->configurations_group_box_settings->setCheckable(false);
-        ui->configurations_presets->setVisible(false);
+        this->ui->configurations_group_box_settings->setTitle("No Layer Settings");
+        this->ui->configurations_group_box_settings->setCheckable(false);
+        this->ui->configurations_presets->setVisible(false);
+        this->layer_version->setVisible(false);
         return;
     } else {
-        ui->configurations_group_box_settings->setTitle(format("%s:", parameter->key.c_str()).c_str());
-        ui->configurations_group_box_settings->setCheckable(configurator.advanced);
-        ui->configurations_group_box_settings->setChecked(parameter->override_settings);
-        ui->configurations_presets->setVisible(!layer->presets.empty());
+        std::string title = parameter->key;
+        title.erase(0, strlen("VK_LAYER_"));
+
+        this->ui->configurations_group_box_settings->setTitle(format("%s:", title.c_str()).c_str());
+        this->ui->configurations_group_box_settings->setCheckable(configurator.advanced);
+        this->ui->configurations_group_box_settings->setChecked(parameter->override_settings);
+        this->ui->configurations_presets->setVisible(!layer->presets.empty());
     }
 
-    // Check layer version and switch if that doesn't match
-    if (layer->api_version != this->parameter->api_version) {
-        configuration->SwitchLayerVersion(configurator.layers, layer->key, layer->api_version);
+    const std::vector<Version> &layer_version = configurator.layers.GatherVersions(parameter->key);
+    this->layer_version->setVisible(layer_version.size() > 1);
+    if (layer_version.size() > 1) {
+        this->layer_version->Init(*parameter, layer_version);
     }
 
     // preset combobox
     {
-        ui->configurations_presets->blockSignals(true);
-        ui->configurations_presets->clear();
+        this->ui->configurations_presets->blockSignals(true);
+        this->ui->configurations_presets->clear();
         preset_labels.clear();
         if (!layer->presets.empty()) {
-            ui->configurations_presets->addItem(Layer::NO_PRESET);
+            this->ui->configurations_presets->addItem(Layer::NO_PRESET);
             preset_labels.push_back(Layer::NO_PRESET);
 
             for (std::size_t i = 0, n = layer->presets.size(); i < n; ++i) {
@@ -110,61 +118,52 @@ void SettingsTreeManager::CreateGUI(std::shared_ptr<Ui::MainWindow> ui) {
                     continue;
                 }
 
-                ui->configurations_presets->addItem((layer_preset.label + " Preset").c_str());
+                this->ui->configurations_presets->addItem((layer_preset.label + " Preset").c_str());
                 preset_labels.push_back(layer_preset.label);
             }
 
-            this->connect(ui->configurations_presets, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
-            ui->configurations_presets->setVisible(true);
+            this->connect(this->ui->configurations_presets, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
+            this->ui->configurations_presets->setVisible(true);
         } else {
-            ui->configurations_presets->setVisible(false);
+            this->ui->configurations_presets->setVisible(false);
         }
-        ui->configurations_presets->blockSignals(false);
+        this->ui->configurations_presets->blockSignals(false);
     }
 
     // settings tree
     {
-        this->tree->blockSignals(true);
-        this->tree->clear();
+        this->ui->configurations_settings->blockSignals(true);
+        this->ui->configurations_settings->clear();
 
         this->BuildTree();
 
-        this->connect(this->tree, SIGNAL(expanded(const QModelIndex)), this, SLOT(OnExpandedChanged(const QModelIndex)));
-        this->connect(this->tree, SIGNAL(collapsed(const QModelIndex)), this, SLOT(OnExpandedChanged(const QModelIndex)));
+        this->connect(this->ui->configurations_settings, SIGNAL(expanded(const QModelIndex)), this,
+                      SLOT(OnExpandedChanged(const QModelIndex)));
+        this->connect(this->ui->configurations_settings, SIGNAL(collapsed(const QModelIndex)), this,
+                      SLOT(OnExpandedChanged(const QModelIndex)));
 
-        this->tree->resizeColumnToContents(0);
+        this->ui->configurations_settings->resizeColumnToContents(0);
 
-        this->tree->blockSignals(false);
+        this->ui->configurations_settings->blockSignals(false);
     }
 }
 
 void SettingsTreeManager::CleanupGUI() {
-    // Was not initialized
-    if (this->tree == nullptr) {
-        return;
-    }
-
     Configurator &configurator = Configurator::Get();
     Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
         Parameter *parameter = configuration->GetActiveParameter();
         if (parameter != nullptr) {
             parameter->setting_tree_state.clear();
-            this->GetTreeState(parameter->setting_tree_state, this->tree->invisibleRootItem());
+            this->GetTreeState(parameter->setting_tree_state, this->ui->configurations_settings->invisibleRootItem());
         }
     }
 
-    this->tree->clear();
-    this->tree = nullptr;
+    this->ui->configurations_settings->clear();
 }
 
 void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {
     (void)index;
-
-    // Was not initialized
-    if (this->tree == nullptr) {
-        return;
-    }
 
     Configurator &configurator = Configurator::Get();
 
@@ -178,7 +177,7 @@ void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {
             }
 
             parameter.setting_tree_state.clear();
-            GetTreeState(parameter.setting_tree_state, this->tree->invisibleRootItem());
+            this->GetTreeState(parameter.setting_tree_state, this->ui->configurations_settings->invisibleRootItem());
         }
     }
 }
@@ -193,11 +192,13 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
     }
 
     Configurator &configurator = Configurator::Get();
+    Parameter *parameter = configurator.GetActiveParameter();
+    assert(parameter != nullptr);
 
     QTreeWidgetItem *item = new QTreeWidgetItem();
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     if (parent == nullptr) {
-        this->tree->addTopLevelItem(item);
+        this->ui->configurations_settings->addTopLevelItem(item);
     } else {
         parent->addChild(item);
     }
@@ -206,35 +207,36 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
         case SETTING_GROUP: {
             item->setText(0, meta_object.label.c_str());
             item->setToolTip(0, meta_object.description.c_str());
-            item->setFont(0, tree->font());
+            item->setFont(0, this->ui->configurations_settings->font());
             item->setExpanded(meta_object.expanded);
         } break;
         case SETTING_BOOL:
         case SETTING_BOOL_NUMERIC_DEPRECATED: {
             const SettingMetaBool &meta = static_cast<const SettingMetaBool &>(meta_object);
 
-            WidgetSettingBool *widget = new WidgetSettingBool(tree, item, meta, parameter->settings);
+            WidgetSettingBool *widget = new WidgetSettingBool(this->ui->configurations_settings, item, meta, parameter->settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_INT: {
             const SettingMetaInt &meta = static_cast<const SettingMetaInt &>(meta_object);
 
-            WidgetSettingInt *widget = new WidgetSettingInt(tree, item, meta, parameter->settings);
+            WidgetSettingInt *widget = new WidgetSettingInt(this->ui->configurations_settings, item, meta, parameter->settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_FLOAT: {
             const SettingMetaFloat &meta = static_cast<const SettingMetaFloat &>(meta_object);
 
-            WidgetSettingFloat *widget = new WidgetSettingFloat(tree, item, meta, parameter->settings);
+            WidgetSettingFloat *widget = new WidgetSettingFloat(this->ui->configurations_settings, item, meta, parameter->settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_FRAMES: {
             const SettingMetaFrames &meta = static_cast<const SettingMetaFrames &>(meta_object);
 
-            WidgetSettingFrames *widget = new WidgetSettingFrames(tree, item, meta, parameter->settings);
+            WidgetSettingFrames *widget =
+                new WidgetSettingFrames(this->ui->configurations_settings, item, meta, parameter->settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
@@ -244,14 +246,16 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
         case SETTING_LOAD_FOLDER: {
             const SettingMetaFilesystem &meta = static_cast<const SettingMetaFilesystem &>(meta_object);
 
-            WidgetSettingFilesystem *widget = new WidgetSettingFilesystem(tree, item, meta, parameter->settings);
+            WidgetSettingFilesystem *widget =
+                new WidgetSettingFilesystem(this->ui->configurations_settings, item, meta, parameter->settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_ENUM: {
             const SettingMetaEnum &meta = static_cast<const SettingMetaEnum &>(meta_object);
 
-            WidgetSettingEnum *enum_widget = new WidgetSettingEnum(tree, item, meta, parameter->settings);
+            WidgetSettingEnum *enum_widget =
+                new WidgetSettingEnum(this->ui->configurations_settings, item, meta, parameter->settings);
             this->connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
             for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
@@ -282,7 +286,8 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
                 QTreeWidgetItem *child = new QTreeWidgetItem();
                 item->addChild(child);
 
-                WidgetSettingFlag *widget = new WidgetSettingFlag(tree, child, meta, parameter->settings, value.key.c_str());
+                WidgetSettingFlag *widget =
+                    new WidgetSettingFlag(this->ui->configurations_settings, child, meta, parameter->settings, value.key.c_str());
                 this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
                 for (std::size_t j = 0, o = value.settings.size(); j < o; ++j) {
@@ -294,14 +299,15 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
         case SETTING_STRING: {
             const SettingMetaString &meta = static_cast<const SettingMetaString &>(meta_object);
 
-            WidgetSettingString *widget = new WidgetSettingString(tree, item, meta, parameter->settings);
+            WidgetSettingString *widget =
+                new WidgetSettingString(this->ui->configurations_settings, item, meta, parameter->settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
         case SETTING_LIST: {
             const SettingMetaList &meta = static_cast<const SettingMetaList &>(meta_object);
 
-            WidgetSettingList *widget = new WidgetSettingList(tree, item, meta, parameter->settings);
+            WidgetSettingList *widget = new WidgetSettingList(this->ui->configurations_settings, item, meta, parameter->settings);
             this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
 
@@ -317,9 +323,10 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 }
 
 void SettingsTreeManager::BuildTree() {
-    assert(this->parameter != nullptr);
-
     Configurator &configurator = Configurator::Get();
+    Parameter *parameter = configurator.GetActiveParameter();
+    assert(parameter != nullptr);
+
     const Layer *layer = configurator.layers.Find(parameter->key, parameter->api_version);
     assert(layer != nullptr);
 
@@ -327,8 +334,8 @@ void SettingsTreeManager::BuildTree() {
         this->BuildTreeItem(nullptr, *layer->settings[i]);
     }
 
-    if (!this->parameter->setting_tree_state.isEmpty()) {
-        this->SetTreeState(parameter->setting_tree_state, 0, this->tree->invisibleRootItem());
+    if (!parameter->setting_tree_state.isEmpty()) {
+        this->SetTreeState(parameter->setting_tree_state, 0, this->ui->configurations_settings->invisibleRootItem());
     }
 }
 
@@ -358,18 +365,29 @@ int SettingsTreeManager::SetTreeState(QByteArray &byte_array, int index, QTreeWi
     return index;
 }
 
+void SettingsTreeManager::OnLayerVersionChanged() {
+    this->CreateGUI();
+
+    emit signalLayerVersionChanged();
+}
+
 void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
     assert(combox_preset_index >= 0 && static_cast<std::size_t>(combox_preset_index) < preset_labels.size());
     const std::string &preset_label = preset_labels[combox_preset_index];
 
-    if (preset_label == Layer::NO_PRESET) return;
+    if (preset_label == Layer::NO_PRESET) {
+        return;
+    }
 
     Configurator &configurator = Configurator::Get();
-    const Layer *layer = configurator.layers.Find(this->parameter->key.c_str(), this->parameter->api_version);
+    Parameter *parameter = configurator.GetActiveParameter();
+    assert(parameter != nullptr);
+
+    const Layer *layer = configurator.layers.Find(parameter->key.c_str(), parameter->api_version);
 
     const LayerPreset *preset = GetPreset(layer->presets, preset_label.c_str());
     assert(preset != nullptr);
-    this->parameter->ApplyPresetSettings(*preset);
+    parameter->ApplyPresetSettings(*preset);
 
     this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
@@ -379,14 +397,14 @@ void SettingsTreeManager::OnSettingChanged() { this->Refresh(REFRESH_ENABLE_ONLY
 void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     Configurator &configurator = Configurator::Get();
 
-    this->tree->blockSignals(true);
+    this->ui->configurations_settings->blockSignals(true);
 
-    QTreeWidgetItem *root_item = this->tree->invisibleRootItem();
+    QTreeWidgetItem *root_item = this->ui->configurations_settings->invisibleRootItem();
     for (int i = 0, n = root_item->childCount(); i < n; ++i) {
         this->RefreshItem(refresh_areas, root_item->child(i));
     }
 
-    this->tree->blockSignals(false);
+    this->ui->configurations_settings->blockSignals(false);
 
     if (!(configurator.Get(HIDE_MESSAGE_NEED_APPLICATION_RESTART))) {
         configurator.Set(HIDE_MESSAGE_NEED_APPLICATION_RESTART);
@@ -399,7 +417,7 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
 }
 
 void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent) {
-    QWidget *widget = this->tree->itemWidget(parent, 0);
+    QWidget *widget = this->ui->configurations_settings->itemWidget(parent, 0);
     if (widget != nullptr) {
         WidgetSettingBase *widget_base = dynamic_cast<WidgetSettingBase *>(widget);
         if (widget_base != nullptr) widget_base->Refresh(refresh_areas);
@@ -407,7 +425,9 @@ void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetIte
 
     for (int i = 0, n = parent->childCount(); i < n; ++i) {
         QTreeWidgetItem *child = parent->child(i);
-        if (child == nullptr) continue;
+        if (child == nullptr) {
+            continue;
+        }
 
         this->RefreshItem(refresh_areas, child);
     }
