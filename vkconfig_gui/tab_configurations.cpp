@@ -228,8 +228,10 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
     if (has_selected_configuration) {
         Configuration *configuration = configurator.configurations.FindConfiguration(selected_contiguration_name);
         if (configuration != nullptr) {
-            const bool has_multiple_parameter = configuration->HasMultipleActiveParameter();
+            const bool has_multiple_parameter = configuration->HasMultipleActiveParameter() || configurator.advanced;
 
+            ui->execute_closer_application_label->setVisible(has_multiple_parameter);
+            ui->execute_closer_driver_label->setVisible(has_multiple_parameter);
             ui->configurations_layers_list->setDragEnabled(has_multiple_parameter);
 
             bool selected_layer = configuration->selected_layer_name.empty();
@@ -272,9 +274,6 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
             ui->configurations_layers_list->update();
         }
     }
-
-    ui->execute_closer_application_label->setVisible(true);
-    ui->execute_closer_driver_label->setVisible(true);
 
     ui->configurations_layers_list->blockSignals(false);
 }

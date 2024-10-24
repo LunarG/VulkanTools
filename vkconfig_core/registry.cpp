@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@
 #include <Cfgmgr32.h>
 #include <shlobj.h>
 #define WIN_BUFFER_SIZE 1024
+
+#include <QSettings>
 
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
@@ -117,8 +119,10 @@ static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Lay
 }
 
 /// This is for Windows only. It looks for device specific layers in the Windows registry.
-std::vector<LayersPathInfo> LoadRegistryLayers(const QString &path) {
+std::vector<LayersPathInfo> LoadRegistrySystemLayers(const char *input_path) {
     std::vector<LayersPathInfo> layers_paths;
+
+    QString path(input_path);
 
     QString root_string = path.section('\\', 0, 0);
     static QHash<QString, HKEY> root_keys = {
@@ -196,6 +200,20 @@ std::vector<LayersPathInfo> LoadRegistryLayers(const QString &path) {
     }
 
     return layers_paths;
+}
+
+std::vector<LayersPathInfo> LoadRegistrySoftwareLayers(const char *path) {
+    std::vector<LayersPathInfo> result;
+    QSettings settings(path, QSettings::NativeFormat);
+    const QStringList &files = settings.allKeys();
+
+    for (int i = 0, n = files.size(); i < n; ++i) {
+        LayersPathInfo info;
+        info.path = files[i].toStdString();
+        result.push_back(info);
+    }
+
+    return result;
 }
 
 #endif  // VKC_ENV == VKC_ENV_WIN32
