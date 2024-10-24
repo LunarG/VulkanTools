@@ -33,7 +33,8 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 
-TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_CONFIGURATIONS, window, ui) {
+TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
+    : Tab(TAB_CONFIGURATIONS, window, ui), _settings_tree_manager(ui) {
     ui->configurations_list->installEventFilter(&window);
     ui->configurations_layers_list->installEventFilter(&window);
     ui->configurations_settings->installEventFilter(&window);
@@ -73,6 +74,9 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->connect(this->ui->configurations_layers_list, SIGNAL(currentRowChanged(int)), this,
                   SLOT(on_configurations_layers_list_currentRowChanged(int)));
 
+    this->connect(&this->_settings_tree_manager, SIGNAL(signalLayerVersionChanged()), this,
+                  SLOT(on_configurations_layerVersionChanged()));
+
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
     this->ui->splitter_main->restoreState(settings.value("vkconfig3/mainwindow/splitter_main_state").toByteArray());
     this->ui->splitter_configurations->restoreState(
@@ -102,7 +106,6 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->advanced_mode->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->advanced_mode->adjustSize();
     this->ui->configurations_group_box_layers->installEventFilter(this->advanced_mode);
-    // this->ui->configurations_group_box_layers->setStyleSheet("QGroupBox::title { margin: 4px; }");
 
     this->connect(this->advanced_mode, SIGNAL(pressed()), this, SLOT(on_configurations_advanced_toggle_pressed()));
 
@@ -251,9 +254,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
                 }
                 ui->configurations_layers_list->addItem(item);
 
-                const std::vector<Version> &layer_versions = configurator.layers.GatherVersions(parameter.key);
-
-                ConfigurationLayerWidget *layer_widget = new ConfigurationLayerWidget(this, parameter, layer_versions);
+                ConfigurationLayerWidget *layer_widget = new ConfigurationLayerWidget(this, parameter);
 
                 if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
                     layer_widget->setToolTip(GetDescription(parameter.control));
@@ -285,7 +286,7 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
         this->_settings_tree_manager.CleanupGUI();
         this->ui->configurations_presets->setVisible(false);
     } else {
-        this->_settings_tree_manager.CreateGUI(this->ui);
+        this->_settings_tree_manager.CreateGUI();
     }
 }
 
@@ -632,7 +633,7 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
 
         configuration->selected_layer_name = layer_string;
 
-        this->_settings_tree_manager.CreateGUI(this->ui);
+        this->_settings_tree_manager.CreateGUI();
     }
 }
 
@@ -928,7 +929,7 @@ void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(i
 
     this->ui->configurations_group_box_layers->setEnabled(enabled_layers);
     this->ui->configurations_group_box_loader->setEnabled(index != EXECUTABLE_NONE && configuration->override_loader);
-    this->ui->configurations_group_box_settings->setEnabled(enabled_layers && configurator.HasActiveSettings());
+    this->ui->configurations_group_box_settings->setEnabled(configuration->override_layers && configurator.HasActiveSettings());
 
     this->UpdateUI(UPDATE_REFRESH_UI);
     this->window.UpdateUI_Status();
@@ -987,9 +988,18 @@ void TabConfigurations::on_configurations_list_toggled(bool checked) {
         executable->enabled = checked;
     }
 
-    this->ui->configurations_group_box_layers->setEnabled(checked);
-    this->ui->configurations_group_box_loader->setEnabled(checked);
-    this->ui->configurations_group_box_settings->setEnabled(checked && configurator.HasActiveSettings());
+    const Configuration *configuration = configurator.GetActiveConfiguration();
+
+    if (configuration == nullptr) {
+        this->ui->configurations_group_box_layers->setEnabled(false);
+        this->ui->configurations_group_box_loader->setEnabled(false);
+        this->ui->configurations_group_box_settings->setEnabled(false);
+    } else {
+        this->ui->configurations_group_box_layers->setEnabled(checked);
+        this->ui->configurations_group_box_loader->setEnabled(checked);
+        this->ui->configurations_group_box_settings->setEnabled(checked && configuration->override_layers &&
+                                                                configurator.HasActiveSettings());
+    }
 
     this->ui_configurations_group_box_list_tooltip();
 }
@@ -1071,3 +1081,5 @@ void TabConfigurations::on_configurations_layers_list_currentRowChanged(int curr
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
     this->OnSelectLayer(currentRow);
 }
+
+void TabConfigurations::on_configurations_layerVersionChanged() { this->UpdateUI_Layers(UPDATE_REBUILD_UI); }

@@ -22,35 +22,25 @@
 
 #include "../vkconfig_core/parameter.h"
 
-#include "ui_mainwindow.h"
-
-#include <QListWidgetItem>
-#include <QLabel>
-#include <QCheckBox>
 #include <QComboBox>
-#include <QResizeEvent>
+#include <QEvent>
 
-#include <memory>
-
-class TabConfigurations;
-
-class ConfigurationLayerWidget : public QLabel {
+class LayerVersionComboBox : public QComboBox {
     Q_OBJECT
 
    public:
-    ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter);
+    LayerVersionComboBox(QWidget *parent);
 
-    std::string layer_name;
+    void Init(const Parameter &parameter, const std::vector<Version> &layer_versions);
 
-   protected:
-    bool eventFilter(QObject *target, QEvent *event);
-    void resizeEvent(QResizeEvent *event) override;
+    bool eventFilter(QObject *o, QEvent *e) override;
 
    public Q_SLOTS:
-    void on_layer_state_currentIndexChanged(int index);
+    void on_layer_version_combobox_currentIndexChanged(int index);
+
+   Q_SIGNALS:
+    void itemChanged();
 
    private:
-    TabConfigurations *tab;
-
-    QComboBox *layer_state = nullptr;
+    QWidget *parent = nullptr;
 };
