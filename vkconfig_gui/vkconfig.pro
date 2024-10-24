@@ -74,6 +74,7 @@ SOURCES += \
     ../vkconfig_core/version.cpp \
     ../vkconfig_core/vulkan_info.cpp \
     ../vkconfig_core/vulkan_util.cpp \
+    widget_layer_version.cpp \
     widget_tab_configurations_layer.cpp \
     widget_tab_layers_path.cpp \
     widget_setting.cpp \
@@ -149,6 +150,7 @@ HEADERS += \
     ../vkconfig_core/version.h \
     ../vkconfig_core/vulkan_info.h \
     ../vkconfig_core/vulkan_util.h \
+    widget_layer_version.h \
     widget_tab_configurations_layer.h \
     widget_tab_layers_path.h \
     widget_setting.h \
