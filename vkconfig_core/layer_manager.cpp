@@ -29,15 +29,18 @@ std::vector<LayersPathInfo> GetImplicitLayerPaths() {
     std::vector<LayersPathInfo> result;
 
 #if VKC_ENV == VKC_ENV_WIN32
-    static const char *REGISTRY_PATHS[] = {
-        "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers",
-        "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers",
-        "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers"};
+    const std::vector<LayersPathInfo> &admin_registry_paths =
+        LoadRegistrySoftwareLayers("HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers");
+    result.insert(result.begin(), admin_registry_paths.begin(), admin_registry_paths.end());
 
-    for (std::size_t i = 0, n = std::size(REGISTRY_PATHS); i < n; ++i) {
-        const std::vector<LayersPathInfo> &registry_paths = LoadRegistryLayers(REGISTRY_PATHS[i]);
-        result.insert(result.begin(), registry_paths.begin(), registry_paths.end());
-    }
+    const std::vector<LayersPathInfo> &user_registry_paths =
+        LoadRegistrySoftwareLayers("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers");
+    result.insert(result.begin(), user_registry_paths.begin(), user_registry_paths.end());
+
+    // Search for drivers specific layers
+    const std::vector<LayersPathInfo> &drivers_registry_paths =
+        LoadRegistrySystemLayers("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers");
+    result.insert(result.begin(), drivers_registry_paths.begin(), drivers_registry_paths.end());
 #else
     static const char *LAYERS_PATHS[] = {
         "/usr/local/etc/vulkan/implicit_layer.d",  // Not used on macOS, okay to just ignore
@@ -67,15 +70,18 @@ std::vector<LayersPathInfo> GetExplicitLayerPaths() {
     std::vector<LayersPathInfo> result;
 
 #if VKC_ENV == VKC_ENV_WIN32
-    static const char *REGISTRY_PATHS[] = {
-        "HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers",
-        "HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers",
-        "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers"};
+    const std::vector<LayersPathInfo> &admin_registry_paths =
+        LoadRegistrySoftwareLayers("HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers");
+    result.insert(result.begin(), admin_registry_paths.begin(), admin_registry_paths.end());
 
-    for (std::size_t i = 0, n = std::size(REGISTRY_PATHS); i < n; ++i) {
-        const std::vector<LayersPathInfo> &registry_paths = LoadRegistryLayers(REGISTRY_PATHS[i]);
-        result.insert(result.begin(), registry_paths.begin(), registry_paths.end());
-    }
+    const std::vector<LayersPathInfo> &user_registry_paths =
+        LoadRegistrySoftwareLayers("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers");
+    result.insert(result.begin(), user_registry_paths.begin(), user_registry_paths.end());
+
+    // Search for drivers specific layers
+    const std::vector<LayersPathInfo> &drivers_registry_paths =
+        LoadRegistrySystemLayers("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers");
+    result.insert(result.begin(), drivers_registry_paths.begin(), drivers_registry_paths.end());
 #else
     static const char *LAYERS_PATHS[] = {
         "/usr/local/etc/vulkan/explicit_layer.d",  // Not used on macOS, okay to just ignore
