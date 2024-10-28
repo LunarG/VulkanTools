@@ -96,8 +96,6 @@ bool ConfigurationLayerWidget::eventFilter(QObject *target, QEvent *event) {
 }
 
 void ConfigurationLayerWidget::resizeEvent(QResizeEvent *event) {
-    const Configurator &configurator = Configurator::Get();
-
     QSize size = event->size();
 
     if (this->layer_state != nullptr) {
@@ -114,11 +112,16 @@ void ConfigurationLayerWidget::on_layer_state_currentIndexChanged(int index) {
     assert(index >= 0);
     const std::string &text = this->layer_state->itemText(index).toStdString();
 
-    Configuration *configuration = Configurator::Get().GetActiveConfiguration();
-    Parameter *parameter = configuration->Find(this->layer_name);
-    parameter->control = GetLayerControl(text.c_str());
+    Configurator &configurator = Configurator::Get();
 
-    this->layer_state->setToolTip(GetDescription(parameter->control));
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    Parameter *parameter = configuration->Find(this->layer_name);
+    if (parameter != nullptr) {
+        parameter->control = GetLayerControl(text.c_str());
+        this->layer_state->setToolTip(GetDescription(parameter->control));
+
+        configurator.Override(OVERRIDE_AREA_ALL);
+    }
 
     this->tab->UpdateUI_Settings(UPDATE_REFRESH_UI);
 }
