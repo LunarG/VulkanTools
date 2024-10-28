@@ -35,12 +35,15 @@
 #include "json.h"
 #include "json_validator.h"
 #include "alert.h"
+#include "is_dll_32.h"
+#include "configurator.h"
 
 #include <QFile>
 #include <QDir>
 #include <QMessageBox>
 #include <QJsonArray>
 #include <QDateTime>
+#include <QCheckBox>
 
 #include <cassert>
 #include <string>
@@ -49,6 +52,16 @@
 const char* Layer::NO_PRESET = "User-Defined Settings";
 
 bool operator<(const LayersPathInfo& a, const LayersPathInfo& b) { return a.path.RelativePath() < b.path.RelativePath(); }
+
+bool Found(const std::vector<LayersPathInfo>& data, const Path& path) {
+    for (std::size_t i = 0, n = data.size(); i < n; ++i) {
+        if (data[i].path == path) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 Layer::Layer() : status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT) {}
 
@@ -206,6 +219,8 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_val
 
     if (!is_valid) {
         this->validated_last_modified.clear();
+        Alert::LayerInvalid(full_path_to_file, validator.message.toStdString().c_str());
+        return false;
     } else {
         this->validated_last_modified = last_modified;
     }
@@ -214,6 +229,33 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_val
     if (json_library_path_value != QJsonValue::Undefined) {
         this->binary_path = json_library_path_value.toString().toStdString();
     }
+
+    const Path& binary = Path(this->manifest_path.AbsoluteDir()) + "/" + this->binary_path.AbsolutePath();
+    if (::IsDLL32Bit(binary.AbsolutePath())) {
+        this->is_32bits = true;
+        return false;
+    }
+
+    /*
+        const Path& binary = Path(this->manifest_path.AbsoluteDir()) + "/" + this->binary_path.AbsolutePath();
+        if (::IsDLL32Bit(binary.AbsolutePath())) {
+            Configurator& configurator = Configurator::Get();
+            if (!configurator.Get(HIDE_MESSAGE_ERROR_32BIT)) {
+                QMessageBox message;
+                message.setIcon(QMessageBox::Information);
+                message.setWindowTitle("Trying to load a 32 bit layer...");
+                message.setText(format("'%s' refers to a 32 bit layer which is not supported. This layer will be ignored.",
+                                       this->manifest_path.AbsolutePath().c_str())
+                                    .c_str());
+                message.setCheckBox(new QCheckBox("Do not show again."));
+                message.exec();
+                if (message.checkBox()->isChecked()) {
+                    configurator.Set(HIDE_MESSAGE_ERROR_32BIT);
+                }
+            }
+            return false;
+        }
+    */
 
     this->implementation_version = ReadStringValue(json_layer_object, "implementation_version");
     if (json_layer_object.value("status") != QJsonValue::Undefined) {
@@ -241,11 +283,6 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_val
         const QStringList keys = json_env_object.keys();
         this->enable_env = keys[0].toStdString();
         this->enable_value = ReadStringValue(json_env_object, this->enable_env.c_str()) == "1";
-    }
-
-    if (!is_valid) {
-        Alert::LayerInvalid(full_path_to_file, validator.message.toStdString().c_str());
-        return false;
     }
 
     const QJsonValue& json_features_value = json_layer_object.value("features");
