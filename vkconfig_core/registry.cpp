@@ -208,8 +208,15 @@ std::vector<LayersPathInfo> LoadRegistrySoftwareLayers(const char *path) {
     const QStringList &files = settings.allKeys();
 
     for (int i = 0, n = files.size(); i < n; ++i) {
+        Path path(files[i].toStdString());
+
         LayersPathInfo info;
-        info.path = files[i].toStdString();
+        info.path = path.IsFile() ? path.AbsoluteDir() : path.AbsolutePath();
+
+        if (Found(result, info.path)) {
+            continue;
+        }
+
         result.push_back(info);
     }
 
