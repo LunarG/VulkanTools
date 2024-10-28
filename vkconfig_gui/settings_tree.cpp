@@ -368,6 +368,9 @@ int SettingsTreeManager::SetTreeState(QByteArray &byte_array, int index, QTreeWi
 void SettingsTreeManager::OnLayerVersionChanged() {
     this->CreateGUI();
 
+    Configurator &configurator = Configurator::Get();
+    configurator.Override(OVERRIDE_AREA_ALL);
+
     emit signalLayerVersionChanged();
 }
 
