@@ -503,7 +503,7 @@ void TabConfigurations::OnSelectConfiguration(int currentRow) {
             }
         }
 
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+        configurator.Override(OVERRIDE_AREA_ALL);
 
         this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
         this->UpdateUI_LoaderMessages();
@@ -652,6 +652,8 @@ void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
         loader_log_messages_bits |= this->ui->configuration_loader_layers->isChecked() ? GetBit(LOG_LAYER) : 0;
         loader_log_messages_bits |= this->ui->configuration_loader_drivers->isChecked() ? GetBit(LOG_DRIVER) : 0;
         active_configuration->loader_log_messages_flags = loader_log_messages_bits;
+
+        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 }
 
@@ -912,7 +914,7 @@ void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(i
     const ExecutableScope scope = static_cast<ExecutableScope>(index);
 
     configurator.SetExecutableScope(scope);
-    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+    configurator.Override(OVERRIDE_AREA_ALL);
 
     this->ui->configurations_executable_scope->setToolTip(GetTooltip(scope));
     this->ui->configurations_executable_list->setEnabled(index == EXECUTABLE_ALL || index == EXECUTABLE_PER);
@@ -1011,6 +1013,8 @@ void TabConfigurations::on_configurations_layers_ordering_toggled(bool checked) 
     Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
         configuration->override_layers = checked;
+
+        configurator.Override(OVERRIDE_AREA_ALL);
     }
 
     this->ui->configurations_group_box_settings->setEnabled(configurator.HasActiveSettings());
@@ -1019,18 +1023,26 @@ void TabConfigurations::on_configurations_layers_ordering_toggled(bool checked) 
 void TabConfigurations::on_configurations_loader_messages_toggled(bool checked) {
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
 
-    Configuration *configuration = Configurator::Get().GetActiveConfiguration();
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
         configuration->override_loader = checked;
+
+        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 }
 
 void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) {
     assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
 
-    Parameter *parameter = Configurator::Get().GetActiveParameter();
+    Configurator &configurator = Configurator::Get();
+
+    Parameter *parameter = configurator.GetActiveParameter();
     if (parameter != nullptr) {
         parameter->override_settings = checked;
+
+        configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
     }
 
     this->ui_configurations_group_box_settings_tooltip();
