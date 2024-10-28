@@ -32,12 +32,12 @@ LayerType GetLayerType(LayersPaths Layers_paths_type) {
 
 const char* GetLabel(LayersPaths Layers_paths_type) {
     static const char* TABLE[] = {
-        "Implicit Layers",             // LAYERS_PATHS_IMPLICIT
-        "Explicit Layers",             // LAYERS_PATHS_EXPLICIT
+        "System Implicit Layers",      // LAYERS_PATHS_IMPLICIT
+        "System Explicit Layers",      // LAYERS_PATHS_EXPLICIT
         "$VK_LAYER_PATH Layers",       // LAYERS_PATHS_ENV_SET
         "$VK_ADD_LAYER_PATH Layers",   // LAYERS_PATHS_ENV_ADD
         "Vulkan Configurator Layers",  // LAYERS_PATHS_GUI
-        "Vulkan SDK Layers",           // LAYERS_PATHS_SDK
+        "$VULKAN_SDK Layers",          // LAYERS_PATHS_SDK
     };
     static_assert(std::size(TABLE) == LAYERS_PATHS_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

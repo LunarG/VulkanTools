@@ -56,15 +56,16 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
     this->ui->layers_paths_tree->blockSignals(true);
     this->ui->layers_paths_tree->clear();
 
-    for (std::size_t group_index = 0, group_count = configurator.layers.paths.size(); group_index < group_count; ++group_index) {
-        const LayerType layer_type = ::GetLayerType(static_cast<LayersPaths>(group_index));
+    for (std::size_t group_index = configurator.layers.paths.size(); group_index > 0; --group_index) {
+        const LayersPaths group_path = static_cast<LayersPaths>(group_index - 1);
+        const LayerType layer_type = ::GetLayerType(group_path);
 
-        std::vector<LayersPathInfo> &paths_group = configurator.layers.paths[group_index];
+        std::vector<LayersPathInfo> &paths_group = configurator.layers.paths[group_path];
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
             QTreeWidgetItem *item_state = new QTreeWidgetItem;
             item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
             item_state->setSizeHint(0, QSize(0, 32));
-            LayersPathWidget *layer_path_widget = new LayersPathWidget(&paths_group[i], static_cast<LayersPaths>(group_index));
+            LayersPathWidget *layer_path_widget = new LayersPathWidget(&paths_group[i], group_path);
             this->connect(layer_path_widget, SIGNAL(toggled(bool)), this, SLOT(on_check_box_paths_toggled(bool)));
 
             ui->layers_paths_tree->addTopLevelItem(item_state);
@@ -80,7 +81,14 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
                     continue;  // When the directory has JSON files that are not layer manifest
                 }
 
-                std::string label = layer->key + " - " + layer->api_version.str();
+                std::string label = layer->key;
+
+                if (layer->is_32bits) {
+                    label += " (32 bits)";
+                }
+
+                label += " - " + layer->api_version.str();
+
                 if (layer->status != STATUS_STABLE) {
                     label += format(" (%s)", GetToken(layer->status));
                 }
@@ -167,20 +175,6 @@ void TabLayers::LoadLayersManifest(const QString &selected_path) {
             this->ui->layers_progress->setFormat(
                 format("%s %s... - %d/%d", label, layers_paths[i].AbsolutePath().c_str(), i, layers_paths.size()).c_str());
             this->ui->layers_progress->setValue(i);
-            if (::IsDLL32Bit(layers_paths[i])) {
-                if (!configurator.Get(HIDE_MESSAGE_ERROR_32BIT)) {
-                    QMessageBox message;
-                    message.setIcon(QMessageBox::Information);
-                    message.setWindowTitle("32 bits layers are not supported...");
-                    message.setText(format("%s refers to a 32 bit layer", layers_paths[i].AbsolutePath().c_str()).c_str());
-                    message.setCheckBox(new QCheckBox("Do not show again."));
-                    message.exec();
-                    if (message.checkBox()->isChecked()) {
-                        configurator.Set(HIDE_MESSAGE_ERROR_32BIT);
-                    }
-                }
-                continue;
-            }
 
             if (configurator.layers.LoadLayer(layers_paths[i])) {
                 ++loaded;
