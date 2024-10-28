@@ -42,6 +42,8 @@ struct LayersPathInfo {
 
 bool operator<(const LayersPathInfo& a, const LayersPathInfo& b);
 
+bool Found(const std::vector<LayersPathInfo>& data, const Path& path);
+
 class Layer {
    public:
     static const char* NO_PRESET;
@@ -78,6 +80,7 @@ class Layer {
     QJsonDocument profile;
     std::string disable_env;
     std::string enable_env;
+    bool is_32bits = false;
     bool disable_value;
     bool enable_value;
     bool enabled = true;
