@@ -119,13 +119,15 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
         const Configurator::LoaderLayerSettings& layer = loader_settings.layers[j];
 
         QJsonObject json_layer;
-        if (layer.control != LAYER_CONTROL_APPLICATIONS_API && layer.control != LAYER_CONTROL_APPLICATIONS_ENV) {
+        if (layer.builtin == LAYER_BUILTIN_NONE) {
             json_layer.insert("name", layer.key.c_str());
             json_layer.insert("path", layer.path.c_str());
             json_layer.insert("treat_as_implicit_manifest", layer.implicit);
+            json_layer.insert("control", ToLowerCase(::GetToken(layer.control)).c_str());
+        } else {
+            json_layer.insert("control", ::GetToken(layer.builtin));
         }
 
-        json_layer.insert("control", ToLowerCase(::GetToken(layer.control)).c_str());
         json_layers.append(json_layer);
     }
 
@@ -168,17 +170,19 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
         LoaderLayerSettings loader_layer_settings;
 
         const Parameter& parameter = configuration->parameters[i];
-        if (!parameter.enabled) {
-            continue;
-        }
-
         if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
             continue;
         }
 
-        if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
-            loader_layer_settings.control = parameter.control;
-        } else {
+        if (parameter.control == LAYER_CONTROL_DISCARD) {
+            continue;
+        }
+
+        loader_layer_settings.key = parameter.key;
+        loader_layer_settings.builtin = parameter.builtin;
+        loader_layer_settings.control = parameter.control;
+
+        if (parameter.builtin == LAYER_BUILTIN_NONE) {
             const Layer* layer = this->layers.Find(parameter.key, parameter.api_version);
             if (layer == nullptr) {
                 continue;
@@ -347,8 +351,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                     continue;
                 }
 
-                if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV ||
-                    parameter.control == LAYER_CONTROL_OFF) {
+                if (parameter.control == LAYER_CONTROL_DISCARD || parameter.control == LAYER_CONTROL_OFF) {
                     continue;
                 }
 
@@ -727,7 +730,7 @@ bool Configurator::HasActiveSettings() const {
     if (configuration != nullptr) {
         const Parameter* parameter = configuration->GetActiveParameter();
         if (parameter != nullptr && configuration->override_layers) {
-            if (!IsVisibleLayer(parameter->control)) {
+            if (parameter->builtin != LAYER_BUILTIN_NONE) {
                 return false;
             } else if (parameter->settings.empty()) {
                 return false;

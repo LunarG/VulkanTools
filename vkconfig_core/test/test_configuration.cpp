@@ -204,12 +204,12 @@ TEST(test_configuration, create) {
     bool has_app_env = false;
 
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-        if (configuration.parameters[i].control == LAYER_CONTROL_APPLICATIONS_API) {
+        if (configuration.parameters[i].builtin == LAYER_BUILTIN_API) {
             has_app_api = true;
             continue;
         }
 
-        if (configuration.parameters[i].control == LAYER_CONTROL_APPLICATIONS_ENV) {
+        if (configuration.parameters[i].builtin == LAYER_BUILTIN_ENV) {
             has_app_env = true;
             continue;
         }
@@ -231,12 +231,12 @@ TEST(test_configuration, create_disabled) {
     bool has_app_env = false;
 
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-        if (configuration.parameters[i].control == LAYER_CONTROL_APPLICATIONS_API) {
+        if (configuration.parameters[i].builtin == LAYER_BUILTIN_API) {
             has_app_api = true;
             continue;
         }
 
-        if (configuration.parameters[i].control == LAYER_CONTROL_APPLICATIONS_ENV) {
+        if (configuration.parameters[i].builtin == LAYER_BUILTIN_ENV) {
             has_app_env = true;
             continue;
         }

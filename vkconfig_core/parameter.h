@@ -23,6 +23,7 @@
 #include "layer_manager.h"
 #include "setting.h"
 #include "type_layer_control.h"
+#include "type_layer_builtin.h"
 
 #include <vector>
 
@@ -46,6 +47,7 @@ struct Parameter {
 
     std::string key;
     LayerControl control = LAYER_CONTROL_AUTO;
+    LayerBuiltin builtin = LAYER_BUILTIN_NONE;
     int platform_flags = PLATFORM_DESKTOP_BIT;
     SettingDataSet settings;
     int overridden_rank = NO_RANK;
@@ -53,7 +55,6 @@ struct Parameter {
     Path manifest;
     QByteArray setting_tree_state;  // Recall editor tree state
     bool override_settings = true;
-    bool enabled = true;
 };
 
 ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& parameter);

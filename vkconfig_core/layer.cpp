@@ -83,6 +83,68 @@ bool Layer::IsValid() const {
            !implementation_version.empty();
 }
 
+LayerControl Layer::GetActualControl() const {
+    if (this->type == LAYER_TYPE_IMPLICIT) {
+        if (!this->disable_env.empty()) {
+            if (this->disable_value.empty()) {
+                if (qEnvironmentVariableIsSet(this->disable_env.c_str())) {
+                    return LAYER_CONTROL_OFF;
+                }
+            } else {
+                if (qgetenv(this->disable_env.c_str()).toStdString() == this->disable_value) {
+                    return LAYER_CONTROL_OFF;
+                }
+            }
+        }
+
+        if (!this->enable_env.empty()) {
+            if (this->enable_value.empty()) {
+                if (qEnvironmentVariableIsSet(this->enable_env.c_str())) {
+                    return LAYER_CONTROL_ON;
+                }
+            } else {
+                if (qgetenv(this->enable_env.c_str()).toStdString() == this->enable_value) {
+                    return LAYER_CONTROL_ON;
+                }
+            }
+        }
+    }
+
+    return this->type == LAYER_TYPE_IMPLICIT ? LAYER_CONTROL_ON : LAYER_CONTROL_OFF;
+}
+
+std::string Layer::GetActualControlTooltip() const {
+    if (this->type == LAYER_TYPE_IMPLICIT) {
+        if (!this->disable_env.empty()) {
+            const std::string& value = qgetenv(this->disable_env.c_str()).toStdString();
+            if (this->disable_value.empty()) {
+                if (qEnvironmentVariableIsSet(this->disable_env.c_str())) {
+                    return format("'%s' is set", this->disable_env.c_str());
+                }
+            } else if (value == this->disable_value) {
+                if (qgetenv(this->disable_env.c_str()).toStdString() == this->disable_value) {
+                    return format("'%s' is set to '%s'", this->disable_env.c_str(), value.c_str());
+                }
+            }
+        }
+
+        if (!this->enable_env.empty()) {
+            const std::string& value = qgetenv(this->enable_env.c_str()).toStdString();
+            if (this->enable_value.empty()) {
+                if (qEnvironmentVariableIsSet(this->enable_env.c_str())) {
+                    return format("'%s' is set", this->enable_env.c_str());
+                }
+            } else if (value == this->enable_value) {
+                if (qgetenv(this->enable_env.c_str()).toStdString() == this->enable_value) {
+                    return format("'%s' is set to '%s'", this->enable_env.c_str(), value.c_str());
+                }
+            }
+        }
+    }
+
+    return ::GetDescription(LAYER_CONTROL_AUTO);
+}
+
 std::string Layer::FindPresetLabel(const SettingDataSet& settings) const {
     for (std::size_t i = 0, n = this->presets.size(); i < n; ++i) {
         if (HasPreset(settings, this->presets[i].settings)) return this->presets[i].label;
@@ -276,13 +338,13 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_val
         const QJsonObject& json_env_object = json_layer_object.value("disable_environment").toObject();
         const QStringList keys = json_env_object.keys();
         this->disable_env = keys[0].toStdString();
-        this->disable_value = ReadStringValue(json_env_object, this->disable_env.c_str()) == "1";
+        this->disable_value = ReadStringValue(json_env_object, this->disable_env.c_str());
     }
     if (json_layer_object.value("enable_environment") != QJsonValue::Undefined) {
         const QJsonObject& json_env_object = json_layer_object.value("enable_environment").toObject();
         const QStringList keys = json_env_object.keys();
         this->enable_env = keys[0].toStdString();
-        this->enable_value = ReadStringValue(json_env_object, this->enable_env.c_str()) == "1";
+        this->enable_value = ReadStringValue(json_env_object, this->enable_env.c_str());
     }
 
     const QJsonValue& json_features_value = json_layer_object.value("features");

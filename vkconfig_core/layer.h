@@ -26,6 +26,7 @@
 #include "version.h"
 #include "path.h"
 #include "type_layer_type.h"
+#include "type_layer_control.h"
 
 #include <QObject>
 #include <QJsonDocument>
@@ -55,6 +56,9 @@ class Layer {
 
     bool IsValid() const;
 
+    LayerControl GetActualControl() const;
+    std::string GetActualControlTooltip() const;
+
     std::string FindPresetLabel(const SettingDataSet& settings) const;
 
     SettingMeta* Instantiate(SettingMetaSet& meta_set, const std::string& key, const SettingType type);
@@ -80,9 +84,9 @@ class Layer {
     QJsonDocument profile;
     std::string disable_env;
     std::string enable_env;
+    std::string disable_value;
+    std::string enable_value;
     bool is_32bits = false;
-    bool disable_value;
-    bool enable_value;
     bool enabled = true;
 
     std::vector<SettingMeta*> settings;

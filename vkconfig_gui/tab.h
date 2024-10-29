@@ -37,7 +37,7 @@ enum UpdateUIMode {
     UPDATE_REFRESH_UI,
 };
 
-struct Tab : public QObject {
+class Tab : public QObject {
     Q_OBJECT
 
    public:

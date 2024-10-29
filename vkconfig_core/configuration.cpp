@@ -44,7 +44,7 @@
 static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) {
     bool found_applications_api = false;
     for (auto paramater : parameters) {
-        if (paramater.control != LAYER_CONTROL_APPLICATIONS_API) {
+        if (paramater.builtin != LAYER_BUILTIN_API) {
             continue;
         }
 
@@ -54,16 +54,16 @@ static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) 
 
     if (!found_applications_api) {
         Parameter applications_enabled_layers_api;
-        applications_enabled_layers_api.key = ::GetLabel(LAYER_CONTROL_APPLICATIONS_API);
-        applications_enabled_layers_api.control = LAYER_CONTROL_APPLICATIONS_API;
+        applications_enabled_layers_api.key = ::GetLabel(LAYER_BUILTIN_API);
+        applications_enabled_layers_api.builtin = LAYER_BUILTIN_API;
+        applications_enabled_layers_api.control = LAYER_CONTROL_DISCARD;  // Until the Vulkan Loader is fixed
         applications_enabled_layers_api.overridden_rank = 998;
-        applications_enabled_layers_api.enabled = false;
         parameters.push_back(applications_enabled_layers_api);
     }
 
     bool found_applications_env = false;
     for (auto paramater : parameters) {
-        if (paramater.control != LAYER_CONTROL_APPLICATIONS_ENV) {
+        if (paramater.builtin != LAYER_BUILTIN_ENV) {
             continue;
         }
 
@@ -73,10 +73,10 @@ static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) 
 
     if (!found_applications_env) {
         Parameter applications_enabled_layers_env;
-        applications_enabled_layers_env.key = ::GetLabel(LAYER_CONTROL_APPLICATIONS_ENV);
-        applications_enabled_layers_env.control = LAYER_CONTROL_APPLICATIONS_ENV;
+        applications_enabled_layers_env.key = ::GetLabel(LAYER_BUILTIN_ENV);
+        applications_enabled_layers_env.builtin = LAYER_BUILTIN_ENV;
+        applications_enabled_layers_env.control = LAYER_CONTROL_DISCARD;  // Until the Vulkan Loader is fixed
         applications_enabled_layers_env.overridden_rank = 999;
-        applications_enabled_layers_env.enabled = false;
         parameters.push_back(applications_enabled_layers_env);
     }
 }
@@ -177,20 +177,35 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
             const QJsonObject& json_layer_object = json_layers_array[layer_index].toObject();
 
             Parameter parameter;
-            parameter.control = GetLayerControl(ReadStringValue(json_layer_object, "control").c_str());
-            if (IsVisibleLayer(parameter.control)) {
-                parameter.key = ReadStringValue(json_layer_object, "name").c_str();
-            } else {
-                parameter.key = ::GetLabel(parameter.control);
+            if (json_layer_object.value("name") != QJsonValue::Undefined) {
+                parameter.key = json_layer_object.value("name").toString().toStdString();
             }
-            parameter.overridden_rank = ReadIntValue(json_layer_object, "rank");
-            const std::string& version = ReadStringValue(json_layer_object, "version");
-            parameter.api_version = version == "latest" ? Version::LATEST : Version(version.c_str());
+            if (json_layer_object.value("builtin") != QJsonValue::Undefined) {
+                parameter.builtin = ::GetLayerBuiltin(json_layer_object.value("builtin").toString().toStdString().c_str());
+                parameter.key = ::GetLabel(parameter.builtin);
+            }
+            if (json_layer_object.value("control") != QJsonValue::Undefined) {
+                parameter.control = ::GetLayerControl(json_layer_object.value("control").toString().toStdString().c_str());
+            }
+            if (json_layer_object.value("rank") != QJsonValue::Undefined) {
+                parameter.overridden_rank = json_layer_object.value("rank").toInt();
+            }
+            if (json_layer_object.value("version") != QJsonValue::Undefined) {
+                const std::string& version = ReadStringValue(json_layer_object, "version");
+                parameter.api_version = version == "latest" ? Version::LATEST : Version(version.c_str());
+            }
+
+            const Layer* layer = layers.Find(parameter.key, parameter.api_version);
+
+            if (layer != nullptr) {
+                parameter.manifest = layer->manifest_path;
+            }
+
             if (json_layer_object.value("manifest") != QJsonValue::Undefined) {
-                parameter.manifest = ReadString(json_layer_object, "manifest");
-            }
-            if (json_layer_object.value("enabled") != QJsonValue::Undefined) {
-                parameter.enabled = ReadBoolValue(json_layer_object, "enabled");
+                std::string manifest_path = ReadString(json_layer_object, "manifest");
+                if (layers.FindFromManifest(manifest_path) != nullptr) {
+                    parameter.manifest = manifest_path;
+                }
             }
 
             const QJsonValue& json_platform_value = json_layer_object.value("platforms");
@@ -202,8 +217,6 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
             if (json_expanded_value != QJsonValue::Undefined) {
                 parameter.setting_tree_state = json_layer_object.value("expanded_states").toVariant().toByteArray();
             }
-
-            const Layer* layer = layers.Find(parameter.key, parameter.api_version);
 
             if (layer != nullptr) {
                 CollectDefaultSettingData(layer->settings, parameter.settings);
@@ -263,11 +276,15 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
 
         QJsonObject json_layer;
         json_layer.insert("name", parameter.key.c_str());
-        json_layer.insert("rank", parameter.overridden_rank);
+        if (parameter.builtin != LAYER_BUILTIN_NONE) {
+            json_layer.insert("builtin", GetToken(parameter.builtin));
+        }
         json_layer.insert("control", GetToken(parameter.control));
+        json_layer.insert("rank", parameter.overridden_rank);
         json_layer.insert("version", parameter.api_version == Version::LATEST ? "latest" : parameter.api_version.str().c_str());
-        json_layer.insert("manifest", parameter.manifest.RelativePath().c_str());
-        json_layer.insert("enabled", parameter.enabled);
+        if (parameter.builtin == LAYER_BUILTIN_NONE) {
+            json_layer.insert("manifest", parameter.manifest.RelativePath().c_str());
+        }
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
         if (!exporter && !parameter.setting_tree_state.isEmpty()) {
             json_layer.insert("expanded_states", parameter.setting_tree_state.data());
@@ -400,7 +417,7 @@ bool Configuration::HasMissingLayer(const LayerManager& layers, std::vector<std:
             continue;  // If unsupported are missing, it doesn't matter
         }
 
-        if (!IsVisibleLayer(it->control)) {
+        if (it->builtin != LAYER_BUILTIN_NONE) {
             continue;
         }
 

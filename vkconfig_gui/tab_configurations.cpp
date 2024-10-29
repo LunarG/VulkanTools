@@ -256,10 +256,6 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
 
                 ConfigurationLayerWidget *layer_widget = new ConfigurationLayerWidget(this, parameter);
 
-                if (parameter.control == LAYER_CONTROL_APPLICATIONS_API || parameter.control == LAYER_CONTROL_APPLICATIONS_ENV) {
-                    layer_widget->setToolTip(GetDescription(parameter.control));
-                }
-
                 ui->configurations_layers_list->setItemWidget(item, layer_widget);
                 if (configuration->selected_layer_name == parameter.key) {
                     ui->configurations_layers_list->setCurrentItem(item);
@@ -589,11 +585,11 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
     assert(configuration != nullptr);
 
     if (configuration->selected_layer_name != layer_string) {
-        if (layer_string == ::GetLabel(LAYER_CONTROL_APPLICATIONS_API)) {
+        if (layer_string == ::GetLabel(LAYER_BUILTIN_API)) {
             if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_API)) {
                 QMessageBox message;
                 message.setIcon(QMessageBox::Information);
-                message.setWindowTitle(::GetLabel(LAYER_CONTROL_APPLICATIONS_API));
+                message.setWindowTitle(::GetLabel(LAYER_BUILTIN_API));
                 message.setText(
                     "This item refers to Vulkan Layers not visible by Vulkan Configurator but at Vulkan Application launched, but "
                     "enabled by the Vulkan Application at "
@@ -601,7 +597,7 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
                 message.setInformativeText(
                     format("If the Vulkan application is enabling a layer already controlled by Vulkan Configurator, the Vulkan "
                            "Application setup is ignored.\n\nTo force ignoring these Vulkan Layers, set '%s' to 'Off'.",
-                           ::GetLabel(LAYER_CONTROL_APPLICATIONS_API))
+                           ::GetLabel(LAYER_BUILTIN_API))
                         .c_str());
                 message.setCheckBox(new QCheckBox("Do not show again."));
                 message.exec();
@@ -609,11 +605,11 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
                     configurator.Set(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_API);
                 }
             }
-        } else if (layer_string == ::GetLabel(LAYER_CONTROL_APPLICATIONS_ENV)) {
+        } else if (layer_string == ::GetLabel(LAYER_BUILTIN_ENV)) {
             if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_ENV)) {
                 QMessageBox message;
                 message.setIcon(QMessageBox::Information);
-                message.setWindowTitle(::GetLabel(LAYER_CONTROL_APPLICATIONS_ENV));
+                message.setWindowTitle(::GetLabel(LAYER_BUILTIN_ENV));
                 message.setText(
                     "This item refers to Vulkan Layers not visible by Vulkan Configurator but at Vulkan Application launched, "
                     "Vulkan Layers that are located using 'VK_ADD_LAYER_PATH' and enabled using 'VK_LOADER_LAYERS_ENABLE' "
@@ -621,7 +617,7 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
                 message.setInformativeText(format("If the Vulkan application is enabling a layer already controlled by Vulkan "
                                                   "Configurator, the Vulkan Application "
                                                   "setup is ignored.\n\nTo force ignoring these Vulkan Layers, set '%s' to 'Off'.",
-                                                  ::GetLabel(LAYER_CONTROL_APPLICATIONS_ENV))
+                                                  ::GetLabel(LAYER_BUILTIN_ENV))
                                                .c_str());
                 message.setCheckBox(new QCheckBox("Do not show again."));
                 message.exec();
