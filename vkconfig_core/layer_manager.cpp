@@ -30,11 +30,11 @@ std::vector<LayersPathInfo> GetImplicitLayerPaths() {
 
 #if VKC_ENV == VKC_ENV_WIN32
     const std::vector<LayersPathInfo> &admin_registry_paths =
-        LoadRegistrySoftwareLayers("HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers");
+        LoadRegistrySoftwareLayers("HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers", LAYER_TYPE_IMPLICIT);
     result.insert(result.begin(), admin_registry_paths.begin(), admin_registry_paths.end());
 
     const std::vector<LayersPathInfo> &user_registry_paths =
-        LoadRegistrySoftwareLayers("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers");
+        LoadRegistrySoftwareLayers("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", LAYER_TYPE_IMPLICIT);
     result.insert(result.begin(), user_registry_paths.begin(), user_registry_paths.end());
 
     // Search for drivers specific layers
@@ -58,6 +58,7 @@ std::vector<LayersPathInfo> GetImplicitLayerPaths() {
 
     for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
         LayersPathInfo info;
+        info.type = LAYER_TYPE_IMPLICIT;
         info.path = LAYERS_PATHS[i];
         result.push_back(info);
     }
@@ -71,11 +72,11 @@ std::vector<LayersPathInfo> GetExplicitLayerPaths() {
 
 #if VKC_ENV == VKC_ENV_WIN32
     const std::vector<LayersPathInfo> &admin_registry_paths =
-        LoadRegistrySoftwareLayers("HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers");
+        LoadRegistrySoftwareLayers("HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers", LAYER_TYPE_EXPLICIT);
     result.insert(result.begin(), admin_registry_paths.begin(), admin_registry_paths.end());
 
     const std::vector<LayersPathInfo> &user_registry_paths =
-        LoadRegistrySoftwareLayers("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers");
+        LoadRegistrySoftwareLayers("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers", LAYER_TYPE_EXPLICIT);
     result.insert(result.begin(), user_registry_paths.begin(), user_registry_paths.end());
 
     // Search for drivers specific layers
@@ -99,6 +100,7 @@ std::vector<LayersPathInfo> GetExplicitLayerPaths() {
 
     for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
         LayersPathInfo info;
+        info.type = LAYER_TYPE_EXPLICIT;
         info.path = LAYERS_PATHS[i];
         result.push_back(info);
     }
@@ -327,11 +329,11 @@ void LayerManager::LoadAllInstalledLayers() {
     this->selected_layers.clear();
 
     for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
-        const LayerType layer_type = ::GetLayerType(static_cast<LayersPaths>(group_index));
+        // const LayerType layer_type = ::GetLayerType(static_cast<LayersPaths>(group_index));
 
         const std::vector<LayersPathInfo> &paths_group = this->paths[group_index];
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
-            this->LoadLayersFromPath(paths_group[i].path, layer_type);
+            this->LoadLayersFromPath(paths_group[i].path, paths_group[i].type);
         }
     }
 }

@@ -22,29 +22,17 @@
 
 enum LayerControl {
     LAYER_CONTROL_AUTO = 0,
-    LAYER_CONTROL_OFF,
     LAYER_CONTROL_ON,
-    LAYER_CONTROL_APPLICATIONS_API,
-    LAYER_CONTROL_APPLICATIONS_ENV,
+    LAYER_CONTROL_OFF,
+    LAYER_CONTROL_DISCARD,
 
     LAYER_CONTROL_FIRST = LAYER_CONTROL_AUTO,
-    LAYER_CONTROL_LAST = LAYER_CONTROL_APPLICATIONS_ENV,
-
-    LAYER_CONTROL_EXPLICIT_FIRST = LAYER_CONTROL_AUTO,
-    LAYER_CONTROL_EXPLICIT_LAST = LAYER_CONTROL_ON,
-
-    LAYER_CONTROL_IMPLICIT_FIRST = LAYER_CONTROL_AUTO,
-    LAYER_CONTROL_IMPLICIT_LAST = LAYER_CONTROL_OFF
+    LAYER_CONTROL_LAST = LAYER_CONTROL_DISCARD,
 };
 
 enum { LAYER_CONTROL_COUNT = LAYER_CONTROL_LAST - LAYER_CONTROL_FIRST + 1 };
 
-const char* GetToken(LayerControl control);
-
-const char* GetLabel(LayerControl control);
-
-const char* GetDescription(LayerControl control);
-
 LayerControl GetLayerControl(const char* token);
-
-bool IsVisibleLayer(LayerControl control);
+const char* GetToken(LayerControl control);
+const char* GetLabel(LayerControl control);
+const char* GetDescription(LayerControl control);

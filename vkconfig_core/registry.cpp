@@ -104,6 +104,7 @@ static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Lay
     if (data_type == REG_SZ || data_type == REG_MULTI_SZ) {
         for (wchar_t *curr_filename = path; curr_filename[0] != '\0'; curr_filename += wcslen(curr_filename) + 1) {
             LayersPathInfo path_info;
+            path_info.type = LAYER_TYPE_IMPLICIT;
             path_info.path = QString::fromWCharArray(curr_filename).toStdString();
             layers_paths.push_back(path_info);
             Layer layer;
@@ -202,7 +203,7 @@ std::vector<LayersPathInfo> LoadRegistrySystemLayers(const char *input_path) {
     return layers_paths;
 }
 
-std::vector<LayersPathInfo> LoadRegistrySoftwareLayers(const char *path) {
+std::vector<LayersPathInfo> LoadRegistrySoftwareLayers(const char *path, LayerType type) {
     std::vector<LayersPathInfo> result;
     QSettings settings(path, QSettings::NativeFormat);
     const QStringList &files = settings.allKeys();
@@ -211,6 +212,7 @@ std::vector<LayersPathInfo> LoadRegistrySoftwareLayers(const char *path) {
         Path path(files[i].toStdString());
 
         LayersPathInfo info;
+        info.type = type;
         info.path = path.IsFile() ? path.AbsoluteDir() : path.AbsolutePath();
 
         if (Found(result, info.path)) {

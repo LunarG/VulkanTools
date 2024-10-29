@@ -26,45 +26,15 @@
 
 // These names are requied by the Vulkan Loader settings file
 const char* GetToken(LayerControl control) {
-    static const char* TOKENS[] = {
-        "Auto",                        // LAYER_CONTROL_AUTO
-        "Off",                         // LAYER_CONTROL_OFF
-        "On",                          // LAYER_CONTROL_ON
-        "application_enabled_layers",  // LAYER_CONTROL_APPLICATIONS_API
-        "unordered_layer_location"     // LAYER_CONTROL_APPLICATIONS_ENV
+    static const char* TABLE[] = {
+        "auto",     // LAYER_CONTROL_AUTO
+        "on",       // LAYER_CONTROL_ON
+        "off",      // LAYER_CONTROL_OFF
+        "discard",  // LAYER_CONTROL_DISCARD
     };
-    static_assert(std::size(TOKENS) == LAYER_CONTROL_COUNT);
+    static_assert(std::size(TABLE) == LAYER_CONTROL_COUNT);
 
-    return TOKENS[control];
-}
-
-const char* GetLabel(LayerControl control) {
-    static const char* TOKENS[] = {
-        "N/A",                                                      // LAYER_CONTROL_AUTO
-        "N/A",                                                      // LAYER_CONTROL_OFF
-        "N/A",                                                      // LAYER_CONTROL_ON
-        "Vulkan Layers from the Application Vulkan API",            // LAYER_CONTROL_APPLICATIONS_API
-        "Vulkan Layers from the Application Environment Variables"  // LAYER_CONTROL_APPLICATIONS_ENV
-    };
-    static_assert(std::size(TOKENS) == LAYER_CONTROL_COUNT);
-
-    return TOKENS[control];
-}
-
-const char* GetDescription(LayerControl control) {
-    static const char*
-        TOKENS[] =
-            {
-                "Auto, let Vulkan applications or environment variables to enable or disable the layer",  // LAYER_CONTROL_AUTO
-                "Force Off the layer, preventing its execution",                                          // LAYER_CONTROL_OFF
-                "Force On the layer, insuring its execution",                                             // LAYER_CONTROL_ON
-                "Located and Enabled Layers using 'vkCreateInstance' by the Vulkan Application at launch",  // LAYER_CONTROL_APPLICATIONS_API
-                "Located and Enabled Layers using 'VK_LOADER_LAYERS_ENABLE' Environment Variable by the Vulkan Application at "
-                "launch"  // LAYER_CONTROL_APPLICATIONS_ENV
-            };
-    static_assert(std::size(TOKENS) == LAYER_CONTROL_COUNT);
-
-    return TOKENS[control];
+    return TABLE[control];
 }
 
 LayerControl GetLayerControl(const char* token) {
@@ -78,6 +48,27 @@ LayerControl GetLayerControl(const char* token) {
     return LAYER_CONTROL_AUTO;
 }
 
-bool IsVisibleLayer(LayerControl control) {
-    return control >= LAYER_CONTROL_EXPLICIT_FIRST && control <= LAYER_CONTROL_EXPLICIT_LAST;
+// These names are requied by the Vulkan Loader settings file
+const char* GetLabel(LayerControl control) {
+    static const char* TABLE[] = {
+        "Auto",     // LAYER_CONTROL_AUTO
+        "Enable",   // LAYER_CONTROL_ON
+        "Disable",  // LAYER_CONTROL_OFF
+        "Discard",  // LAYER_CONTROL_DISCARD
+    };
+    static_assert(std::size(TABLE) == LAYER_CONTROL_COUNT);
+
+    return TABLE[control];
+}
+
+const char* GetDescription(LayerControl control) {
+    static const char* TOKENS[] = {
+        "Explicit layers are disabled by default and implicit layers are enabled by default.",  // LAYER_CONTROL_AUTO
+        "Enable the layer, insuring its execution.",                                            // LAYER_CONTROL_ON
+        "Disable the layer, preventing its execution.",                                         // LAYER_CONTROL_OFF
+        "Discard the layer, don't notify the Vulkan Loader this layer exist.",                  // LAYER_CONTROL_DISCARD
+    };
+    static_assert(std::size(TOKENS) == LAYER_CONTROL_COUNT);
+
+    return TOKENS[control];
 }

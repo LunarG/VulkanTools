@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,23 +18,16 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
+#include "widget_resize_button.h"
 
-#include "type_platform.h"
-#include "layer.h"
+ResizeButton::ResizeButton(QWidget *parent) : QPushButton(parent), parent(parent) {}
 
-#if VKC_ENV == VKC_ENV_WIN32
+bool ResizeButton::eventFilter(QObject *o, QEvent *e) {
+    (void)o;
 
-#include <QString>
-
-#include <vector>
-
-void AppendRegistryEntriesForLayers(QString override_file, QString settings_file);
-
-void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file);
-
-std::vector<LayersPathInfo> LoadRegistrySystemLayers(const char* path);
-
-std::vector<LayersPathInfo> LoadRegistrySoftwareLayers(const char* path, LayerType type);
-
-#endif  // VKC_ENV == VKC_ENV_WIN32
+    if (e->type() == QEvent::Resize) {
+        const QRect enabled_button_rect = QRect(this->parent->width() - 24 - 5, 0, 24, 24);
+        this->setGeometry(enabled_button_rect);
+    }
+    return false;
+}

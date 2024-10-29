@@ -27,7 +27,7 @@
 #include <QProcess>
 #include <QFile>
 
-struct TabApplications : public Tab {
+class TabApplications : public Tab {
     Q_OBJECT
 
    public:
