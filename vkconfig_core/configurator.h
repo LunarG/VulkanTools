@@ -48,6 +48,7 @@ class Configurator : public Serialize {
         std::string key;
         std::string path;
         LayerControl control = LAYER_CONTROL_AUTO;
+        LayerBuiltin builtin = LAYER_BUILTIN_NONE;
         bool implicit = false;
     };
 

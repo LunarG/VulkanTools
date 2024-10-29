@@ -22,7 +22,7 @@
 
 #include "tab.h"
 
-struct TabLayers : public Tab {
+class TabLayers : public Tab {
     Q_OBJECT
 
    public:
