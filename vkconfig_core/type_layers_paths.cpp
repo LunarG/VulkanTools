@@ -22,14 +22,6 @@
 
 #include <array>
 
-LayerType GetLayerType(LayersPaths Layers_paths_type) {
-    if (Layers_paths_type == LAYERS_PATHS_IMPLICIT) {
-        return LAYER_TYPE_IMPLICIT;
-    } else {
-        return LAYER_TYPE_EXPLICIT;
-    }
-}
-
 const char* GetLabel(LayersPaths Layers_paths_type) {
     static const char* TABLE[] = {
         "System Implicit Layers",      // LAYERS_PATHS_IMPLICIT

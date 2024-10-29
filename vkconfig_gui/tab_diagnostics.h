@@ -22,7 +22,7 @@
 
 #include "tab.h"
 
-struct TabDiagnostics : public Tab {
+class TabDiagnostics : public Tab {
     Q_OBJECT
 
    public:

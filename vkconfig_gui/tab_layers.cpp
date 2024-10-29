@@ -58,7 +58,6 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
 
     for (std::size_t group_index = configurator.layers.paths.size(); group_index > 0; --group_index) {
         const LayersPaths group_path = static_cast<LayersPaths>(group_index - 1);
-        const LayerType layer_type = ::GetLayerType(group_path);
 
         std::vector<LayersPathInfo> &paths_group = configurator.layers.paths[group_path];
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {

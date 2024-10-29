@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,21 +20,18 @@
 
 #pragma once
 
-#include "type_platform.h"
-#include "layer.h"
+enum LayerBuiltin {
+    LAYER_BUILTIN_NONE = 0,
+    LAYER_BUILTIN_API,
+    LAYER_BUILTIN_ENV,
 
-#if VKC_ENV == VKC_ENV_WIN32
+    LAYER_BUILTIN_FIRST = LAYER_BUILTIN_NONE,
+    LAYER_BUILTIN_LAST = LAYER_BUILTIN_ENV,
+};
 
-#include <QString>
+enum { LAYER_BUILTIN_COUNT = LAYER_BUILTIN_LAST - LAYER_BUILTIN_FIRST + 1 };
 
-#include <vector>
-
-void AppendRegistryEntriesForLayers(QString override_file, QString settings_file);
-
-void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file);
-
-std::vector<LayersPathInfo> LoadRegistrySystemLayers(const char* path);
-
-std::vector<LayersPathInfo> LoadRegistrySoftwareLayers(const char* path, LayerType type);
-
-#endif  // VKC_ENV == VKC_ENV_WIN32
+LayerBuiltin GetLayerBuiltin(const char* token);
+const char* GetToken(LayerBuiltin builtin);
+const char* GetLabel(LayerBuiltin builtin);
+const char* GetDescription(LayerBuiltin builtin);
