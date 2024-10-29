@@ -25,7 +25,7 @@
 TEST(test_type_layer_type, convert_all) {
     for (int i = LAYER_TYPE_FIRST, n = LAYER_TYPE_COUNT; i < n; ++i) {
         const LayerType value = static_cast<LayerType>(i);
-        const char* string = GetToken(value);
-        EXPECT_EQ(value, GetLayerType(string));
+        const char* string = ::GetToken(value);
+        EXPECT_EQ(value, ::GetLayerType(string));
     }
 }

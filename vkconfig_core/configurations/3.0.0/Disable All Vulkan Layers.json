@@ -23,8 +23,7 @@
         ],
         "layers": [
             {
-                "control": "unordered_layer_location",
-                "enabled": false,
+                "builtin": "unordered_layer_location",
                 "platforms": [
                     "WINDOWS",
                     "LINUX",
@@ -36,8 +35,7 @@
                 "version": "latest"
             },
             {
-                "control": "application_enabled_layers",
-                "enabled": false,
+                "builtin": "application_enabled_layers",
                 "platforms": [
                     "WINDOWS",
                     "LINUX",

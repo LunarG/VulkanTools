@@ -61,6 +61,7 @@ SOURCES += \
     ../vkconfig_core/setting_string.cpp \
     ../vkconfig_core/type_executable_mode.cpp \
     ../vkconfig_core/type_hide_message.cpp \
+    ../vkconfig_core/type_layer_builtin.cpp \
     ../vkconfig_core/type_layer_control.cpp \
     ../vkconfig_core/type_layer_type.cpp \
     ../vkconfig_core/type_layers_paths.cpp \
@@ -74,6 +75,7 @@ SOURCES += \
     ../vkconfig_core/version.cpp \
     ../vkconfig_core/vulkan_info.cpp \
     ../vkconfig_core/vulkan_util.cpp \
+    widget_resize_button.cpp \
     widget_layer_version.cpp \
     widget_tab_configurations_layer.cpp \
     widget_tab_layers_path.cpp \
@@ -137,6 +139,7 @@ HEADERS += \
     ../vkconfig_core/setting_string.h \
     ../vkconfig_core/type_executable_mode.h \
     ../vkconfig_core/type_hide_message.h \
+    ../vkconfig_core/type_layer_builtin.h \
     ../vkconfig_core/type_layer_control.h \
     ../vkconfig_core/type_layer_type.h \
     ../vkconfig_core/type_layers_paths.h \
@@ -150,6 +153,7 @@ HEADERS += \
     ../vkconfig_core/version.h \
     ../vkconfig_core/vulkan_info.h \
     ../vkconfig_core/vulkan_util.h \
+    widget_resize_button.h \
     widget_layer_version.h \
     widget_tab_configurations_layer.h \
     widget_tab_layers_path.h \
