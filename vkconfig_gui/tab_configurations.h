@@ -23,30 +23,11 @@
 #include "tab.h"
 #include "settings_tree.h"
 #include "item.h"
+#include "widget_resize_button.h"
 
 #include <QAbstractItemView>
-#include <QPushButton>
-#include <QPushButton>
 
-class ResizeButton : public QPushButton {
-    Q_OBJECT
-
-   public:
-    ResizeButton(QWidget *parent) : QPushButton(parent), parent(parent) {}
-
-    bool eventFilter(QObject *o, QEvent *e) override {
-        if (e->type() == QEvent::Resize) {
-            const QRect enabled_button_rect = QRect(this->parent->width() - 24 - 5, 0, 24, 24);
-            this->setGeometry(enabled_button_rect);
-        }
-        return false;
-    }
-
-   private:
-    QWidget *parent = nullptr;
-};
-
-struct TabConfigurations : public Tab {
+class TabConfigurations : public Tab {
     Q_OBJECT
 
    public:

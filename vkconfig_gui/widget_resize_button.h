@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,21 +20,17 @@
 
 #pragma once
 
-#include "type_platform.h"
-#include "layer.h"
+#include <QPushButton>
+#include <QEvent>
 
-#if VKC_ENV == VKC_ENV_WIN32
+class ResizeButton : public QPushButton {
+    Q_OBJECT
 
-#include <QString>
+   public:
+    ResizeButton(QWidget *parent);
 
-#include <vector>
+    bool eventFilter(QObject *o, QEvent *e) override;
 
-void AppendRegistryEntriesForLayers(QString override_file, QString settings_file);
-
-void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file);
-
-std::vector<LayersPathInfo> LoadRegistrySystemLayers(const char* path);
-
-std::vector<LayersPathInfo> LoadRegistrySoftwareLayers(const char* path, LayerType type);
-
-#endif  // VKC_ENV == VKC_ENV_WIN32
+   private:
+    QWidget *parent = nullptr;
+};

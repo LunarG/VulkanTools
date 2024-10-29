@@ -21,37 +21,41 @@
 #include "widget_tab_configurations_layer.h"
 #include "widget_setting.h"
 #include "tab_configurations.h"
+#include "combo_box.h"
 
 #include "../vkconfig_core/configurator.h"
 
 ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter)
-    : tab(tab), layer_name(parameter.key) {
+    : layer_name(parameter.key), tab(tab) {
     const Configurator &configurator = Configurator::Get();
     const Layer *layer = configurator.layers.Find(parameter.key, parameter.api_version);
 
-    if (IsVisibleLayer(parameter.control)) {
-        this->setEnabled(layer != nullptr && parameter.enabled);
+    this->layer_state = new ComboBox(this);
+    this->layer_state->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-        this->layer_state = new QComboBox(this);
-        this->layer_state->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-        if (layer != nullptr) {
-            if (layer->type == LAYER_TYPE_EXPLICIT) {
-                for (int i = LAYER_CONTROL_EXPLICIT_FIRST; i <= LAYER_CONTROL_EXPLICIT_LAST; ++i) {
-                    this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
-                    this->layer_state->setItemData(i, GetDescription(static_cast<LayerControl>(i)), Qt::ToolTipRole);
-                }
-            } else {
-                for (int i = LAYER_CONTROL_IMPLICIT_FIRST; i <= LAYER_CONTROL_IMPLICIT_LAST; ++i) {
-                    this->layer_state->addItem(GetToken(static_cast<LayerControl>(i)));
-                    this->layer_state->setItemData(i, GetDescription(static_cast<LayerControl>(i)), Qt::ToolTipRole);
-                }
-            }
+    for (int i = LAYER_CONTROL_FIRST; i <= LAYER_CONTROL_LAST; ++i) {
+        const LayerControl layer_control = static_cast<LayerControl>(i);
+        std::string label = ::GetLabel(layer_control);
+        /*
+        if (i == LAYER_CONTROL_AUTO && layer != nullptr) {
+            label += layer->GetActualControl() == LAYER_CONTROL_ON ? " (E)" : " (D)";
         }
-        this->layer_state->setCurrentIndex(parameter.control);
-        this->layer_state->setToolTip(GetDescription(parameter.control));
-        this->layer_state->setEnabled(layer != nullptr);
-        this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
+        */
+        this->layer_state->addItem(label.c_str());
+        this->layer_state->setItemData(i, ::GetDescription(layer_control), Qt::ToolTipRole);
     }
+
+    this->layer_state->setCurrentIndex(parameter.control);
+
+    if (parameter.control == LAYER_CONTROL_AUTO && layer != nullptr) {
+        std::string message = ::GetLabel(layer->GetActualControl());
+        message += format(". %s", layer->GetActualControlTooltip().c_str());
+        this->layer_state->setToolTip(message.c_str());
+    } else {
+        this->layer_state->setToolTip(::GetDescription(parameter.control));
+    }
+
+    this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
 
     std::string decorated_name = parameter.key;
 
@@ -73,18 +77,21 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         if (parameter.control == LAYER_CONTROL_OFF) {
             return;
         }
-    } else {
-        assert(layer != nullptr);
-
-        if (layer->status != STATUS_STABLE) {
-            decorated_name += format(" (%s)", GetToken(layer->status));
-        }
     }
     */
     this->setText(decorated_name.c_str());
+
+    if (parameter.builtin != LAYER_BUILTIN_NONE) {
+        this->setToolTip(::GetDescription(parameter.builtin));
+    } else {
+        assert(!parameter.manifest.Empty());
+        this->setToolTip(parameter.manifest.AbsolutePath().c_str());
+    }
 }
 
 bool ConfigurationLayerWidget::eventFilter(QObject *target, QEvent *event) {
+    (void)target;
+
     QEvent::Type event_type = event->type();
 
     if (event_type == QEvent::Wheel) {
@@ -114,15 +121,15 @@ void ConfigurationLayerWidget::resizeEvent(QResizeEvent *event) {
 
 void ConfigurationLayerWidget::on_layer_state_currentIndexChanged(int index) {
     assert(index >= 0);
-    const std::string &text = this->layer_state->itemText(index).toStdString();
+    const LayerControl control = static_cast<LayerControl>(index);
 
     Configurator &configurator = Configurator::Get();
 
     Configuration *configuration = configurator.GetActiveConfiguration();
     Parameter *parameter = configuration->Find(this->layer_name);
     if (parameter != nullptr) {
-        parameter->control = GetLayerControl(text.c_str());
-        this->layer_state->setToolTip(GetDescription(parameter->control));
+        parameter->control = control;
+        this->layer_state->setToolTip(GetDescription(control));
 
         configurator.Override(OVERRIDE_AREA_ALL);
     }

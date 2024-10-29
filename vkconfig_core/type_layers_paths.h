@@ -36,6 +36,4 @@ enum LayersPaths {
 
 enum { LAYERS_PATHS_COUNT = LAYERS_PATHS_LAST - LAYERS_PATHS_FIRST + 1 };
 
-LayerType GetLayerType(LayersPaths Layers_paths_type);
-
 const char* GetLabel(LayersPaths Layers_paths_type);
