@@ -55,6 +55,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    Configurator& configurator = Configurator::Get();
+    configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+
     const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
 
     if (vulkan_info.loaderVersion == Version::NONE) {
@@ -71,9 +74,6 @@ int main(int argc, char* argv[]) {
         Alert::StartPhysicalDeviceFailure();
         return -1;
     }
-
-    Configurator& configurator = Configurator::Get();
-    // configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     if (!configurator.Init()) {
         return -1;
