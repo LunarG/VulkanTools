@@ -259,17 +259,20 @@ TEST(test_configuration, SwitchLayerVersion) {
     Parameter* parameter_latest = configuration.Find("VK_LAYER_LUNARG_version");
     EXPECT_EQ(parameter_latest->api_version, Version::LATEST);
 
-    configuration.SwitchLayerVersion(layer_manager, "VK_LAYER_LUNARG_version", Version(1, 3, 204));
+    const Layer* layer_204 = layer_manager.Find("VK_LAYER_LUNARG_version", Version(1, 3, 204));
+    configuration.SwitchLayerVersion(layer_manager, "VK_LAYER_LUNARG_version", layer_204->manifest_path);
     Parameter* parameter_204 = configuration.Find("VK_LAYER_LUNARG_version");
     EXPECT_EQ(parameter_204->api_version, Version(1, 3, 204));
 
-    configuration.SwitchLayerVersion(layer_manager, "VK_LAYER_LUNARG_version", Version::LATEST);
+    const Layer* layer_latest = layer_manager.Find("VK_LAYER_LUNARG_version", Version::LATEST);
+    configuration.SwitchLayerLatest(layer_manager, "VK_LAYER_LUNARG_version");
     Parameter* parameter_restore = configuration.Find("VK_LAYER_LUNARG_version");
     EXPECT_EQ(parameter_restore->api_version, Version::LATEST);
 
-    configuration.SwitchLayerVersion(layer_manager, "VK_LAYER_LUNARG_version", Version(1, 3, 205));
+    const Layer* layer_205 = layer_manager.Find("VK_LAYER_LUNARG_version", Version(1, 3, 205));
+    configuration.SwitchLayerVersion(layer_manager, "VK_LAYER_LUNARG_version", layer_205->manifest_path);
     Parameter* parameter_version_not_found = configuration.Find("VK_LAYER_LUNARG_version");
-    EXPECT_EQ(parameter_version_not_found->api_version, Version::LATEST);
+    EXPECT_EQ(parameter_version_not_found->api_version, Version(1, 3, 290));
 }
 
 TEST(test_configuration, gather_parameters_exist) {
