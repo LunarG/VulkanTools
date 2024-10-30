@@ -93,7 +93,7 @@ void SettingsTreeManager::CreateGUI() {
         this->ui->configurations_presets->setVisible(!layer->presets.empty());
     }
 
-    const std::vector<Version> &layer_version = configurator.layers.GatherVersions(parameter->key);
+    const std::vector<Path> &layer_version = configurator.layers.GatherManifests(parameter->key);
     this->layer_version->setVisible(layer_version.size() > 1);
     if (layer_version.size() > 1) {
         this->layer_version->Init(*parameter, layer_version);
