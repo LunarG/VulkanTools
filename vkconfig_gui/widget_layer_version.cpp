@@ -30,7 +30,7 @@ LayerVersionComboBox::LayerVersionComboBox(QWidget *parent) : QComboBox(parent),
     this->connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_version_combobox_currentIndexChanged(int)));
 }
 
-void LayerVersionComboBox::Init(const Parameter &parameter, const std::vector<Version> &layer_versions) {
+void LayerVersionComboBox::Init(const Parameter &parameter, const std::vector<Path> &layer_versions) {
     const Configurator &configurator = Configurator::Get();
     const Layer *layer_select = configurator.layers.Find(parameter.key, parameter.api_version);
     const Layer *layer_latest = configurator.layers.Find(parameter.key, Version::LATEST);
@@ -41,27 +41,32 @@ void LayerVersionComboBox::Init(const Parameter &parameter, const std::vector<Ve
     this->addItem("Latest");
     this->setItemData(0, layer_latest->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
 
+    this->data.push_back(layer_latest->manifest_path);
+
     int version_index = 0;
     for (std::size_t i = 0, n = layer_versions.size(); i < n; ++i) {
-        if (layer_versions[i] == parameter.api_version) {
+        if (layer_versions[i] == parameter.manifest) {
             version_index = this->count();
         }
 
-        const Layer *layer_version = configurator.layers.Find(parameter.key, layer_versions[i]);
+        const Layer *layer_version = configurator.layers.FindFromManifest(layer_versions[i]);
 
         const int current_index = this->count();
 
-        this->addItem(layer_versions[i].str().c_str());
+        this->addItem(layer_version->api_version.str().c_str());
         this->setItemData(current_index, layer_version->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
+
+        this->data.push_back(layer_version->manifest_path);
     }
 
-    this->setCurrentIndex(version_index);
+    if (parameter.api_version != Version::LATEST) {
+        this->setCurrentIndex(version_index);
+    }
 
     this->blockSignals(false);
 
     if (layer_select != nullptr) {
         this->setToolTip(layer_select->manifest_path.AbsolutePath().c_str());
-        this->setToolTip(layer_select->description.c_str());
     }
 
     this->adjustSize();
@@ -69,16 +74,19 @@ void LayerVersionComboBox::Init(const Parameter &parameter, const std::vector<Ve
 
 void LayerVersionComboBox::on_layer_version_combobox_currentIndexChanged(int index) {
     assert(index >= 0);
-    const std::string &text = this->itemText(index).toStdString();
-    Version version = text == "Latest" ? Version::LATEST : Version(text.c_str());
-    assert(version != Version::NONE);
+
+    Path path = index > 0 ? this->data[index] : "";
 
     Configurator &configurator = Configurator::Get();
 
     Configuration *configuration = configurator.GetActiveConfiguration();
-    configuration->SwitchLayerVersion(configurator.layers, configuration->GetActiveParameter()->key, version);
+    if (index == 0) {  // latest
+        configuration->SwitchLayerLatest(configurator.layers, configuration->GetActiveParameter()->key);
+    } else {
+        configuration->SwitchLayerVersion(configurator.layers, configuration->GetActiveParameter()->key, path);
+    }
 
-    const Layer *layer = configurator.layers.Find(configuration->GetActiveParameter()->key, version);
+    const Layer *layer = configurator.layers.FindFromManifest(this->data[index]);
     assert(layer != nullptr);
     this->setToolTip(layer->manifest_path.AbsolutePath().c_str());
 
