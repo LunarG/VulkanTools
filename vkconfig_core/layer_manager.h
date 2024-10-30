@@ -39,8 +39,10 @@ class LayerManager : public Serialize {
     bool Empty() const;
     std::size_t Size() const;
 
+    std::vector<Path> GatherManifests(const std::string& layer_name) const;
     std::vector<Version> GatherVersions(const std::string& layer_name) const;
     const Layer* Find(const std::string& layer_name, const Version& version = Version::LATEST) const;
+    const Layer* FindLastModified(const std::string& layer_name, const Version& version) const;
     const Layer* FindFromManifest(const Path& manifest_path) const;
     Layer* FindFromManifest(const Path& manifest_path);
 

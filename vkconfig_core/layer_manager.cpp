@@ -247,6 +247,24 @@ bool LayerManager::Empty() const { return this->selected_layers.empty(); }
 
 std::size_t LayerManager::Size() const { return this->selected_layers.size(); }
 
+std::vector<Path> LayerManager::GatherManifests(const std::string &layer_name) const {
+    std::vector<Path> result;
+
+    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
+        if (!this->selected_layers[i].enabled) {
+            continue;
+        }
+
+        if (this->selected_layers[i].key == layer_name) {
+            result.push_back(this->selected_layers[i].manifest_path);
+        }
+    }
+
+    std::sort(result.rbegin(), result.rend());
+
+    return result;
+}
+
 std::vector<Version> LayerManager::GatherVersions(const std::string &layer_name) const {
     std::vector<Version> result;
 
@@ -285,25 +303,42 @@ const Layer *LayerManager::Find(const std::string &layer_name, const Version &la
 
         return this->Find(layer_name, latest);
     } else {
-        for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-            if (this->selected_layers[i].enabled == false) {
-                continue;
-            }
-            if (this->selected_layers[i].key != layer_name) {
-                continue;
-            }
-            if (this->selected_layers[i].api_version != layer_version) {
-                continue;
-            }
+        const Layer *newest = this->FindLastModified(layer_name, layer_version);
 
-            return &this->selected_layers[i];
+        if (newest != nullptr) {
+            return newest;
+        } else {
+            // Version not found, search for the latest available
+            return this->Find(layer_name, Version::LATEST);
         }
-
-        // Version not found, search for the latest available
-        return this->Find(layer_name, Version::LATEST);
     }
 
     return nullptr;
+}
+
+const Layer *LayerManager::FindLastModified(const std::string &layer_name, const Version &version) const {
+    const Layer *result = nullptr;
+
+    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
+        if (this->selected_layers[i].enabled == false) {
+            continue;
+        }
+        if (this->selected_layers[i].key != layer_name) {
+            continue;
+        }
+        if (this->selected_layers[i].api_version != version) {
+            continue;
+        }
+        if (result != nullptr) {
+            if (result->validated_last_modified > this->selected_layers[i].validated_last_modified) {
+                continue;
+            }
+        }
+
+        result = &this->selected_layers[i];
+    }
+
+    return result;
 }
 
 const Layer *LayerManager::FindFromManifest(const Path &manifest_path) const {

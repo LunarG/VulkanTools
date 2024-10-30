@@ -31,7 +31,7 @@ class LayerVersionComboBox : public QComboBox {
    public:
     LayerVersionComboBox(QWidget *parent);
 
-    void Init(const Parameter &parameter, const std::vector<Version> &layer_versions);
+    void Init(const Parameter &parameter, const std::vector<Path> &layer_versions);
 
     bool eventFilter(QObject *o, QEvent *e) override;
 
@@ -43,4 +43,5 @@ class LayerVersionComboBox : public QComboBox {
 
    private:
     QWidget *parent = nullptr;
+    std::vector<Path> data;
 };

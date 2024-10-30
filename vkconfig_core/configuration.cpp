@@ -440,15 +440,28 @@ bool Configuration::HasMissingLayer(const LayerManager& layers, std::vector<std:
     return !missing_layers.empty();
 }
 
-void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Version& version) {
+void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Path& manifest_path) {
+    assert(!manifest_path.Empty());
+
     Parameter* parameter = this->Find(layer_key);
     assert(parameter != nullptr);
 
-    const Layer* new_layer = layers.Find(layer_key, version);
+    const Layer* new_layer = layers.FindFromManifest(manifest_path);
 
-    parameter->api_version = new_layer->api_version == version ? version : Version::LATEST;
+    parameter->api_version = new_layer->api_version;
     parameter->manifest = new_layer->manifest_path;
-    CollectDefaultSettingData(new_layer->settings, parameter->settings);
+    ::CollectDefaultSettingData(new_layer->settings, parameter->settings);
+}
+
+void Configuration::SwitchLayerLatest(const LayerManager& layers, const std::string& layer_key) {
+    Parameter* parameter = this->Find(layer_key);
+    assert(parameter != nullptr);
+
+    const Layer* new_layer = layers.Find(layer_key, Version::LATEST);
+
+    parameter->api_version = Version::LATEST;
+    parameter->manifest = new_layer->manifest_path;
+    ::CollectDefaultSettingData(new_layer->settings, parameter->settings);
 }
 
 void Configuration::GatherParameters(const LayerManager& layers) {
