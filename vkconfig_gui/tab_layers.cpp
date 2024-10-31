@@ -65,7 +65,7 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
             item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
             item_state->setSizeHint(0, QSize(0, 32));
             LayersPathWidget *layer_path_widget = new LayersPathWidget(&paths_group[i], group_path);
-            this->connect(layer_path_widget, SIGNAL(toggled(bool)), this, SLOT(on_check_box_paths_toggled(bool)));
+            this->connect(layer_path_widget, SIGNAL(itemChanged()), this, SLOT(on_check_box_paths_changed()));
 
             ui->layers_paths_tree->addTopLevelItem(item_state);
             ui->layers_paths_tree->setItemWidget(item_state, 0, layer_path_widget);
@@ -75,7 +75,7 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
 
             for (std::size_t manifest_index = 0, manifest_count = manifest_paths.size(); manifest_index < manifest_count;
                  ++manifest_index) {
-                const Layer *layer = configurator.layers.FindFromManifest(manifest_paths[manifest_index]);
+                const Layer *layer = configurator.layers.FindFromManifest(manifest_paths[manifest_index], true);
                 if (layer == nullptr) {
                     continue;  // When the directory has JSON files that are not layer manifest
                 }
@@ -95,7 +95,7 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
                 QTreeWidgetItem *item = new QTreeWidgetItem;
                 item->setText(0, label.c_str());
                 item->setToolTip(0, layer->manifest_path.AbsolutePath().c_str());
-                item->setDisabled(!layer->enabled);
+                item->setDisabled(!paths_group[i].enabled);
                 item_state->addChild(item);
             }
         }
@@ -115,11 +115,7 @@ void TabLayers::CleanUI() {}
 
 bool TabLayers::EventFilter(QObject *target, QEvent *event) { return false; }
 
-void TabLayers::on_check_box_paths_toggled(bool checked) {
-    (void)checked;
-
-    this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
-}
+void TabLayers::on_check_box_paths_changed() { this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI); }
 
 void TabLayers::on_layers_validate_checkBox_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();

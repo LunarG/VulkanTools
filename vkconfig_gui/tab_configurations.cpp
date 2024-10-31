@@ -139,9 +139,9 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
         const bool has_missing_layer = configuration.HasMissingLayer(configurator.layers, missing_layers);
 
         // Hide built-in configuration when the layer is missing. The Vulkan user may have not installed the necessary layer
-        if (configuration.IsBuiltIn() && has_missing_layer) {
-            continue;
-        }
+        // if (configuration.IsBuiltIn() && has_missing_layer) {
+        //    continue;
+        //}
 
         ListItem *item = new ListItem(configuration.key.c_str());
         item->setFlags(item->flags() | Qt::ItemIsEditable);

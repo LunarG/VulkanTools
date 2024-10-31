@@ -130,9 +130,9 @@ TEST(test_parameter, apply_settings) {
 TEST(test_parameter, ordering_no_layers) {
     LayerManager layer_manager;
 
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_AUTO)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_OFF)));
+    EXPECT_EQ(PARAMETER_RANK_MISSING_LAYER, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_AUTO)));
+    EXPECT_EQ(PARAMETER_RANK_MISSING_LAYER, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_ON)));
+    EXPECT_EQ(PARAMETER_RANK_MISSING_LAYER, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_OFF)));
 }
 /*
 TEST(test_parameter, ordering_found_custom_layers) {

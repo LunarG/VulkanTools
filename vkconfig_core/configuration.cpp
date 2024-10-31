@@ -57,7 +57,7 @@ static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) 
         applications_enabled_layers_api.key = ::GetLabel(LAYER_BUILTIN_API);
         applications_enabled_layers_api.builtin = LAYER_BUILTIN_API;
         applications_enabled_layers_api.control = LAYER_CONTROL_DISCARD;  // Until the Vulkan Loader is fixed
-        applications_enabled_layers_api.overridden_rank = 998;
+        applications_enabled_layers_api.overridden_rank = Parameter::NO_RANK;
         parameters.push_back(applications_enabled_layers_api);
     }
 
@@ -76,7 +76,7 @@ static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) 
         applications_enabled_layers_env.key = ::GetLabel(LAYER_BUILTIN_ENV);
         applications_enabled_layers_env.builtin = LAYER_BUILTIN_ENV;
         applications_enabled_layers_env.control = LAYER_CONTROL_DISCARD;  // Until the Vulkan Loader is fixed
-        applications_enabled_layers_env.overridden_rank = 999;
+        applications_enabled_layers_env.overridden_rank = Parameter::NO_RANK;
         parameters.push_back(applications_enabled_layers_env);
     }
 }
@@ -86,8 +86,6 @@ Configuration Configuration::Create(const LayerManager& layers, const std::strin
 
     result.key = configuration_key;
     result.GatherParameters(layers);
-
-    AddApplicationEnabledParameters(result.parameters);
 
     return result;
 }
@@ -100,8 +98,6 @@ Configuration Configuration::CreateDisabled(const LayerManager& layers) {
     for (std::size_t i = 0, n = result.parameters.size(); i < n; ++i) {
         result.parameters[i].control = LAYER_CONTROL_OFF;
     }
-
-    AddApplicationEnabledParameters(result.parameters);
 
     return result;
 }
@@ -249,8 +245,6 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
 
     this->GatherParameters(layers);
 
-    AddApplicationEnabledParameters(this->parameters);
-
     return true;
 }
 
@@ -379,7 +373,7 @@ void Configuration::Reset(const LayerManager& layers) {
             const bool result = this->Load(builtin_configuration_files[i], layers);
             assert(result);
 
-            OrderParameter(this->parameters, layers);
+            // OrderParameter(this->parameters, layers);
             return;
         }
     }
@@ -393,7 +387,7 @@ void Configuration::Reset(const LayerManager& layers) {
         const bool result = this->Load(full_path, layers);
         assert(result);
 
-        OrderParameter(this->parameters, layers);
+        // OrderParameter(this->parameters, layers);
         return;
     }
 
@@ -407,7 +401,7 @@ void Configuration::Reset(const LayerManager& layers) {
             }
         }
 
-        OrderParameter(this->parameters, layers);
+        // OrderParameter(this->parameters, layers);
     }
 }
 
@@ -421,27 +415,31 @@ bool Configuration::HasMissingLayer(const LayerManager& layers, std::vector<std:
             continue;
         }
 
-        if (it->control == LAYER_CONTROL_OFF) {
-            continue;  // If excluded are missing, it doesn't matter
+        if (it->control != LAYER_CONTROL_ON) {
+            continue;  // If not on, let's say it doesn't matter so it's not notified to the users
         }
 
-        if (layers.Find(it->key, it->api_version) == nullptr) {
-            missing_layers.push_back(it->key);
-            continue;
-        }
         /*
+                if (layers.Find(it->key, it->api_version) == nullptr) {
+                    missing_layers.push_back(it->key);
+                    continue;
+                }
+        */
+
         if (layers.FindFromManifest(it->manifest) == nullptr) {
             missing_layers.push_back(it->key);
             continue;
         }
-        */
     }
 
     return !missing_layers.empty();
 }
 
 void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Path& manifest_path) {
-    assert(!manifest_path.Empty());
+    if (manifest_path.Empty()) {
+        this->SwitchLayerLatest(layers, layer_key);
+        return;
+    }
 
     Parameter* parameter = this->Find(layer_key);
     assert(parameter != nullptr);
@@ -497,7 +495,9 @@ void Configuration::GatherParameters(const LayerManager& layers) {
         gathered_parameters.push_back(parameter);
     }
 
-    // OrderParameter(gathered_parameters, layers);
+    ::AddApplicationEnabledParameters(gathered_parameters);
+
+    ::OrderParameter(gathered_parameters, layers);
 
     this->parameters = gathered_parameters;
 }

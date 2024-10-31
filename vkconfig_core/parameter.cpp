@@ -59,21 +59,19 @@ ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& 
     assert(!parameter.key.empty());
 
     const Layer* layer = layers.Find(parameter.key, parameter.api_version);
-    if (layer == nullptr) {
-        return PARAMETER_RANK_MISSING;
-    } else if (parameter.control == LAYER_CONTROL_OFF) {
-        return PARAMETER_RANK_EXCLUDED;
-    } else if (parameter.control == LAYER_CONTROL_AUTO && layer->type == LAYER_TYPE_IMPLICIT) {
-        return PARAMETER_RANK_IMPLICIT_AVAILABLE;
-    } else if (parameter.control == LAYER_CONTROL_ON && layer->type == LAYER_TYPE_IMPLICIT) {
-        return PARAMETER_RANK_IMPLICIT_OVERRIDDEN;
-    } else if (parameter.control == LAYER_CONTROL_ON && layer->type != LAYER_TYPE_IMPLICIT) {
-        return PARAMETER_RANK_EXPLICIT_OVERRIDDEN;
-    } else if (parameter.control == LAYER_CONTROL_AUTO && layer->type != LAYER_TYPE_IMPLICIT) {
-        return PARAMETER_RANK_EXPLICIT_AVAILABLE;
+    if (parameter.builtin == LAYER_BUILTIN_ENV) {
+        return PARAMETER_RANK_APPPLICATION_ENV;
+    } else if (parameter.builtin == LAYER_BUILTIN_API) {
+        return PARAMETER_RANK_APPPLICATION_API;
+    } else if (layer == nullptr) {
+        return PARAMETER_RANK_MISSING_LAYER;
+    } else if (layer->type == LAYER_TYPE_IMPLICIT) {
+        return PARAMETER_RANK_IMPLICIT_LAYER;
+    } else if (layer->type == LAYER_TYPE_EXPLICIT) {
+        return PARAMETER_RANK_EXPLICIT_LAYER;
     } else {
         assert(0);  // Unknown ordering
-        return PARAMETER_RANK_MISSING;
+        return PARAMETER_RANK_MISSING_LAYER;
     }
 }
 
@@ -85,31 +83,23 @@ void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& laye
             const ParameterRank rankA = GetParameterOrdering(layers, a);
             const ParameterRank rankB = GetParameterOrdering(layers, b);
 
-            const bool both_ranked = a.overridden_rank != Parameter::NO_RANK && b.overridden_rank != Parameter::NO_RANK;
+            const bool both_overridden = a.overridden_rank != Parameter::NO_RANK && b.overridden_rank != Parameter::NO_RANK;
 
-            if (rankA == rankB && a.control == LAYER_CONTROL_ON)
-                if (a.overridden_rank != Parameter::NO_RANK && b.overridden_rank != Parameter::NO_RANK)
-                    return a.overridden_rank < b.overridden_rank;
-                else if (a.key == VK_LAYER_KHRONOS_PROFILES_NAME)
+            if (both_overridden)
+                return a.overridden_rank < b.overridden_rank;
+            else if (rankA == rankB)
+                if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME && b.key == VK_LAYER_KHRONOS_PROFILES_NAME)
+                    return true;
+                else if (a.key == VK_LAYER_KHRONOS_PROFILES_NAME && b.key == VK_LAYER_KHRONOS_VALIDATION_NAME)
                     return false;
-                else if (b.key == VK_LAYER_KHRONOS_PROFILES_NAME)
-                    return true;
-                else if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME && b.key == VK_LAYER_KHRONOS_PROFILES_NAME)
-                    return true;
                 else if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME)
+                    return true;
+                else if (b.key == VK_LAYER_KHRONOS_VALIDATION_NAME)
                     return false;
                 else
                     return a.key < b.key;
-            else if (both_ranked && rankA == PARAMETER_RANK_IMPLICIT_OVERRIDDEN && rankB == PARAMETER_RANK_EXPLICIT_OVERRIDDEN)
-                return a.overridden_rank < b.overridden_rank;
-            else if (both_ranked && rankA == PARAMETER_RANK_EXPLICIT_OVERRIDDEN && rankB == PARAMETER_RANK_IMPLICIT_OVERRIDDEN)
-                return a.overridden_rank < b.overridden_rank;
-            else if (rankA == rankB && a.control != LAYER_CONTROL_ON)
-                return a.key < b.key;
-            else if (rankA != rankB)
-                return rankA < rankB;
             else
-                return a.key < b.key;
+                return rankA < rankB;
         }
 
         const LayerManager& layers;
@@ -127,6 +117,10 @@ void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& laye
 
 bool HasMissingLayer(const std::vector<Parameter>& parameters, const LayerManager& layers, std::string& missing_layer) {
     for (auto it = parameters.begin(), end = parameters.end(); it != end; ++it) {
+        if (it->builtin != LAYER_BUILTIN_NONE) {
+            continue;  // If application API or ENV layers
+        }
+
         if (it->control == LAYER_CONTROL_OFF) {
             continue;  // If excluded are missing, it doesn't matter
         }

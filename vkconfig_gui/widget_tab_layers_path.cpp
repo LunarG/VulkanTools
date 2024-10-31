@@ -112,5 +112,7 @@ void LayersPathWidget::on_toggled(bool checked) {
 
         Configurator& configurator = Configurator::Get();
         configurator.layers.UpdatePathEnabled(*this->path_info);
+
+        itemChanged();
     }
 }
