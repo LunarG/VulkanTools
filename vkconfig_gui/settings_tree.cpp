@@ -68,8 +68,16 @@ void SettingsTreeManager::CreateGUI() {
     Parameter *parameter = configuration != nullptr ? configuration->GetActiveParameter() : nullptr;
     const bool no_selected_layer = configuration != nullptr ? configuration->selected_layer_name.empty() : false;
 
+    if (parameter != nullptr) {
+        if (parameter->manifest.Empty()) {
+            configuration->SwitchLayerLatest(configurator.layers, configuration->GetActiveParameter()->key);
+        } else {
+            configuration->SwitchLayerVersion(configurator.layers, configuration->GetActiveParameter()->key, parameter->manifest);
+        }
+    }
+
     // Group box things
-    const Layer *layer = parameter != nullptr ? configurator.layers.Find(parameter->key, parameter->api_version) : nullptr;
+    const Layer *layer = parameter != nullptr ? configurator.layers.FindFromManifest(parameter->manifest) : nullptr;
 
     if (no_selected_layer) {
         this->ui->configurations_group_box_settings->setTitle("Select a layer to display settings");
@@ -93,10 +101,10 @@ void SettingsTreeManager::CreateGUI() {
         this->ui->configurations_presets->setVisible(!layer->presets.empty());
     }
 
-    const std::vector<Path> &layer_version = configurator.layers.GatherManifests(parameter->key);
-    this->layer_version->setVisible(layer_version.size() > 1);
-    if (layer_version.size() > 1) {
-        this->layer_version->Init(*parameter, layer_version);
+    const std::vector<Path> &layer_versions = configurator.layers.GatherManifests(parameter->key);
+    this->layer_version->setVisible(!layer_versions.empty());
+    if (!layer_versions.empty()) {
+        this->layer_version->Init(*parameter, layer_versions);
     }
 
     // preset combobox

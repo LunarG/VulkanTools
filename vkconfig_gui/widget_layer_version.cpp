@@ -37,6 +37,8 @@ void LayerVersionComboBox::Init(const Parameter &parameter, const std::vector<Pa
 
     this->blockSignals(true);
 
+    this->data.clear();
+
     this->clear();
     this->addItem("Latest");
     this->setItemData(0, layer_latest->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
@@ -80,11 +82,7 @@ void LayerVersionComboBox::on_layer_version_combobox_currentIndexChanged(int ind
     Configurator &configurator = Configurator::Get();
 
     Configuration *configuration = configurator.GetActiveConfiguration();
-    if (index == 0) {  // latest
-        configuration->SwitchLayerLatest(configurator.layers, configuration->GetActiveParameter()->key);
-    } else {
-        configuration->SwitchLayerVersion(configurator.layers, configuration->GetActiveParameter()->key, path);
-    }
+    configuration->SwitchLayerVersion(configurator.layers, configuration->GetActiveParameter()->key, path);
 
     const Layer *layer = configurator.layers.FindFromManifest(this->data[index]);
     assert(layer != nullptr);

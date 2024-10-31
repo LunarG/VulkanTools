@@ -167,10 +167,12 @@ void ConfigurationManager::LoadConfigurationsPath(const LayerManager &layers) {
             continue;
         }
 
+        /*
         std::string missing_layer;
         if (!HasMissingLayer(configuration.parameters, layers, missing_layer)) {
-            OrderParameter(configuration.parameters, layers);
+            //OrderParameter(configuration.parameters, layers);
         }
+        */
 
         available_configurations.push_back(configuration);
     }

@@ -36,7 +36,7 @@ class TabLayers : public Tab {
     void UpdateUI_LayersPaths(UpdateUIMode ui_update_mode);
 
    public Q_SLOTS:
-    void on_check_box_paths_toggled(bool checked);
+    void on_check_box_paths_changed();
     void on_layers_validate_checkBox_toggled(bool checked);
     void on_layers_append_pressed();
     void on_layers_browse_pressed();

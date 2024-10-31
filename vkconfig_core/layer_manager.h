@@ -43,8 +43,8 @@ class LayerManager : public Serialize {
     std::vector<Version> GatherVersions(const std::string& layer_name) const;
     const Layer* Find(const std::string& layer_name, const Version& version = Version::LATEST) const;
     const Layer* FindLastModified(const std::string& layer_name, const Version& version) const;
-    const Layer* FindFromManifest(const Path& manifest_path) const;
-    Layer* FindFromManifest(const Path& manifest_path);
+    const Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false) const;
+    Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false);
 
     void LoadAllInstalledLayers();
     void LoadLayersFromPath(const Path& layers_path, LayerType type = LAYER_TYPE_EXPLICIT);
