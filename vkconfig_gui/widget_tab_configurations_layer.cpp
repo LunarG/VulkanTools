@@ -57,6 +57,9 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
 
     this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
 
+    const bool layer_found = layer != nullptr || parameter.builtin != LAYER_BUILTIN_NONE;
+    this->setEnabled(layer_found);
+
     std::string decorated_name = parameter.key;
 
     if (layer != nullptr) {
@@ -69,6 +72,8 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         if (layer->status != STATUS_STABLE) {
             decorated_name += format(" (%s)", GetToken(layer->status));
         }
+    } else if (!layer_found) {
+        decorated_name += " (Missing)";
     }
     /*
     if (layer_versions.empty()) {
@@ -83,8 +88,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
 
     if (parameter.builtin != LAYER_BUILTIN_NONE) {
         this->setToolTip(::GetDescription(parameter.builtin));
-    } else {
-        assert(!parameter.manifest.Empty());
+    } else if (!parameter.manifest.Empty()) {
         this->setToolTip(parameter.manifest.AbsolutePath().c_str());
     }
 }
