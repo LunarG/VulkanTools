@@ -176,9 +176,10 @@ bool LayerManager::Save(QJsonObject &json_root_object) const {
 
     QJsonObject json_paths_object;
     for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
-        for (std::size_t i = 0, n = this->paths[paths_type_index].size(); i < n; ++i) {
-            json_paths_object.insert(this->paths[paths_type_index][i].path.RelativePath().c_str(),
-                                     this->paths[paths_type_index][i].enabled);
+        const std::vector<LayersPathInfo> &path_infos = this->paths[paths_type_index];
+
+        for (std::size_t i = 0, n = path_infos.size(); i < n; ++i) {
+            json_paths_object.insert(path_infos[i].path.RelativePath().c_str(), path_infos[i].enabled);
         }
     }
 
@@ -341,8 +342,12 @@ const Layer *LayerManager::FindLastModified(const std::string &layer_name, const
     return result;
 }
 
-const Layer *LayerManager::FindFromManifest(const Path &manifest_path) const {
+const Layer *LayerManager::FindFromManifest(const Path &manifest_path, bool find_disabled_layers) const {
     for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
+        if (!find_disabled_layers && this->selected_layers[i].enabled == false) {
+            continue;
+        }
+
         if (this->selected_layers[i].manifest_path == manifest_path) {
             return &this->selected_layers[i];
         }
@@ -350,8 +355,12 @@ const Layer *LayerManager::FindFromManifest(const Path &manifest_path) const {
     return nullptr;
 }
 
-Layer *LayerManager::FindFromManifest(const Path &manifest_path) {
+Layer *LayerManager::FindFromManifest(const Path &manifest_path, bool find_disabled_layers) {
     for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
+        if (!find_disabled_layers && this->selected_layers[i].enabled == false) {
+            continue;
+        }
+
         if (this->selected_layers[i].manifest_path == manifest_path) {
             return &this->selected_layers[i];
         }
@@ -369,6 +378,7 @@ void LayerManager::LoadAllInstalledLayers() {
         const std::vector<LayersPathInfo> &paths_group = this->paths[group_index];
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
             this->LoadLayersFromPath(paths_group[i].path, paths_group[i].type);
+            this->UpdatePathEnabled(paths_group[i]);
         }
     }
 }
@@ -457,7 +467,7 @@ void LayerManager::UpdatePathEnabled(const LayersPathInfo &path_info) {
     const std::vector<Path> &layers_paths = CollectFilePaths(path_info.path);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        Layer *layer = this->FindFromManifest(layers_paths[i]);
+        Layer *layer = this->FindFromManifest(layers_paths[i], true);
         if (layer == nullptr) {
             continue;
         }
@@ -470,6 +480,10 @@ std::vector<std::string> LayerManager::BuildLayerNameList() const {
     std::vector<std::string> result;
 
     for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
+        if (this->selected_layers[i].enabled == false) {
+            continue;
+        }
+
         if (std::find(result.begin(), result.end(), this->selected_layers[i].key) != result.end()) {
             continue;
         }

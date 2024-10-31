@@ -40,6 +40,9 @@ class LayersPathWidget : public QCheckBox {
     void on_buttom_remove_clicked(bool checked = false);
     void on_toggled(bool checked);
 
+   Q_SIGNALS:
+    void itemChanged();
+
    public:
     LayersPathInfo *path_info = nullptr;
     QPushButton *buttom_remove = nullptr;
