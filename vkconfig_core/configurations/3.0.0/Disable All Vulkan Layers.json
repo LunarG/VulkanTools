@@ -20,32 +20,6 @@
             "perf",
             "layer",
             "driver"
-        ],
-        "layers": [
-            {
-                "builtin": "unordered_layer_location",
-                "platforms": [
-                    "WINDOWS",
-                    "LINUX",
-                    "MACOS"
-                ],
-                "rank": -1,
-                "settings": [
-                ],
-                "version": "latest"
-            },
-            {
-                "builtin": "application_enabled_layers",
-                "platforms": [
-                    "WINDOWS",
-                    "LINUX",
-                    "MACOS"
-                ],
-                "rank": -1,
-                "settings": [
-                ],
-                "version": "latest"
-            }
         ]
     }
 }

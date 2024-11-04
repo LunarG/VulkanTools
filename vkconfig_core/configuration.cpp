@@ -41,7 +41,7 @@
 #include <string>
 #include <algorithm>
 
-static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters) {
+static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters, LayerControl default_control) {
     bool found_applications_api = false;
     for (auto paramater : parameters) {
         if (paramater.builtin != LAYER_BUILTIN_API) {
@@ -495,7 +495,7 @@ void Configuration::GatherParameters(const LayerManager& layers) {
         gathered_parameters.push_back(parameter);
     }
 
-    ::AddApplicationEnabledParameters(gathered_parameters);
+    ::AddApplicationEnabledParameters(gathered_parameters, this->default_control);
 
     ::OrderParameter(gathered_parameters, layers);
 
