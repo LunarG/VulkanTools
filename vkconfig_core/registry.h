@@ -31,7 +31,7 @@
 
 void AppendRegistryEntriesForLayers(QString override_file, QString settings_file);
 
-void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file);
+void RemoveRegistryEntriesForLayers();
 
 std::vector<LayersPathInfo> LoadRegistrySystemLayers(const char* path);
 
