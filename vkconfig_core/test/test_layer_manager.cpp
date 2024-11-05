@@ -204,7 +204,7 @@ TEST(test_layer_manager, BuildLayerNameList) {
     LayerManager layer_manager;
     layer_manager.LoadLayersFromPath(":/layers");
 
-    EXPECT_EQ(layer_manager.BuildLayerNameList().size(), 11);
+    EXPECT_EQ(layer_manager.GatherLayerNames().size(), 11);
 }
 
 TEST(test_layer_manager, avoid_duplicate) {

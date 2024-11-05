@@ -154,7 +154,7 @@ void ConfigurationManager::SortConfigurations() {
 std::vector<ReferencedLayer> ConfigurationManager::BuildReferencedLayers(const LayerManager &layers, const Path &path) {
     std::vector<ReferencedLayer> result;
 
-    layers.BuildLayerNameList();
+    layers.GatherLayerNames();
 
     return result;
 }

@@ -73,7 +73,6 @@ SOURCES += \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/ui.cpp \
     ../vkconfig_core/version.cpp \
-    ../vkconfig_core/vulkan_info.cpp \
     ../vkconfig_core/vulkan_util.cpp \
     widget_resize_button.cpp \
     widget_layer_version.cpp \
@@ -151,7 +150,6 @@ HEADERS += \
     ../vkconfig_core/util.h \
     ../vkconfig_core/ui.h \
     ../vkconfig_core/version.h \
-    ../vkconfig_core/vulkan_info.h \
     ../vkconfig_core/vulkan_util.h \
     widget_resize_button.h \
     widget_layer_version.h \
