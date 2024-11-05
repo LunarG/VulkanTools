@@ -67,6 +67,7 @@ class Configurator : public Serialize {
     bool Load(const QJsonObject& json_root_object) override;
     bool Save(QJsonObject& json_root_object) const override;
     void Reset() override;
+    std::string Log() const override;
 
     bool Surrender(OverrideArea override_area);
     bool Override(OverrideArea override_area);
@@ -100,7 +101,12 @@ class Configurator : public Serialize {
     bool GetUseSystemTray() const;
     void SetUseSystemTray(bool enabled);
 
+    Path GetHomeSDK() const;
+    void SetHomeSDK(const Path& path);
+
     bool HasActiveSettings() const;
+
+    std::string GenerateVulkanStatus() const;
 
     ~Configurator();
 

@@ -40,6 +40,7 @@ class ConfigurationManager : public Serialize {
     bool Load(const QJsonObject& json_root_object) override;
     bool Save(QJsonObject& json_root_object) const override;
     void Reset() override;
+    std::string Log() const override;
 
     void LoadAllConfigurations(const LayerManager& layers);
     void SaveAllConfigurations() const;

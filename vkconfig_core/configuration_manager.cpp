@@ -85,6 +85,11 @@ void ConfigurationManager::Reset() {
     this->SortConfigurations();
 }
 
+std::string ConfigurationManager::Log() const {
+    std::string log;
+    return log;
+}
+
 void ConfigurationManager::LoadAllConfigurations(const LayerManager &layers) {
     this->available_configurations.clear();
 

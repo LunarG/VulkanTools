@@ -64,6 +64,7 @@ class ExecutableManager : public Serialize {
     bool Load(const QJsonObject& json_root_object) override;
     bool Save(QJsonObject& json_root_object) const override;
     void Reset() override;
+    std::string Log() const override;
 
     void Clear();
     bool Empty() const;

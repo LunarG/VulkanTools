@@ -89,3 +89,5 @@ std::vector<std::string> GetPlatformTokens(int platform_flags);
 #endif
 
 bool IsPlatformSupported(int platform_flags);
+
+const char* GetLabel(PlatformType type);
