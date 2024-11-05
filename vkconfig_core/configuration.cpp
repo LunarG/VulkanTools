@@ -475,7 +475,7 @@ void Configuration::GatherParameters(const LayerManager& layers) {
         gathered_parameters.push_back(parameter);
     }
 
-    const std::vector<std::string>& list = layers.BuildLayerNameList();
+    const std::vector<std::string>& list = layers.GatherLayerNames();
 
     for (std::size_t i = 0, n = list.size(); i < n; ++i) {
         const Layer* layer = layers.Find(list[i], Version::LATEST);

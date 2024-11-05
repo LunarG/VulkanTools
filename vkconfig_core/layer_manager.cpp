@@ -25,6 +25,22 @@
 
 #include <QJsonArray>
 
+std::vector<LayersPathInfo> GetEnvVariablePaths(const char *variable_name, LayerType type) {
+    std::vector<LayersPathInfo> result;
+
+    const char *SEPARATOR = GetToken(PARSE_ENV_VAR);
+
+    const std::vector<std::string> &paths = UniqueStrings(Split(qgetenv(variable_name).toStdString(), SEPARATOR));
+    result.resize(paths.size());
+    for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
+        result[i].path = paths[i];
+        result[i].enabled = true;
+        result[i].type = type;
+    }
+
+    return result;
+}
+
 std::vector<LayersPathInfo> GetImplicitLayerPaths() {
     std::vector<LayersPathInfo> result;
 
@@ -203,6 +219,36 @@ void LayerManager::Reset() {
 
 std::string LayerManager::Log() const {
     std::string log;
+
+    log += "Vulkan Layers Locations\n";
+
+    for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
+        const std::vector<LayersPathInfo> &paths_group = this->paths[group_index];
+        if (paths_group.empty()) {
+            log += format(" %d. %s paths:\n", group_index + 1, ::GetLabel(static_cast<LayersPaths>(group_index)));
+            log += format(" - None\n");
+        } else {
+            log += format(" %d. %s paths:\n", group_index + 1, ::GetLabel(static_cast<LayersPaths>(group_index)));
+        }
+
+        for (std::size_t path_index = 0, path_count = paths_group.size(); path_index < path_count; ++path_index) {
+            log += format(" - %s (%s)\n", paths_group[path_index].path.AbsolutePath().c_str(),
+                          paths_group[path_index].enabled ? "enabled" : "disabled");
+
+            const std::vector<const Layer *> layers = this->GatherLayers(paths_group[path_index]);
+
+            for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
+                log += format("   * %s - %s", layers[i]->key.c_str(), layers[i]->api_version.str().c_str());
+                if (layers[i]->status != STATUS_STABLE) {
+                    log += format(" (%s)", GetToken(layers[i]->status));
+                }
+                log += "\n";
+            }
+        }
+    }
+
+    log += "\n";
+
     return log;
 }
 
@@ -210,32 +256,22 @@ void LayerManager::InitSystemPaths() {
     this->selected_layers.clear();
     this->layers_validated.clear();
 
-    this->paths[LAYERS_PATHS_IMPLICIT] = GetImplicitLayerPaths();
+    this->paths[LAYERS_PATHS_IMPLICIT_SYSTEM] = GetImplicitLayerPaths();
 
-    this->paths[LAYERS_PATHS_EXPLICIT] = GetExplicitLayerPaths();
+    // LAYERS_PATHS_IMPLICIT_ENV_SET: VK_IMPLICIT_LAYER_PATH env variables
+    this->paths[LAYERS_PATHS_IMPLICIT_ENV_SET] = GetEnvVariablePaths("VK_IMPLICIT_LAYER_PATH", LAYER_TYPE_IMPLICIT);
 
-    const char *SEPARATOR = GetToken(PARSE_ENV_VAR);
+    // LAYERS_PATHS_IMPLICIT_ENV_ADD: VK_ADD_IMPLICIT_LAYER_PATH env variables
+    this->paths[LAYERS_PATHS_IMPLICIT_ENV_ADD] = GetEnvVariablePaths("VK_ADD_IMPLICIT_LAYER_PATH", LAYER_TYPE_IMPLICIT);
 
-    // LAYERS_PATHS_ENV_SET: VK_LAYER_PATH env variables
-    {
-        const std::vector<std::string> &VK_LAYER_PATH = UniqueStrings(Split(qgetenv("VK_LAYER_PATH").toStdString(), SEPARATOR));
-        this->paths[LAYERS_PATHS_ENV_SET].resize(VK_LAYER_PATH.size());
-        for (std::size_t i = 0, n = VK_LAYER_PATH.size(); i < n; ++i) {
-            this->paths[LAYERS_PATHS_ENV_SET][i].path = VK_LAYER_PATH[i];
-            this->paths[LAYERS_PATHS_ENV_SET][i].enabled = true;
-        }
-    }
+    // LAYERS_PATHS_EXPLICIT_SYSTEM
+    this->paths[LAYERS_PATHS_EXPLICIT_SYSTEM] = GetExplicitLayerPaths();
 
-    // LAYERS_PATHS_ENV_ADD: VK_ADD_LAYER_PATH env variables
-    {
-        const std::vector<std::string> &VK_ADD_LAYER_PATH =
-            UniqueStrings(Split(qgetenv("VK_ADD_LAYER_PATH").toStdString(), SEPARATOR));
-        this->paths[LAYERS_PATHS_ENV_ADD].resize(VK_ADD_LAYER_PATH.size());
-        for (std::size_t i = 0, n = VK_ADD_LAYER_PATH.size(); i < n; ++i) {
-            this->paths[LAYERS_PATHS_ENV_ADD][i].path = VK_ADD_LAYER_PATH[i];
-            this->paths[LAYERS_PATHS_ENV_ADD][i].enabled = true;
-        }
-    }
+    // LAYERS_PATHS_EXPLICIT_ENV_SET: VK_LAYER_PATH env variables
+    this->paths[LAYERS_PATHS_EXPLICIT_ENV_SET] = GetEnvVariablePaths("VK_LAYER_PATH", LAYER_TYPE_EXPLICIT);
+
+    // LAYERS_PATHS_EXPLICIT_ENV_ADD: VK_ADD_LAYER_PATH env variables
+    this->paths[LAYERS_PATHS_EXPLICIT_ENV_ADD] = GetEnvVariablePaths("VK_ADD_LAYER_PATH", LAYER_TYPE_EXPLICIT);
 
     // LAYERS_PATHS_SDK
     this->paths[LAYERS_PATHS_SDK].clear();
@@ -481,7 +517,7 @@ void LayerManager::UpdatePathEnabled(const LayersPathInfo &path_info) {
     }
 }
 
-std::vector<std::string> LayerManager::BuildLayerNameList() const {
+std::vector<std::string> LayerManager::GatherLayerNames() const {
     std::vector<std::string> result;
 
     for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
@@ -494,6 +530,22 @@ std::vector<std::string> LayerManager::BuildLayerNameList() const {
         }
 
         result.push_back(this->selected_layers[i].key);
+    }
+
+    return result;
+}
+
+std::vector<const Layer *> LayerManager::GatherLayers(const LayersPathInfo &path_info) const {
+    std::vector<const Layer *> result;
+
+    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
+        const std::string &layer_path = path_info.path.AbsolutePath();
+        const std::string &current_layer_path = this->selected_layers[i].manifest_path.AbsolutePath();
+        if (current_layer_path.find(layer_path) == std::string::npos) {
+            continue;
+        }
+
+        result.push_back(&this->selected_layers[i]);
     }
 
     return result;

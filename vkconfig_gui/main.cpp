@@ -58,19 +58,19 @@ int main(int argc, char* argv[]) {
     Configurator& configurator = Configurator::Get();
     configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-    const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
+    configurator.vulkan_system_info = BuildVulkanSystemInfo();
 
-    if (vulkan_info.loaderVersion == Version::NONE) {
+    if (configurator.vulkan_system_info.loaderVersion == Version::NONE) {
         Alert::StartLoaderFailure();
         return -1;
     }
 
-    if (vulkan_info.loaderVersion < REQUIRED_LOADER_VERSION) {
-        Alert::StartLoaderIncompatibleVersions(vulkan_info.loaderVersion, REQUIRED_LOADER_VERSION);
+    if (configurator.vulkan_system_info.loaderVersion < REQUIRED_LOADER_VERSION) {
+        Alert::StartLoaderIncompatibleVersions(configurator.vulkan_system_info.loaderVersion, REQUIRED_LOADER_VERSION);
         return -1;
     }
 
-    if (vulkan_info.physicalDevices.empty()) {
+    if (configurator.vulkan_system_info.physicalDevices.empty()) {
         Alert::StartPhysicalDeviceFailure();
         return -1;
     }

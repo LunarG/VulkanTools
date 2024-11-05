@@ -22,7 +22,6 @@
 
 #include "configurator.h"
 #include "registry.h"
-#include "vulkan_info.h"
 #include "util.h"
 #include "path.h"
 #include "alert.h"
@@ -471,7 +470,7 @@ bool Configurator::Surrender(OverrideArea override_area) {
     }
 
 #if VKC_ENV == VKC_ENV_WIN32
-    RemoveRegistryEntriesForLayers(loader_settings_path.AbsolutePath().c_str(), layers_settings_path.AbsolutePath().c_str());
+    RemoveRegistryEntriesForLayers();
 #endif
 
     return result_loader_settings && result_layers_settings;
@@ -602,16 +601,122 @@ void Configurator::Reset() {
 std::string Configurator::Log() const {
     std::string log;
 
-    log += format("## %s %s - %s\n", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
-
 #ifdef _DEBUG
     std::string build = "Debug";
 #else
     std::string build = "Release";
 #endif
 
-    log += format("- Build: %s %s\n", GetLabel(VKC_PLATFORM), build.c_str());
-    log += format("- Vulkan API version: %s\n", Version::VKHEADER.str().c_str());
+    log += format("%s %s - %s:\n", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
+    log += format(" - Build: %s %s\n", GetLabel(VKC_PLATFORM), build.c_str());
+    log += format(" - Vulkan API version: %s\n", Version::VKHEADER.str().c_str());
+    log += format(" - ${VULKAN_SDK}: %s\n", ::Get(Path::SDK).AbsolutePath().c_str());
+    log += "\n";
+
+    log += format("%s Settings:\n", VKCONFIG_NAME);
+    log += format(" - Use system tray: %s\n", this->use_system_tray ? "true" : "false");
+    log += format(" - ${VK_HOME}: %s\n", this->home_sdk_path.AbsolutePath().c_str());
+    log += format(" - Vulkan Loader and Layers system files:\n");
+    log += format("   * %s\n", ::Get(Path::LOADER_SETTINGS).AbsolutePath().c_str());
+    log += format("   * %s\n", ::Get(Path::LAYERS_SETTINGS).AbsolutePath().c_str());
+    log += "\n";
+
+    log += "Vulkan Physical Devices:\n";
+    for (std::size_t i = 0, n = this->vulkan_system_info.physicalDevices.size(); i < n; ++i) {
+        const VulkanPhysicalDeviceInfo& info = this->vulkan_system_info.physicalDevices[i];
+        log += format(" - %s with Vulkan %s (%s)\n", info.deviceName.c_str(), info.apiVersion.str().c_str(),
+                      GetLabel(info.deviceType));
+        if (info.vendorID == 0x10DE) {
+            log += format("   * Driver: %s %s\n", GetLabel(info.vendorID).c_str(), FormatNvidia(info.driverVersion).c_str());
+        } else if ((info.vendorID == 0x8086) && (VKC_PLATFORM & PLATFORM_WINDOWS_BIT)) {
+            log += format("   * Driver: %s %s\n", GetLabel(info.vendorID).c_str(), FormatIntelWindows(info.driverVersion).c_str());
+        } else {
+            log += format("   * Driver: %s %s\n", GetLabel(info.vendorID).c_str(), Version(info.driverVersion).str().c_str());
+        }
+        log += format("   * deviceUUID: %s\n", info.deviceUUID.c_str());
+        log += format("   * driverUUID: %s\n", info.driverUUID.c_str());
+        log += format("   * deviceLUID: %s\n", info.deviceLUID.c_str());
+    }
+    log += "\n";
+
+    log += "Vulkan Loader Settings:\n";
+    if (this->vulkan_system_info.loaderVersion != Version::NONE) {
+        log += format(" - API version: %s\n", this->vulkan_system_info.loaderVersion.str().c_str());
+    } else {
+        log += format(" - Couldn't Find a Vulkan Loader\n");
+    }
+
+    log += " - Vulkan Loader found Vulkan layers:\n";
+    for (std::size_t i = 0, n = this->vulkan_system_info.instanceLayerProperties.size(); i < n; ++i) {
+        log += format("   * %s\n", this->vulkan_system_info.instanceLayerProperties[i].layerName);
+    }
+    log += " - Vulkan implementation or by implicitly enabled layers extensions:\n";
+    for (std::size_t i = 0, n = this->vulkan_system_info.instanceExtensionPropertie.size(); i < n; ++i) {
+        log += format("   * %s\n", this->vulkan_system_info.instanceExtensionPropertie[i].extensionName);
+    }
+
+    if (qEnvironmentVariableIsSet("VK_LOADER_DISABLE_DYNAMIC_LIBRARY_UNLOADING")) {
+        log += format(" - ${VK_LOADER_DISABLE_DYNAMIC_LIBRARY_UNLOADING}: %s\n",
+                      qgetenv("VK_LOADER_DISABLE_DYNAMIC_LIBRARY_UNLOADING").toStdString().c_str());
+    } else {
+        log += " - ${VK_LOADER_DISABLE_DYNAMIC_LIBRARY_UNLOADING}: unset\n";
+    }
+
+    log += " - Vulkan Loader Layers environment variables:\n";
+    if (qEnvironmentVariableIsSet("VK_LOADER_DEBUG")) {
+        log += format("   * ${VK_LOADER_DEBUG}: %s\n", qgetenv("VK_LOADER_DEBUG").toStdString().c_str());
+    } else {
+        log += "   * ${VK_LOADER_DEBUG}: unset\n";
+    }
+    if (qEnvironmentVariableIsSet("VK_LOADER_LAYERS_ENABLE")) {
+        log += format("   * ${VK_LOADER_LAYERS_ENABLE}: %s\n", qgetenv("VK_LOADER_LAYERS_ENABLE").toStdString().c_str());
+    } else {
+        log += "   * ${VK_LOADER_LAYERS_ENABLE}: unset\n";
+    }
+    if (qEnvironmentVariableIsSet("VK_LOADER_LAYERS_DISABLE")) {
+        log += format("   * ${VK_LOADER_LAYERS_DISABLE}: %s\n", qgetenv("VK_LOADER_LAYERS_DISABLE").toStdString().c_str());
+    } else {
+        log += "   * ${VK_LOADER_LAYERS_DISABLE}: unset\n";
+    }
+    if (qEnvironmentVariableIsSet("VK_LOADER_LAYERS_ALLOW")) {
+        log += format("   * ${VK_LOADER_LAYERS_ALLOW}: %s\n", qgetenv("VK_LOADER_LAYERS_ALLOW").toStdString().c_str());
+    } else {
+        log += "   * ${VK_LOADER_LAYERS_ALLOW}: unset\n";
+    }
+    if (qEnvironmentVariableIsSet("VK_INSTANCE_LAYERS")) {
+        log += format("   * ${VK_INSTANCE_LAYERS}: %s\n", qgetenv("VK_INSTANCE_LAYERS").toStdString().c_str());
+    }
+    log += " - Vulkan Loader Drivers environment variables:\n";
+    if (qEnvironmentVariableIsSet("VK_DRIVER_FILES")) {
+        log += format("   * ${VK_DRIVER_FILES}: %s\n", qgetenv("VK_DRIVER_FILES").toStdString().c_str());
+    } else {
+        log += "   * ${VK_DRIVER_FILES}: unset\n";
+    }
+    if (qEnvironmentVariableIsSet("VK_ADD_DRIVER_FILES")) {
+        log += format("   * ${VK_ADD_DRIVER_FILES}: %s\n", qgetenv("VK_ADD_DRIVER_FILES").toStdString().c_str());
+    } else {
+        log += "   * ${VK_ADD_DRIVER_FILES}: unset\n";
+    }
+    if (qEnvironmentVariableIsSet("VK_LOADER_DRIVERS_SELECT")) {
+        log += format("   * ${VK_LOADER_DRIVERS_SELECT}: %s\n", qgetenv("VK_LOADER_DRIVERS_SELECT").toStdString().c_str());
+    } else {
+        log += "   * ${VK_LOADER_DRIVERS_SELECT}: unset\n";
+    }
+    if (qEnvironmentVariableIsSet("VK_LOADER_DRIVERS_DISABLE")) {
+        log += format("   * ${VK_LOADER_DRIVERS_DISABLE}: %s\n", qgetenv("VK_LOADER_DRIVERS_DISABLE").toStdString().c_str());
+    } else {
+        log += "   * ${VK_LOADER_DRIVERS_DISABLE}: unset\n";
+    }
+    if (qEnvironmentVariableIsSet("VK_LOADER_DISABLE_INST_EXT_FILTER")) {
+        log += format("   * ${VK_LOADER_DISABLE_INST_EXT_FILTER}: %s\n",
+                      qgetenv("VK_LOADER_DISABLE_INST_EXT_FILTER").toStdString().c_str());
+    } else {
+        log += "   * ${VK_LOADER_DISABLE_INST_EXT_FILTER}: unset\n";
+    }
+    if (qEnvironmentVariableIsSet("VK_ICD_FILENAMES")) {
+        log += format("   * ${VK_ICD_FILENAMES}: %s\n", qgetenv("VK_ICD_FILENAMES").toStdString().c_str());
+    }
+    log += "\n";
 
     return log;
 }
@@ -799,60 +904,6 @@ std::string Configurator::GenerateVulkanStatus() const {
         }
 
         log += "- Environment variables:\n";
-
-        // Check Vulkan SDK path
-        if (Get(Path::SDK).Empty())
-            log += "    - ${VULKAN_SDK} not set\n";
-        else
-            log += format("    - ${VULKAN_SDK}: %s\n", AbsolutePath(Path::SDK).c_str());
-
-        // Check VK_HOME path
-        if (!Get(Path::HOME).Empty()) {
-            log += format("    - ${VK_HOME}: %s\n", AbsolutePath(Path::HOME).c_str());
-        }
-
-        const Version loader_version = GetVulkanLoaderVersion();
-
-        if (loader_version == Version::VERSION_NULL) {
-            Alert::LoaderFailure();
-
-            log += "- Could not find a Vulkan Loader.\n";
-            return log;
-        } else {
-            log += format("- Vulkan Loader version: %s\n", loader_version.str().c_str());
-            const LogFlags log_flags = configurator.environment.GetLoaderMessageFlags();
-            if (log_flags != 0) {
-                log += format("    - ${VK_LOADER_DEBUG}=%s\n", GetLogString(log_flags).c_str());
-            }
-        }
-
-        log += "- User-Defined Layers locations:\n";
-        log += GetUserDefinedLayersPathsLog("${VK_LAYER_PATH} variable", USER_DEFINED_LAYERS_PATHS_ENV_SET);
-        log += GetUserDefinedLayersPathsLog("Per-configuration paths", USER_DEFINED_LAYERS_PATHS_GUI);
-        log += GetUserDefinedLayersPathsLog("${VK_ADD_LAYER_PATH} variable", USER_DEFINED_LAYERS_PATHS_ENV_ADD);
-
-        // vk_layer_settings.txt
-        const Path layer_settings_path(qgetenv("VK_LAYER_SETTINGS_PATH").toStdString());
-        if (!layer_settings_path.Empty()) {
-            log += "- `vk_layer_settings.txt` location overridden by VK_LAYER_SETTINGS_PATH:\n";
-            if (layer_settings_path.RelativePath().find("vk_layer_settings.txt") == std::string::npos) {
-                log += format("    %s\n", layer_settings_path.RelativePath().c_str());
-            } else {
-                log += format("    %s\n", layer_settings_path.AbsoluteDir().c_str());
-            }
-        } else {
-            log += "- `vk_layer_settings.txt` uses the default platform path:\n";
-            log += format("    %s\n", AbsolutePath(Path::LAYERS_SETTINGS).c_str());
-        }
-
-        // vk_loader_settings.json
-        log += "- `vk_loader_settings.json` uses the default platform path:\n";
-        log += format("    %s\n", AbsolutePath(Path::LOADER_SETTINGS).c_str());
-
-        // If there is no Vulkan loader installed, we can't call any Vulkan API.
-        if (loader_version == Version::VERSION_NULL) {
-            return log;
-        }
 
         LayersMode saved_mode = configurator.environment.GetMode();
         configurator.environment.SetMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
