@@ -83,7 +83,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -1477,6 +1477,9 @@
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_5">
+            <property name="toolTip">
+             <string>${VK_HOME} is the default environment variable for Vulkan SDK tools outputs implementing it.</string>
+            </property>
             <property name="text">
              <string>${VK_HOME}: </string>
             </property>
@@ -1499,8 +1502,19 @@
         </item>
         <item>
          <widget class="QTextEdit" name="diagnostic_status_text">
+          <property name="font">
+           <font>
+            <family>Consolas</family>
+            <pointsize>10</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
           <property name="verticalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

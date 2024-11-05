@@ -50,7 +50,7 @@ TabDiagnostics::~TabDiagnostics() {}
 
 void TabDiagnostics::UpdateUI(UpdateUIMode mode) {
     Configurator &configurator = Configurator::Get();
-    this->ui->diagnostic_status_text->setMarkdown(configurator.GenerateVulkanStatus().c_str());
+    this->ui->diagnostic_status_text->setText(configurator.GenerateVulkanStatus().c_str());
 }
 
 void TabDiagnostics::CleanUI() {}

@@ -22,6 +22,7 @@
 #pragma once
 
 #include "version.h"
+#include "vulkan_util.h"
 #include "configuration_manager.h"
 #include "configuration_manager.h"
 #include "layer_manager.h"
@@ -31,7 +32,6 @@
 #include "type_hide_message.h"
 #include "type_tab.h"
 #include "type_executable_mode.h"
-#include "vulkan_info.h"
 #include "serialization.h"
 
 class Configurator : public Serialize {

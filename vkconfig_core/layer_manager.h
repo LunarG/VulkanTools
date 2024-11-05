@@ -55,7 +55,8 @@ class LayerManager : public Serialize {
     void RemovePath(const LayersPathInfo& path_info);
     void UpdatePathEnabled(const LayersPathInfo& path_info);
 
-    std::vector<std::string> BuildLayerNameList() const;
+    std::vector<std::string> GatherLayerNames() const;
+    std::vector<const Layer*> GatherLayers(const LayersPathInfo& path_info) const;
 
     std::vector<Layer> selected_layers;
     std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> paths;
