@@ -42,6 +42,16 @@ static std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
     return result;
 }
 
+static std::string GetLUIDString(const uint8_t deviceLUID[VK_LUID_SIZE]) {
+    std::string result;
+
+    for (std::size_t i = 0, n = VK_LUID_SIZE; i < n; ++i) {
+        result += format("%02X", deviceLUID[i]);
+    }
+
+    return result;
+}
+
 struct VulkanFunctions {
     VulkanFunctions();
     bool Validate() const;
@@ -183,8 +193,13 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
 
         device_info.deviceName = properties2.properties.deviceName;
         device_info.apiVersion = Version(properties2.properties.apiVersion);
+        device_info.driverVersion = properties2.properties.driverVersion;
+        device_info.vendorID = static_cast<VendorID>(properties2.properties.vendorID);
+        device_info.deviceID = properties2.properties.deviceID;
+        device_info.deviceType = properties2.properties.deviceType;
         device_info.deviceUUID = GetUUIDString(properties_deviceid.deviceUUID);
         device_info.driverUUID = GetUUIDString(properties_deviceid.driverUUID);
+        device_info.deviceLUID = GetLUIDString(properties_deviceid.deviceLUID);
     }
 
     vk.DestroyInstance(instance, NULL);
@@ -286,4 +301,43 @@ std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char
     }
 
     return results;
+}
+
+const char *GetLabel(VkPhysicalDeviceType deviceType) {
+    static const char *TABLES[] = {
+        "",            // VK_PHYSICAL_DEVICE_TYPE_OTHER
+        "Integrated",  // VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU
+        "Discrete",    // VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
+        "Virtual",     // VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU
+        "CPU"          // VK_PHYSICAL_DEVICE_TYPE_CPU
+    };
+
+    return TABLES[deviceType];
+}
+
+std::string GetLabel(VendorID vendorID) {
+    switch (vendorID) {
+        default:
+            return "Unknown Vendor";
+        case VK_VENDOR_ID_KHRONOS:
+            return "KHRONOS";
+        case VK_VENDOR_ID_MESA:
+            return "Mesa";
+        case VENDOR_ID_AMD:
+            return "AMD";
+        case VENDOR_ID_APPLE:
+            return "Apple";
+        case VENDOR_ID_ARM:
+            return "ARM";
+        case VENDOR_ID_IMGTEC:
+            return "Imagination";
+        case VENDOR_ID_INTEL:
+            return "Intel";
+        case VENDOR_ID_MICROSOFT:
+            return "Microsoft";
+        case VENDOR_ID_NVIDIA:
+            return "Nvidia";
+        case VENDOR_ID_QUALCOMM:
+            return "Qualcomm";
+    }
 }

@@ -51,6 +51,13 @@ std::string format(const char* message, ...) {
     return buffer;
 }
 
+std::string FormatNvidia(uint32_t driverVersion) {
+    return format("%d.%d.%d.%d", (driverVersion >> 22) & 0x3ff, (driverVersion >> 14) & 0x0ff, (driverVersion >> 6) & 0x0ff,
+                  driverVersion & 0x003f);
+}
+
+std::string FormatIntelWindows(uint32_t driverVersion) { return format("%d.%d", (driverVersion >> 14), (driverVersion)&0x3fff); }
+
 bool IsFrames(const std::string& s) {
     static const std::regex FRAME_REGEX("^([0-9]+([-][0-9]+){0,2})(,([0-9]+([-][0-9]+){0,2}))*$");
 

@@ -37,6 +37,10 @@
 
 std::string format(const char* message, ...);
 
+std::string FormatNvidia(uint32_t driverVersion);
+
+std::string FormatIntelWindows(uint32_t driverVersion);
+
 bool IsFrames(const std::string& s);
 
 bool IsNumber(const std::string& s);

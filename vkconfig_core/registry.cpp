@@ -60,25 +60,24 @@ void AppendRegistryEntriesForLayers(QString loader_settings_file, QString layers
 
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
-void RemoveRegistryEntriesForLayers(QString loader_settings_file, QString layers_settings_file) {
+void RemoveRegistryEntriesForLayers() {
     // Layer override json file
     HKEY key;
     HKEY userKey = IsUserAnAdmin() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 
     REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\LoaderSettings"), 0, NULL, REG_OPTION_NON_VOLATILE,
-                                 access, NULL, &key, NULL);
+    LSTATUS err =
+        RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
-    RegDeleteValueW(key, (LPCWSTR)loader_settings_file.utf16());
+    err = RegDeleteTreeW(key, (LPCWSTR)QString("LoaderSettings").utf16());
     RegCloseKey(key);
 
     // Layer settings file
-    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key,
-                         NULL);
+    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
-    RegDeleteValueW(key, (LPCWSTR)layers_settings_file.utf16());
+    err = RegDeleteTreeW(key, (LPCWSTR)QString("Settings").utf16());
     RegCloseKey(key);
 }
 
