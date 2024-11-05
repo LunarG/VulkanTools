@@ -83,7 +83,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -1394,69 +1394,115 @@
         <string>Tab 4</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_14">
+        <property name="spacing">
+         <number>7</number>
+        </property>
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
         <item>
-         <widget class="QCheckBox" name="diagnostic_keep_running">
-          <property name="text">
-           <string>Keep Vulkan Configurator running in system tray</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_5">
-          <property name="leftMargin">
-           <number>7</number>
-          </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
           <property name="topMargin">
-           <number>7</number>
-          </property>
-          <property name="rightMargin">
-           <number>7</number>
+           <number>0</number>
           </property>
           <property name="bottomMargin">
-           <number>7</number>
+           <number>0</number>
           </property>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_22">
+          <item>
+           <widget class="QCheckBox" name="diagnostic_keep_running">
             <property name="text">
-             <string>${VK_LAYER_PATH}: </string>
+             <string>Keep Vulkan Configurator running in system tray</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QLineEdit" name="lineEdit"/>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_23">
-            <property name="text">
-             <string>${VK_ADD_LAYER_PATH}: </string>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>${VULKAN_SDK}: </string>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
             </property>
-           </widget>
+           </spacer>
           </item>
-          <item row="1" column="2">
-           <widget class="QLineEdit" name="lineEdit_2"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>${VK_HOME}:</string>
+          <item>
+           <widget class="QPushButton" name="diagnostic_reset_hard">
+            <property name="maximumSize">
+             <size>
+              <width>32</width>
+              <height>16777215</height>
+             </size>
             </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_24">
+            <property name="toolTip">
+             <string>Reset Vulkan Configurator to Default</string>
+            </property>
             <property name="text">
-             <string>${VK_APPDATA}:</string>
+             <string/>
             </property>
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="2">
+           <widget class="QLineEdit" name="diagnostic_vk_home_text"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>${VK_HOME}: </string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QPushButton" name="diagnostic_vk_home_browse">
+            <property name="maximumSize">
+             <size>
+              <width>32</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="diagnostic_status_text">
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -1475,19 +1521,6 @@
            </widget>
           </item>
          </layout>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>
@@ -1676,7 +1709,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap resource="resources.qrc">:/resourcefiles/lunarg_logo.png</pixmap>
+            <pixmap>:/resourcefiles/lunarg_logo.png</pixmap>
            </property>
            <property name="textInteractionFlags">
             <set>Qt::TextBrowserInteraction</set>
@@ -1695,7 +1728,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap resource="resources.qrc">:/resourcefiles/qt_logo.png</pixmap>
+            <pixmap>:/resourcefiles/qt_logo.png</pixmap>
            </property>
           </widget>
           <widget class="QLabel" name="about_label_licenced">
@@ -1817,7 +1850,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap resource="resources.qrc">:/resourcefiles/vulkan_configurator.png</pixmap>
+            <pixmap>:/resourcefiles/vulkan_configurator.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -2006,8 +2039,6 @@
    </property>
   </action>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

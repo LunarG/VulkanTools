@@ -35,6 +35,9 @@ class TabDiagnostics : public Tab {
 
    public Q_SLOTS:
     void on_diagnostic_keep_running_toggled(bool checked);
+    void on_diagnostic_vk_home_text_pressed();
+    void on_diagnostic_vk_home_browse_pressed();
+    void on_diagnostic_reset_hard_pressed();
 
    private:
 };

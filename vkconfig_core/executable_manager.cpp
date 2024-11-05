@@ -109,6 +109,11 @@ void ExecutableManager::Reset() {
     this->active_executable = this->data[0].path;
 }
 
+std::string ExecutableManager::Log() const {
+    std::string log;
+    return log;
+}
+
 void ExecutableManager::Clear() {
     this->data.clear();
     this->active_executable.Clear();
