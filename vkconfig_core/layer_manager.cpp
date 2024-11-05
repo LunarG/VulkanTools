@@ -201,6 +201,11 @@ void LayerManager::Reset() {
     this->validate_manifests = true;
 }
 
+std::string LayerManager::Log() const {
+    std::string log;
+    return log;
+}
+
 void LayerManager::InitSystemPaths() {
     this->selected_layers.clear();
     this->layers_validated.clear();

@@ -66,3 +66,21 @@ std::vector<std::string> GetPlatformTokens(int platform_flags) {
 }
 
 bool IsPlatformSupported(int platform_flags) { return platform_flags & (1 << VKC_PLATFORM); }
+
+const char* GetLabel(PlatformType type) {
+    static const char* TABLE[] = {
+#ifdef _WIN64
+        "Windows x86-64",  // PLATFORM_WINDOWS_X86
+#else
+        "Windows x86-32",  // PLATFORM_WINDOWS_X86
+#endif
+        "Windows ARM",  // PLATFORM_WINDOWS_ARM
+        "Linux",        // PLATFORM_LINUX
+        "macOS",        // PLATFORM_MACOS
+        "Android",      // PLATFORM_ANDROID
+        "iOS",          // PLATFORM_IOS
+    };
+    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[type];
+}
