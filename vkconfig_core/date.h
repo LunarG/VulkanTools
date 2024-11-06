@@ -20,14 +20,4 @@
 
 #include <string>
 
-#ifndef VKCONFIG_DATE
-#ifdef _DEBUG
-#define VKCONFIG_DATE 1
-#else
-#define VKCONFIG_DATE 0
-#endif
-#endif
-
-#if VKCONFIG_DATE
 std::string GetBuildDate();
-#endif
