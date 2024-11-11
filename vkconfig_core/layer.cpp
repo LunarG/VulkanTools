@@ -195,17 +195,17 @@ SettingMeta* Layer::Instantiate(SettingMetaSet& meta_set, const std::string& key
     return setting_meta;
 }
 
-bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
-                 const std::map<Path, std::string>& layers_validated) {
+LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
+                            const std::map<Path, std::string>& layers_validated) {
     this->type = type;  // Set layer type, no way to know this from the json file
 
     if (full_path_to_file.Empty()) {
-        return false;
+        return LAYER_LOAD_IGNORED;
     }
 
     QFile file(full_path_to_file.AbsolutePath().c_str());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return false;
+        return LAYER_LOAD_FAILED;
     }
 
     QString json_text = file.readAll();
@@ -218,28 +218,28 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_val
     QJsonParseError json_parse_error;
     const QJsonDocument& json_document = QJsonDocument::fromJson(json_text.toUtf8(), &json_parse_error);
     if (json_parse_error.error != QJsonParseError::NoError) {
-        return false;
+        return LAYER_LOAD_FAILED;
     }
 
     // Make sure it's not empty
     if (json_document.isNull() || json_document.isEmpty()) {
-        return false;
+        return LAYER_LOAD_FAILED;
     }
 
     // First check it's a layer manifest, ignore otherwise.
     const QJsonObject& json_root_object = json_document.object();
     if (json_root_object.value("file_format_version") == QJsonValue::Undefined) {
-        return false;  // Not a layer JSON file
+        return LAYER_LOAD_IGNORED;  // Not a layer JSON file
     }
     if (json_root_object.value("layer") == QJsonValue::Undefined) {
-        return false;  // Not a layer JSON file
+        return LAYER_LOAD_IGNORED;  // Not a layer JSON file
     }
 
     this->file_format_version = ReadVersionValue(json_root_object, "file_format_version");
     if (this->file_format_version.GetMajor() > 1) {
         const std::string message = format("Unsupported layer file format: %s", this->file_format_version.str().c_str());
         Alert::LayerInvalid(full_path_to_file, message.c_str());
-        return false;
+        return LAYER_LOAD_INVALID;
     }
 
     const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
@@ -249,7 +249,7 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_val
     this->key = ReadStringValue(json_layer_object, "name");
 
     if (this->key == "VK_LAYER_LUNARG_override") {
-        return false;
+        return LAYER_LOAD_IGNORED;
     }
 
     this->api_version = ReadVersionValue(json_layer_object, "api_version");
@@ -267,7 +267,7 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_val
     if (!is_valid) {
         this->validated_last_modified.clear();
         Alert::LayerInvalid(full_path_to_file, validator.message.toStdString().c_str());
-        return false;
+        return LAYER_LOAD_INVALID;
     } else {
         this->validated_last_modified = last_modified;
     }
@@ -280,7 +280,7 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_val
     const Path& binary = Path(this->manifest_path.AbsoluteDir()) + "/" + this->binary_path.AbsolutePath();
     if (::IsDLL32Bit(binary.AbsolutePath())) {
         this->is_32bits = true;
-        return false;
+        return LAYER_LOAD_INVALID;
     }
 
     /*
@@ -365,7 +365,7 @@ bool Layer::Load(const Path& full_path_to_file, LayerType type, bool request_val
         }
     }
 
-    return this->IsValid();  // Not all JSON file are layer JSON valid
+    return this->IsValid() ? LAYER_LOAD_ADDED : LAYER_LOAD_INVALID;  // Not all JSON file are layer JSON valid
 }
 
 void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set) {
