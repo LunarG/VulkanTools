@@ -30,11 +30,9 @@
 #include "application_singleton.h"
 
 ApplicationSingleton::ApplicationSingleton(const std::string& application_name, int timeout)
-    : _application_name(application_name)
-    , _timeout(timeout) {
-}
+    : _application_name(application_name), _timeout(timeout) {}
 
-ApplicationSingleton::~ApplicationSingleton() { _local_server.close(); }
+ApplicationSingleton::~ApplicationSingleton() { this->ReleaseInstance(); }
 
 bool ApplicationSingleton::IsFirstInstance() {
     // If we can connect to the server, it means there is another copy running
@@ -57,3 +55,5 @@ bool ApplicationSingleton::IsFirstInstance() {
 
     return true;
 }
+
+void ApplicationSingleton::ReleaseInstance() { _local_server.close(); }

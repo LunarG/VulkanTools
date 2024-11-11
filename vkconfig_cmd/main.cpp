@@ -19,6 +19,7 @@
  */
 
 #include <QApplication>
+#include <QProcess>
 
 #include "main_reset.h"
 #include "main_layers.h"
@@ -28,6 +29,7 @@
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/application_singleton.h"
 #include "../vkconfig_core/configurator_signal.h"
+#include "../vkconfig_core/executable_manager.h"
 #include "../vkconfig_core/vulkan_util.h"
 
 int main(int argc, char* argv[]) {
@@ -90,6 +92,25 @@ int main(int argc, char* argv[]) {
         case COMMAND_VERSION: {
             command_line.version();
             return 0;
+        }
+        case COMMAND_GUI: {
+            singleton.ReleaseInstance();
+
+            QProcess* gui = new QProcess(&app);
+
+            DefaultPath path = ::GetDefaultExecutablePath("/vkconfig_gui");
+            gui->setProgram(path.executable_path.AbsolutePath().c_str());
+            gui->setWorkingDirectory(path.working_folder.AbsolutePath().c_str());
+            bool result = gui->startDetached(nullptr);
+
+            if (!result) {
+                DefaultPath path = ::GetDefaultExecutablePath("/vkconfig");
+                gui->setProgram(path.executable_path.AbsolutePath().c_str());
+                gui->setWorkingDirectory(path.working_folder.AbsolutePath().c_str());
+                result = gui->startDetached(nullptr);
+            }
+
+            return result ? 0 : 1;
         }
         case COMMAND_LAYERS: {
             return run_layers(command_line);
