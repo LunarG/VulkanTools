@@ -44,4 +44,6 @@ class TabLayers : public Tab {
 
    private:
     void LoadLayersManifest(const QString &selected_path);
+
+    std::string new_path;
 };
