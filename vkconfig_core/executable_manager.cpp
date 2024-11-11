@@ -415,9 +415,10 @@ bool ExactExecutableFromAppBundle(Path& app_path) {
     return true;
 }
 
-DefaultPath ExecutableManager::GetDefaultExecutablePath(const std::string& executable_name) const {
+DefaultPath GetDefaultExecutablePath(const std::string& executable_key) {
     static const char* DEFAULT_PATH = VKC_PLATFORM == PLATFORM_MACOS ? "/../.." : "";
 
+    const std::string& executable_name = executable_key + GetExecutableSuffix();
     DefaultPath default_path{"." + executable_name, "."};
 
     // Using VULKAN_SDK environement variable
@@ -469,7 +470,7 @@ DefaultPath ExecutableManager::GetDefaultExecutablePath(const std::string& execu
 }
 
 Executable ExecutableManager::CreateDefaultExecutable(const DefaultExecutable& default_executable) const {
-    const DefaultPath& default_paths = GetDefaultExecutablePath((default_executable.key + GetExecutableSuffix()).c_str());
+    const DefaultPath& default_paths = GetDefaultExecutablePath(default_executable.key);
     if (default_paths.executable_path.Empty()) {
         Executable();  // application could not be found..
     }
