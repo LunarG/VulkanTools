@@ -84,7 +84,6 @@ class Layer {
     QJsonDocument profile;
     std::string disable_env;
     std::string enable_env;
-    std::string disable_value;
     std::string enable_value;
     bool is_32bits = false;
     bool enabled = true;

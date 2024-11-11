@@ -233,16 +233,38 @@ std::string LayerManager::Log() const {
 
         for (std::size_t path_index = 0, path_count = paths_group.size(); path_index < path_count; ++path_index) {
             log += format(" - %s (%s)\n", paths_group[path_index].path.AbsolutePath().c_str(),
-                          paths_group[path_index].enabled ? "enabled" : "disabled");
+                          paths_group[path_index].enabled ? "Enabled" : "Disabled");
 
             const std::vector<const Layer *> layers = this->GatherLayers(paths_group[path_index]);
 
             for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
-                log += format("   * %s - %s", layers[i]->key.c_str(), layers[i]->api_version.str().c_str());
+                if (layers[i]->type == LAYER_TYPE_IMPLICIT) {
+                    log += format("   * %s - %s (Auto: %s)", layers[i]->key.c_str(), layers[i]->api_version.str().c_str(),
+                                  GetLabel(layers[i]->GetActualControl()));
+                } else {
+                    log += format("   * %s - %s", layers[i]->key.c_str(), layers[i]->api_version.str().c_str());
+                }
+
                 if (layers[i]->status != STATUS_STABLE) {
                     log += format(" (%s)", GetToken(layers[i]->status));
                 }
                 log += "\n";
+
+                if (layers[i]->type == LAYER_TYPE_IMPLICIT) {
+                    if (!layers[i]->disable_env.empty()) {
+                        const std::string &value = qEnvironmentVariableIsSet(layers[i]->disable_env.c_str()) ? "set" : "not set";
+                        log += format("     '%s' is %s\n", layers[i]->disable_env.c_str(), value.c_str());
+                    }
+                    if (!layers[i]->enable_env.empty()) {
+                        if (qEnvironmentVariableIsSet(layers[i]->enable_env.c_str())) {
+                            const std::string &value = qgetenv(layers[i]->enable_env.c_str()).toStdString();
+                            log += format("     '%s' is set to '%s'\n", layers[i]->enable_env.c_str(), value.c_str());
+                        } else {
+                            log += format("     '%s' is not set to '%s'\n", layers[i]->enable_env.c_str(),
+                                          layers[i]->enable_value.c_str());
+                        }
+                    }
+                }
             }
         }
     }
