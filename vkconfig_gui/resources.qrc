@@ -16,6 +16,10 @@
         <file>resourcefiles/reset.png</file>
         <file>resourcefiles/folder_append.png</file>
         <file>resourcefiles/folder_remove.png</file>
+        <file>resourcefiles/folder_browse.png</file>
+        <file>resourcefiles/folder_export.png</file>
+        <file>resourcefiles/file_export.png</file>
+        <file>resourcefiles/clear.png</file>
         <file>resourcefiles/settings_basic.png</file>
         <file>resourcefiles/settings_advanced.png</file>
         <file>CHANGELOG.md</file>
