@@ -29,6 +29,9 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include <chrono>
+#include <thread>
+
 TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_LAYERS, window, ui) {
     Configurator &configurator = Configurator::Get();
 
@@ -64,7 +67,7 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
             QTreeWidgetItem *item_state = new QTreeWidgetItem;
             item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
             item_state->setSizeHint(0, QSize(0, 32));
-            LayersPathWidget *layer_path_widget = new LayersPathWidget(&paths_group[i], group_path);
+            LayersPathWidget *layer_path_widget = new LayersPathWidget(paths_group[i], group_path);
             this->connect(layer_path_widget, SIGNAL(itemChanged()), this, SLOT(on_check_box_paths_changed()));
 
             ui->layers_paths_tree->addTopLevelItem(item_state);
@@ -122,20 +125,10 @@ void TabLayers::on_layers_validate_checkBox_toggled(bool checked) {
     configurator.layers.validate_manifests = checked;
 }
 
-void TabLayers::on_layers_append_pressed() {
-    this->ui->layers_path_lineedit->setVisible(false);
-    this->ui->layers_browse_button->setVisible(false);
-    this->ui->layers_progress->setVisible(true);
-
-    this->LoadLayersManifest(this->ui->layers_path_lineedit->text());
-}
+void TabLayers::on_layers_append_pressed() { this->LoadLayersManifest(this->ui->layers_path_lineedit->text()); }
 
 void TabLayers::on_layers_browse_pressed() {
     Configurator &configurator = Configurator::Get();
-
-    this->ui->layers_path_lineedit->setVisible(false);
-    this->ui->layers_browse_button->setVisible(false);
-    this->ui->layers_progress->setVisible(true);
 
     const QString selected_path =
         QFileDialog::getExistingDirectory(this->ui->layers_browse_button, "Select Layer Manifests Folder...",
@@ -144,7 +137,62 @@ void TabLayers::on_layers_browse_pressed() {
     this->LoadLayersManifest(selected_path);
 }
 
-void TabLayers::on_layers_reload_pressed() {}
+void TabLayers::on_layers_reload_pressed() {
+    this->ui->layers_path_lineedit->setVisible(false);
+    this->ui->layers_browse_button->setVisible(false);
+    this->ui->layers_progress->setVisible(true);
+
+    Configurator &configurator = Configurator::Get();
+
+    std::vector<int> layers_count(LAYER_LOAD_COUNT, 0);
+
+    const std::vector<Path> layers_paths =
+        this->new_path.empty() ? configurator.layers.CollectManifestPaths() : ::CollectFilePaths(this->new_path);
+
+    this->ui->layers_progress->setMaximum(layers_paths.size());
+    this->ui->layers_progress->setValue(0);
+
+    for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
+        const char *label = configurator.layers.validate_manifests ? "Validating" : "Loading";
+
+        this->ui->layers_progress->setFormat(
+            format("%s %s... - %d/%d files", label, layers_paths[i].AbsolutePath().c_str(), i + 1, layers_paths.size()).c_str());
+        this->ui->layers_progress->setValue(i + 1);
+        this->ui->layers_progress->update();
+
+        LayerLoadStatus status = configurator.layers.LoadLayer(layers_paths[i]);
+        ++layers_count[status];
+
+        std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
+    }
+
+    std::string last_layers_path = configurator.layers.last_layers_path.AbsolutePath();
+
+    if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED)) {
+        std::string text = "Loading and reloading all located layers manifests:\n";
+        text += format(" - %d layer manifests added.\n", layers_count[LAYER_LOAD_ADDED]);
+        text += format(" - %d layer manifests reloaded.\n", layers_count[LAYER_LOAD_RELOADED]);
+        text += format(" - %d layer manifests unmodified.", layers_count[LAYER_LOAD_UNMODIFIED]);
+
+        QMessageBox message;
+        message.setIcon(QMessageBox::Information);
+        message.setWindowTitle("Loading Layers Completed.");
+        message.setText(text.c_str());
+        if (!this->new_path.empty()) {
+            message.setInformativeText(format("From '%s' folder.", this->new_path.c_str()).c_str());
+        }
+        message.setCheckBox(new QCheckBox("Do not show again."));
+        message.exec();
+        if (message.checkBox()->isChecked()) {
+            configurator.Set(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED);
+        }
+    }
+
+    this->ui->layers_path_lineedit->setVisible(true);
+    this->ui->layers_browse_button->setVisible(true);
+    this->ui->layers_progress->setVisible(false);
+    this->new_path.clear();
+}
 
 void TabLayers::LoadLayersManifest(const QString &selected_path) {
     Configurator &configurator = Configurator::Get();
@@ -155,71 +203,12 @@ void TabLayers::LoadLayersManifest(const QString &selected_path) {
 
         LayersPathInfo info;
         info.path = selected_path.toStdString();
-
-        const std::vector<Path> &layers_paths = CollectFilePaths(info.path);
-
-        this->ui->layers_progress->setMaximum(layers_paths.size());
-        this->ui->layers_progress->setValue(0);
-
+        this->new_path = info.path.AbsolutePath();
         configurator.layers.AppendPath(info);
 
-        int loaded = 0;
-
-        for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-            const char *label = configurator.layers.validate_manifests ? "Validating" : "Loading";
-            this->ui->layers_progress->setFormat(
-                format("%s %s... - %d/%d", label, layers_paths[i].AbsolutePath().c_str(), i, layers_paths.size()).c_str());
-            this->ui->layers_progress->setValue(i);
-
-            if (configurator.layers.LoadLayer(layers_paths[i])) {
-                ++loaded;
-            }
-            this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
-        }
+        this->on_layers_reload_pressed();
 
         configurator.layers.UpdatePathEnabled(info);
         this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
-
-        this->ui->layers_progress->setValue(layers_paths.size());
-
-        if (loaded > 0) {
-            const char *label_result = configurator.layers.validate_manifests ? "validated" : "loaded or reloaded";
-            const std::string text = format("%d layers %s!", loaded, label_result);
-            this->ui->layers_progress->setFormat(text.c_str());
-
-            if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED)) {
-                const std::string text =
-                    format("%d layers %s from '%s' folder.", loaded, label_result, info.path.AbsolutePath().c_str());
-
-                QMessageBox message;
-                message.setIcon(QMessageBox::Information);
-                message.setWindowTitle("Loading Layers Successful!");
-                message.setText(text.c_str());
-                message.setCheckBox(new QCheckBox("Do not show again."));
-                message.exec();
-                if (message.checkBox()->isChecked()) {
-                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED);
-                }
-            }
-        } else {
-            const std::string text = "No Layer Found...";
-            this->ui->layers_progress->setFormat(text.c_str());
-
-            if (!configurator.Get(HIDE_MESSAGE_WARN_NO_LAYER_FOUND)) {
-                QMessageBox message;
-                message.setIcon(QMessageBox::Warning);
-                message.setWindowTitle(text.c_str());
-                message.setText(format("No layer found in '%s' folder.", info.path.AbsolutePath().c_str()).c_str());
-                message.setCheckBox(new QCheckBox("Do not show again."));
-                message.exec();
-                if (message.checkBox()->isChecked()) {
-                    configurator.Set(HIDE_MESSAGE_WARN_NO_LAYER_FOUND);
-                }
-            }
-        }
     }
-
-    this->ui->layers_path_lineedit->setVisible(true);
-    this->ui->layers_browse_button->setVisible(true);
-    this->ui->layers_progress->setVisible(false);
 }
