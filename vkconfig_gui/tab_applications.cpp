@@ -395,6 +395,7 @@ void TabApplications::on_applications_launcher_pushButton_pressed() {
     Configuration *configuration = configurator.configurations.FindConfiguration(options->configuration);
 
     QStringList env = QProcess::systemEnvironment();
+
     env << (QString("VK_LOADER_DEBUG=") + ::GetLogString(configuration->loader_log_messages_flags).c_str());
     if (!options->envs.empty()) {
         const QStringList envs = ConvertString(options->envs);

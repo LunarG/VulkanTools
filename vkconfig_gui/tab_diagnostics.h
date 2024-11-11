@@ -22,6 +22,8 @@
 
 #include "tab.h"
 
+#include <QPushButton>
+
 class TabDiagnostics : public Tab {
     Q_OBJECT
 
@@ -38,6 +40,12 @@ class TabDiagnostics : public Tab {
     void on_diagnostic_vk_home_text_pressed();
     void on_diagnostic_vk_home_browse_pressed();
     void on_diagnostic_reset_hard_pressed();
+    void on_diagnostic_refresh_pressed();
+    void on_diagnostic_export_pressed();
 
    private:
+    QPushButton* widget_refresh = nullptr;
+    QPushButton* widget_export = nullptr;
+    QPushButton* widget_reset_hard = nullptr;
+    std::string status;
 };

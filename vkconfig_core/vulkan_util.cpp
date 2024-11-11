@@ -28,6 +28,7 @@
 
 #include <cassert>
 #include <sstream>
+#include <iostream>
 
 // 261 for Unix in fact...
 const Version REQUIRED_LOADER_VERSION(1, 3, 284);
@@ -100,6 +101,59 @@ bool VulkanFunctions::Validate() const {
     return this->EnumerateInstanceVersion != nullptr && this->EnumerateInstanceLayerProperties != nullptr &&
            this->EnumeratePhysicalDevices != nullptr && this->EnumerateInstanceExtensionProperties != nullptr &&
            this->CreateInstance != nullptr && this->DestroyInstance != nullptr && this->GetPhysicalDeviceProperties2 != nullptr;
+}
+
+static VkResult CreateInstance(const VulkanFunctions &vk, bool enumerate_portability, VkInstance &instance) {
+    uint32_t property_count = 0;
+    VkResult err = vk.EnumerateInstanceExtensionProperties(nullptr, &property_count, nullptr);
+    assert(err == VK_SUCCESS);
+
+    std::vector<VkExtensionProperties> instance_properties(property_count);
+    err = vk.EnumerateInstanceExtensionProperties(nullptr, &property_count, &instance_properties[0]);
+    assert(err == VK_SUCCESS);
+
+    // Handle Portability Enumeration requirements
+    std::vector<const char *> instance_extensions;
+
+    for (std::size_t i = 0, n = instance_properties.size(); i < n; ++i) {
+        if (instance_properties[i].extensionName == std::string(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME)) {
+            instance_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
+        }
+#if VK_KHR_portability_enumeration
+        if (enumerate_portability) {
+            if (instance_properties[i].extensionName == std::string(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
+                instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+            }
+        }
+#endif
+    }
+
+    // Check Vulkan Devices
+
+    VkApplicationInfo app = {};
+    app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    app.pNext = nullptr;
+    app.pApplicationName = VKCONFIG_SHORT_NAME;
+    app.applicationVersion = 0;
+    app.pEngineName = VKCONFIG_SHORT_NAME;
+    app.engineVersion = 0;
+    app.apiVersion = VK_API_VERSION_1_1;
+
+    VkInstanceCreateInfo inst_info = {};
+    inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+#if VK_KHR_portability_enumeration
+    if (enumerate_portability) {
+        inst_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    }
+#endif
+    inst_info.pNext = nullptr;
+    inst_info.pApplicationInfo = &app;
+    inst_info.enabledLayerCount = 0;
+    inst_info.ppEnabledLayerNames = nullptr;
+    inst_info.enabledExtensionCount = static_cast<uint32_t>(instance_extensions.size());
+    inst_info.ppEnabledExtensionNames = instance_extensions.empty() ? nullptr : &instance_extensions[0];
+
+    return vk.CreateInstance(&inst_info, nullptr, &instance);
 }
 
 VulkanSystemInfo BuildVulkanSystemInfo() {
@@ -340,4 +394,33 @@ std::string GetLabel(VendorID vendorID) {
         case VENDOR_ID_QUALCOMM:
             return "Qualcomm";
     }
+}
+
+std::string GenerateLoaderLog() {
+    std::stringstream buffer;
+    std::streambuf *old = std::cerr.rdbuf(buffer.rdbuf());
+
+    bool is_set = qEnvironmentVariableIsSet("VK_LOADER_DEBUG");
+    std::string saved_data = is_set ? qgetenv("VK_LOADER_DEBUG").toStdString() : "";
+
+    qputenv("VK_LOADER_DEBUG", "all");
+
+    std::cerr << "gni" << std::endl;
+
+    VulkanFunctions vk;
+
+    if (vk.Validate()) {
+        VkInstance instance = VK_NULL_HANDLE;
+
+        VkResult err = ::CreateInstance(vk, false, instance);
+        if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
+            err = ::CreateInstance(vk, true, instance);
+            if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
+                return "VK_ERROR_INCOMPATIBLE_DRIVER\n";
+            }
+        }
+        vk.DestroyInstance(instance, nullptr);
+    }
+
+    return buffer.str();
 }

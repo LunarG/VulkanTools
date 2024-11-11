@@ -68,3 +68,5 @@ std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char
 const char *GetLabel(VkPhysicalDeviceType deviceType);
 
 std::string GetLabel(VendorID vendorID);
+
+std::string GenerateLoaderLog();
