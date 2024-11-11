@@ -145,10 +145,14 @@ void TabDiagnostics::on_diagnostic_refresh_pressed() {
     Configurator &configurator = Configurator::Get();
 
     if (this->status.empty()) {
+        configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+
         this->status = configurator.GenerateVulkanStatus();
         this->ui->diagnostic_status_text->setText(this->status.c_str());
         this->widget_refresh->setIcon(QIcon(":/resourcefiles/clear.png"));
         this->widget_refresh->setToolTip("Clear 'Vulkan Development Status'");
+
+        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     } else {
         this->status.clear();
         this->ui->diagnostic_status_text->clear();

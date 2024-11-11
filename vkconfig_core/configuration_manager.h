@@ -60,7 +60,7 @@ class ConfigurationManager : public Serialize {
 
     std::vector<ReferencedLayer> BuildReferencedLayers(const LayerManager& layers, const Path& path);
 
-    bool Empty() const { return available_configurations.empty(); }
+    bool Empty() const { return this->available_configurations.empty(); }
 
     bool HasFile(const Configuration& configuration) const;
     void RemoveConfigurationFile(const std::string& key);

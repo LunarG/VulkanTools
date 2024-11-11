@@ -214,7 +214,7 @@ void LayerManager::Reset() {
     this->InitSystemPaths();
     this->LoadAllInstalledLayers();
     this->last_layers_path = Get(Path::HOME);
-    this->validate_manifests = true;
+    this->validate_manifests = false;
 }
 
 std::string LayerManager::Log() const {

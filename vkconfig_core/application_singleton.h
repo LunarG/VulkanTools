@@ -40,6 +40,7 @@ class ApplicationSingleton {
     ~ApplicationSingleton();
 
     bool IsFirstInstance();
+    void ReleaseInstance();
 
    private:
     QLocalServer _local_server;
