@@ -45,6 +45,20 @@ bool operator<(const LayersPathInfo& a, const LayersPathInfo& b);
 
 bool Found(const std::vector<LayersPathInfo>& data, const Path& path);
 
+enum LayerLoadStatus {
+    LAYER_LOAD_ADDED = 0,
+    LAYER_LOAD_RELOADED,
+    LAYER_LOAD_UNMODIFIED,
+    LAYER_LOAD_FAILED,
+    LAYER_LOAD_INVALID,
+    LAYER_LOAD_IGNORED,
+
+    LAYER_LOAD_FIRST = LAYER_LOAD_ADDED,
+    LAYER_LOAD_LAST = LAYER_LOAD_IGNORED,
+};
+
+enum { LAYER_LOAD_COUNT = LAYER_LOAD_LAST - LAYER_LOAD_FIRST + 1 };
+
 class Layer {
    public:
     static const char* NO_PRESET;
@@ -91,8 +105,8 @@ class Layer {
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
-    bool Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
-              const std::map<Path, std::string>& layers_validated);
+    LayerLoadStatus Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
+                         const std::map<Path, std::string>& layers_validated);
 
    private:
     Layer& operator=(const Layer&) = delete;

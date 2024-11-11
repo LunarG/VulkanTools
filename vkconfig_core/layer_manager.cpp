@@ -436,8 +436,6 @@ void LayerManager::LoadAllInstalledLayers() {
     this->selected_layers.clear();
 
     for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
-        // const LayerType layer_type = ::GetLayerType(static_cast<LayersPaths>(group_index));
-
         const std::vector<LayersPathInfo> &paths_group = this->paths[group_index];
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
             this->LoadLayersFromPath(paths_group[i].path, paths_group[i].type);
@@ -454,7 +452,7 @@ void LayerManager::LoadLayersFromPath(const Path &layers_path, LayerType type) {
     }
 }
 
-bool LayerManager::LoadLayer(const Path &layer_path, LayerType type) {
+LayerLoadStatus LayerManager::LoadLayer(const Path &layer_path, LayerType type) {
     const std::string &last_modified = layer_path.LastModified();
 
     Layer *already_loaded_layer = this->FindFromManifest(layer_path);
@@ -463,22 +461,28 @@ bool LayerManager::LoadLayer(const Path &layer_path, LayerType type) {
         auto it = this->layers_validated.find(layer_path);
         if (it != layers_validated.end()) {
             if (last_modified == it->second) {
-                return true;
+                return LAYER_LOAD_UNMODIFIED;
             }
         }
 
         // Modified to reload
-        already_loaded_layer->Load(layer_path, type, this->validate_manifests, this->layers_validated);
+        LayerLoadStatus status = already_loaded_layer->Load(layer_path, type, this->validate_manifests, this->layers_validated);
+        if (status == LAYER_LOAD_ADDED) {
+            it->second = already_loaded_layer->validated_last_modified;
+            return LAYER_LOAD_RELOADED;
+        } else {
+            return status;
+        }
     } else {
         Layer layer;
-        if (layer.Load(layer_path, type, this->validate_manifests, this->layers_validated)) {
+        LayerLoadStatus status = layer.Load(layer_path, type, this->validate_manifests, this->layers_validated);
+        if (status == LAYER_LOAD_ADDED) {
             this->selected_layers.push_back(layer);
-        } else {
-            return false;
+            this->layers_validated.insert(std::make_pair(layer.manifest_path, layer.validated_last_modified));
         }
-    }
 
-    return true;
+        return status;
+    }
 }
 
 void LayerManager::AppendPath(const LayersPathInfo &info) {
@@ -537,6 +541,19 @@ void LayerManager::UpdatePathEnabled(const LayersPathInfo &path_info) {
 
         layer->enabled = path_info.enabled;
     }
+}
+
+std::vector<Path> LayerManager::CollectManifestPaths() const {
+    std::vector<Path> results;
+
+    for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
+        for (std::size_t i = 0, n = this->paths[paths_type_index].size(); i < n; ++i) {
+            const std::vector<Path> &layers_paths = ::CollectFilePaths(this->paths[paths_type_index][i].path);
+            results.insert(results.end(), layers_paths.begin(), layers_paths.end());
+        }
+    }
+
+    return results;
 }
 
 std::vector<std::string> LayerManager::GatherLayerNames() const {

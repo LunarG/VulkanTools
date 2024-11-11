@@ -25,8 +25,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-LayersPathWidget::LayersPathWidget(LayersPathInfo* path_info, LayersPaths layers_path) : path_info(path_info) {
-    this->setChecked(this->path_info->enabled);
+LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths layers_path) : path_info(path_info) {
+    this->setChecked(this->path_info.enabled);
 
     this->buttom_remove = new QPushButton(this);
     this->buttom_remove->setIcon(QIcon(":/resourcefiles/folder_remove.png"));
@@ -35,7 +35,7 @@ LayersPathWidget::LayersPathWidget(LayersPathInfo* path_info, LayersPaths layers
     this->buttom_remove->setEnabled(layers_path == LAYERS_PATHS_GUI);
     this->buttom_remove->show();
 
-    this->setText(path_info->path.RelativePath().c_str());
+    this->setText(path_info.path.RelativePath().c_str());
     this->setToolTip(GetLabel(layers_path));
 
     this->connect(this, SIGNAL(toggled(bool)), this, SLOT(on_toggled(bool)));
@@ -58,8 +58,8 @@ void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
     std::vector<ReferencedLayer> referenced_layers;
     // TODO: configurator.configurations.BuildReferencedLayers(configurator.layers, this->path_info);
     if (!referenced_layers.empty()) {
-        std::string text = format("'%s' contains layers that are referenced by some configurations:",
-                                  this->path_info->path.AbsolutePath().c_str());
+        std::string text =
+            format("'%s' contains layers that are referenced by some configurations:", this->path_info.path.AbsolutePath().c_str());
         for (std::size_t i = 0, n = referenced_layers.size(); i < n; ++i) {
             const ReferencedLayer& data = referenced_layers[i];
             text += format(" - %s by '%s' configuration\n", data.layer.c_str(), data.configuration.c_str());
@@ -72,7 +72,7 @@ void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
         alert.setDefaultButton(QMessageBox::No);
         alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         alert.setText(format("Are you sure you want to remove the following path from %s?", VKCONFIG_NAME).c_str());
-        alert.setInformativeText(this->path_info->path.AbsolutePath().c_str());
+        alert.setInformativeText(this->path_info.path.AbsolutePath().c_str());
         int ret_val = alert.exec();
         if (alert.checkBox()->isChecked()) {
             configurator.Set(HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH);
@@ -88,7 +88,7 @@ void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
         alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         alert.setCheckBox(new QCheckBox("Do not show again."));
         alert.setText(format("Are you sure you want to remove the following path from %s?", VKCONFIG_NAME).c_str());
-        alert.setInformativeText(this->path_info->path.AbsolutePath().c_str());
+        alert.setInformativeText(this->path_info.path.AbsolutePath().c_str());
         int ret_val = alert.exec();
         if (alert.checkBox()->isChecked()) {
             configurator.Set(HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH);
@@ -98,20 +98,20 @@ void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
         }
     }
 
-    configurator.layers.RemovePath(*this->path_info);
+    configurator.layers.RemovePath(this->path_info);
 
-    this->path_info = nullptr;
+    this->path_info.path.Clear();
 
-    emit toggled(checked);
+    emit itemChanged();
 }
 
 void LayersPathWidget::on_toggled(bool checked) {
     // Check the path is not removed
-    if (this->path_info != nullptr) {
-        this->path_info->enabled = checked;
+    if (!this->path_info.path.Empty()) {
+        this->path_info.enabled = checked;
 
         Configurator& configurator = Configurator::Get();
-        configurator.layers.UpdatePathEnabled(*this->path_info);
+        configurator.layers.UpdatePathEnabled(this->path_info);
 
         itemChanged();
     }

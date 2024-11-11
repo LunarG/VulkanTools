@@ -31,7 +31,7 @@ class LayersPathWidget : public QCheckBox {
     Q_OBJECT
 
    public:
-    LayersPathWidget(LayersPathInfo *path_info, LayersPaths layers_path);
+    LayersPathWidget(const LayersPathInfo &path_info, LayersPaths layers_path);
 
    protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -44,6 +44,6 @@ class LayersPathWidget : public QCheckBox {
     void itemChanged();
 
    public:
-    LayersPathInfo *path_info = nullptr;
+    LayersPathInfo path_info;
     QPushButton *buttom_remove = nullptr;
 };
