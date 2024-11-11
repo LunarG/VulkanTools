@@ -397,15 +397,16 @@ std::string GetLabel(VendorID vendorID) {
 }
 
 std::string GenerateLoaderLog() {
-    std::stringstream buffer;
-    std::streambuf *old = std::cerr.rdbuf(buffer.rdbuf());
+    char buffer[BUFSIZ];
+    memset(buffer, 0, sizeof(buffer));
+    setbuf(stderr, buffer);
 
     bool is_set = qEnvironmentVariableIsSet("VK_LOADER_DEBUG");
     std::string saved_data = is_set ? qgetenv("VK_LOADER_DEBUG").toStdString() : "";
 
     qputenv("VK_LOADER_DEBUG", "all");
 
-    std::cerr << "gni" << std::endl;
+    fprintf(stderr, "gni");
 
     VulkanFunctions vk;
 
@@ -422,5 +423,5 @@ std::string GenerateLoaderLog() {
         vk.DestroyInstance(instance, nullptr);
     }
 
-    return buffer.str();
+    return "";
 }

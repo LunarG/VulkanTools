@@ -69,6 +69,8 @@ static const ModeDesc mode_desc[] = {
     {COMMAND_LAYERS, "layers", HELP_LAYERS},       // COMMAND_LAYERS
     {COMMAND_DOC, "--doc", HELP_DOC},              // COMMAND_DOC
     {COMMAND_DOC, "doc", HELP_DOC},                // COMMAND_DOC
+    {COMMAND_GUI, "--gui", HELP_GUI},              // COMMAND_GUI
+    {COMMAND_GUI, "gui", HELP_GUI},                // COMMAND_GUI
     {COMMAND_RESET, "--reset", HELP_RESET},        // COMMAND_RESET
     {COMMAND_RESET, "reset", HELP_RESET}           // COMMAND_RESET
 };
@@ -293,6 +295,7 @@ CommandLine::CommandLine(int argc, char* argv[])
             _error_args.push_back(argv[arg_offset + 0]);
             break;
         }
+        case COMMAND_GUI:
         case COMMAND_VERSION: {
             break;
         }
@@ -374,6 +377,14 @@ void CommandLine::usage() const {
             printf("\n");
             printf("Synopsis\n");
             printf("\tvkconfig version\n");
+            break;
+        }
+        case HELP_GUI: {
+            printf("Name\n");
+            printf("\t'gui' - Launch %s GUI.\n", VKCONFIG_NAME);
+            printf("\n");
+            printf("Synopsis\n");
+            printf("\tvkconfig gui\n");
             break;
         }
         case HELP_LAYERS: {
