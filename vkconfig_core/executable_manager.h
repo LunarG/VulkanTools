@@ -97,7 +97,7 @@ class ExecutableManager : public Serialize {
     // Create a list of default executables, eg vkcube
     std::vector<Executable> CreateDefaultExecutables() const;
     Executable CreateDefaultExecutable(const DefaultExecutable& default_executable) const;
-    DefaultPath GetDefaultExecutablePath(const std::string& executable_name) const;
 };
 
 const char* GetExecutableFilter();
+DefaultPath GetDefaultExecutablePath(const std::string& executable_name);
