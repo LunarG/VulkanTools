@@ -2,8 +2,6 @@
 <a href="https://github.com/LunarG/VulkanTools/tree/vkconfig3-dev" target="_blank">https://github.com/LunarG/VulkanTools/tree/vkconfig3-dev</a>
 
 ### TODO:
-- Implement diagnostic tab
-- The documentation tab is partially implemented
 - Update Vulkan Configurator documentation
 - Fix preset label display
 - Per application vk_layer_settings.txt is not implemented
@@ -17,6 +15,7 @@
   * Add explicit selection of the layer version used by a configuration
   * No longer load and unload layer manifest when switching configuations
   * Json validation caching based on layer manifest modified date and time
+  * Add layers manifest reloading
 - Improve layers ordering:
   * Allow ordering of all (implicit layers, unkown layers) layers executed by Vulkan application
   * Allow ordering layers independently from enabling them

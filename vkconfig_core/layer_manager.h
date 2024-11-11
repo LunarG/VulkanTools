@@ -49,11 +49,12 @@ class LayerManager : public Serialize {
 
     void LoadAllInstalledLayers();
     void LoadLayersFromPath(const Path& layers_path, LayerType type = LAYER_TYPE_EXPLICIT);
-    bool LoadLayer(const Path& layer_path, LayerType type = LAYER_TYPE_EXPLICIT);
+    LayerLoadStatus LoadLayer(const Path& layer_path, LayerType type = LAYER_TYPE_EXPLICIT);
 
     void AppendPath(const LayersPathInfo& path_info);
     void RemovePath(const LayersPathInfo& path_info);
     void UpdatePathEnabled(const LayersPathInfo& path_info);
+    std::vector<Path> CollectManifestPaths() const;
 
     std::vector<std::string> GatherLayerNames() const;
     std::vector<const Layer*> GatherLayers(const LayersPathInfo& path_info) const;
