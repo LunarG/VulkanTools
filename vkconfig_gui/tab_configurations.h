@@ -23,8 +23,8 @@
 #include "tab.h"
 #include "settings_tree.h"
 #include "item.h"
-#include "widget_resize_button.h"
 
+#include <QPushButton>
 #include <QAbstractItemView>
 
 class TabConfigurations : public Tab {

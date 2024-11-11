@@ -20,13 +20,16 @@
 
 #include "widget_resize_button.h"
 
-ResizeButton::ResizeButton(QWidget *parent) : QPushButton(parent), parent(parent) {}
+ResizeButton::ResizeButton(QWidget *parent, int shift) : QPushButton(parent), parent(parent), shift(shift) {}
 
 bool ResizeButton::eventFilter(QObject *o, QEvent *e) {
     (void)o;
 
     if (e->type() == QEvent::Resize) {
-        const QRect enabled_button_rect = QRect(this->parent->width() - 24 - 5, 0, 24, 24);
+        QSize size = this->minimumSize();
+
+        const QRect enabled_button_rect =
+            QRect(this->parent->width() - size.width() * (shift + 1) - 5, 0, size.width(), size.height());
         this->setGeometry(enabled_button_rect);
     }
     return false;

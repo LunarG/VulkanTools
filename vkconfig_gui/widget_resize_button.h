@@ -27,10 +27,11 @@ class ResizeButton : public QPushButton {
     Q_OBJECT
 
    public:
-    ResizeButton(QWidget *parent);
+    ResizeButton(QWidget *parent, int shift);
 
     bool eventFilter(QObject *o, QEvent *e) override;
 
    private:
     QWidget *parent = nullptr;
+    int shift = 0;
 };
