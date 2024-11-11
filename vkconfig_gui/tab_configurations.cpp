@@ -21,6 +21,7 @@
 #include "widget_tab_configurations_layer.h"
 #include "tab_configurations.h"
 #include "mainwindow.h"
+#include "widget_resize_button.h"
 
 #include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/configurator.h"
@@ -101,7 +102,7 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
 
     this->ui_configurations_group_box_settings_tooltip();
 
-    this->advanced_mode = new ResizeButton(this->ui->configurations_group_box_layers);
+    this->advanced_mode = new ResizeButton(this->ui->configurations_group_box_layers, 0);
     this->advanced_mode->setMinimumSize(24, 24);
     this->advanced_mode->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->advanced_mode->adjustSize();
