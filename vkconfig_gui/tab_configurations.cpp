@@ -515,13 +515,6 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *list_item) {
         return;
     }
 
-    Configurator &configurator = Configurator::Get();
-
-    // We are renaming the file. Things can go wrong here...
-    // This is the name of the configuratin we are changing
-    // const std::string full_path =
-    //    ConvertNativeSeparators(GetPath(BUILTIN_PATH_CONFIG_LAST) + "/" + configuration_item->configuration_name + ".json");
-
     // This is the new name we want to use for the configuration
     const std::string &new_name = item->text().toStdString();
     bool valid_new_name = true;
@@ -534,33 +527,26 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *list_item) {
         Alert::ConfigurationNameInvalid();
     }
 
-    Configuration *duplicate_configuration = configurator.configurations.FindConfiguration(new_name);
+    Configurator &configurator = Configurator::Get();
 
-    if (duplicate_configuration != nullptr) {
+    if (configurator.configurations.FindConfiguration(new_name) != nullptr) {
         valid_new_name = false;
         Alert::ConfigurationRenamingFailed();
     }
 
-    // Find existing configuration using it's old name
-    const std::string &old_name = item->key;
-    Configuration *configuration = configurator.configurations.FindConfiguration(old_name);
-
     if (valid_new_name) {
-        // Rename configuration ; Remove old configuration file ; change the name of the configuration
-        configurator.configurations.RemoveConfigurationFile(old_name);
-        configuration->key = item->key = new_name;
+        configurator.configurations.RenameConfiguration(item->key, new_name);
+        item->key = new_name;
         configurator.SetActiveConfigurationName(new_name);
 
         this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
-        this->UpdateUI_LoaderMessages();
-        this->UpdateUI_Layers(UPDATE_REBUILD_UI);
     } else {
         // If the configurate name is empty or the configuration name is taken, keep old configuration name
         ui->configurations_list->blockSignals(true);
-        item->setText(old_name.c_str());
+        item->setText(item->key.c_str());  // "item->key" stored configuration old name
         ui->configurations_list->blockSignals(false);
 
-        configurator.SetActiveConfigurationName(old_name);
+        configurator.SetActiveConfigurationName(item->key);
     }
 
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
@@ -691,6 +677,7 @@ void TabConfigurations::OnContextMenuDuplicateClicked(ListItem *item) {
         configurator.configurations.DuplicateConfiguration(configurator.layers, item->key);
 
     item->key = duplicated_configuration.key;
+    configurator.SetActiveConfigurationName(item->key);
 
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
@@ -937,8 +924,6 @@ void TabConfigurations::on_configurations_executable_list_currentIndexChanged(in
 }
 
 void TabConfigurations::on_configurations_executable_append_pressed() {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-
     Configurator &configurator = Configurator::Get();
 
     const Path &last_path = configurator.executables.last_path_executable;
@@ -956,8 +941,6 @@ void TabConfigurations::on_configurations_executable_append_pressed() {
 }
 
 void TabConfigurations::on_configurations_list_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-
     Configurator &configurator = Configurator::Get();
     Executable *executable = configurator.GetActiveExecutable();
     if (executable != nullptr) {
@@ -981,8 +964,6 @@ void TabConfigurations::on_configurations_list_toggled(bool checked) {
 }
 
 void TabConfigurations::on_configurations_layers_ordering_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-
     Configurator &configurator = Configurator::Get();
     Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
@@ -995,8 +976,6 @@ void TabConfigurations::on_configurations_layers_ordering_toggled(bool checked) 
 }
 
 void TabConfigurations::on_configurations_loader_messages_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-
     Configurator &configurator = Configurator::Get();
 
     Configuration *configuration = configurator.GetActiveConfiguration();
@@ -1008,8 +987,6 @@ void TabConfigurations::on_configurations_loader_messages_toggled(bool checked) 
 }
 
 void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-
     Configurator &configurator = Configurator::Get();
 
     Parameter *parameter = configurator.GetActiveParameter();
@@ -1022,50 +999,23 @@ void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) 
     this->ui_configurations_group_box_settings_tooltip();
 }
 
-void TabConfigurations::on_configuration_loader_errors_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->OnCheckedLoaderMessageTypes(checked);
-}
+void TabConfigurations::on_configuration_loader_errors_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
-void TabConfigurations::on_configuration_loader_warns_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->OnCheckedLoaderMessageTypes(checked);
-}
+void TabConfigurations::on_configuration_loader_warns_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
-void TabConfigurations::on_configuration_loader_infos_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->OnCheckedLoaderMessageTypes(checked);
-}
+void TabConfigurations::on_configuration_loader_infos_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
-void TabConfigurations::on_configuration_loader_debug_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->OnCheckedLoaderMessageTypes(checked);
-}
+void TabConfigurations::on_configuration_loader_debug_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
-void TabConfigurations::on_configuration_loader_layers_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->OnCheckedLoaderMessageTypes(checked);
-}
+void TabConfigurations::on_configuration_loader_layers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
-void TabConfigurations::on_configuration_loader_drivers_toggled(bool checked) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->OnCheckedLoaderMessageTypes(checked);
-}
+void TabConfigurations::on_configuration_loader_drivers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
 /// An item has been changed. Check for edit of the items name (configuration name)
-void TabConfigurations::on_configurations_list_itemChanged(QListWidgetItem *item) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->OnRenameConfiguration(item);
-}
+void TabConfigurations::on_configurations_list_itemChanged(QListWidgetItem *item) { this->OnRenameConfiguration(item); }
 
-void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->OnSelectConfiguration(currentRow);
-}
+void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow) { this->OnSelectConfiguration(currentRow); }
 
-void TabConfigurations::on_configurations_layers_list_currentRowChanged(int currentRow) {
-    assert(this->ui->tab_widget->currentIndex() == TAB_CONFIGURATIONS);
-    this->OnSelectLayer(currentRow);
-}
+void TabConfigurations::on_configurations_layers_list_currentRowChanged(int currentRow) { this->OnSelectLayer(currentRow); }
 
 void TabConfigurations::on_configurations_layerVersionChanged() { this->UpdateUI_Layers(UPDATE_REBUILD_UI); }

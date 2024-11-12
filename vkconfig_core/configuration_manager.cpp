@@ -334,6 +334,15 @@ const Configuration *ConfigurationManager::FindConfiguration(const std::string &
     return nullptr;
 }
 
+void ConfigurationManager::RenameConfiguration(const std::string &old_configuration_name,
+                                               const std::string &new_configuration_name) {
+    Configuration *configuration = this->FindConfiguration(old_configuration_name);
+    this->RemoveConfigurationFile(old_configuration_name);
+    configuration->key = new_configuration_name;
+
+    this->SortConfigurations();
+}
+
 bool ConfigurationManager::ImportConfiguration(const LayerManager &layers, const Path &full_import_path) {
     assert(!full_import_path.Empty());
 

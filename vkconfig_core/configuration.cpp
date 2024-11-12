@@ -422,7 +422,6 @@ void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::st
     assert(parameter != nullptr);
 
     const Layer* new_layer = layers.FindFromManifest(manifest_path);
-
     parameter->api_version = new_layer->api_version;
     parameter->manifest = new_layer->manifest_path;
     ::CollectDefaultSettingData(new_layer->settings, parameter->settings);

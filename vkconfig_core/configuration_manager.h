@@ -50,6 +50,7 @@ class ConfigurationManager : public Serialize {
     void RemoveConfiguration(const std::string& configuration_name);
     int GetConfigurationIndex(const std::string& configuration_name) const;
 
+    void RenameConfiguration(const std::string& old_configuration_name, const std::string& new_configuration_name);
     bool ImportConfiguration(const LayerManager& layers, const Path& full_import_path);
     bool ExportConfiguration(const LayerManager& layers, const Path& full_export_path, const std::string& configuration_name);
 
