@@ -215,6 +215,8 @@ std::string Path::LastModified() const {
 
 bool operator==(const Path& a, const Path& b) { return a.AbsolutePath() == b.AbsolutePath(); }
 
+bool operator!=(const Path& a, const Path& b) { return !(a == b); }
+
 Path operator+(const Path& path, const std::string& extend) { return Path(path.data + extend); }
 
 bool operator<(const Path& a, const Path& b) { return a.RelativePath() < b.RelativePath(); }

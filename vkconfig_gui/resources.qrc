@@ -16,9 +16,15 @@
         <file>resourcefiles/reset.png</file>
         <file>resourcefiles/folder_append.png</file>
         <file>resourcefiles/folder_remove.png</file>
-        <file>resourcefiles/folder_browse.png</file>
         <file>resourcefiles/folder_export.png</file>
+        <file>resourcefiles/folder_reload.png</file>
+        <file>resourcefiles/folder_search.png</file>
         <file>resourcefiles/file_export.png</file>
+        <file>resourcefiles/file_search.png</file>
+        <file>resourcefiles/file_remove.png</file>
+        <file>resourcefiles/file_append.png</file>
+        <file>resourcefiles/options_copy.png</file>
+        <file>resourcefiles/options_remove.png</file>
         <file>resourcefiles/clear.png</file>
         <file>resourcefiles/settings_basic.png</file>
         <file>resourcefiles/settings_advanced.png</file>
