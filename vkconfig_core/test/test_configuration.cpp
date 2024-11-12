@@ -63,7 +63,7 @@ TEST(test_configuration, load_and_save) {
     Configuration configuration_loaded;
     const bool load_loaded = configuration_loaded.Load(":/test/Configuration 3.0.0.json", layers);
     EXPECT_TRUE(load_loaded);
-    EXPECT_EQ(3, configuration_loaded.parameters.size());
+    EXPECT_EQ(2, configuration_loaded.parameters.size());
 
     Parameter* parameter = configuration_loaded.Find("VK_LAYER_LUNARG_reference_1_2_1");
     EXPECT_TRUE(parameter != nullptr);
@@ -200,25 +200,18 @@ TEST(test_configuration, create) {
 
     Configuration configuration = Configuration::Create(layer_manager, "New Configuration");
 
-    bool has_app_api = false;
-    bool has_app_env = false;
+    bool has_app_unordered = false;
 
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-        if (configuration.parameters[i].builtin == LAYER_BUILTIN_API) {
-            has_app_api = true;
-            continue;
-        }
-
-        if (configuration.parameters[i].builtin == LAYER_BUILTIN_ENV) {
-            has_app_env = true;
+        if (configuration.parameters[i].builtin == LAYER_BUILTIN_UNORDERED) {
+            has_app_unordered = true;
             continue;
         }
 
         EXPECT_EQ(configuration.parameters[i].control, LAYER_CONTROL_AUTO);
     }
 
-    EXPECT_EQ(has_app_api, true);
-    EXPECT_EQ(has_app_env, true);
+    EXPECT_EQ(has_app_unordered, true);
 }
 
 TEST(test_configuration, create_disabled) {
@@ -227,25 +220,18 @@ TEST(test_configuration, create_disabled) {
 
     Configuration configuration = Configuration::CreateDisabled(layer_manager);
 
-    bool has_app_api = false;
-    bool has_app_env = false;
+    bool has_app_unordered = false;
 
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-        if (configuration.parameters[i].builtin == LAYER_BUILTIN_API) {
-            has_app_api = true;
-            continue;
-        }
-
-        if (configuration.parameters[i].builtin == LAYER_BUILTIN_ENV) {
-            has_app_env = true;
+        if (configuration.parameters[i].builtin == LAYER_BUILTIN_UNORDERED) {
+            has_app_unordered = true;
             continue;
         }
 
         EXPECT_EQ(configuration.parameters[i].control, LAYER_CONTROL_OFF);
     }
 
-    EXPECT_EQ(has_app_api, true);
-    EXPECT_EQ(has_app_env, true);
+    EXPECT_EQ(has_app_unordered, true);
 }
 
 TEST(test_configuration, SwitchLayerVersion) {
@@ -284,19 +270,21 @@ TEST(test_configuration, gather_parameters_exist) {
 
     configuration.GatherParameters(layer_manager);
 
-    EXPECT_STREQ(configuration.parameters[0].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
-    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
-    EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
+    EXPECT_STREQ(configuration.parameters[0].key.c_str(), ::GetLabel(LAYER_BUILTIN_UNORDERED));
 
-    EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_test_00");
-    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_test_01");
-    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_test_02");
-    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_test_03");
-    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_test_04");
-    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_05");
-    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_06");
+    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
+    EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
+    EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
 
-    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_version");
+    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_test_00");
+    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_test_01");
+    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_test_02");
+    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_test_03");
+    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_04");
+    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_05");
+    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_06");
+
+    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_version");
 
     std::string missing_layer;
     EXPECT_FALSE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));
@@ -313,19 +301,21 @@ TEST(test_configuration, gather_parameters_repeat) {
     configuration.GatherParameters(layer_manager);
     configuration.GatherParameters(layer_manager);  // Again, check for no duplication!
 
-    EXPECT_STREQ(configuration.parameters[0].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
-    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
-    EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
+    EXPECT_STREQ(configuration.parameters[0].key.c_str(), ::GetLabel(LAYER_BUILTIN_UNORDERED));
 
-    EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_test_00");
-    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_test_01");
-    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_test_02");
-    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_test_03");
-    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_test_04");
-    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_05");
-    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_06");
+    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
+    EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
+    EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
 
-    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_version");
+    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_test_00");
+    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_test_01");
+    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_test_02");
+    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_test_03");
+    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_04");
+    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_05");
+    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_06");
+
+    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_version");
 }
 
 TEST(test_configuration, gather_parameters_missing) {
@@ -340,6 +330,7 @@ TEST(test_configuration, gather_parameters_missing) {
     layer_manager.Clear();
     configuration.GatherParameters(layer_manager);
 
+    // Missing layer are reordred first
     EXPECT_STREQ(configuration.parameters[0].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
     EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
     EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
@@ -353,6 +344,9 @@ TEST(test_configuration, gather_parameters_missing) {
     EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_06");
 
     EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_version");
+
+    // Unordered are never missing so end up last
+    EXPECT_STREQ(configuration.parameters[11].key.c_str(), ::GetLabel(LAYER_BUILTIN_UNORDERED));
 
     std::string missing_layer;
     EXPECT_TRUE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));
@@ -429,8 +423,7 @@ TEST(test_configuration, Reorder_full) {
     layer_names.push_back("VK_LAYER_LUNARG_test_04");
     layer_names.push_back("VK_LAYER_LUNARG_test_01");
     layer_names.push_back("VK_LAYER_LUNARG_test_02");
-    layer_names.push_back("Vulkan Layers from the Application Vulkan API");
-    layer_names.push_back("Vulkan Layers from the Application Environment Variables");
+    layer_names.push_back(::GetLabel(LAYER_BUILTIN_UNORDERED));
     layer_names.push_back("VK_LAYER_LUNARG_version");
     layer_names.push_back("VK_LAYER_LUNARG_reference_1_2_1");
     layer_names.push_back("VK_LAYER_LUNARG_reference_1_2_0");
@@ -445,16 +438,15 @@ TEST(test_configuration, Reorder_full) {
     EXPECT_STREQ(configuration.parameters[0].key.c_str(), "VK_LAYER_LUNARG_test_04");
     EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_test_01");
     EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_test_02");
-    EXPECT_STREQ(configuration.parameters[3].key.c_str(), "Vulkan Layers from the Application Vulkan API");
-    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "Vulkan Layers from the Application Environment Variables");
-    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_version");
-    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
-    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
-    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
-    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_00");
-    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_05");
-    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_test_06");
-    EXPECT_STREQ(configuration.parameters[12].key.c_str(), "VK_LAYER_LUNARG_test_03");
+    EXPECT_STREQ(configuration.parameters[3].key.c_str(), ::GetLabel(LAYER_BUILTIN_UNORDERED));
+    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_version");
+    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
+    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
+    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
+    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_00");
+    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_05");
+    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_06");
+    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_test_03");
 }
 
 TEST(test_configuration, Reorder_partial) {
@@ -465,7 +457,7 @@ TEST(test_configuration, Reorder_partial) {
 
     std::vector<std::string> layer_names;
     layer_names.push_back("VK_LAYER_LUNARG_test_04");
-    layer_names.push_back("Vulkan Layers from the Application Vulkan API");
+    layer_names.push_back(::GetLabel(LAYER_BUILTIN_UNORDERED));
     layer_names.push_back("VK_LAYER_LUNARG_version");
     layer_names.push_back("VK_LAYER_LUNARG_reference_1_2_1");
     layer_names.push_back("VK_LAYER_LUNARG_reference_1_2_0");
@@ -476,7 +468,7 @@ TEST(test_configuration, Reorder_partial) {
     configuration.Reorder(layer_names);
 
     EXPECT_STREQ(configuration.parameters[0].key.c_str(), "VK_LAYER_LUNARG_test_04");
-    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "Vulkan Layers from the Application Vulkan API");
+    EXPECT_STREQ(configuration.parameters[1].key.c_str(), ::GetLabel(LAYER_BUILTIN_UNORDERED));
     EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_version");
     EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
     EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
@@ -493,7 +485,7 @@ TEST(test_configuration, Reorder_missing) {
 
     std::vector<std::string> layer_names;
     layer_names.push_back("VK_LAYER_LUNARG_test_04");
-    layer_names.push_back("Vulkan Layers from the Application Vulkan API");
+    layer_names.push_back(::GetLabel(LAYER_BUILTIN_UNORDERED));
     layer_names.push_back("VK_LAYER_LUNARG_missing_0");
     layer_names.push_back("VK_LAYER_LUNARG_version");
     layer_names.push_back("VK_LAYER_LUNARG_reference_1_2_1");
@@ -506,7 +498,7 @@ TEST(test_configuration, Reorder_missing) {
     configuration.Reorder(layer_names);
 
     EXPECT_STREQ(configuration.parameters[0].key.c_str(), "VK_LAYER_LUNARG_test_04");
-    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "Vulkan Layers from the Application Vulkan API");
+    EXPECT_STREQ(configuration.parameters[1].key.c_str(), ::GetLabel(LAYER_BUILTIN_UNORDERED));
     EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_version");
     EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
     EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");

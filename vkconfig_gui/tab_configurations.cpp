@@ -586,44 +586,21 @@ void TabConfigurations::OnSelectLayer(int currentRow) {
     assert(configuration != nullptr);
 
     if (configuration->selected_layer_name != layer_string) {
-        if (layer_string == ::GetLabel(LAYER_BUILTIN_API)) {
-            if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_API)) {
+        if (layer_string == ::GetLabel(LAYER_BUILTIN_UNORDERED)) {
+            if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_UNORDERED_LAYER)) {
                 QMessageBox message;
                 message.setIcon(QMessageBox::Information);
-                message.setWindowTitle(::GetLabel(LAYER_BUILTIN_API));
+                message.setWindowTitle(::GetLabel(LAYER_BUILTIN_UNORDERED));
                 message.setText(
-                    "This item refers to Vulkan Layers not visible by Vulkan Configurator but at Vulkan Application launched, but "
-                    "enabled by the Vulkan Application at "
-                    "Vulkan Layers that are located using 'VK_ADD_LAYER_PATH' and enabled using 'vkCreateInstance'.");
+                    "This item refers to Vulkan Layers not visible by Vulkan Configurator but located and enabled by the Vulkan "
+                    "Application at launched.");
                 message.setInformativeText(
-                    format("If the Vulkan application is enabling a layer already controlled by Vulkan Configurator, the Vulkan "
-                           "Application setup is ignored.\n\nTo force ignoring these Vulkan Layers, set '%s' to 'Off'.",
-                           ::GetLabel(LAYER_BUILTIN_API))
-                        .c_str());
+                    "- Vulkan Layers are located by the Vulkan Application by setting 'VK_ADD_LAYER_PATH'.\n"
+                    "- Vulkan Layers are enabled by the Vulkan Application using 'VK_LOADER_LAYERS_ENABLE' or 'vkCreateInstance'.");
                 message.setCheckBox(new QCheckBox("Do not show again."));
                 message.exec();
                 if (message.checkBox()->isChecked()) {
-                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_API);
-                }
-            }
-        } else if (layer_string == ::GetLabel(LAYER_BUILTIN_ENV)) {
-            if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_ENV)) {
-                QMessageBox message;
-                message.setIcon(QMessageBox::Information);
-                message.setWindowTitle(::GetLabel(LAYER_BUILTIN_ENV));
-                message.setText(
-                    "This item refers to Vulkan Layers not visible by Vulkan Configurator but at Vulkan Application launched, "
-                    "Vulkan Layers that are located using 'VK_ADD_LAYER_PATH' and enabled using 'VK_LOADER_LAYERS_ENABLE' "
-                    "Environment Variables.");
-                message.setInformativeText(format("If the Vulkan application is enabling a layer already controlled by Vulkan "
-                                                  "Configurator, the Vulkan Application "
-                                                  "setup is ignored.\n\nTo force ignoring these Vulkan Layers, set '%s' to 'Off'.",
-                                                  ::GetLabel(LAYER_BUILTIN_ENV))
-                                               .c_str());
-                message.setCheckBox(new QCheckBox("Do not show again."));
-                message.exec();
-                if (message.checkBox()->isChecked()) {
-                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_CONTROL_APPLICATION_ENV);
+                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_UNORDERED_LAYER);
                 }
             }
         }
