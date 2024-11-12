@@ -35,10 +35,6 @@
 TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_LAYERS, window, ui) {
     Configurator &configurator = Configurator::Get();
 
-    this->ui->layers_browse_button->setText("");
-    this->ui->layers_browse_button->setIcon(QIcon(":/resourcefiles/folder_append.png"));
-    this->ui->layers_reload_button->setText("");
-    this->ui->layers_reload_button->setIcon(QIcon(":/resourcefiles/reload.png"));
     this->ui->layers_progress->setValue(0);
     this->ui->layers_progress->setVisible(false);
     this->ui->layers_path_lineedit->setVisible(true);
