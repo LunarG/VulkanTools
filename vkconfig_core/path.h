@@ -71,6 +71,7 @@ class Path {
     std::string data;
 
     friend bool operator==(const Path& a, const Path& b);
+    friend bool operator!=(const Path& a, const Path& b);
     friend Path operator+(const Path& path, const std::string& extend);
 };
 
@@ -79,6 +80,7 @@ std::string AbsolutePath(Path::Builtin path);
 std::string RelativePath(Path::Builtin path);
 
 bool operator==(const Path& a, const Path& b);
+bool operator!=(const Path& a, const Path& b);
 Path operator+(const Path& path, const std::string& extend);
 bool operator<(const Path& a, const Path& b);
 

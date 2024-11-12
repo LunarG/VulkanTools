@@ -46,9 +46,6 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->connect(this->ui->applications_options_comboBox, SIGNAL(editTextChanged(QString)), this,
                   SLOT(on_applications_options_comboBox_textEdited(QString)));
 
-    this->connect(this->ui->applications_configuration_comboBox, SIGNAL(currentIndexChanged(int)), this,
-                  SLOT(on_applications_configuration_comboBox_activated(int)));
-
     this->connect(this->ui->applications_directory_edit, SIGNAL(textEdited(QString)), this,
                   SLOT(on_applications_directory_edit_textEdited(QString)));
     this->connect(this->ui->applications_directory_edit_pushButton, SIGNAL(pressed()), this,
@@ -75,7 +72,7 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     // Whenever the control surpasses this block count, old blocks are discarded.
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
-    this->ui->log_browser->document()->setMaximumBlockCount(2048);
+    this->ui->launcher_log_text->document()->setMaximumBlockCount(2048);
 
     this->ui->applications_push_button_launcher->setEnabled(!configurator.executables.Empty());
 
@@ -92,15 +89,6 @@ void TabApplications::UpdateUI(UpdateUIMode mode) {
     const std::vector<Executable> &executables = configurator.executables.GetExecutables();
 
     if (mode == UPDATE_REBUILD_UI) {
-        // Rebuild list of layers configurations
-        const std::vector<Configuration> &configurations = configurator.configurations.available_configurations;
-        ui->applications_configuration_comboBox->blockSignals(true);
-        ui->applications_configuration_comboBox->clear();
-        for (std::size_t i = 0, n = configurations.size(); i < n; ++i) {
-            ui->applications_configuration_comboBox->addItem(configurations[i].key.c_str());
-        }
-        ui->applications_configuration_comboBox->blockSignals(false);
-
         // Rebuild list of applications
         ui->applications_list_comboBox->blockSignals(true);
         ui->applications_list_comboBox->clear();
@@ -157,8 +145,8 @@ void TabApplications::on_applications_list_comboBox_activated(int index) {
         ui->applications_options_remove_pushButton->setEnabled(executable->options.size() > 1);
         this->on_applications_options_comboBox_activated(executable->GetActiveOptionsIndex());
     }
-    ui->applications_options_list_layout->setEnabled(executable != nullptr);
-    ui->applications_options_layout->setEnabled(executable != nullptr);
+    ui->launcher_options_list_layout->setEnabled(executable != nullptr);
+    ui->launcher_applications_options->setEnabled(executable != nullptr);
 
     ui->applications_options_comboBox->blockSignals(true);
     ui->applications_options_comboBox->clear();
@@ -211,8 +199,6 @@ void TabApplications::on_applications_options_comboBox_activated(int index) {
 
     // ui->applications_layers_mode_comboBox->setCurrentIndex(options->layers_mode);
     // ui->applications_configuration_comboBox->setEnabled(options->layers_mode == LAYERS_CONTROLLED_BY_CONFIGURATOR);
-    ui->applications_configuration_comboBox->setCurrentIndex(
-        configurator.configurations.GetConfigurationIndex(options->configuration));
 
     ui->applications_directory_edit->setText(options->working_folder.RelativePath().c_str());
     ui->applications_directory_edit->setToolTip(options->working_folder.AbsolutePath().c_str());
@@ -228,15 +214,6 @@ void TabApplications::on_applications_options_comboBox_textEdited(const QString 
 
     ExecutableOptions *options = executable->GetActiveOptions();
     options->label = text.toStdString();
-}
-
-void TabApplications::on_applications_configuration_comboBox_activated(int index) {
-    Configurator &configurator = Configurator::Get();
-
-    Executable *executable = configurator.executables.GetActiveExecutable();
-    ExecutableOptions *options = executable->GetActiveOptions();
-
-    options->configuration = ui->applications_configuration_comboBox->itemText(index).toStdString();
 }
 
 void TabApplications::on_applications_directory_edit_textEdited(const QString &text) {
@@ -311,8 +288,8 @@ void TabApplications::on_check_box_clear_on_launch_clicked() {
 }
 
 void TabApplications::on_applications_clear_log_pushButton_pressed() {
-    ui->log_browser->clear();
-    ui->log_browser->update();
+    ui->launcher_log_text->clear();
+    ui->launcher_log_text->update();
     ui->applications_push_button_clear_log->setEnabled(false);
 }
 
@@ -376,7 +353,7 @@ void TabApplications::on_applications_launcher_pushButton_pressed() {
     }
 
     if (ui->applications_check_box_clear_on_launch->isChecked()) {
-        ui->log_browser->clear();
+        ui->launcher_log_text->clear();
     }
     this->Log(launch_log.c_str());
 
@@ -500,7 +477,7 @@ void TabApplications::errorOutputAvailable() {
 }
 
 void TabApplications::Log(const std::string &log) {
-    ui->log_browser->setPlainText(ui->log_browser->toPlainText() + "\n" + log.c_str());
+    ui->launcher_log_text->setPlainText(ui->launcher_log_text->toPlainText() + "\n" + log.c_str());
     ui->applications_push_button_clear_log->setEnabled(true);
 
     if (this->_log_file.isOpen()) {

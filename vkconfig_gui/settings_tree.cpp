@@ -70,7 +70,9 @@ void SettingsTreeManager::CreateGUI() {
 
     if (parameter != nullptr) {
         if (parameter->builtin == LAYER_BUILTIN_NONE) {
-            configuration->SwitchLayerVersion(configurator.layers, parameter->key, parameter->manifest);
+            if (configurator.layers.FindFromManifest(parameter->manifest) == nullptr) {
+                configuration->SwitchLayerLatest(configurator.layers, parameter->key);
+            }
         }
     }
 
