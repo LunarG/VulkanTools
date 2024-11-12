@@ -69,10 +69,8 @@ void SettingsTreeManager::CreateGUI() {
     const bool no_selected_layer = configuration != nullptr ? configuration->selected_layer_name.empty() : false;
 
     if (parameter != nullptr) {
-        if (parameter->manifest.Empty()) {
-            configuration->SwitchLayerLatest(configurator.layers, configuration->GetActiveParameter()->key);
-        } else {
-            configuration->SwitchLayerVersion(configurator.layers, configuration->GetActiveParameter()->key, parameter->manifest);
+        if (parameter->builtin == LAYER_BUILTIN_NONE) {
+            configuration->SwitchLayerVersion(configurator.layers, parameter->key, parameter->manifest);
         }
     }
 

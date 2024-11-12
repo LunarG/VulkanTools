@@ -30,8 +30,14 @@
 #include <cassert>
 #include <algorithm>
 
-static const char* VK_LAYER_KHRONOS_PROFILES_NAME = "VK_LAYER_KHRONOS_profiles";
-static const char* VK_LAYER_KHRONOS_VALIDATION_NAME = "VK_LAYER_KHRONOS_validation";
+static bool IsExtensionLayer(const std::string& key) {
+    return key == "VK_LAYER_KHRONOS_timeline_semaphore" || key == "VK_LAYER_KHRONOS_synchronization2" ||
+           key == "VK_LAYER_KHRONOS_shader_object" || key == "VK_LAYER_KHRONOS_memory_decompression";
+}
+
+static bool IsValidationLayer(const std::string& key) { return key == "VK_LAYER_KHRONOS_validation"; }
+
+static bool IsProfilesLayer(const std::string& key) { return key == "VK_LAYER_KHRONOS_profiles"; }
 
 bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
     for (std::size_t preset_index = 0, preset_count = preset.settings.size(); preset_index < preset_count; ++preset_index) {
@@ -59,19 +65,23 @@ ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& 
     assert(!parameter.key.empty());
 
     const Layer* layer = layers.Find(parameter.key, parameter.api_version);
-    if (parameter.builtin == LAYER_BUILTIN_ENV) {
-        return PARAMETER_RANK_APPPLICATION_ENV;
-    } else if (parameter.builtin == LAYER_BUILTIN_API) {
-        return PARAMETER_RANK_APPPLICATION_API;
+    if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
+        return PARAMETER_RANK_UNORDERED_LAYER;
     } else if (layer == nullptr) {
         return PARAMETER_RANK_MISSING_LAYER;
+    } else if (IsValidationLayer(layer->key)) {
+        return PARAMETER_RANK_VALIDATION_LAYER;
+    } else if (IsProfilesLayer(layer->key)) {
+        return PARAMETER_RANK_PROFILES_LAYER;
+    } else if (IsExtensionLayer(layer->key)) {
+        return PARAMETER_RANK_EXTENSION_LAYER;
     } else if (layer->type == LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_IMPLICIT_LAYER;
     } else if (layer->type == LAYER_TYPE_EXPLICIT) {
         return PARAMETER_RANK_EXPLICIT_LAYER;
     } else {
         assert(0);  // Unknown ordering
-        return PARAMETER_RANK_MISSING_LAYER;
+        return PARAMETER_RANK_EXPLICIT_LAYER;
     }
 }
 
@@ -88,16 +98,7 @@ void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& laye
             if (both_overridden)
                 return a.overridden_rank < b.overridden_rank;
             else if (rankA == rankB)
-                if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME && b.key == VK_LAYER_KHRONOS_PROFILES_NAME)
-                    return true;
-                else if (a.key == VK_LAYER_KHRONOS_PROFILES_NAME && b.key == VK_LAYER_KHRONOS_VALIDATION_NAME)
-                    return false;
-                else if (a.key == VK_LAYER_KHRONOS_VALIDATION_NAME)
-                    return true;
-                else if (b.key == VK_LAYER_KHRONOS_VALIDATION_NAME)
-                    return false;
-                else
-                    return a.key < b.key;
+                return a.key < b.key;
             else
                 return rankA < rankB;
         }
