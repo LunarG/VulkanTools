@@ -34,9 +34,8 @@ LayerBuiltin GetLayerBuiltin(const char* token) {
 
 const char* GetToken(LayerBuiltin builtin) {
     static const char* TABLE[] = {
-        "N/A",                         // LAYER_BUILTIN_NONE
-        "application_enabled_layers",  // LAYER_BUILTIN_API
-        "unordered_layer_location",    // LAYER_BUILTIN_ENV
+        "N/A",                       // LAYER_BUILTIN_NONE
+        "unordered_layer_location",  // LAYER_BUILTIN_UNORDERED
     };
     static_assert(std::size(TABLE) == LAYER_BUILTIN_COUNT);
 
@@ -45,9 +44,8 @@ const char* GetToken(LayerBuiltin builtin) {
 
 const char* GetLabel(LayerBuiltin builtin) {
     static const char* TABLE[] = {
-        "N/A",                                                      // LAYER_BUILTIN_NONE
-        "Vulkan Layers from the Application Vulkan API",            // LAYER_BUILTIN_API
-        "Vulkan Layers from the Application Environment Variables"  // LAYER_BUILTIN_ENV
+        "N/A",                                              // LAYER_BUILTIN_NONE
+        "Vulkan Layers Located by the Vulkan Application",  // LAYER_BUILTIN_UNORDERED
     };
     static_assert(std::size(TABLE) == LAYER_BUILTIN_COUNT);
 
@@ -55,14 +53,11 @@ const char* GetLabel(LayerBuiltin builtin) {
 }
 
 const char* GetDescription(LayerBuiltin builtin) {
-    static const char*
-        TABLE[] =
-            {
-                "N/A",                                                                                      // LAYER_BUILTIN_NONE
-                "Located and Enabled Layers using 'vkCreateInstance' by the Vulkan Application at launch",  // LAYER_BUILTIN_API
-                "Located and Enabled Layers using 'VK_LOADER_LAYERS_ENABLE' Environment Variable by the Vulkan Application at "
-                "launch"  // LAYER_BUILTIN_ENV
-            };
+    static const char* TABLE[] = {
+        "N/A",  // LAYER_BUILTIN_NONE
+        "Located and Enabled Layers using 'VK_LOADER_LAYERS_ENABLE' Environment Variable and 'vkCreateInstance' by the Vulkan "
+        "Application at launch",  // LAYER_BUILTIN_UNORDERED
+    };
     static_assert(std::size(TABLE) == LAYER_BUILTIN_COUNT);
 
     return TABLE[builtin];
