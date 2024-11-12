@@ -42,43 +42,20 @@
 #include <algorithm>
 
 static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters, LayerControl default_control) {
-    bool found_applications_api = false;
     for (auto paramater : parameters) {
-        if (paramater.builtin != LAYER_BUILTIN_API) {
+        if (paramater.builtin != LAYER_BUILTIN_UNORDERED) {
             continue;
         }
 
-        found_applications_api = true;
-        break;
+        return;  // No need to add LAYER_BUILTIN_UNORDERED, it's in the list already
     }
 
-    if (!found_applications_api) {
-        Parameter applications_enabled_layers_api;
-        applications_enabled_layers_api.key = ::GetLabel(LAYER_BUILTIN_API);
-        applications_enabled_layers_api.builtin = LAYER_BUILTIN_API;
-        applications_enabled_layers_api.control = LAYER_CONTROL_DISCARD;  // Until the Vulkan Loader is fixed
-        applications_enabled_layers_api.overridden_rank = Parameter::NO_RANK;
-        parameters.push_back(applications_enabled_layers_api);
-    }
-
-    bool found_applications_env = false;
-    for (auto paramater : parameters) {
-        if (paramater.builtin != LAYER_BUILTIN_ENV) {
-            continue;
-        }
-
-        found_applications_env = true;
-        break;
-    }
-
-    if (!found_applications_env) {
-        Parameter applications_enabled_layers_env;
-        applications_enabled_layers_env.key = ::GetLabel(LAYER_BUILTIN_ENV);
-        applications_enabled_layers_env.builtin = LAYER_BUILTIN_ENV;
-        applications_enabled_layers_env.control = LAYER_CONTROL_DISCARD;  // Until the Vulkan Loader is fixed
-        applications_enabled_layers_env.overridden_rank = Parameter::NO_RANK;
-        parameters.push_back(applications_enabled_layers_env);
-    }
+    Parameter applications_enabled_layers;
+    applications_enabled_layers.key = ::GetLabel(LAYER_BUILTIN_UNORDERED);
+    applications_enabled_layers.builtin = LAYER_BUILTIN_UNORDERED;
+    applications_enabled_layers.control = LAYER_CONTROL_DISCARD;  // Until the Vulkan Loader is fixed
+    applications_enabled_layers.overridden_rank = Parameter::NO_RANK;
+    parameters.push_back(applications_enabled_layers);
 }
 
 Configuration Configuration::Create(const LayerManager& layers, const std::string& configuration_key) {
