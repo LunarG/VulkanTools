@@ -77,14 +77,19 @@ void LayerVersionComboBox::Init(const Parameter &parameter, const std::vector<Pa
 void LayerVersionComboBox::on_layer_version_combobox_currentIndexChanged(int index) {
     assert(index >= 0);
 
-    Path path = index > 0 ? this->data[index] : "";
+    Path path = this->data[index];
 
     Configurator &configurator = Configurator::Get();
 
     Configuration *configuration = configurator.GetActiveConfiguration();
-    configuration->SwitchLayerVersion(configurator.layers, configuration->GetActiveParameter()->key, path);
+    Parameter *parameter = configuration->GetActiveParameter();
+    if (index == 0) {
+        configuration->SwitchLayerLatest(configurator.layers, parameter->key);
+    } else {
+        configuration->SwitchLayerVersion(configurator.layers, parameter->key, path);
+    }
 
-    const Layer *layer = configurator.layers.FindFromManifest(this->data[index]);
+    const Layer *layer = configurator.layers.FindFromManifest(path);
     assert(layer != nullptr);
     this->setToolTip(layer->manifest_path.AbsolutePath().c_str());
 

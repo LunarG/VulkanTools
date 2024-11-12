@@ -51,8 +51,6 @@ class TabApplications : public Tab {
     void on_applications_options_comboBox_activated(int index);
     void on_applications_options_comboBox_textEdited(const QString& text);
 
-    void on_applications_configuration_comboBox_activated(int index);
-
     void on_applications_directory_edit_textEdited(const QString& text);
     void on_applications_directory_edit_pushButton_pressed();
     void on_applications_args_list_textEdited(const QString& text);
