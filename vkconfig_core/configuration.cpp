@@ -336,7 +336,17 @@ const Parameter* Configuration::Find(const std::string& layer_key) const {
     return nullptr;
 }
 
-Parameter* Configuration::GetActiveParameter() { return this->Find(this->selected_layer_name); }
+Parameter* Configuration::GetActiveParameter() {
+    if (!this->override_layers) {
+        return nullptr;
+    }
+
+    if (this->selected_layer_name.empty()) {
+        return nullptr;
+    }
+
+    return this->Find(this->selected_layer_name);
+}
 
 const Parameter* Configuration::GetActiveParameter() const { return this->Find(this->selected_layer_name); }
 

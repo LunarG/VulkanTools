@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ class SettingsTreeManager : public QObject {
     void GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item);
     int SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item);
 
+    void RefreshVersion();
     void Refresh(RefreshAreas refresh_areas);
 
    public Q_SLOTS:
