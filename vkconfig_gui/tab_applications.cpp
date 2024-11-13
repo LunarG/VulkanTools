@@ -28,43 +28,35 @@
 
 TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
     : Tab(TAB_APPLICATIONS, window, ui), _launch_application(nullptr) {
-    this->connect(this->ui->applications_remove_application_pushButton, SIGNAL(pressed()), this,
-                  SLOT(on_applications_remove_application_pushButton_pressed()));
-    this->connect(this->ui->applications_append_application_pushButton, SIGNAL(pressed()), this,
-                  SLOT(on_applications_append_application_pushButton_pressed()));
-    this->connect(this->ui->applications_list_comboBox, SIGNAL(currentIndexChanged(int)), this,
-                  SLOT(on_applications_list_comboBox_activated(int)));
-    this->connect(this->ui->applications_list_comboBox, SIGNAL(editTextChanged(QString)), this,
-                  SLOT(on_applications_list_comboBox_textEdited(QString)));
+    this->connect(this->ui->launch_executable_list, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_launch_executable_list_activated(int)));
+    this->connect(this->ui->launch_executable_list->lineEdit(), SIGNAL(textEdited(QString)), this,
+                  SLOT(on_launch_executable_list_textEdited(QString)));
+    this->connect(this->ui->launch_executable_search, SIGNAL(pressed()), this, SLOT(on_launch_executable_search_pressed()));
+    this->connect(this->ui->launch_executable_append, SIGNAL(pressed()), this, SLOT(on_launch_executable_append_pressed()));
+    this->connect(this->ui->launch_executable_remove, SIGNAL(pressed()), this, SLOT(on_launch_executable_remove_pressed()));
 
-    this->connect(this->ui->applications_options_remove_pushButton, SIGNAL(pressed()), this,
-                  SLOT(on_applications_options_remove_pushButton_pressed()));
-    this->connect(this->ui->applications_options_append_pushButton, SIGNAL(pressed()), this,
-                  SLOT(on_applications_options_append_pushButton_pressed()));
-    this->connect(this->ui->applications_options_comboBox, SIGNAL(currentIndexChanged(int)), this,
-                  SLOT(on_applications_options_comboBox_activated(int)));
-    this->connect(this->ui->applications_options_comboBox, SIGNAL(editTextChanged(QString)), this,
-                  SLOT(on_applications_options_comboBox_textEdited(QString)));
+    this->connect(this->ui->launch_options_list, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_launch_options_list_activated(int)));
+    this->connect(this->ui->launch_options_list->lineEdit(), SIGNAL(textEdited(QString)), this,
+                  SLOT(on_launch_options_list_textEdited(QString)));
+    this->connect(this->ui->launch_options_append, SIGNAL(pressed()), this, SLOT(on_launch_options_append_pressed()));
+    this->connect(this->ui->launch_options_remove, SIGNAL(pressed()), this, SLOT(on_launch_options_remove_pressed()));
 
-    this->connect(this->ui->applications_directory_edit, SIGNAL(textEdited(QString)), this,
-                  SLOT(on_applications_directory_edit_textEdited(QString)));
-    this->connect(this->ui->applications_directory_edit_pushButton, SIGNAL(pressed()), this,
-                  SLOT(on_applications_directory_edit_pushButton_pressed()));
-    this->connect(this->ui->applications_args_list, SIGNAL(textEdited(QString)), this,
-                  SLOT(on_applications_args_list_textEdited(QString)));
-    this->connect(this->ui->applications_envs_list, SIGNAL(textEdited(QString)), this,
-                  SLOT(on_applications_envs_list_textEdited(QString)));
-    this->connect(this->ui->applications_output_log_edit, SIGNAL(textEdited(QString)), this,
-                  SLOT(on_applications_output_log_edit_textEdited(QString)));
-    this->connect(this->ui->applications_output_log_pushButton, SIGNAL(pressed()), this,
-                  SLOT(on_applications_output_log_pushButton_pressed()));
+    this->connect(this->ui->launch_options_dir_edit, SIGNAL(textEdited(QString)), this,
+                  SLOT(on_launch_options_dir_textEdited(QString)));
+    this->connect(this->ui->launch_options_dir_button, SIGNAL(pressed()), this, SLOT(on_launch_options_dir_pressed()));
+    this->connect(this->ui->launch_options_args_edit, SIGNAL(textEdited(QString)), this,
+                  SLOT(on_launch_options_args_textEdited(QString)));
+    this->connect(this->ui->launch_options_envs_edit, SIGNAL(textEdited(QString)), this,
+                  SLOT(on_launch_options_envs_textEdited(QString)));
+    this->connect(this->ui->launch_options_log_edit, SIGNAL(textEdited(QString)), this,
+                  SLOT(on_launch_options_log_textEdited(QString)));
+    this->connect(this->ui->launch_options_log_button, SIGNAL(pressed()), this, SLOT(on_launch_options_log_pressed()));
 
-    this->connect(this->ui->applications_push_button_launcher, SIGNAL(pressed()), this,
-                  SLOT(on_applications_launcher_pushButton_pressed()));
-    this->connect(this->ui->applications_push_button_clear_log, SIGNAL(pressed()), this,
-                  SLOT(on_applications_clear_log_pushButton_pressed()));
-    this->connect(this->ui->applications_check_box_clear_on_launch, SIGNAL(pressed()), this,
-                  SLOT(on_applications_check_box_clear_on_launch_pressed()));
+    this->connect(this->ui->launch_clear_at_launch, SIGNAL(pressed()), this, SLOT(on_launch_clear_at_launch_pressed()));
+    this->connect(this->ui->launch_clear_log, SIGNAL(pressed()), this, SLOT(on_launch_clear_log_pressed()));
+    this->connect(this->ui->launch_button, SIGNAL(pressed()), this, SLOT(on_launch_button_pressed()));
 
     const Configurator &configurator = Configurator::Get();
 
@@ -72,13 +64,13 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     // Whenever the control surpasses this block count, old blocks are discarded.
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
-    this->ui->launcher_log_text->document()->setMaximumBlockCount(2048);
+    this->ui->launch_log_text->document()->setMaximumBlockCount(2048);
 
-    this->ui->applications_push_button_launcher->setEnabled(!configurator.executables.Empty());
+    this->ui->launch_button->setEnabled(!configurator.executables.Empty());
 
-    this->ui->applications_args_list->setToolTip("Eg: '--argA --argB'");
-    this->ui->applications_envs_list->setToolTip(VKC_ENV == VKC_ENV_WIN32 ? "Eg: 'ENV_A=ValueA;ENV_B=ValueB'"
-                                                                          : "Eg: 'ENV_A=ValueA:ENV_B=ValueB'");
+    this->ui->launch_options_args_edit->setToolTip("Eg: '--argA --argB'");
+    this->ui->launch_options_envs_edit->setToolTip(VKC_ENV == VKC_ENV_WIN32 ? "Eg: 'ENV_A=ValueA;ENV_B=ValueB'"
+                                                                            : "Eg: 'ENV_A=ValueA:ENV_B=ValueB'");
 }
 
 TabApplications::~TabApplications() { this->ResetLaunchApplication(); }
@@ -90,34 +82,42 @@ void TabApplications::UpdateUI(UpdateUIMode mode) {
 
     if (mode == UPDATE_REBUILD_UI) {
         // Rebuild list of applications
-        ui->applications_list_comboBox->blockSignals(true);
-        ui->applications_list_comboBox->clear();
+        ui->launch_executable_list->blockSignals(true);
+        ui->launch_executable_list->clear();
         for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
-            ui->applications_list_comboBox->addItem(executables[i].path.RelativePath().c_str());
+            ui->launch_executable_list->addItem(executables[i].path.RelativePath().c_str());
         }
-        ui->applications_list_comboBox->blockSignals(false);
-        ui->applications_list_comboBox->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
+        ui->launch_executable_list->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
+        ui->launch_executable_list->blockSignals(false);
     }
 
-    ui->applications_check_box_clear_on_launch->setChecked(configurator.executables.launcher_clear_on_launch);
+    ui->launch_clear_at_launch->setChecked(configurator.executables.launcher_clear_on_launch);
 
-    this->on_applications_list_comboBox_activated(configurator.executables.GetActiveExecutableIndex());
+    this->on_launch_executable_list_activated(configurator.executables.GetActiveExecutableIndex());
 }
 
 void TabApplications::CleanUI() { this->ResetLaunchApplication(); }
 
 bool TabApplications::EventFilter(QObject *target, QEvent *event) { return false; }
 
-void TabApplications::on_applications_remove_application_pushButton_pressed() {
+void TabApplications::on_launch_executable_search_pressed() {
     Configurator &configurator = Configurator::Get();
 
-    configurator.executables.RemoveExecutable(ui->applications_list_comboBox->currentIndex());
-    this->EnableOptions();
+    const std::string &path = configurator.executables.GetActiveExecutable()->path.AbsolutePath();
+
+    const QString &selected_path =
+        QFileDialog::getOpenFileName(&this->window, "Executable Path", path.c_str(), ::GetExecutableFilter());
+
+    if (selected_path.isEmpty()) {
+        return;
+    }
+
+    configurator.executables.GetActiveExecutable()->path = selected_path.toStdString();
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabApplications::on_applications_append_application_pushButton_pressed() {
+void TabApplications::on_launch_executable_append_pressed() {
     Configurator &configurator = Configurator::Get();
 
     const Path &path = configurator.executables.last_path_executable;
@@ -134,89 +134,138 @@ void TabApplications::on_applications_append_application_pushButton_pressed() {
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabApplications::on_applications_list_comboBox_activated(int index) {
+void TabApplications::on_launch_executable_remove_pressed() {
+    Configurator &configurator = Configurator::Get();
+    const Executable *executable = configurator.executables.GetActiveExecutable();
+    assert(executable != nullptr);
+
+    if (!(configurator.Get(HIDE_MESSAGE_WARN_REMOVE_EXECUTABLE))) {
+        QMessageBox message;
+        message.setWindowTitle(format("Removing an executable from %s", VKCONFIG_NAME).c_str());
+        message.setText(format("The '%s' executable is being removed from %s with it's options that will be definitly lost.",
+                               VKCONFIG_NAME, executable->path.AbsolutePath().c_str())
+                            .c_str());
+        message.setInformativeText("Do you want to continue?");
+        message.setIcon(QMessageBox::Warning);
+        message.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        message.setDefaultButton(QMessageBox::Yes);
+        message.setCheckBox(new QCheckBox("Do not show again."));
+        int ret_val = message.exec();
+
+        if (message.checkBox()->isChecked()) {
+            configurator.Set(HIDE_MESSAGE_WARN_REMOVE_EXECUTABLE);
+        }
+
+        if (ret_val == QMessageBox::No) {
+            return;
+        }
+    }
+
+    configurator.executables.RemoveExecutable();
+    this->EnableOptions();
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
+}
+
+void TabApplications::on_launch_executable_list_activated(int index) {
     Configurator &configurator = Configurator::Get();
     configurator.executables.SetActiveExecutable(index);
 
     const Executable *executable = configurator.executables.GetActiveExecutable();
 
     if (executable != nullptr) {
-        ui->applications_list_comboBox->setToolTip(executable->path.AbsolutePath().c_str());
-        ui->applications_options_remove_pushButton->setEnabled(executable->options.size() > 1);
-        this->on_applications_options_comboBox_activated(executable->GetActiveOptionsIndex());
+        this->ui->launch_executable_list->setToolTip(executable->path.AbsolutePath().c_str());
+        this->ui->launch_options_remove->setEnabled(executable->GetOptions().size() > 1);
+        this->on_launch_options_list_activated(executable->GetActiveOptionsIndex());
     }
-    ui->launcher_options_list_layout->setEnabled(executable != nullptr);
-    ui->launcher_applications_options->setEnabled(executable != nullptr);
+    this->ui->launcher_options_list_layout->setEnabled(executable != nullptr);
+    this->ui->launcher_applications_options->setEnabled(executable != nullptr);
 
-    ui->applications_options_comboBox->blockSignals(true);
-    ui->applications_options_comboBox->clear();
-    if (executable != nullptr) {
-        for (std::size_t i = 0, n = executable->options.size(); i < n; ++i) {
-            ui->applications_options_comboBox->addItem(executable->options[i].label.c_str());
-        }
-    }
-    ui->applications_options_comboBox->blockSignals(false);
-
-    if (executable != nullptr) {
-        ui->applications_options_comboBox->setCurrentIndex(executable->GetActiveOptionsIndex());
-    }
+    this->RebuildOptions();
 }
 
-void TabApplications::on_applications_list_comboBox_textEdited(const QString &text) {
+void TabApplications::on_launch_executable_list_textEdited(const QString &text) {
     Configurator &configurator = Configurator::Get();
 
     Executable *executable = configurator.executables.GetActiveExecutable();
     if (executable != nullptr) {
         executable->path = text.toStdString();
     }
-}
-
-void TabApplications::on_applications_options_remove_pushButton_pressed() {
-    Configurator &configurator = Configurator::Get();
-
-    this->EnableOptions();
-}
-
-void TabApplications::on_applications_options_append_pushButton_pressed() {
-    Configurator &configurator = Configurator::Get();
-    Executable *executable = configurator.executables.GetActiveExecutable();
-
-    ExecutableOptions options = *executable->GetActiveOptions();
-    options.label = configurator.executables.MakeOptionsName(options.label);
-
-    executable->active_option = options.label;
-    executable->options.push_back(options);
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabApplications::on_applications_options_comboBox_activated(int index) {
+void TabApplications::on_launch_options_list_activated(int index) {
     Configurator &configurator = Configurator::Get();
     Executable *executable = configurator.executables.GetActiveExecutable();
+    const std::vector<ExecutableOptions> &options_list = executable->GetOptions();
 
-    executable->active_option = executable->options[index].label;
+    executable->SetActiveOptions(options_list[index].label);
     const ExecutableOptions *options = executable->GetActiveOptions();
 
-    // ui->applications_layers_mode_comboBox->setCurrentIndex(options->layers_mode);
-    // ui->applications_configuration_comboBox->setEnabled(options->layers_mode == LAYERS_CONTROLLED_BY_CONFIGURATOR);
-
-    ui->applications_directory_edit->setText(options->working_folder.RelativePath().c_str());
-    ui->applications_directory_edit->setToolTip(options->working_folder.AbsolutePath().c_str());
-    ui->applications_args_list->setText(Merge(options->args, " ").c_str());
-    ui->applications_envs_list->setText(Merge(options->envs, ",").c_str());
-    ui->applications_output_log_edit->setText(options->log_file.RelativePath().c_str());
-    ui->applications_output_log_edit->setToolTip(options->log_file.AbsolutePath().c_str());
+    ui->launch_options_dir_edit->setText(options->working_folder.RelativePath().c_str());
+    ui->launch_options_dir_edit->setToolTip(options->working_folder.AbsolutePath().c_str());
+    ui->launch_options_args_edit->setText(Merge(options->args, " ").c_str());
+    ui->launch_options_envs_edit->setText(Merge(options->envs, GetToken(PARSE_ENV_VAR)).c_str());
+    ui->launch_options_log_edit->setText(options->log_file.RelativePath().c_str());
+    ui->launch_options_log_edit->setToolTip(options->log_file.AbsolutePath().c_str());
 }
 
-void TabApplications::on_applications_options_comboBox_textEdited(const QString &text) {
+void TabApplications::on_launch_options_list_textEdited(const QString &text) {
+    Configurator &configurator = Configurator::Get();
+    Executable *executable = configurator.executables.GetActiveExecutable();
+    executable->RenameActiveOptions(text.toStdString());
+
+    this->RebuildOptions();
+    this->ui->launch_options_list->setCurrentIndex(executable->GetActiveOptionsIndex());
+    // this->ui->launch_options_list->setItemText(executable->GetActiveOptionsIndex(), text);
+}
+
+void TabApplications::on_launch_options_append_pressed() {
     Configurator &configurator = Configurator::Get();
     Executable *executable = configurator.executables.GetActiveExecutable();
 
-    ExecutableOptions *options = executable->GetActiveOptions();
-    options->label = text.toStdString();
+    executable->DuplicateActiveOptions();
+
+    this->EnableOptions();
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabApplications::on_applications_directory_edit_textEdited(const QString &text) {
+void TabApplications::on_launch_options_remove_pressed() {
+    Configurator &configurator = Configurator::Get();
+    Executable *executable = configurator.executables.GetActiveExecutable();
+    assert(executable != nullptr);
+
+    if (!(configurator.Get(HIDE_MESSAGE_WARN_REMOVE_EXECUTABLE_OPTIONS))) {
+        QMessageBox message;
+        message.setWindowTitle("Removing executable launch options...");
+        message.setText(format("This action is removing '%s' launch options for '%s'.", executable->GetActiveOptionsName().c_str(),
+                               executable->path.RelativePath().c_str())
+                            .c_str());
+        message.setInformativeText("Do you want to continue?");
+        message.setIcon(QMessageBox::Warning);
+        message.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        message.setDefaultButton(QMessageBox::No);
+        message.setCheckBox(new QCheckBox("Do not show again."));
+
+        int ret_val = message.exec();
+
+        if (message.checkBox()->isChecked()) {
+            configurator.Set(HIDE_MESSAGE_WARN_REMOVE_EXECUTABLE_OPTIONS);
+        }
+
+        if (ret_val == QMessageBox::No) {
+            return;
+        }
+    }
+
+    executable->RemoveActiveOptions();
+
+    this->EnableOptions();
+    this->UpdateUI(UPDATE_REBUILD_UI);
+}
+
+void TabApplications::on_launch_options_dir_textEdited(const QString &text) {
     Configurator &configurator = Configurator::Get();
 
     Executable *executable = configurator.executables.GetActiveExecutable();
@@ -225,23 +274,22 @@ void TabApplications::on_applications_directory_edit_textEdited(const QString &t
     options->working_folder = text.toStdString();
 }
 
-void TabApplications::on_applications_directory_edit_pushButton_pressed() {
+void TabApplications::on_launch_options_dir_pressed() {
     Configurator &configurator = Configurator::Get();
 
     Executable *executable = configurator.executables.GetActiveExecutable();
     ExecutableOptions *options = executable->GetActiveOptions();
 
-    const QString selected_path =
-        QFileDialog::getExistingDirectory(this->ui->applications_directory_edit_pushButton, "Select Working Directory...",
-                                          this->ui->applications_directory_edit->text());
+    const QString selected_path = QFileDialog::getExistingDirectory(
+        this->ui->launch_options_dir_button, "Select Working Directory...", this->ui->launch_options_dir_edit->text());
 
     if (!selected_path.isEmpty()) {
         options->working_folder = selected_path.toStdString();
-        this->ui->applications_directory_edit->setText(options->working_folder.RelativePath().c_str());
+        this->ui->launch_options_dir_edit->setText(options->working_folder.RelativePath().c_str());
     }
 }
 
-void TabApplications::on_applications_args_list_textEdited(const QString &text) {
+void TabApplications::on_launch_options_args_textEdited(const QString &text) {
     Configurator &configurator = Configurator::Get();
 
     Executable *executable = configurator.executables.GetActiveExecutable();
@@ -250,16 +298,16 @@ void TabApplications::on_applications_args_list_textEdited(const QString &text) 
     options->args = Split(text.toStdString(), " ");
 }
 
-void TabApplications::on_applications_envs_list_textEdited(const QString &text) {
+void TabApplications::on_launch_options_envs_textEdited(const QString &text) {
     Configurator &configurator = Configurator::Get();
 
     Executable *executable = configurator.executables.GetActiveExecutable();
     ExecutableOptions *options = executable->GetActiveOptions();
 
-    options->envs = Split(text.toStdString(), VKC_ENV == VKC_ENV_WIN32 ? ";" : ":");
+    options->envs = Split(text.toStdString(), ::GetToken(PARSE_ENV_VAR));
 }
 
-void TabApplications::on_applications_output_log_edit_textEdited(const QString &text) {
+void TabApplications::on_launch_options_log_textEdited(const QString &text) {
     Configurator &configurator = Configurator::Get();
 
     Executable *executable = configurator.executables.GetActiveExecutable();
@@ -268,32 +316,33 @@ void TabApplications::on_applications_output_log_edit_textEdited(const QString &
     options->log_file = text.toStdString();
 }
 
-void TabApplications::on_applications_output_log_pushButton_pressed() {
+void TabApplications::on_launch_options_log_pressed() {
     Configurator &configurator = Configurator::Get();
 
     Executable *executable = configurator.executables.GetActiveExecutable();
     ExecutableOptions *options = executable->GetActiveOptions();
+    const std::string &log = options->log_file.AbsolutePath();
 
-    const QString selected_path = QFileDialog::getSaveFileName(this->ui->applications_output_log_pushButton, "Select Log file...",
-                                                               this->ui->applications_output_log_edit->text(), "Log (*.txt)");
+    const QString selected_path =
+        QFileDialog::getSaveFileName(this->ui->launch_options_log_button, "Select Log file...", log.c_str(), "Log (*.txt)");
 
     if (!selected_path.isEmpty()) {
         options->log_file = selected_path.toStdString();
-        this->ui->applications_output_log_edit->setText(options->log_file.RelativePath().c_str());
+        this->ui->launch_options_log_edit->setText(options->log_file.RelativePath().c_str());
     }
 }
 
-void TabApplications::on_check_box_clear_on_launch_clicked() {
-    Configurator::Get().executables.launcher_clear_on_launch = ui->applications_check_box_clear_on_launch->isChecked();
+void TabApplications::on_launch_clear_at_launch_pressed() {
+    Configurator::Get().executables.launcher_clear_on_launch = ui->launch_clear_at_launch->isChecked();
 }
 
-void TabApplications::on_applications_clear_log_pushButton_pressed() {
-    ui->launcher_log_text->clear();
-    ui->launcher_log_text->update();
-    ui->applications_push_button_clear_log->setEnabled(false);
+void TabApplications::on_launch_clear_log_pressed() {
+    ui->launch_log_text->clear();
+    ui->launch_log_text->update();
+    ui->launch_clear_log->setEnabled(false);
 }
 
-void TabApplications::on_applications_launcher_pushButton_pressed() {
+void TabApplications::on_launch_button_pressed() {
     // Are we already monitoring a running app? If so, terminate it
     if (_launch_application != nullptr) {
         if (_launch_application->processId() > 0) {
@@ -324,11 +373,21 @@ void TabApplications::on_applications_launcher_pushButton_pressed() {
             options->working_folder,
             format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
     }
-    /*
-    if (!_launcher_arguments->text().isEmpty()) {
-        launch_log += format("- Command-line Arguments: %s\n", _launcher_arguments->text().toStdString().c_str());
+
+    if (!options->args.empty()) {
+        launch_log += "- Command-line Arguments:\n";
+        for (std::size_t i = 0, n = options->args.size(); i < n; ++i) {
+            launch_log += format("  - %s\n", options->args[i].c_str());
+        }
     }
-    */
+
+    if (!options->envs.empty()) {
+        launch_log += "- Environment Variables:\n";
+        for (std::size_t i = 0, n = options->envs.size(); i < n; ++i) {
+            launch_log += format("  - %s\n", options->envs[i].c_str());
+        }
+    }
+
     if (!options->log_file.Empty()) {
         launch_log += format("- Log file: %s\n", options->log_file.AbsolutePath().c_str());
     }
@@ -342,7 +401,7 @@ void TabApplications::on_applications_launcher_pushButton_pressed() {
 
             // Open and append, or open and truncate?
             QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
-            if (!ui->applications_check_box_clear_on_launch->isChecked()) {
+            if (!ui->launch_clear_at_launch->isChecked()) {
                 mode |= QIODevice::Append;
             }
 
@@ -352,8 +411,8 @@ void TabApplications::on_applications_launcher_pushButton_pressed() {
         }
     }
 
-    if (ui->applications_check_box_clear_on_launch->isChecked()) {
-        ui->launcher_log_text->clear();
+    if (ui->launch_clear_at_launch->isChecked()) {
+        ui->launch_log_text->clear();
     }
     this->Log(launch_log.c_str());
 
@@ -373,7 +432,6 @@ void TabApplications::on_applications_launcher_pushButton_pressed() {
 
     QStringList env = QProcess::systemEnvironment();
 
-    env << (QString("VK_LOADER_DEBUG=") + ::GetLogString(configuration->loader_log_messages_flags).c_str());
     if (!options->envs.empty()) {
         const QStringList envs = ConvertString(options->envs);
         env << envs;
@@ -385,14 +443,14 @@ void TabApplications::on_applications_launcher_pushButton_pressed() {
         this->_launch_application->setArguments(args);
     }
 
-    this->ui->applications_push_button_launcher->setText("Terminate");
+    this->ui->launch_button->setText("Terminate");
     this->_launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
     this->_launch_application->setProcessChannelMode(QProcess::MergedChannels);
     this->_launch_application->closeWriteChannel();
 
     // Wait... did we start? Give it 4 seconds, more than enough time
     if (!this->_launch_application->waitForStarted(4000)) {
-        this->ui->applications_push_button_launcher->setText("Launch");
+        this->ui->launch_button->setText("Launch");
 
         const std::string failed_log = std::string("Failed to launch ") + active_executable->path.AbsolutePath().c_str() + "!\n";
         this->Log(failed_log);
@@ -404,29 +462,47 @@ void TabApplications::EnableOptions() {
     const bool executable_enabled = !configurator.executables.Empty();
 
     const Executable *executable = configurator.executables.GetActiveExecutable();
-    const bool options_enabled = executable_enabled && (executable == nullptr ? false : !executable->options.empty());
+    const bool options_enabled = executable_enabled && (executable == nullptr ? false : !executable->GetOptions().empty());
 
-    this->ui->applications_push_button_launcher->setEnabled(executable_enabled);
-    this->ui->applications_list_comboBox->setEnabled(executable_enabled);
-    this->ui->applications_remove_application_pushButton->setEnabled(executable_enabled);
+    this->ui->launch_button->setEnabled(executable_enabled);
+    this->ui->launch_executable_list->setEnabled(executable_enabled);
+    this->ui->launch_executable_remove->setEnabled(executable_enabled);
 
-    this->ui->applications_options_comboBox->setEnabled(executable_enabled);
-    this->ui->applications_options_remove_pushButton->setEnabled(executable_enabled ? (executable->options.size() > 1) : false);
-    this->ui->applications_options_append_pushButton->setEnabled(executable_enabled);
+    this->ui->launch_options_list->setEnabled(executable_enabled);
+    this->ui->launch_options_remove->setEnabled(executable_enabled ? (executable->GetOptions().size() > 1) : false);
+    this->ui->launch_options_append->setEnabled(executable_enabled);
 
-    this->ui->applications_directory_edit->setEnabled(options_enabled);
-    this->ui->applications_directory_edit_pushButton->setEnabled(options_enabled);
-    this->ui->applications_args_list->setEnabled(options_enabled);
-    this->ui->applications_envs_list->setEnabled(options_enabled);
-    this->ui->applications_output_log_edit->setEnabled(options_enabled);
-    this->ui->applications_output_log_pushButton->setEnabled(options_enabled);
+    this->ui->launch_options_dir_edit->setEnabled(options_enabled);
+    this->ui->launch_options_dir_button->setEnabled(options_enabled);
+    this->ui->launch_options_args_edit->setEnabled(options_enabled);
+    this->ui->launch_options_envs_edit->setEnabled(options_enabled);
+    this->ui->launch_options_log_edit->setEnabled(options_enabled);
+    this->ui->launch_options_log_button->setEnabled(options_enabled);
 
     if (!options_enabled) {
-        this->ui->applications_directory_edit->clear();
-        this->ui->applications_args_list->clear();
-        this->ui->applications_envs_list->clear();
-        this->ui->applications_output_log_edit->clear();
+        this->ui->launch_options_dir_edit->clear();
+        this->ui->launch_options_args_edit->clear();
+        this->ui->launch_options_envs_edit->clear();
+        this->ui->launch_options_log_edit->clear();
     }
+}
+
+void TabApplications::RebuildOptions() {
+    Configurator &configurator = Configurator::Get();
+    const Executable *executable = configurator.executables.GetActiveExecutable();
+
+    this->ui->launch_options_list->blockSignals(true);
+    this->ui->launch_options_list->clear();
+    if (executable != nullptr) {
+        for (std::size_t i = 0, n = executable->GetOptions().size(); i < n; ++i) {
+            this->ui->launch_options_list->addItem(executable->GetOptions()[i].label.c_str());
+        }
+    }
+
+    if (executable != nullptr) {
+        this->ui->launch_options_list->setCurrentIndex(executable->GetActiveOptionsIndex());
+    }
+    this->ui->launch_options_list->blockSignals(false);
 }
 
 void TabApplications::ResetLaunchApplication() {
@@ -437,7 +513,7 @@ void TabApplications::ResetLaunchApplication() {
         }
     }
 
-    ui->applications_push_button_launcher->setText("Launch");
+    ui->launch_button->setText("Launch");
 }
 
 /// The process we are following is closed. We don't actually care about the
@@ -477,8 +553,8 @@ void TabApplications::errorOutputAvailable() {
 }
 
 void TabApplications::Log(const std::string &log) {
-    ui->launcher_log_text->setPlainText(ui->launcher_log_text->toPlainText() + "\n" + log.c_str());
-    ui->applications_push_button_clear_log->setEnabled(true);
+    ui->launch_log_text->setPlainText(ui->launch_log_text->toPlainText() + "\n" + log.c_str());
+    ui->launch_clear_log->setEnabled(true);
 
     if (this->_log_file.isOpen()) {
         this->_log_file.write(log.c_str(), log.size());
