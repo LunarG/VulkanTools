@@ -64,44 +64,46 @@ void SettingsTreeManager::CreateGUI() {
 
     Configurator &configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    Parameter *parameter = configuration != nullptr ? configuration->GetActiveParameter() : nullptr;
-    const bool no_selected_layer = configuration != nullptr ? configuration->selected_layer_name.empty() : false;
-
-    if (parameter != nullptr) {
-        if (parameter->builtin == LAYER_BUILTIN_NONE) {
-            if (configurator.layers.FindFromManifest(parameter->manifest) == nullptr) {
-                configuration->SwitchLayerLatest(configurator.layers, parameter->key);
-            }
-        }
-    }
-
-    // Group box things
-    const Layer *layer = parameter != nullptr ? configurator.layers.FindFromManifest(parameter->manifest) : nullptr;
-
-    if (no_selected_layer) {
+    if (!configurator.HasActiveParameter()) {
         this->ui->configurations_group_box_settings->setTitle("Select a layer to display settings");
         this->ui->configurations_group_box_settings->setCheckable(false);
         this->ui->configurations_presets->setVisible(false);
         this->layer_version->setVisible(false);
         return;
-    } else if (!configurator.HasActiveSettings()) {
+    }
+
+    if (!configurator.HasActiveSettings()) {
         this->ui->configurations_group_box_settings->setTitle("No Layer Settings");
         this->ui->configurations_group_box_settings->setCheckable(false);
         this->ui->configurations_presets->setVisible(false);
         this->layer_version->setVisible(false);
         return;
-    } else {
-        std::string title = parameter->key;
-        title.erase(0, strlen("VK_LAYER_"));
-
-        this->ui->configurations_group_box_settings->setTitle(format("%s:", title.c_str()).c_str());
-        this->ui->configurations_group_box_settings->setCheckable(configurator.advanced);
-        this->ui->configurations_group_box_settings->setChecked(parameter->override_settings);
-        this->ui->configurations_presets->setVisible(!layer->presets.empty());
     }
 
+    Parameter *parameter = configurator.GetActiveParameter();
+    if (parameter->builtin == LAYER_BUILTIN_NONE) {
+        if (configurator.layers.FindFromManifest(parameter->manifest) == nullptr) {
+            Configuration *configuration = configurator.GetActiveConfiguration();
+            configuration->SwitchLayerLatest(configurator.layers, parameter->key);
+        }
+    }
+
+    this->RefreshVersion();
+
+    const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
+
+    std::string title = parameter->key;
+    title.erase(0, strlen("VK_LAYER_"));
+
+    this->ui->configurations_group_box_settings->blockSignals(true);
+    this->ui->configurations_group_box_settings->setTitle(format("%s:", title.c_str()).c_str());
+    this->ui->configurations_group_box_settings->setCheckable(configurator.advanced);
+    this->ui->configurations_group_box_settings->setChecked(parameter->override_settings);
+    this->ui->configurations_group_box_settings->blockSignals(false);
+    this->ui->configurations_presets->setVisible(!layer->presets.empty());
+
     const std::vector<Path> &layer_versions = configurator.layers.GatherManifests(parameter->key);
+    this->layer_version->setEnabled(true);
     this->layer_version->setVisible(!layer_versions.empty());
     if (!layer_versions.empty()) {
         this->layer_version->Init(*parameter, layer_versions);
@@ -404,6 +406,12 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
 }
 
 void SettingsTreeManager::OnSettingChanged() { this->Refresh(REFRESH_ENABLE_ONLY); }
+
+void SettingsTreeManager::RefreshVersion() {
+    if (this->layer_version != nullptr) {
+        this->layer_version->setEnabled(true);
+    }
+}
 
 void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     Configurator &configurator = Configurator::Get();
