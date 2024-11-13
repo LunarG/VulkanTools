@@ -21,43 +21,10 @@
 #pragma once
 
 #include "serialization.h"
-#include "path.h"
+#include "executable.h"
 
 #include <string>
 #include <vector>
-
-struct DefaultExecutable {
-    std::string name;
-    std::string key;
-    std::string arguments;
-    std::string label;
-};
-
-struct DefaultPath {
-    Path executable_path;
-    Path working_folder;
-};
-
-struct ExecutableOptions {
-    std::string label = "Default Options";
-    std::string configuration = "Validation";
-    Path working_folder;
-    std::vector<std::string> args;
-    std::vector<std::string> envs;
-    Path log_file;
-};
-
-struct Executable {
-    Path path;
-    bool enabled;
-    std::string active_option;
-    std::vector<ExecutableOptions> options;
-
-    ExecutableOptions* GetActiveOptions();
-    const ExecutableOptions* GetActiveOptions() const;
-
-    int GetActiveOptionsIndex() const;
-};
 
 class ExecutableManager : public Serialize {
    public:
@@ -70,13 +37,11 @@ class ExecutableManager : public Serialize {
     bool Empty() const;
     std::size_t Size() const;
 
-    std::string MakeOptionsName(const std::string& name) const;
-
     void SetActiveExecutable(int executable_index);
     int GetActiveExecutableIndex() const;
     bool AppendExecutable(const Executable& executable);
     bool AppendExecutable(const Path& executable_path);
-    bool RemoveExecutable(std::size_t executable_index);
+    bool RemoveExecutable();
 
     const std::vector<Executable>& GetExecutables() const { return this->data; }
     const Executable* GetActiveExecutable() const;
@@ -100,4 +65,3 @@ class ExecutableManager : public Serialize {
 };
 
 const char* GetExecutableFilter();
-DefaultPath GetDefaultExecutablePath(const std::string& executable_name);

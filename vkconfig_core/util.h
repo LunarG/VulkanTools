@@ -35,6 +35,10 @@
 #include <vector>
 #include <array>
 
+enum ParseSource { PARSE_SETTING = 0, PARSE_ENV_VAR };
+
+const char* GetToken(ParseSource type);
+
 std::string format(const char* message, ...);
 
 std::string FormatNvidia(uint32_t driverVersion);
@@ -55,7 +59,9 @@ void AppendString(std::vector<std::string>& list, const std::string& value);
 
 bool IsStringFound(const std::vector<std::string>& list, const std::string& value);
 
-std::string TrimString(const std::string& str, const std::string& whitespace = " \t");
+std::string TrimString(const std::string& str, const std::string& whitespaces = " \t");
+
+std::string TrimSurroundingWhitespace(const std::string& str, const std::string& whitespaces = " \t\n\r");
 
 std::vector<std::string> Split(const std::string& value, const std::string& delimiter);
 

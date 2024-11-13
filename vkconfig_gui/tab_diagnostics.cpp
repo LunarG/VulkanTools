@@ -132,7 +132,7 @@ void TabDiagnostics::on_diagnostic_reset_hard_pressed() {
     message.setText(
         "You are about to delete all the user-defined configurations and resetting all default configurations to their default "
         "state.");
-    message.setInformativeText("Are you sure you want to continue?");
+    message.setInformativeText("Do you want to continue?");
     message.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     message.setDefaultButton(QMessageBox::No);
     if (message.exec() == QMessageBox::Yes) {

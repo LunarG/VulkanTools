@@ -973,6 +973,9 @@
            <string>Vulkan Applications List:</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_23">
+           <property name="spacing">
+            <number>5</number>
+           </property>
            <property name="leftMargin">
             <number>5</number>
            </property>
@@ -1003,7 +1006,7 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QComboBox" name="applications_list_comboBox">
+              <widget class="QComboBox" name="launch_executable_list">
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
@@ -1011,24 +1014,27 @@
                 </size>
                </property>
                <property name="editable">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="applications_remove_application_pushButton">
+              <widget class="QPushButton" name="launch_executable_search">
                <property name="maximumSize">
                 <size>
                  <width>32</width>
                  <height>32</height>
                 </size>
                </property>
+               <property name="toolTip">
+                <string>Change the current executable path to a new path</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
                <property name="icon">
                 <iconset resource="resources.qrc">
-                 <normaloff>:/resourcefiles/file_remove.png</normaloff>:/resourcefiles/file_remove.png</iconset>
+                 <normaloff>:/resourcefiles/file_search.png</normaloff>:/resourcefiles/file_search.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -1039,12 +1045,15 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="applications_append_application_pushButton">
+              <widget class="QPushButton" name="launch_executable_append">
                <property name="maximumSize">
                 <size>
                  <width>32</width>
                  <height>32</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Add the executable path to a new path</string>
                </property>
                <property name="text">
                 <string/>
@@ -1052,6 +1061,32 @@
                <property name="icon">
                 <iconset resource="resources.qrc">
                  <normaloff>:/resourcefiles/file_append.png</normaloff>:/resourcefiles/file_append.png</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="launch_executable_remove">
+               <property name="maximumSize">
+                <size>
+                 <width>32</width>
+                 <height>32</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Remove the current executable path from Vulkan Configurator</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/resourcefiles/file_remove.png</normaloff>:/resourcefiles/file_remove.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -1081,7 +1116,7 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QComboBox" name="applications_options_comboBox">
+              <widget class="QComboBox" name="launch_options_list">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1100,7 +1135,45 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="applications_options_remove_pushButton">
+              <widget class="QPushButton" name="launch_options_append">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>32</width>
+                 <height>32</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Duplicate the current options set</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/resourcefiles/options_copy.png</normaloff>:/resourcefiles/options_copy.png</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="launch_options_remove">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1118,6 +1191,9 @@
                  <width>32</width>
                  <height>32</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Delete the current options set</string>
                </property>
                <property name="text">
                 <string/>
@@ -1137,41 +1213,6 @@
                </property>
               </widget>
              </item>
-             <item>
-              <widget class="QPushButton" name="applications_options_append_pushButton">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="resources.qrc">
-                 <normaloff>:/resourcefiles/options_copy.png</normaloff>:/resourcefiles/options_copy.png</iconset>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>24</width>
-                 <height>24</height>
-                </size>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
           </layout>
@@ -1180,7 +1221,7 @@
         <item>
          <widget class="QGroupBox" name="launcher_applications_options">
           <property name="title">
-           <string>Vulkan Applications Options:</string>
+           <string>Vulkan Applications Launch Options:</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
            <property name="leftMargin">
@@ -1198,6 +1239,9 @@
            <property name="horizontalSpacing">
             <number>7</number>
            </property>
+           <property name="verticalSpacing">
+            <number>5</number>
+           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
@@ -1206,7 +1250,7 @@
             </widget>
            </item>
            <item row="1" column="2">
-            <widget class="QLineEdit" name="applications_args_list"/>
+            <widget class="QLineEdit" name="launch_options_args_edit"/>
            </item>
            <item row="0" column="2">
             <layout class="QHBoxLayout" name="horizontalLayout_9">
@@ -1214,7 +1258,7 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QLineEdit" name="applications_directory_edit">
+              <widget class="QLineEdit" name="launch_options_dir_edit">
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
@@ -1224,12 +1268,15 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="applications_directory_edit_pushButton">
+              <widget class="QPushButton" name="launch_options_dir_button">
                <property name="maximumSize">
                 <size>
                  <width>32</width>
                  <height>32</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Browse to select the working directory</string>
                </property>
                <property name="text">
                 <string/>
@@ -1237,6 +1284,12 @@
                <property name="icon">
                 <iconset resource="resources.qrc">
                  <normaloff>:/resourcefiles/folder_search.png</normaloff>:/resourcefiles/folder_search.png</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
                </property>
               </widget>
              </item>
@@ -1270,7 +1323,7 @@
             </widget>
            </item>
            <item row="2" column="2">
-            <widget class="QLineEdit" name="applications_envs_list"/>
+            <widget class="QLineEdit" name="launch_options_envs_edit"/>
            </item>
            <item row="3" column="2">
             <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -1278,7 +1331,7 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QLineEdit" name="applications_output_log_edit">
+              <widget class="QLineEdit" name="launch_options_log_edit">
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
@@ -1288,12 +1341,15 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="applications_output_log_pushButton">
+              <widget class="QPushButton" name="launch_options_log_button">
                <property name="maximumSize">
                 <size>
                  <width>32</width>
                  <height>32</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Browse to select the output log</string>
                </property>
                <property name="text">
                 <string/>
@@ -1351,7 +1407,7 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QCheckBox" name="applications_check_box_clear_on_launch">
+              <widget class="QCheckBox" name="launch_clear_at_launch">
                <property name="font">
                 <font>
                  <family>Arial</family>
@@ -1369,7 +1425,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="applications_push_button_clear_log">
+              <widget class="QPushButton" name="launch_clear_log">
                <property name="font">
                 <font>
                  <family>Arial</family>
@@ -1397,7 +1453,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="applications_push_button_launcher">
+              <widget class="QPushButton" name="launch_button">
                <property name="font">
                 <font>
                  <family>Arial</family>
@@ -1415,7 +1471,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTextBrowser" name="launcher_log_text">
+           <widget class="QTextBrowser" name="launch_log_text">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>

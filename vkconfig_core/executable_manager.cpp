@@ -24,7 +24,6 @@
 #include "util.h"
 
 #include <QJsonArray>
-#include <QTextStream>
 
 const char* GetExecutableFilter() {
     static const char* TABLE[] = {
@@ -40,69 +39,9 @@ const char* GetExecutableFilter() {
     return TABLE[VKC_PLATFORM];
 }
 
-static const char* GetExecutableSuffix() {
-    static const char* TABLE[] = {
-        ".exe",  // PLATFORM_WINDOWS_X86
-        ".exe",  // PLATFORM_WINDOWS_ARM
-        "",      // PLATFORM_LINUX
-        ".app",  // PLATFORM_MACOS
-        "N/A",   // PLATFORM_ANDROID
-        "N/A"    // PLATFORM_IOS
-    };
-    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    return TABLE[VKC_PLATFORM];
-}
-
 static const DefaultExecutable defaults_executables[] = {
     {"vkcube", "/vkcube", "--suppress_popups", "VkCube launcher options"},
     {"vkcubepp", "/vkcubepp", "--suppress_popups", "VkCubepp launcher options"}};
-
-ExecutableOptions* Executable::GetActiveOptions() {
-    assert(!this->options.empty());
-
-    if (this->active_option.empty()) {
-        return &this->options[0];
-    }
-
-    for (std::size_t i = 0, n = this->options.size(); i < n; ++i) {
-        if (this->options[i].label == this->active_option) {
-            return &this->options[i];
-        }
-    }
-    return nullptr;
-}
-
-const ExecutableOptions* Executable::GetActiveOptions() const {
-    assert(!this->options.empty());
-
-    if (this->active_option.empty()) {
-        return &this->options[0];
-    }
-
-    for (std::size_t i = 0, n = this->options.size(); i < n; ++i) {
-        if (this->options[i].label == this->active_option) {
-            return &this->options[i];
-        }
-    }
-    return nullptr;
-}
-
-int Executable::GetActiveOptionsIndex() const {
-    assert(!this->options.empty());
-
-    if (this->active_option.empty()) {
-        return 0;
-    }
-
-    for (std::size_t i = 0, n = this->options.size(); i < n; ++i) {
-        if (this->options[i].label == this->active_option) {
-            return static_cast<int>(i);
-        }
-    }
-
-    return 0;
-}
 
 void ExecutableManager::Reset() {
     this->data = this->CreateDefaultExecutables();
@@ -122,29 +61,6 @@ void ExecutableManager::Clear() {
 bool ExecutableManager::Empty() const { return this->data.empty(); }
 
 std::size_t ExecutableManager::Size() const { return this->data.size(); }
-
-static const size_t NOT_FOUND = static_cast<size_t>(-1);
-
-std::string ExecutableManager::MakeOptionsName(const std::string& name) const {
-    const std::string key = name;
-    const std::string base_name = ExtractDuplicateNumber(key) != NOT_FOUND ? ExtractDuplicateBaseName(key) : key;
-
-    const Executable* executable = GetActiveExecutable();
-
-    std::size_t max_duplicate = 0;
-    for (std::size_t i = 0, n = executable->options.size(); i < n; ++i) {
-        const std::string& search_name = executable->options[i].label;
-
-        if (search_name.compare(0, base_name.length(), base_name) != 0) {
-            continue;
-        }
-
-        const std::size_t found_number = ExtractDuplicateNumber(search_name);
-        max_duplicate = std::max<std::size_t>(max_duplicate, found_number != NOT_FOUND ? found_number : 1);
-    }
-
-    return base_name + (max_duplicate > 0 ? format(" (%d)", max_duplicate + 1).c_str() : "");
-}
 
 bool ExecutableManager::Load(const QJsonObject& json_root_object) {
     // applications json object
@@ -169,7 +85,6 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object) {
         const QJsonObject& json_application_object = json_list_object.value(json_list_keys[i]).toObject();
         executable.path = json_list_keys[i].toStdString();
         executable.enabled = json_application_object.value("enabled").toBool();
-        executable.active_option = json_application_object.value("active_option").toString().toStdString();
 
         const QJsonArray& json_options_array = json_application_object.value("options").toArray();
         for (int j = 0, o = json_options_array.size(); j < o; ++j) {
@@ -193,8 +108,11 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object) {
 
             executable_options.log_file = json_options_array[j].toObject().value("log_file").toString().toStdString();
 
-            executable.options.push_back(executable_options);
+            executable.AddOptions(executable_options);
         }
+        // Must be call after adding all options because `SetActiveOptions` check whether the label in `active_option` exist in the
+        // options list
+        executable.SetActiveOptions(json_application_object.value("active_option").toString().toStdString());
 
         this->data.push_back(executable);
     }
@@ -217,11 +135,13 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
 
         QJsonObject json_executable_object;
         json_executable_object.insert("enabled", executable.enabled);
-        json_executable_object.insert("active_option", executable.active_option.c_str());
+        json_executable_object.insert("active_option", executable.GetActiveOptionsName().c_str());
 
         QJsonArray json_options_array;
-        for (std::size_t j = 0, o = executable.options.size(); j < o; ++j) {
-            const ExecutableOptions& options = executable.options[j];
+        const std::vector<ExecutableOptions>& options_list = executable.GetOptions();
+
+        for (std::size_t j = 0, o = options_list.size(); j < o; ++j) {
+            const ExecutableOptions& options = options_list[j];
 
             QJsonArray json_arg_array;
             for (std::size_t k = 0, p = options.args.size(); k < p; ++k) {
@@ -230,7 +150,7 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
 
             QJsonArray json_env_array;
             for (std::size_t k = 0, p = options.envs.size(); k < p; ++k) {
-                json_env_array.append(options.envs[k].c_str());
+                json_env_array.append(TrimSurroundingWhitespace(options.envs[k]).c_str());
             }
 
             QJsonObject json_option_object;
@@ -284,19 +204,13 @@ bool ExecutableManager::AppendExecutable(const Path& executable_path) {
     this->last_path_executable = executable_path;
     this->active_executable = executable_path;
 
-    ExecutableOptions options;
-    options.working_folder = executable_path.AbsoluteDir();
-
-    Executable executable;
-    executable.path = executable_path;
-    executable.options.push_back(options);
-    executable.active_option.clear();
-
-    this->data.push_back(executable);
+    this->data.push_back(Executable(executable_path));
     return true;
 }
 
-bool ExecutableManager::RemoveExecutable(std::size_t executable_index) {
+bool ExecutableManager::RemoveExecutable() {
+    std::size_t executable_index = static_cast<std::size_t>(this->GetActiveExecutableIndex());
+
     assert(!this->data.empty());
     assert(executable_index < this->data.size());
 
@@ -358,147 +272,11 @@ Executable* ExecutableManager::GetExecutable(std::size_t executable_index) {
     return &this->data[executable_index];
 }
 
-///////////////////////////////////////////////////////////////////////////
-/// This is only used on macOS to extract the executable from the bundle.
-/// You have to look at the plist.info file, you can't just assume whatever
-/// you find in the /MacOS folder is the executable.
-/// The initial path is the folder where info.plist resides, and the
-/// path is completed to the executable upon completion.
-/// Note, not ALL macOS executables are in a bundle, so if a non-bundled
-/// executable is fed in here, it will silently just return without
-/// modifying the path (which will be the correct behavior)
-bool ExactExecutableFromAppBundle(Path& app_path) {
-    std::string path = app_path.AbsolutePath();
-    path += "/Contents/";
-    std::string list_file = path + "Info.plist";
-    QFile file(list_file.c_str());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return false;
-    }
-
-    QTextStream stream(&file);
-
-    // Read a line at a time looking for the executable tag
-    QString line_buffer;
-    while (!stream.atEnd()) {
-        line_buffer = stream.readLine();
-        if (line_buffer.contains("<key>CFBundleExecutable</key>")) {  // Exe follows this
-            line_buffer = stream.readLine();                          // <string>Qt Creator</string>
-            char* cExeName = new char[line_buffer.length()];          // Prevent buffer overrun
-
-            QByteArray line_array = line_buffer.toUtf8();
-            const char* pStart = strstr(line_array.constData(), "<string>");
-            if (pStart == nullptr) return false;
-
-            // We found it, now extract it out
-            pStart += 8;
-            int iIndex = 0;
-            while (*pStart != '<') {
-                cExeName[iIndex++] = *pStart++;
-            }
-            cExeName[iIndex] = '\0';
-
-            // Complete the partial path
-            path += "MacOS/";
-            path += cExeName;
-
-            // Return original if not found, but root if found
-            app_path = Path(path);
-
-            delete[] cExeName;
-            break;
-        }
-    }
-
-    file.close();
-
-    return true;
-}
-
-DefaultPath GetDefaultExecutablePath(const std::string& executable_key) {
-    static const char* DEFAULT_PATH = VKC_PLATFORM == PLATFORM_MACOS ? "/../.." : "";
-
-    const std::string& executable_name = executable_key + GetExecutableSuffix();
-    DefaultPath default_path{"." + executable_name, "."};
-
-    // Using VULKAN_SDK environement variable
-    const Path env = ::Get(Path::SDK_BIN);
-    if (!env.Empty()) {
-        const Path search_path(env + DEFAULT_PATH + executable_name.c_str());
-        if (search_path.Exists()) {
-            default_path.executable_path = Path(search_path.AbsolutePath(), true);
-            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
-            return default_path;
-        }
-    }
-
-    // Search the default applications from package installation (Linux)
-    if (VKC_PLATFORM == PLATFORM_LINUX) {
-        const Path search_path(std::string("/usr/bin") + DEFAULT_PATH + executable_name);
-        if (search_path.Exists()) {
-            default_path.executable_path = Path(search_path.AbsolutePath(), true);
-            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
-            return default_path;
-        }
-    } else if (VKC_PLATFORM == PLATFORM_MACOS) {
-        Path search_path(std::string("/Applications") + executable_name);
-        if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
-            default_path.executable_path = Path(search_path.AbsolutePath(), true);
-            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
-            return default_path;
-        }
-    }
-
-    // Using relative path to vkconfig in case SDK is not "installed"
-    if (VKC_PLATFORM == PLATFORM_MACOS) {
-        Path search_path(std::string("..") + DEFAULT_PATH + executable_name);
-        if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
-            default_path.executable_path = Path(search_path.AbsolutePath(), true);
-            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
-            return default_path;
-        }
-    } else {
-        Path search_path(std::string(".") + DEFAULT_PATH + executable_name);
-        if (search_path.Exists()) {
-            default_path.executable_path = Path(search_path.AbsolutePath(), true);
-            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
-            return default_path;
-        }
-    }
-
-    return default_path;
-}
-
-Executable ExecutableManager::CreateDefaultExecutable(const DefaultExecutable& default_executable) const {
-    const DefaultPath& default_paths = GetDefaultExecutablePath(default_executable.key);
-    if (default_paths.executable_path.Empty()) {
-        Executable();  // application could not be found..
-    }
-
-    ExecutableOptions options;
-    options.label = default_executable.label;
-    options.working_folder = default_paths.working_folder;
-    options.args.push_back(default_executable.arguments);
-
-    // On all operating systems, but Windows we keep running into problems with this ending up
-    // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
-    // initially will be set to the users home folder across all OS's. This is highly visible
-    // in the application launcher and should not present a usability issue. The developer can
-    // easily change this later to anywhere they like.
-    options.log_file = std::string("${VK_HOME}") + default_executable.key + ".txt";
-
-    Executable executable;
-    executable.path = Path(default_paths.executable_path.AbsolutePath(), true);
-    executable.options.push_back(options);
-    executable.active_option.clear();
-    return executable;
-}
-
 std::vector<Executable> ExecutableManager::CreateDefaultExecutables() const {
     std::vector<Executable> new_executables;
 
     for (std::size_t name_index = 0, name_count = std::size(defaults_executables); name_index < name_count; ++name_index) {
-        const Executable& executable = CreateDefaultExecutable(defaults_executables[name_index]);
+        const Executable executable(defaults_executables[name_index]);
 
         if (executable.path.Empty()) {
             continue;
