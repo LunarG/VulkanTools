@@ -360,10 +360,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             QMessageBox alert(this);
             alert.setWindowTitle("Vulkan Configurator will remain in the system tray");
             alert.setText(shut_down_state.c_str());
+            alert.setInformativeText("Are you still ready to move Vulkan Configurator in the system tray?");
             alert.setIcon(QMessageBox::Question);
             alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
             alert.setCheckBox(new QCheckBox("Do not show again."));
-            alert.setInformativeText("Are you still ready to move Vulkan Configurator in the system tray?");
 
             int ret_val = alert.exec();
             if (alert.checkBox()->isChecked()) {

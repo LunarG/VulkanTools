@@ -38,6 +38,7 @@ SOURCES += \
     ../vkconfig_core/configurator_signal.cpp \
     ../vkconfig_core/date.cpp \
     ../vkconfig_core/doc.cpp \
+    ../vkconfig_core/executable.cpp \
     ../vkconfig_core/executable_manager.cpp \
     ../vkconfig_core/header.cpp \
     ../vkconfig_core/help.cpp \
@@ -115,6 +116,7 @@ HEADERS += \
     ../vkconfig_core/configurator_signal.h \
     ../vkconfig_core/date.h \
     ../vkconfig_core/doc.h \
+    ../vkconfig_core/executable.h \
     ../vkconfig_core/executable_manager.h \
     ../vkconfig_core/header.h \
     ../vkconfig_core/help.h \
