@@ -41,26 +41,27 @@ class TabApplications : public Tab {
     void ResetLaunchApplication();
 
    public Q_SLOTS:
-    void on_applications_remove_application_pushButton_pressed();
-    void on_applications_append_application_pushButton_pressed();
-    void on_applications_list_comboBox_activated(int index);
-    void on_applications_list_comboBox_textEdited(const QString& text);
+    void on_launch_executable_list_activated(int index);
+    void on_launch_executable_list_textEdited(const QString& text);
+    void on_launch_executable_search_pressed();
+    void on_launch_executable_append_pressed();
+    void on_launch_executable_remove_pressed();
 
-    void on_applications_options_remove_pushButton_pressed();
-    void on_applications_options_append_pushButton_pressed();
-    void on_applications_options_comboBox_activated(int index);
-    void on_applications_options_comboBox_textEdited(const QString& text);
+    void on_launch_options_list_activated(int index);
+    void on_launch_options_list_textEdited(const QString& text);
+    void on_launch_options_append_pressed();
+    void on_launch_options_remove_pressed();
 
-    void on_applications_directory_edit_textEdited(const QString& text);
-    void on_applications_directory_edit_pushButton_pressed();
-    void on_applications_args_list_textEdited(const QString& text);
-    void on_applications_envs_list_textEdited(const QString& text);
-    void on_applications_output_log_edit_textEdited(const QString& text);
-    void on_applications_output_log_pushButton_pressed();
+    void on_launch_options_dir_textEdited(const QString& text);
+    void on_launch_options_dir_pressed();
+    void on_launch_options_args_textEdited(const QString& text);
+    void on_launch_options_envs_textEdited(const QString& text);
+    void on_launch_options_log_textEdited(const QString& text);
+    void on_launch_options_log_pressed();
 
-    void on_applications_launcher_pushButton_pressed();
-    void on_applications_clear_log_pushButton_pressed();
-    void on_check_box_clear_on_launch_clicked();
+    void on_launch_clear_at_launch_pressed();
+    void on_launch_clear_log_pressed();
+    void on_launch_button_pressed();
 
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
@@ -68,6 +69,7 @@ class TabApplications : public Tab {
 
    private:
     void EnableOptions();
+    void RebuildOptions();
 
     void Log(const std::string& log);
 

@@ -35,6 +35,12 @@
 #include <regex>
 #include <set>
 
+const char* GetToken(ParseSource type) {
+    static const char* table[] = {",", VKC_ENV == VKC_ENV_WIN32 ? ";" : ":"};
+
+    return table[type];
+}
+
 std::string format(const char* message, ...) {
     std::size_t const STRING_BUFFER(4096);
 
@@ -103,14 +109,21 @@ bool IsStringFound(const std::vector<std::string>& list, const std::string& valu
     return false;
 }
 
-std::string TrimString(const std::string& str, const std::string& whitespace) {
-    const auto strBegin = str.find_first_not_of(whitespace);
+std::string TrimString(const std::string& str, const std::string& whitespaces) {
+    const auto strBegin = str.find_first_not_of(whitespaces);
     if (strBegin == std::string::npos) return "";  // no content
 
-    const auto strEnd = str.find_last_not_of(whitespace);
+    const auto strEnd = str.find_last_not_of(whitespaces);
     const auto strRange = strEnd - strBegin + 1;
 
     return str.substr(strBegin, strRange);
+}
+
+std::string TrimSurroundingWhitespace(const std::string& str, const std::string& whitespaces) {
+    std::string s = str;
+    s.erase(0, s.find_first_not_of(whitespaces));
+    s.erase(s.find_last_not_of(whitespaces) + 1);
+    return s;
 }
 
 std::vector<std::string> TrimEmpty(const std::vector<std::string>& values) {
@@ -313,7 +326,7 @@ QStringList ConvertString(const std::vector<std::string>& strings) {
     QStringList string_list;
 
     for (std::size_t i = 0, n = strings.size(); i < n; ++i) {
-        string_list.append(strings[i].c_str());
+        string_list.append(TrimSurroundingWhitespace(strings[i]).c_str());
     }
 
     return string_list;
