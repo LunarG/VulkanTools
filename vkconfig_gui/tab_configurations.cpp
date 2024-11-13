@@ -293,6 +293,21 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     this->UpdateUI_LoaderMessages();
     this->UpdateUI_Layers(ui_update_mode);
     this->UpdateUI_Settings(ui_update_mode);
+
+    {
+        Configurator &configurator = Configurator::Get();
+        const bool HasExecutableScope = configurator.GetExecutableScope() != EXECUTABLE_NONE;
+        const bool HasActiveConfifuration = configurator.HasActiveConfiguration();
+        const bool HasActiveParameter = configurator.HasActiveParameter();
+
+        bool enable_layers = HasExecutableScope && HasActiveConfifuration;
+        bool enable_loader = HasExecutableScope && HasActiveConfifuration;
+        bool enable_settings = HasExecutableScope && HasActiveParameter;
+
+        this->ui->configurations_group_box_layers->setEnabled(enable_layers);
+        this->ui->configurations_group_box_loader->setEnabled(enable_loader);
+        this->ui->configurations_group_box_settings->setEnabled(enable_settings);
+    }
 }
 
 void TabConfigurations::CleanUI() { this->_settings_tree_manager.CleanupGUI(); }
@@ -887,13 +902,6 @@ void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(i
 
     this->ui_configurations_group_box_list_tooltip();
 
-    const Configuration *configuration = configurator.GetActiveConfiguration();
-    const bool enabled_layers = index != EXECUTABLE_NONE && configuration->override_layers;
-
-    this->ui->configurations_group_box_layers->setEnabled(enabled_layers);
-    this->ui->configurations_group_box_loader->setEnabled(index != EXECUTABLE_NONE && configuration->override_loader);
-    this->ui->configurations_group_box_settings->setEnabled(configuration->override_layers && configurator.HasActiveSettings());
-
     this->UpdateUI(UPDATE_REFRESH_UI);
     this->window.UpdateUI_Status();
 }
@@ -910,12 +918,6 @@ void TabConfigurations::on_configurations_executable_list_currentIndexChanged(in
 
     this->ui->configurations_executable_list->setToolTip(executable->path.AbsolutePath().c_str());
     this->ui->configurations_group_box_list->setChecked(executable->enabled);
-    if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
-        const Configuration *configuration = configurator.GetActiveConfiguration();
-        this->ui->configurations_group_box_layers->setEnabled(configuration->override_layers);
-        this->ui->configurations_group_box_loader->setEnabled(configuration->override_loader);
-        this->ui->configurations_group_box_settings->setEnabled(configuration->override_layers && configurator.HasActiveSettings());
-    }
 
     this->ui_configurations_group_box_list_tooltip();
 
@@ -947,20 +949,8 @@ void TabConfigurations::on_configurations_list_toggled(bool checked) {
         executable->enabled = checked;
     }
 
-    const Configuration *configuration = configurator.GetActiveConfiguration();
-
-    if (configuration == nullptr) {
-        this->ui->configurations_group_box_layers->setEnabled(false);
-        this->ui->configurations_group_box_loader->setEnabled(false);
-        this->ui->configurations_group_box_settings->setEnabled(false);
-    } else {
-        this->ui->configurations_group_box_layers->setEnabled(checked);
-        this->ui->configurations_group_box_loader->setEnabled(checked);
-        this->ui->configurations_group_box_settings->setEnabled(checked && configuration->override_layers &&
-                                                                configurator.HasActiveSettings());
-    }
-
     this->ui_configurations_group_box_list_tooltip();
+    this->UpdateUI(UPDATE_REFRESH_UI);
 }
 
 void TabConfigurations::on_configurations_layers_ordering_toggled(bool checked) {
@@ -972,7 +962,7 @@ void TabConfigurations::on_configurations_layers_ordering_toggled(bool checked) 
         configurator.Override(OVERRIDE_AREA_ALL);
     }
 
-    this->ui->configurations_group_box_settings->setEnabled(configurator.HasActiveSettings());
+    this->UpdateUI(UPDATE_REFRESH_UI);
 }
 
 void TabConfigurations::on_configurations_loader_messages_toggled(bool checked) {
@@ -996,6 +986,8 @@ void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) 
         configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
     }
 
+    // The layer version combobox is on even when the layer settings group is unchecked
+    this->_settings_tree_manager.RefreshVersion();
     this->ui_configurations_group_box_settings_tooltip();
 }
 
