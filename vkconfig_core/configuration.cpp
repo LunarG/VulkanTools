@@ -53,7 +53,7 @@ static void AddApplicationEnabledParameters(std::vector<Parameter>& parameters, 
     Parameter applications_enabled_layers;
     applications_enabled_layers.key = ::GetLabel(LAYER_BUILTIN_UNORDERED);
     applications_enabled_layers.builtin = LAYER_BUILTIN_UNORDERED;
-    applications_enabled_layers.control = LAYER_CONTROL_DISCARD;  // Until the Vulkan Loader is fixed
+    applications_enabled_layers.control = default_control;
     applications_enabled_layers.overridden_rank = Parameter::NO_RANK;
     parameters.push_back(applications_enabled_layers);
 }
