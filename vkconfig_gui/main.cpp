@@ -65,8 +65,8 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    if (configurator.vulkan_system_info.loaderVersion < REQUIRED_LOADER_VERSION) {
-        Alert::StartLoaderIncompatibleVersions(configurator.vulkan_system_info.loaderVersion, REQUIRED_LOADER_VERSION);
+    if (configurator.vulkan_system_info.loaderVersion < Version::REQUIRED_LOADER_VERSION) {
+        Alert::StartLoaderIncompatibleVersions(configurator.vulkan_system_info.loaderVersion, Version::REQUIRED_LOADER_VERSION);
         return -1;
     }
 

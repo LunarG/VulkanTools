@@ -59,6 +59,16 @@ TEST(test_executable, ctor_path) {
     EXPECT_STREQ(Path("${VK_HOME}/vkcube.txt").RelativePath().c_str(), options->log_file.RelativePath().c_str());
 }
 
+TEST(test_executable, remove_last) {
+    Executable executable("./vkcube");
+    EXPECT_EQ(1, executable.GetOptions().size());
+    EXPECT_EQ(0, executable.GetActiveOptionsIndex());
+
+    EXPECT_EQ(true, executable.RemoveActiveOptions());
+    EXPECT_EQ(0, executable.GetOptions().size());
+    EXPECT_EQ(Executable::INVALID_OPTIONS, executable.GetActiveOptionsIndex());
+}
+
 TEST(test_executable, duplicate) {
     Executable executable("./vkcube");
     EXPECT_EQ(1, executable.GetOptions().size());
