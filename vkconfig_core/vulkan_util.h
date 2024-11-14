@@ -27,8 +27,6 @@
 #include <string>
 #include <vector>
 
-extern const Version REQUIRED_LOADER_VERSION;
-
 enum VendorID {
     VENDOR_ID_KHRONOS = VK_VENDOR_ID_KHRONOS,
     VENDOR_ID_MESA = VK_VENDOR_ID_MESA,
