@@ -61,11 +61,11 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    if (vulkan_info.loaderVersion < REQUIRED_LOADER_VERSION) {
+    if (vulkan_info.loaderVersion < Version::REQUIRED_LOADER_VERSION) {
         fprintf(stderr,
                 "%s: [ERROR] The system has Vulkan Loader version %s but version %s is requered. Please update the Vulkan Runtime "
                 "at https://vulkan.lunarg.com/sdk/home",
-                VKCONFIG_SHORT_NAME, vulkan_info.loaderVersion.str().c_str(), REQUIRED_LOADER_VERSION.str().c_str());
+                VKCONFIG_SHORT_NAME, vulkan_info.loaderVersion.str().c_str(), Version::REQUIRED_LOADER_VERSION.str().c_str());
         return -1;
     }
 

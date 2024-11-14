@@ -30,8 +30,6 @@
 #include <sstream>
 #include <iostream>
 
-const Version REQUIRED_LOADER_VERSION(1, 3, 284);
-
 static std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
     std::string result;
 
