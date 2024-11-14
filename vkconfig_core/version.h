@@ -34,6 +34,7 @@ class Version {
     static const Version VKHEADER;
     static const Version NONE;
     static const Version LATEST;
+    static const Version REQUIRED_LOADER_VERSION;
 
     explicit Version() : _major(0), _minor(0), _patch(0) {}
     explicit Version(uint32_t version_complete);

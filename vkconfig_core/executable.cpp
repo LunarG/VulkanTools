@@ -272,7 +272,11 @@ bool Executable::RemoveActiveOptions() {
 
     std::swap(new_options, this->options_list);
 
-    this->active_options = this->options_list[std::max<int>(executable_index - 1, 0)].label;
+    if (this->options_list.empty()) {
+        this->active_options.clear();
+    } else {
+        this->active_options = this->options_list[std::max<int>(executable_index - 1, 0)].label;
+    }
 
     return removed;
 }
