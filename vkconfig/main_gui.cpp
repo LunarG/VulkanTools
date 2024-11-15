@@ -68,7 +68,9 @@ int run_gui(int argc, char* argv[], const CommandLine& command_line) {
     // We simply cannot run without any layers
     Configurator& configurator = Configurator::Get(command_line.command_vulkan_sdk);
 
-    if (!configurator.Init()) return -1;
+    if (!configurator.Init()) {
+        return -1;
+    }
 
     // The main GUI is driven here
     MainWindow main_window;

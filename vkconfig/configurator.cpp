@@ -145,6 +145,9 @@ void Configurator::ActivateConfiguration(const std::string &configuration_name) 
 
 void Configurator::UpdateDevices() {
     QLibrary library(GetVulkanLibrary());
+    if (!library.load()) {
+        return;
+    }
 
     VkInstance instance = VK_NULL_HANDLE;
     VkResult err = CreateInstance(library, instance, false);
