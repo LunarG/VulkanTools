@@ -24,19 +24,6 @@
 #include <array>
 #include <cstring>
 
-// These names are requied by the Vulkan Loader settings file
-const char* GetToken(LayerControl control) {
-    static const char* TABLE[] = {
-        "auto",     // LAYER_CONTROL_AUTO
-        "on",       // LAYER_CONTROL_ON
-        "off",      // LAYER_CONTROL_OFF
-        "discard",  // LAYER_CONTROL_DISCARD
-    };
-    static_assert(std::size(TABLE) == LAYER_CONTROL_COUNT);
-
-    return TABLE[control];
-}
-
 LayerControl GetLayerControl(const char* token) {
     for (int i = LAYER_CONTROL_FIRST, l = LAYER_CONTROL_LAST; i <= l; ++i) {
         const LayerControl type = static_cast<LayerControl>(i);
@@ -49,12 +36,25 @@ LayerControl GetLayerControl(const char* token) {
 }
 
 // These names are requied by the Vulkan Loader settings file
+const char* GetToken(LayerControl control) {
+    static const char* TABLE[] = {
+        "auto",     // LAYER_CONTROL_AUTO
+        "discard",  // LAYER_CONTROL_DISCARD
+        "on",       // LAYER_CONTROL_ON
+        "off",      // LAYER_CONTROL_OFF
+    };
+    static_assert(std::size(TABLE) == LAYER_CONTROL_COUNT);
+
+    return TABLE[control];
+}
+
+// These names are requied by the Vulkan Loader settings file
 const char* GetLabel(LayerControl control) {
     static const char* TABLE[] = {
         "Auto",     // LAYER_CONTROL_AUTO
+        "Discard",  // LAYER_CONTROL_DISCARD
         "Enable",   // LAYER_CONTROL_ON
         "Disable",  // LAYER_CONTROL_OFF
-        "Discard",  // LAYER_CONTROL_DISCARD
     };
     static_assert(std::size(TABLE) == LAYER_CONTROL_COUNT);
 
@@ -64,9 +64,9 @@ const char* GetLabel(LayerControl control) {
 const char* GetDescription(LayerControl control) {
     static const char* TOKENS[] = {
         "Explicit layers are disabled by default and implicit layers are enabled by default.",  // LAYER_CONTROL_AUTO
+        "Discard the layer, don't notify the Vulkan Loader this layer exist.",                  // LAYER_CONTROL_DISCARD
         "Enable the layer, insuring its execution.",                                            // LAYER_CONTROL_ON
         "Disable the layer, preventing its execution.",                                         // LAYER_CONTROL_OFF
-        "Discard the layer, don't notify the Vulkan Loader this layer exist.",                  // LAYER_CONTROL_DISCARD
     };
     static_assert(std::size(TOKENS) == LAYER_CONTROL_COUNT);
 

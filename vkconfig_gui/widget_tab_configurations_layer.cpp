@@ -25,6 +25,8 @@
 
 #include "../vkconfig_core/configurator.h"
 
+#include <QMessageBox>
+
 ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter)
     : layer_name(parameter.key), tab(tab) {
     const Configurator &configurator = Configurator::Get();
@@ -33,7 +35,9 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     this->layer_state = new ComboBox(this);
     this->layer_state->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-    for (int i = LAYER_CONTROL_FIRST; i <= LAYER_CONTROL_LAST; ++i) {
+    const int first = parameter.builtin == LAYER_BUILTIN_UNORDERED ? LAYER_CONTROL_UNORDERED_FIRST : LAYER_CONTROL_FIRST;
+    const int last = parameter.builtin == LAYER_BUILTIN_UNORDERED ? LAYER_CONTROL_UNORDERED_LAST : LAYER_CONTROL_LAST;
+    for (int i = first; i <= last; ++i) {
         const LayerControl layer_control = static_cast<LayerControl>(i);
         std::string label = ::GetLabel(layer_control);
         /*
@@ -44,7 +48,6 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         this->layer_state->addItem(label.c_str());
         this->layer_state->setItemData(i, ::GetDescription(layer_control), Qt::ToolTipRole);
     }
-
     this->layer_state->setCurrentIndex(parameter.control);
 
     if (parameter.control == LAYER_CONTROL_AUTO && layer != nullptr) {
@@ -132,6 +135,31 @@ void ConfigurationLayerWidget::on_layer_state_currentIndexChanged(int index) {
     Configuration *configuration = configurator.GetActiveConfiguration();
     Parameter *parameter = configuration->Find(this->layer_name);
     if (parameter != nullptr) {
+        if (!(configurator.Get(HIDE_MESSAGE_CRITICAL_IMPLICIT_LAYER_OVERRIDE))) {
+            if (parameter->type == LAYER_TYPE_IMPLICIT && control != LAYER_CONTROL_AUTO) {
+                const char *text =
+                    "%s was overridden but it is an implicit layer. This may cause undefined behavior, including crashes.";
+
+                QMessageBox alert;
+                alert.QDialog::setWindowTitle("An Vulkan implicit layer was overridden...");
+                alert.setText(format(text, this->layer_name.c_str()).c_str());
+                alert.setInformativeText("Do you want to continue?");
+                alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                alert.setIcon(QMessageBox::Critical);
+                alert.setCheckBox(new QCheckBox("Do not show again."));
+                int selection = alert.exec();
+
+                if (alert.checkBox()->isChecked()) {
+                    configurator.Set(HIDE_MESSAGE_CRITICAL_IMPLICIT_LAYER_OVERRIDE);
+                }
+
+                if (selection == QMessageBox::No) {
+                    this->layer_state->setCurrentIndex(LAYER_CONTROL_AUTO);
+                    return;
+                }
+            }
+        }
+
         parameter->control = control;
         this->layer_state->setToolTip(GetDescription(control));
 
