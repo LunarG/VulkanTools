@@ -39,7 +39,8 @@ QMessageBox::Button Alert::StartSingleton() {
 void Alert::StartLoaderFailure() {
     QMessageBox alert;
     alert.QDialog::setWindowTitle("Vulkan Configurator failed to start...");
-    alert.setText("Could not find a Vulkan Loader.");
+    alert.setText("Could not find a Vulkan Loader. Please install the Vulkan SDK.");
+    alert.setInformativeText("<a href=\"https://vulkan.lunarg.com/sdk/home\">https://vulkan.lunarg.com/sdk/home</a>");
     alert.setIcon(QMessageBox::Critical);
     alert.exec();
 }
