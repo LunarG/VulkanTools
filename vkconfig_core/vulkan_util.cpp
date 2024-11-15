@@ -54,13 +54,13 @@ struct VulkanFunctions {
     VulkanFunctions();
     bool Validate() const;
 
-    PFN_vkEnumerateInstanceVersion EnumerateInstanceVersion;
-    PFN_vkEnumerateInstanceLayerProperties EnumerateInstanceLayerProperties;
-    PFN_vkEnumeratePhysicalDevices EnumeratePhysicalDevices;
-    PFN_vkEnumerateInstanceExtensionProperties EnumerateInstanceExtensionProperties;
-    PFN_vkCreateInstance CreateInstance;
-    PFN_vkDestroyInstance DestroyInstance;
-    PFN_vkGetPhysicalDeviceProperties2 GetPhysicalDeviceProperties2;
+    PFN_vkEnumerateInstanceVersion EnumerateInstanceVersion = nullptr;
+    PFN_vkEnumerateInstanceLayerProperties EnumerateInstanceLayerProperties = nullptr;
+    PFN_vkEnumeratePhysicalDevices EnumeratePhysicalDevices = nullptr;
+    PFN_vkEnumerateInstanceExtensionProperties EnumerateInstanceExtensionProperties = nullptr;
+    PFN_vkCreateInstance CreateInstance = nullptr;
+    PFN_vkDestroyInstance DestroyInstance = nullptr;
+    PFN_vkGetPhysicalDeviceProperties2 GetPhysicalDeviceProperties2 = nullptr;
 };
 
 static const char *GetVulkanLibrary() {
