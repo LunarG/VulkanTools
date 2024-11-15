@@ -425,11 +425,13 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
 
     this->ui->configurations_settings->blockSignals(false);
 
-    if (!(configurator.Get(HIDE_MESSAGE_NEED_APPLICATION_RESTART))) {
-        configurator.Set(HIDE_MESSAGE_NEED_APPLICATION_RESTART);
+    /*
+        if (!(configurator.Get(HIDE_MESSAGE_NEED_APPLICATION_RESTART))) {
+            configurator.Set(HIDE_MESSAGE_NEED_APPLICATION_RESTART);
 
-        Alert::ConfiguratorRestart();
-    }
+            Alert::ConfiguratorRestart();
+        }
+    */
 
     // Refresh layer configuration
     configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);

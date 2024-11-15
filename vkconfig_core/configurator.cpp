@@ -879,8 +879,8 @@ std::string Configurator::GenerateVulkanStatus() const {
     log += this->layers.Log();
     log += this->configurations.Log();
     log += this->executables.Log();
-    log += "Vulkan Loader Log:\n";
-    log += ::GenerateLoaderLog();
+    // log += "Vulkan Loader Log:\n";
+    // log += ::GenerateLoaderLog();
 
     return log;
 }
