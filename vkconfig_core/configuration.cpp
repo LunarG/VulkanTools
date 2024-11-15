@@ -167,11 +167,15 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
                 const std::string& version = ReadStringValue(json_layer_object, "version");
                 parameter.api_version = version == "latest" ? Version::LATEST : Version(version.c_str());
             }
+            if (json_layer_object.value("type") != QJsonValue::Undefined) {
+                parameter.type = GetLayerType(json_layer_object.value("type").toString().toStdString().c_str());
+            }
 
             const Layer* layer = layers.Find(parameter.key, parameter.api_version);
 
             if (layer != nullptr) {
                 parameter.manifest = layer->manifest_path;
+                parameter.type = layer->type;
             }
 
             if (json_layer_object.value("manifest") != QJsonValue::Undefined) {
@@ -247,6 +251,7 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
 
         QJsonObject json_layer;
         json_layer.insert("name", parameter.key.c_str());
+        json_layer.insert("type", ::GetToken(parameter.type));
         if (parameter.builtin != LAYER_BUILTIN_NONE) {
             json_layer.insert("builtin", GetToken(parameter.builtin));
         }
@@ -433,6 +438,7 @@ void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::st
 
     const Layer* new_layer = layers.FindFromManifest(manifest_path);
     parameter->api_version = new_layer->api_version;
+    parameter->type = new_layer->type;
     parameter->manifest = new_layer->manifest_path;
     ::CollectDefaultSettingData(new_layer->settings, parameter->settings);
 }
@@ -442,8 +448,8 @@ void Configuration::SwitchLayerLatest(const LayerManager& layers, const std::str
     assert(parameter != nullptr);
 
     const Layer* new_layer = layers.Find(layer_key, Version::LATEST);
-
     parameter->api_version = Version::LATEST;
+    parameter->type = new_layer->type;
     parameter->manifest = new_layer->manifest_path;
     ::CollectDefaultSettingData(new_layer->settings, parameter->settings);
 }
@@ -473,6 +479,7 @@ void Configuration::GatherParameters(const LayerManager& layers) {
 
         Parameter parameter;
         parameter.key = layer->key;
+        parameter.type = layer->type;
         parameter.control = this->default_control;
         parameter.api_version = Version::LATEST;
         parameter.manifest = layer->manifest_path;
