@@ -47,6 +47,7 @@ struct Parameter {
     bool ApplyPresetSettings(const LayerPreset& preset);
 
     std::string key;
+    LayerType type = LAYER_TYPE_EXPLICIT;
     LayerControl control = LAYER_CONTROL_AUTO;
     LayerBuiltin builtin = LAYER_BUILTIN_NONE;
     int platform_flags = PLATFORM_DESKTOP_BIT;
