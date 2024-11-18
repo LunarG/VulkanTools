@@ -207,10 +207,6 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
 bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path) {
     assert(!loader_settings_path.Empty());
 
-    if (!this->HasActiveConfiguration()) {
-        return false;
-    }
-
     if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
         std::vector<LoaderSettings> loader_settings_array;
 
@@ -222,13 +218,17 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
                 break;
             case EXECUTABLE_ALL:
             case EXECUTABLE_PER: {
-                const std::vector<Executable>& collection = this->executables.GetExecutables();
-                for (std::size_t i = 0, n = collection.size(); i < n; ++i) {
-                    if (this->executable_scope == EXECUTABLE_PER) {
-                        configuration = collection[i].GetActiveOptions()->configuration;
+                const std::vector<Executable>& executables = this->executables.GetExecutables();
+                for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
+                    if (!executables[i].enabled) {
+                        continue;
                     }
 
-                    this->BuildLoaderSettings(configuration, collection[i].path.AbsolutePath(), loader_settings_array);
+                    if (this->executable_scope == EXECUTABLE_PER) {
+                        configuration = executables[i].configuration;
+                    }
+
+                    this->BuildLoaderSettings(configuration, executables[i].path.AbsolutePath(), loader_settings_array);
                 }
                 break;
             }
@@ -237,10 +237,10 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
                 break;
         }
 
-        if (!loader_settings_array.empty()) {
+        if (this->executable_scope != EXECUTABLE_NONE) {
             QJsonObject root;
             root.insert("file_format_version", "1.0.0");
-            if (loader_settings_array.size() > 1) {
+            if (::EnabledExecutables(this->executable_scope)) {
                 QJsonArray json_settings_array;
                 for (std::size_t i = 0, n = loader_settings_array.size(); i < n; ++i) {
                     json_settings_array.append(CreateJsonSettingObject(loader_settings_array[i]));
@@ -267,10 +267,6 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
 
 // Create and write vk_layer_settings.txt file
 bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path) {
-    if (!this->HasActiveConfiguration()) {
-        return false;
-    }
-
     if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
         std::vector<LayersSettings> layers_settings_array;
 
@@ -289,14 +285,18 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                 std::string configuration_name = this->selected_global_configuration;
 
                 for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
+                    if (!executables[i].enabled) {
+                        continue;
+                    }
+
                     if (this->executable_scope == EXECUTABLE_PER) {
-                        configuration_name = executables[i].GetActiveOptions()->configuration;
+                        configuration_name = executables[i].configuration;
                     }
 
                     LayersSettings settings;
                     settings.executable_path = executables[i].path;
                     settings.configuration_name = configuration_name;
-                    settings.settings_path = executables[i].GetActiveOptions()->working_folder;
+                    settings.settings_path = executables[i].GetActiveOptions()->working_folder + "/vk_layer_settings.txt";
                     layers_settings_array.push_back(settings);
                 }
                 break;
@@ -463,10 +463,23 @@ bool Configurator::Surrender(OverrideArea override_area) {
         result_loader_settings = loader_settings_path.Remove();
     }
 
-    // TODO, Remove per application layer_settings file
     bool result_layers_settings = true;
     if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
-        result_layers_settings = layers_settings_path.Remove();
+        bool global_removed = layers_settings_path.Remove();
+        if (this->executable_scope == EXECUTABLE_ALL) {
+            result_layers_settings = global_removed;
+        }
+
+        const std::vector<Executable>& executables = this->executables.GetExecutables();
+        for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
+            Path path(executables[i].GetActiveOptions()->working_folder + "/vk_layer_settings.txt");
+            if (path.Exists()) {
+                bool local_removed = path.Remove();
+                if (::EnabledExecutables(this->executable_scope)) {
+                    result_layers_settings = result_layers_settings && local_removed;
+                }
+            }
+        }
     }
 
 #if VKC_ENV == VKC_ENV_WIN32
@@ -500,71 +513,23 @@ void Configurator::Reset(bool hard) {
 void Configurator::SetActiveConfigurationName(const std::string& configuration_name) {
     if (this->executable_scope == EXECUTABLE_PER) {
         Executable* executable = this->executables.GetActiveExecutable();
-        executable->GetActiveOptions()->configuration = configuration_name;
+        executable->configuration = configuration_name;
     } else {
         this->selected_global_configuration = configuration_name;
-    }
-}
-
-std::string Configurator::GetActionConfigurationName() const {
-    if (this->executable_scope == EXECUTABLE_PER) {
-        const Executable* executable = this->executables.GetActiveExecutable();
-        return executable->GetActiveOptions()->configuration;
-    } else {
-        return this->selected_global_configuration;
     }
 }
 
 Configuration* Configurator::GetActiveConfiguration() {
     if (this->executable_scope == EXECUTABLE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
-        return this->configurations.FindConfiguration(executable->GetActiveOptions()->configuration);
+        return this->configurations.FindConfiguration(executable->configuration);
     } else {
         return this->configurations.FindConfiguration(this->selected_global_configuration);
     }
 }
 
 const Configuration* Configurator::GetActiveConfiguration() const {
-    if (this->executable_scope == EXECUTABLE_PER) {
-        const Executable* executable = this->executables.GetActiveExecutable();
-        return this->configurations.FindConfiguration(executable->GetActiveOptions()->configuration);
-    } else {
-        return this->configurations.FindConfiguration(this->selected_global_configuration);
-    }
-}
-
-bool Configurator::HasActiveConfiguration() const {
-    switch (this->executable_scope) {
-        default:
-        case EXECUTABLE_NONE:
-            return false;
-        case EXECUTABLE_ANY:
-            return this->configurations.FindConfiguration(this->selected_global_configuration) != nullptr;
-        case EXECUTABLE_ALL: {
-            const Configuration* configuration = this->configurations.FindConfiguration(this->selected_global_configuration);
-            const std::vector<Executable>& data = this->executables.GetExecutables();
-            for (std::size_t i = 0, n = data.size(); i < n; ++i) {
-                if (data[i].enabled) {
-                    return true;
-                }
-            }
-            return false;
-        } break;
-        case EXECUTABLE_PER: {
-            const std::vector<Executable>& data = this->executables.GetExecutables();
-            for (std::size_t i = 0, n = data.size(); i < n; ++i) {
-                if (data[i].enabled) {
-                    const ExecutableOptions* options = data[i].GetActiveOptions();
-                    if (options != nullptr) {
-                        return this->configurations.FindConfiguration(options->configuration) != nullptr;
-                    } else {
-                        return false;
-                    }
-                }
-            }
-            return false;
-        }
-    }
+    return const_cast<Configurator*>(this)->GetActiveConfiguration();
 }
 
 Parameter* Configurator::GetActiveParameter() {
@@ -576,14 +541,7 @@ Parameter* Configurator::GetActiveParameter() {
     }
 }
 
-const Parameter* Configurator::GetActiveParameter() const {
-    const Configuration* configuration = this->GetActiveConfiguration();
-    if (configuration != nullptr) {
-        return configuration->GetActiveParameter();
-    } else {
-        return nullptr;
-    }
-}
+const Parameter* Configurator::GetActiveParameter() const { return const_cast<Configurator*>(this)->GetActiveParameter(); }
 
 bool Configurator::HasActiveParameter() const { return this->GetActiveParameter() != nullptr; }
 
@@ -869,6 +827,39 @@ bool Configurator::HasActiveSettings() const {
         }
     } else {
         return false;
+    }
+}
+
+bool Configurator::HasEnabledUI(EnabledUI enabled_ui) const {
+    switch (enabled_ui) {
+        default:
+            assert(false);
+            return false;
+        case ENABLE_UI_CONFIG: {
+            return this->GetExecutableScope() != EXECUTABLE_NONE;
+        }
+        case ENABLE_UI_LOADER:
+        case ENABLE_UI_LAYERS: {
+            if (!this->HasEnabledUI(ENABLE_UI_CONFIG)) {
+                return false;
+            }
+            if (::EnabledExecutables(this->GetExecutableScope())) {
+                const Executable* executable = this->executables.GetActiveExecutable();
+                if (executable == nullptr) {
+                    return false;
+                }
+                if (!executable->enabled) {
+                    return false;
+                }
+            }
+            return this->GetActiveConfiguration() != nullptr;
+        }
+        case ENABLE_UI_SETTINGS: {
+            if (!this->HasEnabledUI(ENABLE_UI_LAYERS)) {
+                return false;
+            }
+            return this->HasActiveSettings();
+        }
     }
 }
 

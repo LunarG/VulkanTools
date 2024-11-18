@@ -128,7 +128,7 @@ QMessageBox::Button Alert::ConfiguratorResetAll() {
     alert.setText(
         "You are about to delete all the user-defined configurations and resetting all default configurations to their default "
         "state.");
-    alert.setInformativeText("Are you sure you want to continue?");
+    alert.setInformativeText("Do you want to continue?");
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     alert.setDefaultButton(QMessageBox::Yes);
     alert.setIcon(QMessageBox::Warning);

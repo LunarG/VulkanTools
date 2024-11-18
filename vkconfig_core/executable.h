@@ -36,7 +36,6 @@ struct DefaultPath {
 
 struct ExecutableOptions {
     std::string label = "Default Options";
-    std::string configuration = "Validation";
     Path working_folder;
     std::vector<std::string> args;
     std::vector<std::string> envs;
@@ -51,6 +50,7 @@ struct Executable {
     enum { INVALID_OPTIONS = -1 };
 
     Path path;
+    std::string configuration = "Validation";
     bool enabled = true;
 
     int GetActiveOptionsIndex() const;
