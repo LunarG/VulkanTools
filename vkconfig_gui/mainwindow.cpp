@@ -150,18 +150,8 @@ void MainWindow::InitTray() {
 
 void MainWindow::UpdateUI_Status() {
     const Configurator &configurator = Configurator::Get();
-    const bool has_active_configuration = configurator.HasActiveConfiguration();
 
-    // Update title bar
-#ifdef VKCONFIG_DATE
-    bool display_date = true;
-#else
-    bool display_date = false;
-#endif
-
-    // const LayersMode layers_mode = configurator.GetActiveLayersMode();
-
-    this->setWindowTitle(GetMainWindowTitle(has_active_configuration, display_date).c_str());
+    this->setWindowTitle(GetMainWindowTitle().c_str());
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         /*
         switch (layers_mode) {
@@ -185,7 +175,7 @@ void MainWindow::UpdateUI_Status() {
         */
     }
 
-    if (has_active_configuration) {  // && layers_mode != LAYERS_CONTROLLED_BY_APPLICATIONS) {
+    if (configurator.GetExecutableScope() != EXECUTABLE_NONE) {
         const QIcon icon(":/resourcefiles/vkconfig-on.png");
         this->setWindowIcon(icon);
         if (QSystemTrayIcon::isSystemTrayAvailable()) {

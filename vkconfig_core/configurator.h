@@ -34,6 +34,13 @@
 #include "type_executable_mode.h"
 #include "serialization.h"
 
+enum EnabledUI {
+    ENABLE_UI_CONFIG = 0,
+    ENABLE_UI_LAYERS,
+    ENABLE_UI_LOADER,
+    ENABLE_UI_SETTINGS,
+};
+
 class Configurator : public Serialize {
    public:
     enum Mode { CMD, GUI };
@@ -76,11 +83,9 @@ class Configurator : public Serialize {
     void Reset(bool hard);
 
     void SetActiveConfigurationName(const std::string& configuration_name);
-    std::string GetActionConfigurationName() const;
 
     Configuration* GetActiveConfiguration();
     const Configuration* GetActiveConfiguration() const;
-    bool HasActiveConfiguration() const;
 
     Parameter* GetActiveParameter();
     const Parameter* GetActiveParameter() const;
@@ -105,6 +110,7 @@ class Configurator : public Serialize {
     void SetHomeSDK(const Path& path);
 
     bool HasActiveSettings() const;
+    bool HasEnabledUI(EnabledUI enabled_ui) const;
 
     std::string GenerateVulkanStatus() const;
 

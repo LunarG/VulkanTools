@@ -96,11 +96,7 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
 
     ExecutableScope current_scope = configurator.GetExecutableScope();
     this->ui->configurations_executable_scope->setCurrentIndex(current_scope);
-    this->on_configurations_executable_scope_currentIndexChanged(current_scope);
-
     this->ui->configurations_executable_scope->blockSignals(false);
-
-    this->ui_configurations_group_box_settings_tooltip();
 
     this->advanced_mode = new ResizeButton(this->ui->configurations_group_box_layers, 0);
     this->advanced_mode->setMinimumSize(24, 24);
@@ -110,7 +106,7 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
 
     this->connect(this->advanced_mode, SIGNAL(pressed()), this, SLOT(on_configurations_advanced_toggle_pressed()));
 
-    this->ui_configurations_advanced_toggle();
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 TabConfigurations::~TabConfigurations() {
@@ -147,7 +143,7 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
         ListItem *item = new ListItem(configuration.key.c_str());
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         item->setText(configuration.key.c_str());
-        if (configurator.GetActionConfigurationName() == configuration.key) {
+        if (configurator.GetActiveConfiguration() == &configuration) {
             item->setIcon(QIcon(":/resourcefiles/system-on.png"));
             item->setToolTip(format("Using the %s configuration with Vulkan executables", configuration.key.c_str()).c_str());
             ui->configurations_group_box_layers->setChecked(configuration.override_layers);
@@ -226,51 +222,47 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
     ui->configurations_layers_list->clear();
 
     Configurator &configurator = Configurator::Get();
-    const std::string &selected_contiguration_name = configurator.GetActionConfigurationName();
-    const bool has_selected_configuration = !selected_contiguration_name.empty();
 
-    if (has_selected_configuration) {
-        Configuration *configuration = configurator.configurations.FindConfiguration(selected_contiguration_name);
-        if (configuration != nullptr) {
-            const bool has_multiple_parameter = configuration->HasMultipleActiveParameter() || configurator.advanced;
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    if (configuration != nullptr) {
+        const bool has_multiple_parameter = configuration->HasMultipleActiveParameter() || configurator.advanced;
 
-            ui->execute_closer_application_label->setVisible(has_multiple_parameter);
-            ui->execute_closer_driver_label->setVisible(has_multiple_parameter);
-            ui->configurations_layers_list->setDragEnabled(has_multiple_parameter);
+        ui->execute_closer_application_label->setVisible(has_multiple_parameter);
+        ui->execute_closer_driver_label->setVisible(has_multiple_parameter);
+        ui->configurations_layers_list->setDragEnabled(has_multiple_parameter);
 
-            bool selected_layer = configuration->selected_layer_name.empty();
-            for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
-                Parameter &parameter = configuration->parameters[i];
+        bool selected_layer = configuration->selected_layer_name.empty();
+        for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+            Parameter &parameter = configuration->parameters[i];
 
-                if (!configurator.advanced) {
-                    if (parameter.control != LAYER_CONTROL_ON && parameter.control != LAYER_CONTROL_OFF) {
-                        continue;
-                    }
-                }
-
-                ListItem *item = new ListItem(parameter.key.c_str());
-                item->setFlags(item->flags() | Qt::ItemIsSelectable);
-                if (has_multiple_parameter) {
-                    item->setIcon(QIcon(":/resourcefiles/drag.png"));
-                }
-                ui->configurations_layers_list->addItem(item);
-
-                ConfigurationLayerWidget *layer_widget = new ConfigurationLayerWidget(this, parameter);
-
-                ui->configurations_layers_list->setItemWidget(item, layer_widget);
-                if (configuration->selected_layer_name == parameter.key) {
-                    ui->configurations_layers_list->setCurrentItem(item);
-                    selected_layer = true;
+            if (!configurator.advanced) {
+                if (parameter.control != LAYER_CONTROL_ON && parameter.control != LAYER_CONTROL_OFF) {
+                    continue;
                 }
             }
 
-            if (!selected_layer) {
-                configuration->selected_layer_name.clear();
+            ListItem *item = new ListItem(parameter.key.c_str());
+            item->setFlags(item->flags() | Qt::ItemIsSelectable);
+            if (has_multiple_parameter) {
+                item->setIcon(QIcon(":/resourcefiles/drag.png"));
             }
-            // resizeEvent(nullptr);
+            ui->configurations_layers_list->addItem(item);
 
-            ui->configurations_layers_list->update();
+            ConfigurationLayerWidget *layer_widget = new ConfigurationLayerWidget(this, parameter);
+
+            ui->configurations_layers_list->setItemWidget(item, layer_widget);
+            if (configuration->selected_layer_name == parameter.key) {
+                ui->configurations_layers_list->setCurrentItem(item);
+                selected_layer = true;
+            }
         }
+
+        if (!selected_layer) {
+            configuration->selected_layer_name.clear();
+        }
+        // resizeEvent(nullptr);
+
+        ui->configurations_layers_list->update();
     }
 
     ui->configurations_layers_list->blockSignals(false);
@@ -279,11 +271,19 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
 void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
     Configurator &configurator = Configurator::Get();
 
-    if (configurator.GetActionConfigurationName().empty()) {
+    if (configurator.GetActiveConfiguration() == nullptr) {
         this->_settings_tree_manager.CleanupGUI();
         this->ui->configurations_presets->setVisible(false);
     } else {
         this->_settings_tree_manager.CreateGUI();
+    }
+
+    const Parameter *parameter = configurator.GetActiveParameter();
+    if (parameter != nullptr) {
+        const std::string state = parameter->override_settings ? "Uncheck to disable" : "Check to enable";
+        const std::string tooltip = format("%s '%s' layer settings", state.c_str(), parameter->key.c_str());
+
+        this->ui->configurations_group_box_settings->setToolTip(tooltip.c_str());
     }
 }
 
@@ -294,20 +294,57 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     this->UpdateUI_Layers(ui_update_mode);
     this->UpdateUI_Settings(ui_update_mode);
 
-    {
-        Configurator &configurator = Configurator::Get();
-        const bool HasExecutableScope = configurator.GetExecutableScope() != EXECUTABLE_NONE;
-        const bool HasActiveConfifuration = configurator.HasActiveConfiguration();
-        const bool HasActiveParameter = configurator.HasActiveParameter();
+    const Configurator &configurator = Configurator::Get();
+    const ExecutableScope scope = configurator.GetExecutableScope();
 
-        bool enable_layers = HasExecutableScope && HasActiveConfifuration;
-        bool enable_loader = HasExecutableScope && HasActiveConfifuration;
-        bool enable_settings = HasExecutableScope && HasActiveParameter;
+    this->ui->configurations_group_box_list->setEnabled(configurator.HasEnabledUI(ENABLE_UI_CONFIG));
+    this->ui->configurations_group_box_layers->setEnabled(configurator.HasEnabledUI(ENABLE_UI_LAYERS));
+    this->ui->configurations_group_box_loader->setEnabled(configurator.HasEnabledUI(ENABLE_UI_LOADER));
+    this->ui->configurations_group_box_settings->setEnabled(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
+    this->ui->configurations_group_box_settings->setCheckable(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
 
-        this->ui->configurations_group_box_layers->setEnabled(enable_layers);
-        this->ui->configurations_group_box_loader->setEnabled(enable_loader);
-        this->ui->configurations_group_box_settings->setEnabled(enable_settings);
+    const bool enabled_executable = ::EnabledExecutables(scope);
+
+    if (enabled_executable) {
+        const Executable *executable = configurator.GetActiveExecutable();
+        const std::string path = executable->path.RelativePath();
+
+        const std::string state =
+            configurator.executables.GetActiveExecutable()->enabled ? "Uncheck to disable" : "Check to enable";
+
+        if (scope == EXECUTABLE_PER) {
+            this->ui->configurations_group_box_list->setToolTip(
+                format("%s to select a loader configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
+        } else {
+            this->ui->configurations_group_box_list->setToolTip(
+                format("%s to enable the loader configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
+        }
+
+    } else if (scope == EXECUTABLE_ANY) {
+        this->ui->configurations_group_box_list->setToolTip("Select the active loader configuration for any executable");
+    } else {
+        this->ui->configurations_group_box_list->setToolTip(
+            "Change the 'Vulkan Loader Configuration scope' to apply a configuration.");
     }
+
+    assert(this->advanced_mode != nullptr);
+    if (configurator.advanced) {
+        this->advanced_mode->setIcon(QIcon(":/resourcefiles/settings_basic.png"));
+        this->advanced_mode->setToolTip("Click to switch to basic Layers Configuration mode");
+    } else {
+        this->advanced_mode->setIcon(QIcon(":/resourcefiles/settings_advanced.png"));
+        this->advanced_mode->setToolTip("Click to switch to advanced Layers Configuration mode");
+    }
+
+    this->ui->configurations_executable_scope->setToolTip(::GetTooltip(scope));
+    this->ui->configurations_executable_list->setEnabled(enabled_executable);
+    this->ui->configurations_executable_append->setEnabled(enabled_executable);
+
+    this->ui->configurations_group_box_list->blockSignals(true);
+    this->ui->configurations_group_box_list->setEnabled(scope != EXECUTABLE_NONE);
+    this->ui->configurations_group_box_list->setCheckable(enabled_executable);
+    this->ui->configurations_group_box_list->setChecked(configurator.executables.GetActiveExecutable()->enabled);
+    this->ui->configurations_group_box_list->blockSignals(false);
 }
 
 void TabConfigurations::CleanUI() { this->_settings_tree_manager.CleanupGUI(); }
@@ -472,58 +509,6 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
     return false;
 }
 
-void TabConfigurations::OnSelectConfiguration(int currentRow) {
-    this->_settings_tree_manager.CleanupGUI();
-
-    if (currentRow == -1) {
-        return;  // No row selected
-    }
-
-    QListWidgetItem *list_item = ui->configurations_list->item(currentRow);
-    ListItem *item = dynamic_cast<ListItem *>(list_item);
-
-    if (item == nullptr) {
-        return;
-    }
-
-    Configurator &configurator = Configurator::Get();
-    if (configurator.GetActionConfigurationName() != item->key) {
-        configurator.SetActiveConfigurationName(item->key);
-
-        if (!configurator.Get(HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE)) {
-            std::vector<std::string> missing_layers;
-
-            const Configuration *configuration = configurator.GetActiveConfiguration();
-            if (configuration->HasMissingLayer(configurator.layers, missing_layers)) {
-                std::string text = format("The selected '%s' configuration is missing the layers:\n", configuration->key.c_str());
-                for (std::size_t i = 0, n = missing_layers.size(); i < n; ++i) {
-                    text += format(" - %s\n", missing_layers[i].c_str());
-                }
-                text += "These layers will be ignored.";
-
-                QMessageBox alert;
-                alert.setWindowTitle("Missing Vulkan layers...");
-                alert.setText(text.c_str());
-                alert.setIcon(QMessageBox::Warning);
-                alert.setCheckBox(new QCheckBox("Do not show again."));
-                alert.setInformativeText(format("Use the '%s' tab to add the missing layers.", GetLabel(TAB_LAYERS)).c_str());
-
-                int ret_val = alert.exec();
-                if (alert.checkBox()->isChecked()) {
-                    configurator.Set(HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE);
-                }
-            }
-        }
-
-        configurator.Override(OVERRIDE_AREA_ALL);
-
-        this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
-        this->UpdateUI_LoaderMessages();
-        this->UpdateUI_Layers(UPDATE_REBUILD_UI);
-        this->UpdateUI_Settings(UPDATE_REBUILD_UI);
-    }
-}
-
 void TabConfigurations::OnRenameConfiguration(QListWidgetItem *list_item) {
     ListItem *item = dynamic_cast<ListItem *>(list_item);
     if (item == nullptr) {
@@ -565,71 +550,6 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *list_item) {
     }
 
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-}
-
-void TabConfigurations::OnSelectLayer(int currentRow) {
-    this->_settings_tree_manager.CleanupGUI();
-
-    if (currentRow == -1) {
-        return;  // No row selected
-    }
-
-    QWidget *widget = this->ui->configurations_layers_list->itemWidget(this->ui->configurations_layers_list->item(currentRow));
-    if (widget == nullptr) {
-        return;
-    }
-
-    const std::string &layer_string = static_cast<ConfigurationLayerWidget *>(widget)->layer_name;
-
-    Configurator &configurator = Configurator::Get();
-
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    assert(configuration != nullptr);
-
-    if (configuration->selected_layer_name != layer_string) {
-        if (layer_string == ::GetLabel(LAYER_BUILTIN_UNORDERED)) {
-            if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_UNORDERED_LAYER)) {
-                QMessageBox message;
-                message.setIcon(QMessageBox::Information);
-                message.setWindowTitle(::GetLabel(LAYER_BUILTIN_UNORDERED));
-                message.setText(
-                    "This item refers to Vulkan Layers not visible by Vulkan Configurator but located and enabled by the Vulkan "
-                    "Application at launched.");
-                message.setInformativeText(
-                    "- Vulkan Layers are located by the Vulkan Application by setting 'VK_ADD_LAYER_PATH'.\n"
-                    "- Vulkan Layers are enabled by the Vulkan Application using 'VK_LOADER_LAYERS_ENABLE' or 'vkCreateInstance'.");
-                message.setCheckBox(new QCheckBox("Do not show again."));
-                message.exec();
-                if (message.checkBox()->isChecked()) {
-                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_UNORDERED_LAYER);
-                }
-            }
-        }
-
-        configuration->selected_layer_name = layer_string;
-
-        this->_settings_tree_manager.CreateGUI();
-    }
-}
-
-void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
-    (void)checked;
-
-    Configurator &configurator = Configurator::Get();
-
-    Configuration *active_configuration = configurator.GetActiveConfiguration();
-    if (active_configuration != nullptr) {
-        int loader_log_messages_bits = 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_errors->isChecked() ? GetBit(LOG_ERROR) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_warns->isChecked() ? GetBit(LOG_WARN) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_infos->isChecked() ? GetBit(LOG_INFO) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_debug->isChecked() ? GetBit(LOG_DEBUG) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_layers->isChecked() ? GetBit(LOG_LAYER) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_drivers->isChecked() ? GetBit(LOG_DRIVER) : 0;
-        active_configuration->loader_log_messages_flags = loader_log_messages_bits;
-
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-    }
 }
 
 void TabConfigurations::OnContextMenuNewClicked(ListItem *item) {
@@ -719,10 +639,7 @@ void TabConfigurations::OnContextMenuDeleteClicked(ListItem *item) {
     configurator.configurations.RemoveConfiguration(item->key);
     configurator.SetActiveConfigurationName("");
 
-    this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
-    this->UpdateUI_Applications(UPDATE_REFRESH_UI);
-    this->UpdateUI_LoaderMessages();
-    this->UpdateUI_Layers(UPDATE_REBUILD_UI);
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void TabConfigurations::OnContextMenuResetClicked(ListItem *item) {
@@ -820,66 +737,9 @@ void TabConfigurations::OnContextMenuExportSettingsClicked(ListItem *item) {
     msg.exec();
 }
 
-void TabConfigurations::ui_configurations_group_box_list_tooltip() {
-    Configurator &configurator = Configurator::Get();
-    const ExecutableScope scope = configurator.GetExecutableScope();
-
-    if (scope == EXECUTABLE_PER || scope == EXECUTABLE_ALL) {
-        const Executable *executable = configurator.GetActiveExecutable();
-        const std::string path = executable->path.RelativePath();
-
-        if (scope == EXECUTABLE_PER) {
-            this->ui->configurations_group_box_list->setToolTip(
-                format("Select a configuration applied to '%s' executable", path.c_str()).c_str());
-        } else {
-            const std::string state =
-                configurator.executables.GetActiveExecutable()->enabled ? "Uncheck to disable" : "Check to enable";
-            this->ui->configurations_group_box_list->setToolTip(
-                format("%s the configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
-        }
-
-    } else if (scope == EXECUTABLE_ANY) {
-        this->ui->configurations_group_box_list->setToolTip("Select the active layers configuration");
-    } else {
-        this->ui->configurations_group_box_list->setToolTip("");
-    }
-}
-
-void TabConfigurations::ui_configurations_group_box_settings_tooltip() {
-    Configurator &configurator = Configurator::Get();
-
-    const Parameter *parameter = configurator.GetActiveParameter();
-    if (parameter != nullptr) {
-        const std::string state = parameter->override_settings ? "Uncheck to disable" : "Check to enable";
-        const std::string tooltip = format("%s '%s' layer settings", state.c_str(), parameter->key.c_str());
-
-        this->ui->configurations_group_box_settings->setToolTip(tooltip.c_str());
-    }
-}
-
-void TabConfigurations::ui_configurations_advanced_toggle() {
-    Configurator &configurator = Configurator::Get();
-
-    if (this->advanced_mode) {
-        if (configurator.advanced) {
-            this->advanced_mode->setIcon(QIcon(":/resourcefiles/settings_basic.png"));
-            this->advanced_mode->setToolTip("Click to switch to basic Layers Configuration mode");
-        } else {
-            this->advanced_mode->setIcon(QIcon(":/resourcefiles/settings_advanced.png"));
-            this->advanced_mode->setToolTip("Click to switch to advanced Layers Configuration mode");
-        }
-    }
-
-    // this->ui->configurations_group_box_layers->setCheckable(configurator.advanced);
-    // this->ui->configurations_group_box_loader->setCheckable(configurator.advanced);
-    this->ui->configurations_group_box_settings->setCheckable(configurator.advanced);
-}
-
 void TabConfigurations::on_configurations_advanced_toggle_pressed() {
     Configurator &configurator = Configurator::Get();
     configurator.advanced = !configurator.advanced;
-
-    this->ui_configurations_advanced_toggle();
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
@@ -888,19 +748,49 @@ void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(i
     Configurator &configurator = Configurator::Get();
 
     const ExecutableScope scope = static_cast<ExecutableScope>(index);
+    switch (scope) {
+        default: {
+            configurator.SetExecutableScope(scope);
+            configurator.Override(OVERRIDE_AREA_ALL);
+            break;
+        }
+        case EXECUTABLE_PER:
+        case EXECUTABLE_ALL: {
+            HideMessageType type =
+                scope == EXECUTABLE_PER ? HIDE_MESSAGE_NOTIFICATION_EXECUTABLE_PER : HIDE_MESSAGE_NOTIFICATION_EXECUTABLE_ALL;
+            if (!(configurator.Get(type))) {
+                QMessageBox message;
+                message.setWindowTitle(format("Selected scope: '%s'", ::GetLabel(scope)).c_str());
+                message.setText(::GetTooltip(scope));
+                if (scope == EXECUTABLE_PER) {
+                    message.setInformativeText(
+                        "As the vk_layer_settings.txt file is written in the executable working directory, all the executables "
+                        "with the same working directory will share the same loader configuration.\n\nDo you want to continue?");
+                } else {
+                    message.setInformativeText(
+                        "If the executable working directory contains a vk_layer_settings.txt file, the file will be "
+                        "overwritten.\n\nDo you want to continue?");
+                }
+                message.setIcon(QMessageBox::Information);
+                message.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                message.setDefaultButton(QMessageBox::Ok);
+                message.setCheckBox(new QCheckBox("Do not show again."));
+                int retval = message.exec();
 
-    configurator.SetExecutableScope(scope);
-    configurator.Override(OVERRIDE_AREA_ALL);
+                if (message.checkBox()->isChecked()) {
+                    configurator.Set(type);
+                }
 
-    this->ui->configurations_executable_scope->setToolTip(GetTooltip(scope));
-    this->ui->configurations_executable_list->setEnabled(index == EXECUTABLE_ALL || index == EXECUTABLE_PER);
-    this->ui->configurations_executable_append->setEnabled(index == EXECUTABLE_ALL || index == EXECUTABLE_PER);
+                if (retval == QMessageBox::Cancel) {
+                    break;
+                }
+            }
 
-    this->ui->configurations_group_box_list->setEnabled(index != EXECUTABLE_NONE);
-    this->ui->configurations_group_box_list->setCheckable(index == EXECUTABLE_ALL);
-    this->ui->configurations_group_box_list->setChecked(configurator.executables.GetActiveExecutable()->enabled);
-
-    this->ui_configurations_group_box_list_tooltip();
+            configurator.SetExecutableScope(scope);
+            configurator.Override(OVERRIDE_AREA_ALL);
+            break;
+        }
+    }
 
     this->UpdateUI(UPDATE_REFRESH_UI);
     this->window.UpdateUI_Status();
@@ -911,15 +801,13 @@ void TabConfigurations::on_configurations_executable_list_currentIndexChanged(in
     configurator.executables.SetActiveExecutable(index);
 
     ExecutableScope scope = configurator.GetExecutableScope();
-    assert(scope == EXECUTABLE_PER || scope == EXECUTABLE_ALL);
+    assert(::EnabledExecutables(scope));
 
     const Executable *executable = configurator.GetActiveExecutable();
     const std::string path = executable->path.RelativePath();
 
     this->ui->configurations_executable_list->setToolTip(executable->path.AbsolutePath().c_str());
     this->ui->configurations_group_box_list->setChecked(executable->enabled);
-
-    this->ui_configurations_group_box_list_tooltip();
 
     this->UpdateUI(UPDATE_REFRESH_UI);
     this->window.UpdateUI_Status();
@@ -947,9 +835,12 @@ void TabConfigurations::on_configurations_list_toggled(bool checked) {
     Executable *executable = configurator.GetActiveExecutable();
     if (executable != nullptr) {
         executable->enabled = checked;
+
+        this->UpdatePerExecutableConfigurations();
+
+        configurator.Override(OVERRIDE_AREA_ALL);
     }
 
-    this->ui_configurations_group_box_list_tooltip();
     this->UpdateUI(UPDATE_REFRESH_UI);
 }
 
@@ -988,7 +879,27 @@ void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) 
 
     // The layer version combobox is on even when the layer settings group is unchecked
     this->_settings_tree_manager.RefreshVersion();
-    this->ui_configurations_group_box_settings_tooltip();
+    this->UpdateUI_Settings(UPDATE_REFRESH_UI);
+}
+
+void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
+    (void)checked;
+
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *active_configuration = configurator.GetActiveConfiguration();
+    if (active_configuration != nullptr) {
+        int loader_log_messages_bits = 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_errors->isChecked() ? GetBit(LOG_ERROR) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_warns->isChecked() ? GetBit(LOG_WARN) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_infos->isChecked() ? GetBit(LOG_INFO) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_debug->isChecked() ? GetBit(LOG_DEBUG) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_layers->isChecked() ? GetBit(LOG_LAYER) : 0;
+        loader_log_messages_bits |= this->ui->configuration_loader_drivers->isChecked() ? GetBit(LOG_DRIVER) : 0;
+        active_configuration->loader_log_messages_flags = loader_log_messages_bits;
+
+        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+    }
 }
 
 void TabConfigurations::on_configuration_loader_errors_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
@@ -1006,8 +917,140 @@ void TabConfigurations::on_configuration_loader_drivers_toggled(bool checked) { 
 /// An item has been changed. Check for edit of the items name (configuration name)
 void TabConfigurations::on_configurations_list_itemChanged(QListWidgetItem *item) { this->OnRenameConfiguration(item); }
 
-void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow) { this->OnSelectConfiguration(currentRow); }
+void TabConfigurations::UpdatePerExecutableConfigurations() {
+    Configurator &configurator = Configurator::Get();
+    if (configurator.GetExecutableScope() != EXECUTABLE_PER) {
+        return;
+    }
 
-void TabConfigurations::on_configurations_layers_list_currentRowChanged(int currentRow) { this->OnSelectLayer(currentRow); }
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    if (configuration == nullptr) {
+        return;
+    }
+
+    std::vector<Path> updated_executable_paths;
+    if (configurator.executables.UpdateConfigurations(updated_executable_paths)) {
+        if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_PER_CONFIG_UPDATE)) {
+            QMessageBox message;
+            message.setWindowTitle("Vulkan Executable Loader Configuration Updated");
+            message.setText(
+                format("Per Executable Loader Configuration Scope requires that all executables with the same working "
+                       "directory use the same loader configuration. The following executables were switch to '%s' configuration:",
+                       configuration->key.c_str())
+                    .c_str());
+            std::string informative;
+            for (std::size_t i = 0, n = updated_executable_paths.size(); i < n; ++i) {
+                informative += format("- %s\n", updated_executable_paths[i].RelativePath().c_str());
+            }
+
+            message.setInformativeText(informative.c_str());
+            message.setIcon(QMessageBox::Warning);
+            message.setCheckBox(new QCheckBox("Do not show again."));
+            message.exec();
+
+            if (message.checkBox()->isChecked()) {
+                configurator.Set(HIDE_MESSAGE_NOTIFICATION_PER_CONFIG_UPDATE);
+            }
+        }
+    }
+}
+
+void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow) {
+    this->_settings_tree_manager.CleanupGUI();
+
+    if (currentRow == -1) {
+        return;  // No row selected
+    }
+
+    QListWidgetItem *list_item = ui->configurations_list->item(currentRow);
+    ListItem *item = dynamic_cast<ListItem *>(list_item);
+
+    if (item == nullptr) {
+        return;
+    }
+
+    Configurator &configurator = Configurator::Get();
+    const Configuration *selected_configuration = configurator.configurations.FindConfiguration(item->key);
+
+    if (configurator.GetActiveConfiguration() != selected_configuration) {
+        configurator.SetActiveConfigurationName(item->key);
+
+        if (!configurator.Get(HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE)) {
+            std::vector<std::string> missing_layers;
+
+            const Configuration *configuration = configurator.GetActiveConfiguration();
+            if (configuration->HasMissingLayer(configurator.layers, missing_layers)) {
+                std::string text = format("The selected '%s' configuration is missing the layers:\n", configuration->key.c_str());
+                for (std::size_t i = 0, n = missing_layers.size(); i < n; ++i) {
+                    text += format(" - %s\n", missing_layers[i].c_str());
+                }
+                text += "These layers will be ignored.";
+
+                QMessageBox alert;
+                alert.setWindowTitle("Missing Vulkan layers...");
+                alert.setText(text.c_str());
+                alert.setIcon(QMessageBox::Warning);
+                alert.setCheckBox(new QCheckBox("Do not show again."));
+                alert.setInformativeText(format("Use the '%s' tab to add the missing layers.", GetLabel(TAB_LAYERS)).c_str());
+
+                int ret_val = alert.exec();
+                if (alert.checkBox()->isChecked()) {
+                    configurator.Set(HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE);
+                }
+            }
+        }
+
+        this->UpdatePerExecutableConfigurations();
+
+        configurator.Override(OVERRIDE_AREA_ALL);
+
+        this->UpdateUI(UPDATE_REBUILD_UI);
+    }
+}
+
+void TabConfigurations::on_configurations_layers_list_currentRowChanged(int currentRow) {
+    this->_settings_tree_manager.CleanupGUI();
+
+    if (currentRow == -1) {
+        return;  // No row selected
+    }
+
+    QWidget *widget = this->ui->configurations_layers_list->itemWidget(this->ui->configurations_layers_list->item(currentRow));
+    if (widget == nullptr) {
+        return;
+    }
+
+    const std::string &layer_string = static_cast<ConfigurationLayerWidget *>(widget)->layer_name;
+
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    assert(configuration != nullptr);
+
+    if (configuration->selected_layer_name != layer_string) {
+        if (layer_string == ::GetLabel(LAYER_BUILTIN_UNORDERED)) {
+            if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_UNORDERED_LAYER)) {
+                QMessageBox message;
+                message.setIcon(QMessageBox::Information);
+                message.setWindowTitle(::GetLabel(LAYER_BUILTIN_UNORDERED));
+                message.setText(
+                    "This item refers to Vulkan Layers not visible by Vulkan Configurator but located and enabled by the Vulkan "
+                    "Application at launched.");
+                message.setInformativeText(
+                    "- Vulkan Layers are located by the Vulkan Application by setting 'VK_ADD_LAYER_PATH'.\n"
+                    "- Vulkan Layers are enabled by the Vulkan Application using 'VK_LOADER_LAYERS_ENABLE' or 'vkCreateInstance'.");
+                message.setCheckBox(new QCheckBox("Do not show again."));
+                message.exec();
+                if (message.checkBox()->isChecked()) {
+                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_UNORDERED_LAYER);
+                }
+            }
+        }
+
+        configuration->selected_layer_name = layer_string;
+
+        this->_settings_tree_manager.CreateGUI();
+    }
+}
 
 void TabConfigurations::on_configurations_layerVersionChanged() { this->UpdateUI_Layers(UPDATE_REBUILD_UI); }

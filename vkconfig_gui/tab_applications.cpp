@@ -161,9 +161,11 @@ void TabApplications::on_launch_executable_remove_pressed() {
         }
     }
 
+    configurator.Surrender(OVERRIDE_AREA_ALL);
     configurator.executables.RemoveExecutable();
-    this->EnableOptions();
+    configurator.Override(OVERRIDE_AREA_ALL);
 
+    this->EnableOptions();
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
@@ -197,10 +199,15 @@ void TabApplications::on_launch_executable_list_textEdited(const QString &text) 
 
 void TabApplications::on_launch_options_list_activated(int index) {
     Configurator &configurator = Configurator::Get();
+    configurator.Surrender(OVERRIDE_AREA_ALL);
+
     Executable *executable = configurator.executables.GetActiveExecutable();
     const std::vector<ExecutableOptions> &options_list = executable->GetOptions();
 
     executable->SetActiveOptions(options_list[index].label);
+
+    configurator.Override(OVERRIDE_AREA_ALL);
+
     const ExecutableOptions *options = executable->GetActiveOptions();
 
     ui->launch_options_dir_edit->setText(options->working_folder.RelativePath().c_str());
@@ -259,7 +266,9 @@ void TabApplications::on_launch_options_remove_pressed() {
         }
     }
 
+    configurator.Surrender(OVERRIDE_AREA_ALL);
     executable->RemoveActiveOptions();
+    configurator.Override(OVERRIDE_AREA_ALL);
 
     this->EnableOptions();
     this->UpdateUI(UPDATE_REBUILD_UI);
@@ -428,7 +437,7 @@ void TabApplications::on_launch_button_pressed() {
     this->_launch_application->setProgram(active_executable->path.AbsolutePath().c_str());
     this->_launch_application->setWorkingDirectory(options->working_folder.AbsolutePath().c_str());
 
-    Configuration *configuration = configurator.configurations.FindConfiguration(options->configuration);
+    Configuration *configuration = configurator.configurations.FindConfiguration(active_executable->configuration);
 
     QStringList env = QProcess::systemEnvironment();
 

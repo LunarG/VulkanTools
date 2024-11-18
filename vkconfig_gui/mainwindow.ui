@@ -83,7 +83,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -209,26 +209,6 @@
                     <property name="sizeAdjustPolicy">
                      <enum>QComboBox::AdjustToContents</enum>
                     </property>
-                    <item>
-                     <property name="text">
-                      <string>Any Vulkan Executable</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>All Enabled Vulkan Executable:</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>Per-Listed Vulkan Executable:</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>No Vulkan Executable</string>
-                     </property>
-                    </item>
                    </widget>
                   </item>
                   <item>
@@ -268,7 +248,17 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>...</string>
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="resources.qrc">
+                      <normaloff>:/resourcefiles/file_search.png</normaloff>:/resourcefiles/file_search.png</iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>24</width>
+                      <height>24</height>
+                     </size>
                     </property>
                    </widget>
                   </item>
@@ -278,7 +268,7 @@
                <item>
                 <widget class="QGroupBox" name="configurations_group_box_list">
                  <property name="title">
-                  <string>Vulkan Loader Configurations List:</string>
+                  <string>Apply a Vulkan Loader Configuration:</string>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_4">
                   <property name="spacing">
@@ -376,7 +366,7 @@
                   <string>Configure Layers Ordering and Selection</string>
                  </property>
                  <property name="title">
-                  <string>Vulkan Layers Selection and Execution Order:</string>
+                  <string>Include Vulkan Layers Selection and Execution Order:</string>
                  </property>
                  <property name="checkable">
                   <bool>true</bool>
@@ -519,7 +509,7 @@
                   <string>Configure Loader Messages</string>
                  </property>
                  <property name="title">
-                  <string>Vulkan Loader Messages Level:</string>
+                  <string>Include Vulkan Loader Messages:</string>
                  </property>
                  <property name="checkable">
                   <bool>true</bool>
@@ -2350,67 +2340,6 @@
            </property>
            <property name="text">
             <string>About LunarG</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="about_version_label">
-           <property name="geometry">
-            <rect>
-             <x>380</x>
-             <y>20</y>
-             <width>171</width>
-             <height>21</height>
-            </rect>
-           </property>
-           <property name="palette">
-            <palette>
-             <active>
-              <colorrole role="WindowText">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>164</red>
-                 <green>30</green>
-                 <blue>34</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </active>
-             <inactive>
-              <colorrole role="WindowText">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>164</red>
-                 <green>30</green>
-                 <blue>34</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </inactive>
-             <disabled>
-              <colorrole role="WindowText">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>120</red>
-                 <green>120</green>
-                 <blue>120</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </disabled>
-            </palette>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>12</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>3.0.0</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </widget>
