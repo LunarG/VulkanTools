@@ -19,17 +19,13 @@
  */
 
 #include "../ui.h"
+#include "../version.h"
+#include "../date.h"
 
 #include <gtest/gtest.h>
 
 TEST(test_ui, GetMainWindowTitle) {
-    std::string title = GetMainWindowTitle(false, false);
+    std::string title = ::GetMainWindowTitle();
 
-    EXPECT_STREQ(("Vulkan Configurator " + Version::VKCONFIG.str() + "-Alpha").c_str(), title.c_str());
-}
-
-TEST(test_ui, GetMainWindowTitle_active) {
-    std::string title = GetMainWindowTitle(true, false);
-
-    EXPECT_STREQ(("Vulkan Configurator " + Version::VKCONFIG.str() + "-Alpha <ACTIVE>").c_str(), title.c_str());
+    EXPECT_STREQ(("Vulkan Configurator " + Version::VKCONFIG.str() + "-" + GetBuildDate() + " (BETA)").c_str(), title.c_str());
 }

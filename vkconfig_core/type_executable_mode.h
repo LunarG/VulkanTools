@@ -21,13 +21,13 @@
 #pragma once
 
 enum ExecutableScope {  // Enum value can't be changed
-    EXECUTABLE_ANY = 0,
+    EXECUTABLE_NONE = 0,
+    EXECUTABLE_ANY,
     EXECUTABLE_ALL,
     EXECUTABLE_PER,
-    EXECUTABLE_NONE,
 
-    EXECUTABLE_SCOPE_FIRST = EXECUTABLE_ANY,
-    EXECUTABLE_SCOPE_LAST = EXECUTABLE_NONE
+    EXECUTABLE_SCOPE_FIRST = EXECUTABLE_NONE,
+    EXECUTABLE_SCOPE_LAST = EXECUTABLE_PER
 };
 
 enum { EXECUTABLE_SCOPE_COUNT = EXECUTABLE_SCOPE_LAST - EXECUTABLE_SCOPE_FIRST + 1 };
@@ -37,3 +37,5 @@ const char* GetTooltip(ExecutableScope scope);
 const char* GetToken(ExecutableScope scope);
 
 ExecutableScope GetExecutableScope(const char* token);
+
+bool EnabledExecutables(ExecutableScope scope);

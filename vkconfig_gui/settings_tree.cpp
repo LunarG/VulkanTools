@@ -63,20 +63,7 @@ void SettingsTreeManager::CreateGUI() {
     this->CleanupGUI();
 
     Configurator &configurator = Configurator::Get();
-
-    if (!configurator.HasActiveParameter()) {
-        this->ui->configurations_group_box_settings->setTitle("Select a layer to display settings");
-        this->ui->configurations_group_box_settings->setCheckable(false);
-        this->ui->configurations_presets->setVisible(false);
-        this->layer_version->setVisible(false);
-        return;
-    }
-
-    if (!configurator.HasActiveSettings()) {
-        this->ui->configurations_group_box_settings->setTitle("No Layer Settings");
-        this->ui->configurations_group_box_settings->setCheckable(false);
-        this->ui->configurations_presets->setVisible(false);
-        this->layer_version->setVisible(false);
+    if (!configurator.HasActiveParameter() || !configurator.HasActiveSettings()) {
         return;
     }
 
@@ -170,6 +157,22 @@ void SettingsTreeManager::CleanupGUI() {
     }
 
     this->ui->configurations_settings->clear();
+
+    if (!configurator.HasActiveSettings()) {
+        this->ui->configurations_group_box_settings->setTitle("No Layer Settings");
+        this->ui->configurations_group_box_settings->setCheckable(false);
+        this->ui->configurations_presets->setVisible(false);
+        this->layer_version->setVisible(false);
+        return;
+    }
+
+    if (!configurator.HasActiveParameter()) {
+        this->ui->configurations_group_box_settings->setTitle("Select a layer to display settings");
+        this->ui->configurations_group_box_settings->setCheckable(false);
+        this->ui->configurations_presets->setVisible(false);
+        this->layer_version->setVisible(false);
+        return;
+    }
 }
 
 void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {

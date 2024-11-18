@@ -20,19 +20,10 @@
 
 #include "ui.h"
 #include "date.h"
+#include "util.h"
+#include "version.h"
 
-std::string GetMainWindowTitle(bool active, bool display_date) {
-    std::string title = format("%s %s-Alpha", VKCONFIG_NAME, Version::VKCONFIG.str().c_str());
-
-#if VKCONFIG_DATE
-    if (display_date) {
-        title += format("-%s", GetBuildDate().c_str());
-    }
-#endif
-
-    if (active) {
-        title += " <ACTIVE>";
-    }
-
+std::string GetMainWindowTitle() {
+    std::string title = format("%s %s-%s (BETA)", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
     return title;
 }

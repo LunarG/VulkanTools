@@ -20,6 +20,6 @@
 
 #pragma once
 
-#include "layer_manager.h"
+#include <string>
 
-std::string GetMainWindowTitle(bool active, bool display_date);
+std::string GetMainWindowTitle();

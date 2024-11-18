@@ -38,9 +38,7 @@ class TabConfigurations : public Tab {
     virtual void CleanUI() override;
     virtual bool EventFilter(QObject *target, QEvent *event) override;
 
-    void OnSelectConfiguration(int currentRow);
     void OnRenameConfiguration(QListWidgetItem *item);
-    void OnSelectLayer(int currentRow);
     void OnCheckedLoaderMessageTypes(bool checked);
 
     void UpdateUI_Configurations(UpdateUIMode ui_update_mode);
@@ -88,8 +86,5 @@ class TabConfigurations : public Tab {
     void OnContextMenuExportConfigsClicked(ListItem *item);
     void OnContextMenuExportSettingsClicked(ListItem *item);
 
-   private:
-    void ui_configurations_group_box_list_tooltip();
-    void ui_configurations_group_box_settings_tooltip();
-    void ui_configurations_advanced_toggle();
+    void UpdatePerExecutableConfigurations();
 };
