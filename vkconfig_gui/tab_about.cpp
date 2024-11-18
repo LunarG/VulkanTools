@@ -30,10 +30,6 @@ TabAbout::TabAbout(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab
     this->connect(this->ui->about_lunarg_pushButton, SIGNAL(pressed()), this, SLOT(on_about_lunarg_pushButton_pressed()));
     this->connect(this->ui->about_qt_pushButton, SIGNAL(pressed()), this, SLOT(on_about_qt_pushButton_pressed()));
 
-    const std::string version = format("%s-%s", Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
-
-    this->ui->about_version_label->setText(version.c_str());
-
     QFile file(":/CHANGELOG.md");
     const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result);

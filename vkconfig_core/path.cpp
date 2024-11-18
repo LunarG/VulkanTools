@@ -108,9 +108,9 @@ Path::Path(const std::string& path, bool recover_vars) {
     this->data = result;
 }
 
-bool Path::IsFile() const { return QFileInfo(this->data.c_str()).isFile(); }
+bool Path::IsFile() const { return QFileInfo(this->AbsolutePath().c_str()).isFile(); }
 
-bool Path::IsDir() const { return QFileInfo(this->data.c_str()).isDir(); }
+bool Path::IsDir() const { return QFileInfo(this->AbsolutePath().c_str()).isDir(); }
 
 bool Path::IsBuiltIn() const { return this->data.find(":") == 0; }
 

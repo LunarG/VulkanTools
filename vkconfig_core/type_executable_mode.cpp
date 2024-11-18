@@ -25,10 +25,10 @@
 
 const char* GetLabel(ExecutableScope scope) {
     static const char* TABLE[]{
-        "Any Vulkan Executable",            // EXECUTABLE_ANY
-        "All Enabled Vulkan Executable: ",  // EXECUTABLE_ALL
-        "Per-Listed Vulkan Executable: ",   // EXECUTABLE_PER
-        "No Vulkan Executable",             // EXECUTABLE_NONE
+        "No Vulkan Executable",           // EXECUTABLE_NONE
+        "Any Running Vulkan Executable",  // EXECUTABLE_ANY
+        "All Enabled Vulkan Executable",  // EXECUTABLE_ALL
+        "Per Enabled Vulkan Executable",  // EXECUTABLE_PER
     };
 
     static_assert(std::size(TABLE) == EXECUTABLE_SCOPE_COUNT,
@@ -39,10 +39,10 @@ const char* GetLabel(ExecutableScope scope) {
 
 const char* GetTooltip(ExecutableScope scope) {
     static const char* TABLE[]{
-        "Apply the selected layers configuration to any executable running",  // EXECUTABLE_ANY
-        "Apply the selected layers configuration to all enabled executable",  // EXECUTABLE_ALL
-        "Apply a dedicated layers configuration per executable",              // EXECUTABLE_PER
-        "Don't affect any executable running on the system",                  // EXECUTABLE_NONE
+        "Vulkan Configurator won't affect any executable running on the system.",  // EXECUTABLE_NONE
+        "Apply the active loader configuration to any executable running.",        // EXECUTABLE_ANY
+        "Apply the active loader configuration to all enabled executables.",       // EXECUTABLE_ALL
+        "Apply a dedicated loader configuration for each Vulkan executable.",      // EXECUTABLE_PER
     };
 
     static_assert(std::size(TABLE) == EXECUTABLE_SCOPE_COUNT,
@@ -53,10 +53,10 @@ const char* GetTooltip(ExecutableScope scope) {
 
 const char* GetToken(ExecutableScope scope) {
     static const char* TABLE[]{
+        "NONE",  // EXECUTABLE_NONE
         "ANY",   // EXECUTABLE_ANY
         "ALL",   // EXECUTABLE_ALL
         "PER",   // EXECUTABLE_PER
-        "NONE",  // EXECUTABLE_NONE
     };
 
     static_assert(std::size(TABLE) == EXECUTABLE_SCOPE_COUNT,
@@ -75,3 +75,5 @@ ExecutableScope GetExecutableScope(const char* token) {
 
     return EXECUTABLE_NONE;
 }
+
+bool EnabledExecutables(ExecutableScope scope) { return scope == EXECUTABLE_ALL || scope == EXECUTABLE_PER; }

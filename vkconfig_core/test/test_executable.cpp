@@ -27,6 +27,7 @@ TEST(test_executable, ctor_default) {
 
     EXPECT_TRUE(executable.path.Empty());
     EXPECT_TRUE(executable.enabled);
+    EXPECT_STREQ("Validation", executable.configuration.c_str());
     EXPECT_TRUE(executable.GetActiveOptionsName().empty());
     EXPECT_EQ(0, executable.GetOptions().size());
 
@@ -52,7 +53,6 @@ TEST(test_executable, ctor_path) {
 
     const ExecutableOptions* options = executable.GetActiveOptions();
     EXPECT_STREQ("Default Options", options->label.c_str());
-    EXPECT_STREQ("Validation", options->configuration.c_str());
     EXPECT_TRUE(!options->working_folder.Empty());
     EXPECT_EQ(true, options->args.empty());
     EXPECT_EQ(true, options->envs.empty());

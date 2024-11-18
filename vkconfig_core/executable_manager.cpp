@@ -85,6 +85,9 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object) {
         const QJsonObject& json_application_object = json_list_object.value(json_list_keys[i]).toObject();
         executable.path = json_list_keys[i].toStdString();
         executable.enabled = json_application_object.value("enabled").toBool();
+        if (json_application_object.value("configuration") != QJsonValue::Undefined) {
+            executable.configuration = json_application_object.value("configuration").toString().toStdString();
+        }
 
         const QJsonArray& json_options_array = json_application_object.value("options").toArray();
         for (int j = 0, o = json_options_array.size(); j < o; ++j) {
@@ -93,7 +96,6 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object) {
             ExecutableOptions executable_options;
 
             executable_options.label = json_options_object.value("label").toString().toStdString();
-            executable_options.configuration = json_options_object.value("configuration").toString().toStdString();
             executable_options.working_folder = json_options_object.value("working_folder").toString().toStdString();
 
             const QJsonArray& json_command_lines_array = json_options_object.value("arguments").toArray();
@@ -135,6 +137,7 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
 
         QJsonObject json_executable_object;
         json_executable_object.insert("enabled", executable.enabled);
+        json_executable_object.insert("configuration", executable.configuration.c_str());
         json_executable_object.insert("active_option", executable.GetActiveOptionsName().c_str());
 
         QJsonArray json_options_array;
@@ -155,7 +158,6 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
 
             QJsonObject json_option_object;
             json_option_object.insert("label", options.label.c_str());
-            json_option_object.insert("configuration", options.configuration.c_str());
             json_option_object.insert("working_folder", options.working_folder.RelativePath().c_str());
             json_option_object.insert("arguments", json_arg_array);
             json_option_object.insert("environment_variables", json_env_array);
@@ -240,6 +242,28 @@ bool ExecutableManager::RemoveExecutable() {
     return true;
 }
 
+bool ExecutableManager::UpdateConfigurations(std::vector<Path>& updated_executable_paths) {
+    int result = 0;
+
+    const Executable* active_executable = this->GetActiveExecutable();
+    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
+        if (!this->data[i].enabled) {
+            continue;
+        }
+
+        if (this->data[i].GetActiveOptions()->working_folder.AbsolutePath() !=
+            active_executable->GetActiveOptions()->working_folder.AbsolutePath()) {
+            continue;
+        }
+
+        ++result;
+        this->data[i].configuration = active_executable->configuration;
+        updated_executable_paths.push_back(this->data[i].path);
+    }
+
+    return result > 1;
+}
+
 const Executable* ExecutableManager::GetActiveExecutable() const {
     for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
         if (this->data[i].path == this->active_executable) {
@@ -304,4 +328,30 @@ std::vector<Executable> ExecutableManager::RemoveMissingExecutables(const std::v
     }
 
     return valid_applications;
+}
+
+bool ExecutableManager::HasIncompatiblePerExecutables(const Executable& executable,
+                                                      std::vector<Executable>& imcompatible_executables) const {
+    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
+        if (executable.path == this->data[i].path) {
+            continue;
+        }
+
+        if (executable.GetActiveOptions()->working_folder == this->data[i].GetActiveOptions()->working_folder) {
+            imcompatible_executables.push_back(this->data[i]);
+        }
+    }
+
+    return !imcompatible_executables.empty();
+}
+
+bool ExecutableManager::HasIncompatiblePerExecutables(std::vector<Executable>& imcompatible_executables) const {
+    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
+        bool incompatible = this->HasIncompatiblePerExecutables(this->data[i], imcompatible_executables);
+        if (incompatible) {
+            imcompatible_executables.push_back(this->data[i]);
+        }
+    }
+
+    return !imcompatible_executables.empty();
 }
