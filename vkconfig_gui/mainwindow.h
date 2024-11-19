@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "../vkconfig_core/type_executable_mode.h"
+
 #include "tab_configurations.h"
 #include "tab_layers.h"
 #include "tab_applications.h"
@@ -35,6 +37,7 @@
 #include <QSystemTrayIcon>
 
 #include <string>
+#include <array>
 
 enum Tool { TOOL_VULKAN_INFO, TOOL_VULKAN_INSTALL };
 
@@ -58,16 +61,15 @@ class MainWindow : public QMainWindow {
     QSystemTrayIcon *_tray_icon;
     QMenu *_tray_icon_menu;
     QAction *_tray_restore_action;
-    QAction *_tray_layers_controlled_by_applications;
-    QAction *_tray_layers_controlled_by_configurator;
-    QAction *_tray_layers_disabled_by_configurator;
+    std::array<QAction *, EXECUTABLE_SCOPE_COUNT> _tray_layers;
     QAction *_tray_quit_action;
 
    private slots:
     void trayActionRestore();
-    void trayActionControlledByApplications(bool checked);
-    void trayActionControlledByConfigurator(bool checked);
-    void trayActionDisabledByApplications(bool checked);
+    void on_tray_none(bool checked);
+    void on_tray_any(bool checked);
+    void on_tray_all(bool checked);
+    void on_tray_per(bool checked);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
    public Q_SLOTS:

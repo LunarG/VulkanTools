@@ -54,9 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
       _tray_icon(nullptr),
       _tray_icon_menu(nullptr),
       _tray_restore_action(nullptr),
-      _tray_layers_controlled_by_applications(nullptr),
-      _tray_layers_controlled_by_configurator(nullptr),
-      _tray_layers_disabled_by_configurator(nullptr),
+      _tray_layers{nullptr, nullptr, nullptr, nullptr},
       _tray_quit_action(nullptr),
       ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -118,27 +116,24 @@ void MainWindow::UpdateUI(UpdateUIMode mode) {
 void MainWindow::InitTray() {
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         this->_tray_quit_action = new QAction("&Quit", this);
-        connect(this->_tray_quit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
+        this->connect(this->_tray_quit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
         this->_tray_restore_action = new QAction("Open &Vulkan Configurator", this);
-        connect(this->_tray_restore_action, &QAction::triggered, this, &MainWindow::trayActionRestore);
-        this->_tray_layers_controlled_by_applications = new QAction("Layers Controlled by the Vulkan Applications", this);
-        this->_tray_layers_controlled_by_applications->setCheckable(true);
-        connect(this->_tray_layers_controlled_by_applications, &QAction::toggled, this,
-                &MainWindow::trayActionControlledByApplications);
-        this->_tray_layers_controlled_by_configurator = new QAction("Layers Controlled by the Vulkan Configurator", this);
-        this->_tray_layers_controlled_by_configurator->setCheckable(true);
-        connect(this->_tray_layers_controlled_by_configurator, &QAction::toggled, this,
-                &MainWindow::trayActionControlledByConfigurator);
-        this->_tray_layers_disabled_by_configurator = new QAction("Layers Disabled by the Vulkan Configurator", this);
-        this->_tray_layers_disabled_by_configurator->setCheckable(true);
-        connect(this->_tray_layers_disabled_by_configurator, &QAction::toggled, this,
-                &MainWindow::trayActionDisabledByApplications);
+        this->connect(this->_tray_restore_action, &QAction::triggered, this, &MainWindow::trayActionRestore);
+
         this->_tray_icon_menu = new QMenu(this);
         this->_tray_icon_menu->addAction(this->_tray_restore_action);
         this->_tray_icon_menu->addSeparator();
-        this->_tray_icon_menu->addAction(this->_tray_layers_controlled_by_applications);
-        this->_tray_icon_menu->addAction(this->_tray_layers_controlled_by_configurator);
-        this->_tray_icon_menu->addAction(this->_tray_layers_disabled_by_configurator);
+        for (int i = 0, n = EXECUTABLE_SCOPE_COUNT; i < n; ++i) {
+            this->_tray_layers[i] = new QAction(::GetLabel(static_cast<ExecutableScope>(i)), this);
+            this->_tray_layers[i]->setCheckable(true);
+            this->_tray_icon_menu->addAction(this->_tray_layers[i]);
+        }
+
+        this->connect(this->_tray_layers[EXECUTABLE_NONE], &QAction::toggled, this, &MainWindow::on_tray_none);
+        this->connect(this->_tray_layers[EXECUTABLE_ANY], &QAction::toggled, this, &MainWindow::on_tray_any);
+        this->connect(this->_tray_layers[EXECUTABLE_ALL], &QAction::toggled, this, &MainWindow::on_tray_all);
+        this->connect(this->_tray_layers[EXECUTABLE_PER], &QAction::toggled, this, &MainWindow::on_tray_per);
+
         this->_tray_icon_menu->addSeparator();
         this->_tray_icon_menu->addAction(this->_tray_quit_action);
         this->_tray_icon = new QSystemTrayIcon(this);
@@ -153,26 +148,9 @@ void MainWindow::UpdateUI_Status() {
 
     this->setWindowTitle(GetMainWindowTitle().c_str());
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
-        /*
-        switch (layers_mode) {
-            default:
-            case LAYERS_CONTROLLED_BY_APPLICATIONS:
-                this->_tray_layers_controlled_by_applications->setChecked(true);
-                this->_tray_layers_controlled_by_configurator->setChecked(false);
-                this->_tray_layers_disabled_by_configurator->setChecked(false);
-                break;
-            case LAYERS_CONTROLLED_BY_CONFIGURATOR:
-                this->_tray_layers_controlled_by_applications->setChecked(false);
-                this->_tray_layers_controlled_by_configurator->setChecked(true);
-                this->_tray_layers_disabled_by_configurator->setChecked(false);
-                break;
-            case LAYERS_DISABLED_BY_CONFIGURATOR:
-                this->_tray_layers_controlled_by_applications->setChecked(false);
-                this->_tray_layers_controlled_by_configurator->setChecked(false);
-                this->_tray_layers_disabled_by_configurator->setChecked(true);
-                break;
+        for (int i = 0, n = EXECUTABLE_SCOPE_COUNT; i < n; ++i) {
+            this->_tray_layers[i]->setChecked(configurator.GetExecutableScope() == i);
         }
-        */
     }
 
     if (configurator.GetExecutableScope() != EXECUTABLE_NONE) {
@@ -222,31 +200,41 @@ void MainWindow::trayActionRestore() {
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void MainWindow::trayActionControlledByApplications(bool checked) {
+void MainWindow::on_tray_none(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-        // configurator.SetActiveLayersMode(LAYERS_CONTROLLED_BY_APPLICATIONS);
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+        configurator.SetExecutableScope(EXECUTABLE_NONE);
+        configurator.Override(OVERRIDE_AREA_ALL);
 
         this->UpdateUI(UPDATE_REBUILD_UI);
     }
 }
 
-void MainWindow::trayActionControlledByConfigurator(bool checked) {
+void MainWindow::on_tray_any(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-        // configurator.SetActiveLayersMode(LAYERS_CONTROLLED_BY_CONFIGURATOR);
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+        configurator.SetExecutableScope(EXECUTABLE_ANY);
+        configurator.Override(OVERRIDE_AREA_ALL);
 
         this->UpdateUI(UPDATE_REBUILD_UI);
     }
 }
 
-void MainWindow::trayActionDisabledByApplications(bool checked) {
+void MainWindow::on_tray_all(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-        // configurator.SetActiveLayersMode(LAYERS_DISABLED_BY_CONFIGURATOR);
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+        configurator.SetExecutableScope(EXECUTABLE_ALL);
+        configurator.Override(OVERRIDE_AREA_ALL);
+
+        this->UpdateUI(UPDATE_REBUILD_UI);
+    }
+}
+
+void MainWindow::on_tray_per(bool checked) {
+    if (checked) {
+        Configurator &configurator = Configurator::Get();
+        configurator.SetExecutableScope(EXECUTABLE_PER);
+        configurator.Override(OVERRIDE_AREA_ALL);
 
         this->UpdateUI(UPDATE_REBUILD_UI);
     }
