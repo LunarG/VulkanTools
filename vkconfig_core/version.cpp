@@ -59,7 +59,13 @@ Version::Version(const char *version) : Version(GetVersionData(version)) {}
 
 Version::Version(const std::string &version) : Version(version.c_str()) {}
 
-std::string Version::str() const { return format("%d.%d.%d", _major, _minor, _patch); }
+std::string Version::str() const {
+    if (*this == LATEST) {
+        return "Latest";
+    } else {
+        return format("%d.%d.%d", _major, _minor, _patch);
+    }
+}
 
 bool Version::operator!=(const Version &other_version) const {
     return VK_MAKE_VERSION(_major, _minor, _patch) !=

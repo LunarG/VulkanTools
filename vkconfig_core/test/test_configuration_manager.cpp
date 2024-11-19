@@ -29,8 +29,8 @@ TEST(test_configuration_manager, init_default) {
     EXPECT_TRUE(info_unknown == nullptr);
     EXPECT_TRUE(configuration_manager.Empty());
 
-    EXPECT_STREQ(configuration_manager.last_path_import.RelativePath().c_str(), Get(Path::HOME).RelativePath().c_str());
-    EXPECT_STREQ(configuration_manager.last_path_export.RelativePath().c_str(), Get(Path::HOME).RelativePath().c_str());
+    EXPECT_STREQ(configuration_manager.last_path_import_config.RelativePath().c_str(), Get(Path::HOME).RelativePath().c_str());
+    EXPECT_STREQ(configuration_manager.last_path_export_config.RelativePath().c_str(), Get(Path::HOME).RelativePath().c_str());
 }
 
 TEST(test_configuration_manager, create_remove) {
@@ -114,7 +114,7 @@ TEST(test_configuration_manager, duplicate_object) {
     EXPECT_EQ(configuration_ori->loader_log_messages_flags, configuration_dup->loader_log_messages_flags);
     EXPECT_EQ(configuration_ori->selected_layer_name, configuration_dup->selected_layer_name);
     EXPECT_EQ(configuration_ori->parameters.size(), configuration_dup->parameters.size());
-    EXPECT_EQ(configuration_ori->IsBuiltIn(), configuration_dup->IsBuiltIn());
+    EXPECT_EQ(configuration_ori->IsDefault(), configuration_dup->IsDefault());
     EXPECT_EQ(configuration_ori->Size(), configuration_dup->Size());
 }
 

@@ -75,6 +75,7 @@ class Configurator : public Serialize {
     bool Save(QJsonObject& json_root_object) const override;
     void Reset() override;
     std::string Log() const override;
+    std::string LogConfiguration(const std::string& configuration_key) const;
 
     bool Surrender(OverrideArea override_area);
     bool Override(OverrideArea override_area);

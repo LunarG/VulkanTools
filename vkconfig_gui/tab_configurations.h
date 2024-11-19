@@ -81,8 +81,8 @@ class TabConfigurations : public Tab {
     void OnContextMenuRenameClicked(ListItem *item);
     void OnContextMenuDuplicateClicked(ListItem *item);
     void OnContextMenuDeleteClicked(ListItem *item);
-    void OnContextMenuResetClicked(ListItem *item);
-    void OnContextMenuReloadClicked(ListItem *item);
+    void OnContextMenuResetOneClicked(ListItem *item);
+    void OnContextMenuResetAllClicked(ListItem *item);
     void OnContextMenuExportConfigsClicked(ListItem *item);
     void OnContextMenuExportSettingsClicked(ListItem *item);
 
