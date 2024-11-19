@@ -2,20 +2,16 @@
 <a href="https://github.com/LunarG/VulkanTools/tree/vkconfig3-dev" target="_blank">https://github.com/LunarG/VulkanTools/tree/vkconfig3-dev</a>
 
 ### TODO:
-- Update Vulkan Configurator documentation
 - Fix preset label display
-- Per application vk_layer_settings.txt is not implemented
-- Command line layer settings is not implemented
-- Extend setting dependencies with messages is not implemented
 
 ### Features:
-- UI redesign with per use case tabs
 - Improve layers loading and selection:
   * Add loading of multiple versions of the same layer
   * Add explicit selection of the layer version used by a configuration
   * No longer load and unload layer manifest when switching configuations
   * Json validation caching based on layer manifest modified date and time
   * Add layers manifest reloading
+  * Per-layer enabling of layer settings
 - Improve layers ordering:
   * Allow ordering of all (implicit layers, unkown layers) layers executed by Vulkan application
   * Allow ordering layers independently from enabling them
@@ -24,10 +20,11 @@
   * Add storing multiple set of options per executable
   * Add per-application layers configuration
 - Add *Vulkan Loader* logging support:
+  * Add per-executable *Vulkan Loader* loader configuration
   * Add *Vulkan Loader* logging outside of application launcher
   * Add *Vulkan Loader* selection of each logging message type
-  * Add per-application *Vulkan Loader* logging message types
 - Split GUI and command line into two separated executables
+- Add system diagnostic
 
 ### Improvements:
 - Almost all Vulkan Configurator data is stored in a `$HOME` directory JSON file

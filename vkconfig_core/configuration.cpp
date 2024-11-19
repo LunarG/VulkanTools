@@ -539,7 +539,7 @@ bool Configuration::HasMultipleActiveParameter() const {
     return count > 1;
 }
 
-bool Configuration::IsBuiltIn() const {
+bool Configuration::IsDefault() const {
     const std::vector<Path>& builtin_configuration_files = CollectFilePaths(":/configurations/");
     for (std::size_t i = 0, n = builtin_configuration_files.size(); i < n; ++i) {
         const std::string& basename = builtin_configuration_files[i].Basename();
