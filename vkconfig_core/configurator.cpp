@@ -271,6 +271,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
         std::vector<LayersSettings> layers_settings_array;
 
         switch (this->executable_scope) {
+            case EXECUTABLE_ALL:
             case EXECUTABLE_ANY: {
                 LayersSettings settings;
                 settings.configuration_name = this->selected_global_configuration;
@@ -278,7 +279,6 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                 layers_settings_array.push_back(settings);
                 break;
             }
-            case EXECUTABLE_ALL:
             case EXECUTABLE_PER: {
                 const std::vector<Executable>& executables = this->executables.GetExecutables();
 
@@ -296,7 +296,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                     LayersSettings settings;
                     settings.executable_path = executables[i].path;
                     settings.configuration_name = configuration_name;
-                    settings.settings_path = executables[i].GetActiveOptions()->working_folder + "/vk_layer_settings.txt";
+                    settings.settings_path = executables[i].GetLocalLayersSettingsPath();
                     layers_settings_array.push_back(settings);
                 }
                 break;
@@ -348,6 +348,10 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                 }
 
                 if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
+                    continue;
+                }
+
+                if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
                     continue;
                 }
 
@@ -466,7 +470,7 @@ bool Configurator::Surrender(OverrideArea override_area) {
     bool result_layers_settings = true;
     if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
         bool global_removed = layers_settings_path.Remove();
-        if (this->executable_scope == EXECUTABLE_ALL) {
+        if (this->executable_scope == EXECUTABLE_ALL || this->executable_scope == EXECUTABLE_ANY) {
             result_layers_settings = global_removed;
         }
 
@@ -556,6 +560,41 @@ void Configurator::Reset() {
     this->selected_global_configuration = "Validation";
 }
 
+std::string Configurator::LogConfiguration(const std::string& configuration_key) const {
+    const Configuration* configuration = this->configurations.FindConfiguration(configuration_key);
+    assert(configuration != nullptr);
+
+    std::string log = format("'%s' Loader Configuration:\n", configuration->key.c_str());
+
+    if (configuration->override_layers) {
+        log += " - Vulkan Layers Selection and Execution Order:\n";
+        for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+            const Parameter& parameter = configuration->parameters[i];
+
+            if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
+                log += format("   * %s: %s\n", parameter.key.c_str(), ::GetToken(parameter.control));
+            } else {
+                log += format("   * %s - %s: %s\n", parameter.key.c_str(), parameter.api_version.str().c_str(),
+                              ::GetToken(parameter.control));
+                log += format("     Layer manifest path: %s\n", parameter.manifest.AbsolutePath().c_str());
+                log += format("     Layer settings export: %s\n", parameter.override_settings ? "enabled" : "disabled");
+            }
+        }
+    } else {
+        log += " - Vulkan Layers Selection and Execution Order: disabled\n";
+    }
+
+    if (configuration->override_loader) {
+        log += format(" - Vulkan Loader Messages: %s\n", GetLogString(configuration->loader_log_messages_flags).c_str());
+    } else {
+        log += " - Vulkan Loader Messages: disabled\n";
+    }
+
+    log += "\n";
+
+    return log;
+}
+
 std::string Configurator::Log() const {
     std::string log;
 
@@ -572,12 +611,74 @@ std::string Configurator::Log() const {
     log += "\n";
 
     log += format("%s Settings:\n", VKCONFIG_NAME);
+    log += format(" - Vulkan Loader configuration scope: %s\n", ::GetLabel(this->GetExecutableScope()));
+    log += format("   * Vulkan Loader settings file: %s\n", ::Get(Path::LOADER_SETTINGS).AbsolutePath().c_str());
+
+    if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
+        log += format("   * Vulkan Layers settings file: %s\n", ::Get(Path::LAYERS_SETTINGS).AbsolutePath().c_str());
+    }
+
+    if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
+        const Configuration* configuration = this->GetActiveConfiguration();
+        if (configuration != nullptr) {
+            log += format(" - Active Vulkan Loader Configuration: '%s'\n", configuration->key.c_str());
+        } else {
+            log += " - No Active Vulkan Loader Configuration\n";
+        }
+    }
+    if (this->GetExecutableScope() == EXECUTABLE_ALL) {
+        log += " - Listed Executables:\n";
+        const std::vector<Executable>& executables = this->executables.GetExecutables();
+        for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
+            log += format("   * %s: %s\n", executables[i].path.AbsolutePath().c_str(),
+                          executables[i].enabled ? "enabled" : "disabled");
+        }
+    }
+
+    if (this->GetExecutableScope() == EXECUTABLE_PER) {
+        log += " - Listed Executables:\n";
+        const std::vector<Executable>& executables = this->executables.GetExecutables();
+        for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
+            const Configuration* configuration = this->configurations.FindConfiguration(executables[i].configuration);
+
+            log += format("   * %s: '%s'\n", executables[i].path.AbsolutePath().c_str(),
+                          executables[i].enabled && configuration != nullptr ? executables[i].configuration.c_str() : "None");
+            if (!executables[i].enabled) {
+                continue;
+            }
+
+            log += format("     Vulkan Loader settings file: %s\n",
+                          executables[i].GetLocalLayersSettingsPath().AbsolutePath().c_str());
+        }
+    }
+
     log += format(" - Use system tray: %s\n", this->use_system_tray ? "true" : "false");
     log += format(" - ${VK_HOME}: %s\n", this->home_sdk_path.AbsolutePath().c_str());
-    log += format(" - Vulkan Loader and Layers system files:\n");
-    log += format("   * %s\n", ::Get(Path::LOADER_SETTINGS).AbsolutePath().c_str());
-    log += format("   * %s\n", ::Get(Path::LAYERS_SETTINGS).AbsolutePath().c_str());
     log += "\n";
+
+    if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
+        const Configuration* configuration = this->GetActiveConfiguration();
+
+        if (configuration != nullptr) {
+            log += LogConfiguration(configuration->key.c_str());
+        }
+    } else if (this->GetExecutableScope() == EXECUTABLE_PER) {
+        const std::vector<Executable>& executables = this->executables.GetExecutables();
+
+        for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
+            if (!executables[i].enabled) {
+                continue;
+            }
+            if (executables[i].configuration.empty()) {
+                continue;
+            }
+            const Configuration* configuration = this->configurations.FindConfiguration(executables[i].configuration);
+            if (configuration == nullptr) {
+                continue;
+            }
+            log += LogConfiguration(configuration->key.c_str());
+        }
+    }
 
     log += "Vulkan Physical Devices:\n";
     for (std::size_t i = 0, n = this->vulkan_system_info.physicalDevices.size(); i < n; ++i) {

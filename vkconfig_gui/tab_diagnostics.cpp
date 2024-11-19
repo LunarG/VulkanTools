@@ -34,8 +34,6 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
 
     Configurator &configurator = Configurator::Get();
 
-    this->ui->diagnostic_vk_home_browse->setIcon(QIcon(":/resourcefiles/folder_browse.png"));
-
     this->ui->diagnostic_keep_running->blockSignals(true);
     this->ui->diagnostic_keep_running->setChecked(configurator.GetUseSystemTray());
     this->ui->diagnostic_keep_running->blockSignals(false);

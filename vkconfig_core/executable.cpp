@@ -226,6 +226,11 @@ bool Executable::HasActiveOptions() const {
     return this->GetActiveOptions() != nullptr;
 }
 
+Path Executable::GetLocalLayersSettingsPath() const {
+    assert(this->GetActiveOptions() != nullptr);
+    return this->GetActiveOptions()->working_folder + "/vk_layer_settings.txt";
+}
+
 void Executable::AddOptions(const ExecutableOptions& options) {
     this->options_list.push_back(options);
     this->SortOptions();
