@@ -63,6 +63,7 @@ struct Executable {
     ExecutableOptions* GetActiveOptions();
     const ExecutableOptions* GetActiveOptions() const;
     bool HasActiveOptions() const;
+    Path GetLocalLayersSettingsPath() const;
 
     void AddOptions(const ExecutableOptions& options);
     const std::vector<ExecutableOptions>& GetOptions() const;

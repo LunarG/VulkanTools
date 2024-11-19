@@ -145,18 +145,18 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
         item->setText(configuration.key.c_str());
         if (configurator.GetActiveConfiguration() == &configuration) {
             item->setIcon(QIcon(":/resourcefiles/system-on.png"));
-            item->setToolTip(format("Using the %s configuration with Vulkan executables", configuration.key.c_str()).c_str());
+            item->setToolTip(format("Using the '%s' configuration with Vulkan executables", configuration.key.c_str()).c_str());
             ui->configurations_group_box_layers->setChecked(configuration.override_layers);
             ui->configurations_group_box_loader->setChecked(configuration.override_loader);
             current_row = static_cast<int>(i);
         } else if (has_missing_layer) {
             item->setIcon(QIcon(":/resourcefiles/system-invalid.png"));
             item->setToolTip(
-                format("The %s configuration has missing layers. These layers are ignored.", configuration.key.c_str()).c_str());
+                format("The '%s' configuration has missing layers. These layers are ignored.", configuration.key.c_str()).c_str());
         } else {
             item->setIcon(QIcon(":/resourcefiles/system-off.png"));
             item->setToolTip(
-                format("Select the %s configuration to use it with Vulkan executables", configuration.key.c_str()).c_str());
+                format("Select the '%s' configuration to use it with Vulkan executables", configuration.key.c_str()).c_str());
         }
         ui->configurations_list->addItem(item);
     }
@@ -418,15 +418,15 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
-            QAction *action_reset = new QAction("Reset the Configuration", nullptr);
-            action_reset->setEnabled(item != nullptr);
-            action_reset->setToolTip("Reset the Configuration using the built-in configuration");
-            menu.addAction(action_reset);
+            QAction *action_reset_one = new QAction("Reset the Default Configuration", nullptr);
+            action_reset_one->setEnabled(configurator.configurations.IsDefaultConfiguration(name));
+            action_reset_one->setToolTip("Reset the configuration, discarding all changes of this configuration.");
+            menu.addAction(action_reset_one);
 
-            QAction *action_reload = new QAction("Reload the Configuration", nullptr);
-            action_reload->setEnabled(item != nullptr);
-            action_reset->setToolTip("Reload the Configuration, discarding all changes from this session");
-            menu.addAction(action_reload);
+            QAction *action_reset_all = new QAction("Reset All Default Configurations", nullptr);
+            action_reset_all->setEnabled(true);
+            action_reset_all->setToolTip("Reset all the default configurations, discarding all changes of these configurations.");
+            menu.addAction(action_reset_all);
 
             menu.addSeparator();
 
@@ -451,10 +451,10 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 this->OnContextMenuDuplicateClicked(item);
             } else if (action == action_delete) {
                 this->OnContextMenuDeleteClicked(item);
-            } else if (action == action_reset) {
-                this->OnContextMenuResetClicked(item);
-            } else if (action == action_reload) {
-                this->OnContextMenuReloadClicked(item);
+            } else if (action == action_reset_one) {
+                this->OnContextMenuResetOneClicked(item);
+            } else if (action == action_reset_all) {
+                this->OnContextMenuResetAllClicked(item);
             } else if (action == action_export_config) {
                 this->OnContextMenuExportConfigsClicked(item);
             } else if (action == action_export_settings) {
@@ -571,7 +571,7 @@ void TabConfigurations::OnContextMenuImportClicked(ListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    const Path &path_import = configurator.configurations.last_path_import;
+    const Path &path_import = configurator.configurations.last_path_import_config;
     const std::string selected_path = QFileDialog::getOpenFileName(&this->window, "Import Layers Configuration File",
                                                                    path_import.AbsolutePath().c_str(), "JSON configuration(*.json)")
                                           .toStdString();
@@ -642,7 +642,7 @@ void TabConfigurations::OnContextMenuDeleteClicked(ListItem *item) {
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuResetClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuResetOneClicked(ListItem *item) {
     assert(item);
     assert(!item->key.empty());
 
@@ -651,18 +651,18 @@ void TabConfigurations::OnContextMenuResetClicked(ListItem *item) {
     assert(configuration != nullptr);
 
     QMessageBox alert;
-    alert.setWindowTitle(format("Resetting *%s* configuration...", configuration->key.c_str()).c_str());
-    alert.setText(format("Are you sure you want to reset the *%s* configuration?", configuration->key.c_str()).c_str());
-    if (configuration->IsBuiltIn())
+    alert.setWindowTitle(format("Resetting *%s* loader configuration...", configuration->key.c_str()).c_str());
+    alert.setText(format("Are you sure you want to reset the *%s* loader configuration?", configuration->key.c_str()).c_str());
+    if (configuration->IsDefault())
         alert.setInformativeText(
-            format("The configuration layers and settings will be restored to default built-in *%s* configuration.",
+            format("The loader configuration, including layers settings, will be restored to default built-in *%s* configuration.",
                    configuration->key.c_str())
                 .c_str());
     else if (configurator.configurations.HasFile(*configuration))
-        alert.setInformativeText(
-            format("The configuration layers and settings will be reloaded using the *%s* saved file from previous %s run.",
-                   configuration->key.c_str(), VKCONFIG_NAME)
-                .c_str());
+        alert.setInformativeText(format("The loader configuration, including layers settings, will be reloaded using the *%s* "
+                                        "saved file from previous %s run.",
+                                        configuration->key.c_str(), VKCONFIG_NAME)
+                                     .c_str());
     else
         alert.setInformativeText("The configuration layers and settings will be reset to zero.");
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -674,18 +674,31 @@ void TabConfigurations::OnContextMenuResetClicked(ListItem *item) {
 
     configuration->Reset(configurator.layers);
 
-    this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuReloadClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuResetAllClicked(ListItem *item) {
     assert(item);
     assert(!item->key.empty());
 
-    // TODO
-    QMessageBox msg;
-    msg.setIcon(QMessageBox::Critical);
-    msg.setWindowTitle("TODO");
-    msg.exec();
+    Configurator &configurator = Configurator::Get();
+
+    QMessageBox alert;
+    alert.setWindowTitle("Resetting all default loader configurations...");
+    alert.setText("Are you sure you want to reset the default loader configurations?");
+    alert.setInformativeText(
+        "The loader configurations, including layers settings, will be restored to default built-in configurations.");
+    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    alert.setDefaultButton(QMessageBox::Yes);
+    alert.setIcon(QMessageBox::Warning);
+    if (alert.exec() == QMessageBox::No) {
+        return;
+    }
+
+    configurator.configurations.ResetDefaultConfigurations(configurator.layers);
+    configurator.Override(OVERRIDE_AREA_ALL);
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
@@ -693,9 +706,9 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    const Path path_export = configurator.configurations.last_path_export + "/" + item->key + ".json";
+    const Path path_export = configurator.configurations.last_path_export_config + "/" + item->key + ".json";
     const std::string &selected_path =
-        QFileDialog::getSaveFileName(&this->window, "Export Layers Configuration File", path_export.AbsolutePath().c_str(),
+        QFileDialog::getSaveFileName(&this->window, "Export Loader Configuration File", path_export.AbsolutePath().c_str(),
                                      "JSON configuration(*.json)")
             .toStdString();
 
@@ -708,19 +721,19 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
     if (!result) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Exporting of a layers Configuration file failed...");
-        msg.setText(format("Couldn't be create %s layers configuration file.", selected_path.c_str()).c_str());
+        msg.setWindowTitle("Exporting of a Loader Configuration file failed...");
+        msg.setText(format("Couldn't be create '%s' Loader configuration file.", selected_path.c_str()).c_str());
         msg.exec();
-    } else if (!(configurator.Get(HIDE_MESSAGE_NOTIFICATION_EXPORT))) {
+    } else if (!(configurator.Get(HIDE_MESSAGE_NOTIFICATION_EXPORT_CONFIGURATION))) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Information);
-        msg.setWindowTitle("Exporting of a layers Configuration file successful.");
-        msg.setText(format("%s layers configuration file was created.", selected_path.c_str()).c_str());
+        msg.setWindowTitle("Exporting of a Loader Configuration file successful.");
+        msg.setText(format("'%s' Loader configuration file was created.", selected_path.c_str()).c_str());
         msg.setCheckBox(new QCheckBox("Do not show again."));
         msg.exec();
 
         if (msg.checkBox()->isChecked()) {
-            configurator.Set(HIDE_MESSAGE_NOTIFICATION_EXPORT);
+            configurator.Set(HIDE_MESSAGE_NOTIFICATION_EXPORT_CONFIGURATION);
         }
     }
 }
@@ -730,11 +743,36 @@ void TabConfigurations::OnContextMenuExportSettingsClicked(ListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    // TODO
-    QMessageBox msg;
-    msg.setIcon(QMessageBox::Critical);
-    msg.setWindowTitle("TODO");
-    msg.exec();
+    const Path path_export = configurator.configurations.last_path_export_settings;
+    const std::string &selected_path = QFileDialog::getSaveFileName(&this->window, "Export Layers Settings File",
+                                                                    path_export.AbsolutePath().c_str(), "Layers settings(*.txt)")
+                                           .toStdString();
+
+    if (selected_path.empty()) {
+        return;
+    }
+
+    configurator.configurations.last_path_export_settings = selected_path;
+    const bool result = configurator.WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT, selected_path.c_str());
+
+    if (!result) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle("Exporting of a layers settings file failed...");
+        msg.setText(format("Couldn't be create '%s' layers settings file.", selected_path.c_str()).c_str());
+        msg.exec();
+    } else if (!(configurator.Get(HIDE_MESSAGE_NOTIFICATION_EXPORT_LAYERS_SETTINGS))) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Information);
+        msg.setWindowTitle("Exporting of a layers Configuration file successful.");
+        msg.setText(format("'%s' layers configuration file was created.", selected_path.c_str()).c_str());
+        msg.setCheckBox(new QCheckBox("Do not show again."));
+        msg.exec();
+
+        if (msg.checkBox()->isChecked()) {
+            configurator.Set(HIDE_MESSAGE_NOTIFICATION_EXPORT_LAYERS_SETTINGS);
+        }
+    }
 }
 
 void TabConfigurations::on_configurations_advanced_toggle_pressed() {
@@ -754,23 +792,14 @@ void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(i
             configurator.Override(OVERRIDE_AREA_ALL);
             break;
         }
-        case EXECUTABLE_PER:
-        case EXECUTABLE_ALL: {
-            HideMessageType type =
-                scope == EXECUTABLE_PER ? HIDE_MESSAGE_NOTIFICATION_EXECUTABLE_PER : HIDE_MESSAGE_NOTIFICATION_EXECUTABLE_ALL;
-            if (!(configurator.Get(type))) {
+        case EXECUTABLE_PER: {
+            if (!(configurator.Get(HIDE_MESSAGE_NOTIFICATION_EXECUTABLE_PER))) {
                 QMessageBox message;
                 message.setWindowTitle(format("Selected scope: '%s'", ::GetLabel(scope)).c_str());
                 message.setText(::GetTooltip(scope));
-                if (scope == EXECUTABLE_PER) {
-                    message.setInformativeText(
-                        "As the vk_layer_settings.txt file is written in the executable working directory, all the executables "
-                        "with the same working directory will share the same loader configuration.\n\nDo you want to continue?");
-                } else {
-                    message.setInformativeText(
-                        "If the executable working directory contains a vk_layer_settings.txt file, the file will be "
-                        "overwritten.\n\nDo you want to continue?");
-                }
+                message.setInformativeText(
+                    "As the vk_layer_settings.txt file is written in the executable working directory, all the executables "
+                    "with the same working directory will share the same loader configuration.\n\nDo you want to continue?");
                 message.setIcon(QMessageBox::Information);
                 message.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
                 message.setDefaultButton(QMessageBox::Ok);
@@ -778,7 +807,7 @@ void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(i
                 int retval = message.exec();
 
                 if (message.checkBox()->isChecked()) {
-                    configurator.Set(type);
+                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_EXECUTABLE_PER);
                 }
 
                 if (retval == QMessageBox::Cancel) {

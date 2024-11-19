@@ -66,7 +66,7 @@ class Configuration {
 
     std::vector<Parameter> parameters;
 
-    bool IsBuiltIn() const;
+    bool IsDefault() const;
 };
 
 std::string MakeConfigurationName(const std::vector<Configuration>& configurations, const std::string& configuration_name);

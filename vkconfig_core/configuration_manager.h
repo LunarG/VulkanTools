@@ -59,6 +59,9 @@ class ConfigurationManager : public Serialize {
 
     void SortConfigurations();
 
+    bool IsDefaultConfiguration(const std::string& configuration_key) const;
+    void ResetDefaultConfigurations(const LayerManager& layers);
+
     std::vector<ReferencedLayer> BuildReferencedLayers(const LayerManager& layers, const Path& path);
 
     bool Empty() const { return this->available_configurations.empty(); }
@@ -68,8 +71,9 @@ class ConfigurationManager : public Serialize {
     void RemoveConfigurationFiles();
 
     std::vector<Configuration> available_configurations;
-    Path last_path_import = Get(Path::HOME);
-    Path last_path_export = Get(Path::HOME);
+    Path last_path_import_config = Get(Path::HOME);
+    Path last_path_export_config = Get(Path::HOME);
+    Path last_path_export_settings = Get(Path::HOME) + "/vK_layer_settings.txt";
 
    private:
     void LoadConfigurationsPath(const LayerManager& layers);

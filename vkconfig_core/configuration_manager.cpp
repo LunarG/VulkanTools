@@ -32,11 +32,15 @@ bool ConfigurationManager::Load(const QJsonObject &json_root_object) {
     if (json_root_object.value("configurations") != QJsonValue::Undefined) {
         const QJsonObject &json_configurations_object = json_root_object.value("configurations").toObject();
 
-        if (json_configurations_object.value("last_path_export") != QJsonValue::Undefined) {
-            this->last_path_export = json_configurations_object.value("last_path_export").toString().toStdString();
+        if (json_configurations_object.value("last_path_export_settings") != QJsonValue::Undefined) {
+            this->last_path_export_settings =
+                json_configurations_object.value("last_path_export_settings").toString().toStdString();
+        }
+        if (json_configurations_object.value("last_path_export_config") != QJsonValue::Undefined) {
+            this->last_path_export_config = json_configurations_object.value("last_path_export_config").toString().toStdString();
         }
         if (json_configurations_object.value("last_path_import") != QJsonValue::Undefined) {
-            this->last_path_import = json_configurations_object.value("last_path_import").toString().toStdString();
+            this->last_path_import_config = json_configurations_object.value("last_path_import").toString().toStdString();
         }
 
         if (json_configurations_object.value("removed") != QJsonValue::Undefined) {
@@ -66,8 +70,8 @@ bool ConfigurationManager::Save(QJsonObject &json_root_object) const {
     }
 
     QJsonObject json_configurations_object;
-    json_configurations_object.insert("last_path_export", this->last_path_export.RelativePath().c_str());
-    json_configurations_object.insert("last_path_import", this->last_path_import.RelativePath().c_str());
+    json_configurations_object.insert("last_path_export", this->last_path_export_config.RelativePath().c_str());
+    json_configurations_object.insert("last_path_import", this->last_path_import_config.RelativePath().c_str());
     json_configurations_object.insert("removed", json_removed_builtin_configurations_object);
 
     json_root_object.insert("configurations", json_configurations_object);
@@ -78,8 +82,9 @@ bool ConfigurationManager::Save(QJsonObject &json_root_object) const {
 void ConfigurationManager::Reset() {
     this->removed_built_in_configuration.clear();
     this->available_configurations.clear();
-    this->last_path_import = Get(Path::HOME);
-    this->last_path_export = Get(Path::HOME);
+    this->last_path_import_config = Get(Path::HOME);
+    this->last_path_export_config = Get(Path::HOME);
+    this->last_path_export_settings = Get(Path::HOME) + "/vK_layer_settings.txt";
 
     this->LoadDefaultConfigurations(Configurator::Get().layers);
     this->SortConfigurations();
@@ -315,23 +320,25 @@ Configuration *ConfigurationManager::FindConfiguration(const std::string &config
 }
 
 const Configuration *ConfigurationManager::FindConfiguration(const std::string &configuration_name) const {
-    if (configuration_name.empty()) {
-        return nullptr;
+    return const_cast<ConfigurationManager *>(this)->FindConfiguration(configuration_name);
+}
+
+bool ConfigurationManager::IsDefaultConfiguration(const std::string &configuration_key) const {
+    const Configuration *configuration = this->FindConfiguration(configuration_key);
+    if (configuration == nullptr) {
+        return false;
     }
+    return configuration->IsDefault();
+}
 
-    if (this->available_configurations.empty()) {
-        return nullptr;
-    }
-
-    const std::string key = ToLowerCase(std::string(configuration_name));
-
+void ConfigurationManager::ResetDefaultConfigurations(const LayerManager &layers) {
     for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
-        if (ToLowerCase(this->available_configurations[i].key) == key) {
-            return &this->available_configurations[i];
+        if (!this->available_configurations[i].IsDefault()) {
+            continue;
         }
-    }
 
-    return nullptr;
+        this->available_configurations[i].Reset(layers);
+    }
 }
 
 void ConfigurationManager::RenameConfiguration(const std::string &old_configuration_name,
@@ -346,7 +353,7 @@ void ConfigurationManager::RenameConfiguration(const std::string &old_configurat
 bool ConfigurationManager::ImportConfiguration(const LayerManager &layers, const Path &full_import_path) {
     assert(!full_import_path.Empty());
 
-    this->last_path_import = full_import_path.AbsoluteDir();
+    this->last_path_import_config = full_import_path.AbsoluteDir();
 
     Configuration configuration;
     if (!configuration.Load(full_import_path, layers)) {
@@ -367,7 +374,7 @@ bool ConfigurationManager::ExportConfiguration(const LayerManager &layers, const
     assert(!configuration_name.empty());
     assert(!full_export_path.Empty());
 
-    this->last_path_export = full_export_path.AbsoluteDir();
+    this->last_path_export_config = full_export_path.AbsoluteDir();
 
     Configuration *configuration = this->FindConfiguration(configuration_name);
     assert(configuration);
