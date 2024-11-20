@@ -100,10 +100,8 @@ void SettingsTreeManager::CreateGUI() {
     {
         this->ui->configurations_presets->blockSignals(true);
         this->ui->configurations_presets->clear();
-        preset_labels.clear();
         if (!layer->presets.empty()) {
-            this->ui->configurations_presets->addItem(Layer::NO_PRESET);
-            preset_labels.push_back(Layer::NO_PRESET);
+            this->ui->configurations_presets->addItem("User-Defined Settings");
 
             for (std::size_t i = 0, n = layer->presets.size(); i < n; ++i) {
                 const LayerPreset &layer_preset = layer->presets[i];
@@ -116,11 +114,12 @@ void SettingsTreeManager::CreateGUI() {
                 }
 
                 this->ui->configurations_presets->addItem((layer_preset.label + " Preset").c_str());
-                preset_labels.push_back(layer_preset.label);
             }
 
             this->connect(this->ui->configurations_presets, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
             this->ui->configurations_presets->setVisible(true);
+
+            this->RefreshPresetLabel();
         } else {
             this->ui->configurations_presets->setVisible(false);
         }
@@ -388,27 +387,39 @@ void SettingsTreeManager::OnLayerVersionChanged() {
 }
 
 void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
-    assert(combox_preset_index >= 0 && static_cast<std::size_t>(combox_preset_index) < preset_labels.size());
-    const std::string &preset_label = preset_labels[combox_preset_index];
-
-    if (preset_label == Layer::NO_PRESET) {
-        return;
-    }
+    const int preset_index = combox_preset_index - 1;
 
     Configurator &configurator = Configurator::Get();
     Parameter *parameter = configurator.GetActiveParameter();
     assert(parameter != nullptr);
 
+    if (preset_index == Layer::NO_PRESET) {
+        return;
+    }
+
     const Layer *layer = configurator.layers.Find(parameter->key.c_str(), parameter->api_version);
 
-    const LayerPreset *preset = GetPreset(layer->presets, preset_label.c_str());
-    assert(preset != nullptr);
-    parameter->ApplyPresetSettings(*preset);
+    assert(preset_index >= 0 && static_cast<std::size_t>(preset_index) < layer->presets.size());
+
+    const LayerPreset &preset = layer->presets[preset_index];
+    parameter->ApplyPresetSettings(preset);
 
     this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
 
-void SettingsTreeManager::OnSettingChanged() { this->Refresh(REFRESH_ENABLE_ONLY); }
+void SettingsTreeManager::OnSettingChanged() {
+    this->RefreshPresetLabel();
+    this->Refresh(REFRESH_ENABLE_ONLY);
+}
+
+void SettingsTreeManager::RefreshPresetLabel() {
+    Configurator &configurator = Configurator::Get();
+    const Parameter *parameter = configurator.GetActiveParameter();
+    const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
+
+    const int preset_index = layer->FindPresetIndex(parameter->settings) + 1;
+    this->ui->configurations_presets->setCurrentIndex(preset_index);
+}
 
 void SettingsTreeManager::RefreshVersion() {
     if (this->layer_version != nullptr) {

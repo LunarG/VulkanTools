@@ -61,7 +61,7 @@ enum { LAYER_LOAD_COUNT = LAYER_LOAD_LAST - LAYER_LOAD_FIRST + 1 };
 
 class Layer {
    public:
-    static const char* NO_PRESET;
+    static const int NO_PRESET = -1;
 
     Layer();
     Layer(const std::string& key);
@@ -73,7 +73,7 @@ class Layer {
     LayerControl GetActualControl() const;
     std::string GetActualControlTooltip() const;
 
-    std::string FindPresetLabel(const SettingDataSet& settings) const;
+    int FindPresetIndex(const SettingDataSet& settings) const;
 
     SettingMeta* Instantiate(SettingMetaSet& meta_set, const std::string& key, const SettingType type);
 
