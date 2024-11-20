@@ -57,7 +57,6 @@ WidgetSettingFlag::WidgetSettingFlag(QTreeWidget* tree, QTreeWidgetItem* item, c
     this->field->show();
     this->connect(this->field, SIGNAL(clicked(bool)), this, SLOT(OnClicked(bool)));
 
-    this->item->setExpanded(enum_value->expanded);
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->tree->setItemWidget(this->item, 0, this);
 
@@ -80,16 +79,16 @@ void WidgetSettingFlag::Refresh(RefreshAreas refresh_areas) {
         const std::vector<std::string>& value = this->data().value;
 
         this->field->blockSignals(true);
-        this->field->setChecked(std::find(value.begin(), value.end(), flag) != value.end());
+        this->field->setChecked(std::find(value.begin(), value.end(), this->flag) != value.end());
         this->field->blockSignals(false);
     }
 }
 
 void WidgetSettingFlag::OnClicked(bool checked) {
     if (checked) {
-        AppendString(this->data().value, flag);
+        AppendString(this->data().value, this->flag);
     } else {
-        RemoveString(this->data().value, flag);
+        RemoveString(this->data().value, this->flag);
     }
 
     emit itemChanged();

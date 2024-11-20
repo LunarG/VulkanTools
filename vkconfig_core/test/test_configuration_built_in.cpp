@@ -46,8 +46,6 @@ static bool operator==(const Parameter& a, const Parameter& b) {
 
     if (a.settings.size() != b.settings.size()) return false;
 
-    if (a.setting_tree_state != b.setting_tree_state) return false;
-
     for (std::size_t i = 0, n = a.settings.size(); i < n; ++i) {
         if (*a.settings[i] != *b.settings[i]) return false;
     }

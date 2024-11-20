@@ -48,7 +48,6 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
     this->item->setText(0, GetLabel(this->meta).c_str());
     this->item->setToolTip(0, meta.description.c_str());
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-    this->item->setExpanded(this->meta.expanded);
     this->item->addChild(item_child);
     tree->setItemWidget(this->item, 0, this);
 

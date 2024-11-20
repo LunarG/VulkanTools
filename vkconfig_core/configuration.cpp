@@ -190,11 +190,6 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
                 parameter.platform_flags = GetPlatformFlags(ReadStringArray(json_layer_object, "platforms"));
             }
 
-            const QJsonValue& json_expanded_value = json_layer_object.value("expanded_states");
-            if (json_expanded_value != QJsonValue::Undefined) {
-                parameter.setting_tree_state = json_layer_object.value("expanded_states").toVariant().toByteArray();
-            }
-
             if (layer != nullptr) {
                 CollectDefaultSettingData(layer->settings, parameter.settings);
             }
@@ -262,9 +257,6 @@ bool Configuration::Save(const Path& full_path, bool exporter) const {
             json_layer.insert("manifest", parameter.manifest.RelativePath().c_str());
         }
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
-        if (!exporter && !parameter.setting_tree_state.isEmpty()) {
-            json_layer.insert("expanded_states", parameter.setting_tree_state.data());
-        }
 
         QJsonArray json_settings;
         for (std::size_t j = 0, m = parameter.settings.size(); j < m; ++j) {
@@ -483,7 +475,7 @@ void Configuration::GatherParameters(const LayerManager& layers) {
         parameter.control = this->default_control;
         parameter.api_version = Version::LATEST;
         parameter.manifest = layer->manifest_path;
-        CollectDefaultSettingData(layer->settings, parameter.settings);
+        ::CollectDefaultSettingData(layer->settings, parameter.settings);
 
         gathered_parameters.push_back(parameter);
     }

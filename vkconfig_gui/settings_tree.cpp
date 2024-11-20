@@ -20,6 +20,7 @@
  */
 
 #include "settings_tree.h"
+#include "item_tree.h"
 
 #include "widget_setting.h"
 #include "widget_setting_int.h"
@@ -133,10 +134,10 @@ void SettingsTreeManager::CreateGUI() {
 
         this->BuildTree();
 
-        this->connect(this->ui->configurations_settings, SIGNAL(expanded(const QModelIndex)), this,
-                      SLOT(OnExpandedChanged(const QModelIndex)));
-        this->connect(this->ui->configurations_settings, SIGNAL(collapsed(const QModelIndex)), this,
-                      SLOT(OnExpandedChanged(const QModelIndex)));
+        this->connect(this->ui->configurations_settings, SIGNAL(itemCollapsed(QTreeWidgetItem *)), this,
+                      SLOT(on_item_collapsed(QTreeWidgetItem *)));
+        this->connect(this->ui->configurations_settings, SIGNAL(itemExpanded(QTreeWidgetItem *)), this,
+                      SLOT(on_item_expanded(QTreeWidgetItem *)));
 
         this->ui->configurations_settings->resizeColumnToContents(0);
 
@@ -146,14 +147,6 @@ void SettingsTreeManager::CreateGUI() {
 
 void SettingsTreeManager::CleanupGUI() {
     Configurator &configurator = Configurator::Get();
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        Parameter *parameter = configuration->GetActiveParameter();
-        if (parameter != nullptr) {
-            parameter->setting_tree_state.clear();
-            this->GetTreeState(parameter->setting_tree_state, this->ui->configurations_settings->invisibleRootItem());
-        }
-    }
 
     this->ui->configurations_settings->clear();
 
@@ -174,24 +167,28 @@ void SettingsTreeManager::CleanupGUI() {
     }
 }
 
-void SettingsTreeManager::OnExpandedChanged(const QModelIndex &index) {
-    (void)index;
-
+void SettingsTreeManager::SetSettingExpanded(const std::string &key, const std::string &flag, bool expanded) {
     Configurator &configurator = Configurator::Get();
-
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
-            Parameter &parameter = configuration->parameters[i];
-
-            if (parameter.key != configuration->selected_layer_name) {
-                continue;
-            }
-
-            parameter.setting_tree_state.clear();
-            this->GetTreeState(parameter.setting_tree_state, this->ui->configurations_settings->invisibleRootItem());
-        }
+    Parameter *parameter = configurator.GetActiveParameter();
+    if (parameter == nullptr) {
+        return;
     }
+
+    parameter->SetExpanded(key, flag, expanded);
+}
+
+void SettingsTreeManager::on_item_collapsed(QTreeWidgetItem *item) {
+    assert(item != nullptr);
+
+    TreeItem *tree_item = static_cast<TreeItem *>(item);
+    this->SetSettingExpanded(tree_item->key, tree_item->flag, false);
+}
+
+void SettingsTreeManager::on_item_expanded(QTreeWidgetItem *item) {
+    assert(item != nullptr);
+
+    TreeItem *tree_item = static_cast<TreeItem *>(item);
+    this->SetSettingExpanded(tree_item->key, tree_item->flag, true);
 }
 
 void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMeta &meta_object) {
@@ -207,20 +204,20 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
     Parameter *parameter = configurator.GetActiveParameter();
     assert(parameter != nullptr);
 
-    QTreeWidgetItem *item = new QTreeWidgetItem();
+    QTreeWidgetItem *item = new TreeItem(meta_object.key);
     item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     if (parent == nullptr) {
         this->ui->configurations_settings->addTopLevelItem(item);
     } else {
         parent->addChild(item);
     }
+    item->setExpanded(parameter->GetExpanded(meta_object.key.c_str()));
 
     switch (meta_object.type) {
         case SETTING_GROUP: {
             item->setText(0, meta_object.label.c_str());
             item->setToolTip(0, meta_object.description.c_str());
             item->setFont(0, this->ui->configurations_settings->font());
-            item->setExpanded(meta_object.expanded);
         } break;
         case SETTING_BOOL:
         case SETTING_BOOL_NUMERIC_DEPRECATED: {
@@ -273,8 +270,12 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
             for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
                 const SettingEnumValue &value = meta.enum_values[i];
 
-                if (!IsPlatformSupported(value.platform_flags)) continue;
-                if (value.view == SETTING_VIEW_HIDDEN) continue;
+                if (!IsPlatformSupported(value.platform_flags)) {
+                    continue;
+                }
+                if (value.view == SETTING_VIEW_HIDDEN) {
+                    continue;
+                }
 
                 for (std::size_t i = 0, n = value.settings.size(); i < n; ++i) {
                     this->BuildTreeItem(item, *value.settings[i]);
@@ -287,19 +288,23 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
             item->setText(0, meta.label.c_str());
             item->setToolTip(0, meta.description.c_str());
-            item->setExpanded(meta.expanded);
 
             for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
                 const SettingEnumValue &value = meta.enum_values[i];
 
-                if (!IsPlatformSupported(value.platform_flags)) continue;
-                if (value.view == SETTING_VIEW_HIDDEN) continue;
+                if (!IsPlatformSupported(value.platform_flags)) {
+                    continue;
+                }
+                if (value.view == SETTING_VIEW_HIDDEN) {
+                    continue;
+                }
 
-                QTreeWidgetItem *child = new QTreeWidgetItem();
+                QTreeWidgetItem *child = new TreeItem(meta.key, value.key);
                 item->addChild(child);
+                child->setExpanded(parameter->GetExpanded(meta.key, value.key));
 
                 WidgetSettingFlag *widget =
-                    new WidgetSettingFlag(this->ui->configurations_settings, child, meta, parameter->settings, value.key.c_str());
+                    new WidgetSettingFlag(this->ui->configurations_settings, child, meta, parameter->settings, value.key);
                 this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
 
                 for (std::size_t j = 0, o = value.settings.size(); j < o; ++j) {
@@ -345,36 +350,6 @@ void SettingsTreeManager::BuildTree() {
     for (std::size_t i = 0, n = layer->settings.size(); i < n; ++i) {
         this->BuildTreeItem(nullptr, *layer->settings[i]);
     }
-
-    if (!parameter->setting_tree_state.isEmpty()) {
-        this->SetTreeState(parameter->setting_tree_state, 0, this->ui->configurations_settings->invisibleRootItem());
-    }
-}
-
-void SettingsTreeManager::GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item) {
-    byte_array.push_back(top_item->isExpanded() ? '1' : '0');
-
-    for (int i = 0, n = top_item->childCount(); i < n; ++i) {
-        GetTreeState(byte_array, top_item->child(i));
-    }
-}
-
-int SettingsTreeManager::SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item) {
-    // We very well could run out, on initial run, expand everything
-    if (index > byte_array.length())
-        top_item->setExpanded(true);
-    else {
-        top_item->setExpanded(byte_array[index++] == '1');
-    }
-
-    // Walk the children
-    if (top_item->childCount() != 0) {
-        for (int i = 0, n = top_item->childCount(); i < n; ++i) {
-            index = SetTreeState(byte_array, index, top_item->child(i));
-        }
-    }
-
-    return index;
 }
 
 void SettingsTreeManager::OnLayerVersionChanged() {
@@ -424,6 +399,8 @@ void SettingsTreeManager::RefreshPresetLabel() {
 void SettingsTreeManager::RefreshVersion() {
     if (this->layer_version != nullptr) {
         this->layer_version->setEnabled(true);
+        QEvent resize_event(QEvent::Resize);
+        this->layer_version->eventFilter(nullptr, &resize_event);
     }
 }
 
