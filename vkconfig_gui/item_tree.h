@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +20,18 @@
 
 #pragma once
 
-#include "setting_string.h"
+#include <QTreeWidgetItem>
 
-struct SettingMetaFrames : public SettingMetaString {
-    static const SettingType TYPE;
+#include <string>
+
+class TreeItem : public QTreeWidgetItem {
+   public:
+    TreeItem(const std::string &key, const std::string &flag = "") : key(key), flag(flag) {}
+
+    std::string key;
+    std::string flag;
 
    private:
-    SettingMetaFrames(Layer& layer, const std::string& key);
-
-    friend class Layer;
-};
-
-struct SettingDataFrames : public SettingDataString {
-    SettingDataFrames(const SettingMetaFrames* meta);
-
-    bool IsValid() const override;
-
-    SettingInputError ProcessInput(const std::string& value);
-
-    const SettingMetaFrames* meta;
+    TreeItem(const TreeItem &) = delete;
+    TreeItem &operator=(const TreeItem &) = delete;
 };

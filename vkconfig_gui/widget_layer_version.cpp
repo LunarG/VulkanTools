@@ -97,6 +97,8 @@ void LayerVersionComboBox::on_layer_version_combobox_currentIndexChanged(int ind
 }
 
 bool LayerVersionComboBox::eventFilter(QObject *o, QEvent *e) {
+    (void)o;
+
     if (e->type() == QEvent::Resize) {
         const QRect enabled_button_rect = QRect(this->parent->width() - this->width() - 6, 0, this->width(), 24);
         this->setGeometry(enabled_button_rect);

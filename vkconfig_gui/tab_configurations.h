@@ -22,7 +22,8 @@
 
 #include "tab.h"
 #include "settings_tree.h"
-#include "item.h"
+
+#include "item_list.h"
 
 #include <QPushButton>
 #include <QAbstractItemView>

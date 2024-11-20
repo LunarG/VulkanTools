@@ -45,6 +45,8 @@ struct Parameter {
     Parameter(const std::string& key, const LayerControl control) : key(key), control(control) {}
 
     bool ApplyPresetSettings(const LayerPreset& preset);
+    bool GetExpanded(const std::string& setting_key, const std::string& flag = "") const;
+    void SetExpanded(const std::string& setting_key, const std::string& flag, bool expanded);
 
     std::string key;
     LayerType type = LAYER_TYPE_EXPLICIT;
@@ -55,7 +57,6 @@ struct Parameter {
     int overridden_rank = NO_RANK;
     Version api_version = Version::LATEST;
     Path manifest;
-    QByteArray setting_tree_state;  // Recall editor tree state
     bool override_settings = true;
 };
 

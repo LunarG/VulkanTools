@@ -156,18 +156,19 @@ TEST(test_layer, load_setting_children_interit) {
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
     EXPECT_EQ(0, layer.presets.size());
     EXPECT_EQ(1, layer.settings.size());
-    EXPECT_EQ(2, layer.settings[0]->children.size());
-    EXPECT_EQ(3, CountSettings(layer.settings));
+    EXPECT_EQ(1, layer.settings[0]->children.size());
+    EXPECT_EQ(2, CountSettings(layer.settings));
 
     EXPECT_STREQ("int_inherit", layer.settings[0]->children[0]->key.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.settings[0]->children[0]->platform_flags);
     EXPECT_EQ(STATUS_BETA, layer.settings[0]->children[0]->status);
     EXPECT_EQ(SETTING_VIEW_ADVANCED, layer.settings[0]->children[0]->view);
-
+    /* Hidden settings are not loaded
     EXPECT_STREQ("int_override", layer.settings[0]->children[1]->key.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT, layer.settings[0]->children[1]->platform_flags);
     EXPECT_EQ(STATUS_ALPHA, layer.settings[0]->children[1]->status);
     EXPECT_EQ(SETTING_VIEW_HIDDEN, layer.settings[0]->children[1]->view);
+    */
 }
 
 TEST(test_layer, load_setting_enum_interit) {
