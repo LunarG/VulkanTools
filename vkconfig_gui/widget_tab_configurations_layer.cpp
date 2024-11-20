@@ -76,7 +76,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
             decorated_name += format(" (%s)", GetToken(layer->status));
         }
     } else if (!layer_found) {
-        decorated_name += " (Missing)";
+        decorated_name += " - Missing";
     }
     /*
     if (layer_versions.empty()) {
