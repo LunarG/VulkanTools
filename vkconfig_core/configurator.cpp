@@ -574,8 +574,12 @@ std::string Configurator::LogConfiguration(const std::string& configuration_key)
             if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
                 log += format("   * %s: %s\n", parameter.key.c_str(), ::GetToken(parameter.control));
             } else {
-                log += format("   * %s - %s: %s\n", parameter.key.c_str(), parameter.api_version.str().c_str(),
-                              ::GetToken(parameter.control));
+                if (this->layers.Find(parameter.key, parameter.api_version) == nullptr) {
+                    log += format("   * %s - Missing: %s\n", parameter.key.c_str(), ::GetToken(parameter.control));
+                } else {
+                    log += format("   * %s - %s: %s\n", parameter.key.c_str(), parameter.api_version.str().c_str(),
+                                  ::GetToken(parameter.control));
+                }
                 log += format("     Layer manifest path: %s\n", parameter.manifest.AbsolutePath().c_str());
                 log += format("     Layer settings export: %s\n", parameter.override_settings ? "enabled" : "disabled");
             }
@@ -612,10 +616,10 @@ std::string Configurator::Log() const {
 
     log += format("%s Settings:\n", VKCONFIG_NAME);
     log += format(" - Vulkan Loader configuration scope: %s\n", ::GetLabel(this->GetExecutableScope()));
-    log += format("   * Vulkan Loader settings file: %s\n", ::Get(Path::LOADER_SETTINGS).AbsolutePath().c_str());
+    log += format("   * Loader settings: %s\n", ::Get(Path::LOADER_SETTINGS).AbsolutePath().c_str());
 
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
-        log += format("   * Vulkan Layers settings file: %s\n", ::Get(Path::LAYERS_SETTINGS).AbsolutePath().c_str());
+        log += format("   * Layers settings: %s\n", ::Get(Path::LAYERS_SETTINGS).AbsolutePath().c_str());
     }
 
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
