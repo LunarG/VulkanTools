@@ -44,9 +44,6 @@ class SettingsTreeManager : public QObject {
     void CreateGUI();
     void CleanupGUI();
 
-    void GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item);
-    int SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item);
-
     void RefreshPresetLabel();
     void RefreshVersion();
     void Refresh(RefreshAreas refresh_areas);
@@ -55,7 +52,9 @@ class SettingsTreeManager : public QObject {
     void OnLayerVersionChanged();
     void OnSettingChanged();
     void OnPresetChanged(int combox_preset_index);
-    void OnExpandedChanged(const QModelIndex &index);
+
+    void on_item_collapsed(QTreeWidgetItem *item);
+    void on_item_expanded(QTreeWidgetItem *item);
 
    Q_SIGNALS:
     void signalLayerVersionChanged();
@@ -63,6 +62,8 @@ class SettingsTreeManager : public QObject {
    private:
     SettingsTreeManager(const SettingsTreeManager &) = delete;
     SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
+
+    void SetSettingExpanded(const std::string &key, const std::string &flag, bool expanded);
 
     void BuildTree();
     void BuildTreeItem(QTreeWidgetItem *parent, const SettingMeta &meta);

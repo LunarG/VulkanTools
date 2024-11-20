@@ -149,6 +149,7 @@ struct SettingData {
 
     const std::string key;
     const SettingType type;
+    bool expanded = true;
 
    protected:
     SettingData(const std::string& key, const SettingType& type);

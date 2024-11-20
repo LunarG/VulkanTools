@@ -22,6 +22,8 @@
 
 #include <QListWidgetItem>
 
+#include <string>
+
 class ListItem : public QListWidgetItem {
    public:
     ListItem(const char *key) : key(key) { assert(key != nullptr); }

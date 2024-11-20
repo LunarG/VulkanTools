@@ -92,7 +92,8 @@ SOURCES += \
     widget_setting_list.cpp \
     dialog_vulkan_analysis.cpp \
     dialog_vulkan_info.cpp \
-    item.cpp \
+    item_tree.cpp \
+    item_list.cpp \
     main.cpp \
     mainwindow.cpp \
     tab.cpp \
@@ -170,7 +171,8 @@ HEADERS += \
     widget_setting_list.h \
     dialog_vulkan_analysis.h \
     dialog_vulkan_info.h \
-    item.h \
+    item_tree.h \
+    item_list.h \
     mainwindow.h \
     tab.h \
     tab_about.h \

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,4 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
-
-#include "setting_string.h"
-
-struct SettingMetaFrames : public SettingMetaString {
-    static const SettingType TYPE;
-
-   private:
-    SettingMetaFrames(Layer& layer, const std::string& key);
-
-    friend class Layer;
-};
-
-struct SettingDataFrames : public SettingDataString {
-    SettingDataFrames(const SettingMetaFrames* meta);
-
-    bool IsValid() const override;
-
-    SettingInputError ProcessInput(const std::string& value);
-
-    const SettingMetaFrames* meta;
-};
+#include "item_tree.h"

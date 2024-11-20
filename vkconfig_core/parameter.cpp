@@ -19,6 +19,7 @@
  */
 
 #include "setting_filesystem.h"
+#include "setting_flags.h"
 #include "parameter.h"
 #include "type_platform.h"
 #include "version.h"
@@ -59,6 +60,36 @@ bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
     }
 
     return true;
+}
+
+bool Parameter::GetExpanded(const std::string& setting_key, const std::string& flag) const {
+    const SettingData* setting_data = ::FindSetting(this->settings, setting_key.c_str());
+
+    if (setting_data == nullptr) {
+        return false;
+    }
+
+    if (!flag.empty() && setting_data->type == SETTING_FLAGS) {
+        const SettingDataFlags* data = static_cast<const SettingDataFlags*>(setting_data);
+        return data->expanded_flags.find(flag)->second;
+    } else {
+        return setting_data->expanded;
+    }
+}
+
+void Parameter::SetExpanded(const std::string& setting_key, const std::string& flag, bool expanded) {
+    SettingData* setting_data = ::FindSetting(this->settings, setting_key.c_str());
+
+    if (setting_data == nullptr) {
+        return;
+    }
+
+    if (!flag.empty() && setting_data->type == SETTING_FLAGS) {
+        SettingDataFlags* data = static_cast<SettingDataFlags*>(setting_data);
+        data->expanded_flags.find(flag)->second = expanded;
+    } else {
+        setting_data->expanded = expanded;
+    }
 }
 
 ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& parameter) {
