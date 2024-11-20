@@ -47,6 +47,7 @@ class SettingsTreeManager : public QObject {
     void GetTreeState(QByteArray &byte_array, QTreeWidgetItem *top_item);
     int SetTreeState(QByteArray &byte_array, int index, QTreeWidgetItem *top_item);
 
+    void RefreshPresetLabel();
     void RefreshVersion();
     void Refresh(RefreshAreas refresh_areas);
 
@@ -70,5 +71,4 @@ class SettingsTreeManager : public QObject {
 
     std::shared_ptr<Ui::MainWindow> ui;
     LayerVersionComboBox *layer_version = nullptr;
-    std::vector<std::string> preset_labels;  // The preset in the combobox
 };

@@ -49,8 +49,6 @@
 #include <string>
 #include <algorithm>
 
-const char* Layer::NO_PRESET = "User-Defined Settings";
-
 bool operator<(const LayersPathInfo& a, const LayersPathInfo& b) { return a.path.RelativePath() < b.path.RelativePath(); }
 
 bool Found(const std::vector<LayersPathInfo>& data, const Path& path) {
@@ -130,9 +128,11 @@ std::string Layer::GetActualControlTooltip() const {
     }
 }
 
-std::string Layer::FindPresetLabel(const SettingDataSet& settings) const {
+int Layer::FindPresetIndex(const SettingDataSet& settings) const {
     for (std::size_t i = 0, n = this->presets.size(); i < n; ++i) {
-        if (HasPreset(settings, this->presets[i].settings)) return this->presets[i].label;
+        if (::HasPreset(settings, this->presets[i].settings)) {
+            return static_cast<int>(i);
+        }
     }
 
     return NO_PRESET;
