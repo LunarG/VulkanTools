@@ -392,12 +392,29 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
         const QJsonObject& json_setting = json_array[i].toObject();
 
         const std::string key = ReadStringValue(json_setting, "key");
+        if (this->key == "VK_LAYER_KHRONOS_validation" && key == "enables") {
+            continue;
+        }
+        if (this->key == "VK_LAYER_KHRONOS_validation" && key == "disables") {
+            continue;
+        }
+
         const std::string desc = ReadStringValue(json_setting, "description");
         const SettingType type = GetSettingType(ReadStringValue(json_setting, "type").c_str());
+        SettingView view = SETTING_VIEW_STANDARD;
+        if (json_setting.value("view") != QJsonValue::Undefined) {
+            view = GetSettingView(ReadStringValue(json_setting, "view").c_str());
+        }
+        if (view == SETTING_VIEW_HIDDEN) {
+            continue;
+        }
+
         SettingMeta* setting_meta = Instantiate(settings, key, type);
         setting_meta->platform_flags = parent == nullptr ? this->platforms : parent->platform_flags;
         setting_meta->status = parent == nullptr ? this->status : parent->status;
-        if (parent != nullptr) setting_meta->view = parent->view;
+        if (parent != nullptr) {
+            setting_meta->view = parent->view;
+        }
 
         LoadMetaHeader(*setting_meta, json_setting);
         if (json_setting.value("env") != QJsonValue::Undefined) {

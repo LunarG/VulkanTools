@@ -22,6 +22,8 @@
 
 #include "setting_string.h"
 
+#include <map>
+
 struct SettingEnumValue : public Header {
     std::string key;
     SettingMetaSet settings;
@@ -98,6 +100,7 @@ struct SettingDataFlags : public SettingData {
     void Reset() override;
 
     std::vector<std::string> value;
+    std::map<std::string, bool> expanded_flags;
 
    protected:
     bool Equal(const SettingData& other) const override;

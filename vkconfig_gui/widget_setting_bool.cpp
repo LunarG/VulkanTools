@@ -33,7 +33,6 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
     this->connect(this->field, SIGNAL(clicked()), this, SLOT(OnClicked()));
 
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-    this->item->setExpanded(this->meta.expanded);
     this->tree->setItemWidget(this->item, 0, this);
 
     this->Refresh(REFRESH_ENABLE_AND_STATE);

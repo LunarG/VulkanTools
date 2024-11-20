@@ -48,7 +48,6 @@ WidgetSettingListElement::WidgetSettingListElement(QTreeWidget* tree, QTreeWidge
     this->button->show();
     this->connect(this->button, SIGNAL(clicked()), this, SLOT(OnElementRemoved()));
 
-    this->item->setExpanded(true);
     this->tree->setItemWidget(this->item, 0, this);
 
     this->Refresh(REFRESH_ENABLE_AND_STATE);

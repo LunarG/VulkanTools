@@ -215,6 +215,8 @@ void TabConfigurations::UpdateUI_LoaderMessages() {
         ui->configuration_loader_drivers->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DRIVER));
         ui->configuration_loader_drivers->blockSignals(false);
     }
+
+    this->ui->configurations_group_box_loader->setEnabled(configurator.HasEnabledUI(ENABLE_UI_LOADER));
 }
 
 void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
@@ -222,6 +224,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
     ui->configurations_layers_list->clear();
 
     Configurator &configurator = Configurator::Get();
+    this->ui->configurations_group_box_layers->setEnabled(configurator.HasEnabledUI(ENABLE_UI_LAYERS));
 
     Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
@@ -285,6 +288,9 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
 
         this->ui->configurations_group_box_settings->setToolTip(tooltip.c_str());
     }
+
+    this->ui->configurations_group_box_settings->setEnabled(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
+    this->ui->configurations_group_box_settings->setCheckable(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
 }
 
 void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
@@ -298,10 +304,6 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     const ExecutableScope scope = configurator.GetExecutableScope();
 
     this->ui->configurations_group_box_list->setEnabled(configurator.HasEnabledUI(ENABLE_UI_CONFIG));
-    this->ui->configurations_group_box_layers->setEnabled(configurator.HasEnabledUI(ENABLE_UI_LAYERS));
-    this->ui->configurations_group_box_loader->setEnabled(configurator.HasEnabledUI(ENABLE_UI_LOADER));
-    this->ui->configurations_group_box_settings->setEnabled(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
-    this->ui->configurations_group_box_settings->setCheckable(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
 
     const bool enabled_executable = ::EnabledExecutables(scope);
 
@@ -1078,7 +1080,7 @@ void TabConfigurations::on_configurations_layers_list_currentRowChanged(int curr
 
         configuration->selected_layer_name = layer_string;
 
-        this->_settings_tree_manager.CreateGUI();
+        this->UpdateUI_Settings(UPDATE_REBUILD_UI);
     }
 }
 

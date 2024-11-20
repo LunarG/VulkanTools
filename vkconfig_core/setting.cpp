@@ -147,11 +147,15 @@ bool SettingMeta::Equal(const SettingMeta& other) const {
         return false;
     else {
         for (std::size_t i = 0, n = this->children.size(); i < n; ++i) {
-            if (this->children[i] != other.children[i]) return false;
+            if (this->children[i] != other.children[i]) {
+                return false;
+            }
         }
 
         for (std::size_t i = 0, n = this->dependence.size(); i < n; ++i) {
-            if (this->dependence[i] != other.dependence[i]) return false;
+            if (this->dependence[i] != other.dependence[i]) {
+                return false;
+            }
         }
     }
     return true;
@@ -180,17 +184,23 @@ bool IsSupported(const SettingEnumValue* value) {
 
 SettingMeta* FindSetting(SettingMetaSet& settings, const char* key) {
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
-        if (settings[i]->key == key) return settings[i];
+        if (settings[i]->key == key) {
+            return settings[i];
+        }
 
         SettingMeta* child = FindSetting(settings[i]->children, key);
-        if (child != nullptr) return child;
+        if (child != nullptr) {
+            return child;
+        }
 
         if (IsEnum(settings[i]->type) || IsFlags(settings[i]->type)) {
             SettingMetaEnum& setting_meta_enum = static_cast<SettingMetaEnum&>(*settings[i]);
 
             for (std::size_t j = 0, o = setting_meta_enum.enum_values.size(); j < o; ++j) {
                 SettingMeta* setting_meta = FindSetting(setting_meta_enum.enum_values[j].settings, key);
-                if (setting_meta != nullptr) return setting_meta;
+                if (setting_meta != nullptr) {
+                    return setting_meta;
+                }
             }
         }
     }
@@ -203,14 +213,18 @@ const SettingMeta* FindSetting(const SettingMetaSet& settings, const char* key) 
         if (settings[i]->key == key) return settings[i];
 
         const SettingMeta* child = FindSetting(settings[i]->children, key);
-        if (child != nullptr) return child;
+        if (child != nullptr) {
+            return child;
+        }
 
         if (IsEnum(settings[i]->type) || IsFlags(settings[i]->type)) {
             const SettingMetaEnum& setting_meta_enum = static_cast<const SettingMetaEnum&>(*settings[i]);
 
             for (std::size_t j = 0, o = setting_meta_enum.enum_values.size(); j < o; ++j) {
                 const SettingMeta* setting_meta = FindSetting(setting_meta_enum.enum_values[j].settings, key);
-                if (setting_meta != nullptr) return setting_meta;
+                if (setting_meta != nullptr) {
+                    return setting_meta;
+                }
             }
         }
     }
