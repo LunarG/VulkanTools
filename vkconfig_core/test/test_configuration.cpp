@@ -281,8 +281,9 @@ TEST(test_configuration, gather_parameters_exist) {
     EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_04");
     EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_05");
     EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_06");
+    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_test_07");
 
-    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_version");
+    EXPECT_STREQ(configuration.parameters[12].key.c_str(), "VK_LAYER_LUNARG_version");
 
     std::string missing_layer;
     EXPECT_FALSE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));
@@ -312,8 +313,9 @@ TEST(test_configuration, gather_parameters_repeat) {
     EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_04");
     EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_05");
     EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_06");
+    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_test_07");
 
-    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_version");
+    EXPECT_STREQ(configuration.parameters[12].key.c_str(), "VK_LAYER_LUNARG_version");
 }
 
 TEST(test_configuration, gather_parameters_missing) {
@@ -340,11 +342,12 @@ TEST(test_configuration, gather_parameters_missing) {
     EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_test_04");
     EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_05");
     EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_06");
+    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_07");
 
-    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_version");
+    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_version");
 
     // Unordered are never missing so end up last
-    EXPECT_STREQ(configuration.parameters[11].key.c_str(), ::GetLabel(LAYER_BUILTIN_UNORDERED));
+    EXPECT_STREQ(configuration.parameters[12].key.c_str(), ::GetLabel(LAYER_BUILTIN_UNORDERED));
 
     std::string missing_layer;
     EXPECT_TRUE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));

@@ -45,7 +45,7 @@ TEST(test_executable, ctor_path) {
 
     EXPECT_STREQ(Path("./vkcube").AbsolutePath().c_str(), executable.path.AbsolutePath().c_str());
     EXPECT_TRUE(executable.enabled);
-    EXPECT_TRUE(!executable.GetActiveOptionsName().empty());
+    EXPECT_STREQ("Default Options", executable.GetActiveOptionsName().c_str());
     EXPECT_EQ(1, executable.GetOptions().size());
 
     EXPECT_EQ(0, executable.GetActiveOptionsIndex());
@@ -89,4 +89,29 @@ TEST(test_executable, duplicate) {
     EXPECT_EQ(false, executable.DuplicateActiveOptions());
     EXPECT_EQ(0, executable.GetOptions().size());
     EXPECT_EQ(Executable::INVALID_OPTIONS, executable.GetActiveOptionsIndex());
+}
+
+TEST(test_executable, rename) {
+    Executable executable("./vkcube");
+    EXPECT_EQ(1, executable.GetOptions().size());
+    EXPECT_STREQ("Default Options", executable.GetActiveOptionsName().c_str());
+
+    executable.RenameActiveOptions("Pouet");
+    EXPECT_STREQ("Pouet", executable.GetActiveOptionsName().c_str());
+}
+
+TEST(test_executable, add) {
+    Executable executable("./vkcube");
+    EXPECT_EQ(1, executable.GetOptions().size());
+    EXPECT_STREQ("Default Options", executable.GetActiveOptionsName().c_str());
+
+    ExecutableOptions executable_options;
+    executable_options.label = "Pouet Options";
+    executable.AddOptions(executable_options);
+    EXPECT_EQ(2, executable.GetOptions().size());
+
+    EXPECT_STREQ("Default Options", executable.GetActiveOptionsName().c_str());
+
+    executable.SetActiveOptions("Pouet Options");
+    EXPECT_STREQ("Pouet Options", executable.GetActiveOptionsName().c_str());
 }

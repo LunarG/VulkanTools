@@ -106,7 +106,6 @@ LayerControl Layer::GetActualControl() const {
 std::string Layer::GetActualControlTooltip() const {
     if (this->type == LAYER_TYPE_IMPLICIT) {
         if (!this->disable_env.empty()) {
-            const std::string& value = qgetenv(this->disable_env.c_str()).toStdString();
             if (qEnvironmentVariableIsSet(this->disable_env.c_str())) {
                 return format("'%s' is set", this->disable_env.c_str());
             }
@@ -469,6 +468,9 @@ void Layer::AddSettingData(SettingDataSet& settings_data, const QJsonValue& json
     const std::string& key = ReadStringValue(json_setting_object, "key");
 
     SettingMeta* setting_meta = FindSetting(this->settings, key.c_str());
+    if (setting_meta == nullptr) {
+        return;
+    }
     assert(setting_meta);
 
     SettingData* setting_data = setting_meta->Instantiate();

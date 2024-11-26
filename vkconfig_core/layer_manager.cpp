@@ -220,8 +220,6 @@ void LayerManager::Reset() {
 std::string LayerManager::Log() const {
     std::string log;
 
-    log += "Vulkan Layers Locations\n";
-
     for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
         const std::vector<LayersPathInfo> &paths_group = this->paths[group_index];
         if (paths_group.empty()) {
@@ -436,10 +434,12 @@ void LayerManager::LoadAllInstalledLayers() {
     this->selected_layers.clear();
 
     for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
+        const LayersPaths layers_path = static_cast<LayersPaths>(group_index);
+
         const std::vector<LayersPathInfo> &paths_group = this->paths[group_index];
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
             this->LoadLayersFromPath(paths_group[i].path, paths_group[i].type);
-            this->UpdatePathEnabled(paths_group[i]);
+            this->UpdatePathEnabled(paths_group[i], layers_path);
         }
     }
 }
@@ -485,6 +485,20 @@ LayerLoadStatus LayerManager::LoadLayer(const Path &layer_path, LayerType type) 
     }
 }
 
+bool LayerManager::AreLayersEnabled(const LayersPathInfo &path_info) const {
+    for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
+        for (std::size_t i = 0, n = this->paths[paths_type_index].size(); i < n; ++i) {
+            if (this->paths[paths_type_index][i].path == path_info.path) {
+                if (this->paths[paths_type_index][i].enabled) {
+                    return true;  // If one path is enabled, then the layer remains enable
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 void LayerManager::AppendPath(const LayersPathInfo &info) {
     LayersPathInfo *existing_info = FindPathInfo(this->paths, info.path.RelativePath());
     if (existing_info != nullptr) {
@@ -521,17 +535,21 @@ void LayerManager::RemovePath(const LayersPathInfo &path_info) {
     }
 }
 
-void LayerManager::UpdatePathEnabled(const LayersPathInfo &path_info) {
-    for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
-        for (std::size_t i = 0, n = this->paths[paths_type_index].size(); i < n; ++i) {
-            if (path_info.path == this->paths[paths_type_index][i].path) {
-                this->paths[paths_type_index][i].enabled = path_info.enabled;
-                break;
-            }
+void LayerManager::UpdatePathEnabled(const LayersPathInfo &path_info, LayersPaths paths_type_index) {
+    for (std::size_t i = 0, n = this->paths[paths_type_index].size(); i < n; ++i) {
+        if (path_info.path == this->paths[paths_type_index][i].path) {
+            this->paths[paths_type_index][i].enabled = path_info.enabled;
+            break;
         }
     }
 
-    const std::vector<Path> &layers_paths = CollectFilePaths(path_info.path);
+    this->UpdateLayersEnabled(path_info);
+}
+
+void LayerManager::UpdateLayersEnabled(const LayersPathInfo &path_info) {
+    const bool are_enabled = this->AreLayersEnabled(path_info);
+
+    const std::vector<Path> &layers_paths = ::CollectFilePaths(path_info.path);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
         Layer *layer = this->FindFromManifest(layers_paths[i], true);
@@ -539,7 +557,7 @@ void LayerManager::UpdatePathEnabled(const LayersPathInfo &path_info) {
             continue;
         }
 
-        layer->enabled = path_info.enabled;
+        layer->enabled = are_enabled;
     }
 }
 

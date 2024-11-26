@@ -41,8 +41,8 @@ TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : T
     this->ui->layers_path_lineedit->setText(configurator.layers.last_layers_path.RelativePath().c_str());
     this->ui->layers_validate_checkBox->setChecked(configurator.layers.validate_manifests);
 
-    this->connect(this->ui->layers_browse_button, SIGNAL(pressed()), this, SLOT(on_layers_browse_pressed()));
-    this->connect(this->ui->layers_reload_button, SIGNAL(pressed()), this, SLOT(on_layers_reload_pressed()));
+    this->connect(this->ui->layers_browse_button, SIGNAL(clicked()), this, SLOT(on_layers_browse_pressed()));
+    this->connect(this->ui->layers_reload_button, SIGNAL(clicked()), this, SLOT(on_layers_reload_pressed()));
     this->connect(this->ui->layers_path_lineedit, SIGNAL(returnPressed()), this, SLOT(on_layers_append_pressed()));
     this->connect(this->ui->layers_validate_checkBox, SIGNAL(toggled(bool)), this, SLOT(on_layers_validate_checkBox_toggled(bool)));
 }
@@ -204,7 +204,7 @@ void TabLayers::LoadLayersManifest(const QString &selected_path) {
 
         this->on_layers_reload_pressed();
 
-        configurator.layers.UpdatePathEnabled(info);
+        configurator.layers.UpdatePathEnabled(info, LAYERS_PATHS_GUI);
         this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
     }
 }
