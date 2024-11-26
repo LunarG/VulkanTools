@@ -75,7 +75,7 @@ bool Configurator::Init(Mode mode) {
     QString init_data;
 
     QFile file(vkconfig_init_path.AbsolutePath().c_str());
-    const bool has_init_file = this->mode == GUI ? file.open(QIODevice::ReadOnly | QIODevice::Text) : false;
+    const bool has_init_file = file.open(QIODevice::ReadOnly | QIODevice::Text);
 
     if (has_init_file) {
         init_data = file.readAll();
@@ -183,7 +183,7 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
         loader_layer_settings.control = parameter.control;
 
         if (parameter.builtin == LAYER_BUILTIN_NONE) {
-            const Layer* layer = this->layers.Find(parameter.key, parameter.api_version);
+            const Layer* layer = this->layers.FindFromManifest(parameter.manifest);
             if (layer == nullptr) {
                 continue;
             }
@@ -446,7 +446,6 @@ bool Configurator::Override(OverrideArea override_area) {
     // vk_loader_settings.json
     bool result_loader_settings = this->WriteLoaderSettings(override_area, loader_settings_path);
 
-    // TODO, Add per application layer_settings file
     // vk_layer_settings.txt
     bool result_layers_settings = this->WriteLayersSettings(override_area, layers_settings_path);
 
@@ -657,7 +656,7 @@ std::string Configurator::Log() const {
     }
 
     log += format(" - Use system tray: %s\n", this->use_system_tray ? "true" : "false");
-    log += format(" - ${VK_HOME}: %s\n", this->home_sdk_path.AbsolutePath().c_str());
+    log += format(" - ${VK_HOME}: %s\n", ::Get(Path::HOME).AbsolutePath().c_str());
     log += "\n";
 
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
@@ -826,9 +825,8 @@ bool Configurator::Load(const QJsonObject& json_root_object) {
     if (json_interface_object.value(GetToken(TAB_DIAGNOSTIC)) != QJsonValue::Undefined) {
         const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_DIAGNOSTIC)).toObject();
 
-        this->home_sdk_path = json_object.value("VK_HOME").toString().toStdString();
-        if (this->home_sdk_path.Empty()) {
-            this->home_sdk_path = ::Get(Path::HOME);
+        if (json_object.value("VK_HOME") != QJsonValue::Undefined) {
+            ::SetHomePath(json_object.value("VK_HOME").toString().toStdString());
         }
     }
 
@@ -865,7 +863,7 @@ bool Configurator::Save(QJsonObject& json_root_object) const {
     // TAB_DIAGNOSTIC
     {
         QJsonObject json_object;
-        json_object.insert("VK_HOME", this->home_sdk_path.RelativePath().c_str());
+        json_object.insert("VK_HOME", ::Get(Path::HOME).RelativePath().c_str());
         json_interface_object.insert(GetToken(TAB_DIAGNOSTIC), json_object);
     }
 
@@ -906,10 +904,6 @@ void Configurator::SetExecutableScope(ExecutableScope scope) {
 bool Configurator::GetUseSystemTray() const { return this->use_system_tray; }
 
 void Configurator::SetUseSystemTray(bool enabled) { this->use_system_tray = enabled; }
-
-Path Configurator::GetHomeSDK() const { return this->home_sdk_path; }
-
-void Configurator::SetHomeSDK(const Path& path) { this->home_sdk_path = path; }
 
 bool Configurator::HasActiveSettings() const {
     if (this->executable_scope == EXECUTABLE_NONE) {
@@ -972,6 +966,8 @@ std::string Configurator::GenerateVulkanStatus() const {
     std::string log;
 
     log += this->Log();
+
+    log += "Vulkan Layers Locations\n";
     log += this->layers.Log();
     log += this->configurations.Log();
     log += this->executables.Log();

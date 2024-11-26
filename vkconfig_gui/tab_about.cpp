@@ -41,11 +41,16 @@ TabAbout::TabAbout(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab
 
 TabAbout::~TabAbout() {}
 
-void TabAbout::UpdateUI(UpdateUIMode mode) {}
+void TabAbout::UpdateUI(UpdateUIMode mode) { (void)mode; }
 
 void TabAbout::CleanUI() {}
 
-bool TabAbout::EventFilter(QObject *target, QEvent *event) { return false; }
+bool TabAbout::EventFilter(QObject *target, QEvent *event) {
+    (void)target;
+    (void)event;
+
+    return false;
+}
 
 void TabAbout::on_about_lunarg_pushButton_pressed() {
     QDesktopServices::openUrl(QUrl("https://www.lunarg.com/", QUrl::TolerantMode));

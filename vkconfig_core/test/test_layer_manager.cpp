@@ -60,7 +60,7 @@ TEST(test_layer_manager, load_all) {
     LayerManager layer_manager;
     layer_manager.LoadLayersFromPath(":/layers");
 
-    EXPECT_EQ(14, layer_manager.Size());
+    EXPECT_EQ(15, layer_manager.Size());
     EXPECT_TRUE(!layer_manager.Empty());
 
     layer_manager.Clear();
@@ -204,7 +204,7 @@ TEST(test_layer_manager, BuildLayerNameList) {
     LayerManager layer_manager;
     layer_manager.LoadLayersFromPath(":/layers");
 
-    EXPECT_EQ(layer_manager.GatherLayerNames().size(), 11);
+    EXPECT_EQ(layer_manager.GatherLayerNames().size(), 12);
 }
 
 TEST(test_layer_manager, avoid_duplicate) {
@@ -275,14 +275,14 @@ TEST(test_layer_manager, custom_path_update_layers) {
     }
 
     info.enabled = false;
-    layer_manager.UpdatePathEnabled(info);
+    layer_manager.UpdatePathEnabled(info, LAYERS_PATHS_GUI);
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, false);
     for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
         EXPECT_FALSE(layer_manager.selected_layers[i].enabled);
     }
 
     info.enabled = true;
-    layer_manager.UpdatePathEnabled(info);
+    layer_manager.UpdatePathEnabled(info, LAYERS_PATHS_GUI);
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, true);
     for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
         EXPECT_TRUE(layer_manager.selected_layers[i].enabled);

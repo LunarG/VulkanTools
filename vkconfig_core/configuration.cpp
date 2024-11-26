@@ -178,11 +178,18 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
                 parameter.type = layer->type;
             }
 
-            if (json_layer_object.value("manifest") != QJsonValue::Undefined) {
-                std::string manifest_path = ReadString(json_layer_object, "manifest");
-                if (layers.FindFromManifest(manifest_path) != nullptr) {
-                    parameter.manifest = manifest_path;
+            if (parameter.api_version != Version::LATEST) {
+                if (json_layer_object.value("manifest") != QJsonValue::Undefined) {
+                    std::string manifest_path = ReadString(json_layer_object, "manifest");
+
+                    const Layer* layer = layers.FindFromManifest(manifest_path);
+                    if (layer != nullptr) {
+                        parameter.manifest = manifest_path;
+                        parameter.api_version = layer->api_version;
+                    }
                 }
+            } else if (layer != nullptr) {
+                parameter.manifest = layer->manifest_path;
             }
 
             const QJsonValue& json_platform_value = json_layer_object.value("platforms");
@@ -224,7 +231,7 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
     return true;
 }
 
-bool Configuration::Save(const Path& full_path, bool exporter) const {
+bool Configuration::Save(const Path& full_path) const {
     assert(!full_path.Empty());
 
     QJsonObject root;

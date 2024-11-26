@@ -43,7 +43,7 @@ class ConfigurationLayerWidget : public QLabel {
     std::string layer_name;
 
    protected:
-    bool eventFilter(QObject *target, QEvent *event);
+    bool eventFilter(QObject *target, QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
    public Q_SLOTS:

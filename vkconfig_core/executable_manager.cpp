@@ -74,6 +74,10 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object) {
         this->last_path_executable = json_executables_object.value("last_path_executable").toString().toStdString();
     }
 
+    if (json_executables_object.value("clear_on_launch") != QJsonValue::Undefined) {
+        this->launcher_clear_on_launch = json_executables_object.value("clear_on_launch").toBool();
+    }
+
     const QJsonObject& json_list_object = json_executables_object.value("list").toObject();
 
     const QStringList& json_list_keys = json_list_object.keys();
@@ -130,6 +134,7 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
     QJsonObject json_executables_object;
     json_executables_object.insert("active_executable", this->active_executable.RelativePath().c_str());
     json_executables_object.insert("last_path_executable", this->last_path_executable.RelativePath().c_str());
+    json_executables_object.insert("clear_on_launch", this->launcher_clear_on_launch);
 
     QJsonObject json_executables_list_object;
     for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
@@ -238,6 +243,18 @@ bool ExecutableManager::RemoveExecutable() {
     } else {
         this->active_executable = this->data[0].path;
     }
+
+    return true;
+}
+
+bool ExecutableManager::RenameActiveExecutable(const Path& executable_path) {
+    if (this->GetActiveExecutable() == nullptr) {
+        return false;
+    }
+
+    this->GetActiveExecutable()->path = executable_path;
+    this->last_path_executable = executable_path;
+    this->active_executable = executable_path;
 
     return true;
 }
