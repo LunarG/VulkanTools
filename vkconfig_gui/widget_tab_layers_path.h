@@ -44,6 +44,7 @@ class LayersPathWidget : public QCheckBox {
     void itemChanged();
 
    public:
+    LayersPaths layers_path;
     LayersPathInfo path_info;
     QPushButton *buttom_remove = nullptr;
 };

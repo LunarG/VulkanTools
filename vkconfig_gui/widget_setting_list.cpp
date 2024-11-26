@@ -70,7 +70,7 @@ WidgetSettingList::WidgetSettingList(QTreeWidget *tree, QTreeWidgetItem *item, c
     this->add_button->setText("+");
     this->add_button->setFont(this->tree->font());
 
-    this->connect(this->add_button, SIGNAL(pressed()), this, SLOT(OnElementAppended()), Qt::QueuedConnection);
+    this->connect(this->add_button, SIGNAL(clicked()), this, SLOT(OnElementAppended()), Qt::QueuedConnection);
 
     std::sort(value.begin(), value.end());
     this->data().value = value;

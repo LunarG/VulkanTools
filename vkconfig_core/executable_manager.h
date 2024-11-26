@@ -42,6 +42,7 @@ class ExecutableManager : public Serialize {
     bool AppendExecutable(const Executable& executable);
     bool AppendExecutable(const Path& executable_path);
     bool RemoveExecutable();
+    bool RenameActiveExecutable(const Path& executable_path);
     bool UpdateConfigurations(std::vector<Path>& updated_executable_paths);
 
     const std::vector<Executable>& GetExecutables() const { return this->data; }

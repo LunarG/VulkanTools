@@ -48,7 +48,7 @@ void Alert::StartLoaderFailure() {
 void Alert::StartLoaderIncompatibleVersions(const Version& system_loader_version, const Version& required_loader_version) {
     QMessageBox alert;
     alert.setWindowTitle("Vulkan Configurator failed to start...");
-    alert.setText(format("The system has Vulkan Loader version % s but version %s is requered. Please update the Vulkan Runtime.",
+    alert.setText(format("The system has Vulkan Loader version % s but version %s is required. Please update the Vulkan Runtime.",
                          system_loader_version.str().c_str(), required_loader_version.str().c_str())
                       .c_str());
     alert.setInformativeText("<a href=\"https://vulkan.lunarg.com/sdk/home\">https://vulkan.lunarg.com/sdk/home</a>");

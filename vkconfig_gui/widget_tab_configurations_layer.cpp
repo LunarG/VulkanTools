@@ -33,7 +33,6 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     const Layer *layer = configurator.layers.Find(parameter.key, parameter.api_version);
 
     this->layer_state = new ComboBox(this);
-    this->layer_state->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
     const int first = parameter.builtin == LAYER_BUILTIN_UNORDERED ? LAYER_CONTROL_UNORDERED_FIRST : LAYER_CONTROL_FIRST;
     const int last = parameter.builtin == LAYER_BUILTIN_UNORDERED ? LAYER_CONTROL_UNORDERED_LAST : LAYER_CONTROL_LAST;
@@ -94,6 +93,10 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     } else if (!parameter.manifest.Empty()) {
         this->setToolTip(parameter.manifest.AbsolutePath().c_str());
     }
+
+    this->layer_state->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+    this->layer_state->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    this->layer_state->adjustSize();
 }
 
 bool ConfigurationLayerWidget::eventFilter(QObject *target, QEvent *event) {

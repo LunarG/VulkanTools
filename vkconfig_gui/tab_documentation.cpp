@@ -25,8 +25,13 @@ TabDocumentation::TabDocumentation(MainWindow &window, std::shared_ptr<Ui::MainW
 
 TabDocumentation::~TabDocumentation() {}
 
-void TabDocumentation::UpdateUI(UpdateUIMode mode) {}
+void TabDocumentation::UpdateUI(UpdateUIMode mode) { (void)mode; }
 
 void TabDocumentation::CleanUI() {}
 
-bool TabDocumentation::EventFilter(QObject *target, QEvent *event) { return false; }
+bool TabDocumentation::EventFilter(QObject *target, QEvent *event) {
+    (void)target;
+    (void)event;
+
+    return false;
+}

@@ -51,7 +51,7 @@ class ConfigurationManager : public Serialize {
     int GetConfigurationIndex(const std::string& configuration_name) const;
 
     void RenameConfiguration(const std::string& old_configuration_name, const std::string& new_configuration_name);
-    bool ImportConfiguration(const LayerManager& layers, const Path& full_import_path);
+    bool ImportConfiguration(const LayerManager& layers, const Path& full_import_path, std::string& configuration_name);
     bool ExportConfiguration(const LayerManager& layers, const Path& full_export_path, const std::string& configuration_name);
 
     const Configuration* FindConfiguration(const std::string& configuration_name) const;
@@ -61,8 +61,6 @@ class ConfigurationManager : public Serialize {
 
     bool IsDefaultConfiguration(const std::string& configuration_key) const;
     void ResetDefaultConfigurations(const LayerManager& layers);
-
-    std::vector<ReferencedLayer> BuildReferencedLayers(const LayerManager& layers, const Path& path);
 
     bool Empty() const { return this->available_configurations.empty(); }
 

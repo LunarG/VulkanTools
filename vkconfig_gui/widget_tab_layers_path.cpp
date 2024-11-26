@@ -25,7 +25,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths layers_path) : path_info(path_info) {
+LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths layers_path)
+    : path_info(path_info), layers_path(layers_path) {
     this->setChecked(this->path_info.enabled);
 
     this->buttom_remove = new QPushButton(this);
@@ -35,8 +36,8 @@ LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths 
     this->buttom_remove->setEnabled(layers_path == LAYERS_PATHS_GUI);
     this->buttom_remove->show();
 
-    this->setText(path_info.path.RelativePath().c_str());
-    this->setToolTip(GetLabel(layers_path));
+    this->setText(format("[%s] %s", GetLabel(layers_path), path_info.path.RelativePath().c_str()).c_str());
+    this->setToolTip(path_info.path.AbsolutePath().c_str());
 
     this->connect(this, SIGNAL(toggled(bool)), this, SLOT(on_toggled(bool)));
     this->connect(this->buttom_remove, SIGNAL(clicked(bool)), this, SLOT(on_buttom_remove_clicked(bool)));
@@ -53,6 +54,8 @@ void LayersPathWidget::resizeEvent(QResizeEvent* event) {
 }
 
 void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
+    (void)checked;
+
     Configurator& configurator = Configurator::Get();
 
     std::vector<ReferencedLayer> referenced_layers;
@@ -111,7 +114,7 @@ void LayersPathWidget::on_toggled(bool checked) {
         this->path_info.enabled = checked;
 
         Configurator& configurator = Configurator::Get();
-        configurator.layers.UpdatePathEnabled(this->path_info);
+        configurator.layers.UpdatePathEnabled(this->path_info, this->layers_path);
 
         itemChanged();
     }

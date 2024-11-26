@@ -24,14 +24,14 @@
 
 const char* GetLabel(LayersPaths Layers_paths_type) {
     static const char* TABLE[] = {
-        "System Implicit Layers",                // LAYERS_PATHS_IMPLICIT_SYSTEM
-        "${VK_IMPLICIT_LAYER_PATH} Layers",      // LAYERS_PATHS_IMPLICIT_ENV_SET
-        "${VK_ADD_IMPLICIT_LAYER_PATH} Layers",  // LAYERS_PATHS_IMPLICIT_ENV_ADD
-        "System Explicit Layers",                // LAYERS_PATHS_EXPLICIT_SYSTEM
-        "${VK_LAYER_PATH} Layers",               // LAYERS_PATHS_EXPLICIT_ENV_SET
-        "${VK_ADD_LAYER_PATH} Layers",           // LAYERS_PATHS_EXPLICIT_ENV_ADD
-        "Vulkan Configurator Layers",            // LAYERS_PATHS_GUI
-        "${VULKAN_SDK} Layers",                  // LAYERS_PATHS_SDK
+        "System Implicit Path",           // LAYERS_PATHS_IMPLICIT_SYSTEM
+        "${VK_IMPLICIT_LAYER_PATH}",      // LAYERS_PATHS_IMPLICIT_ENV_SET
+        "${VK_ADD_IMPLICIT_LAYER_PATH}",  // LAYERS_PATHS_IMPLICIT_ENV_ADD
+        "System Explicit Path",           // LAYERS_PATHS_EXPLICIT_SYSTEM
+        "${VK_LAYER_PATH}",               // LAYERS_PATHS_EXPLICIT_ENV_SET
+        "${VK_ADD_LAYER_PATH}",           // LAYERS_PATHS_EXPLICIT_ENV_ADD
+        "Vulkan Configurator",            // LAYERS_PATHS_GUI
+        "${VULKAN_SDK}",                  // LAYERS_PATHS_SDK
     };
     static_assert(std::size(TABLE) == LAYERS_PATHS_COUNT, "The tranlation table size doesn't match the enum number of elements");
 

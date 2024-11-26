@@ -44,7 +44,7 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
                   SLOT(on_configurations_executable_scope_currentIndexChanged(int)));
     this->connect(this->ui->configurations_executable_list, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_configurations_executable_list_currentIndexChanged(int)));
-    this->connect(this->ui->configurations_executable_append, SIGNAL(pressed()), this,
+    this->connect(this->ui->configurations_executable_append, SIGNAL(clicked()), this,
                   SLOT(on_configurations_executable_append_pressed()));
 
     this->connect(this->ui->configurations_group_box_list, SIGNAL(toggled(bool)), this, SLOT(on_configurations_list_toggled(bool)));
@@ -116,7 +116,9 @@ TabConfigurations::~TabConfigurations() {
     settings.setValue("vkconfig3/mainwindow/splitter_settings_state", ui->splitter_settings->saveState());
 }
 
-void TabConfigurations::UpdateUI_Configurations(UpdateUIMode ui_update_mode) {
+void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
+    (void)mode;
+
     Configurator &configurator = Configurator::Get();
 
     ui->configurations_executable_scope->blockSignals(true);
@@ -220,6 +222,8 @@ void TabConfigurations::UpdateUI_LoaderMessages() {
 }
 
 void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
+    (void)mode;
+
     ui->configurations_layers_list->blockSignals(true);
     ui->configurations_layers_list->clear();
 
@@ -272,6 +276,8 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
 }
 
 void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
+    (void)mode;
+
     Configurator &configurator = Configurator::Get();
 
     if (configurator.GetActiveConfiguration() == nullptr) {
@@ -582,10 +588,13 @@ void TabConfigurations::OnContextMenuImportClicked(ListItem *item) {
         return;
     }
 
-    const bool result = configurator.configurations.ImportConfiguration(configurator.layers, selected_path);
+    std::string configuration_name;
+    const bool result = configurator.configurations.ImportConfiguration(configurator.layers, selected_path, configuration_name);
 
     if (result) {
+        configurator.SetActiveConfigurationName(configuration_name);
         configurator.Override(OVERRIDE_AREA_ALL);
+
         this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
         this->UpdateUI_LoaderMessages();
         this->UpdateUI_Layers(UPDATE_REBUILD_UI);
