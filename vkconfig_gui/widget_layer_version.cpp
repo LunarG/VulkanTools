@@ -24,15 +24,12 @@
 
 LayerVersionComboBox::LayerVersionComboBox(QWidget *parent) : QComboBox(parent), parent(parent) {
     this->setObjectName(QString::fromUtf8("layer_version_combobox"));
-    this->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    this->setMinimumHeight(24);
-    this->adjustSize();
     this->connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_version_combobox_currentIndexChanged(int)));
 }
 
 void LayerVersionComboBox::Init(const Parameter &parameter, const std::vector<Path> &layer_versions) {
     const Configurator &configurator = Configurator::Get();
-    const Layer *layer_select = configurator.layers.Find(parameter.key, parameter.api_version);
+    const Layer *layer_select = configurator.layers.FindFromManifest(parameter.manifest);
     const Layer *layer_latest = configurator.layers.Find(parameter.key, Version::LATEST);
 
     this->blockSignals(true);
@@ -71,6 +68,8 @@ void LayerVersionComboBox::Init(const Parameter &parameter, const std::vector<Pa
         this->setToolTip(layer_select->manifest_path.AbsolutePath().c_str());
     }
 
+    this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+    this->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     this->adjustSize();
 }
 

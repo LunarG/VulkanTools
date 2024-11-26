@@ -32,31 +32,31 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
                   SLOT(on_launch_executable_list_activated(int)));
     this->connect(this->ui->launch_executable_list->lineEdit(), SIGNAL(textEdited(QString)), this,
                   SLOT(on_launch_executable_list_textEdited(QString)));
-    this->connect(this->ui->launch_executable_search, SIGNAL(pressed()), this, SLOT(on_launch_executable_search_pressed()));
-    this->connect(this->ui->launch_executable_append, SIGNAL(pressed()), this, SLOT(on_launch_executable_append_pressed()));
-    this->connect(this->ui->launch_executable_remove, SIGNAL(pressed()), this, SLOT(on_launch_executable_remove_pressed()));
+    this->connect(this->ui->launch_executable_search, SIGNAL(clicked()), this, SLOT(on_launch_executable_search_pressed()));
+    this->connect(this->ui->launch_executable_append, SIGNAL(clicked()), this, SLOT(on_launch_executable_append_pressed()));
+    this->connect(this->ui->launch_executable_remove, SIGNAL(clicked()), this, SLOT(on_launch_executable_remove_pressed()));
 
     this->connect(this->ui->launch_options_list, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_launch_options_list_activated(int)));
     this->connect(this->ui->launch_options_list->lineEdit(), SIGNAL(textEdited(QString)), this,
                   SLOT(on_launch_options_list_textEdited(QString)));
-    this->connect(this->ui->launch_options_append, SIGNAL(pressed()), this, SLOT(on_launch_options_append_pressed()));
-    this->connect(this->ui->launch_options_remove, SIGNAL(pressed()), this, SLOT(on_launch_options_remove_pressed()));
+    this->connect(this->ui->launch_options_append, SIGNAL(clicked()), this, SLOT(on_launch_options_append_pressed()));
+    this->connect(this->ui->launch_options_remove, SIGNAL(clicked()), this, SLOT(on_launch_options_remove_pressed()));
 
     this->connect(this->ui->launch_options_dir_edit, SIGNAL(textEdited(QString)), this,
                   SLOT(on_launch_options_dir_textEdited(QString)));
-    this->connect(this->ui->launch_options_dir_button, SIGNAL(pressed()), this, SLOT(on_launch_options_dir_pressed()));
+    this->connect(this->ui->launch_options_dir_button, SIGNAL(clicked()), this, SLOT(on_launch_options_dir_pressed()));
     this->connect(this->ui->launch_options_args_edit, SIGNAL(textEdited(QString)), this,
                   SLOT(on_launch_options_args_textEdited(QString)));
     this->connect(this->ui->launch_options_envs_edit, SIGNAL(textEdited(QString)), this,
                   SLOT(on_launch_options_envs_textEdited(QString)));
     this->connect(this->ui->launch_options_log_edit, SIGNAL(textEdited(QString)), this,
                   SLOT(on_launch_options_log_textEdited(QString)));
-    this->connect(this->ui->launch_options_log_button, SIGNAL(pressed()), this, SLOT(on_launch_options_log_pressed()));
+    this->connect(this->ui->launch_options_log_button, SIGNAL(clicked()), this, SLOT(on_launch_options_log_pressed()));
 
-    this->connect(this->ui->launch_clear_at_launch, SIGNAL(pressed()), this, SLOT(on_launch_clear_at_launch_pressed()));
-    this->connect(this->ui->launch_clear_log, SIGNAL(pressed()), this, SLOT(on_launch_clear_log_pressed()));
-    this->connect(this->ui->launch_button, SIGNAL(pressed()), this, SLOT(on_launch_button_pressed()));
+    this->connect(this->ui->launch_clear_at_launch, SIGNAL(toggled(bool)), this, SLOT(on_launch_clear_at_launch_toggled(bool)));
+    this->connect(this->ui->launch_clear_log, SIGNAL(clicked()), this, SLOT(on_launch_clear_log_pressed()));
+    this->connect(this->ui->launch_button, SIGNAL(clicked()), this, SLOT(on_launch_button_pressed()));
 
     const Configurator &configurator = Configurator::Get();
 
@@ -64,7 +64,7 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     // Whenever the control surpasses this block count, old blocks are discarded.
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
-    this->ui->launch_log_text->document()->setMaximumBlockCount(2048);
+    this->ui->launch_log_text->document()->setMaximumBlockCount(65536);
 
     this->ui->launch_button->setEnabled(!configurator.executables.Empty());
 
@@ -98,7 +98,12 @@ void TabApplications::UpdateUI(UpdateUIMode mode) {
 
 void TabApplications::CleanUI() { this->ResetLaunchApplication(); }
 
-bool TabApplications::EventFilter(QObject *target, QEvent *event) { return false; }
+bool TabApplications::EventFilter(QObject *target, QEvent *event) {
+    (void)target;
+    (void)event;
+
+    return false;
+}
 
 void TabApplications::on_launch_executable_search_pressed() {
     Configurator &configurator = Configurator::Get();
@@ -112,6 +117,7 @@ void TabApplications::on_launch_executable_search_pressed() {
         return;
     }
 
+    configurator.executables.RenameActiveExecutable(selected_path.toStdString());
     configurator.executables.GetActiveExecutable()->path = selected_path.toStdString();
 
     this->UpdateUI(UPDATE_REBUILD_UI);
@@ -341,8 +347,8 @@ void TabApplications::on_launch_options_log_pressed() {
     }
 }
 
-void TabApplications::on_launch_clear_at_launch_pressed() {
-    Configurator::Get().executables.launcher_clear_on_launch = ui->launch_clear_at_launch->isChecked();
+void TabApplications::on_launch_clear_at_launch_toggled(bool checked) {
+    Configurator::Get().executables.launcher_clear_on_launch = checked;
 }
 
 void TabApplications::on_launch_clear_log_pressed() {

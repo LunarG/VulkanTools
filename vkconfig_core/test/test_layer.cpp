@@ -213,6 +213,18 @@ TEST(test_layer, load_setting_enum_interit) {
     EXPECT_EQ(SETTING_VIEW_HIDDEN, setting_override->enum_values[1].view);
 }
 
+TEST(test_layer, load_setting_missing) {
+    Layer layer;
+    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
+
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.platforms);
+    EXPECT_EQ(STATUS_BETA, layer.status);
+    EXPECT_EQ(1, layer.settings.size());
+    EXPECT_EQ(1, layer.presets.size());
+}
+
 TEST(test_layer, load_1_1_0_header) {
     Layer layer;
     const LayerLoadStatus load_loaded =

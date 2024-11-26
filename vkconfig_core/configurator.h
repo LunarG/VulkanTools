@@ -107,9 +107,6 @@ class Configurator : public Serialize {
     bool GetUseSystemTray() const;
     void SetUseSystemTray(bool enabled);
 
-    Path GetHomeSDK() const;
-    void SetHomeSDK(const Path& path);
-
     bool HasActiveSettings() const;
     bool HasEnabledUI(EnabledUI enabled_ui) const;
 
@@ -139,7 +136,6 @@ class Configurator : public Serialize {
     Path last_path_status = ::Get(Path::HOME) + "/vkconfig.txt";
 
    private:
-    Path home_sdk_path = ::Get(Path::HOME);
     int hide_message_boxes_flags = 0;
     bool use_system_tray = false;
     ExecutableScope executable_scope = EXECUTABLE_ANY;

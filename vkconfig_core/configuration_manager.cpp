@@ -156,14 +156,6 @@ void ConfigurationManager::SortConfigurations() {
     std::sort(this->available_configurations.begin(), this->available_configurations.end(), Compare());
 }
 
-std::vector<ReferencedLayer> ConfigurationManager::BuildReferencedLayers(const LayerManager &layers, const Path &path) {
-    std::vector<ReferencedLayer> result;
-
-    layers.GatherLayerNames();
-
-    return result;
-}
-
 void ConfigurationManager::LoadConfigurationsPath(const LayerManager &layers) {
     const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
     for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {
@@ -350,7 +342,8 @@ void ConfigurationManager::RenameConfiguration(const std::string &old_configurat
     this->SortConfigurations();
 }
 
-bool ConfigurationManager::ImportConfiguration(const LayerManager &layers, const Path &full_import_path) {
+bool ConfigurationManager::ImportConfiguration(const LayerManager &layers, const Path &full_import_path,
+                                               std::string &configuration_name) {
     assert(!full_import_path.Empty());
 
     this->last_path_import_config = full_import_path.AbsoluteDir();
@@ -360,17 +353,18 @@ bool ConfigurationManager::ImportConfiguration(const LayerManager &layers, const
         return false;
     }
 
-    configuration.key = MakeConfigurationName(this->available_configurations, configuration.key + " (Imported)");
+    configuration_name = configuration.key =
+        MakeConfigurationName(this->available_configurations, configuration.key + " (Imported)");
     this->available_configurations.push_back(configuration);
     this->SortConfigurations();
-
-    // this->GetActiveConfigurationInfo()->name = configuration.key;
 
     return true;
 }
 
 bool ConfigurationManager::ExportConfiguration(const LayerManager &layers, const Path &full_export_path,
                                                const std::string &configuration_name) {
+    (void)layers;
+
     assert(!configuration_name.empty());
     assert(!full_export_path.Empty());
 
@@ -379,5 +373,5 @@ bool ConfigurationManager::ExportConfiguration(const LayerManager &layers, const
     Configuration *configuration = this->FindConfiguration(configuration_name);
     assert(configuration);
 
-    return configuration->Save(full_export_path, true);
+    return configuration->Save(full_export_path);
 }

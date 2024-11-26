@@ -177,10 +177,6 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
         case QSystemTrayIcon::Context:
             break;
         case QSystemTrayIcon::DoubleClick:
-            Qt::WindowStates window_states = this->windowState();
-            const bool is_minimized = this->isMinimized();
-            const bool is_visible = this->isVisible();
-            const bool is_hidden = this->isHidden();
             if (this->isMinimized() || this->isHidden()) {
                 this->setVisible(true);
                 this->showNormal();
@@ -321,9 +317,11 @@ void MainWindow::OnHelpGPUInfo(bool checked) {
 void MainWindow::closeEvent(QCloseEvent *event) {
     Configurator &configurator = Configurator::Get();
 
-    // Alert the user to the current state of the vulkan configurator and
-    // give them the option to not shutdown.
-    if (configurator.GetUseSystemTray()) {
+    bool quit = !configurator.GetUseSystemTray();
+
+    if (!quit) {
+        // Alert the user to the current state of the vulkan configurator and
+        // give them the option to not shutdown.
         if (!(configurator.Get(HIDE_MESSAGE_USE_SYSTEM_TRAY))) {
             std::string shut_down_state;
 
@@ -349,17 +347,21 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             }
 
             if (ret_val == QMessageBox::No) {
-                event->ignore();
+                quit = true;
                 return;
             }
         }
     }
 
-    this->tabs[this->ui->tab_widget->currentIndex()]->CleanUI();
+    QGuiApplication::setQuitOnLastWindowClosed(quit);
 
-    QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-    settings.setValue("vkconfig3/mainwindow/geometry", this->saveGeometry());
-    settings.setValue("vkconfig3/mainwindow/state", this->saveState());
+    if (quit) {
+        this->tabs[this->ui->tab_widget->currentIndex()]->CleanUI();
+
+        QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
+        settings.setValue("vkconfig3/mainwindow/geometry", this->saveGeometry());
+        settings.setValue("vkconfig3/mainwindow/state", this->saveState());
+    }
 
     QMainWindow::closeEvent(event);
 }

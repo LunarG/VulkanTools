@@ -221,14 +221,17 @@ Path operator+(const Path& path, const std::string& extend) { return Path(path.d
 
 bool operator<(const Path& a, const Path& b) { return a.RelativePath() < b.RelativePath(); }
 
-static const Path GetHomePath() {
-    std::string result = qgetenv("VK_HOME").toStdString();
+static Path VK_HOME_PATH = QDir().homePath().toStdString() + "/VulkanSDK";
 
-    if (result.empty()) {  // Defaukt path
-        result = QDir().homePath().toStdString() + "/VulkanSDK";
+void SetHomePath(const Path& path) { ::VK_HOME_PATH = path; }
+
+static const Path GetHomePath() {
+    Path path = qgetenv("VK_HOME").toStdString();
+
+    if (path.Empty()) {  // Default path
+        path = VK_HOME_PATH;
     }
 
-    Path path(result);
     if (!path.Exists()) {
         path.Create();
     }

@@ -48,9 +48,6 @@
 
 #include <cassert>
 
-static const char *TOOLTIP_ORDER =
-    "Layers are executed between the Vulkan application and driver in the specific order represented here";
-
 SettingsTreeManager::SettingsTreeManager(std::shared_ptr<Ui::MainWindow> ui) : ui(ui) {
     assert(ui.get() != nullptr);
 
