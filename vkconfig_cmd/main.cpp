@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    InitSignals();
+    ::InitSignals();
 
     switch (command_line.command) {
         case COMMAND_SHOW_USAGE: {

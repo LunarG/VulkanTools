@@ -351,7 +351,10 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     this->ui->configurations_group_box_list->blockSignals(true);
     this->ui->configurations_group_box_list->setEnabled(scope != EXECUTABLE_NONE);
     this->ui->configurations_group_box_list->setCheckable(enabled_executable);
-    this->ui->configurations_group_box_list->setChecked(configurator.executables.GetActiveExecutable()->enabled);
+    const Executable *executable = configurator.executables.GetActiveExecutable();
+    if (executable != nullptr) {
+        this->ui->configurations_group_box_list->setChecked(executable->enabled);
+    }
     this->ui->configurations_group_box_list->blockSignals(false);
 }
 
