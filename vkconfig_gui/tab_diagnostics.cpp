@@ -34,15 +34,6 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
 
     Configurator &configurator = Configurator::Get();
 
-    this->ui->diagnostic_keep_running->blockSignals(true);
-    this->ui->diagnostic_keep_running->setChecked(configurator.GetUseSystemTray());
-    this->ui->diagnostic_keep_running->blockSignals(false);
-
-    this->ui->diagnostic_vk_home_text->blockSignals(true);
-    this->ui->diagnostic_vk_home_text->setText(::Get(Path::HOME).RelativePath().c_str());
-    this->ui->diagnostic_vk_home_text->setToolTip(::Get(Path::HOME).AbsolutePath().c_str());
-    this->ui->diagnostic_vk_home_text->blockSignals(false);
-
     this->ui->diagnostic_status_text->document()->setMaximumBlockCount(65536);
 
     this->widget_refresh = new ResizeButton(this->ui->diagnostic_group_box_refresh, 0);
@@ -80,6 +71,17 @@ void TabDiagnostics::UpdateUI(UpdateUIMode mode) {
 
     this->status.clear();
     this->on_diagnostic_refresh_pressed();
+
+    Configurator &configurator = Configurator::Get();
+
+    this->ui->diagnostic_keep_running->blockSignals(true);
+    this->ui->diagnostic_keep_running->setChecked(configurator.GetUseSystemTray());
+    this->ui->diagnostic_keep_running->blockSignals(false);
+
+    this->ui->diagnostic_vk_home_text->blockSignals(true);
+    this->ui->diagnostic_vk_home_text->setText(::Get(Path::HOME).RelativePath().c_str());
+    this->ui->diagnostic_vk_home_text->setToolTip(::Get(Path::HOME).AbsolutePath().c_str());
+    this->ui->diagnostic_vk_home_text->blockSignals(false);
 }
 
 void TabDiagnostics::CleanUI() {}
@@ -140,8 +142,8 @@ void TabDiagnostics::on_diagnostic_reset_hard_pressed() {
     message.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     message.setDefaultButton(QMessageBox::No);
     if (message.exec() == QMessageBox::Yes) {
-        Configurator &configurator = Configurator::Get();
-        configurator.Reset(true);
+        Configurator::Get().Reset(true);
+        qApp->quit();
     }
 }
 
