@@ -32,6 +32,9 @@
 #include <QMessageBox>
 #include <QCheckBox>
 #include <QJsonArray>
+#include <QSettings>
+#include <QApplication>
+#include <QProcess>
 
 #include <cassert>
 #include <cstdio>
@@ -45,70 +48,27 @@ Configurator& Configurator::Get() {
 Configurator::Configurator() {}
 
 Configurator::~Configurator() {
-    if (this->mode == GUI) {
-        QJsonObject json_root_object;
+    this->Surrender(OVERRIDE_AREA_ALL);
 
-        this->Save(json_root_object);
-        this->configurations.Save(json_root_object);
-        this->layers.Save(json_root_object);
-        this->executables.Save(json_root_object);
-
-        QJsonDocument json_doc(json_root_object);
-
-        const Path& vkconfig_init_path = ::Get(Path::INIT);
-        QFile file(vkconfig_init_path.AbsolutePath().c_str());
-        const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
-        assert(result);
-
-        file.write(json_doc.toJson());
-        file.close();
-
-        this->Surrender(OVERRIDE_AREA_ALL);
+    if (this->reset_hard) {
+        return;
     }
+
+    this->has_crashed = false;
+    this->Save();
 }
 
-bool Configurator::Init(Mode mode) {
-    this->mode = mode;
-
-    const Path& vkconfig_init_path = ::Get(Path::INIT);
-
-    QString init_data;
-
-    QFile file(vkconfig_init_path.AbsolutePath().c_str());
-    const bool has_init_file = file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    if (has_init_file) {
-        init_data = file.readAll();
-        file.close();
-
-        const QJsonDocument& json_doc = QJsonDocument::fromJson(init_data.toLocal8Bit());
-        const QJsonObject& json_root_object = json_doc.object();
-
-        this->Load(json_root_object);
-
-        bool request_reset = false;
-        if (this->has_crashed) {
-            this->has_crashed = false;
-
-            if (Alert::ConfiguratorCrashed() == QMessageBox::Yes) {
-                request_reset = true;
-            }
-        }
-
-        if (request_reset) {
-            this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-
+bool Configurator::Init() {
+    this->Load();
+    if (this->has_crashed) {
+        if (Alert::ConfiguratorCrashed() == QMessageBox::Yes) {
             this->Reset(true);
-        } else {
-            this->executables.Load(json_root_object);
-            this->layers.Load(json_root_object);
-            this->configurations.Load(json_root_object);
+            return false;
         }
-
-        this->Override(OVERRIDE_AREA_ALL);
-    } else {
-        this->Reset(false);
     }
+
+    this->has_crashed = true;  // This is set to `false` when saving on exit.
+    this->Save();
 
     return true;
 }
@@ -156,12 +116,17 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
 
 void Configurator::BuildLoaderSettings(const std::string& configuration_key, const std::string& executable_path,
                                        std::vector<LoaderSettings>& loader_settings_array) const {
-    LoaderSettings result;
-    result.executable_path = executable_path;
+    if (configuration_key.empty()) {
+        return;
+    }
 
     const Configuration* configuration = this->configurations.FindConfiguration(configuration_key);
-    assert(configuration != nullptr);
+    if (configuration == nullptr) {
+        return;
+    }
 
+    LoaderSettings result;
+    result.executable_path = executable_path;
     result.override_loader = configuration->override_loader;
     result.override_layers = configuration->override_layers;
     result.stderr_log_flags = configuration->loader_log_messages_flags;
@@ -259,6 +224,7 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
 
             return result_layers_file;
         }
+
         return true;
     } else {
         return true;
@@ -502,15 +468,20 @@ bool Configurator::HasOverride() const {
 void Configurator::Reset(bool hard) {
     this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-    this->Reset();
-    this->executables.Reset();
-    this->layers.Reset();
+    const Path& vkconfig_init_path = ::Get(Path::INIT);
+    vkconfig_init_path.Remove();
+
+    QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
+    const QStringList& keys = settings.allKeys();
+    for (int i = 0, n = keys.size(); i < n; ++i) {
+        settings.remove(keys[i]);
+    }
 
     if (hard) {
         this->configurations.RemoveConfigurationFiles();
     }
 
-    this->configurations.Reset();
+    this->reset_hard = true;
 }
 
 void Configurator::SetActiveConfigurationName(const std::string& configuration_name) {
@@ -551,13 +522,6 @@ bool Configurator::HasActiveParameter() const { return this->GetActiveParameter(
 Executable* Configurator::GetActiveExecutable() { return this->executables.GetActiveExecutable(); }
 
 const Executable* Configurator::GetActiveExecutable() const { return this->executables.GetActiveExecutable(); }
-
-void Configurator::Reset() {
-    this->has_crashed = false;
-    this->use_system_tray = false;
-    this->executable_scope = EXECUTABLE_ANY;
-    this->selected_global_configuration = "Validation";
-}
 
 std::string Configurator::LogConfiguration(const std::string& configuration_key) const {
     const Configuration* configuration = this->configurations.FindConfiguration(configuration_key);
@@ -783,57 +747,80 @@ std::string Configurator::Log() const {
     return log;
 }
 
-bool Configurator::Load(const QJsonObject& json_root_object) {
-    const Version file_format_version = Version(json_root_object.value("file_format_version").toString().toStdString());
-    if (file_format_version > Version::VKCONFIG) {
-        return false;  // Vulkan Configurator needs to be updated
-    }
+bool Configurator::Load() {
+    const Path& vkconfig_init_path = ::Get(Path::INIT);
 
-    // interface json object
-    const QJsonObject& json_interface_object = json_root_object.value("interface").toObject();
-    this->has_crashed = json_interface_object.value("has_crashed").toBool();
+    QFile file(vkconfig_init_path.AbsolutePath().c_str());
+    const bool has_init_file = file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    const QJsonArray& json_hide_message_boxes_array = json_interface_object.value("hide_message_boxes").toArray();
-    this->hide_message_boxes_flags = 0;
-    for (int i = 0, n = json_hide_message_boxes_array.size(); i < n; ++i) {
-        const std::string& token = json_hide_message_boxes_array[i].toString().toStdString();
-        this->hide_message_boxes_flags |= GetHideMessageBit(token.c_str());
-    }
+    if (has_init_file) {
+        QString init_data = file.readAll();
+        file.close();
 
-    this->active_tab = GetTabType(json_interface_object.value("active_tab").toString().toStdString().c_str());
+        const QJsonDocument& json_doc = QJsonDocument::fromJson(init_data.toLocal8Bit());
+        const QJsonObject& json_root_object = json_doc.object();
 
-    // TAB_CONFIGURATIONS
-    if (json_interface_object.value(GetToken(TAB_CONFIGURATIONS)) != QJsonValue::Undefined) {
-        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_CONFIGURATIONS)).toObject();
-        this->use_system_tray = json_object.value("use_system_tray").toBool();
-        this->advanced = json_object.value("advanced").toBool();
-        this->executable_scope = ::GetExecutableScope(json_object.value("executable_scope").toString().toStdString().c_str());
-        this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
-    }
-
-    // TAB_LAYERS
-    if (json_interface_object.value(GetToken(TAB_LAYERS)) != QJsonValue::Undefined) {
-        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_LAYERS)).toObject();
-    }
-
-    // TAB_APPLICATIONS
-    if (json_interface_object.value(GetToken(TAB_APPLICATIONS)) != QJsonValue::Undefined) {
-        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_APPLICATIONS)).toObject();
-    }
-
-    // TAB_DIAGNOSTIC
-    if (json_interface_object.value(GetToken(TAB_DIAGNOSTIC)) != QJsonValue::Undefined) {
-        const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_DIAGNOSTIC)).toObject();
-
-        if (json_object.value("VK_HOME") != QJsonValue::Undefined) {
-            ::SetHomePath(json_object.value("VK_HOME").toString().toStdString());
+        const Version file_format_version = Version(json_root_object.value("file_format_version").toString().toStdString());
+        if (file_format_version > Version::VKCONFIG) {
+            return false;  // Vulkan Configurator needs to be updated
         }
+
+        // interface json object
+        const QJsonObject& json_interface_object = json_root_object.value("interface").toObject();
+        this->has_crashed = json_interface_object.value("has_crashed").toBool();
+
+        const QJsonArray& json_hide_message_boxes_array = json_interface_object.value("hide_message_boxes").toArray();
+        this->hide_message_boxes_flags = 0;
+        for (int i = 0, n = json_hide_message_boxes_array.size(); i < n; ++i) {
+            const std::string& token = json_hide_message_boxes_array[i].toString().toStdString();
+            this->hide_message_boxes_flags |= GetHideMessageBit(token.c_str());
+        }
+
+        this->active_tab = GetTabType(json_interface_object.value("active_tab").toString().toStdString().c_str());
+
+        // TAB_CONFIGURATIONS
+        if (json_interface_object.value(GetToken(TAB_CONFIGURATIONS)) != QJsonValue::Undefined) {
+            const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_CONFIGURATIONS)).toObject();
+            this->use_system_tray = json_object.value("use_system_tray").toBool();
+            this->advanced = json_object.value("advanced").toBool();
+            this->executable_scope = ::GetExecutableScope(json_object.value("executable_scope").toString().toStdString().c_str());
+            this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
+        }
+
+        // TAB_LAYERS
+        if (json_interface_object.value(GetToken(TAB_LAYERS)) != QJsonValue::Undefined) {
+            const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_LAYERS)).toObject();
+        }
+
+        // TAB_APPLICATIONS
+        if (json_interface_object.value(GetToken(TAB_APPLICATIONS)) != QJsonValue::Undefined) {
+            const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_APPLICATIONS)).toObject();
+        }
+
+        // TAB_DIAGNOSTIC
+        if (json_interface_object.value(GetToken(TAB_DIAGNOSTIC)) != QJsonValue::Undefined) {
+            const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_DIAGNOSTIC)).toObject();
+
+            if (json_object.value("VK_HOME") != QJsonValue::Undefined) {
+                ::SetHomePath(json_object.value("VK_HOME").toString().toStdString());
+            }
+        }
+
+        this->executables.Load(json_root_object);
+        this->layers.Load(json_root_object);
+        this->configurations.Load(json_root_object);
+    } else {
+        this->executables.Reset();
+        this->layers.LoadAllInstalledLayers();
     }
+
+    this->configurations.LoadAllConfigurations(this->layers);
 
     return true;
 }
 
-bool Configurator::Save(QJsonObject& json_root_object) const {
+bool Configurator::Save() const {
+    QJsonObject json_root_object;
     json_root_object.insert("file_format_version", Version::VKCONFIG.str().c_str());
 
     QJsonObject json_interface_object;
@@ -883,6 +870,20 @@ bool Configurator::Save(QJsonObject& json_root_object) const {
 
         json_root_object.insert("interface", json_interface_object);
     }
+
+    this->configurations.Save(json_root_object);
+    this->layers.Save(json_root_object);
+    this->executables.Save(json_root_object);
+
+    QJsonDocument json_doc(json_root_object);
+
+    const Path& vkconfig_init_path = ::Get(Path::INIT);
+    QFile file(vkconfig_init_path.AbsolutePath().c_str());
+    const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
+    assert(result);
+
+    file.write(json_doc.toJson());
+    file.close();
 
     return true;
 }

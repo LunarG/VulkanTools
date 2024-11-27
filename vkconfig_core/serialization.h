@@ -25,6 +25,5 @@
 struct Serialize {
     virtual bool Load(const QJsonObject& json_root_object) = 0;
     virtual bool Save(QJsonObject& json_root_object) const = 0;
-    virtual void Reset() = 0;
     virtual std::string Log() const = 0;
 };

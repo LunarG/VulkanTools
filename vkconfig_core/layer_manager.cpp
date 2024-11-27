@@ -137,9 +137,9 @@ static LayersPathInfo *FindPathInfo(std::array<std::vector<LayersPathInfo>, LAYE
     return nullptr;
 }
 
-bool LayerManager::Load(const QJsonObject &json_root_object) {
-    this->InitSystemPaths();
+LayerManager::LayerManager() { this->InitSystemPaths(); }
 
+bool LayerManager::Load(const QJsonObject &json_root_object) {
     // LAYERS_PATHS_GUI
     if (json_root_object.value("layers") != QJsonValue::Undefined) {
         const QJsonObject &json_layers_object = json_root_object.value("layers").toObject();
@@ -208,13 +208,6 @@ bool LayerManager::Save(QJsonObject &json_root_object) const {
     json_root_object.insert("layers", json_layers_object);
 
     return true;
-}
-
-void LayerManager::Reset() {
-    this->InitSystemPaths();
-    this->LoadAllInstalledLayers();
-    this->last_layers_path = Get(Path::HOME);
-    this->validate_manifests = false;
 }
 
 std::string LayerManager::Log() const {
@@ -292,6 +285,9 @@ void LayerManager::InitSystemPaths() {
 
     // LAYERS_PATHS_EXPLICIT_ENV_ADD: VK_ADD_LAYER_PATH env variables
     this->paths[LAYERS_PATHS_EXPLICIT_ENV_ADD] = GetEnvVariablePaths("VK_ADD_LAYER_PATH", LAYER_TYPE_EXPLICIT);
+
+    // LAYERS_PATHS_GUI
+    this->paths[LAYERS_PATHS_GUI].clear();
 
     // LAYERS_PATHS_SDK
     this->paths[LAYERS_PATHS_SDK].clear();

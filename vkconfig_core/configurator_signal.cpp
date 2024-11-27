@@ -27,13 +27,8 @@
 void SurrenderConfiguration(int signal) {
     (void)signal;
 
-    Configurator& configurator = Configurator::Get();
-
-    // Indicate that Vulkan Configurator crashed to handle it on next run
-    configurator.has_crashed = true;
-
     // Delete the layers configurations files
-    configurator.Surrender(OVERRIDE_AREA_ALL);
+    Configurator::Get().Surrender(OVERRIDE_AREA_ALL);
 }
 
 void InitSignals() {

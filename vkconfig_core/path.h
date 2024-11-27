@@ -28,6 +28,7 @@ class Path {
    public:
     enum Builtin {
         HOME,  // Vulkan SDK user directory
+        DEFAULT_HOME,
         APPDATA,
         INIT,
         CONFIGS,

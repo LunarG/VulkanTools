@@ -41,10 +41,8 @@ enum EnabledUI {
     ENABLE_UI_SETTINGS,
 };
 
-class Configurator : public Serialize {
+class Configurator {
    public:
-    enum Mode { CMD, GUI };
-
     struct LayersSettings {
         std::string configuration_name;
         Path executable_path;
@@ -68,13 +66,12 @@ class Configurator : public Serialize {
     };
 
     static Configurator& Get();
-    bool Init(Mode mode = GUI);
+    bool Init();
 
    public:
-    bool Load(const QJsonObject& json_root_object) override;
-    bool Save(QJsonObject& json_root_object) const override;
-    void Reset() override;
-    std::string Log() const override;
+    bool Load();
+    bool Save() const;
+    std::string Log() const;
     std::string LogConfiguration(const std::string& configuration_key) const;
 
     bool Surrender(OverrideArea override_area);
@@ -124,12 +121,12 @@ class Configurator : public Serialize {
                              std::vector<LoaderSettings>& loader_settings_array) const;
 
    public:
-    Mode mode;
     LayerManager layers;
     ConfigurationManager configurations;
     ExecutableManager executables;
     VulkanSystemInfo vulkan_system_info;
 
+    bool reset_hard = false;
     bool has_crashed = false;
     TabType active_tab = TAB_CONFIGURATIONS;
     bool advanced = true;

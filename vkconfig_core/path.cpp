@@ -221,15 +221,30 @@ Path operator+(const Path& path, const std::string& extend) { return Path(path.d
 
 bool operator<(const Path& a, const Path& b) { return a.RelativePath() < b.RelativePath(); }
 
-static Path VK_HOME_PATH = QDir().homePath().toStdString() + "/VulkanSDK";
+static Path VK_DEFAULT_HOME_PATH = QDir().homePath().toStdString() + "/VulkanSDK";
+static Path VK_CURRENT_HOME_PATH = VK_DEFAULT_HOME_PATH;
 
-void SetHomePath(const Path& path) { ::VK_HOME_PATH = path; }
+void SetHomePath(const Path& path) { ::VK_CURRENT_HOME_PATH = path; }
 
 static const Path GetHomePath() {
     Path path = qgetenv("VK_HOME").toStdString();
 
     if (path.Empty()) {  // Default path
-        path = VK_HOME_PATH;
+        path = VK_CURRENT_HOME_PATH;
+    }
+
+    if (!path.Exists()) {
+        path.Create();
+    }
+
+    return path;
+}
+
+static const Path GetDefaultHomePath() {
+    Path path = qgetenv("VK_HOME").toStdString();
+
+    if (path.Empty()) {  // Default path
+        path = VK_DEFAULT_HOME_PATH;
     }
 
     if (!path.Exists()) {
@@ -403,6 +418,8 @@ Path Get(Path::Builtin path) {
             return "";
         case Path::HOME:
             return ::GetHomePath();
+        case Path::DEFAULT_HOME:
+            return ::GetDefaultHomePath();
         case Path::APPDATA:
             return ::GetAppDataPath();
         case Path::INIT:
