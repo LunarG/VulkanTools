@@ -105,9 +105,6 @@ TEST(test_layer_manager, reset) {
 
     layer_manager.Clear();
     EXPECT_TRUE(layer_manager.Empty());
-
-    layer_manager.Reset();
-    EXPECT_TRUE(layer_manager.Size() < Count);
 }
 
 TEST(test_layer_manager, find_single) {

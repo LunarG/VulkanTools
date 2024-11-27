@@ -100,7 +100,7 @@ int run_layers(const CommandLine& command_line) {
     assert(command_line.error == ERROR_NONE);
 
     Configurator& configurator = Configurator::Get();
-    configurator.Init(Configurator::CMD);
+    configurator.Init();
 
     switch (command_line.command_layers_arg) {
         case COMMAND_LAYERS_OVERRIDE: {

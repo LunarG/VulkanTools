@@ -43,19 +43,9 @@ static const DefaultExecutable defaults_executables[] = {
     {"vkcube", "/vkcube", "--suppress_popups", "VkCube launcher options"},
     {"vkcubepp", "/vkcubepp", "--suppress_popups", "VkCubepp launcher options"}};
 
-void ExecutableManager::Reset() {
-    this->data = this->CreateDefaultExecutables();
-    this->active_executable = this->data[0].path;
-}
-
 std::string ExecutableManager::Log() const {
     std::string log;
     return log;
-}
-
-void ExecutableManager::Clear() {
-    this->data.clear();
-    this->active_executable.Clear();
 }
 
 bool ExecutableManager::Empty() const { return this->data.empty(); }
@@ -128,6 +118,11 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object) {
     }
 
     return true;
+}
+
+void ExecutableManager::Reset() {
+    this->data = this->CreateDefaultExecutables();
+    this->active_executable = this->data[0].path;
 }
 
 bool ExecutableManager::Save(QJsonObject& json_root_object) const {

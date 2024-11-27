@@ -75,13 +75,22 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    if (!configurator.Init()) {
-        return -1;
+    const bool init = configurator.Init();
+    int result = 0;
+
+    if (init) {
+        // The main GUI is driven here
+        MainWindow main_window;
+        main_window.show();
+
+        result = app.exec();
     }
 
-    // The main GUI is driven here
-    MainWindow main_window;
-    main_window.show();
+    if (configurator.reset_hard) {
+        singleton.ReleaseInstance();
 
-    return app.exec();
+        QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+    }
+
+    return result;
 }

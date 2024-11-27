@@ -55,8 +55,6 @@ bool ConfigurationManager::Load(const QJsonObject &json_root_object) {
         }
     }
 
-    this->LoadAllConfigurations(Configurator::Get().layers);
-
     return true;
 }
 
@@ -77,17 +75,6 @@ bool ConfigurationManager::Save(QJsonObject &json_root_object) const {
     json_root_object.insert("configurations", json_configurations_object);
 
     return true;
-}
-
-void ConfigurationManager::Reset() {
-    this->removed_built_in_configuration.clear();
-    this->available_configurations.clear();
-    this->last_path_import_config = Get(Path::HOME);
-    this->last_path_export_config = Get(Path::HOME);
-    this->last_path_export_settings = Get(Path::HOME) + "/vK_layer_settings.txt";
-
-    this->LoadDefaultConfigurations(Configurator::Get().layers);
-    this->SortConfigurations();
 }
 
 std::string ConfigurationManager::Log() const {
@@ -239,14 +226,14 @@ bool ConfigurationManager::HasFile(const Configuration &configuration) const {
 }
 
 void ConfigurationManager::RemoveConfigurationFiles() {
-    const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
+    const std::vector<Path> &configuration_files = ::CollectFilePaths(Get(Path::CONFIGS));
     for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {
         configuration_files[i].Remove();
     }
 }
 
 void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
-    const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
+    const std::vector<Path> &configuration_files = ::CollectFilePaths(Get(Path::CONFIGS));
     for (std::size_t j = 0, o = configuration_files.size(); j < o; ++j) {
         if (configuration_files[j].Basename() == key) {
             configuration_files[j].Remove();
@@ -257,7 +244,7 @@ void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
 void ConfigurationManager::RemoveConfiguration(const std::string &configuration_name) {
     assert(!configuration_name.empty());
 
-    RemoveConfigurationFile(configuration_name.c_str());
+    this->RemoveConfigurationFile(configuration_name.c_str());
 
     // Update the configuration in the list
     std::vector<Configuration> updated_configurations;

@@ -245,8 +245,6 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     Configurator &configurator = Configurator::Get();
     configurator.Reset(true);
-
-    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void MainWindow::StartTool(Tool tool) {

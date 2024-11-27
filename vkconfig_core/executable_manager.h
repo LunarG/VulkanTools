@@ -30,12 +30,11 @@ class ExecutableManager : public Serialize {
    public:
     bool Load(const QJsonObject& json_root_object) override;
     bool Save(QJsonObject& json_root_object) const override;
-    void Reset() override;
     std::string Log() const override;
 
-    void Clear();
     bool Empty() const;
     std::size_t Size() const;
+    void Reset();
 
     void SetActiveExecutable(int executable_index);
     int GetActiveExecutableIndex() const;
