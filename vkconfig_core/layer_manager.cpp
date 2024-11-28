@@ -58,24 +58,42 @@ std::vector<LayersPathInfo> GetImplicitLayerPaths() {
         LoadRegistrySystemLayers("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers");
     result.insert(result.begin(), drivers_registry_paths.begin(), drivers_registry_paths.end());
 #else
-    static const char *LAYERS_PATHS[] = {
-        "/usr/local/etc/vulkan/implicit_layer.d",  // Not used on macOS, okay to just ignore
-        "/usr/local/share/vulkan/implicit_layer.d",
-        "/etc/vulkan/implicit_layer.d",
-        "/usr/share/vulkan/implicit_layer.d",
-        ".local/share/vulkan/implicit_layer.d",
+    std::vector<std::string> paths;
+    if (VKC_PLATFORM == PLATFORM_MACOS) {
+        static const char *LAYERS_PATHS[] = {
+            "/usr/local/share/vulkan/implicit_layer.d",
+            ".local/share/vulkan/implicit_layer.d",
+        };
+
+        for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
+            paths.push_back(LAYERS_PATHS[i]);
+        }
+    } else {
+        static const char *LAYERS_PATHS[] = {
+            "/usr/local/etc/vulkan/implicit_layer.d",
+            "/usr/local/share/vulkan/implicit_layer.d",
+            "/etc/vulkan/implicit_layer.d",
+            "/usr/share/vulkan/implicit_layer.d",
+            ".local/share/vulkan/implicit_layer.d",
+#ifdef _DEBUG
 #ifdef INSTALL_FULL_DATAROOTDIR
-        INSTALL_FULL_DATAROOTDIR "/vulkan/implicit_layer.d",
+            INSTALL_FULL_DATAROOTDIR "/vulkan/implicit_layer.d",
 #endif
 #ifdef INSTALL_FULL_SYSCONFDIR
-        INSTALL_FULL_SYSCONFDIR "/vulkan/implicit_layer.d",
+            INSTALL_FULL_SYSCONFDIR "/vulkan/implicit_layer.d",
 #endif
-    };
+#endif  //_DEBUG
+        };
 
-    for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
+        for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
+            paths.push_back(LAYERS_PATHS[i]);
+        }
+    }
+
+    for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
         LayersPathInfo info;
         info.type = LAYER_TYPE_IMPLICIT;
-        info.path = LAYERS_PATHS[i];
+        info.path = paths[i];
         result.push_back(info);
     }
 #endif
@@ -100,24 +118,42 @@ std::vector<LayersPathInfo> GetExplicitLayerPaths() {
         LoadRegistrySystemLayers("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers");
     result.insert(result.begin(), drivers_registry_paths.begin(), drivers_registry_paths.end());
 #else
-    static const char *LAYERS_PATHS[] = {
-        "/usr/local/etc/vulkan/explicit_layer.d",  // Not used on macOS, okay to just ignore
-        "/usr/local/share/vulkan/explicit_layer.d",
-        "/etc/vulkan/explicit_layer.d",
-        "/usr/share/vulkan/explicit_layer.d",
-        ".local/share/vulkan/explicit_layer.d",
+    std::vector<std::string> paths;
+    if (VKC_PLATFORM == PLATFORM_MACOS) {
+        static const char *LAYERS_PATHS[] = {
+            "/usr/local/share/vulkan/explicit_layer.d",
+            ".local/share/vulkan/explicit_layer.d",
+        };
+
+        for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
+            paths.push_back(LAYERS_PATHS[i]);
+        }
+    } else {
+        static const char *LAYERS_PATHS[] = {
+            "/usr/local/etc/vulkan/explicit_layer.d",
+            "/usr/local/share/vulkan/explicit_layer.d",
+            "/etc/vulkan/explicit_layer.d",
+            "/usr/share/vulkan/explicit_layer.d",
+            ".local/share/vulkan/explicit_layer.d",
+#ifdef _DEBUG
 #ifdef INSTALL_FULL_DATAROOTDIR
-        INSTALL_FULL_DATAROOTDIR "/vulkan/explicit_layer.d",
+            INSTALL_FULL_DATAROOTDIR "/vulkan/explicit_layer.d",
 #endif
 #ifdef INSTALL_FULL_SYSCONFDIR
-        INSTALL_FULL_SYSCONFDIR "/vulkan/explicit_layer.d",
+            INSTALL_FULL_SYSCONFDIR "/vulkan/explicit_layer.d",
 #endif
-    };
+#endif  //_DEBUG
+        };
 
-    for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
+        for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
+            paths.push_back(LAYERS_PATHS[i]);
+        }
+    }
+
+    for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
         LayersPathInfo info;
         info.type = LAYER_TYPE_EXPLICIT;
-        info.path = LAYERS_PATHS[i];
+        info.path = paths[i];
         result.push_back(info);
     }
 #endif
@@ -293,7 +329,7 @@ void LayerManager::InitSystemPaths() {
     this->paths[LAYERS_PATHS_SDK].clear();
     {
         LayersPathInfo info;
-        info.path = ::Get(Path::SDK_BIN);
+        info.path = ::Get(Path::SDK_EXPLICIT_LAYERS);
         info.enabled = true;
         this->paths[LAYERS_PATHS_SDK].push_back(info);
     }

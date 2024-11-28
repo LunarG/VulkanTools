@@ -23,6 +23,7 @@
 #include "item_tree.h"
 
 #include "widget_setting.h"
+#include "widget_setting_group.h"
 #include "widget_setting_int.h"
 #include "widget_setting_float.h"
 #include "widget_setting_frames.h"
@@ -210,11 +211,16 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
     }
     item->setExpanded(parameter->GetExpanded(meta_object.key.c_str()));
 
+    const SettingDependenceMode enabled = ::CheckDependence(meta_object, parameter->settings);
+    item->setHidden(enabled == SETTING_DEPENDENCE_HIDE);
+    item->setDisabled(enabled != SETTING_DEPENDENCE_ENABLE);
+
     switch (meta_object.type) {
         case SETTING_GROUP: {
-            item->setText(0, meta_object.label.c_str());
-            item->setToolTip(0, meta_object.description.c_str());
-            item->setFont(0, this->ui->configurations_settings->font());
+            const SettingMetaGroup &meta = static_cast<const SettingMetaGroup &>(meta_object);
+
+            WidgetSettingGroup *widget = new WidgetSettingGroup(this->ui->configurations_settings, item, meta, parameter->settings);
+            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
         case SETTING_BOOL:
         case SETTING_BOOL_NUMERIC_DEPRECATED: {

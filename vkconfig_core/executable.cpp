@@ -102,7 +102,7 @@ DefaultPath GetDefaultExecutablePath(const std::string& executable_key) {
     DefaultPath default_path{"." + executable_name, "."};
 
     // Using VULKAN_SDK environement variable
-    const Path env = ::Get(Path::SDK_BIN);
+    const Path env = ::Get(Path::BIN);
     if (!env.Empty()) {
         const Path search_path(env + DEFAULT_PATH + executable_name.c_str());
         if (search_path.Exists()) {

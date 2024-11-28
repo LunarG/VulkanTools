@@ -245,17 +245,9 @@ TEST(test_path, get_path_override_layers) {
 }
 
 TEST(test_path, get_path_vulkan_sdk) {
-    {
-#ifdef __APPLE__
-        qputenv("VULKAN_SDK", "~/VulkanSDK");
-        const std::string value = AbsolutePath(Path::SDK);
-        EXPECT_STREQ(Path("~/VulkanSDK/share/vulkan").AbsolutePath().c_str(), value.c_str());
-#else
-        qputenv("VULKAN_SDK", "~/VulkanSDK");
-        const std::string value = AbsolutePath(Path::SDK);
-        EXPECT_STREQ(Path("~/VulkanSDK").AbsolutePath().c_str(), value.c_str());
-#endif
-    }
+    qputenv("VULKAN_SDK", "~/VulkanSDK");
+    const std::string value = AbsolutePath(Path::SDK);
+    EXPECT_STREQ(Path("~/VulkanSDK").AbsolutePath().c_str(), value.c_str());
 }
 
 TEST(test_path, get_path_vulkan_content) {

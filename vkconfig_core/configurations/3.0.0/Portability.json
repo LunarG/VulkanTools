@@ -31,7 +31,7 @@
                     {
                         "key": "profile_dirs",
                         "type": "LOAD_FOLDER",
-                        "value": "${VULKAN_CONTENT}/VK_LAYER_KHRONOS_profiles"
+                        "value": "${VULKAN_PROFILES}"
                     },
                     {
                         "key": "profile_name",

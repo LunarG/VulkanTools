@@ -62,7 +62,7 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
             QTreeWidgetItem *item_state = new QTreeWidgetItem;
             item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
-            item_state->setSizeHint(0, QSize(0, 32));
+            item_state->setSizeHint(0, QSize(0, ITEM_HEIGHT));
             LayersPathWidget *layer_path_widget = new LayersPathWidget(paths_group[i], group_path);
             this->connect(layer_path_widget, SIGNAL(itemChanged()), this, SLOT(on_check_box_paths_changed()));
 
