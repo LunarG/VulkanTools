@@ -574,7 +574,11 @@ std::string Configurator::Log() const {
     log += format("%s %s - %s:\n", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
     log += format(" - Build: %s %s\n", GetLabel(VKC_PLATFORM), build.c_str());
     log += format(" - Vulkan API version: %s\n", Version::VKHEADER.str().c_str());
-    log += format(" - ${VULKAN_SDK}: %s\n", ::Get(Path::SDK).AbsolutePath().c_str());
+    if (::Get(Path::SDK).Empty()) {
+        log += " - ${VULKAN_SDK}: unset\n";
+    } else {
+        log += format(" - ${VULKAN_SDK}: %s\n", ::Get(Path::SDK).AbsolutePath().c_str());
+    }
     log += "\n";
 
     log += format("%s Settings:\n", VKCONFIG_NAME);
@@ -620,6 +624,8 @@ std::string Configurator::Log() const {
     }
 
     log += format(" - Use system tray: %s\n", this->use_system_tray ? "true" : "false");
+    log += format(" - ${VULKAN_BIN}: %s\n", ::Get(Path::BIN).AbsolutePath().c_str());
+    log += format(" - ${VULKAN_PROFILES}: %s\n", ::Get(Path::PROFILES).AbsolutePath().c_str());
     log += format(" - ${VK_HOME}: %s\n", ::Get(Path::HOME).AbsolutePath().c_str());
     log += "\n";
 

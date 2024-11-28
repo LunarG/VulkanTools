@@ -446,17 +446,17 @@ void TabApplications::on_launch_button_pressed() {
     Configuration *configuration = configurator.configurations.FindConfiguration(active_executable->configuration);
 
     QStringList env = QProcess::systemEnvironment();
-
     if (!options->envs.empty()) {
         const QStringList envs = ConvertString(options->envs);
         env << envs;
     }
     this->_launch_application->setEnvironment(env);
 
+    QStringList args;
     if (!options->args.empty()) {
-        const QStringList args = ConvertString(options->args);
-        this->_launch_application->setArguments(args);
+        args = ConvertString(options->args);
     }
+    this->_launch_application->setArguments(args);
 
     this->ui->launch_button->setText("Terminate");
     this->_launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);

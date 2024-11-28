@@ -248,8 +248,9 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
                 }
             }
 
-            ListItem *item = new ListItem(parameter.key.c_str());
+            QListWidgetItem *item = new ListItem(parameter.key.c_str());
             item->setFlags(item->flags() | Qt::ItemIsSelectable);
+            item->setSizeHint(QSize(0, ITEM_HEIGHT));
             if (has_multiple_parameter) {
                 item->setIcon(QIcon(":/resourcefiles/drag.png"));
             }

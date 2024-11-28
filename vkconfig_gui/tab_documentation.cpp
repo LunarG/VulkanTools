@@ -21,7 +21,55 @@
 #include "tab_documentation.h"
 #include "mainwindow.h"
 
-TabDocumentation::TabDocumentation(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DOCUMENTATION, window, ui) {}
+static void UpdateColor1(QLabel *label, const QColor &color) {
+    std::string ref = label->text().toStdString();
+    const std::string hex = color.name().toStdString();
+    std::string text = format(ref.c_str(), hex.c_str());
+    label->setText(text.c_str());
+}
+
+static void UpdateColor2(QLabel *label, const QColor &color) {
+    std::string ref = label->text().toStdString();
+    const std::string hex = color.name().toStdString();
+    std::string text = format(ref.c_str(), hex.c_str(), hex.c_str());
+    label->setText(text.c_str());
+}
+
+static void UpdateColor3(QLabel *label, const QColor &color) {
+    std::string ref = label->text().toStdString();
+    const std::string hex = color.name().toStdString();
+    std::string text = format(ref.c_str(), hex.c_str(), hex.c_str(), hex.c_str());
+    label->setText(text.c_str());
+}
+
+static void UpdateColor4(QLabel *label, const QColor &color) {
+    std::string ref = label->text().toStdString();
+    const std::string hex = color.name().toStdString();
+    std::string text = format(ref.c_str(), hex.c_str(), hex.c_str(), hex.c_str(), hex.c_str());
+    label->setText(text.c_str());
+}
+
+TabDocumentation::TabDocumentation(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DOCUMENTATION, window, ui) {
+    QPalette palette = this->ui->documentation_spec->palette();
+    QColor color = palette.color(QPalette::Text);
+
+    ::UpdateColor3(this->ui->documentation_spec0, color);
+    ::UpdateColor3(this->ui->documentation_spec1, color);
+    ::UpdateColor3(this->ui->documentation_spec2, color);
+
+    ::UpdateColor1(this->ui->documentation_doc0, color);
+    ::UpdateColor1(this->ui->documentation_doc1, color);
+    ::UpdateColor1(this->ui->documentation_doc2, color);
+
+    ::UpdateColor2(this->ui->documentation_sdk0, color);
+    ::UpdateColor2(this->ui->documentation_sdk1, color);
+    ::UpdateColor2(this->ui->documentation_sdk2, color);
+    ::UpdateColor2(this->ui->documentation_sdk3, color);
+    ::UpdateColor1(this->ui->documentation_sdk4, color);
+    ::UpdateColor3(this->ui->documentation_sdk5, color);
+
+    ::UpdateColor4(this->ui->documentation_com0, color);
+}
 
 TabDocumentation::~TabDocumentation() {}
 
