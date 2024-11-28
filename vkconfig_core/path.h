@@ -34,10 +34,11 @@ class Path {
         CONFIGS,
         LAYERS_SETTINGS,
         LOADER_SETTINGS,
+        BIN,
         SDK,
-        SDK_BIN,
-        EXPLICIT_LAYERS,
-        CONTENT,
+        SDK_EXPLICIT_LAYERS,
+        PROFILES,
+        CONTENT
     };
 
     Path();

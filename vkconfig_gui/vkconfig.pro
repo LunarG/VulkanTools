@@ -81,6 +81,7 @@ SOURCES += \
     widget_tab_configurations_layer.cpp \
     widget_tab_layers_path.cpp \
     widget_setting.cpp \
+    widget_setting_group.cpp \
     widget_setting_bool.cpp \
     widget_setting_enum.cpp \
     widget_setting_filesystem.cpp \
@@ -160,6 +161,7 @@ HEADERS += \
     widget_tab_configurations_layer.h \
     widget_tab_layers_path.h \
     widget_setting.h \
+    widget_setting_group.h \
     widget_setting_bool.h \
     widget_setting_enum.h \
     widget_setting_filesystem.h \

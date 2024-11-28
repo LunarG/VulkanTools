@@ -83,7 +83,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -1684,7 +1684,7 @@
             <number>5</number>
            </property>
            <item>
-            <widget class="QGroupBox" name="groupBox_2">
+            <widget class="QGroupBox" name="documentation_spec">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -1710,7 +1710,7 @@
                <number>7</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_12">
+               <widget class="QLabel" name="documentation_spec0">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -1720,7 +1720,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan 1.3 Core API + all published: &lt;a href=&quot;https://registry.khronos.org/vulkan/specs/1.3-extensions/html/index.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Chunked HTML&lt;/span&gt;&lt;/a&gt;, &lt;a href=&quot;https://registry.khronos.org/vulkan/specs/1.3-extensions/pdf/vkspec.pdf&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;PDF&lt;/span&gt;&lt;/a&gt;, &lt;a href=&quot;https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Single-file HTML&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>Vulkan 1.3 Core API + all published: &lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/1.3-extensions/html/index.html&quot;&gt;Chunked HTML&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/1.3-extensions/pdf/vkspec.pdf&quot;&gt;PDF&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html&quot;&gt;Single-file HTML&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1734,7 +1734,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_7">
+               <widget class="QLabel" name="documentation_spec1">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -1744,7 +1744,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan 1.3 Core API: &lt;a href=&quot;https://registry.khronos.org/vulkan/specs/1.3/html/index.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Chunked HTML&lt;/span&gt;&lt;/a&gt;, &lt;a href=&quot;https://registry.khronos.org/vulkan/specs/1.3/pdf/vkspec.pdf&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;PDF&lt;/span&gt;&lt;/a&gt;, &lt;a href=&quot;https://registry.khronos.org/vulkan/specs/1.3/html/vkspec.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Single-file HTML&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>Vulkan 1.3 Core API: &lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/1.3/html/index.html&quot;&gt;Chunked HTML&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/1.3/pdf/vkspec.pdf&quot;&gt;PDF&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/1.3/html/vkspec.html&quot;&gt;Single-file HTML&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1758,7 +1758,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_19">
+               <widget class="QLabel" name="documentation_spec2">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -1768,7 +1768,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan 1.3 Core API + Ratified Extensions: &lt;a href=&quot;https://registry.khronos.org/vulkan/specs/1.3-khr-extensions/html/index.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Chunked HTML&lt;/span&gt;&lt;/a&gt;, &lt;a href=&quot;https://registry.khronos.org/vulkan/specs/1.3-khr-extensions/pdf/vkspec.pdf&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;PDF&lt;/span&gt;&lt;/a&gt;, &lt;a href=&quot;https://registry.khronos.org/vulkan/specs/1.3-khr-extensions/html/vkspec.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Single-file HTML&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>Vulkan 1.3 Core API + Ratified Extensions: &lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/1.3-khr-extensions/html/index.html&quot;&gt;Chunked HTML&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/1.3-khr-extensions/pdf/vkspec.pdf&quot;&gt;PDF&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/1.3-khr-extensions/html/vkspec.html&quot;&gt;Single-file HTML&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1785,7 +1785,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBox_6">
+            <widget class="QGroupBox" name="documentation_doc">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -1811,7 +1811,7 @@
                <number>7</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_14">
+               <widget class="QLabel" name="documentation_doc0">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -1821,7 +1821,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;a href=&quot;https://docs.vulkan.org/spec/latest/index.html&quot;&gt;Official Vulkan Documentation&lt;/a&gt;</string>
+                 <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://docs.vulkan.org/spec/latest/index.html&quot;&gt;Official Vulkan Documentation&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1835,7 +1835,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_20">
+               <widget class="QLabel" name="documentation_doc1">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -1845,7 +1845,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;a href=&quot;https://registry.khronos.org/vulkan/&quot;&gt;Khronos Vulkan Registry&lt;/a&gt;</string>
+                 <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/&quot;&gt;Khronos Vulkan Registry&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1859,7 +1859,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_15">
+               <widget class="QLabel" name="documentation_doc2">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -1869,7 +1869,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;a href=&quot;https://vulkan.gpuinfo.org/&quot;&gt;vulkan.gpuinfo.org&lt;/a&gt;</string>
+                 <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.gpuinfo.org/&quot;&gt;vulkan.gpuinfo.org&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1886,7 +1886,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBox_4">
+            <widget class="QGroupBox" name="documentation_sdk">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -1912,7 +1912,7 @@
                <number>7</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_22">
+               <widget class="QLabel" name="documentation_sdk0">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -1922,7 +1922,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Vulkan SDK: &lt;a href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/release_notes.html&quot;&gt;Release Notes&lt;/a&gt;, &lt;a href=&quot;https://vulkan.lunarg.com/sdk/home&quot;&gt;Download Page&lt;/a&gt;</string>
+                 <string>Vulkan SDK: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/release_notes.html&quot;&gt;Release Notes&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/sdk/home&quot;&gt;Download Page&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1936,7 +1936,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_16">
+               <widget class="QLabel" name="documentation_sdk1">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -1946,7 +1946,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Vulkan Configurator: &lt;a href=&quot;https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/README.md&quot;&gt;Readme&lt;/a&gt;, &lt;a href=&quot;https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CHANGELOG.md&quot;&gt;Changelog&lt;/a&gt;</string>
+                 <string>Vulkan Configurator: &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/README.md&quot;&gt;Readme&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CHANGELOG.md&quot;&gt;Changelog&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1960,7 +1960,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_4">
+               <widget class="QLabel" name="documentation_sdk2">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -1970,7 +1970,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan Loader: &lt;a href=&quot;https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Layers Configuration&lt;/span&gt;&lt;/a&gt;, &lt;a href=&quot;https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderDebugging.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Loader Debugging Guide&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>Vulkan Loader: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html&quot;&gt;Layers Configuration&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderDebugging.md&quot;&gt;Loader Debugging Guide&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1984,7 +1984,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_13">
+               <widget class="QLabel" name="documentation_sdk3">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -1994,7 +1994,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>Vulkan Validation Layer: &lt;a href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/khronos_validation_layer.html&quot;&gt;Readme&lt;/a&gt;, &lt;a href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/validation_error_database.html&quot;&gt;Coverage&lt;/a&gt;</string>
+                 <string>Vulkan Validation Layer: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/khronos_validation_layer.html&quot;&gt;Readme&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/validation_error_database.html&quot;&gt;Coverage&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -2008,7 +2008,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_17">
+               <widget class="QLabel" name="documentation_sdk4">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -2018,7 +2018,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan API Capture and Replay - GFXReconstruct: &lt;a href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Usage&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>Vulkan API Capture and Replay - GFXReconstruct: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html&quot;&gt;Usage&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -2032,7 +2032,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_24">
+               <widget class="QLabel" name="documentation_sdk5">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -2042,7 +2042,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vulkan Profiles Tools: &lt;a href=&quot;https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/OVERVIEW.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Overview&lt;/span&gt;&lt;/a&gt;, &lt;a href=&quot;https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/CHANGELOG.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Changelog&lt;/span&gt;&lt;/a&gt;, &lt;a href=&quot;https://www.lunarg.com/wp-content/uploads/2024/04/The-Vulkan-Profiles-Tools-LunarG-Christophe-Riccio-04-11-2024.pdf&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Whitepaper&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>Vulkan Profiles Tools: &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/OVERVIEW.md&quot;&gt;Overview&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/CHANGELOG.md&quot;&gt;Changelog&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://www.lunarg.com/wp-content/uploads/2024/04/The-Vulkan-Profiles-Tools-LunarG-Christophe-Riccio-04-11-2024.pdf&quot;&gt;Whitepaper&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -2059,7 +2059,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBox_5">
+            <widget class="QGroupBox" name="documentation_community">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -2085,7 +2085,7 @@
                <number>7</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_23">
+               <widget class="QLabel" name="documentation_com0">
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -2095,7 +2095,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://discord.com/invite/vulkan&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Vulkan Discord&lt;/span&gt;&lt;/a&gt; - &lt;a href=&quot;https://reddit.com/r/vulkan&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Reddit&lt;/span&gt;&lt;/a&gt; - &lt;a href=&quot;https://stackoverflow.com/questions/tagged/vulkan&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Stack Overflow&lt;/span&gt;&lt;/a&gt; - &lt;a href=&quot;https://fosstodon.org/@vulkan&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Mastodon&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://discord.com/invite/vulkan&quot;&gt;Vulkan Discord&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://reddit.com/r/vulkan&quot;&gt;Reddit&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://stackoverflow.com/questions/tagged/vulkan&quot;&gt;Stack Overflow&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://fosstodon.org/@vulkan&quot;&gt;Mastodon&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
