@@ -1,9 +1,6 @@
 ## Vulkan Configurator 3.0.0 - January 2025
 <a href="https://github.com/LunarG/VulkanTools/tree/vkconfig3-dev" target="_blank">https://github.com/LunarG/VulkanTools/tree/vkconfig3-dev</a>
 
-### TODO:
-- Fix preset label display
-
 ### Features:
 - Improve layers loading and selection:
   * Add loading of multiple versions of the same layer
@@ -25,6 +22,7 @@
   * Add *Vulkan Loader* selection of each logging message type
 - Split GUI and command line into two separated executables
 - Add system diagnostic
+- Improve ${VULKAN_SDK} applied on executable, profiles and layers path when set
 
 ### Improvements:
 - Almost all Vulkan Configurator data is stored in a `$HOME` directory JSON file

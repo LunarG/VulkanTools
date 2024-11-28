@@ -93,10 +93,6 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     } else if (!parameter.manifest.Empty()) {
         this->setToolTip(parameter.manifest.AbsolutePath().c_str());
     }
-
-    this->layer_state->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-    this->layer_state->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    this->layer_state->adjustSize();
 }
 
 bool ConfigurationLayerWidget::eventFilter(QObject *target, QEvent *event) {
@@ -123,8 +119,9 @@ void ConfigurationLayerWidget::resizeEvent(QResizeEvent *event) {
         this->layer_state->adjustSize();
 
         const int width_state = this->layer_state->width();
+        const int height_state = this->layer_state->height();
 
-        const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, size.height());
+        const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, height_state);
         this->layer_state->setGeometry(state_button_rect);
     }
 }

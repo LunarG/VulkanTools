@@ -38,10 +38,9 @@ struct BuiltinDesc {
     const Path::Builtin path;
 };
 
-static const BuiltinDesc VARIABLES[] = {{"${VK_HOME}", Path::HOME},
-                                        {"${VK_APPDATA}", Path::APPDATA},
-                                        {"${VULKAN_SDK}", Path::SDK},
-                                        {"${VULKAN_CONTENT}", Path::CONTENT}};
+static const BuiltinDesc VARIABLES[] = {
+    {"${VK_HOME}", Path::HOME},   {"${VK_APPDATA}", Path::APPDATA},       {"${VULKAN_BIN}", Path::BIN},
+    {"${VULKAN_SDK}", Path::SDK}, {"${VULKAN_PROFILES}", Path::PROFILES}, {"${VULKAN_CONTENT}", Path::CONTENT}};
 
 static std::string ConvertSeparators(const std::string& path, const char* native_separator, const char* alien_separator) {
     const std::size_t native_separator_size = std::strlen(native_separator);
@@ -355,60 +354,72 @@ static const Path GetLoaderSettingsPath() {
 }
 
 static const Path GetSDKPath() {
-    const char* TABLE[] = {
-        "",                         // PLATFORM_WINDOWS_X86
-        "",                         // PLATFORM_WINDOWS_ARM
-        "/usr",                     // PLATFORM_LINUX
-        "/usr/local/share/vulkan",  // PLATFORM_MACOS
-        "",                         // PLATFORM_ANDROID
-        ""                          // PLATFORM_IOS
-    };
-    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
     std::string result = qgetenv("VULKAN_SDK").toStdString();
-    if (result.empty()) {
-        result = TABLE[VKC_PLATFORM];
-    } else {  // VULKAN_SDK may be set on macOS
-        if (VKC_PLATFORM == PLATFORM_MACOS) {
-            result += "/share/vulkan";
-        }
-    }
-
     return result;
 }
 
-static const Path GetSDKBinPath() {
-    const char* TABLE[] = {
-        "/Bin",  // ENVIRONMENT_WIN32
-        "/bin",  // ENVIRONMENT_UNIX
+static const Path GetExplicitLayersPath() {
+    const std::string TABLE[] = {
+        "/Bin",                           // ENVIRONMENT_WIN32
+        "/share/vulkan/explicit_layer.d"  // ENVIRONMENT_UNIX
     };
     static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
 
     return GetSDKPath() + TABLE[VKC_ENV];
 }
 
-static const Path GetExplicitLayersPath() {
-    static const std::string TABLE[] = {
-        "/Bin",                         // ENVIRONMENT_WIN32
-        "/etc/vulkan/explicit_layer.d"  // ENVIRONMENT_UNIX
+static const Path GetVulkanPath() {
+    const char* TABLE[] = {
+        "",            // PLATFORM_WINDOWS_X86
+        "",            // PLATFORM_WINDOWS_ARM
+        "/usr",        // PLATFORM_LINUX
+        "/usr/local",  // PLATFORM_MACOS
+        "",            // PLATFORM_ANDROID
+        ""             // PLATFORM_IOS
+    };
+    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    Path path = GetSDKPath();
+    if (path.Empty()) {
+        return TABLE[VKC_PLATFORM];
+    } else {
+        return path;
+    }
+}
+
+static const Path GetVulkanBinPath() {
+    const std::string TABLE[] = {
+        "/Bin",  // ENVIRONMENT_WIN32
+        "/bin"   // ENVIRONMENT_UNIX
     };
     static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
 
-    return GetSDKPath().RelativePath() + TABLE[VKC_ENV];
+    Path path = GetVulkanPath();
+    if (path.Empty()) {
+        return "";
+    }
+
+    return GetVulkanPath() + TABLE[VKC_ENV];
 }
 
 static const Path GetVulkanContentPath() {
-    static const std::string TABLE[] = {
-        "/Config",               // PLATFORM_WINDOWS_86
-        "/Config",               // PLATFORM_WINDOWS_ARM
-        "/share/vulkan/config",  // PLATFORM_LINUX
-        "/config",               // PLATFORM_MACOS
-        "N/A",                   // PLATFORM_ANDROID
-        "N/A"                    // PLATFORM_IOS
+    const std::string TABLE[] = {
+        "/Config",              // ENVIRONMENT_WIN32
+        "/share/vulkan/config"  // ENVIRONMENT_UNIX
     };
-    static_assert(std::size(TABLE) == PLATFORM_COUNT);
+    static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
 
-    return GetSDKPath().RelativePath() + TABLE[VKC_PLATFORM];
+    return GetVulkanPath().RelativePath() + TABLE[VKC_ENV];
+}
+
+static const Path GetVulkanProfilesPath() {
+    const std::string TABLE[] = {
+        "/Config/VK_LAYER_KHRONOS_profiles",              // ENVIRONMENT_WIN32
+        "/share/vulkan/config/VK_LAYER_KHRONOS_profiles"  // ENVIRONMENT_UNIX
+    };
+    static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
+
+    return GetVulkanPath().RelativePath() + TABLE[VKC_ENV];
 }
 
 Path Get(Path::Builtin path) {
@@ -430,14 +441,16 @@ Path Get(Path::Builtin path) {
             return ::GetLayersSettingsPath();
         case Path::LOADER_SETTINGS:
             return ::GetLoaderSettingsPath();
+        case Path::BIN:
+            return ::GetVulkanBinPath();
         case Path::SDK:
             return ::GetSDKPath();
-        case Path::SDK_BIN:
-            return ::GetSDKBinPath();
-        case Path::EXPLICIT_LAYERS:
+        case Path::SDK_EXPLICIT_LAYERS:
             return ::GetExplicitLayersPath();
         case Path::CONTENT:
             return ::GetVulkanContentPath();
+        case Path::PROFILES:
+            return ::GetVulkanProfilesPath();
     }
 }
 

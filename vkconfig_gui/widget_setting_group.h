@@ -15,44 +15,26 @@
  * limitations under the License.
  *
  * Authors:
- * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
 
+#include "../vkconfig_core/setting_group.h"
+
 #include "widget_setting.h"
-#include "combo_box.h"
 
-#include "../vkconfig_core/setting_flags.h"
+#include <QCheckBox>
 
-#include <QResizeEvent>
-
-class WidgetSettingEnum : public WidgetSettingBase {
+class WidgetSettingGroup : public WidgetSettingBase {
     Q_OBJECT
 
    public:
-    explicit WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaEnum& meta, SettingDataSet& data_set);
+    explicit WidgetSettingGroup(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaGroup& meta, SettingDataSet& data_set);
 
     void Refresh(RefreshAreas refresh_areas) override;
 
-   public Q_SLOTS:
-    void OnIndexChanged(int index);
-
-   Q_SIGNALS:
-    void itemChanged();
-
    private:
-    void resizeEvent(QResizeEvent* event) override;
-
-    void Resize();
-
-    SettingDataEnum& data();
-
-    const SettingMetaEnum& meta;
+    const SettingMetaGroup& meta;
     SettingDataSet& data_set;
-
-    ComboBox* field;
-    std::vector<std::size_t> enum_indexes;
-    QSize last_resize;
 };

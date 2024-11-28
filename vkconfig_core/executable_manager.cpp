@@ -40,8 +40,14 @@ const char* GetExecutableFilter() {
 }
 
 static const DefaultExecutable defaults_executables[] = {
-    {"vkcube", "/vkcube", "--suppress_popups", "VkCube launcher options"},
-    {"vkcubepp", "/vkcubepp", "--suppress_popups", "VkCubepp launcher options"}};
+    {"vkcube", "/vkcube", "--suppress_popups", "vkcube launcher options"},
+    {"vkcubepp", "/vkcubepp", "--suppress_popups", "vkcubepp launcher options"},
+#if VKC_ENV == VKC_ENV_WIN32
+    {"vulkaninfoSDK", "/vulkaninfoSDK", "--json", "vulkaninfo launcher options"},
+#else
+    {"vulkaninfo", "/vulkaninfo", "--json", "vulkaninfo launcher options"},
+#endif
+};
 
 std::string ExecutableManager::Log() const {
     std::string log;
