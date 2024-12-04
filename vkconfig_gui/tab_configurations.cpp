@@ -46,6 +46,8 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
                   SLOT(on_configurations_executable_list_currentIndexChanged(int)));
     this->connect(this->ui->configurations_executable_append, SIGNAL(clicked()), this,
                   SLOT(on_configurations_executable_append_pressed()));
+    this->connect(this->ui->configurations_executable_remove, SIGNAL(clicked()), this,
+                  SLOT(on_configurations_executable_remove_pressed()));
 
     this->connect(this->ui->configurations_group_box_list, SIGNAL(toggled(bool)), this, SLOT(on_configurations_list_toggled(bool)));
     this->connect(this->ui->configurations_group_box_layers, SIGNAL(toggled(bool)), this,
@@ -175,22 +177,22 @@ void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
 
     const std::vector<Executable> &executables = configurator.executables.GetExecutables();
 
-    if (!executables.empty()) {
-        this->ui->configurations_executable_list->blockSignals(true);
+    this->ui->configurations_executable_list->blockSignals(true);
 
-        if (ui_update_mode == UPDATE_REBUILD_UI) {
-            this->ui->configurations_executable_list->clear();
-            for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
-                const Executable &executable = executables[i];
+    if (ui_update_mode == UPDATE_REBUILD_UI) {
+        this->ui->configurations_executable_list->clear();
+        for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
+            const Executable &executable = executables[i];
 
-                this->ui->configurations_executable_list->addItem(executable.path.RelativePath().c_str());
-            }
+            this->ui->configurations_executable_list->addItem(executable.path.RelativePath().c_str());
         }
-
-        const Executable *executable = configurator.executables.GetActiveExecutable();
-        this->ui->configurations_executable_list->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
-        this->ui->configurations_executable_list->blockSignals(false);
     }
+
+    if (!executables.empty()) {
+        this->ui->configurations_executable_list->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
+    }
+
+    this->ui->configurations_executable_list->blockSignals(false);
 }
 
 void TabConfigurations::UpdateUI_LoaderMessages() {
@@ -316,19 +318,20 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
 
     if (enabled_executable) {
         const Executable *executable = configurator.GetActiveExecutable();
-        const std::string path = executable->path.RelativePath();
 
-        const std::string state =
-            configurator.executables.GetActiveExecutable()->enabled ? "Uncheck to disable" : "Check to enable";
+        if (executable != nullptr) {
+            const std::string path = executable->path.RelativePath();
 
-        if (scope == EXECUTABLE_PER) {
-            this->ui->configurations_group_box_list->setToolTip(
-                format("%s to select a loader configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
-        } else {
-            this->ui->configurations_group_box_list->setToolTip(
-                format("%s to enable the loader configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
+            const std::string state = executable->enabled ? "Uncheck to disable" : "Check to enable";
+
+            if (scope == EXECUTABLE_PER) {
+                this->ui->configurations_group_box_list->setToolTip(
+                    format("%s to select a loader configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
+            } else {
+                this->ui->configurations_group_box_list->setToolTip(
+                    format("%s to enable the loader configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
+            }
         }
-
     } else if (scope == EXECUTABLE_ANY) {
         this->ui->configurations_group_box_list->setToolTip("Select the active loader configuration for any executable");
     } else {
@@ -348,6 +351,7 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     this->ui->configurations_executable_scope->setToolTip(::GetTooltip(scope));
     this->ui->configurations_executable_list->setEnabled(enabled_executable);
     this->ui->configurations_executable_append->setEnabled(enabled_executable);
+    this->ui->configurations_executable_remove->setEnabled(enabled_executable);
 
     this->ui->configurations_group_box_list->blockSignals(true);
     this->ui->configurations_group_box_list->setEnabled(scope != EXECUTABLE_NONE);
@@ -870,6 +874,40 @@ void TabConfigurations::on_configurations_executable_append_pressed() {
     }
 
     configurator.executables.AppendExecutable(selected_path);
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
+}
+
+void TabConfigurations::on_configurations_executable_remove_pressed() {
+    Configurator &configurator = Configurator::Get();
+    const Executable *executable = configurator.executables.GetActiveExecutable();
+    assert(executable != nullptr);
+
+    if (!(configurator.Get(HIDE_MESSAGE_WARN_REMOVE_EXECUTABLE))) {
+        QMessageBox message;
+        message.setWindowTitle(format("Removing an executable from %s", VKCONFIG_NAME).c_str());
+        message.setText(format("The '%s' executable is being removed from %s with it's options that will be definitly lost.",
+                               VKCONFIG_NAME, executable->path.AbsolutePath().c_str())
+                            .c_str());
+        message.setInformativeText("Do you want to continue?");
+        message.setIcon(QMessageBox::Warning);
+        message.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        message.setDefaultButton(QMessageBox::Yes);
+        message.setCheckBox(new QCheckBox("Do not show again."));
+        int ret_val = message.exec();
+
+        if (message.checkBox()->isChecked()) {
+            configurator.Set(HIDE_MESSAGE_WARN_REMOVE_EXECUTABLE);
+        }
+
+        if (ret_val == QMessageBox::No) {
+            return;
+        }
+    }
+
+    configurator.Surrender(OVERRIDE_AREA_ALL);
+    configurator.executables.RemoveExecutable();
+    configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
