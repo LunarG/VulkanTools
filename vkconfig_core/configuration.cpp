@@ -170,6 +170,9 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
             if (json_layer_object.value("type") != QJsonValue::Undefined) {
                 parameter.type = GetLayerType(json_layer_object.value("type").toString().toStdString().c_str());
             }
+            if (json_layer_object.value("override_settings") != QJsonValue::Undefined) {
+                parameter.override_settings = json_layer_object.value("override_settings").toBool();
+            }
 
             const Layer* layer = layers.Find(parameter.key, parameter.api_version);
 
@@ -264,6 +267,7 @@ bool Configuration::Save(const Path& full_path) const {
             json_layer.insert("manifest", parameter.manifest.RelativePath().c_str());
         }
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
+        json_layer.insert("override_settings", parameter.override_settings);
 
         QJsonArray json_settings;
         for (std::size_t j = 0, m = parameter.settings.size(); j < m; ++j) {

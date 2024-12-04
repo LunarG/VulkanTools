@@ -296,8 +296,8 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
         this->ui->configurations_group_box_settings->setToolTip(tooltip.c_str());
     }
 
-    this->ui->configurations_group_box_settings->setEnabled(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
-    this->ui->configurations_group_box_settings->setCheckable(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
+    //this->ui->configurations_group_box_settings->setEnabled(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
+    //this->ui->configurations_group_box_settings->setCheckable(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
 }
 
 void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
