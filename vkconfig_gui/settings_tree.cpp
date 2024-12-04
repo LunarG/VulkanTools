@@ -83,7 +83,7 @@ void SettingsTreeManager::CreateGUI() {
 
     this->ui->configurations_group_box_settings->blockSignals(true);
     this->ui->configurations_group_box_settings->setTitle(format("%s:", title.c_str()).c_str());
-    this->ui->configurations_group_box_settings->setCheckable(configurator.advanced);
+    this->ui->configurations_group_box_settings->setCheckable(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
     this->ui->configurations_group_box_settings->setChecked(parameter->override_settings);
     this->ui->configurations_group_box_settings->blockSignals(false);
     this->ui->configurations_presets->setVisible(!layer->presets.empty());
