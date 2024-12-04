@@ -217,6 +217,10 @@ bool ExecutableManager::AppendExecutable(const Path& executable_path) {
 }
 
 bool ExecutableManager::RemoveExecutable() {
+    if (this->data.empty()) {
+        return true;
+    }
+
     std::size_t executable_index = static_cast<std::size_t>(this->GetActiveExecutableIndex());
 
     assert(!this->data.empty());

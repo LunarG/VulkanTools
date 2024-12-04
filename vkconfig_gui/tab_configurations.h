@@ -54,6 +54,7 @@ class TabConfigurations : public Tab {
     void on_configurations_executable_scope_currentIndexChanged(int index);
     void on_configurations_executable_list_currentIndexChanged(int index);
     void on_configurations_executable_append_pressed();
+    void on_configurations_executable_remove_pressed();
 
     void on_configurations_list_toggled(bool checked);
     void on_configurations_layers_ordering_toggled(bool checked);
