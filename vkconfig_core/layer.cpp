@@ -260,14 +260,14 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
     if (it != layers_validated.end()) {
         cached_last_modified = it->second;
     }
-    const bool should_validate = !this->manifest_path.IsBuiltIn() && last_modified != cached_last_modified;
-    const bool is_valid = should_validate && request_validate_manifest ? validator.Check(json_text) : true;
+    const bool should_validate = request_validate_manifest && last_modified != cached_last_modified && !this->manifest_path.IsBuiltIn();
+    const bool is_valid = should_validate ? validator.Check(json_text) : true;
 
     if (!is_valid) {
         this->validated_last_modified.clear();
         Alert::LayerInvalid(full_path_to_file, validator.message.toStdString().c_str());
         return LAYER_LOAD_INVALID;
-    } else {
+    } else if (request_validate_manifest) {
         this->validated_last_modified = last_modified;
     }
 
