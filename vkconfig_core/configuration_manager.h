@@ -44,6 +44,8 @@ class ConfigurationManager : public Serialize {
     void LoadAllConfigurations(const LayerManager& layers);
     void SaveAllConfigurations() const;
 
+    void UpdateLayers(const LayerManager& layers);
+
     Configuration& CreateConfiguration(const LayerManager& layers, const std::string& configuration_name);
     Configuration& DuplicateConfiguration(const LayerManager& layers, const std::string& configuration_name);
     void RemoveConfiguration(const std::string& configuration_name);
