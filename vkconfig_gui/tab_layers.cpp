@@ -162,6 +162,8 @@ void TabLayers::on_layers_reload_pressed() {
         std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
     }
 
+    configurator.configurations.UpdateLayers(configurator.layers);
+
     std::string last_layers_path = configurator.layers.last_layers_path.AbsolutePath();
 
     if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED)) {
