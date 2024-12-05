@@ -65,6 +65,7 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
     this->ui->launch_log_text->document()->setMaximumBlockCount(65536);
+    this->ui->launch_log_text->moveCursor(QTextCursor::End);
 
     this->ui->launch_button->setEnabled(!configurator.executables.Empty());
 
@@ -568,8 +569,9 @@ void TabApplications::errorOutputAvailable() {
 }
 
 void TabApplications::Log(const std::string &log) {
-    ui->launch_log_text->setPlainText(ui->launch_log_text->toPlainText() + "\n" + log.c_str());
-    ui->launch_clear_log->setEnabled(true);
+    this->ui->launch_log_text->setPlainText(ui->launch_log_text->toPlainText() + "\n" + log.c_str());
+    this->ui->launch_log_text->moveCursor(QTextCursor::End);
+    this->ui->launch_clear_log->setEnabled(true);
 
     if (this->_log_file.isOpen()) {
         this->_log_file.write(log.c_str(), log.size());
