@@ -132,6 +132,12 @@ void ConfigurationManager::LoadDefaultConfigurations(const LayerManager &layers)
     }
 }
 
+void ConfigurationManager::UpdateLayers(const LayerManager &layers) {
+    for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
+        this->available_configurations[i].GatherParameters(layers);
+    }
+}
+
 void ConfigurationManager::SortConfigurations() {
     struct Compare {
         bool operator()(const Configuration &a, const Configuration &b) const {
