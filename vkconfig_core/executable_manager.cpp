@@ -228,20 +228,19 @@ bool ExecutableManager::RemoveExecutable() {
 
     if (this->data.size() == 1u) {
         this->data.clear();
-        return true;
-    }
+    } else {
+        std::vector<Executable> new_executables;
+        new_executables.reserve(this->data.size() - 1);
 
-    std::vector<Executable> new_executables;
-    new_executables.reserve(this->data.size() - 1);
-
-    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (i == executable_index) {
-            continue;
+        for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
+            if (i == executable_index) {
+                continue;
+            }
+            new_executables.push_back(this->data[i]);
         }
-        new_executables.push_back(this->data[i]);
-    }
 
-    std::swap(this->data, new_executables);
+        std::swap(this->data, new_executables);
+    }
 
     if (this->data.empty()) {
         this->active_executable.Clear();
@@ -287,13 +286,7 @@ bool ExecutableManager::UpdateConfigurations(std::vector<Path>& updated_executab
 }
 
 const Executable* ExecutableManager::GetActiveExecutable() const {
-    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (this->data[i].path == this->active_executable) {
-            return &this->data[i];
-        }
-    }
-
-    return nullptr;  // Not found, but the list is present, so return the first item.
+    return const_cast<ExecutableManager*>(this)->GetActiveExecutable();
 }
 
 Executable* ExecutableManager::GetActiveExecutable() {
@@ -307,9 +300,7 @@ Executable* ExecutableManager::GetActiveExecutable() {
 }
 
 const Executable* ExecutableManager::GetExecutable(std::size_t executable_index) const {
-    assert(executable_index < this->data.size());
-
-    return &this->data[executable_index];
+    return const_cast<ExecutableManager*>(this)->GetExecutable(executable_index);
 }
 
 Executable* ExecutableManager::GetExecutable(std::size_t executable_index) {

@@ -297,9 +297,6 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
 
         this->ui->configurations_group_box_settings->setToolTip(tooltip.c_str());
     }
-
-    //this->ui->configurations_group_box_settings->setEnabled(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
-    //this->ui->configurations_group_box_settings->setCheckable(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
 }
 
 void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
@@ -311,8 +308,6 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
 
     const Configurator &configurator = Configurator::Get();
     const ExecutableScope scope = configurator.GetExecutableScope();
-
-    this->ui->configurations_group_box_list->setEnabled(configurator.HasEnabledUI(ENABLE_UI_CONFIG));
 
     const bool enabled_executable = ::EnabledExecutables(scope);
 
@@ -354,7 +349,7 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     this->ui->configurations_executable_remove->setEnabled(enabled_executable);
 
     this->ui->configurations_group_box_list->blockSignals(true);
-    this->ui->configurations_group_box_list->setEnabled(scope != EXECUTABLE_NONE);
+    this->ui->configurations_group_box_list->setEnabled(configurator.HasEnabledUI(ENABLE_UI_CONFIG));
     this->ui->configurations_group_box_list->setCheckable(enabled_executable);
     const Executable *executable = configurator.executables.GetActiveExecutable();
     if (executable != nullptr) {
