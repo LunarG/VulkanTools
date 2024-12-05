@@ -496,7 +496,11 @@ void Configurator::SetActiveConfigurationName(const std::string& configuration_n
 Configuration* Configurator::GetActiveConfiguration() {
     if (this->executable_scope == EXECUTABLE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
-        return this->configurations.FindConfiguration(executable->configuration);
+        if (executable != nullptr) {
+            return this->configurations.FindConfiguration(executable->configuration);
+        } else {
+            return nullptr;
+        }
     } else {
         return this->configurations.FindConfiguration(this->selected_global_configuration);
     }
@@ -913,26 +917,36 @@ bool Configurator::GetUseSystemTray() const { return this->use_system_tray; }
 void Configurator::SetUseSystemTray(bool enabled) { this->use_system_tray = enabled; }
 
 bool Configurator::HasActiveSettings() const {
-    if (this->executable_scope == EXECUTABLE_NONE) {
-        return false;
-    }
-
-    const Configuration* configuration = this->GetActiveConfiguration();
-    if (configuration != nullptr) {
-        const Parameter* parameter = configuration->GetActiveParameter();
-        if (parameter != nullptr && configuration->override_layers) {
-            if (parameter->builtin != LAYER_BUILTIN_NONE) {
-                return false;
-            } else if (parameter->settings.empty()) {
-                return false;
-            } else {
-                return this->layers.Find(parameter->key, parameter->api_version) != nullptr;
+    switch (this->executable_scope) {
+        default:
+        case EXECUTABLE_NONE:
+            return false;
+        case EXECUTABLE_ALL:
+        case EXECUTABLE_PER:
+        case EXECUTABLE_ANY: {
+            if (::EnabledExecutables(this->executable_scope)) {
+                if (this->executables.GetActiveExecutable() == nullptr) {
+                    return false;
+                }
             }
-        } else {
+
+            const Configuration* configuration = this->GetActiveConfiguration();
+            if (configuration != nullptr) {
+                const Parameter* parameter = configuration->GetActiveParameter();
+                if (parameter != nullptr && configuration->override_layers) {
+                    if (parameter->builtin != LAYER_BUILTIN_NONE) {
+                        return false;
+                    } else if (parameter->settings.empty()) {
+                        return false;
+                    } else {
+                        return this->layers.Find(parameter->key, parameter->api_version) != nullptr;
+                    }
+                } else {
+                    return false;
+                }
+            }
             return false;
         }
-    } else {
-        return false;
     }
 }
 
@@ -942,7 +956,16 @@ bool Configurator::HasEnabledUI(EnabledUI enabled_ui) const {
             assert(false);
             return false;
         case ENABLE_UI_CONFIG: {
-            return this->GetExecutableScope() != EXECUTABLE_NONE;
+            switch (this->GetExecutableScope()) {
+                default:
+                case EXECUTABLE_NONE:
+                    return false;
+                case EXECUTABLE_ALL:
+                case EXECUTABLE_PER:
+                    return this->executables.GetActiveExecutable() != nullptr;
+                case EXECUTABLE_ANY:
+                    return true;
+            }
         }
         case ENABLE_UI_LOADER:
         case ENABLE_UI_LAYERS: {
