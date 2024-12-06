@@ -237,6 +237,9 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     }}
     @end if
 
+    @if('{funcName}' == 'vkDestroyInstance')
+    auto dispatch_key = get_dispatch_key(instance);
+    @end if
     @if('{funcReturn}' != 'void')
     {funcReturn} result = instance_dispatch_table({funcDispatchParam})->{funcShortName}({funcNamedParams});
     @end if
@@ -256,7 +259,7 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     }}
     @end if
     @if('{funcName}' == 'vkDestroyInstance')
-    destroy_instance_dispatch_table(get_dispatch_key(instance));
+    destroy_instance_dispatch_table(dispatch_key);
     @end if
 
     @if('{funcName}' == 'vkGetPhysicalDeviceToolPropertiesEXT')
