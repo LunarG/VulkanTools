@@ -45,7 +45,7 @@ const char* GetToken(SettingView state) {
         "ADVANCED",  // SETTING_VIEW_ADVANCED
         "HIDDEN",    // SETTING_VIEW_HIDDEN
     };
-    static_assert(countof(table) == SETTING_VIEW_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(table) == SETTING_VIEW_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return table[state];
 }
