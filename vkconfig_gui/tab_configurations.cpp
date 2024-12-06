@@ -150,8 +150,12 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
         if (configurator.GetActiveConfiguration() == &configuration) {
             item->setIcon(QIcon(":/resourcefiles/system-on.png"));
             item->setToolTip(format("Using the '%s' configuration with Vulkan executables", configuration.key.c_str()).c_str());
+            ui->configurations_group_box_layers->blockSignals(true);
             ui->configurations_group_box_layers->setChecked(configuration.override_layers);
+            ui->configurations_group_box_layers->blockSignals(false);
+            ui->configurations_group_box_loader->blockSignals(true);
             ui->configurations_group_box_loader->setChecked(configuration.override_loader);
+            ui->configurations_group_box_loader->blockSignals(false);
             current_row = static_cast<int>(i);
         } else if (has_missing_layer) {
             item->setIcon(QIcon(":/resourcefiles/system-invalid.png"));
