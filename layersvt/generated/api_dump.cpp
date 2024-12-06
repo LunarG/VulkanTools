@@ -161,9 +161,10 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance, const VkAlloca
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     dump_function_head(ApiDumpInstance::current(), "vkDestroyInstance", "instance, pAllocator", "void");
+    auto dispatch_key = get_dispatch_key(instance);
     instance_dispatch_table(instance)->DestroyInstance(instance, pAllocator);
     
-    destroy_instance_dispatch_table(get_dispatch_key(instance));
+    destroy_instance_dispatch_table(dispatch_key);
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         switch(ApiDumpInstance::current().settings().format())
         {
