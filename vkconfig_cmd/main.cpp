@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     // This has to go after the construction of QApplication in
     // order to use a QMessageBox and avoid some QThread warnings.
     ApplicationSingleton singleton("vkconfig_single_instance");
-    if (!singleton.IsFirstInstance()) {
+    if (singleton.IsLocked()) {
         fprintf(stderr, "%s: [ERROR] %s GUI is running which is incompatible with %s command line.", VKCONFIG_SHORT_NAME,
                 VKCONFIG_NAME, VKCONFIG_NAME);
         return -1;
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
             return 0;
         }
         case COMMAND_GUI: {
-            singleton.ReleaseInstance();
+            singleton.Release();
 
             QProcess* gui = new QProcess(&app);
 

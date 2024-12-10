@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@ class ApplicationSingleton {
     ApplicationSingleton(const std::string &application_name, int timeout = 5000);
     ~ApplicationSingleton();
 
-    bool IsFirstInstance();
-    void ReleaseInstance();
+    bool IsLocked();
+    void Release();
 
    private:
     QLocalServer _local_server;

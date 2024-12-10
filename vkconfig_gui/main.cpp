@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     // This has to go after the construction of QApplication in
     // order to use a QMessageBox and avoid some QThread warnings.
     ApplicationSingleton singleton("vkconfig_single_instance");
-    while (!singleton.IsFirstInstance()) {
+    while (singleton.IsLocked()) {
         if (Alert::StartSingleton() == QMessageBox::Cancel) {
             return -1;
         }
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (configurator.reset_hard) {
-        singleton.ReleaseInstance();
+        singleton.Release();
 
         QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
     }

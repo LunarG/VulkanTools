@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,11 @@ TEST(test_layer, load_header_overridden) {
     EXPECT_STREQ("test layer", layer.description.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.platforms);
     EXPECT_EQ(STATUS_BETA, layer.status);
+    EXPECT_EQ(true, layer.disable_env.empty());
+    EXPECT_EQ(true, layer.enable_env.empty());
+    EXPECT_EQ(true, layer.enable_value.empty());
+    EXPECT_EQ(false, layer.is_32bits);
+    EXPECT_EQ(true, layer.enabled);
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html", layer.url.c_str());
     EXPECT_TRUE(layer.settings.empty());
     EXPECT_TRUE(layer.presets.empty());
@@ -223,6 +228,29 @@ TEST(test_layer, load_setting_missing) {
     EXPECT_EQ(STATUS_BETA, layer.status);
     EXPECT_EQ(1, layer.settings.size());
     EXPECT_EQ(1, layer.presets.size());
+}
+
+TEST(test_layer, load_env_variable) {
+    Layer layer;
+    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_08.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
+
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_STREQ("VK_LAYER_LUNARG_test_08", layer.key.c_str());
+    EXPECT_STREQ(Path(".\\VkLayer_test.dll").RelativePath().c_str(), layer.binary_path.RelativePath().c_str());
+    EXPECT_EQ(Version(1, 2, 170), layer.api_version);
+    EXPECT_STREQ("Build 76", layer.implementation_version.c_str());
+    EXPECT_STREQ("test layer", layer.description.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.platforms);
+    EXPECT_EQ(STATUS_BETA, layer.status);
+    EXPECT_STREQ("VK_LAYER_TEST08_DISABLE", layer.disable_env.c_str());
+    EXPECT_STREQ("VK_LAYER_TEST08_ENABLE", layer.enable_env.c_str());
+    EXPECT_STREQ("1", layer.enable_value.c_str());
+    EXPECT_EQ(false, layer.is_32bits);
+    EXPECT_EQ(true, layer.enabled);
+    EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html", layer.url.c_str());
+    EXPECT_TRUE(layer.settings.empty());
+    EXPECT_TRUE(layer.presets.empty());
 }
 
 TEST(test_layer, load_1_1_0_header) {
