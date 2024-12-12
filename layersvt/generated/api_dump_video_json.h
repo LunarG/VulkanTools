@@ -924,7 +924,7 @@ void dump_json_StdVideoAV1ColorPrimaries(StdVideoAV1ColorPrimaries object, const
         settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_BT_709\"";
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_BT_UNSPECIFIED\"";
+        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_UNSPECIFIED\"";
         break;
     case 4:
         settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_M\"";
@@ -2947,6 +2947,206 @@ void dump_json_StdVideoDecodeAV1ReferenceInfo(const StdVideoDecodeAV1ReferenceIn
     dump_json_value<const uint8_t>(object.OrderHint, NULL, settings, "uint8_t", "OrderHint", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
     dump_json_array<const uint8_t>(object.SavedOrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "SavedOrderHints", false, false, indents + 1, dump_json_uint8_t); // IQA
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoEncodeAV1DecoderModelInfo(const StdVideoEncodeAV1DecoderModelInfo& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint8_t>(object.buffer_delay_length_minus_1, NULL, settings, "uint8_t", "buffer_delay_length_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.buffer_removal_time_length_minus_1, NULL, settings, "uint8_t", "buffer_removal_time_length_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.frame_presentation_time_length_minus_1, NULL, settings, "uint8_t", "frame_presentation_time_length_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.num_units_in_decoding_tick, NULL, settings, "uint32_t", "num_units_in_decoding_tick", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoEncodeAV1ExtensionHeader(const StdVideoEncodeAV1ExtensionHeader& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint8_t>(object.temporal_id, NULL, settings, "uint8_t", "temporal_id", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.spatial_id, NULL, settings, "uint8_t", "spatial_id", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoEncodeAV1OperatingPointInfoFlags(const StdVideoEncodeAV1OperatingPointInfoFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.decoder_model_present_for_this_op, NULL, settings, "uint32_t", "decoder_model_present_for_this_op", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.low_delay_mode_flag, NULL, settings, "uint32_t", "low_delay_mode_flag", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.initial_display_delay_present_for_this_op, NULL, settings, "uint32_t", "initial_display_delay_present_for_this_op", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoEncodeAV1OperatingPointInfo(const StdVideoEncodeAV1OperatingPointInfo& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const StdVideoEncodeAV1OperatingPointInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeAV1OperatingPointInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeAV1OperatingPointInfoFlags);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.operating_point_idc, NULL, settings, "uint16_t", "operating_point_idc", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.seq_level_idx, NULL, settings, "uint8_t", "seq_level_idx", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.seq_tier, NULL, settings, "uint8_t", "seq_tier", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.decoder_buffer_delay, NULL, settings, "uint32_t", "decoder_buffer_delay", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.encoder_buffer_delay, NULL, settings, "uint32_t", "encoder_buffer_delay", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.initial_display_delay_minus_1, NULL, settings, "uint8_t", "initial_display_delay_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoEncodeAV1PictureInfoFlags(const StdVideoEncodeAV1PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.error_resilient_mode, NULL, settings, "uint32_t", "error_resilient_mode", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.disable_cdf_update, NULL, settings, "uint32_t", "disable_cdf_update", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.use_superres, NULL, settings, "uint32_t", "use_superres", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.render_and_frame_size_different, NULL, settings, "uint32_t", "render_and_frame_size_different", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.allow_screen_content_tools, NULL, settings, "uint32_t", "allow_screen_content_tools", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.is_filter_switchable, NULL, settings, "uint32_t", "is_filter_switchable", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.force_integer_mv, NULL, settings, "uint32_t", "force_integer_mv", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.frame_size_override_flag, NULL, settings, "uint32_t", "frame_size_override_flag", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.buffer_removal_time_present_flag, NULL, settings, "uint32_t", "buffer_removal_time_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.allow_intrabc, NULL, settings, "uint32_t", "allow_intrabc", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.frame_refs_short_signaling, NULL, settings, "uint32_t", "frame_refs_short_signaling", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.allow_high_precision_mv, NULL, settings, "uint32_t", "allow_high_precision_mv", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.is_motion_mode_switchable, NULL, settings, "uint32_t", "is_motion_mode_switchable", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.use_ref_frame_mvs, NULL, settings, "uint32_t", "use_ref_frame_mvs", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.disable_frame_end_update_cdf, NULL, settings, "uint32_t", "disable_frame_end_update_cdf", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.allow_warped_motion, NULL, settings, "uint32_t", "allow_warped_motion", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.reduced_tx_set, NULL, settings, "uint32_t", "reduced_tx_set", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.skip_mode_present, NULL, settings, "uint32_t", "skip_mode_present", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.delta_q_present, NULL, settings, "uint32_t", "delta_q_present", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.delta_lf_present, NULL, settings, "uint32_t", "delta_lf_present", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.delta_lf_multi, NULL, settings, "uint32_t", "delta_lf_multi", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.segmentation_enabled, NULL, settings, "uint32_t", "segmentation_enabled", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.segmentation_update_map, NULL, settings, "uint32_t", "segmentation_update_map", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.segmentation_temporal_update, NULL, settings, "uint32_t", "segmentation_temporal_update", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.segmentation_update_data, NULL, settings, "uint32_t", "segmentation_update_data", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.UsesLr, NULL, settings, "uint32_t", "UsesLr", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.usesChromaLr, NULL, settings, "uint32_t", "usesChromaLr", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.show_frame, NULL, settings, "uint32_t", "show_frame", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.showable_frame, NULL, settings, "uint32_t", "showable_frame", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoEncodeAV1PictureInfo(const StdVideoEncodeAV1PictureInfo& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const StdVideoEncodeAV1PictureInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeAV1PictureInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeAV1PictureInfoFlags);
+    settings.stream() << ",\n";
+    dump_json_value<const StdVideoAV1FrameType>(object.frame_type, NULL, settings, "StdVideoAV1FrameType", "frame_type", false, false, indents + 1, dump_json_StdVideoAV1FrameType);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.frame_presentation_time, NULL, settings, "uint32_t", "frame_presentation_time", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.current_frame_id, NULL, settings, "uint32_t", "current_frame_id", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.order_hint, NULL, settings, "uint8_t", "order_hint", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.primary_ref_frame, NULL, settings, "uint8_t", "primary_ref_frame", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.refresh_frame_flags, NULL, settings, "uint8_t", "refresh_frame_flags", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.coded_denom, NULL, settings, "uint8_t", "coded_denom", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.render_width_minus_1, NULL, settings, "uint16_t", "render_width_minus_1", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.render_height_minus_1, NULL, settings, "uint16_t", "render_height_minus_1", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const StdVideoAV1InterpolationFilter>(object.interpolation_filter, NULL, settings, "StdVideoAV1InterpolationFilter", "interpolation_filter", false, false, indents + 1, dump_json_StdVideoAV1InterpolationFilter);
+    settings.stream() << ",\n";
+    dump_json_value<const StdVideoAV1TxMode>(object.TxMode, NULL, settings, "StdVideoAV1TxMode", "TxMode", false, false, indents + 1, dump_json_StdVideoAV1TxMode);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.delta_q_res, NULL, settings, "uint8_t", "delta_q_res", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.delta_lf_res, NULL, settings, "uint8_t", "delta_lf_res", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.ref_order_hint, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "ref_order_hint", false, false, indents + 1, dump_json_uint8_t); // IQA
+    settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.ref_frame_idx, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "int8_t", "ref_frame_idx", false, false, indents + 1, dump_json_int8_t); // IQA
+    settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t); // IQA
+    settings.stream() << ",\n";
+    dump_json_array<const uint32_t>(object.delta_frame_id_minus_1, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "uint32_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "uint32_t", "delta_frame_id_minus_1", false, false, indents + 1, dump_json_uint32_t); // IQA
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoAV1TileInfo>(object.pTileInfo, settings, "const StdVideoAV1TileInfo*", "pTileInfo", true, false, indents + 1, dump_json_StdVideoAV1TileInfo);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoAV1Quantization>(object.pQuantization, settings, "const StdVideoAV1Quantization*", "pQuantization", true, false, indents + 1, dump_json_StdVideoAV1Quantization);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoAV1Segmentation>(object.pSegmentation, settings, "const StdVideoAV1Segmentation*", "pSegmentation", true, false, indents + 1, dump_json_StdVideoAV1Segmentation);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoAV1LoopFilter>(object.pLoopFilter, settings, "const StdVideoAV1LoopFilter*", "pLoopFilter", true, false, indents + 1, dump_json_StdVideoAV1LoopFilter);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoAV1CDEF>(object.pCDEF, settings, "const StdVideoAV1CDEF*", "pCDEF", true, false, indents + 1, dump_json_StdVideoAV1CDEF);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoAV1LoopRestoration>(object.pLoopRestoration, settings, "const StdVideoAV1LoopRestoration*", "pLoopRestoration", true, false, indents + 1, dump_json_StdVideoAV1LoopRestoration);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoAV1GlobalMotion>(object.pGlobalMotion, settings, "const StdVideoAV1GlobalMotion*", "pGlobalMotion", true, false, indents + 1, dump_json_StdVideoAV1GlobalMotion);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoEncodeAV1ExtensionHeader>(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", true, false, indents + 1, dump_json_StdVideoEncodeAV1ExtensionHeader);
+    settings.stream() << ",\n";
+    dump_json_pointer<const uint32_t>(object.pBufferRemovalTimes, settings, "const uint32_t*", "pBufferRemovalTimes", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoEncodeAV1ReferenceInfoFlags(const StdVideoEncodeAV1ReferenceInfoFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.disable_frame_end_update_cdf, NULL, settings, "uint32_t", "disable_frame_end_update_cdf", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.segmentation_enabled, NULL, settings, "uint32_t", "segmentation_enabled", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceInfo& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const StdVideoEncodeAV1ReferenceInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeAV1ReferenceInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeAV1ReferenceInfoFlags);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.RefFrameId, NULL, settings, "uint32_t", "RefFrameId", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const StdVideoAV1FrameType>(object.frame_type, NULL, settings, "StdVideoAV1FrameType", "frame_type", false, false, indents + 1, dump_json_StdVideoAV1FrameType);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.OrderHint, NULL, settings, "uint8_t", "OrderHint", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t); // IQA
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoEncodeAV1ExtensionHeader>(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", true, false, indents + 1, dump_json_StdVideoEncodeAV1ExtensionHeader);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 
