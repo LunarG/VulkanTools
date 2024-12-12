@@ -990,7 +990,7 @@ void dump_html_StdVideoAV1ColorPrimaries(StdVideoAV1ColorPrimaries object, const
         settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_709 (";
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_UNSPECIFIED (";
+        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_UNSPECIFIED (";
         break;
     case 4:
         settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_M (";
@@ -2660,6 +2660,162 @@ void dump_html_StdVideoDecodeAV1ReferenceInfo(const StdVideoDecodeAV1ReferenceIn
     dump_html_value<const uint8_t>(object.RefFrameSignBias, settings, "uint8_t", "RefFrameSignBias", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.OrderHint, settings, "uint8_t", "OrderHint", indents + 1, dump_html_uint8_t);
     dump_html_array<const uint8_t>(object.SavedOrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "SavedOrderHints", indents + 1, dump_html_uint8_t); // ZRR
+}
+void dump_html_StdVideoEncodeAV1DecoderModelInfo(const StdVideoEncodeAV1DecoderModelInfo& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const uint8_t>(object.buffer_delay_length_minus_1, settings, "uint8_t", "buffer_delay_length_minus_1", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.buffer_removal_time_length_minus_1, settings, "uint8_t", "buffer_removal_time_length_minus_1", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.frame_presentation_time_length_minus_1, settings, "uint8_t", "frame_presentation_time_length_minus_1", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.reserved1, settings, "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint32_t>(object.num_units_in_decoding_tick, settings, "uint32_t", "num_units_in_decoding_tick", indents + 1, dump_html_uint32_t);
+}
+void dump_html_StdVideoEncodeAV1ExtensionHeader(const StdVideoEncodeAV1ExtensionHeader& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const uint8_t>(object.temporal_id, settings, "uint8_t", "temporal_id", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.spatial_id, settings, "uint8_t", "spatial_id", indents + 1, dump_html_uint8_t);
+}
+void dump_html_StdVideoEncodeAV1OperatingPointInfoFlags(const StdVideoEncodeAV1OperatingPointInfoFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const uint32_t>(object.decoder_model_present_for_this_op, settings, "uint32_t", "decoder_model_present_for_this_op", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.low_delay_mode_flag, settings, "uint32_t", "low_delay_mode_flag", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.initial_display_delay_present_for_this_op, settings, "uint32_t", "initial_display_delay_present_for_this_op", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.reserved, settings, "uint32_t", "reserved", indents + 1, dump_html_uint32_t);
+}
+void dump_html_StdVideoEncodeAV1OperatingPointInfo(const StdVideoEncodeAV1OperatingPointInfo& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const StdVideoEncodeAV1OperatingPointInfoFlags>(object.flags, settings, "StdVideoEncodeAV1OperatingPointInfoFlags", "flags", indents + 1, dump_html_StdVideoEncodeAV1OperatingPointInfoFlags);
+    dump_html_value<const uint16_t>(object.operating_point_idc, settings, "uint16_t", "operating_point_idc", indents + 1, dump_html_uint16_t);
+    dump_html_value<const uint8_t>(object.seq_level_idx, settings, "uint8_t", "seq_level_idx", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.seq_tier, settings, "uint8_t", "seq_tier", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint32_t>(object.decoder_buffer_delay, settings, "uint32_t", "decoder_buffer_delay", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.encoder_buffer_delay, settings, "uint32_t", "encoder_buffer_delay", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint8_t>(object.initial_display_delay_minus_1, settings, "uint8_t", "initial_display_delay_minus_1", indents + 1, dump_html_uint8_t);
+}
+void dump_html_StdVideoEncodeAV1PictureInfoFlags(const StdVideoEncodeAV1PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const uint32_t>(object.error_resilient_mode, settings, "uint32_t", "error_resilient_mode", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.disable_cdf_update, settings, "uint32_t", "disable_cdf_update", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.use_superres, settings, "uint32_t", "use_superres", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.render_and_frame_size_different, settings, "uint32_t", "render_and_frame_size_different", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.allow_screen_content_tools, settings, "uint32_t", "allow_screen_content_tools", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.is_filter_switchable, settings, "uint32_t", "is_filter_switchable", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.force_integer_mv, settings, "uint32_t", "force_integer_mv", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.frame_size_override_flag, settings, "uint32_t", "frame_size_override_flag", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.buffer_removal_time_present_flag, settings, "uint32_t", "buffer_removal_time_present_flag", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.allow_intrabc, settings, "uint32_t", "allow_intrabc", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.frame_refs_short_signaling, settings, "uint32_t", "frame_refs_short_signaling", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.allow_high_precision_mv, settings, "uint32_t", "allow_high_precision_mv", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.is_motion_mode_switchable, settings, "uint32_t", "is_motion_mode_switchable", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.use_ref_frame_mvs, settings, "uint32_t", "use_ref_frame_mvs", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.disable_frame_end_update_cdf, settings, "uint32_t", "disable_frame_end_update_cdf", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.allow_warped_motion, settings, "uint32_t", "allow_warped_motion", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.reduced_tx_set, settings, "uint32_t", "reduced_tx_set", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.skip_mode_present, settings, "uint32_t", "skip_mode_present", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.delta_q_present, settings, "uint32_t", "delta_q_present", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.delta_lf_present, settings, "uint32_t", "delta_lf_present", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.delta_lf_multi, settings, "uint32_t", "delta_lf_multi", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.segmentation_enabled, settings, "uint32_t", "segmentation_enabled", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.segmentation_update_map, settings, "uint32_t", "segmentation_update_map", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.segmentation_temporal_update, settings, "uint32_t", "segmentation_temporal_update", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.segmentation_update_data, settings, "uint32_t", "segmentation_update_data", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.UsesLr, settings, "uint32_t", "UsesLr", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.usesChromaLr, settings, "uint32_t", "usesChromaLr", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.show_frame, settings, "uint32_t", "show_frame", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.showable_frame, settings, "uint32_t", "showable_frame", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.reserved, settings, "uint32_t", "reserved", indents + 1, dump_html_uint32_t);
+}
+void dump_html_StdVideoEncodeAV1PictureInfo(const StdVideoEncodeAV1PictureInfo& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const StdVideoEncodeAV1PictureInfoFlags>(object.flags, settings, "StdVideoEncodeAV1PictureInfoFlags", "flags", indents + 1, dump_html_StdVideoEncodeAV1PictureInfoFlags);
+    dump_html_value<const StdVideoAV1FrameType>(object.frame_type, settings, "StdVideoAV1FrameType", "frame_type", indents + 1, dump_html_StdVideoAV1FrameType);
+    dump_html_value<const uint32_t>(object.frame_presentation_time, settings, "uint32_t", "frame_presentation_time", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.current_frame_id, settings, "uint32_t", "current_frame_id", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint8_t>(object.order_hint, settings, "uint8_t", "order_hint", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.primary_ref_frame, settings, "uint8_t", "primary_ref_frame", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.refresh_frame_flags, settings, "uint8_t", "refresh_frame_flags", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.coded_denom, settings, "uint8_t", "coded_denom", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint16_t>(object.render_width_minus_1, settings, "uint16_t", "render_width_minus_1", indents + 1, dump_html_uint16_t);
+    dump_html_value<const uint16_t>(object.render_height_minus_1, settings, "uint16_t", "render_height_minus_1", indents + 1, dump_html_uint16_t);
+    dump_html_value<const StdVideoAV1InterpolationFilter>(object.interpolation_filter, settings, "StdVideoAV1InterpolationFilter", "interpolation_filter", indents + 1, dump_html_StdVideoAV1InterpolationFilter);
+    dump_html_value<const StdVideoAV1TxMode>(object.TxMode, settings, "StdVideoAV1TxMode", "TxMode", indents + 1, dump_html_StdVideoAV1TxMode);
+    dump_html_value<const uint8_t>(object.delta_q_res, settings, "uint8_t", "delta_q_res", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.delta_lf_res, settings, "uint8_t", "delta_lf_res", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.ref_order_hint, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "ref_order_hint", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const int8_t>(object.ref_frame_idx, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "int8_t", "ref_frame_idx", indents + 1, dump_html_int8_t); // ZRR
+    dump_html_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint32_t>(object.delta_frame_id_minus_1, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "uint32_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "uint32_t", "delta_frame_id_minus_1", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_pointer<const StdVideoAV1TileInfo>(object.pTileInfo, settings, "const StdVideoAV1TileInfo*", "pTileInfo", indents + 1, dump_html_StdVideoAV1TileInfo);
+    dump_html_pointer<const StdVideoAV1Quantization>(object.pQuantization, settings, "const StdVideoAV1Quantization*", "pQuantization", indents + 1, dump_html_StdVideoAV1Quantization);
+    dump_html_pointer<const StdVideoAV1Segmentation>(object.pSegmentation, settings, "const StdVideoAV1Segmentation*", "pSegmentation", indents + 1, dump_html_StdVideoAV1Segmentation);
+    dump_html_pointer<const StdVideoAV1LoopFilter>(object.pLoopFilter, settings, "const StdVideoAV1LoopFilter*", "pLoopFilter", indents + 1, dump_html_StdVideoAV1LoopFilter);
+    dump_html_pointer<const StdVideoAV1CDEF>(object.pCDEF, settings, "const StdVideoAV1CDEF*", "pCDEF", indents + 1, dump_html_StdVideoAV1CDEF);
+    dump_html_pointer<const StdVideoAV1LoopRestoration>(object.pLoopRestoration, settings, "const StdVideoAV1LoopRestoration*", "pLoopRestoration", indents + 1, dump_html_StdVideoAV1LoopRestoration);
+    dump_html_pointer<const StdVideoAV1GlobalMotion>(object.pGlobalMotion, settings, "const StdVideoAV1GlobalMotion*", "pGlobalMotion", indents + 1, dump_html_StdVideoAV1GlobalMotion);
+    dump_html_pointer<const StdVideoEncodeAV1ExtensionHeader>(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", indents + 1, dump_html_StdVideoEncodeAV1ExtensionHeader);
+    dump_html_pointer<const uint32_t>(object.pBufferRemovalTimes, settings, "const uint32_t*", "pBufferRemovalTimes", indents + 1, dump_html_uint32_t);
+}
+void dump_html_StdVideoEncodeAV1ReferenceInfoFlags(const StdVideoEncodeAV1ReferenceInfoFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const uint32_t>(object.disable_frame_end_update_cdf, settings, "uint32_t", "disable_frame_end_update_cdf", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.segmentation_enabled, settings, "uint32_t", "segmentation_enabled", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.reserved, settings, "uint32_t", "reserved", indents + 1, dump_html_uint32_t);
+}
+void dump_html_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceInfo& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const StdVideoEncodeAV1ReferenceInfoFlags>(object.flags, settings, "StdVideoEncodeAV1ReferenceInfoFlags", "flags", indents + 1, dump_html_StdVideoEncodeAV1ReferenceInfoFlags);
+    dump_html_value<const uint32_t>(object.RefFrameId, settings, "uint32_t", "RefFrameId", indents + 1, dump_html_uint32_t);
+    dump_html_value<const StdVideoAV1FrameType>(object.frame_type, settings, "StdVideoAV1FrameType", "frame_type", indents + 1, dump_html_StdVideoAV1FrameType);
+    dump_html_value<const uint8_t>(object.OrderHint, settings, "uint8_t", "OrderHint", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_pointer<const StdVideoEncodeAV1ExtensionHeader>(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", indents + 1, dump_html_StdVideoEncodeAV1ExtensionHeader);
 }
 
 //========================== Union Implementations ==========================//
