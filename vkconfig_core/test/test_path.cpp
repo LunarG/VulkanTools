@@ -258,6 +258,16 @@ TEST(test_path, get_path_vulkan_content) {
     EXPECT_TRUE(value.toLower().endsWith("config"));
 }
 
+TEST(test_path, get_path_home_sdk) {
+    Path home_default = Get(Path::DEFAULT_HOME);
+    Path home_current = Get(Path::HOME);
+    EXPECT_STREQ(home_current.AbsolutePath().c_str(), home_default.AbsolutePath().c_str());
+
+    qputenv("VULKAN_SDK", "~/VulkanSDK");
+    const std::string value = AbsolutePath(Path::SDK);
+    EXPECT_STREQ(Path("~/VulkanSDK").AbsolutePath().c_str(), value.c_str());
+}
+
 TEST(test_path, collect_file_paths_success_set1) {
     const std::vector<Path>& paths = CollectFilePaths(":/configurations/");
 
@@ -273,20 +283,20 @@ TEST(test_path, collect_file_paths_success_set2) {
 }
 
 TEST(test_path, collect_file_paths_success_set3) {
-    const std::vector<Path>& paths = CollectFilePaths(":/profiles/");
+    const std::vector<Path>& paths = ::CollectFilePaths(":/profiles/");
 
     EXPECT_EQ(paths.size(), 4);
     EXPECT_STREQ(Path(":/profiles/VP_KHR_roadmap.json").AbsolutePath().c_str(), paths[0].AbsolutePath().c_str());
 }
 
 TEST(test_path, collect_file_paths_not_found) {
-    const std::vector<Path>& result = CollectFilePaths(":/configurations_not_found/");
+    const std::vector<Path>& result = ::CollectFilePaths(":/configurations_not_found/");
 
     EXPECT_EQ(result.empty(), true);
 }
 
 TEST(test_path, collect_profiles_from_file) {
-    const std::vector<std::string>& result = CollectProfileNamesFromFile(":/profiles/VP_KHR_roadmap.json");
+    const std::vector<std::string>& result = ::CollectProfileNamesFromFile(":/profiles/VP_KHR_roadmap.json");
 
     EXPECT_EQ(result.size(), 2);
     EXPECT_STREQ("VP_KHR_roadmap_2022", result[0].c_str());
@@ -294,7 +304,7 @@ TEST(test_path, collect_profiles_from_file) {
 }
 
 TEST(test_path, collect_profiles_from_dir) {
-    const std::vector<std::string>& result = CollectProfileNamesFromDir(":/profiles/");
+    const std::vector<std::string>& result = ::CollectProfileNamesFromDir(":/profiles/");
 
     EXPECT_EQ(result.size(), 9);
     EXPECT_STREQ("VP_KHR_roadmap_2022", result[0].c_str());
