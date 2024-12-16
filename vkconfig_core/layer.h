@@ -92,7 +92,7 @@ class Layer {
     std::string description;
     std::string introduction;
     std::string url;
-    int platforms;
+    int platforms = PLATFORM_DESKTOP_BIT;
     Path manifest_path;
     LayerType type = LAYER_TYPE_EXPLICIT;
     QJsonDocument profile;

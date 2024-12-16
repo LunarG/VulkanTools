@@ -100,15 +100,15 @@ ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& 
         return PARAMETER_RANK_UNORDERED_LAYER;
     } else if (layer == nullptr) {
         return PARAMETER_RANK_MISSING_LAYER;
-    } else if (IsValidationLayer(layer->key)) {
-        return PARAMETER_RANK_VALIDATION_LAYER;
-    } else if (IsProfilesLayer(layer->key)) {
-        return PARAMETER_RANK_PROFILES_LAYER;
-    } else if (IsExtensionLayer(layer->key)) {
-        return PARAMETER_RANK_EXTENSION_LAYER;
-    } else if (layer->type == LAYER_TYPE_IMPLICIT) {
+    } else if (parameter.type == LAYER_TYPE_IMPLICIT) {
         return PARAMETER_RANK_IMPLICIT_LAYER;
-    } else if (layer->type == LAYER_TYPE_EXPLICIT) {
+    } else if (IsValidationLayer(parameter.key)) {
+        return PARAMETER_RANK_VALIDATION_LAYER;
+    } else if (IsProfilesLayer(parameter.key)) {
+        return PARAMETER_RANK_PROFILES_LAYER;
+    } else if (IsExtensionLayer(parameter.key)) {
+        return PARAMETER_RANK_EXTENSION_LAYER;
+    } else if (parameter.type == LAYER_TYPE_EXPLICIT) {
         return PARAMETER_RANK_EXPLICIT_LAYER;
     } else {
         assert(0);  // Unknown ordering
@@ -128,10 +128,10 @@ void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& laye
 
             if (both_overridden)
                 return a.overridden_rank < b.overridden_rank;
-            else if (rankA == rankB)
-                return a.key < b.key;
-            else
+            else if (rankA != rankB)
                 return rankA < rankB;
+            else
+                return a.key < b.key;
         }
 
         const LayerManager& layers;
@@ -140,10 +140,13 @@ void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& laye
     std::sort(parameters.begin(), parameters.end(), ParameterCompare(layers));
 
     for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        parameters[i].overridden_rank = static_cast<int>(i);
+        /*
         if (parameters[i].control == LAYER_CONTROL_ON)
             parameters[i].overridden_rank = static_cast<int>(i);
         else
             parameters[i].overridden_rank = Parameter::NO_RANK;
+        */
     }
 }
 

@@ -333,24 +333,23 @@ TEST(test_configuration, gather_parameters_missing) {
     configuration.GatherParameters(layer_manager);
 
     // Missing layer are reordred first
-    EXPECT_STREQ(configuration.parameters[0].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
-    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
-    EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
+    EXPECT_STREQ(configuration.parameters[0].key.c_str(), ::GetLabel(LAYER_BUILTIN_UNORDERED));
 
-    EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_test_00");
-    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_test_01");
-    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_test_02");
-    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_test_03");
-    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_test_04");
-    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_05");
-    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_06");
-    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_07");
-    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_test_08");
+    EXPECT_STREQ(configuration.parameters[1].key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
+    EXPECT_STREQ(configuration.parameters[2].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_0");
+    EXPECT_STREQ(configuration.parameters[3].key.c_str(), "VK_LAYER_LUNARG_reference_1_2_1");
 
-    EXPECT_STREQ(configuration.parameters[12].key.c_str(), "VK_LAYER_LUNARG_version");
+    EXPECT_STREQ(configuration.parameters[4].key.c_str(), "VK_LAYER_LUNARG_test_00");
+    EXPECT_STREQ(configuration.parameters[5].key.c_str(), "VK_LAYER_LUNARG_test_01");
+    EXPECT_STREQ(configuration.parameters[6].key.c_str(), "VK_LAYER_LUNARG_test_02");
+    EXPECT_STREQ(configuration.parameters[7].key.c_str(), "VK_LAYER_LUNARG_test_03");
+    EXPECT_STREQ(configuration.parameters[8].key.c_str(), "VK_LAYER_LUNARG_test_04");
+    EXPECT_STREQ(configuration.parameters[9].key.c_str(), "VK_LAYER_LUNARG_test_05");
+    EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_06");
+    EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_test_07");
+    EXPECT_STREQ(configuration.parameters[12].key.c_str(), "VK_LAYER_LUNARG_test_08");
 
-    // Unordered are never missing so end up last
-    EXPECT_STREQ(configuration.parameters[13].key.c_str(), ::GetLabel(LAYER_BUILTIN_UNORDERED));
+    EXPECT_STREQ(configuration.parameters[13].key.c_str(), "VK_LAYER_LUNARG_version");
 
     std::string missing_layer;
     EXPECT_TRUE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));

@@ -38,7 +38,7 @@ enum ParameterRank {
 };
 
 struct Parameter {
-    static const int NO_RANK = -1;
+    enum { NO_RANK = -1 };
 
     Parameter() : control(LAYER_CONTROL_AUTO) {}
 
