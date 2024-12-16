@@ -220,7 +220,7 @@ TEST(test_layer, load_setting_enum_interit) {
 
 TEST(test_layer, load_setting_missing) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_IMPLICIT, false, Dummy());
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -228,11 +228,14 @@ TEST(test_layer, load_setting_missing) {
     EXPECT_EQ(STATUS_BETA, layer.status);
     EXPECT_EQ(1, layer.settings.size());
     EXPECT_EQ(1, layer.presets.size());
+
+    LayerControl layer_controlA = layer.GetActualControl();
+    EXPECT_EQ(layer_controlA, LAYER_CONTROL_ON);
 }
 
 TEST(test_layer, load_env_variable) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_08.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_08.json", LAYER_TYPE_IMPLICIT, false, Dummy());
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -251,6 +254,31 @@ TEST(test_layer, load_env_variable) {
     EXPECT_STREQ("https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html", layer.url.c_str());
     EXPECT_TRUE(layer.settings.empty());
     EXPECT_TRUE(layer.presets.empty());
+
+    LayerControl layer_controlA = layer.GetActualControl();
+    EXPECT_EQ(layer_controlA, LAYER_CONTROL_OFF);
+
+    qputenv("VK_LAYER_TEST08_DISABLE", "1");
+    LayerControl layer_controlB = layer.GetActualControl();
+    EXPECT_EQ(layer_controlB, LAYER_CONTROL_OFF);
+    qunsetenv("VK_LAYER_TEST08_DISABLE");
+
+    qputenv("VK_LAYER_TEST08_ENABLE", "0");
+    LayerControl layer_controlC = layer.GetActualControl();
+    EXPECT_EQ(layer_controlC, LAYER_CONTROL_OFF);
+    qunsetenv("VK_LAYER_TEST08_ENABLE");
+
+    qputenv("VK_LAYER_TEST08_ENABLE", "1");
+    LayerControl layer_controlD = layer.GetActualControl();
+    EXPECT_EQ(layer_controlD, LAYER_CONTROL_ON);
+    qunsetenv("VK_LAYER_TEST08_ENABLE");
+
+    qputenv("VK_LAYER_TEST08_DISABLE", "1");
+    qputenv("VK_LAYER_TEST08_ENABLE", "1");
+    LayerControl layer_controlE = layer.GetActualControl();
+    EXPECT_EQ(layer_controlE, LAYER_CONTROL_OFF);
+    qunsetenv("VK_LAYER_TEST08_DISABLE");
+    qunsetenv("VK_LAYER_TEST08_ENABLE");
 }
 
 TEST(test_layer, load_1_1_0_header) {
