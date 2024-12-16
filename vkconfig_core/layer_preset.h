@@ -29,8 +29,6 @@ struct LayerPreset : public Header {
     SettingDataSetConst settings;
 };
 
-const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, const char* preset_label);
-
 // Check whether "layer_settings" has all the settings set in "preset_settings"
 // "layer_settings" may have more settings then "preset_settings" and return true
 bool HasPreset(const SettingDataSet& layer_settings, const SettingDataSetConst& preset_settings);
