@@ -32,11 +32,11 @@
 
 #include <regex>
 
-inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
+static SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaString*>(layer.Instantiate(layer.settings, key, SETTING_STRING));
 }
 
-std::map<Path, std::string> Dummy() { return std::map<Path, std::string>(); }
+static std::map<Path, std::string> Dummy() { return std::map<Path, std::string>(); }
 
 TEST(test_layer, collect_settings) {
     Layer layer;
