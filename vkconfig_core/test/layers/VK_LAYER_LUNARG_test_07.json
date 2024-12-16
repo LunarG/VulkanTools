@@ -31,7 +31,7 @@
                     "type": "INT",
                     "label": "Integer",
                     "description": "Integer Description",
-                    "default": 82
+                    "default": 75
                 }
             ]
         }
