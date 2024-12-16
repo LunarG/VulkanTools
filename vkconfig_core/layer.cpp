@@ -75,7 +75,6 @@ Layer::Layer(const std::string& key, const Version& file_format_version, const V
       status(STATUS_STABLE),
       platforms(PLATFORM_DESKTOP_BIT) {}
 
-// Todo: Load the layer with Vulkan API
 bool Layer::IsValid() const {
     return file_format_version != Version::NONE && !key.empty() && !binary_path.Empty() && api_version != Version::NONE &&
            !implementation_version.empty();
@@ -260,7 +259,8 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
     if (it != layers_validated.end()) {
         cached_last_modified = it->second;
     }
-    const bool should_validate = request_validate_manifest && last_modified != cached_last_modified && !this->manifest_path.IsBuiltIn();
+    const bool should_validate =
+        request_validate_manifest && last_modified != cached_last_modified && !this->manifest_path.IsBuiltIn();
     const bool is_valid = should_validate ? validator.Check(json_text) : true;
 
     if (!is_valid) {
