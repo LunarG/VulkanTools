@@ -28,70 +28,6 @@
 inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaString*>(layer.Instantiate(layer.settings, key, SETTING_STRING));
 }
-/*
-static std::vector<Layer> GenerateTestLayers() {
-    std::vector<Layer> layers;
-    layers.push_back(Layer("Layer E0", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer E1", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer E2", LAYER_TYPE_EXPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer I0", LAYER_TYPE_IMPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer I1", LAYER_TYPE_IMPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer I2", LAYER_TYPE_IMPLICIT, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer C0", LAYER_TYPE_USER_DEFINED, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer C1", LAYER_TYPE_USER_DEFINED, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.push_back(Layer("Layer C2", LAYER_TYPE_USER_DEFINED, Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    return layers;
-}
-*/
-static std::vector<Parameter> GenerateTestParametersExist() {
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer C1", LAYER_CONTROL_AUTO));
-    return parameters;
-}
-
-static std::vector<Parameter> GenerateTestParametersImplicitOrdering() {
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer I0", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer I1", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_ON));
-    return parameters;
-}
-
-static std::vector<Parameter> GenerateTestParametersMissing() {
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E3", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer C1", LAYER_CONTROL_AUTO));
-    return parameters;
-}
-
-static std::vector<Parameter> GenerateTestParametersAll() {
-    std::vector<Parameter> parameters;
-    parameters.push_back(Parameter("Layer E0", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E1", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer E2", LAYER_CONTROL_AUTO));
-    parameters.push_back(Parameter("Layer E3", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer E4", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer E5", LAYER_CONTROL_AUTO));
-
-    parameters.push_back(Parameter("Layer I0", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer I1", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer I2", LAYER_CONTROL_AUTO));
-    parameters.push_back(Parameter("Layer I3", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer I4", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer I5", LAYER_CONTROL_AUTO));
-
-    parameters.push_back(Parameter("Layer C0", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer C1", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer C2", LAYER_CONTROL_AUTO));
-    parameters.push_back(Parameter("Layer C3", LAYER_CONTROL_ON));
-    parameters.push_back(Parameter("Layer C4", LAYER_CONTROL_OFF));
-    parameters.push_back(Parameter("Layer C5", LAYER_CONTROL_AUTO));
-    return parameters;
-}
 
 TEST(test_parameter, apply_settings) {
     Layer layer;
@@ -127,139 +63,66 @@ TEST(test_parameter, apply_settings) {
     EXPECT_STREQ("setting value", static_cast<SettingDataString*>(FindSetting(parameter.settings, "B"))->value.c_str());
 }
 
-TEST(test_parameter, ordering_no_layers) {
-    LayerManager layer_manager;
+TEST(test_parameter, ordering_found_parameter_rank) {
+    LayerManager layers;
+    layers.selected_layers.push_back(Layer("VK_LAYER_KHRONOS_implicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.selected_layers.push_back(Layer("VK_LAYER_KHRONOS_explicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.selected_layers.push_back(Layer("VK_LAYER_KHRONOS_validation", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.selected_layers.push_back(Layer("VK_LAYER_KHRONOS_profiles", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.selected_layers.push_back(
+        Layer("VK_LAYER_KHRONOS_timeline_semaphore", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.selected_layers.push_back(
+        Layer("VK_LAYER_KHRONOS_synchronization2", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.selected_layers.push_back(
+        Layer("VK_LAYER_KHRONOS_shader_object", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.selected_layers.push_back(
+        Layer("VK_LAYER_KHRONOS_memory_decompression", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
 
-    EXPECT_EQ(PARAMETER_RANK_MISSING_LAYER, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_AUTO)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING_LAYER, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING_LAYER, GetParameterOrdering(layer_manager, Parameter("Layer", LAYER_CONTROL_OFF)));
-}
-/*
-TEST(test_parameter, ordering_found_custom_layers) {
-    const std::vector<Layer>& layers = GenerateTestLayers();
+    layers.selected_layers[0].type = LAYER_TYPE_IMPLICIT;
 
-    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_AVAILABLE, GetParameterOrdering(layers, Parameter("Layer C0", LAYER_CONTROL_AUTO)));
-    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_OVERRIDDEN, GetParameterOrdering(layers, Parameter("Layer C1", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_EXCLUDED, GetParameterOrdering(layers, Parameter("Layer C1", LAYER_CONTROL_OFF)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer C3", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer C4", LAYER_CONTROL_OFF)));
-}
-
-TEST(test_parameter, ordering_found_explicit_layers) {
-    const std::vector<Layer>& layers = GenerateTestLayers();
-
-    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_AVAILABLE, GetParameterOrdering(layers, Parameter("Layer E0", LAYER_CONTROL_AUTO)));
-    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_OVERRIDDEN, GetParameterOrdering(layers, Parameter("Layer E1", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_EXCLUDED, GetParameterOrdering(layers, Parameter("Layer E1", LAYER_CONTROL_OFF)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer E3", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer E4", LAYER_CONTROL_OFF)));
-}
-
-TEST(test_parameter, ordering_found_implicit_layers) {
-    const std::vector<Layer>& layers = GenerateTestLayers();
-
-    EXPECT_EQ(PARAMETER_RANK_IMPLICIT_AVAILABLE, GetParameterOrdering(layers, Parameter("Layer I0", LAYER_CONTROL_AUTO)));
-    EXPECT_EQ(PARAMETER_RANK_IMPLICIT_OVERRIDDEN, GetParameterOrdering(layers, Parameter("Layer I1", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_EXCLUDED, GetParameterOrdering(layers, Parameter("Layer I1", LAYER_CONTROL_OFF)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer I3", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_MISSING, GetParameterOrdering(layers, Parameter("Layer I4", LAYER_CONTROL_OFF)));
+    EXPECT_EQ(PARAMETER_RANK_VALIDATION_LAYER,
+              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_validation", LAYER_CONTROL_AUTO)));
+    EXPECT_EQ(PARAMETER_RANK_PROFILES_LAYER,
+              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_profiles", LAYER_CONTROL_ON)));
+    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER,
+              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_timeline_semaphore", LAYER_CONTROL_OFF)));
+    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER,
+              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_synchronization2", LAYER_CONTROL_AUTO)));
+    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER,
+              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_shader_object", LAYER_CONTROL_ON)));
+    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER,
+              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_memory_decompression", LAYER_CONTROL_OFF)));
+    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_LAYER,
+              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_explicit", LAYER_CONTROL_ON)));
+    EXPECT_EQ(PARAMETER_RANK_IMPLICIT_LAYER,
+              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_implicit", LAYER_CONTROL_OFF)));
+    EXPECT_EQ(PARAMETER_RANK_MISSING_LAYER, GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_missing", LAYER_CONTROL_OFF)));
 }
 
-TEST(test_parameter, order_automatic) {
-    std::vector<Layer> layers = GenerateTestLayers();
-    std::vector<Parameter> parameters = GenerateTestParametersAll();
+TEST(test_parameter, has_missing_layer) {
+    LayerManager layers;
+    layers.selected_layers.push_back(Layer("VK_LAYER_KHRONOS_implicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.selected_layers.push_back(Layer("VK_LAYER_KHRONOS_explicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
 
-    OrderParameter(parameters, layers);
+    std::vector<Parameter> parameters;
+    parameters.push_back(Parameter("VK_LAYER_KHRONOS_implicit", LAYER_CONTROL_AUTO));
+    parameters.push_back(Parameter("VK_LAYER_KHRONOS_missing", LAYER_CONTROL_AUTO));
 
-    // Missing
-    EXPECT_STREQ("Layer C3", parameters[0].key.c_str());
-    EXPECT_STREQ("Layer C4", parameters[1].key.c_str());
-    EXPECT_STREQ("Layer C5", parameters[2].key.c_str());
-    EXPECT_STREQ("Layer E3", parameters[3].key.c_str());
-    EXPECT_STREQ("Layer E4", parameters[4].key.c_str());
-    EXPECT_STREQ("Layer E5", parameters[5].key.c_str());
-    EXPECT_STREQ("Layer I3", parameters[6].key.c_str());
-    EXPECT_STREQ("Layer I4", parameters[7].key.c_str());
-    EXPECT_STREQ("Layer I5", parameters[8].key.c_str());
-
-    // Exclude
-    EXPECT_STREQ("Layer C1", parameters[9].key.c_str());
-    EXPECT_STREQ("Layer E1", parameters[10].key.c_str());
-    EXPECT_STREQ("Layer I1", parameters[11].key.c_str());
-
-    // Implicit application controlled
-    EXPECT_STREQ("Layer I2", parameters[12].key.c_str());
-
-    // Implicit overriden
-    EXPECT_STREQ("Layer I0", parameters[13].key.c_str());
-
-    // Explicit overriden
-    EXPECT_STREQ("Layer C0", parameters[14].key.c_str());
-    EXPECT_STREQ("Layer E0", parameters[15].key.c_str());
-
-    // Explicit application controlled
-    EXPECT_STREQ("Layer C2", parameters[16].key.c_str());
-    EXPECT_STREQ("Layer E2", parameters[17].key.c_str());
+    std::string missing_layer;
+    EXPECT_EQ(::HasMissingLayer(parameters, layers, missing_layer), true);
+    EXPECT_STREQ(missing_layer.c_str(), "VK_LAYER_KHRONOS_missing");
 }
 
-TEST(test_parameter, order_manual) {
-    std::vector<Layer> layers = GenerateTestLayers();
-    std::vector<Parameter> parameters = GenerateTestParametersAll();
+TEST(test_parameter, no_missing_layer) {
+    LayerManager layers;
+    layers.selected_layers.push_back(Layer("VK_LAYER_KHRONOS_implicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    layers.selected_layers.push_back(Layer("VK_LAYER_KHRONOS_explicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
 
-    Parameter* layer_e0 = FindByKey(parameters, "Layer E0");
-    layer_e0->overridden_rank = 14;
+    std::vector<Parameter> parameters;
+    parameters.push_back(Parameter("VK_LAYER_KHRONOS_implicit", LAYER_CONTROL_AUTO));
+    parameters.push_back(Parameter("VK_LAYER_KHRONOS_explicit", LAYER_CONTROL_AUTO));
 
-    Parameter* layer_c0 = FindByKey(parameters, "Layer C0");
-    layer_c0->overridden_rank = 15;
-
-    OrderParameter(parameters, layers);
-
-    // Missing
-    EXPECT_STREQ("Layer C3", parameters[0].key.c_str());
-    EXPECT_STREQ("Layer C4", parameters[1].key.c_str());
-    EXPECT_STREQ("Layer C5", parameters[2].key.c_str());
-    EXPECT_STREQ("Layer E3", parameters[3].key.c_str());
-    EXPECT_STREQ("Layer E4", parameters[4].key.c_str());
-    EXPECT_STREQ("Layer E5", parameters[5].key.c_str());
-    EXPECT_STREQ("Layer I3", parameters[6].key.c_str());
-    EXPECT_STREQ("Layer I4", parameters[7].key.c_str());
-    EXPECT_STREQ("Layer I5", parameters[8].key.c_str());
-
-    // Exclude
-    EXPECT_STREQ("Layer C1", parameters[9].key.c_str());
-    EXPECT_STREQ("Layer E1", parameters[10].key.c_str());
-    EXPECT_STREQ("Layer I1", parameters[11].key.c_str());
-
-    // Implicit application controlled
-    EXPECT_STREQ("Layer I2", parameters[12].key.c_str());
-
-    // Implicit overriden
-    EXPECT_STREQ("Layer I0", parameters[13].key.c_str());
-
-    // Explicit overriden with manual override!
-    EXPECT_STREQ("Layer E0", parameters[14].key.c_str());
-    EXPECT_STREQ("Layer C0", parameters[15].key.c_str());
-
-    // Explicit application controlled
-    EXPECT_STREQ("Layer C2", parameters[16].key.c_str());
-    EXPECT_STREQ("Layer E2", parameters[17].key.c_str());
+    std::string missing_layer;
+    EXPECT_EQ(::HasMissingLayer(parameters, layers, missing_layer), false);
+    EXPECT_TRUE(missing_layer.empty());
 }
-
-TEST(test_parameter, OrderParameter_ImplicitLayer) {
-    std::vector<Layer> layers = GenerateTestLayers();
-    std::vector<Parameter> sources = GenerateTestParametersImplicitOrdering();
-    std::vector<Parameter> parameters = sources;
-
-    parameters[0].overridden_rank = 3;
-    parameters[1].overridden_rank = 1;
-    parameters[2].overridden_rank = 2;
-    parameters[3].overridden_rank = 0;
-
-    OrderParameter(parameters, layers);
-
-    EXPECT_STREQ(parameters[0].key.c_str(), "Layer E1");
-    EXPECT_STREQ(parameters[1].key.c_str(), "Layer I1");
-    EXPECT_STREQ(parameters[2].key.c_str(), "Layer E0");
-    EXPECT_STREQ(parameters[3].key.c_str(), "Layer I0");
-}
-*/
