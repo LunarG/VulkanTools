@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2024 Valve Corporation
+ * Copyright (c) 2020-2024 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,21 +27,6 @@
 
 inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaString*>(layer.Instantiate(layer.settings, key, SETTING_STRING));
-}
-
-TEST(test_layer_preset, get_preset) {
-    LayerPreset layer_preset_a;
-    layer_preset_a.label = "1";
-
-    LayerPreset layer_preset_b;
-    layer_preset_b.label = "2";
-
-    std::vector<LayerPreset> presets;
-    presets.push_back(layer_preset_a);
-    presets.push_back(layer_preset_b);
-
-    EXPECT_STREQ("1", GetPreset(presets, "1")->label.c_str());
-    EXPECT_EQ(nullptr, GetPreset(presets, "3"));
 }
 
 TEST(test_layer_preset, has_preset) {

@@ -24,26 +24,13 @@
 
 #include <cstring>
 
-const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, const char* preset_label) {
-    assert(preset_label);
-    assert(std::strcmp(preset_label, "") != 0);
-
-    for (std::size_t i = 0, n = presets.size(); i < n; ++i) {
-        if (presets[i].label == preset_label) {
-            return &presets[i];
-        }
-    }
-
-    return nullptr;
-}
-
 bool HasPreset(const SettingDataSet& layer_settings, const SettingDataSetConst& preset_settings) {
     if (preset_settings.empty()) {
         return false;
     }
 
     for (std::size_t preset_index = 0, preset_count = preset_settings.size(); preset_index < preset_count; ++preset_index) {
-        const SettingData* layer_setting = FindSetting(layer_settings, preset_settings[preset_index]->key.c_str());
+        const SettingData* layer_setting = ::FindSetting(layer_settings, preset_settings[preset_index]->key.c_str());
         if (layer_setting == nullptr) {
             return false;
         }
