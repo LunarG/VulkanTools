@@ -49,7 +49,7 @@ void LoadVUIDs(std::vector<NumberOrString>& value) {
     }
 
     if (json_text.isEmpty()) {
-        json_text = ReadAll(":/layers/validusage.json");
+        json_text = ReadAll(":/vkconfig/validusage.json");
     }
 
     if (json_text.isEmpty()) {
@@ -219,6 +219,10 @@ bool SettingDataList::Load(const QJsonObject& json_setting) {
         this->value.push_back(value);
     }
 
+    if (json_setting.value("expanded") != QJsonValue::Undefined) {
+        this->expanded = ReadBoolValue(json_setting, "expanded");
+    }
+
     return true;
 }
 
@@ -237,6 +241,7 @@ bool SettingDataList::Save(QJsonObject& json_setting) const {
     }
 
     json_setting.insert("value", json_array);
+    json_setting.insert("expanded", this->expanded);
 
     return true;
 }

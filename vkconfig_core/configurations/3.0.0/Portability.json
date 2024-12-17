@@ -1,0 +1,47 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Portability",
+        "version": 1,
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "selected_layer_name": "VK_LAYER_KHRONOS_profiles",
+        "override_layers": true,
+        "override_loader": true,
+        "loader_message_types": [
+            "error",
+            "warn"
+        ],
+        "layers": [
+            {
+                "name": "VK_LAYER_KHRONOS_validation",
+                "rank": 4,
+                "settings": [
+                ],
+                "control": "on",
+                "version": "latest"
+            },
+            {
+                "name": "VK_LAYER_KHRONOS_profiles",
+                "rank": 5,
+                "settings": [
+                    {
+                        "key": "profile_dirs",
+                        "type": "LOAD_FOLDER",
+                        "value": "${VULKAN_PROFILES}"
+                    },
+                    {
+                        "key": "profile_name",
+                        "type": "ENUM",
+                        "value": "VP_LUNARG_desktop_baseline_2023"
+                    }
+                ],
+                "control": "on",
+                "version": "latest"
+            }
+        ]
+    }
+}

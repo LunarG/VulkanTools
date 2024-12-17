@@ -1,0 +1,24 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Log Loader Messages",
+        "platforms": [
+            "WINDOWS_X86",
+            "WINDOWS_ARM",
+            "LINUX",
+            "MACOS"
+        ],
+        "version": 1,
+        "override_layers": false,
+        "override_loader": true,
+        "loader_message_types": [
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "perf",
+            "layer",
+            "driver"
+        ]
+    }
+}

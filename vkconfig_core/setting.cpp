@@ -35,19 +35,9 @@
 
 #include <QJsonArray>
 
-const char* GetToken(ParseSource type) {
-    static const char* table[] = {",", VKC_ENV == VKC_ENV_WIN32 ? ";" : ":"};
-
-    return table[type];
-}
-
 SettingType GetSettingType(const char* token) {
     assert(token != nullptr);
     assert(std::strcmp(token, "") != 0);
-
-    if (SUPPORT_LAYER_CONFIG_2_2_0 && ToUpperCase(token) == "MULTI_ENUM") return SETTING_FLAGS;
-    if (SUPPORT_LAYER_CONFIG_2_2_0 && ToUpperCase(token) == "VUID_EXCLUDE") return SETTING_LIST;
-    if (SUPPORT_LAYER_CONFIG_2_2_0 && ToUpperCase(token) == "INT_RANGES") return SETTING_FRAMES;
 
     for (int i = SETTING_FIRST; i <= SETTING_LAST; ++i) {
         const SettingType type = static_cast<SettingType>(i);
@@ -77,7 +67,7 @@ const char* GetToken(SettingType type) {
         "FRAMES",        // SETTING_FRAMES
         "LIST"           // SETTING_LIST
     };
-    static_assert(countof(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return table[type];
 }
@@ -108,7 +98,7 @@ static std::string GetEnv(const std::string& layer_key, const std::string& setti
 }
 
 SettingMeta::SettingMeta(Layer& layer, const std::string& key, const SettingType type)
-    : key(key), type(type), env(GetEnv(layer.key, key)), dependence_mode(DEPENDENCE_NONE), layer(layer) {
+    : key(key), type(type), env(), dependence_mode(DEPENDENCE_NONE), layer(layer) {
     assert(!this->key.empty());
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 }
@@ -157,11 +147,15 @@ bool SettingMeta::Equal(const SettingMeta& other) const {
         return false;
     else {
         for (std::size_t i = 0, n = this->children.size(); i < n; ++i) {
-            if (this->children[i] != other.children[i]) return false;
+            if (this->children[i] != other.children[i]) {
+                return false;
+            }
         }
 
         for (std::size_t i = 0, n = this->dependence.size(); i < n; ++i) {
-            if (this->dependence[i] != other.dependence[i]) return false;
+            if (this->dependence[i] != other.dependence[i]) {
+                return false;
+            }
         }
     }
     return true;
@@ -190,17 +184,23 @@ bool IsSupported(const SettingEnumValue* value) {
 
 SettingMeta* FindSetting(SettingMetaSet& settings, const char* key) {
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
-        if (settings[i]->key == key) return settings[i];
+        if (settings[i]->key == key) {
+            return settings[i];
+        }
 
         SettingMeta* child = FindSetting(settings[i]->children, key);
-        if (child != nullptr) return child;
+        if (child != nullptr) {
+            return child;
+        }
 
         if (IsEnum(settings[i]->type) || IsFlags(settings[i]->type)) {
             SettingMetaEnum& setting_meta_enum = static_cast<SettingMetaEnum&>(*settings[i]);
 
             for (std::size_t j = 0, o = setting_meta_enum.enum_values.size(); j < o; ++j) {
                 SettingMeta* setting_meta = FindSetting(setting_meta_enum.enum_values[j].settings, key);
-                if (setting_meta != nullptr) return setting_meta;
+                if (setting_meta != nullptr) {
+                    return setting_meta;
+                }
             }
         }
     }
@@ -213,14 +213,18 @@ const SettingMeta* FindSetting(const SettingMetaSet& settings, const char* key) 
         if (settings[i]->key == key) return settings[i];
 
         const SettingMeta* child = FindSetting(settings[i]->children, key);
-        if (child != nullptr) return child;
+        if (child != nullptr) {
+            return child;
+        }
 
         if (IsEnum(settings[i]->type) || IsFlags(settings[i]->type)) {
             const SettingMetaEnum& setting_meta_enum = static_cast<const SettingMetaEnum&>(*settings[i]);
 
             for (std::size_t j = 0, o = setting_meta_enum.enum_values.size(); j < o; ++j) {
                 const SettingMeta* setting_meta = FindSetting(setting_meta_enum.enum_values[j].settings, key);
-                if (setting_meta != nullptr) return setting_meta;
+                if (setting_meta != nullptr) {
+                    return setting_meta;
+                }
             }
         }
     }
@@ -352,7 +356,7 @@ const char* GetToken(DependenceMode type) {
         "ALL",   // DEPENDENCE_ALL
         "ANY"    // DEPENDENCE_ANY
     };
-    static_assert(countof(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(table) == DEPENDENCE_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return table[type];
 }

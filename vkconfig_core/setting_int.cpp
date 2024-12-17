@@ -89,11 +89,15 @@ void SettingDataInt::Copy(const SettingData* data) {
 
 bool SettingDataInt::Load(const QJsonObject& json_setting) {
     this->value = ReadIntValue(json_setting, "value");
+    if (json_setting.value("expanded") != QJsonValue::Undefined) {
+        this->expanded = ReadBoolValue(json_setting, "expanded");
+    }
     return true;
 }
 
 bool SettingDataInt::Save(QJsonObject& json_setting) const {
     json_setting.insert("value", this->value);
+    json_setting.insert("expanded", this->expanded);
     return true;
 }
 
