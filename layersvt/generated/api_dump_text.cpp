@@ -6725,7 +6725,7 @@ void dump_text_VkDriverId(VkDriverId object, const ApiDumpSettings& settings, in
         settings.stream() << "VK_DRIVER_ID_MESA_HONEYKRISP (";
         break;
     case 27:
-        settings.stream() << "VK_DRIVER_ID_RESERVED_27 (";
+        settings.stream() << "VK_DRIVER_ID_VULKAN_SC_EMULATION_ON_VULKAN (";
         break;
     default:
         settings.stream() << "UNKNOWN (";
