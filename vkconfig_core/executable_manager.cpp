@@ -218,7 +218,7 @@ bool ExecutableManager::AppendExecutable(const Path& executable_path) {
 
 bool ExecutableManager::RemoveExecutable() {
     if (this->data.empty()) {
-        return true;
+        return false;
     }
 
     std::size_t executable_index = static_cast<std::size_t>(this->GetActiveExecutableIndex());
@@ -312,8 +312,8 @@ Executable* ExecutableManager::GetExecutable(std::size_t executable_index) {
 std::vector<Executable> ExecutableManager::CreateDefaultExecutables() const {
     std::vector<Executable> new_executables;
 
-    for (std::size_t name_index = 0, name_count = std::size(defaults_executables); name_index < name_count; ++name_index) {
-        const Executable executable(defaults_executables[name_index]);
+    for (std::size_t name_index = 0, name_count = std::size(::defaults_executables); name_index < name_count; ++name_index) {
+        const Executable executable(::defaults_executables[name_index]);
 
         if (executable.path.Empty()) {
             continue;
@@ -341,30 +341,4 @@ std::vector<Executable> ExecutableManager::RemoveMissingExecutables(const std::v
     }
 
     return valid_applications;
-}
-
-bool ExecutableManager::HasIncompatiblePerExecutables(const Executable& executable,
-                                                      std::vector<Executable>& imcompatible_executables) const {
-    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        if (executable.path == this->data[i].path) {
-            continue;
-        }
-
-        if (executable.GetActiveOptions()->working_folder == this->data[i].GetActiveOptions()->working_folder) {
-            imcompatible_executables.push_back(this->data[i]);
-        }
-    }
-
-    return !imcompatible_executables.empty();
-}
-
-bool ExecutableManager::HasIncompatiblePerExecutables(std::vector<Executable>& imcompatible_executables) const {
-    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
-        bool incompatible = this->HasIncompatiblePerExecutables(this->data[i], imcompatible_executables);
-        if (incompatible) {
-            imcompatible_executables.push_back(this->data[i]);
-        }
-    }
-
-    return !imcompatible_executables.empty();
 }

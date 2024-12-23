@@ -152,7 +152,7 @@ DefaultPath GetDefaultExecutablePath(const std::string& executable_key) {
 Executable::Executable() {}
 
 Executable::Executable(const DefaultExecutable& default_executable) {
-    const DefaultPath& default_paths = GetDefaultExecutablePath(default_executable.key);
+    const DefaultPath& default_paths = ::GetDefaultExecutablePath(default_executable.key);
     if (default_paths.executable_path.Empty()) {
         Executable();  // application could not be found..
     }
@@ -228,7 +228,11 @@ bool Executable::HasActiveOptions() const {
 
 Path Executable::GetLocalLayersSettingsPath() const {
     assert(this->GetActiveOptions() != nullptr);
-    return this->GetActiveOptions()->working_folder + "/vk_layer_settings.txt";
+    if (this->GetActiveOptions()->working_folder.Empty()) {
+        return this->path.AbsoluteDir() + "/vk_layer_settings.txt";
+    } else {
+        return this->GetActiveOptions()->working_folder + "/vk_layer_settings.txt";
+    }
 }
 
 void Executable::AddOptions(const ExecutableOptions& options) {

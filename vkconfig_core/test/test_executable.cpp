@@ -107,6 +107,8 @@ TEST(test_executable, add) {
 
     ExecutableOptions executable_options;
     executable_options.label = "Pouet Options";
+    executable_options.working_folder =
+        ".";  // set it otherwise GetLocalLayersSettingsPath will use the executable absolute directory
     executable.AddOptions(executable_options);
     EXPECT_EQ(2, executable.GetOptions().size());
 
@@ -114,4 +116,70 @@ TEST(test_executable, add) {
 
     executable.SetActiveOptions("Pouet Options");
     EXPECT_STREQ("Pouet Options", executable.GetActiveOptionsName().c_str());
+
+    Path path = executable.GetLocalLayersSettingsPath();
+    EXPECT_STREQ(path.AbsolutePath().c_str(), Path("./vk_layer_settings.txt").AbsolutePath().c_str());
+
+    executable.GetActiveOptions()->working_folder.Clear();
+    Path path2 = executable.GetLocalLayersSettingsPath();
+    // When working_folder is not set, use the executable absolute directory
+    EXPECT_STREQ(path.AbsoluteDir().c_str(), executable.path.AbsoluteDir().c_str());
+}
+
+TEST(test_executable, GetDefaultExecutablePath) {
+    std::string saved = qgetenv("VULKAN_SDK").toStdString();
+    qunsetenv("VULKAN_SDK");
+
+    DefaultExecutable default_executable{"vkcube", "/vkcube", "--suppress_popups", "vkcube launcher options"};
+    const DefaultPath& default_paths = ::GetDefaultExecutablePath(default_executable.key);
+#if defined(_WIN32)
+    EXPECT_STREQ(default_paths.executable_path.RelativePath().c_str(), Path(".\\vkcube.exe").RelativePath().c_str());
+#elif defined(__linux__)
+    EXPECT_STREQ(default_paths.executable_path.RelativePath().c_str(), Path(".\\vkcube").RelativePath().c_str());
+#elif defined(__APPLE__)
+    EXPECT_STREQ(default_paths.executable_path.RelativePath().c_str(),
+                 Path("/Applications/vkcube.app/Contents/MacOS/vkcube").RelativePath().c_str());
+#endif
+
+#if defined(_WIN32) || defined(__linux__)
+    EXPECT_STREQ(default_paths.working_folder.RelativePath().c_str(), Path(".").RelativePath().c_str());
+#elif defined(__APPLE__)
+    EXPECT_STREQ(default_paths.working_folder.RelativePath().c_str(),
+                 Path("/Applications/vkcube.app/Contents/MacOS").RelativePath().c_str());
+#endif
+
+    qputenv("VULKAN_SDK", saved.c_str());
+}
+
+TEST(test_executable, DefaultExecutable) {
+    std::string saved = qgetenv("VULKAN_SDK").toStdString();
+    qunsetenv("VULKAN_SDK");
+
+    DefaultExecutable default_executable{"vkcube", "/vkcube", "--suppress_popups", "vkcube launcher options"};
+    Executable executable(default_executable);
+
+    EXPECT_EQ(1, executable.GetOptions().size());
+#if defined(_WIN32)
+    EXPECT_STREQ(executable.path.RelativePath().c_str(), Path(".\\vkcube.exe").RelativePath().c_str());
+#elif defined(__linux__)
+    EXPECT_STREQ(executable.path.RelativePath().c_str(), Path(".\\vkcube").RelativePath().c_str());
+#elif defined(__APPLE__)
+    EXPECT_STREQ(executable.path.RelativePath().c_str(),
+                 Path("/Applications/vkcube.app/Contents/MacOS/vkcube").RelativePath().c_str());
+#endif
+    EXPECT_STREQ(executable.configuration.c_str(), "Validation");
+    EXPECT_EQ(executable.enabled, true);
+    EXPECT_STREQ(executable.GetActiveOptionsName().c_str(), "vkcube launcher options");
+    const ExecutableOptions* options = executable.GetActiveOptions();
+#if defined(_WIN32) || defined(__linux__)
+    EXPECT_STREQ(options->working_folder.RelativePath().c_str(), Path(".").RelativePath().c_str());
+#elif defined(__APPLE__)
+    EXPECT_STREQ(options->working_folder.RelativePath().c_str(),
+                 Path("/Applications/vkcube.app/Contents/MacOS").RelativePath().c_str());
+#endif
+    EXPECT_STREQ(options->args[0].c_str(), "--suppress_popups");
+    EXPECT_TRUE(options->envs.empty());
+    EXPECT_STREQ(options->log_file.RelativePath().c_str(), Path("${VK_HOME}/vkcube.txt").RelativePath().c_str());
+
+    qputenv("VULKAN_SDK", saved.c_str());
 }
