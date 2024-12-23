@@ -53,9 +53,6 @@ class ExecutableManager : public Serialize {
     // Search for all the applications in the list, an remove the application which executable can't be found
     std::vector<Executable> RemoveMissingExecutables(const std::vector<Executable>& executables) const;
 
-    bool HasIncompatiblePerExecutables(const Executable& executable, std::vector<Executable>& imcompatible_executables) const;
-    bool HasIncompatiblePerExecutables(std::vector<Executable>& imcompatible_executables) const;
-
     bool launcher_clear_on_launch = true;
     Path last_path_executable = ::Get(Path::HOME);
 

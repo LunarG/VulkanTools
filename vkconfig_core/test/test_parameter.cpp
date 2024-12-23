@@ -216,15 +216,7 @@ TEST(test_parameter, order_parameter_manual_partial) {
 
     parameters[0].type = LAYER_TYPE_IMPLICIT;
     parameters[1].builtin = LAYER_BUILTIN_UNORDERED;
-    /*
-        for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-            if (i == 7) {
-                continue;
-            }
 
-            parameters[i].overridden_rank = static_cast<int>(i);
-        }
-    */
     ::OrderParameter(parameters, layers);
 
     EXPECT_STREQ(parameters[0].key.c_str(), "VK_LAYER_KHRONOS_missing");

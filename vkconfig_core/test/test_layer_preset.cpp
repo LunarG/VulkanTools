@@ -38,9 +38,9 @@ TEST(test_layer_preset, has_preset) {
     SettingDataSetConst preset_settings;
     SettingDataSet layer_settings;
 
-    SettingMetaString* metaA = InstantiateString(layer, "KeyA");
-    SettingMetaString* metaB = InstantiateString(layer, "KeyB");
-    SettingMetaString* metaC = InstantiateString(layer, "KeyC");
+    SettingMetaString* metaA = ::InstantiateString(layer, "KeyA");
+    SettingMetaString* metaB = ::InstantiateString(layer, "KeyB");
+    SettingMetaString* metaC = ::InstantiateString(layer, "KeyC");
 
     EXPECT_EQ(false, ::HasPreset(layer_settings, preset_settings));
 
