@@ -221,7 +221,6 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
             const SettingMetaGroup &meta = static_cast<const SettingMetaGroup &>(meta_object);
 
             WidgetSettingGroup *widget = new WidgetSettingGroup(this->ui->configurations_settings, item, meta, parameter->settings);
-            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
         } break;
         case SETTING_BOOL:
         case SETTING_BOOL_NUMERIC_DEPRECATED: {
