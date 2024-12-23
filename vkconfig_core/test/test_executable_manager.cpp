@@ -79,6 +79,58 @@ TEST(test_executable_manager, reset_default_applications_no_sdk) {
     EXPECT_TRUE(options2[0].log_file.RelativePath().find("${VK_HOME}") != std::string::npos);
 }
 
+TEST(test_executable_manager, active_executable) {
+    qunsetenv("VULKAN_SDK");
+
+    ExecutableManager executable_manager;
+    executable_manager.Reset();
+
+    EXPECT_EQ(executable_manager.GetActiveExecutableIndex(), 0);
+    EXPECT_EQ(executable_manager.GetExecutable(executable_manager.GetActiveExecutableIndex()),
+              executable_manager.GetActiveExecutable());
+
+    executable_manager.SetActiveExecutable(1);
+    EXPECT_EQ(executable_manager.GetActiveExecutableIndex(), 1);
+    EXPECT_EQ(executable_manager.GetExecutable(executable_manager.GetActiveExecutableIndex()),
+              executable_manager.GetActiveExecutable());
+
+    const Executable* executable = executable_manager.GetActiveExecutable();
+    Path saved_path = executable->path;
+
+    EXPECT_TRUE(executable_manager.RemoveExecutable());
+
+    executable_manager.RenameActiveExecutable(saved_path);
+    EXPECT_STREQ(saved_path.AbsolutePath().c_str(), executable_manager.GetActiveExecutable()->path.AbsolutePath().c_str());
+}
+
+TEST(test_executable_manager, remove_executable) {
+    qunsetenv("VULKAN_SDK");
+
+    ExecutableManager executable_manager;
+    executable_manager.Reset();
+
+    EXPECT_EQ(3, executable_manager.GetExecutables().size());
+
+    EXPECT_EQ(executable_manager.GetActiveExecutableIndex(), 0);
+
+    executable_manager.SetActiveExecutable(2);
+    EXPECT_EQ(executable_manager.GetActiveExecutableIndex(), 2);
+
+    EXPECT_TRUE(executable_manager.RemoveExecutable());
+    EXPECT_EQ(2, executable_manager.GetExecutables().size());
+    EXPECT_EQ(executable_manager.GetActiveExecutableIndex(), 0);
+
+    EXPECT_TRUE(executable_manager.RemoveExecutable());
+    EXPECT_EQ(1, executable_manager.GetExecutables().size());
+    EXPECT_EQ(executable_manager.GetActiveExecutableIndex(), 0);
+
+    EXPECT_TRUE(executable_manager.RemoveExecutable());
+    EXPECT_EQ(0, executable_manager.GetExecutables().size());
+    EXPECT_EQ(executable_manager.GetActiveExecutableIndex(), -1);
+
+    EXPECT_FALSE(executable_manager.RemoveExecutable());
+}
+
 TEST(test_executable_manager, remove_missing_applications) {
     ExecutableManager executable_manager;
 
