@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2024 Valve Corporation
- * Copyright (c) 2020-2024 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 TEST(test_layer_manager, clear) {
     LayerManager layer_manager;
 
+    EXPECT_TRUE(layer_manager.validate_manifests == false);
     EXPECT_TRUE(layer_manager.Empty());
     EXPECT_TRUE(layer_manager.Size() == 0);
 }
@@ -99,8 +100,6 @@ TEST(test_layer_manager, reset) {
     LayerManager layer_manager;
 
     layer_manager.LoadLayersFromPath(":/layers");
-    std::size_t Count = layer_manager.Size();
-
     EXPECT_FALSE(layer_manager.Empty());
 
     layer_manager.Clear();
@@ -116,6 +115,30 @@ TEST(test_layer_manager, find_single) {
     const Layer* layer = layer_manager.Find("VK_LAYER_LUNARG_reference_1_1_0", Version::LATEST);
     EXPECT_TRUE(layer != nullptr);
     EXPECT_STREQ(layer->key.c_str(), "VK_LAYER_LUNARG_reference_1_1_0");
+}
+
+TEST(test_layer_manager, reload) {
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
+
+    EXPECT_TRUE(layer_manager.Size() > 1);
+
+    const std::size_t initial_size = layer_manager.Size();
+
+    LayerLoadStatus status1 = layer_manager.LoadLayer(":/layers/VK_LAYER_LUNARG_test_04.json");
+    EXPECT_EQ(status1, LAYER_LOAD_RELOADED);
+
+    Layer* layer1 = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_test_04.json", false);
+    layer1->enabled = false;
+
+    const std::size_t reloaded_size1 = layer_manager.Size();
+    EXPECT_EQ(initial_size, reloaded_size1);
+
+    LayerLoadStatus status2 = layer_manager.LoadLayer(":/layers/VK_LAYER_LUNARG_test_04.json");
+    EXPECT_EQ(status2, LAYER_LOAD_RELOADED);
+
+    const std::size_t reloaded_size2 = layer_manager.Size();
+    EXPECT_EQ(initial_size, reloaded_size2);
 }
 
 TEST(test_layer_manager, find_multiple) {
@@ -155,17 +178,106 @@ TEST(test_layer_manager, find_multiple) {
     EXPECT_TRUE(layer_not_found_key == nullptr);
 }
 
+TEST(test_layer_manager, FindLastModified) {
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
+    const std::size_t initial_count = layer_manager.Size();
+
+    Layer* layer204_modified = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
+    layer204_modified->validated_last_modified = "1";
+    Path modified_path = layer204_modified->manifest_path;
+    layer204_modified->manifest_path = ":/layers/VK_LAYER_LUNARG_version_204_copy.json";
+
+    layer_manager.LoadLayersFromPath(":/layers");
+    const std::size_t reloaded_count = layer_manager.Size();
+    EXPECT_EQ(initial_count + 1, reloaded_count);
+
+    Layer* layer204 = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
+    layer204->validated_last_modified = "0";
+
+    Layer* layer204_first = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204_copy.json", false);
+    Layer* layer204_copy = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
+
+    const Layer* last0 = layer_manager.FindLastModified("VK_LAYER_LUNARG_version", Version(1, 3, 204));
+    EXPECT_EQ(layer204_first, last0);
+
+    layer204_copy->validated_last_modified = "2";
+    const Layer* last1 = layer_manager.FindLastModified("VK_LAYER_LUNARG_version", Version(1, 3, 204));
+    EXPECT_EQ(layer204_copy, last1);
+}
+
 TEST(test_layer_manager, FindFromManifest) {
     LayerManager layer_manager;
     layer_manager.LoadLayersFromPath(":/layers");
+    const std::size_t initial_count = layer_manager.Size();
 
-    const Layer* layer204 = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json");
+    Layer* layer204 = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
     EXPECT_TRUE(layer204 != nullptr);
     EXPECT_STREQ(layer204->key.c_str(), "VK_LAYER_LUNARG_version");
     EXPECT_EQ(layer204->api_version, Version(1, 3, 204));
+    EXPECT_TRUE(layer204->enabled);
 
-    const Layer* layer208 = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_208.json");
+    Layer* layer208 = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_208.json", false);
     EXPECT_TRUE(layer208 == nullptr);
+
+    layer204->enabled = false;
+    Layer* layer204_disabledA = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
+    EXPECT_TRUE(layer204_disabledA == nullptr);
+    Layer* layer204_disabledB =
+        layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", true);  // find disabled layers anyway
+    EXPECT_TRUE(layer204_disabledB != nullptr);
+    EXPECT_FALSE(layer204_disabledB->enabled);
+
+    layer204_disabledB->enabled = true;
+    Layer* layer204_disabledC = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
+    EXPECT_TRUE(layer204_disabledC != nullptr);
+    EXPECT_TRUE(layer204_disabledC->enabled);
+
+    layer_manager.LoadLayersFromPath(":/layers");
+    const std::size_t enabled_count = layer_manager.Size();
+    EXPECT_EQ(initial_count, enabled_count);
+
+    layer204->enabled = false;
+    layer_manager.LoadLayersFromPath(":/layers");
+    const std::size_t disabled_count = layer_manager.Size();
+    EXPECT_EQ(initial_count, disabled_count);
+}
+
+TEST(test_layer_manager, GatherManifests) {
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
+
+    const std::vector<Path>& versions_notfound = layer_manager.GatherManifests("VK_LAYER_LUNARG_version_not_found");
+    EXPECT_TRUE(versions_notfound.empty());
+
+    const std::vector<Path>& versions_found = layer_manager.GatherManifests("VK_LAYER_LUNARG_version");
+    EXPECT_FALSE(versions_found.empty());
+    EXPECT_EQ(versions_found.size(), 4);
+
+    const Layer* layer0 = layer_manager.FindFromManifest(versions_found[0]);
+    EXPECT_EQ(layer0->api_version, Version(1, 3, 290));
+    const Layer* layer1 = layer_manager.FindFromManifest(versions_found[1]);
+    EXPECT_EQ(layer1->api_version, Version(1, 3, 204));
+    const Layer* layer2 = layer_manager.FindFromManifest(versions_found[2]);
+    EXPECT_EQ(layer2->api_version, Version(1, 2, 193));
+    const Layer* layer3 = layer_manager.FindFromManifest(versions_found[3]);
+    EXPECT_EQ(layer3->api_version, Version(1, 1, 135));
+
+    const Layer* layer193 = layer_manager.Find("VK_LAYER_LUNARG_version", Version(1, 2, 193));
+    EXPECT_TRUE(layer193 != nullptr);
+
+    Layer* layer_edit = layer_manager.FindFromManifest(layer193->manifest_path);
+    layer_edit->enabled = false;
+
+    const std::vector<Path>& versions_found_b = layer_manager.GatherManifests("VK_LAYER_LUNARG_version");
+    EXPECT_FALSE(versions_found_b.empty());
+    EXPECT_EQ(versions_found_b.size(), 3);
+    const Layer* layerB0 = layer_manager.FindFromManifest(versions_found_b[0]);
+    EXPECT_EQ(layerB0->api_version, Version(1, 3, 290));
+    const Layer* layerB1 = layer_manager.FindFromManifest(versions_found_b[1]);
+    EXPECT_EQ(layerB1->api_version, Version(1, 3, 204));
+    const Layer* layerB2 = layer_manager.FindFromManifest(versions_found_b[2]);
+    EXPECT_EQ(layerB2->api_version, Version(1, 1, 135));
 }
 
 TEST(test_layer_manager, GatherVersions) {
