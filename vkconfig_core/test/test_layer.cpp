@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2024 Valve Corporation
- * Copyright (c) 2020-2024 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,6 +151,11 @@ TEST(test_layer, load_preset_interit) {
     EXPECT_STREQ("Preset Override", layer.presets[1].label.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[1].platform_flags);
     EXPECT_EQ(STATUS_ALPHA, layer.presets[1].status);
+
+    const LayerLoadStatus reloaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    EXPECT_EQ(reloaded, LAYER_LOAD_ADDED);
+    EXPECT_EQ(1, layer.settings.size());
+    EXPECT_EQ(2, layer.presets.size());
 }
 
 TEST(test_layer, load_setting_children_interit) {
@@ -231,6 +236,10 @@ TEST(test_layer, load_setting_missing) {
 
     LayerControl layer_controlA = layer.GetActualControl();
     EXPECT_EQ(layer_controlA, LAYER_CONTROL_ON);
+
+    const LayerLoadStatus reloaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_IMPLICIT, false, Dummy());
+    EXPECT_EQ(1, layer.settings.size());
+    EXPECT_EQ(1, layer.presets.size());
 }
 
 TEST(test_layer, load_env_variable) {
