@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2024 Valve Corporation
- * Copyright (c) 2020-2024 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -335,12 +335,14 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
         const QJsonObject& json_features_object = json_features_value.toObject();
 
         // Load layer settings
+        this->settings.clear();
         const QJsonValue& json_settings_value = json_features_object.value("settings");
         if (json_settings_value != QJsonValue::Undefined) {
             AddSettingsSet(this->settings, nullptr, json_settings_value);
         }
 
         // Load layer presets
+        this->presets.clear();
         const QJsonValue& json_presets_value = json_features_object.value("presets");
         if (json_presets_value != QJsonValue::Undefined) {
             assert(json_presets_value.isArray());

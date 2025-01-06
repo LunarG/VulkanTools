@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2024 Valve Corporation
- * Copyright (c) 2020-2024 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -487,7 +487,7 @@ void LayerManager::LoadLayersFromPath(const Path &layers_path, LayerType type) {
 LayerLoadStatus LayerManager::LoadLayer(const Path &layer_path, LayerType type) {
     const std::string &last_modified = layer_path.LastModified();
 
-    Layer *already_loaded_layer = this->FindFromManifest(layer_path);
+    Layer *already_loaded_layer = this->FindFromManifest(layer_path, true);
     if (already_loaded_layer != nullptr) {
         // Already loaded
         auto it = this->layers_validated.find(layer_path);

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2024 Valve Corporation
- * Copyright (c) 2020-2024 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,8 +110,6 @@ class Layer {
 
    private:
     Layer& operator=(const Layer&) = delete;
-
-    bool IsBuiltIn() const;
 
     std::vector<std::shared_ptr<SettingMeta> > memory;  // Settings are deleted when all layers instances are deleted.
 };
