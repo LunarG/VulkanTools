@@ -11,7 +11,10 @@
 
 # Release notes
 
-## [Vulkan Configurator 2.6.2](https://github.com/LunarG/VulkanTools/tree/main) - October 2024
+## [Vulkan Configurator 2.6.3](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.304.0) - January 2025
+- Final build
+
+## [Vulkan Configurator 2.6.2](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.3.296.0) - October 2024
 
 ### Improvements:
 - Show message warnings when overriding implicit layer, either disabling or enabling
