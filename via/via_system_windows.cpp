@@ -34,7 +34,7 @@ ViaSystemWindows::ViaSystemWindows() : ViaSystem() {
 
     // Determine the user's home directory
     char home_drive[32];
-    char generic_string[1024];
+    char generic_string[1024] = {};
     if (0 == GetEnvironmentVariableA("HOMEDRIVE", home_drive, 31) ||
         0 == GetEnvironmentVariableA("HOMEPATH", generic_string, 1023)) {
         LogError("Failed to retrieve either HOMEDRIVE or HOMEPATH environment settings!");
@@ -60,7 +60,7 @@ ViaSystemWindows::ViaSystemWindows() : ViaSystem() {
     }
 
     // Get the path to the current EXE
-    char temp_c_string[1024];
+    char temp_c_string[1024] = {};
     int bytes = GetModuleFileName(NULL, temp_c_string, 1023);
     if (0 < bytes) {
         // Replace all Windows directory symbols with Linux versions for C++ calls
@@ -199,7 +199,7 @@ static bool FindNextRegKey(HKEY regFolder, const char *keyPath, const char *keyS
     lret = RegOpenKeyExA(regFolder, keyPath, 0, keyFlags, &hKey);
     if (lret == ERROR_SUCCESS) {
         DWORD index = 0;
-        char keyName[1024];
+        char keyName[1024] = {};
 
         do {
             lret = RegEnumKeyExA(hKey, index, keyName, &bufLen, NULL, NULL, NULL, NULL);
@@ -240,7 +240,7 @@ static bool FindNextRegValue(HKEY regFolder, const char *keyPath, const char *va
     lret = RegOpenKeyExA(regFolder, keyPath, 0, keyFlags, &hKey);
     if (lret == ERROR_SUCCESS) {
         DWORD index = startIndex;
-        char valueName[1024];
+        char valueName[1024] = {};
 
         do {
             DWORD type = REG_DWORD;
@@ -368,7 +368,7 @@ void FindRegistryJsons(std::vector<HKEY> &registry_top_hkey, std::vector<std::st
         // JSON files.
         uint32_t i = 0;
         uint32_t returned_value = 0;
-        char cur_vulkan_driver_json[1024];
+        char cur_vulkan_driver_json[1024] = {};
         while (FindNextRegValue(registry_top_hkey[iter], registry_locations[iter].c_str(), "", i, 1023, cur_vulkan_driver_json,
                                 &returned_value)) {
             json_paths.emplace_back(full_registry_path, (returned_value == 0), cur_vulkan_driver_json);
@@ -429,7 +429,7 @@ bool ViaSystemWindows::FindDriverSpecificRegistryJsons(const std::string &key_na
 // on any other errors.
 int ViaSystemWindows::RunTestInDirectory(std::string path, std::string test, std::string cmd_line) {
     int err_code = -1;
-    char orig_dir[1024];
+    char orig_dir[1024] = {};
     orig_dir[0] = '\0';
 
     LogInfo("       Command-line: " + cmd_line);
@@ -488,7 +488,7 @@ bool ViaSystemWindows::GetFileVersion(const std::string &filename, std::string &
 
 ViaSystem::ViaResults ViaSystemWindows::PrintSystemEnvironmentInfo() {
     ViaResults result = VIA_SUCCESSFUL;
-    char generic_string[1024];
+    char generic_string[1024] = {};
     std::string os_size;
     std::string converted_path;
     DWORD ser_ver = 0;
@@ -721,7 +721,7 @@ out:
 
 ViaSystem::ViaResults ViaSystemWindows::PrintSystemHardwareInfo() {
     ViaResults result = VIA_SUCCESSFUL;
-    char generic_string[1024];
+    char generic_string[1024] = {};
     DWORD sect_per_cluster = 0;
     DWORD bytes_per_sect = 0;
     DWORD num_free_cluster = 0;
@@ -930,7 +930,7 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
     Json::Value inst_exts = Json::nullValue;
     Json::Reader reader;
     std::string full_driver_path;
-    char generic_string[1024];
+    char generic_string[1024] = {};
     uint32_t j = 0;
     std::string cur_reg_name;
 
@@ -1085,7 +1085,7 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
             PrintEndTableRow();
         }
 
-        char count_str[1024];
+        char count_str[1024] = {};
         j = 0;
         dev_exts = root["ICD"]["device_extensions"];
         if (!dev_exts.isNull() && dev_exts.isArray()) {
@@ -1149,8 +1149,8 @@ bool ViaSystemWindows::PrintDriverRegistryInfo(std::vector<std::tuple<std::strin
 }
 
 void ViaSystemWindows::PrintDriverEnvVarInfo(const char* var, const std::string& system_path, bool& found_json, bool& found_lib) {
-    char env_value[1024];
-    char generic_string[1024];
+    char env_value[1024] = {};
+    char generic_string[1024] = {};
 
     // The user can override the driver file manually
     if (0 != GetEnvironmentVariableA(var, env_value, 1023) && 0 != strlen(env_value)) {
@@ -1159,7 +1159,7 @@ void ViaSystemWindows::PrintDriverEnvVarInfo(const char* var, const std::string&
         uint32_t i = 0;
         char *tok = NULL;
         bool keep_looping = false;
-        char full_driver_path[1024];
+        char full_driver_path[1024] = {};
         bool found_this_lib = false;
 
         PrintBeginTableRow();
@@ -1237,7 +1237,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemDriverInfo() {
         bool found_json = false;
         bool found_lib = false;
         bool found_this_lib = false;
-        char generic_string[1024];
+        char generic_string[1024] = {};
         GetEnvironmentVariableA("SYSTEMROOT", generic_string, 1024);
         system_path = generic_string;
 
@@ -1277,7 +1277,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemDriverInfo() {
                 found_lib |= found_this_lib;
             }
         }
-\
+
         PrintDriverEnvVarInfo("VK_DRIVER_FILES", system_path, found_json, found_lib);
         PrintDriverEnvVarInfo("VK_ICD_FILENAMES", system_path, found_json, found_lib);
         PrintDriverEnvVarInfo("VK_ADD_DRIVER_FILES", system_path, found_json, found_lib);
@@ -1317,13 +1317,13 @@ void ViaSystemWindows::PrintUninstallRegInfo(HKEY reg_folder, char *output_strin
 
 ViaSystem::ViaResults ViaSystemWindows::PrintSystemLoaderInfo() {
     ViaResults result = VIA_SUCCESSFUL;
-    char generic_string[1024];
-    char uninstall_version[1024];
-    char count_string[1024];
+    char generic_string[1024] = {};
+    char uninstall_version[1024] = {};
+    char count_string[1024] = {};
     std::string version_string;
-    char output_string[1024];
-    char dll_search[1024];
-    char dll_prefix[1024];
+    char output_string[1024] = {};
+    char dll_search[1024] = {};
+    char dll_prefix[1024] = {};
     uint32_t i = 0;
     uint32_t install_count = 0;
     FILE *fp = NULL;
@@ -1392,7 +1392,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemLoaderInfo() {
     char vulkan_loader_path[MAX_PATH];
 
     DWORD processID = GetCurrentProcessId();
-    HMODULE hMods[1024];
+    HMODULE hMods[1024] = {};
     HANDLE hProcess;
     DWORD cbNeeded;
     uint32_t num_mods;
@@ -1502,7 +1502,7 @@ bool ViaSystemWindows::PrintExplicitLayersRegInfo(std::vector<std::tuple<std::st
                                                   ViaSystem::ViaResults &res) {
     bool found = false;
     std::string cur_registry_loc;
-    char temp_string[1024];
+    char temp_string[1024] = {};
 
     PrintBeginTableRow();
     PrintTableElement("Explicit Layers in Registry");
@@ -1572,7 +1572,7 @@ bool ViaSystemWindows::PrintImplicitLayersRegInfo(std::vector<std::tuple<std::st
                                                   std::vector<std::string> &override_paths, ViaSystem::ViaResults &res) {
     bool found = false;
     std::string cur_registry_loc;
-    char temp_string[1024];
+    char temp_string[1024] = {};
 
     for (uint32_t layer = 0; layer < static_cast<uint32_t>(cur_layer_json.size()); layer++) {
         std::string cur_layer_json_path = std::get<2>(cur_layer_json[layer]);
@@ -1633,10 +1633,10 @@ bool ViaSystemWindows::PrintImplicitLayersRegInfo(std::vector<std::tuple<std::st
 
 ViaSystem::ViaResults ViaSystemWindows::PrintSystemSdkInfo() {
     ViaResults result = VIA_SUCCESSFUL;
-    char generic_string[1024];
-    char count_string[1024];
-    char output_string[1024];
-    char sdk_env_dir[1024];
+    char generic_string[1024] = {};
+    char count_string[1024] = {};
+    char output_string[1024] = {};
+    char sdk_env_dir[1024] = {};
     uint32_t i = 0;
     uint32_t j = 0;
     FILE *fp = NULL;
@@ -1747,7 +1747,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemImplicitLayerInfo() {
     std::vector<std::string> registry_locations;
     std::vector<std::tuple<std::string, bool, std::string>> layer_jsons;
     std::string system_path;
-    char generic_string[1024];
+    char generic_string[1024] = {};
     const char vulkan_public_reg_base[] = "SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers";
     const char vulkan_implicit_reg_key[] = "VulkanImplicitLayerPaths";
     const char vulkan_driver_reg_key[] = "VulkanImplicitLayers";
@@ -1798,7 +1798,7 @@ ViaSystem::ViaResults ViaSystemWindows::FindAndPrintAllExplicitLayersInPath(cons
     HANDLE hFind;
     uint32_t i = 0;
     ViaResults res = VIA_SUCCESSFUL;
-    char full_layer_path[1024];
+    char full_layer_path[1024] = {};
 
     // Look for any JSON files in that folder.
     snprintf(full_layer_path, 1023, "%s\\*.json", layer_path.c_str());
@@ -1860,7 +1860,7 @@ ViaSystem::ViaResults ViaSystemWindows::FindAndPrintAllExplicitLayersInPath(cons
 
 ViaSystem::ViaResults ViaSystemWindows::PrintLayerEnvVar(const char* var, bool& printed_more_layers) {
     ViaResults result = VIA_SUCCESSFUL;
-    char generic_string[1024];
+    char generic_string[1024] = {};
 
     // If the user's system has the provied environment variable set, dump out the layer
     // information found in that folder.  This is important because if
@@ -2001,7 +2001,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSettingsFileInfo() {
     PrintBeginTable("Vulkan Layer Settings File", 4);
 
     // If the settings path environment variable is set, use that.
-    char generic_string[1024];
+    char generic_string[1024] = {};
     if (0 != GetEnvironmentVariableA("VK_LAYER_SETTINGS_PATH", generic_string, 1023)) {
         std::string full_file = generic_string;
         full_file += '\\';
@@ -2071,7 +2071,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSettingsFileInfo() {
             uint32_t i = 0;
             uint32_t returned_value = 0;
             bool printed = false;
-            char cur_vulkan_driver_json[1024];
+            char cur_vulkan_driver_json[1024] = {};
             while (FindNextRegValue(registry_top_hkey[iter], registry_locations[iter].c_str(), "", i, 1023, cur_vulkan_driver_json,
                                     &returned_value)) {
                 GenerateSettingsFileJsonInfo(cur_vulkan_driver_json);
@@ -2096,7 +2096,7 @@ ViaSystem::ViaResults ViaSystemWindows::PrintSystemSettingsFileInfo() {
 
 std::string ViaSystemWindows::GetEnvironmentalVariableValue(const std::string &env_var) {
     std::string return_value;
-    char temp_buffer[1024];
+    char temp_buffer[1024] = {};
     if (0 != GetEnvironmentVariableA(env_var.c_str(), temp_buffer, 1023)) {
         return_value = temp_buffer;
     }
