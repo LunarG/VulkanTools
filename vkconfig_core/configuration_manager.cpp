@@ -274,16 +274,6 @@ void ConfigurationManager::RemoveConfiguration(const std::string &configuration_
     this->SortConfigurations();
 }
 
-int ConfigurationManager::GetConfigurationIndex(const std::string &configuration_name) const {
-    for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
-        if (this->available_configurations[i].key == configuration_name) {
-            return static_cast<int>(i);
-        }
-    }
-
-    return -1;
-}
-
 Configuration *ConfigurationManager::FindConfiguration(const std::string &configuration_name) {
     if (configuration_name.empty()) {
         return nullptr;

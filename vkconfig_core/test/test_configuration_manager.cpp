@@ -139,33 +139,84 @@ TEST(test_configuration_manager, sort) {
     EXPECT_STREQ("Configuration B", configuration_manager.available_configurations[4].key.c_str());
 }
 
-TEST(test_configuration_manager, get_index) {
+TEST(test_configuration_manager, default_configuration) {
     LayerManager layer_manager;
     layer_manager.LoadLayersFromPath(":/layers");
 
     ConfigurationManager configuration_manager;
+    configuration_manager.LoadDefaultConfigurations(layer_manager);
 
-    configuration_manager.CreateConfiguration(layer_manager, "Configuration B");
-    EXPECT_EQ(1, configuration_manager.available_configurations.size());
-    EXPECT_EQ(0, configuration_manager.GetConfigurationIndex("Configuration B"));
+    EXPECT_EQ(configuration_manager.IsDefaultConfiguration("Validation"), true);
+    EXPECT_EQ(configuration_manager.IsDefaultConfiguration("Unknown"), false);
+}
 
-    configuration_manager.CreateConfiguration(layer_manager, "Configuration A");
-    EXPECT_EQ(2, configuration_manager.available_configurations.size());
-    EXPECT_EQ(0, configuration_manager.GetConfigurationIndex("Configuration A"));
-    EXPECT_EQ(1, configuration_manager.GetConfigurationIndex("Configuration B"));
+TEST(test_configuration_manager, RenameConfiguration) {
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
 
-    configuration_manager.CreateConfiguration(layer_manager, "Configuration C");
-    EXPECT_EQ(3, configuration_manager.available_configurations.size());
-    EXPECT_EQ(0, configuration_manager.GetConfigurationIndex("Configuration A"));
-    EXPECT_EQ(1, configuration_manager.GetConfigurationIndex("Configuration B"));
-    EXPECT_EQ(2, configuration_manager.GetConfigurationIndex("Configuration C"));
+    ConfigurationManager configuration_manager;
+    configuration_manager.LoadDefaultConfigurations(layer_manager);
 
-    std::string configuration_a2_key = configuration_manager.CreateConfiguration(layer_manager, "Configuration A").key;
-    EXPECT_EQ(4, configuration_manager.available_configurations.size());
-    EXPECT_EQ(0, configuration_manager.GetConfigurationIndex("Configuration A"));
-    EXPECT_EQ(1, configuration_manager.GetConfigurationIndex("Configuration A (2)"));
-    EXPECT_EQ(2, configuration_manager.GetConfigurationIndex("Configuration B"));
-    EXPECT_EQ(3, configuration_manager.GetConfigurationIndex("Configuration C"));
+    const Configuration* configuration1 = configuration_manager.FindConfiguration("Validation");
+    EXPECT_TRUE(configuration1 != nullptr);
 
-    EXPECT_EQ(-1, configuration_manager.GetConfigurationIndex("Configuration D"));
+    configuration_manager.RenameConfiguration("Validation", "ValidationAHKJDGKJ");
+    const Configuration* configuration2 = configuration_manager.FindConfiguration("Validation");
+    EXPECT_TRUE(configuration2 == nullptr);
+
+    const Configuration* configuration3 = configuration_manager.FindConfiguration("ValidationAHKJDGKJ");
+    EXPECT_TRUE(configuration3 != nullptr);
+    EXPECT_FALSE(configuration_manager.HasFile(*configuration3));
+
+    configuration_manager.RenameConfiguration("ValidationAHKJDGKJ", "Validation");
+    const Configuration* configuration4 = configuration_manager.FindConfiguration("Validation");
+    EXPECT_TRUE(configuration4 != nullptr);
+}
+
+TEST(test_configuration_manager, SaveConfiguration) {
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
+
+    ConfigurationManager configuration_manager;
+    EXPECT_TRUE(configuration_manager.Empty());
+
+    configuration_manager.LoadDefaultConfigurations(layer_manager);
+    EXPECT_FALSE(configuration_manager.Empty());
+
+    configuration_manager.RenameConfiguration("Validation", "ValidationAHKJDGKJ");
+
+    std::vector<Configuration> available_configurations;
+    for (std::size_t i = 0, n = configuration_manager.available_configurations.size(); i < n; ++i) {
+        if (configuration_manager.available_configurations[i].key != "ValidationAHKJDGKJ") {
+            continue;
+        }
+        available_configurations.push_back(configuration_manager.available_configurations[i]);
+    }
+    std::swap(configuration_manager.available_configurations, available_configurations);
+
+    const Configuration* configuration = configuration_manager.FindConfiguration("ValidationAHKJDGKJ");
+    EXPECT_FALSE(configuration_manager.HasFile(*configuration));
+
+    configuration_manager.SaveAllConfigurations();
+    EXPECT_TRUE(configuration_manager.HasFile(*configuration));
+
+    configuration_manager.RemoveConfiguration("ValidationAHKJDGKJ");
+}
+
+TEST(test_configuration_manager, ExportImport) {
+    LayerManager layer_manager;
+    layer_manager.LoadLayersFromPath(":/layers");
+
+    ConfigurationManager configuration_manager;
+    configuration_manager.LoadDefaultConfigurations(layer_manager);
+    std::size_t count_init = configuration_manager.available_configurations.size();
+
+    configuration_manager.ExportConfiguration(layer_manager, Get(Path::HOME) + "ValidationExported.json", "Validation");
+
+    std::string configuration_name;
+    configuration_manager.ImportConfiguration(layer_manager, Get(Path::HOME) + "ValidationExported.json", configuration_name);
+    EXPECT_EQ(count_init + 1, configuration_manager.available_configurations.size());
+
+    const Configuration* configuration = configuration_manager.FindConfiguration("Validation (Imported)");
+    EXPECT_TRUE(configuration != nullptr);
 }

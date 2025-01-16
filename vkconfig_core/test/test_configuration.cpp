@@ -522,3 +522,21 @@ TEST(test_configuration, Reorder_empty) {
 
     EXPECT_EQ(configuration.parameters.size(), size);
 }
+
+TEST(test_configuration, IsDefault_True) {
+    LayerManager layers;
+    layers.LoadLayersFromPath(":/layers");
+
+    Configuration configuration;
+    const bool loaded = configuration.Load(":/configurations/Validation.json", layers);
+    EXPECT_TRUE(loaded);
+    EXPECT_TRUE(configuration.IsDefault());
+}
+
+TEST(test_configuration, IsDefault_False) {
+    LayerManager layers;
+    layers.LoadLayersFromPath(":/layers");
+
+    Configuration configuration = Configuration::Create(layers, "New Configuration");
+    EXPECT_FALSE(configuration.IsDefault());
+}
