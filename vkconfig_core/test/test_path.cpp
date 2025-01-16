@@ -271,7 +271,7 @@ TEST(test_path, get_path_home_sdk) {
 TEST(test_path, collect_file_paths_success_set1) {
     const std::vector<Path>& paths = CollectFilePaths(":/configurations/");
 
-    EXPECT_EQ(paths.size(), 5);
+    EXPECT_EQ(paths.size(), 8);
     EXPECT_STREQ(Path(":/configurations/API dump.json").AbsolutePath().c_str(), paths[0].AbsolutePath().c_str());
 }
 
