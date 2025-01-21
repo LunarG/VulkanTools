@@ -5,7 +5,8 @@
         "version": 1,
         "platforms": [
             "WINDOWS_X86",
-            "LINUX"
+            "LINUX",
+            "MACOS"
         ],
         "selected_layer_name": "VK_LAYER_LUNARG_gfxreconstruct",
         "override_layers": true,
