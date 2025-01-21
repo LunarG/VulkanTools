@@ -77,7 +77,7 @@ static int RunLayersSurrender(Configurator& configurator, const CommandLine& com
 }
 
 static int RunLayersList(Configurator& configurator, const CommandLine& command_line) {
-    if (configurator.layers.selected_layers.empty()) {
+    if (configurator.layers.available_layers.empty()) {
         printf("vkconfig: No Vulkan layer found\n");
     } else {
         const std::vector<std::string>& layer_names = configurator.layers.GatherLayerNames();

@@ -220,8 +220,8 @@ bool LayerManager::Load(const QJsonObject &json_root_object) {
 
 bool LayerManager::Save(QJsonObject &json_root_object) const {
     QJsonObject json_layers_paths_object;
-    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-        const Layer &layer = this->selected_layers[i];
+    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
+        const Layer &layer = this->available_layers[i];
 
         json_layers_paths_object.insert(layer.manifest_path.AbsolutePath().c_str(), layer.validated_last_modified.c_str());
     }
@@ -302,7 +302,7 @@ std::string LayerManager::Log() const {
 }
 
 void LayerManager::InitSystemPaths() {
-    this->selected_layers.clear();
+    this->available_layers.clear();
     this->layers_validated.clear();
 
     this->paths[LAYERS_PATHS_IMPLICIT_SYSTEM] = GetImplicitLayerPaths();
@@ -335,22 +335,22 @@ void LayerManager::InitSystemPaths() {
     }
 }
 
-void LayerManager::Clear() { this->selected_layers.clear(); }
+void LayerManager::Clear() { this->available_layers.clear(); }
 
-bool LayerManager::Empty() const { return this->selected_layers.empty(); }
+bool LayerManager::Empty() const { return this->available_layers.empty(); }
 
-std::size_t LayerManager::Size() const { return this->selected_layers.size(); }
+std::size_t LayerManager::Size() const { return this->available_layers.size(); }
 
 std::vector<Path> LayerManager::GatherManifests(const std::string &layer_name) const {
     std::vector<Path> result;
 
-    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-        if (!this->selected_layers[i].enabled) {
+    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
+        if (!this->available_layers[i].enabled) {
             continue;
         }
 
-        if (this->selected_layers[i].key == layer_name) {
-            result.push_back(this->selected_layers[i].manifest_path);
+        if (this->available_layers[i].key == layer_name) {
+            result.push_back(this->available_layers[i].manifest_path);
         }
     }
 
@@ -362,13 +362,13 @@ std::vector<Path> LayerManager::GatherManifests(const std::string &layer_name) c
 std::vector<Version> LayerManager::GatherVersions(const std::string &layer_name) const {
     std::vector<Version> result;
 
-    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-        if (!this->selected_layers[i].enabled) {
+    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
+        if (!this->available_layers[i].enabled) {
             continue;
         }
 
-        if (this->selected_layers[i].key == layer_name) {
-            result.push_back(this->selected_layers[i].api_version);
+        if (this->available_layers[i].key == layer_name) {
+            result.push_back(this->available_layers[i].api_version);
         }
     }
 
@@ -413,49 +413,49 @@ const Layer *LayerManager::Find(const std::string &layer_name, const Version &la
 const Layer *LayerManager::FindLastModified(const std::string &layer_name, const Version &version) const {
     const Layer *result = nullptr;
 
-    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-        if (this->selected_layers[i].enabled == false) {
+    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
+        if (this->available_layers[i].enabled == false) {
             continue;
         }
-        if (this->selected_layers[i].key != layer_name) {
+        if (this->available_layers[i].key != layer_name) {
             continue;
         }
-        if (this->selected_layers[i].api_version != version) {
+        if (this->available_layers[i].api_version != version) {
             continue;
         }
         if (result != nullptr) {
-            if (result->validated_last_modified > this->selected_layers[i].validated_last_modified) {
+            if (result->validated_last_modified > this->available_layers[i].validated_last_modified) {
                 continue;
             }
         }
 
-        result = &this->selected_layers[i];
+        result = &this->available_layers[i];
     }
 
     return result;
 }
 
 const Layer *LayerManager::FindFromManifest(const Path &manifest_path, bool find_disabled_layers) const {
-    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-        if (!find_disabled_layers && this->selected_layers[i].enabled == false) {
+    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
+        if (!find_disabled_layers && this->available_layers[i].enabled == false) {
             continue;
         }
 
-        if (this->selected_layers[i].manifest_path == manifest_path) {
-            return &this->selected_layers[i];
+        if (this->available_layers[i].manifest_path == manifest_path) {
+            return &this->available_layers[i];
         }
     }
     return nullptr;
 }
 
 Layer *LayerManager::FindFromManifest(const Path &manifest_path, bool find_disabled_layers) {
-    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-        if (!find_disabled_layers && this->selected_layers[i].enabled == false) {
+    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
+        if (!find_disabled_layers && this->available_layers[i].enabled == false) {
             continue;
         }
 
-        if (this->selected_layers[i].manifest_path == manifest_path) {
-            return &this->selected_layers[i];
+        if (this->available_layers[i].manifest_path == manifest_path) {
+            return &this->available_layers[i];
         }
     }
     return nullptr;
@@ -463,7 +463,7 @@ Layer *LayerManager::FindFromManifest(const Path &manifest_path, bool find_disab
 
 // Find all installed layers on the system.
 void LayerManager::LoadAllInstalledLayers() {
-    this->selected_layers.clear();
+    this->available_layers.clear();
 
     for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
         const LayersPaths layers_path = static_cast<LayersPaths>(group_index);
@@ -509,7 +509,7 @@ LayerLoadStatus LayerManager::LoadLayer(const Path &layer_path, LayerType type) 
         Layer layer;
         LayerLoadStatus status = layer.Load(layer_path, type, this->validate_manifests, this->layers_validated);
         if (status == LAYER_LOAD_ADDED) {
-            this->selected_layers.push_back(layer);
+            this->available_layers.push_back(layer);
             this->layers_validated.insert(std::make_pair(layer.manifest_path, layer.validated_last_modified));
         }
 
@@ -609,16 +609,16 @@ std::vector<Path> LayerManager::CollectManifestPaths() const {
 std::vector<std::string> LayerManager::GatherLayerNames() const {
     std::vector<std::string> result;
 
-    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
-        if (this->selected_layers[i].enabled == false) {
+    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
+        if (this->available_layers[i].enabled == false) {
             continue;
         }
 
-        if (std::find(result.begin(), result.end(), this->selected_layers[i].key) != result.end()) {
+        if (std::find(result.begin(), result.end(), this->available_layers[i].key) != result.end()) {
             continue;
         }
 
-        result.push_back(this->selected_layers[i].key);
+        result.push_back(this->available_layers[i].key);
     }
 
     return result;
@@ -627,14 +627,14 @@ std::vector<std::string> LayerManager::GatherLayerNames() const {
 std::vector<const Layer *> LayerManager::GatherLayers(const LayersPathInfo &path_info) const {
     std::vector<const Layer *> result;
 
-    for (std::size_t i = 0, n = this->selected_layers.size(); i < n; ++i) {
+    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
         const std::string &layer_path = path_info.path.AbsolutePath();
-        const std::string &current_layer_path = this->selected_layers[i].manifest_path.AbsolutePath();
+        const std::string &current_layer_path = this->available_layers[i].manifest_path.AbsolutePath();
         if (current_layer_path.find(layer_path) == std::string::npos) {
             continue;
         }
 
-        result.push_back(&this->selected_layers[i]);
+        result.push_back(&this->available_layers[i]);
     }
 
     return result;

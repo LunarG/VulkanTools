@@ -61,7 +61,7 @@ class LayerManager : public Serialize {
     std::vector<std::string> GatherLayerNames() const;
     std::vector<const Layer*> GatherLayers(const LayersPathInfo& path_info) const;
 
-    std::vector<Layer> selected_layers;
+    std::vector<Layer> available_layers;
     std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> paths;
     Path last_layers_path = Get(Path::HOME);
     bool validate_manifests = false;

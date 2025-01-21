@@ -421,10 +421,15 @@ bool Configuration::HasMissingLayer(const LayerManager& layers, std::vector<std:
                 }
         */
 
-        if (layers.FindFromManifest(it->manifest) == nullptr) {
-            missing_layers.push_back(it->key);
+        if (layers.FindFromManifest(it->manifest) != nullptr) {
             continue;
         }
+
+        if (layers.Find(it->key) != nullptr) {
+            continue;
+        }
+
+        missing_layers.push_back(it->key);
     }
 
     return !missing_layers.empty();
