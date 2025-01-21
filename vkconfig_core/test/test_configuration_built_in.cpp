@@ -60,7 +60,7 @@ std::map<std::string, std::string> Dummy() { return std::map<std::string, std::s
 struct TestBuilin {
     TestBuilin() : layer_manager() {
         this->layer_manager.LoadLayersFromPath(":/sdk");
-        EXPECT_TRUE(!this->layer_manager.selected_layers.empty());
+        EXPECT_TRUE(!this->layer_manager.available_layers.empty());
     }
 
     ~TestBuilin() {}
@@ -90,7 +90,7 @@ struct TestBuilin {
 
 TEST(test_built_in_load, sdk_layers_with_configuration) {
     TestBuilin test;
-    EXPECT_TRUE(test.layer_manager.selected_layers.size() >= 8);
+    EXPECT_TRUE(test.layer_manager.available_layers.size() >= 8);
 
     {
         Configuration load_api_dump = test.Load("API dump");
