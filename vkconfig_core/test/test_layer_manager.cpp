@@ -379,22 +379,22 @@ TEST(test_layer_manager, custom_path_update_layers) {
     layer_manager.AppendPath(info);
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 1);
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, true);
-    for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
-        EXPECT_TRUE(layer_manager.selected_layers[i].enabled);
+    for (std::size_t i = 0, n = layer_manager.available_layers.size(); i < n; ++i) {
+        EXPECT_TRUE(layer_manager.available_layers[i].enabled);
     }
 
     info.enabled = false;
     layer_manager.UpdatePathEnabled(info, LAYERS_PATHS_GUI);
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, false);
-    for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
-        EXPECT_FALSE(layer_manager.selected_layers[i].enabled);
+    for (std::size_t i = 0, n = layer_manager.available_layers.size(); i < n; ++i) {
+        EXPECT_FALSE(layer_manager.available_layers[i].enabled);
     }
 
     info.enabled = true;
     layer_manager.UpdatePathEnabled(info, LAYERS_PATHS_GUI);
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI][0].enabled, true);
-    for (std::size_t i = 0, n = layer_manager.selected_layers.size(); i < n; ++i) {
-        EXPECT_TRUE(layer_manager.selected_layers[i].enabled);
+    for (std::size_t i = 0, n = layer_manager.available_layers.size(); i < n; ++i) {
+        EXPECT_TRUE(layer_manager.available_layers[i].enabled);
     }
 
     EXPECT_EQ(layer_manager.paths[LAYERS_PATHS_GUI].size(), 1);

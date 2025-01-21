@@ -82,6 +82,12 @@ std::string ConfigurationManager::Log() const {
     return log;
 }
 
+void ConfigurationManager::Clear() { this->available_configurations.clear(); }
+
+bool ConfigurationManager::Empty() const { return this->available_configurations.empty(); }
+
+std::size_t ConfigurationManager::Size() const { return this->available_configurations.size(); }
+
 void ConfigurationManager::LoadAllConfigurations(const LayerManager &layers) {
     this->available_configurations.clear();
 
@@ -132,7 +138,7 @@ void ConfigurationManager::LoadDefaultConfigurations(const LayerManager &layers)
     }
 }
 
-void ConfigurationManager::UpdateLayers(const LayerManager &layers) {
+void ConfigurationManager::GatherConfigurationsParameters(const LayerManager &layers) {
     for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
         this->available_configurations[i].GatherParameters(layers);
     }

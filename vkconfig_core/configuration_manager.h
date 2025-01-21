@@ -41,10 +41,14 @@ class ConfigurationManager : public Serialize {
     bool Save(QJsonObject& json_root_object) const override;
     std::string Log() const override;
 
+    void Clear();
+    bool Empty() const;
+    std::size_t Size() const;
+
     void LoadAllConfigurations(const LayerManager& layers);
     void SaveAllConfigurations() const;
 
-    void UpdateLayers(const LayerManager& layers);
+    void GatherConfigurationsParameters(const LayerManager& layers);
 
     Configuration& CreateConfiguration(const LayerManager& layers, const std::string& configuration_name);
     Configuration& DuplicateConfiguration(const LayerManager& layers, const std::string& configuration_name);
@@ -61,8 +65,6 @@ class ConfigurationManager : public Serialize {
 
     bool IsDefaultConfiguration(const std::string& configuration_key) const;
     void ResetDefaultConfigurations(const LayerManager& layers);
-
-    bool Empty() const { return this->available_configurations.empty(); }
 
     bool HasFile(const Configuration& configuration) const;
     void RemoveConfigurationFile(const std::string& key);
