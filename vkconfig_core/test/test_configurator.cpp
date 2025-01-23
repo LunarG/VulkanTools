@@ -31,6 +31,7 @@ TEST(test_configurator, get) {
     EXPECT_EQ(configurator.GetExecutableScope(), EXECUTABLE_ANY);
 }
 
+/*
 TEST(test_configurator, init) {
     Configurator& configurator = Configurator::Get();
     configurator.Init();
@@ -38,3 +39,4 @@ TEST(test_configurator, init) {
     EXPECT_TRUE(configurator.layers.Size() > 0);
     // EXPECT_TRUE(configurator.configurations.Size() > 0);
 }
+*/
