@@ -53,9 +53,8 @@ TabDocumentation::TabDocumentation(MainWindow &window, std::shared_ptr<Ui::MainW
     QPalette palette = this->ui->documentation_spec->palette();
     QColor color = palette.color(QPalette::Text);
 
-    ::UpdateColor3(this->ui->documentation_spec0, color);
-    ::UpdateColor3(this->ui->documentation_spec1, color);
-    ::UpdateColor3(this->ui->documentation_spec2, color);
+    ::UpdateColor1(this->ui->documentation_spec_html, color);
+    ::UpdateColor1(this->ui->documentation_spec_pdf, color);
 
     ::UpdateColor1(this->ui->documentation_doc0, color);
     ::UpdateColor1(this->ui->documentation_doc1, color);
