@@ -83,7 +83,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -1612,6 +1612,33 @@
               <widget class="QCheckBox" name="diagnostic_keep_running">
                <property name="text">
                 <string>Keep Vulkan Configurator running in system tray when closing the main window</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="diagnostic_reset">
+               <property name="toolTip">
+                <string>Resetting Vulkan Configurator to default...</string>
+               </property>
+               <property name="text">
+                <string>Reset To Default</string>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/resourcefiles/reset.png</normaloff>:/resourcefiles/reset.png</iconset>
                </property>
               </widget>
              </item>

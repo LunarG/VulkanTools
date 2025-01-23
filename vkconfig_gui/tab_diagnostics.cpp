@@ -26,51 +26,41 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QMenu>
 
 TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
+    this->ui->diagnostic_status_text->installEventFilter(&window);
+
     this->connect(this->ui->diagnostic_keep_running, SIGNAL(toggled(bool)), this, SLOT(on_diagnostic_keep_running_toggled(bool)));
     this->connect(this->ui->diagnostic_vk_home_text, SIGNAL(returnPressed()), this, SLOT(on_diagnostic_vk_home_text_pressed()));
     this->connect(this->ui->diagnostic_vk_home_browse, SIGNAL(clicked()), this, SLOT(on_diagnostic_vk_home_browse_pressed()));
-
-    Configurator &configurator = Configurator::Get();
+    this->connect(this->ui->diagnostic_reset, SIGNAL(clicked()), this, SLOT(on_diagnostic_reset_hard_pressed()));
 
     this->ui->diagnostic_status_text->document()->setMaximumBlockCount(65536);
+    this->ui->diagnostic_status_text->setContextMenuPolicy(Qt::CustomContextMenu);
+    this->connect(this->ui->diagnostic_status_text, SIGNAL(customContextMenuRequested(QPoint)), this,
+                  SLOT(on_customContextMenuRequested(const QPoint &)));
 
-    this->widget_refresh = new ResizeButton(this->ui->diagnostic_group_box_refresh, 0);
-    this->widget_refresh->setMinimumSize(24, 24);
-    this->widget_refresh->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    this->widget_refresh->adjustSize();
-    this->ui->diagnostic_group_box_refresh->installEventFilter(this->widget_refresh);
-    this->connect(this->widget_refresh, SIGNAL(clicked()), this, SLOT(on_diagnostic_refresh_pressed()));
-
-    this->widget_export = new ResizeButton(this->ui->diagnostic_group_box_refresh, 1);
-    this->widget_export->setMinimumSize(24, 24);
-    this->widget_export->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    this->widget_export->setIcon(QIcon(":/resourcefiles/file_export.png"));
-    this->widget_export->setToolTip("Saving the 'Vulkan Development Status' to a file...");
-    this->widget_export->adjustSize();
-    this->ui->diagnostic_group_box_refresh->installEventFilter(this->widget_export);
-    this->connect(this->widget_export, SIGNAL(clicked()), this, SLOT(on_diagnostic_export_pressed()));
-
-    this->widget_reset_hard = new ResizeButton(this->ui->diagnostic_group_box_settings, 0);
-    this->widget_reset_hard->setMinimumSize(24, 24);
-    this->widget_reset_hard->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    this->widget_reset_hard->setIcon(QIcon(":/resourcefiles/reset.png"));
-    this->widget_reset_hard->setToolTip("Resetting Vulkan Configurator to default...");
-    this->widget_reset_hard->adjustSize();
-    this->ui->diagnostic_group_box_settings->installEventFilter(this->widget_reset_hard);
-    this->connect(this->widget_reset_hard, SIGNAL(clicked()), this, SLOT(on_diagnostic_reset_hard_pressed()));
-
-    this->on_diagnostic_refresh_pressed();
+    this->UpdateStatus();
 }
 
 TabDiagnostics::~TabDiagnostics() {}
 
+void TabDiagnostics::UpdateStatus() {
+    Configurator &configurator = Configurator::Get();
+
+    configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+
+    this->status = configurator.GenerateVulkanStatus();
+    this->ui->diagnostic_status_text->setText(this->status.c_str());
+
+    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+}
+
 void TabDiagnostics::UpdateUI(UpdateUIMode mode) {
     (void)mode;
 
-    this->status.clear();
-    this->on_diagnostic_refresh_pressed();
+    this->UpdateStatus();
 
     Configurator &configurator = Configurator::Get();
 
@@ -147,49 +137,57 @@ void TabDiagnostics::on_diagnostic_reset_hard_pressed() {
     }
 }
 
-void TabDiagnostics::on_diagnostic_refresh_pressed() {
+void TabDiagnostics::on_customContextMenuRequested(const QPoint &pos) {
     Configurator &configurator = Configurator::Get();
 
-    if (this->status.empty()) {
-        configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+    QMenu *menu = this->ui->diagnostic_status_text->createStandardContextMenu();
+    menu->addSeparator();
 
-        this->status = configurator.GenerateVulkanStatus();
-        this->ui->diagnostic_status_text->setText(this->status.c_str());
-        this->widget_refresh->setIcon(QIcon(":/resourcefiles/clear.png"));
-        this->widget_refresh->setToolTip("Clear 'Vulkan Development Status'");
+    QAction *action_refresh = new QAction(this->status.empty() ? "Refresh" : "Clear", nullptr);
+    action_refresh->setEnabled(true);
+    menu->addAction(action_refresh);
 
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-    } else {
-        this->status.clear();
-        this->ui->diagnostic_status_text->clear();
-        this->widget_refresh->setIcon(QIcon(":/resourcefiles/reload.png"));
-        this->widget_refresh->setToolTip("Refresh 'Vulkan Development Status'");
-    }
-}
+    QAction *action_save = new QAction("Save...", nullptr);
+    action_save->setEnabled(!this->status.empty());
+    menu->addAction(action_save);
 
-void TabDiagnostics::on_diagnostic_export_pressed() {
-    Configurator &configurator = Configurator::Get();
+    QAction *action = menu->exec(this->ui->diagnostic_status_text->mapToGlobal(pos));
 
-    const QString selected_path = QFileDialog::getSaveFileName(this->ui->diagnostic_group_box_refresh, "Select Log file...",
-                                                               configurator.last_path_status.AbsolutePath().c_str(), "Log (*.txt)");
+    if (action == action_refresh) {
+        if (this->status.empty()) {
+            configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-    if (!selected_path.isEmpty()) {
-        QFile file(selected_path.toStdString().c_str());
-        const bool result = file.open(QFile::WriteOnly);
-        if (!result) {
-            QMessageBox message;
-            message.setIcon(QMessageBox::Critical);
-            message.setWindowTitle("Failed to save 'Vulkan Development Status'!");
-            message.setText(format("Couldn't write to '%s'.", selected_path.toStdString().c_str()).c_str());
-            message.setInformativeText("Select a file path with 'write' rights.");
-            return;
+            this->status = configurator.GenerateVulkanStatus();
+            this->ui->diagnostic_status_text->setText(this->status.c_str());
+
+            configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+        } else {
+            this->status.clear();
+            this->ui->diagnostic_status_text->clear();
         }
+    } else if (action == action_save) {
+        const QString selected_path =
+            QFileDialog::getSaveFileName(this->ui->diagnostic_group_box_refresh, "Select Log file...",
+                                         configurator.last_path_status.AbsolutePath().c_str(), "Log (*.txt)");
 
-        this->status.clear();
-        this->on_diagnostic_refresh_pressed();
-        file.write(this->status.c_str());
-        file.close();
+        if (!selected_path.isEmpty()) {
+            QFile file(selected_path.toStdString().c_str());
+            const bool result = file.open(QFile::WriteOnly);
+            if (!result) {
+                QMessageBox message;
+                message.setIcon(QMessageBox::Critical);
+                message.setWindowTitle("Failed to save 'Vulkan Development Status'!");
+                message.setText(format("Couldn't write to '%s'.", selected_path.toStdString().c_str()).c_str());
+                message.setInformativeText("Select a file path with 'write' rights.");
+                return;
+            }
 
-        configurator.last_path_status = selected_path.toStdString();
+            file.write(this->status.c_str());
+            file.close();
+
+            configurator.last_path_status = selected_path.toStdString();
+        }
     }
+
+    menu->deleteLater();
 }
