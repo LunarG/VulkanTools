@@ -1,5 +1,5 @@
-## Vulkan Configurator 3.0.0 - January 2025
-<a href="https://github.com/LunarG/VulkanTools/tree/vkconfig3-dev" target="_blank">https://github.com/LunarG/VulkanTools/tree/vkconfig3-dev</a>
+## Vulkan Configurator 3.0.0 - February 2025
+[Vulkan SDK 1.4.304.1](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.304.1)
 
 ### Features:
 - Improve layers loading and selection:
@@ -29,6 +29,13 @@
 - Fix default applications (`vkcube`) during SDK upgrade
 - Fix upgrade of built-in configuration that got updated using layers configuration versioning
 - Add the list of all availalble environment variables for each settings in documentation generation
+
+---
+## Vulkan Configurator 2.6.3 - January 2025
+[Vulkan SDK 1.4.304.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.304.0)
+
+### Deprecation:
+- Final build
 
 ---
 ## Vulkan Configurator 2.6.2 - October 2024
