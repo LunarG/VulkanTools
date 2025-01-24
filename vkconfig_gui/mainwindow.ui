@@ -72,7 +72,6 @@
        <font>
         <family>Arial</family>
         <pointsize>10</pointsize>
-        <weight>50</weight>
         <bold>false</bold>
        </font>
       </property>
@@ -83,7 +82,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -169,7 +168,6 @@
                   <font>
                    <family>Arial</family>
                    <pointsize>10</pointsize>
-                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -250,10 +248,6 @@
                     <property name="text">
                      <string/>
                     </property>
-                    <property name="icon">
-                     <iconset resource="resources.qrc">
-                      <normaloff>:/resourcefiles/file_search.png</normaloff>:/resourcefiles/file_search.png</iconset>
-                    </property>
                     <property name="iconSize">
                      <size>
                       <width>24</width>
@@ -278,10 +272,6 @@
                     </property>
                     <property name="text">
                      <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="resources.qrc">
-                      <normaloff>:/resourcefiles/file_remove.png</normaloff>:/resourcefiles/file_remove.png</iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -321,7 +311,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -428,7 +417,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>9</pointsize>
-                      <weight>50</weight>
                       <italic>true</italic>
                       <bold>false</bold>
                      </font>
@@ -459,7 +447,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -507,7 +494,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>9</pointsize>
-                      <weight>50</weight>
                       <italic>true</italic>
                       <bold>false</bold>
                      </font>
@@ -725,7 +711,6 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -892,10 +877,6 @@
               <property name="text">
                <string/>
               </property>
-              <property name="icon">
-               <iconset resource="resources.qrc">
-                <normaloff>:/resourcefiles/folder_append.png</normaloff>:/resourcefiles/folder_append.png</iconset>
-              </property>
               <property name="iconSize">
                <size>
                 <width>24</width>
@@ -917,10 +898,6 @@
               </property>
               <property name="text">
                <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="resources.qrc">
-                <normaloff>:/resourcefiles/folder_reload.png</normaloff>:/resourcefiles/folder_reload.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -1052,7 +1029,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset>
                  <normaloff>:/resourcefiles/file_search.png</normaloff>:/resourcefiles/file_search.png</iconset>
                </property>
                <property name="iconSize">
@@ -1078,7 +1055,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset>
                  <normaloff>:/resourcefiles/file_append.png</normaloff>:/resourcefiles/file_append.png</iconset>
                </property>
                <property name="iconSize">
@@ -1104,7 +1081,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset>
                  <normaloff>:/resourcefiles/file_remove.png</normaloff>:/resourcefiles/file_remove.png</iconset>
                </property>
                <property name="iconSize">
@@ -1180,7 +1157,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset>
                  <normaloff>:/resourcefiles/options_copy.png</normaloff>:/resourcefiles/options_copy.png</iconset>
                </property>
                <property name="iconSize">
@@ -1218,7 +1195,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset>
                  <normaloff>:/resourcefiles/options_remove.png</normaloff>:/resourcefiles/options_remove.png</iconset>
                </property>
                <property name="iconSize">
@@ -1301,7 +1278,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset>
                  <normaloff>:/resourcefiles/folder_search.png</normaloff>:/resourcefiles/folder_search.png</iconset>
                </property>
                <property name="iconSize">
@@ -1374,7 +1351,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset>
                  <normaloff>:/resourcefiles/file_search.png</normaloff>:/resourcefiles/file_search.png</iconset>
                </property>
               </widget>
@@ -1431,7 +1408,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1449,7 +1425,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1477,7 +1452,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1501,7 +1475,6 @@
              <font>
               <family>Consolas</family>
               <pointsize>9</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -1561,7 +1534,6 @@
               <font>
                <family>Consolas</family>
                <pointsize>10</pointsize>
-               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -1637,7 +1609,7 @@
                 <string>Reset To Default</string>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset>
                  <normaloff>:/resourcefiles/reset.png</normaloff>:/resourcefiles/reset.png</iconset>
                </property>
               </widget>
@@ -1686,7 +1658,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="resources.qrc">
+                <iconset>
                  <normaloff>:/resourcefiles/folder_search.png</normaloff>:/resourcefiles/folder_search.png</iconset>
                </property>
               </widget>
@@ -1745,7 +1717,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -1771,12 +1742,11 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Latest Single-file HTML&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html&quot;&gt;Latest Single-file HTML&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1795,12 +1765,11 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://registry.khronos.org/vulkan/specs/latest/pdf/vkspec.pdf&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Latest PDF&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/latest/pdf/vkspec.pdf&quot;&gt;Latest PDF&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
@@ -1822,7 +1791,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -1848,7 +1816,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1872,7 +1839,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1896,7 +1862,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1923,7 +1888,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -1949,7 +1913,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1973,7 +1936,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1997,7 +1959,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2021,7 +1982,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2045,7 +2005,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2069,7 +2028,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2096,7 +2054,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -2122,7 +2079,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2246,7 +2202,6 @@
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
@@ -2273,7 +2228,6 @@
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
@@ -2306,7 +2260,7 @@
           <widget class="QLabel" name="label_8">
            <property name="geometry">
             <rect>
-             <x>760</x>
+             <x>730</x>
              <y>190</y>
              <width>231</width>
              <height>41</height>
@@ -2316,12 +2270,14 @@
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
            <property name="text">
             <string>Qt licensed under LGPL 3.0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
            <property name="wordWrap">
             <bool>true</bool>

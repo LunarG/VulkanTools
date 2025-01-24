@@ -1,34 +1,67 @@
 <RCC>
     <qresource prefix="/">
+        <file>CHANGELOG.md</file>
+
         <file>resourcefiles/vulkan_configurator.png</file>
         <file>resourcefiles/lunarg_logo.png</file>
         <file>resourcefiles/qt_logo.png</file>
         <file>resourcefiles/vkconfig-off.png</file>
         <file>resourcefiles/vkconfig-on.png</file>
-        <file>resourcefiles/config-off.png</file>
-        <file>resourcefiles/config-on.png</file>
-        <file>resourcefiles/config-invalid.png</file>
-        <file>resourcefiles/drag.png</file>
-        <file>resourcefiles/system-off.png</file>
-        <file>resourcefiles/system-on.png</file>
-        <file>resourcefiles/system-invalid.png</file>
-        <file>resourcefiles/reload.png</file>
-        <file>resourcefiles/reset.png</file>
-        <file>resourcefiles/folder_append.png</file>
-        <file>resourcefiles/folder_remove.png</file>
-        <file>resourcefiles/folder_export.png</file>
-        <file>resourcefiles/folder_reload.png</file>
-        <file>resourcefiles/folder_search.png</file>
-        <file>resourcefiles/file_export.png</file>
-        <file>resourcefiles/file_search.png</file>
-        <file>resourcefiles/file_remove.png</file>
-        <file>resourcefiles/file_append.png</file>
-        <file>resourcefiles/options_copy.png</file>
-        <file>resourcefiles/options_remove.png</file>
-        <file>resourcefiles/clear.png</file>
-        <file>resourcefiles/settings_basic.png</file>
-        <file>resourcefiles/settings_advanced.png</file>
-        <file>CHANGELOG.md</file>
+
+        <file>resourcefiles/dark/clear.png</file>
+        <file>resourcefiles/dark/drag.png</file>
+
+        <file>resourcefiles/dark/file_export.png</file>
+        <file>resourcefiles/dark/file_search.png</file>
+        <file>resourcefiles/dark/file_remove.png</file>
+        <file>resourcefiles/dark/file_append.png</file>
+
+        <file>resourcefiles/dark/folder_append.png</file>
+        <file>resourcefiles/dark/folder_export.png</file>
+        <file>resourcefiles/dark/folder_reload.png</file>
+        <file>resourcefiles/dark/folder_remove.png</file>
+        <file>resourcefiles/dark/folder_search.png</file>
+
+        <file>resourcefiles/dark/options_copy.png</file>
+        <file>resourcefiles/dark/options_remove.png</file>
+
+        <file>resourcefiles/dark/reload.png</file>
+        <file>resourcefiles/dark/reset.png</file>
+
+        <file>resourcefiles/dark/settings_advanced.png</file>
+        <file>resourcefiles/dark/settings_basic.png</file>
+
+        <file>resourcefiles/dark/system-invalid.png</file>
+        <file>resourcefiles/dark/system-off.png</file>
+        <file>resourcefiles/dark/system-on.png</file>
+
+
+        <file>resourcefiles/light/clear.png</file>
+        <file>resourcefiles/light/drag.png</file>
+
+        <file>resourcefiles/light/file_export.png</file>
+        <file>resourcefiles/light/file_search.png</file>
+        <file>resourcefiles/light/file_remove.png</file>
+        <file>resourcefiles/light/file_append.png</file>
+
+        <file>resourcefiles/light/folder_append.png</file>
+        <file>resourcefiles/light/folder_export.png</file>
+        <file>resourcefiles/light/folder_reload.png</file>
+        <file>resourcefiles/light/folder_remove.png</file>
+        <file>resourcefiles/light/folder_search.png</file>
+
+        <file>resourcefiles/light/options_copy.png</file>
+        <file>resourcefiles/light/options_remove.png</file>
+
+        <file>resourcefiles/light/reload.png</file>
+        <file>resourcefiles/light/reset.png</file>
+
+        <file>resourcefiles/light/settings_advanced.png</file>
+        <file>resourcefiles/light/settings_basic.png</file>
+
+        <file>resourcefiles/light/system-invalid.png</file>
+        <file>resourcefiles/light/system-off.png</file>
+        <file>resourcefiles/light/system-on.png</file>
     </qresource>
 
     <qresource prefix="/configurations">

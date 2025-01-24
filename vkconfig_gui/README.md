@@ -25,7 +25,7 @@ Configuring layers means multiple tasks:
 
 A Vulkan application may configure layers when creating a Vulkan Instance or using environment variables. This layers configuration may be overridden using *Vulkan Configurator* globally or for a selected list of Vulkan applications.
 
-*Vulkan Configurator 3* requires *Vulkan Loader 1.3.284* or newer to run.
+*Vulkan Configurator 3* requires *Vulkan Loader 1.4.304* or newer to run.
 
 * **[Change Log](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/CHANGELOG.md)**: The history of *Vulkan Configurator* releases.
 * **[Bug reports](https://github.com/LunarG/VulkanTools/issues)**: Open a GitHub issue when you encounter a bug.

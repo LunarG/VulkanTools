@@ -105,7 +105,8 @@ SOURCES += \
     tab_diagnostics.cpp \
     tab_documentation.cpp \
     tab_layers.cpp \
-    settings_tree.cpp
+    settings_tree.cpp \
+    style.cpp
 
 HEADERS += \
     ../vkconfig_core/alert.h \
@@ -184,7 +185,8 @@ HEADERS += \
     tab_diagnostics.h \
     tab_documentation.h \
     tab_layers.h \
-    settings_tree.h
+    settings_tree.h \
+    style.h
 
 FORMS += \
     dialog_vulkan_analysis.ui \
