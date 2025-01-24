@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,24 @@
 
 #include "registry.h"
 
-#include <QTextStream>
-
-#if VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+#if VKC_ENV == VKC_ENV_WIN32
 #include <windows.h>
 #include <winreg.h>
 #include <Cfgmgr32.h>
 #include <shlobj.h>
 #define WIN_BUFFER_SIZE 1024
 
+#include <QSettings>
+
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
-void AppendRegistryEntriesForLayers(QString override_file, QString settings_file) {
+void AppendRegistryEntriesForLayers(QString loader_settings_file, QString layers_settings_file) {
     // Layer override json file
     HKEY key;
     const HKEY userKey = IsUserAnAdmin() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 
     REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE,
+    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\LoaderSettings"), 0, NULL, REG_OPTION_NON_VOLATILE,
                                  access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
@@ -45,7 +45,7 @@ void AppendRegistryEntriesForLayers(QString override_file, QString settings_file
     DWORD value_count;
     DWORD value = 0;
     RegQueryInfoKey(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    RegSetValueExW(key, (LPCWSTR)override_file.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
+    RegSetValueExW(key, (LPCWSTR)loader_settings_file.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
     RegCloseKey(key);
 
     // Layer settings file
@@ -54,36 +54,35 @@ void AppendRegistryEntriesForLayers(QString override_file, QString settings_file
     if (err != ERROR_SUCCESS) return;
 
     RegQueryInfoKeyW(key, NULL, NULL, NULL, NULL, NULL, NULL, &value_count, NULL, NULL, NULL, NULL);
-    RegSetValueExW(key, (LPCWSTR)settings_file.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
+    RegSetValueExW(key, (LPCWSTR)layers_settings_file.utf16(), 0, REG_DWORD, (BYTE *)&value, sizeof(value));
     RegCloseKey(key);
 }
 
 /// On Windows the overide json file and settings file are not used unless the path to those
 /// files are stored in the registry.
-void RemoveRegistryEntriesForLayers(QString override_file, QString settings_file) {
+void RemoveRegistryEntriesForLayers() {
     // Layer override json file
     HKEY key;
     HKEY userKey = IsUserAnAdmin() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
 
     REGSAM access = KEY_WRITE;
-    LSTATUS err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\ImplicitLayers"), 0, NULL, REG_OPTION_NON_VOLATILE,
-                                 access, NULL, &key, NULL);
+    LSTATUS err =
+        RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
-    RegDeleteValueW(key, (LPCWSTR)override_file.utf16());
+    err = RegDeleteTreeW(key, (LPCWSTR)QString("LoaderSettings").utf16());
     RegCloseKey(key);
 
     // Layer settings file
-    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan\\Settings"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key,
-                         NULL);
+    err = RegCreateKeyEx(userKey, TEXT("SOFTWARE\\Khronos\\Vulkan"), 0, NULL, REG_OPTION_NON_VOLATILE, access, NULL, &key, NULL);
     if (err != ERROR_SUCCESS) return;
 
-    RegDeleteValueW(key, (LPCWSTR)settings_file.utf16());
+    err = RegDeleteTreeW(key, (LPCWSTR)QString("Settings").utf16());
     RegCloseKey(key);
 }
 
 /// Look for device specific layers
-static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Layer> &layers, LayerType type) {
+static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<LayersPathInfo> &layers_paths) {
     HKEY key;
     if (CM_Open_DevNode_Key(id, KEY_QUERY_VALUE, 0, RegDisposition_OpenExisting, &key, CM_REGISTRY_SOFTWARE) != CR_SUCCESS) return;
 
@@ -103,10 +102,11 @@ static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Lay
 
     if (data_type == REG_SZ || data_type == REG_MULTI_SZ) {
         for (wchar_t *curr_filename = path; curr_filename[0] != '\0'; curr_filename += wcslen(curr_filename) + 1) {
+            LayersPathInfo path_info;
+            path_info.type = LAYER_TYPE_IMPLICIT;
+            path_info.path = QString::fromWCharArray(curr_filename).toStdString();
+            layers_paths.push_back(path_info);
             Layer layer;
-            if (layer.Load(layers, QString::fromWCharArray(curr_filename).toStdString(), type)) {
-                layers.push_back(layer);
-            }
 
             if (data_type == REG_SZ) {
                 break;
@@ -119,7 +119,11 @@ static void LoadDeviceRegistry(DEVINST id, const QString &entry, std::vector<Lay
 }
 
 /// This is for Windows only. It looks for device specific layers in the Windows registry.
-void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerType type) {
+std::vector<LayersPathInfo> LoadRegistrySystemLayers(const char *input_path) {
+    std::vector<LayersPathInfo> layers_paths;
+
+    QString path(input_path);
+
     QString root_string = path.section('\\', 0, 0);
     static QHash<QString, HKEY> root_keys = {
         {"HKEY_CLASSES_ROOT", HKEY_CLASSES_ROOT},
@@ -156,10 +160,10 @@ void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerTy
         // This has already been set by now
         if (path.endsWith("VulkanExplicitLayers")) {
             entry = "VulkanExplicitLayers";
-            type = LAYER_TYPE_EXPLICIT;
+            // type = LAYER_TYPE_EXPLICIT;
         } else if (path.endsWith("VulkanImplicitLayers")) {
             entry = "VulkanImplicitLayers";
-            type = LAYER_TYPE_IMPLICIT;
+            // type = LAYER_TYPE_IMPLICIT;
         }
 
         for (wchar_t *device_name = device_names; device_name[0] != '\0'; device_name += wcslen(device_name) + 1) {
@@ -167,7 +171,7 @@ void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerTy
             if (CM_Locate_DevNodeW(&device_id, device_name, CM_LOCATE_DEVNODE_NORMAL) != CR_SUCCESS) {
                 continue;
             }
-            LoadDeviceRegistry(device_id, entry, layers, type);
+            LoadDeviceRegistry(device_id, entry, layers_paths);
 
             DEVINST child_id;
             if (CM_Get_Child(&child_id, device_id, 0) != CR_SUCCESS) {
@@ -184,7 +188,7 @@ void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerTy
                     continue;
                 }
                 if (wcscmp(child_guid, (LPCWSTR)SOFTWARE_COMPONENT_GUID.utf16()) == 0) {
-                    LoadDeviceRegistry(child_id, entry, layers, type);
+                    LoadDeviceRegistry(child_id, entry, layers_paths);
                     break;
                 }
             } while (CM_Get_Sibling(&child_id, child_id, 0) == CR_SUCCESS);
@@ -194,6 +198,30 @@ void LoadRegistryLayers(const QString &path, std::vector<Layer> &layers, LayerTy
     if (device_names != nullptr) {
         delete[] device_names;
     }
+
+    return layers_paths;
 }
 
-#endif  // VKC_PLATFORM == VKC_PLATFORM_WINDOWS
+std::vector<LayersPathInfo> LoadRegistrySoftwareLayers(const char *path, LayerType type) {
+    std::vector<LayersPathInfo> result;
+    QSettings settings(path, QSettings::NativeFormat);
+    const QStringList &files = settings.allKeys();
+
+    for (int i = 0, n = files.size(); i < n; ++i) {
+        Path path(files[i].toStdString());
+
+        LayersPathInfo info;
+        info.type = type;
+        info.path = path.IsFile() ? path.AbsoluteDir() : path.AbsolutePath();
+
+        if (::Found(result, info.path)) {
+            continue;
+        }
+
+        result.push_back(info);
+    }
+
+    return result;
+}
+
+#endif  // VKC_ENV == VKC_ENV_WIN32

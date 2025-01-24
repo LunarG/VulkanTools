@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,10 @@
 
 #include "setting.h"
 #include "layer_preset.h"
-#include "layer_type.h"
 #include "version.h"
+#include "path.h"
+#include "type_layer_type.h"
+#include "type_layer_control.h"
 
 #include <QObject>
 #include <QJsonDocument>
@@ -33,18 +35,45 @@
 #include <vector>
 #include <string>
 
+struct LayersPathInfo {
+    Path path;
+    LayerType type = LAYER_TYPE_EXPLICIT;
+    bool enabled = true;
+};
+
+bool operator<(const LayersPathInfo& a, const LayersPathInfo& b);
+
+bool Found(const std::vector<LayersPathInfo>& data, const Path& path);
+
+enum LayerLoadStatus {
+    LAYER_LOAD_ADDED = 0,
+    LAYER_LOAD_RELOADED,
+    LAYER_LOAD_UNMODIFIED,
+    LAYER_LOAD_FAILED,
+    LAYER_LOAD_INVALID,
+    LAYER_LOAD_IGNORED,
+
+    LAYER_LOAD_FIRST = LAYER_LOAD_ADDED,
+    LAYER_LOAD_LAST = LAYER_LOAD_IGNORED,
+};
+
+enum { LAYER_LOAD_COUNT = LAYER_LOAD_LAST - LAYER_LOAD_FIRST + 1 };
+
 class Layer {
    public:
-    static const char* NO_PRESET;
+    enum { NO_PRESET = -1 };
 
     Layer();
-    Layer(const std::string& key, const LayerType layer_type);
-    Layer(const std::string& key, const LayerType layer_type, const Version& file_format_version, const Version& api_version,
+    Layer(const std::string& key);
+    Layer(const std::string& key, const Version& file_format_version, const Version& api_version,
           const std::string& implementation_version, const std::string& library_path);
 
     bool IsValid() const;
 
-    std::string FindPresetLabel(const SettingDataSet& settings) const;
+    LayerControl GetActualControl() const;
+    std::string GetActualControlTooltip() const;
+
+    int FindPresetIndex(const SettingDataSet& settings) const;
 
     SettingMeta* Instantiate(SettingMetaSet& meta_set, const std::string& key, const SettingType type);
 
@@ -55,28 +84,29 @@ class Layer {
    public:
     std::string key;
     Version file_format_version;
-    std::string binary_path;
+    Path binary_path;
     Version api_version;
     std::string implementation_version;
+    std::string validated_last_modified;
     StatusType status;
     std::string description;
     std::string introduction;
     std::string url;
-    int platforms;
-    std::string manifest_path;
-    LayerType type;
+    int platforms = PLATFORM_DESKTOP_BIT;
+    Path manifest_path;
+    LayerType type = LAYER_TYPE_EXPLICIT;
     QJsonDocument profile;
     std::string disable_env;
     std::string enable_env;
-    bool disable_value;
-    bool enable_value;
+    std::string enable_value;
+    bool is_32bits = false;
+    bool enabled = true;
 
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
-    bool Load(const std::vector<Layer>& available_layers, const std::string& full_path_to_file, LayerType layer_type);
-
-    bool Load(const std::string& full_path_to_file, LayerType layer_type);
+    LayerLoadStatus Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
+                         const std::map<Path, std::string>& layers_validated);
 
    private:
     Layer& operator=(const Layer&) = delete;

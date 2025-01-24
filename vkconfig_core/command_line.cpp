@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022 Valve Corporation
- * Copyright (c) 2020-2022 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 
 #include <QFile>
 
+#include <array>
 #include <string>
 #include <cstdio>
 #include <cstring>
@@ -37,14 +38,13 @@ struct CommandHelpDesc {
 };
 
 static const CommandHelpDesc command_help_desc[] = {
-    {HELP_HELP, "help"},     {HELP_VERSION, "version"}, {HELP_GUI, "gui"},
-    {HELP_LAYERS, "layers"}, {HELP_DOC, "doc"},         {HELP_RESET, "reset"},
+    {HELP_HELP, "help"}, {HELP_VERSION, "version"}, {HELP_LAYERS, "layers"}, {HELP_DOC, "doc"}, {HELP_RESET, "reset"},
 };
 
 static HelpType GetCommandHelpId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = countof(command_help_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(command_help_desc); i < n; ++i) {
         if (std::strcmp(command_help_desc[i].token, token) == 0) return command_help_desc[i].arguments;
     }
 
@@ -58,24 +58,27 @@ struct ModeDesc {
 };
 
 static const ModeDesc mode_desc[] = {
-    {COMMAND_NONE, "", HELP_DEFAULT},               // COMMAND_NONE
-    {COMMAND_SHOW_USAGE, "-h", HELP_HELP},          // COMMAND_SHOW_USAGE
-    {COMMAND_SHOW_USAGE, "--help", HELP_HELP},      // COMMAND_SHOW_USAGE
-    {COMMAND_SHOW_USAGE, "help", HELP_HELP},        // COMMAND_SHOW_USAGE
-    {COMMAND_VERSION, "-v", HELP_VERSION},          // COMMAND_VERSION
-    {COMMAND_VERSION, "--version", HELP_VERSION},   // COMMAND_VERSION
-    {COMMAND_VERSION, "version", HELP_VERSION},     // COMMAND_VERSION
-    {COMMAND_GUI, "gui", HELP_GUI},                 // COMMAND_GUI
-    {COMMAND_LAYERS, "layers", HELP_LAYERS},        // COMMAND_LAYERS
-    {COMMAND_DOC, "doc", HELP_DOC},                 // COMMAND_DOC
-    {COMMAND_RESET, "reset", HELP_RESET},           // COMMAND_RESET
-    {COMMAND_VULKAN_SDK, "VULKAN_SDK", HELP_RESET}  // COMMAND_VULKAN_SDK
+    {COMMAND_NONE, "", HELP_DEFAULT},              // COMMAND_NONE
+    {COMMAND_SHOW_USAGE, "-h", HELP_HELP},         // COMMAND_SHOW_USAGE
+    {COMMAND_SHOW_USAGE, "--help", HELP_HELP},     // COMMAND_SHOW_USAGE
+    {COMMAND_SHOW_USAGE, "help", HELP_HELP},       // COMMAND_SHOW_USAGE
+    {COMMAND_VERSION, "-v", HELP_VERSION},         // COMMAND_VERSION
+    {COMMAND_VERSION, "--version", HELP_VERSION},  // COMMAND_VERSION
+    {COMMAND_VERSION, "version", HELP_VERSION},    // COMMAND_VERSION
+    {COMMAND_LAYERS, "--layers", HELP_LAYERS},     // COMMAND_LAYERS
+    {COMMAND_LAYERS, "layers", HELP_LAYERS},       // COMMAND_LAYERS
+    {COMMAND_DOC, "--doc", HELP_DOC},              // COMMAND_DOC
+    {COMMAND_DOC, "doc", HELP_DOC},                // COMMAND_DOC
+    {COMMAND_GUI, "--gui", HELP_GUI},              // COMMAND_GUI
+    {COMMAND_GUI, "gui", HELP_GUI},                // COMMAND_GUI
+    {COMMAND_RESET, "--reset", HELP_RESET},        // COMMAND_RESET
+    {COMMAND_RESET, "reset", HELP_RESET}           // COMMAND_RESET
 };
 
 static CommandType GetModeId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = countof(mode_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(mode_desc); i < n; ++i) {
         if (std::strcmp(mode_desc[i].token, token) == 0) return mode_desc[i].mode;
     }
 
@@ -83,7 +86,7 @@ static CommandType GetModeId(const char* token) {
 }
 
 static const ModeDesc& GetModeDesc(CommandType command_type) {
-    for (std::size_t i = 0, n = countof(mode_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(mode_desc); i < n; ++i) {
         if (mode_desc[i].mode == command_type) return mode_desc[i];
     }
 
@@ -105,7 +108,7 @@ static const CommandResetDesc command_reset_desc[] = {{COMMAND_RESET_SOFT, "--so
 static CommandResetArg GetCommandResetId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = countof(command_reset_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(command_reset_desc); i < n; ++i) {
         if (std::strcmp(command_reset_desc[i].token, token) == 0) return command_reset_desc[i].arguments;
     }
 
@@ -144,7 +147,7 @@ static const CommandDocDesc command_doc_desc[] = {
 static CommandLayersArg GetCommandLayersId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = countof(command_layers_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(command_layers_desc); i < n; ++i) {
         if (std::strcmp(command_layers_desc[i].token, token) == 0) return command_layers_desc[i].arguments;
     }
 
@@ -154,7 +157,7 @@ static CommandLayersArg GetCommandLayersId(const char* token) {
 static const CommandLayersDesc& GetCommandLayers(CommandLayersArg layers_arg) {
     assert(layers_arg != COMMAND_LAYERS_NONE);
 
-    for (std::size_t i = 0, n = countof(command_layers_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(command_layers_desc); i < n; ++i) {
         if (command_layers_desc[i].arguments == layers_arg) return command_layers_desc[i];
     }
 
@@ -165,7 +168,7 @@ static const CommandLayersDesc& GetCommandLayers(CommandLayersArg layers_arg) {
 static CommandDocArg GetCommandDocId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = countof(command_doc_desc); i < n; ++i) {
+    for (std::size_t i = 0, n = std::size(command_doc_desc); i < n; ++i) {
         if (std::strcmp(command_doc_desc[i].token, token) == 0) return command_doc_desc[i].arguments;
     }
 
@@ -178,12 +181,10 @@ CommandLine::CommandLine(int argc, char* argv[])
       command_layers_arg(_command_layers_arg),
       layers_configuration_path(_layers_configuration_path),
       command_doc_arg(_command_doc_arg),
-      command_vulkan_sdk(_command_vulkan_sdk),
       doc_layer_name(_doc_layer_name),
       doc_out_dir(_doc_out_dir),
       error(_error),
       error_args(_error_args),
-      _command(COMMAND_GUI),
       _command_reset_arg(COMMAND_RESET_NONE),
       _command_layers_arg(COMMAND_LAYERS_NONE),
       _command_doc_arg(COMMAND_DOC_NONE),
@@ -195,9 +196,6 @@ CommandLine::CommandLine(int argc, char* argv[])
     int arg_offset = 1;
 
     switch (_command = GetModeId(argv[arg_offset + 0])) {
-        case COMMAND_VULKAN_SDK: {
-            _command_vulkan_sdk = argv[arg_offset + 1];
-        } break;
         case COMMAND_LAYERS: {
             if (argc <= arg_offset + 1) {
                 _error = ERROR_MISSING_COMMAND_ARGUMENT;
@@ -352,17 +350,17 @@ void CommandLine::usage() const {
         }
         case HELP_DEFAULT: {
             printf("Usage\n");
-            printf("\tvkconfig [[help] | [version] | [gui] | [layers <args>]]\n");
+            printf("\tvkconfig [[help] | [version] | [layers <args>] | [reset] | [doc]]\n");
             printf("\n");
             printf("Command:\n");
             printf("\thelp                      = Display usage and documentation.\n");
             printf("\tversion                   = Display %s version.\n", VKCONFIG_NAME);
-            printf("\tgui                       = Launch the %s GUI.\n", VKCONFIG_NAME);
             printf("\tlayers                    = Manage system Vulkan Layers.\n");
-            printf("\tdoc                       = Create doc files for layer.\n");
             printf("\treset                     = Reset layers configurations.\n");
+            printf("\tdoc                       = Create doc files for layer.\n");
             printf("\n");
             printf("  (Use 'vkconfig help <command>' for detailed usage of %s commands.)\n", VKCONFIG_NAME);
+            printf("  (Use 'vkconfig-gui' to open %s graphics interface.)\n", VKCONFIG_NAME);
             break;
         }
         case HELP_HELP: {
@@ -383,7 +381,7 @@ void CommandLine::usage() const {
         }
         case HELP_GUI: {
             printf("Name\n");
-            printf("\t'gui' - Command to launch %s GUI\n", VKCONFIG_NAME);
+            printf("\t'gui' - Launch %s GUI.\n", VKCONFIG_NAME);
             printf("\n");
             printf("Synopsis\n");
             printf("\tvkconfig gui\n");
@@ -456,4 +454,8 @@ void CommandLine::usage() const {
     }
 }
 
-void CommandLine::version() const { printf("%s version %s\n", VKCONFIG_NAME, Version::VKCONFIG.str().c_str()); }
+void CommandLine::version() const {
+    const std::string& version = Version::VKCONFIG.str();
+
+    printf("%s version %s\n", VKCONFIG_NAME, version.c_str());
+}

@@ -1,0 +1,49 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resourcefiles/vulkan_configurator.png</file>
+        <file>resourcefiles/lunarg_logo.png</file>
+        <file>resourcefiles/qt_logo.png</file>
+        <file>resourcefiles/vkconfig-off.png</file>
+        <file>resourcefiles/vkconfig-on.png</file>
+        <file>resourcefiles/config-off.png</file>
+        <file>resourcefiles/config-on.png</file>
+        <file>resourcefiles/config-invalid.png</file>
+        <file>resourcefiles/drag.png</file>
+        <file>resourcefiles/system-off.png</file>
+        <file>resourcefiles/system-on.png</file>
+        <file>resourcefiles/system-invalid.png</file>
+        <file>resourcefiles/reload.png</file>
+        <file>resourcefiles/reset.png</file>
+        <file>resourcefiles/folder_append.png</file>
+        <file>resourcefiles/folder_remove.png</file>
+        <file>resourcefiles/folder_export.png</file>
+        <file>resourcefiles/folder_reload.png</file>
+        <file>resourcefiles/folder_search.png</file>
+        <file>resourcefiles/file_export.png</file>
+        <file>resourcefiles/file_search.png</file>
+        <file>resourcefiles/file_remove.png</file>
+        <file>resourcefiles/file_append.png</file>
+        <file>resourcefiles/options_copy.png</file>
+        <file>resourcefiles/options_remove.png</file>
+        <file>resourcefiles/clear.png</file>
+        <file>resourcefiles/settings_basic.png</file>
+        <file>resourcefiles/settings_advanced.png</file>
+        <file>CHANGELOG.md</file>
+    </qresource>
+
+    <qresource prefix="/configurations">
+        <file alias="API dump.json">../vkconfig_core/configurations/3.0.0/API dump.json</file>
+        <file alias="Crash Diagnostic.json">../vkconfig_core/configurations/3.0.0/Crash Diagnostic.json</file>
+        <file alias="Disable All Vulkan Layers.json">../vkconfig_core/configurations/3.0.0/Disable All Vulkan Layers.json</file>
+        <file alias="Frame Capture.json">../vkconfig_core/configurations/3.0.0/Frame Capture.json</file>
+        <file alias="Log Loader Messages.json">../vkconfig_core/configurations/3.0.0/Log Loader Messages.json</file>
+        <file alias="Portability.json">../vkconfig_core/configurations/3.0.0/Portability.json</file>
+        <file alias="Synchronization.json">../vkconfig_core/configurations/3.0.0/Synchronization.json</file>
+        <file alias="Validation.json">../vkconfig_core/configurations/3.0.0/Validation.json</file>
+    </qresource>
+
+    <qresource prefix="/vkconfig">
+        <file alias="schema.json">../vkconfig_core/layers/layers_schema.json</file>
+        <file alias="validusage.json">../vkconfig_core/layers/validusage.json</file>
+    </qresource>
+</RCC>

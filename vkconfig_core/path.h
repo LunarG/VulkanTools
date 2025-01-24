@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,64 +24,74 @@
 
 #include <string>
 
-enum BuiltinPath {
-    BUILTIN_PATH_HOME = 0,
-    BUILTIN_PATH_LOCAL_LEGACY,
-    BUILTIN_PATH_LOCAL,
-    BUILTIN_PATH_APPDATA,
-    BUILTIN_PATH_CONFIG_REF,
-    BUILTIN_PATH_CONFIG_LAST,
-    BUILTIN_PATH_APPLIST,
-    BUILTIN_PATH_OVERRIDE_LAYERS,
-    BUILTIN_PATH_OVERRIDE_SETTINGS,
-    BUILTIN_PATH_EXPLICIT_LAYERS,
-    BUILTIN_PATH_VULKAN_SDK,
-    BUILTIN_PATH_VULKAN_CONTENT,
-    BUILTIN_PATH_VKCONFIG_SETTINGS,
-
-    BUILTIN_PATH_FIRST = BUILTIN_PATH_HOME,
-    BUILTIN_PATH_LAST = BUILTIN_PATH_VKCONFIG_SETTINGS,
-};
-
-enum { BUILTIN_PATH_COUNT = BUILTIN_PATH_LAST - BUILTIN_PATH_FIRST + 1 };
-
-extern std::string vkconfig_version;
-
 class Path {
    public:
+    enum Builtin {
+        HOME,  // Vulkan SDK user directory
+        DEFAULT_HOME,
+        APPDATA,
+        INIT,
+        CONFIGS,
+        LAYERS_SETTINGS,
+        LOADER_SETTINGS,
+        BIN,
+        SDK,
+        SDK_EXPLICIT_LAYERS,
+        PROFILES,
+        CONTENT
+    };
+
     Path();
-    explicit Path(const char* path);
-    explicit Path(const std::string& path);
+    Path(const Path& path);
+    Path(const char* path);
+    Path(const std::string& path, bool recover_vars = false);
 
+    Path& operator=(const Path& path);
+    Path& operator=(const char* path);
     Path& operator=(const std::string& path);
+    Path& operator+=(const std::string& extend);
 
-    const char* c_str() const;
-    bool empty() const { return data.empty(); }
+    bool IsFile() const;
+    bool IsDir() const;
+
+    bool IsBuiltIn() const;
+
+    void Clear();
+    bool Exists() const;
+    bool Create(bool as_file = false) const;
+    bool Remove() const;
+    std::string Filename() const;
+    std::string Basename() const;
+    std::string AbsoluteDir() const;
+    std::string AbsolutePath() const;  // Translate built-in variables into actual path
+    std::string RelativePath() const;  // May contain built-in variables
+    std::string LastModified() const;
+
+    bool Empty() const { return this->data.empty(); }
 
    private:
     std::string data;
+
+    friend bool operator==(const Path& a, const Path& b);
+    friend bool operator!=(const Path& a, const Path& b);
+    friend Path operator+(const Path& path, const std::string& extend);
 };
 
-std::string ConvertSeparators(const std::string& path, const char* native_separator, const char* alien_separator);
+Path Get(Path::Builtin path);
+std::string AbsolutePath(Path::Builtin path);
+std::string RelativePath(Path::Builtin path);
 
-std::string ConvertNativeSeparators(const std::string& path);
+bool operator==(const Path& a, const Path& b);
+bool operator!=(const Path& a, const Path& b);
+Path operator+(const Path& path, const std::string& extend);
+bool operator<(const Path& a, const Path& b);
 
-const char* GetNativeSeparator();
+void SetHomePath(const Path& path);
 
-// Create a directory if it doesn't exist
-void CheckPathsExist(const std::string& path, bool is_full_path = false);
+std::vector<Path> CollectFilePaths(const Path& directory, const char* filter = "*json");
 
-std::string GetPath(BuiltinPath path);
+std::vector<std::string> CollectProfileNamesFromFile(const Path& profile_path);
 
-// Replace built-in variable by the actual path
-std::string ReplaceBuiltInVariable(const std::string& path);
+std::vector<std::string> CollectProfileNamesFromDir(const Path& profile_path);
 
-bool IsPortableFilename(const std::string& path);
-
-QFileInfoList GetJSONFiles(const char* directory);
-
-std::string ExtractAbsoluteDir(const std::string& path);
-
-std::vector<std::string> GetProfileNamesFromFile(const std::string& profile_path);
-
-std::vector<std::string> GetProfileNamesFromDir(const std::string& profile_path);
+bool IsPortableFilename(const std::string& s);

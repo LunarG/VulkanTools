@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,53 +21,51 @@
 #include "alert.h"
 #include <QCheckBox>
 
-void Alert::LoaderFailure() {
+QMessageBox::Button Alert::StartSingleton() {
     QMessageBox alert;
-    alert.QDialog::setWindowTitle("Vulkan Development Status failure...");
-    alert.setText("Could not find a Vulkan Loader.");
+    alert.QDialog::setWindowTitle(format("Cannot start a new instance of %s", VKCONFIG_NAME).c_str());
+    alert.setIcon(QMessageBox::Critical);
+    alert.setDefaultButton(QMessageBox::Cancel);
+    alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    alert.setText(format("Another instance of %s is currently running. Please close it to continue.", VKCONFIG_NAME).c_str());
+    alert.setInformativeText(format("Press OK to continue launching the new instance of %s when the other instance is "
+                                    "stopped.\nPress CANCEL to stop the launch of a new %s instance.",
+                                    VKCONFIG_NAME, VKCONFIG_NAME)
+                                 .c_str());
+
+    return static_cast<QMessageBox::Button>(alert.exec());
+}
+
+void Alert::StartLoaderFailure() {
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle("Vulkan Configurator failed to start...");
+    alert.setText("Could not find a Vulkan Loader. Please install the Vulkan SDK.");
+    alert.setInformativeText("<a href=\"https://vulkan.lunarg.com/sdk/home\">https://vulkan.lunarg.com/sdk/home</a>");
     alert.setIcon(QMessageBox::Critical);
     alert.exec();
 }
 
-void Alert::InstanceFailure() {
+void Alert::StartLoaderIncompatibleVersions(const Version& system_loader_version, const Version& required_loader_version) {
     QMessageBox alert;
-    alert.QDialog::setWindowTitle("Vulkan Development Status failure...");
-    alert.setText("Cannot find a compatible Vulkan installable client driver (ICD).");
+    alert.setWindowTitle("Vulkan Configurator failed to start...");
+    alert.setText(format("The system has Vulkan Loader version % s but version %s is required. Please update the Vulkan Runtime.",
+                         system_loader_version.str().c_str(), required_loader_version.str().c_str())
+                      .c_str());
+    alert.setInformativeText("<a href=\"https://vulkan.lunarg.com/sdk/home\">https://vulkan.lunarg.com/sdk/home</a>");
     alert.setIcon(QMessageBox::Critical);
     alert.exec();
 }
 
-void Alert::PhysicalDeviceFailure() {
+void Alert::StartPhysicalDeviceFailure() {
     QMessageBox alert;
-    alert.setWindowTitle("Vulkan Development Status failure...");
+    alert.setWindowTitle("Vulkan Configurator failed to start...");
     alert.setText("Cannot find any Vulkan Physical Devices.");
     alert.setIcon(QMessageBox::Critical);
     alert.exec();
 }
 
-void Alert::ApplicationListUnsupported(const char* message) {
-    QMessageBox alert;
-    alert.QDialog::setWindowTitle("Layers override of a selected list of Vulkan Applications is not available");
-    alert.setTextFormat(Qt::RichText);
-    alert.setText(message);
-    alert.setInformativeText(
-        "In order to apply layers override to only a selected list of Vulkan applications, get the latest Vulkan Runtime from "
-        "<a href='https://vulkan.lunarg.com/sdk/home'>HERE.</a> to use this feature or update your Vulkan drivers");
-    alert.setIcon(QMessageBox::Warning);
-    alert.exec();
-}
-
-void Alert::ApplicationListEmpty() {
-    QMessageBox alert;
-    alert.setIcon(QMessageBox::Warning);
-    alert.QDialog::setWindowTitle("Vulkan Layers overriding will apply globally.");
-    alert.setText("The application list to override is empty. Restricting layers overriding to the selected list is disabled.");
-    alert.setInformativeText("As a result, Vulkan Layers overriding will apply globally, to all Vulkan applications.");
-    alert.exec();
-}
-
-void Alert::LayerInvalid(const char* path, const char* message) {
-    const std::string text = format("%s is not a valid layer manifest. \n\n", path) + message;
+void Alert::LayerInvalid(const Path& path, const char* message) {
+    const std::string text = format("%s is not a valid layer manifest. \n\n", path.AbsolutePath().c_str()) + message;
 
     QMessageBox alert;
     alert.QDialog::setWindowTitle("Failed to load a layer manifest...");
@@ -77,8 +75,8 @@ void Alert::LayerInvalid(const char* path, const char* message) {
     alert.exec();
 }
 
-void Alert::PathInvalid(const char* path, const char* message) {
-    const std::string text = format("'%s' is not a valid path.", path);
+void Alert::PathInvalid(const Path& path, const char* message) {
+    const std::string text = format("'%s' is not a valid path.", path.AbsolutePath().c_str());
 
     QMessageBox alert;
     alert.QDialog::setWindowTitle("The select path doesn't exist...");
@@ -112,21 +110,6 @@ QMessageBox::Button Alert::LayerProfiles() {
     return static_cast<QMessageBox::Button>(alert.exec());
 }
 
-QMessageBox::Button Alert::ConfiguratorSingleton() {
-    QMessageBox alert;
-    alert.QDialog::setWindowTitle(format("Cannot start a new instance of %s", VKCONFIG_NAME).c_str());
-    alert.setIcon(QMessageBox::Critical);
-    alert.setDefaultButton(QMessageBox::Cancel);
-    alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-    alert.setText(format("Another instance of %s is currently running. Please close it to continue.", VKCONFIG_NAME).c_str());
-    alert.setInformativeText(format("Press OK to continue launching the new instance of %s when the other instance is "
-                                    "stopped.\nPress CANCEL to stop the launch of a new %s instance.",
-                                    VKCONFIG_NAME, VKCONFIG_NAME)
-                                 .c_str());
-
-    return static_cast<QMessageBox::Button>(alert.exec());
-}
-
 void Alert::ConfiguratorRestart() {
     const char* text =
         "Vulkan Layers are fully configured when creating a Vulkan Instance which typically happens at Vulkan Application start.";
@@ -145,7 +128,7 @@ QMessageBox::Button Alert::ConfiguratorResetAll() {
     alert.setText(
         "You are about to delete all the user-defined configurations and resetting all default configurations to their default "
         "state.");
-    alert.setInformativeText("Are you sure you want to continue?");
+    alert.setInformativeText("Do you want to continue?");
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     alert.setDefaultButton(QMessageBox::Yes);
     alert.setIcon(QMessageBox::Warning);
@@ -241,10 +224,10 @@ static std::string BuildPropertiesLog(const Layer& layer) {
     }
 
     description += "\n";
-    description += layer.manifest_path + "\n";
-    description += format("- %s Layers Path \n", GetLayerTypeLabel(layer.type));
+    description += layer.manifest_path.AbsolutePath() + "\n";
+    description += format("- %s Layers Path \n", GetToken(layer.type));
     description += "- File Format: " + layer.file_format_version.str() + "\n";
-    description += "- Layer Binary Path:\n    " + layer.binary_path + "\n";
+    description += "- Layer Binary Path:\n    " + layer.binary_path.AbsolutePath() + "\n";
     description += "\n";
     description +=
         format("Total Settings Count: %d - Total Presets Count: %d", CountSettings(layer.settings), layer.presets.size());
@@ -272,18 +255,6 @@ void Alert::LayerProperties(const Layer* layer) {
     alert.setDefaultButton(QMessageBox::Ok);
     alert.setIcon(QMessageBox::Information);
     alert.exec();
-}
-
-QMessageBox::Button Alert::LayerIncompatibleVersions(const char* message, const Version& loader_version) {
-    QMessageBox alert;
-    alert.setWindowTitle("Incompatible layers versions");
-    alert.setText(format("The system has Vulkan Loader %s. The Vulkan Loader 1.3.211 and older requires that the layers use the "
-                         "same Vulkan Headers minor version.",
-                         loader_version.str().c_str())
-                      .c_str());
-    alert.setInformativeText(message);
-    alert.setIcon(QMessageBox::Critical);
-    return static_cast<QMessageBox::Button>(alert.exec());
 }
 
 void Alert::LogFileFailed() {

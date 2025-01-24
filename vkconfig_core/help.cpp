@@ -20,7 +20,7 @@
 
 #include "help.h"
 #include "util.h"
-#include "platform.h"
+#include "type_platform.h"
 
 #include <vulkan/vulkan.h>
 
@@ -31,10 +31,15 @@
 
 void ShowDoc(DocType doc_type) {
     static const char* PLATFORM_STRING[] = {
-        "windows",  // PLATFORM_WINDOWS
+        "windows",  // PLATFORM_WINDOWS_X86
+        "windows",  // PLATFORM_WINDOWS_ARM
         "linux",    // PLATFORM_LINUX
-        "mac"       // PLATFORM_MACOS
+        "mac",      // PLATFORM_MACOS
+        "android",  // PLATFORM_ANDROID
+        "ios"       // PLATFORM_ANDROID
     };
+    static_assert(std::size(PLATFORM_STRING) == PLATFORM_COUNT,
+                  "The tranlation table size doesn't match the enum number of elements");
 
     const char* platform = PLATFORM_STRING[VKC_PLATFORM];
 

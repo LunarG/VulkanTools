@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,6 @@
 struct LayerPreset : public Header {
     SettingDataSetConst settings;
 };
-
-const LayerPreset* GetPreset(const std::vector<LayerPreset>& presets, const char* preset_label);
 
 // Check whether "layer_settings" has all the settings set in "preset_settings"
 // "layer_settings" may have more settings then "preset_settings" and return true

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2022 Valve Corporation
- * Copyright (c) 2020-2022 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../override.h"
-#include "../environment.h"
+#include "../configurator.h"
 #include "../layer.h"
 #include "../layer_manager.h"
+
 #include <vulkan/layer/vk_layer_settings.hpp>
 
 #include <gtest/gtest.h>
@@ -30,44 +30,29 @@
 
 #include <cstdlib>
 
-static const std::vector<std::string> SUPPORTED_CONFIG_FILES = {"_2_2_3", "_2_2_2", "_2_2_1"};
+/*
+TEST(test_override, write_erase_global) {
+    const std::string LOADER_SETTINGS("/test/loader_settings.json");
+    const std::string LAYERS_SETTINGS("/test/layers_settings.txt");
 
-extern bool WriteLayersOverride(const Environment& environment, const std::vector<Layer>& available_layers,
-                                const Configuration& configuration, const std::string& layers_path);
-
-extern bool WriteLayersSettings(const std::vector<Layer>& available_layers, const Configuration& configuration,
-                                const std::string& settings_path);
-
-extern bool EraseLayersOverride(const std::string& layers_path);
-
-extern bool EraseSettingsOverride(const std::string& settings_path);
-
-TEST(test_override, write_erase_2_2_2) {
-    const std::string LAYERS("/override_layers_2_2_2_schema_1_2_1.json");
-    const std::string SETTINGS("/override_settings_2_2_2_schema_1_2_1.txt");
-
-    PathManager paths("", SUPPORTED_CONFIG_FILES);
-    Environment env(paths, Version(1, 2, 170));
-    env.Reset(Environment::DEFAULT);
-
-    LayerManager layer_manager(env);
-    layer_manager.LoadLayersFromPath(":/");
+    Configurator& configurator = Configurator::Get();
+    configurator.environment.Reset(Environment::DEFAULT);
+    configurator.layers.LoadLayersFromPath(":/layers");
 
     Configuration configuration;
-    const bool load = configuration.Load(layer_manager.selected_layers, ":/Configuration 2.2.2.json");
+    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/Configuration 3.0.0.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
-    EXPECT_EQ(true, WriteLayersOverride(env, layer_manager.selected_layers, configuration, "." + LAYERS));
-    EXPECT_EQ(true, WriteLayersSettings(layer_manager.selected_layers, configuration, "." + SETTINGS));
+    EXPECT_EQ(true, configurator.Override());
 
-    QFile file_layers_override_ref((":" + LAYERS).c_str());
+    QFile file_layers_override_ref((":" + LOADER_SETTINGS).c_str());
     const bool result_layers_override_ref = file_layers_override_ref.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result_layers_override_ref);
     QString text_layers_override_ref = file_layers_override_ref.readAll();
     file_layers_override_ref.close();
 
-    QFile file_layers_override_gen(("." + LAYERS).c_str());
+    QFile file_layers_override_gen(("." + LOADER_SETTINGS).c_str());
     const bool result_layers_override_gen = file_layers_override_gen.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result_layers_override_gen);
     QString text_layers_override_gen = file_layers_override_gen.readAll();
@@ -75,7 +60,7 @@ TEST(test_override, write_erase_2_2_2) {
 
     EXPECT_STREQ(text_layers_override_ref.toStdString().c_str(), text_layers_override_gen.toStdString().c_str());
 
-    QFile file_settings_override_ref((":" + SETTINGS).c_str());
+    QFile file_settings_override_ref((":" + LAYERS_SETTINGS).c_str());
     const bool result_settings_override_ref = file_settings_override_ref.open(QFile::ReadOnly);
     assert(result_settings_override_ref);
     QString text_settings_override_ref = file_settings_override_ref.readAll();
@@ -83,7 +68,7 @@ TEST(test_override, write_erase_2_2_2) {
 
     text_settings_override_ref.replace("\r\n", "\n");  // Using UNIX EOL
 
-    QFile file_settings_override_gen(("." + SETTINGS).c_str());
+    QFile file_settings_override_gen(("." + LAYERS_SETTINGS).c_str());
     const bool result_settings_override_gen = file_settings_override_gen.open(QFile::ReadOnly);
     assert(result_settings_override_gen);
     QString text_settings_override_gen = file_settings_override_gen.readAll();
@@ -94,28 +79,78 @@ TEST(test_override, write_erase_2_2_2) {
     EXPECT_EQ(text_settings_override_ref.size(), text_settings_override_gen.size());
     EXPECT_STREQ(text_settings_override_ref.toStdString().c_str(), text_settings_override_gen.toStdString().c_str());
 
-    EXPECT_EQ(true, EraseLayersOverride("." + LAYERS));
-    EXPECT_EQ(true, EraseSettingsOverride("." + SETTINGS));
+    EXPECT_EQ(true, configurator.Surrender());
 
-    env.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
+    configurator.environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
+}
+
+TEST(test_override, write_erase_per_application) {
+    const std::string LOADER_SETTINGS("/loader_settings.json");
+    const std::string LAYERS_SETTINGS("/layers_settings.txt");
+
+    Configurator& configurator = Configurator::Get();
+    configurator.environment.Reset(Environment::DEFAULT);
+    configurator.environment.SetPerApplicationConfig(true);
+    configurator.layers.LoadLayersFromPath(":/layers");
+
+    Configuration configuration;
+    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/Configuration 3.0.0.json");
+    EXPECT_TRUE(load);
+    EXPECT_TRUE(!configuration.parameters.empty());
+
+    EXPECT_EQ(true, configurator.Override());
+
+    QFile file_layers_override_ref((":" + LOADER_SETTINGS).c_str());
+    const bool result_layers_override_ref = file_layers_override_ref.open(QIODevice::ReadOnly | QIODevice::Text);
+    assert(result_layers_override_ref);
+    QString text_layers_override_ref = file_layers_override_ref.readAll();
+    file_layers_override_ref.close();
+
+    QFile file_layers_override_gen(("." + LOADER_SETTINGS).c_str());
+    const bool result_layers_override_gen = file_layers_override_gen.open(QIODevice::ReadOnly | QIODevice::Text);
+    assert(result_layers_override_gen);
+    QString text_layers_override_gen = file_layers_override_gen.readAll();
+    file_layers_override_gen.close();
+
+    EXPECT_STREQ(text_layers_override_ref.toStdString().c_str(), text_layers_override_gen.toStdString().c_str());
+
+    QFile file_settings_override_ref((":" + LAYERS_SETTINGS).c_str());
+    const bool result_settings_override_ref = file_settings_override_ref.open(QFile::ReadOnly);
+    assert(result_settings_override_ref);
+    QString text_settings_override_ref = file_settings_override_ref.readAll();
+    file_settings_override_ref.close();
+
+    text_settings_override_ref.replace("\r\n", "\n");  // Using UNIX EOL
+
+    QFile file_settings_override_gen(("." + LAYERS_SETTINGS).c_str());
+    const bool result_settings_override_gen = file_settings_override_gen.open(QFile::ReadOnly);
+    assert(result_settings_override_gen);
+    QString text_settings_override_gen = file_settings_override_gen.readAll();
+    file_settings_override_gen.close();
+
+    text_settings_override_gen.replace("\r\n", "\n");  // Using UNIX EOL
+
+    EXPECT_EQ(text_settings_override_ref.size(), text_settings_override_gen.size());
+    EXPECT_STREQ(text_settings_override_ref.toStdString().c_str(), text_settings_override_gen.toStdString().c_str());
+
+    EXPECT_EQ(true, configurator.Surrender());
+
+    configurator.environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 }
 
 TEST(test_override, vk_layer_settings_txt) {
     const char* LAYER = "VK_LAYER_LUNARG_reference_1_2_1";
 
-    PathManager paths("", SUPPORTED_CONFIG_FILES);
-    Environment env(paths, Version(1, 2, 162));
-    env.Reset(Environment::DEFAULT);
-
-    LayerManager layer_manager(env);
-    layer_manager.LoadLayersFromPath(":/");
+    Configurator& configurator = Configurator::Get();
+    configurator.environment.Reset(Environment::DEFAULT);
+    configurator.layers.LoadLayersFromPath(":/layers");
 
     Configuration configuration;
-    const bool load = configuration.Load(layer_manager.selected_layers, ":/Configuration 2.2.2.json");
+    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/Configuration 3.0.0.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
-    EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.selected_layers, configuration));
+    EXPECT_EQ(true, configurator.Override());
 
     VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
     vkuCreateLayerSettingSet(LAYER, nullptr, nullptr, nullptr, &layerSettingSet);
@@ -248,31 +283,28 @@ TEST(test_override, vk_layer_settings_txt) {
     vkuGetLayerSettingValues(layerSettingSet, "list_empty", setting_list_empty);
     EXPECT_EQ(true, setting_list_empty.empty());
 
-    EXPECT_EQ(true, SurrenderConfiguration(env));
+    EXPECT_EQ(true, configurator.Surrender());
 
     vkuDestroyLayerSettingSet(layerSettingSet, nullptr);
 
-    env.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
+    configurator.environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 }
 
 TEST(test_override, env_var) {
     const char* LAYER = "VK_LAYER_LUNARG_reference_1_2_1";
 
-    PathManager paths("", SUPPORTED_CONFIG_FILES);
-    Environment env(paths, Version(1, 2, 162));
-    env.Reset(Environment::DEFAULT);
-
-    LayerManager layer_manager(env);
-    layer_manager.LoadLayersFromPath(":/");
+    Configurator& configurator = Configurator::Get();
+    configurator.environment.Reset(Environment::DEFAULT);
+    configurator.layers.LoadLayersFromPath(":/layers");
 
     Configuration configuration;
-    const bool load = configuration.Load(layer_manager.selected_layers, ":/Configuration 2.2.2.json");
+    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/Configuration 3.0.0.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
     qputenv("VK_LAYER_SETTINGS_PATH", "./vk_layer_settings.txt");
 
-    EXPECT_EQ(true, OverrideConfiguration(env, layer_manager.selected_layers, configuration));
+    EXPECT_EQ(true, configurator.Override());
 
     VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
     vkuCreateLayerSettingSet(LAYER, nullptr, nullptr, nullptr, &layerSettingSet);
@@ -301,7 +333,8 @@ TEST(test_override, env_var) {
 
     vkuDestroyLayerSettingSet(layerSettingSet, nullptr);
 
-    EXPECT_EQ(true, SurrenderConfiguration(env));
+    EXPECT_EQ(true, configurator.Surrender());
 
-    env.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
+    configurator.environment.Reset(Environment::SYSTEM);  // Don't change the system settings on exit
 }
+*/

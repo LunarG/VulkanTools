@@ -1,0 +1,117 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Synchronization",
+        "version": 1,
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "selected_layer_name": "VK_LAYER_KHRONOS_validation",
+        "override_layers": true,
+        "override_loader": true,
+        "loader_message_types": [
+            "error",
+            "warn"
+        ],
+        "layers": [
+            {
+                "name": "VK_LAYER_KHRONOS_validation",
+                "rank": 0,
+                "settings": [
+                    {
+                        "key": "validate_core",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "check_image_layout",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "check_command_buffer",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "check_object_in_use",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "check_query",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "check_shaders",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "check_shaders_caching",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "unique_handles",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "object_lifetime",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "stateless_param",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "key": "thread_safety",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "validate_sync",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "sync_queue_submit",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "key": "validate_gpu_based",
+                        "type": "ENUM",
+                        "value": "GPU_BASED_NONE"
+                    },
+                    {
+                        "key": "validate_best_practices",
+                        "type": "BOOL",
+                        "value": false
+                    }
+                ],
+                "control": "on",
+                "version": "latest"
+            },
+            {
+                "name": "VK_LAYER_KHRONOS_synchronization2",
+                "rank": 1,
+                "settings": [
+                    {
+                        "key": "force_enable",
+                        "type": "BOOL",
+                        "value": false
+                    }
+                ],
+                "control": "on",
+                "version": "latest"
+            }
+        ]
+    }
+}

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2024 Valve Corporation
- * Copyright (c) 2020-2024 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ SettingData* SettingMetaEnum::Instantiate() {
 }
 
 bool SettingMetaEnum::Load(const QJsonObject& json_setting) {
-    SettingMetaEnumeration::Load(json_setting);
+    this->SettingMetaEnumeration::Load(json_setting);
 
     this->default_value = ReadStringValue(json_setting, "default");
     return true;
@@ -123,7 +123,7 @@ SettingData* SettingMetaFlags::Instantiate() {
 }
 
 bool SettingMetaFlags::Load(const QJsonObject& json_setting) {
-    SettingMetaEnumeration::Load(json_setting);
+    this->SettingMetaEnumeration::Load(json_setting);
 
     this->default_value = ReadStringArray(json_setting, "default");
     return true;
@@ -166,6 +166,10 @@ bool SettingMetaFlags::Equal(const SettingMeta& other) const {
 
 SettingDataFlags::SettingDataFlags(const SettingMetaFlags* meta) : SettingData(meta->key, meta->type), meta(meta) {
     assert(meta != nullptr);
+
+    for (std::size_t i = 0, n = meta->enum_values.size(); i < n; ++i) {
+        this->expanded_flags.insert(std::make_pair(meta->enum_values[i].key, true));
+    }
 }
 
 void SettingDataFlags::Reset() {
@@ -182,6 +186,16 @@ void SettingDataFlags::Copy(const SettingData* data) {
 
 bool SettingDataFlags::Load(const QJsonObject& json_setting) {
     this->value = ReadStringArray(json_setting, "value");
+    if (json_setting.value("expanded") != QJsonValue::Undefined) {
+        this->expanded = ReadBoolValue(json_setting, "expanded");
+    }
+    if (json_setting.value("expanded_flags") != QJsonValue::Undefined) {
+        const QJsonObject& json_object = json_setting.value("expanded_flags").toObject();
+        for (auto it = this->expanded_flags.begin(); it != this->expanded_flags.end(); ++it) {
+            it->second = json_object.value(it->first.c_str()).toBool();
+        }
+    }
+
     return true;
 }
 
@@ -193,6 +207,7 @@ bool SettingDataFlags::Save(QJsonObject& json_setting) const {
     }
 
     json_setting.insert("value", json_array);
+    json_setting.insert("expanded", this->expanded);
 
     return true;
 }

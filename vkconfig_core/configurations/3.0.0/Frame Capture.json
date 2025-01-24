@@ -1,0 +1,30 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Frame Capture",
+        "version": 1,
+        "platforms": [
+            "WINDOWS_X86",
+            "LINUX",
+            "MACOS"
+        ],
+        "selected_layer_name": "VK_LAYER_LUNARG_gfxreconstruct",
+        "override_layers": true,
+        "override_loader": false,
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_gfxreconstruct",
+                "rank": 0,
+                "settings": [
+                    {
+                        "key": "capture_file",
+                        "type": "SAVE_FILE",
+                        "value": "${VK_HOME}/gfxrecon_capture.gfxr"
+                    }
+                ],
+                "control": "on",
+                "version": "latest"
+            }
+        ]
+    }
+}

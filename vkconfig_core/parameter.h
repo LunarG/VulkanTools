@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,66 +20,47 @@
 
 #pragma once
 
-#include "layer.h"
-#include "layer_state.h"
+#include "layer_manager.h"
 #include "setting.h"
+#include "type_layer_control.h"
+#include "type_layer_builtin.h"
 
 #include <vector>
 
 enum ParameterRank {
-    PARAMETER_RANK_MISSING = 0,
-    PARAMETER_RANK_EXCLUDED,
-    PARAMETER_RANK_IMPLICIT_AVAILABLE,
-    PARAMETER_RANK_IMPLICIT_OVERRIDDEN,
-    PARAMETER_RANK_EXPLICIT_OVERRIDDEN,
-    PARAMETER_RANK_EXPLICIT_AVAILABLE
+    PARAMETER_RANK_MISSING_LAYER = 0,
+    PARAMETER_RANK_IMPLICIT_LAYER,
+    PARAMETER_RANK_UNORDERED_LAYER,
+    PARAMETER_RANK_EXPLICIT_LAYER,
+    PARAMETER_RANK_VALIDATION_LAYER,
+    PARAMETER_RANK_PROFILES_LAYER,
+    PARAMETER_RANK_EXTENSION_LAYER
 };
-
-enum LayerControl {
-    LAYER_CONTROL_OFF = 0,
-    LAYER_CONTROL_ON,
-    LAYER_CONTROL_AUTO,
-    LAYER_CONTROL_APPLICATIONS,
-    LAYER_CONTROL_UNORDERED,
-
-    LAYER_CONTROL_FIRST = LAYER_CONTROL_OFF,
-    LAYER_CONTROL_LAST = LAYER_CONTROL_UNORDERED
-};
-
-enum { LAYER_CONTROL_COUNT = LAYER_CONTROL_LAST - LAYER_CONTROL_FIRST + 1 };
 
 struct Parameter {
-    static const int NO_RANK = -1;
+    enum { NO_RANK = -1 };
 
-    Parameter() : state(LAYER_STATE_APPLICATION_CONTROLLED), platform_flags(PLATFORM_DESKTOP_BIT), overridden_rank(NO_RANK) {
-        assert(true);
-    }
+    Parameter() : control(LAYER_CONTROL_AUTO) {}
 
-    Parameter(const std::string& key, const LayerState state)
-        : key(key), state(state), control(LAYER_CONTROL_AUTO), platform_flags(PLATFORM_DESKTOP_BIT), overridden_rank(NO_RANK) {
-        assert(true);
-    }
+    Parameter(const std::string& key, const LayerControl control) : key(key), control(control) {}
 
     bool ApplyPresetSettings(const LayerPreset& preset);
+    bool GetExpanded(const std::string& setting_key, const std::string& flag = "") const;
+    void SetExpanded(const std::string& setting_key, const std::string& flag, bool expanded);
 
     std::string key;
-    LayerState state;
-    LayerControl control;
-    int platform_flags;
+    LayerType type = LAYER_TYPE_EXPLICIT;
+    LayerControl control = LAYER_CONTROL_AUTO;
+    LayerBuiltin builtin = LAYER_BUILTIN_NONE;
+    int platform_flags = PLATFORM_DESKTOP_BIT;
     SettingDataSet settings;
-    int overridden_rank;
-    Version api_version;
+    int overridden_rank = NO_RANK;
+    Version api_version = Version::LATEST;
+    Path manifest;
+    bool override_settings = true;
 };
 
-ParameterRank GetParameterOrdering(const std::vector<Layer>& available_layers, const Parameter& parameter);
-Version ComputeMinApiVersion(const Version api_version, const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
-void OrderParameter(std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
-void FilterParameters(std::vector<Parameter>& parameters, const LayerState state);
-std::vector<Parameter> GatherParameters(const std::vector<Parameter>& parameters, const std::vector<Layer>& available_layers);
+ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& parameter);
+void OrderParameter(std::vector<Parameter>& parameters, const LayerManager& layers);
 
-bool HasMissingLayer(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers, std::string& missing_layer);
-
-std::size_t CountOverriddenLayers(const std::vector<Parameter>& parameters);
-std::size_t CountExcludedLayers(const std::vector<Parameter>& parameters, const std::vector<Layer>& layers);
-
-bool UseBuiltinValidationSettings(const Parameter& parameter);
+bool HasMissingLayer(const std::vector<Parameter>& parameters, const LayerManager& layers, std::string& missing_layer);

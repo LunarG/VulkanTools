@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2024 Valve Corporation
- * Copyright (c) 2020-2024 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 #include "../util.h"
-#include "../platform.h"
+#include "../type_platform.h"
 
 #include <array>
 
@@ -27,57 +27,33 @@
 
 #include <gtest/gtest.h>
 
-TEST(test_util, countof_int_2) {
-    const int test_data[]{8, 9};
-    static_assert(countof(test_data) == 2, "countof for 2 ints is broken");
+template <typename T>
+T* FindByKey(std::vector<T>& container, const char* key) {
+    assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
 
-    EXPECT_EQ(2, countof(test_data));
+    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
+        if (container[i].key == key) return &container[i];
+    }
+
+    return nullptr;
 }
 
-TEST(test_util, countof_int_1) {
-    const int test_data[]{7};
-    static_assert(countof(test_data) == 1, "countof for 1 int is broken");
+template <typename T>
+const T* FindByKey(const std::vector<T>& container, const char* key) {
+    assert(key != nullptr);
+    assert(std::strcmp(key, "") != 0);
 
-    EXPECT_EQ(1, countof(test_data));
+    for (std::size_t i = 0, n = container.size(); i < n; ++i) {
+        if (container[i].key == key) return &container[i];
+    }
+
+    return nullptr;
 }
 
-TEST(test_util, countof_cstring_3) {
-    const char* test_data[]{"GNI", "GNA", "GNE"};
-    static_assert(countof(test_data) == 3, "countof for cstring is broken");
-
-    EXPECT_EQ(3, countof(test_data));
-}
-
-TEST(test_util, countof_string_3) {
-    const std::string test_data[]{"GNI", "GNA", "GNE"};
-    static_assert(countof(test_data) == 3, "countof for string is broken");
-
-    EXPECT_EQ(3, countof(test_data));
-}
-
-TEST(test_util, countof_array_2) {
-    const std::array<int, 2> test_data{6, 7};
-    static_assert(countof(test_data) == 2, "countof for array is broken");
-
-    EXPECT_EQ(2, countof(test_data));
-}
-
-TEST(test_util, countof_array_3) {
-    const std::array<std::string, 3> test_data{"GNI", "GNA", "GNE"};
-
-    EXPECT_EQ(3, countof(test_data));
-}
-
-TEST(test_util, countof_vector_2) {
-    const std::vector<int> test_data{6, 7};
-
-    EXPECT_EQ(2, countof(test_data));
-}
-
-TEST(test_util, countof_vector_3) {
-    const std::vector<std::string> test_data{"GNI", "GNA", "GNE"};
-
-    EXPECT_EQ(3, countof(test_data));
+template <typename T>
+bool IsFound(const std::vector<T>& container, const char* key) {
+    return FindByKey(container, key) != nullptr;
 }
 
 TEST(test_util, format_int_1) { EXPECT_EQ("Test 1", format("Test %d", 1)); }

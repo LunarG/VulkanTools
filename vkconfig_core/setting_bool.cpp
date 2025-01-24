@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,11 +69,15 @@ void SettingDataBool::Copy(const SettingData* data) {
 
 bool SettingDataBool::Load(const QJsonObject& json_setting) {
     this->value = ReadBoolValue(json_setting, "value");
+    if (json_setting.value("expanded") != QJsonValue::Undefined) {
+        this->expanded = ReadBoolValue(json_setting, "expanded");
+    }
     return true;
 }
 
 bool SettingDataBool::Save(QJsonObject& json_setting) const {
     json_setting.insert("value", this->value);
+    json_setting.insert("expanded", this->expanded);
     return true;
 }
 

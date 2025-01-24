@@ -21,12 +21,11 @@
 
 #include "../command_line.h"
 #include "../util.h"
-#include "../platform.h"
+#include "../type_platform.h"
 
-#if VKC_PLATFORM == VKC_PLATFORM_LINUX
+#if VKC_ENV == VKC_ENV_UNIX
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wwrite-strings"
-#elif VKC_PLATFORM == VKC_PLATFORM_MACOS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wwrite-strings"
 #endif
@@ -37,7 +36,7 @@
 
 TEST(test_command_line, execute_mode) {
     static char* argv[] = {"vkconfig"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -49,7 +48,7 @@ TEST(test_command_line, execute_mode) {
 
 TEST(test_command_line, usage_mode_help) {
     static char* argv[] = {"vkconfig", "--help"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -62,7 +61,7 @@ TEST(test_command_line, usage_mode_help) {
 
 TEST(test_command_line, usage_mode_h) {
     static char* argv[] = {"vkconfig", "-h"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -75,7 +74,7 @@ TEST(test_command_line, usage_mode_h) {
 
 TEST(test_command_line, usage_mode_version) {
     static char* argv[] = {"vkconfig", "--version"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -88,7 +87,7 @@ TEST(test_command_line, usage_mode_version) {
 
 TEST(test_command_line, usage_mode_invalid) {
     static char* argv[] = {"vkconfig", "--dfhsjfgasjkgf"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -101,7 +100,7 @@ TEST(test_command_line, usage_mode_invalid) {
 
 TEST(test_command_line, usage_mode_layers_missing_argv) {
     static char* argv[] = {"vkconfig", "layers"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -114,7 +113,7 @@ TEST(test_command_line, usage_mode_layers_missing_argv) {
 
 TEST(test_command_line, usage_mode_layers_invalid_argv) {
     static char* argv[] = {"vkconfig", "layers", "--pouet"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -127,7 +126,7 @@ TEST(test_command_line, usage_mode_layers_invalid_argv) {
 
 TEST(test_command_line, usage_mode_layers_list) {
     static char* argv[] = {"vkconfig", "layers", "--list"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -140,7 +139,7 @@ TEST(test_command_line, usage_mode_layers_list) {
 
 TEST(test_command_line, usage_mode_layers_surrender) {
     static char* argv[] = {"vkconfig", "layers", "--surrender"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -153,7 +152,7 @@ TEST(test_command_line, usage_mode_layers_surrender) {
 
 TEST(test_command_line, usage_mode_layers_surrender_invalid) {
     static char* argv[] = {"vkconfig", "layers", "--surrender", "file.json"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -165,8 +164,8 @@ TEST(test_command_line, usage_mode_layers_surrender_invalid) {
 }
 
 TEST(test_command_line, usage_mode_layers_override) {
-    static char* argv[] = {"vkconfig", "layers", "--override", ":/Configuration 2.2.2.json"};
-    int argc = static_cast<int>(countof(argv));
+    static char* argv[] = {"vkconfig", "layers", "--override", ":/test/Configuration 3.0.0.json"};
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -179,7 +178,7 @@ TEST(test_command_line, usage_mode_layers_override) {
 
 TEST(test_command_line, usage_mode_layers_override_invalid) {
     static char* argv[] = {"vkconfig", "layers", "--override"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -192,7 +191,7 @@ TEST(test_command_line, usage_mode_layers_override_invalid) {
 
 TEST(test_command_line, usage_mode_layers_override_invalid_args) {
     static char* argv[] = {"vkconfig", "layers", "--override", "bla", "blo"};
-    int argc = static_cast<int>(countof(argv));
+    int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
 
@@ -203,8 +202,7 @@ TEST(test_command_line, usage_mode_layers_override_invalid_args) {
     EXPECT_TRUE(command_line.layers_configuration_path.empty());
 }
 
-#if VKC_PLATFORM == VKC_PLATFORM_LINUX
+#if VKC_ENV == VKC_ENV_UNIX
 #pragma GCC diagnostic pop
-#elif VKC_PLATFORM == VKC_PLATFORM_MACOS
 #pragma clang diagnostic pop
 #endif

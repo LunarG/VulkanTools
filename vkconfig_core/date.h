@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,4 @@
 
 #include <string>
 
-#ifdef _DEBUG
-#define VKCONFIG_DATE 1
-#else
-#define VKCONFIG_DATE 0
-#endif
-
-#if VKCONFIG_DATE
 std::string GetBuildDate();
-#endif

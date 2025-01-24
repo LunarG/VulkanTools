@@ -30,30 +30,30 @@
 #include "application_singleton.h"
 
 ApplicationSingleton::ApplicationSingleton(const std::string& application_name, int timeout)
-    : _application_name(application_name)
-    , _timeout(timeout) {
-}
+    : _application_name(application_name), _timeout(timeout) {}
 
-ApplicationSingleton::~ApplicationSingleton() { _local_server.close(); }
+ApplicationSingleton::~ApplicationSingleton() { this->Release(); }
 
-bool ApplicationSingleton::IsFirstInstance() {
+bool ApplicationSingleton::IsLocked() {
     // If we can connect to the server, it means there is another copy running
     QLocalSocket localSocket;
-    localSocket.connectToServer(_application_name.c_str());
+    localSocket.connectToServer(this->_application_name.c_str());
 
     // The default timeout is 5 seconds, which should be enough under
     // the most extreme circumstances. Note, that it will actually
     // only time out if the server exists and for some reason it can't
     // connect. Too small a timeout on the other hand can give false
     // assurance that another copy is not running.
-    if (localSocket.waitForConnected(_timeout)) {
+    if (localSocket.waitForConnected(this->_timeout)) {
         localSocket.close();
-        return false;
+        return true;
     }
 
     // Not connected, OR timed out
     // We are the first, start a server
-    _local_server.listen(_application_name.c_str());
+    this->_local_server.listen(this->_application_name.c_str());
 
-    return true;
+    return false;
 }
+
+void ApplicationSingleton::Release() { this->_local_server.close(); }

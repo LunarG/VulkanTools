@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2024 Valve Corporation
- * Copyright (c) 2020-2024 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,38 +22,51 @@
 #pragma once
 
 #include "parameter.h"
-#include "path_manager.h"
+#include "type_log.h"
 
 #include <QByteArray>
 
 #include <vector>
 #include <string>
 
+class LayerManager;
+
 class Configuration {
    public:
-    Configuration();
+    static Configuration CreateDisabled(const LayerManager& layers);
+    static Configuration Create(const LayerManager& layers, const std::string& configuration_key);
 
-    bool Load(const std::vector<Layer>& available_layers, const std::string& full_path);
-    bool Save(const std::vector<Layer>& available_layers, const std::string& full_path, bool exporter = false) const;
-    bool HasOverride() const;
+    bool Load(const Path& full_path, const LayerManager& layers);
+    bool Save(const Path& full_path) const;
+    void Reset(const LayerManager& layers);
 
-    void Reset(const std::vector<Layer>& available_layers, const PathManager& path_manager);
-
+    Parameter* Find(const std::string& layer_key);
+    const Parameter* Find(const std::string& layer_key) const;
     std::size_t Size() const { return this->parameters.size(); };
 
-    std::string key;  // User readable display of the configuration name (may contain spaces)
-    int platform_flags;
-    std::string description;        // A friendly description of what this profile does
-    QByteArray setting_tree_state;  // Recall editor tree state
-    bool view_advanced_settings;
+    Parameter* GetActiveParameter();
+    const Parameter* GetActiveParameter() const;
+
+    bool HasMissingLayer(const LayerManager& layers, std::vector<std::string>& missing_layers) const;
+    void SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Path& manifest_path);
+    void SwitchLayerLatest(const LayerManager& layers, const std::string& layer_key);
+    void GatherParameters(const LayerManager& layers);
+    void Reorder(const std::vector<std::string>& layer_names);
+
+    bool HasMultipleActiveParameter() const;
+
+    std::string key = "New Configuration";  // User readable display of the configuration name (may contain spaces)
+    int version = 1;
+    int platform_flags = PLATFORM_DESKTOP_BIT;
+    LayerControl default_control = LAYER_CONTROL_AUTO;
+    bool override_layers = true;
+    bool override_loader = true;
+    int loader_log_messages_flags = GetBit(LOG_ERROR) | GetBit(LOG_WARN);
+    std::string selected_layer_name;
 
     std::vector<Parameter> parameters;
-    std::vector<std::string> user_defined_paths;
 
-    bool IsBuiltIn() const;
-
-   private:
-    bool Load2_2(const std::vector<Layer>& available_layers, const QJsonObject& json_root_object);
+    bool IsDefault() const;
 };
 
 std::string MakeConfigurationName(const std::vector<Configuration>& configurations, const std::string& configuration_name);

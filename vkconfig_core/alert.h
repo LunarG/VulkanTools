@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,24 +21,23 @@
 #pragma once
 
 #include "../vkconfig_core/layer.h"
+#include "../vkconfig_core/path.h"
 
 #include <QMessageBox>
 
 struct Alert {
-    static void LoaderFailure();
-    static void InstanceFailure();
-    static void PhysicalDeviceFailure();
+    static QMessageBox::Button StartSingleton();
+    static void StartLoaderFailure();
+    static void StartLoaderIncompatibleVersions(const Version& system_loader_version, const Version& required_loader_version);
+    static void StartPhysicalDeviceFailure();
 
-    static void ApplicationListUnsupported(const char* message);
-    static void ApplicationListEmpty();
-
-    static void LayerInvalid(const char* path, const char* message);
+    static void LayerInvalid(const Path& path, const char* message);
     static QMessageBox::Button LayerImplicit(const char* layer_name);
+
     static QMessageBox::Button LayerProfiles();
 
-    static void PathInvalid(const char* path, const char* message);
+    static void PathInvalid(const Path& path, const char* message);
 
-    static QMessageBox::Button ConfiguratorSingleton();
     static void ConfiguratorRestart();
     static QMessageBox::Button ConfiguratorResetAll();
     static QMessageBox::Button ConfiguratorReloadDefault();
@@ -50,7 +49,6 @@ struct Alert {
     static void ConfigurationNameASCII();
 
     static void LayerProperties(const Layer* layer);
-    static QMessageBox::Button LayerIncompatibleVersions(const char* message, const Version& loader_version);
 
     static void LogFileFailed();
 

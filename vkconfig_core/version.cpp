@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2024 Valve Corporation
- * Copyright (c) 2020-2024 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,10 @@
 #include <cassert>
 #include <cstring>
 
-const Version Version::VKCONFIG(2, 6, 3);
-const Version Version::VKCONFIG3(3, 0, 0);
-const Version Version::LAYER_CONFIG(2, 2, 3);
-const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
-const Version Version::VERSION_NULL(0u);
+const Version Version::VKCONFIG(3, 0, 0);
+const Version Version::NONE(0, 0, 0);
+const Version Version::LATEST(~0, ~0, ~0);
+const Version Version::REQUIRED_LOADER_VERSION(1, 3, 301);
 
 const char *VKCONFIG_NAME = "Vulkan Configurator";
 const char *VKCONFIG_SHORT_NAME = "vkconfig";
@@ -59,7 +58,13 @@ Version::Version(const char *version) : Version(GetVersionData(version)) {}
 
 Version::Version(const std::string &version) : Version(version.c_str()) {}
 
-std::string Version::str() const { return format("%d.%d.%d", _major, _minor, _patch); }
+std::string Version::str() const {
+    if (*this == LATEST) {
+        return "Latest";
+    } else {
+        return format("%d.%d.%d", _major, _minor, _patch);
+    }
+}
 
 bool Version::operator!=(const Version &other_version) const {
     return VK_MAKE_VERSION(_major, _minor, _patch) !=

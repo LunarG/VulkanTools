@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,13 @@
 #pragma once
 
 #include "setting_string.h"
+#include "path.h"
 
 struct SettingMetaFilesystem : public SettingMeta {
     bool Load(const QJsonObject& json_setting) override;
     std::string Export(ExportMode export_mode) const override;
 
-    std::string default_value;
+    Path default_value;
     std::string filter;
     std::string format;
 
@@ -36,11 +37,26 @@ struct SettingMetaFilesystem : public SettingMeta {
     bool Equal(const SettingMeta& other) const override;
 };
 
-struct SettingDataFilesystem : public SettingDataString {
+struct SettingDataFilesystem : public SettingData {
+    SettingDataFilesystem(const SettingMetaFilesystem* meta);
+
+    void Reset() override;
+    void Copy(const SettingData* data) override;
+    bool Load(const QJsonObject& json_setting) override;
+    bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;
+
+    const Path& GetValue() const;
+    void SetValue(const Path& value);
+
+    Path value;
 
    protected:
     SettingDataFilesystem(const std::string& key, const SettingType& type);
+
+    bool Equal(const SettingData& other) const override;
+
+    const SettingMetaFilesystem* meta;
 };
 
 struct SettingMetaFileLoad : public SettingMetaFilesystem {
