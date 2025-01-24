@@ -20,6 +20,7 @@
 
 #include "tab_applications.h"
 #include "mainwindow.h"
+#include "style.h"
 
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/alert.h"
@@ -28,6 +29,14 @@
 
 TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
     : Tab(TAB_APPLICATIONS, window, ui), _launch_application(nullptr) {
+    this->ui->launch_executable_search->setIcon(::Get(::ICON_FILE_SEARCH));
+    this->ui->launch_executable_append->setIcon(::Get(::ICON_FILE_APPEND));
+    this->ui->launch_executable_remove->setIcon(::Get(::ICON_FILE_REMOVE));
+    this->ui->launch_options_append->setIcon(::Get(::ICON_OPTIONS_COPY));
+    this->ui->launch_options_remove->setIcon(::Get(::ICON_OPTIONS_REMOVE));
+    this->ui->launch_options_dir_button->setIcon(::Get(::ICON_FOLDER_SEARCH));
+    this->ui->launch_options_log_button->setIcon(::Get(::ICON_FILE_SEARCH));
+
     this->connect(this->ui->launch_executable_list, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_launch_executable_list_activated(int)));
     this->connect(this->ui->launch_executable_list->lineEdit(), SIGNAL(textEdited(QString)), this,
@@ -443,8 +452,6 @@ void TabApplications::on_launch_button_pressed() {
 
     this->_launch_application->setProgram(active_executable->path.AbsolutePath().c_str());
     this->_launch_application->setWorkingDirectory(options->working_folder.AbsolutePath().c_str());
-
-    Configuration *configuration = configurator.configurations.FindConfiguration(active_executable->configuration);
 
     QStringList env = QProcess::systemEnvironment();
     if (!options->envs.empty()) {

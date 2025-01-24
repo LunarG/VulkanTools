@@ -22,10 +22,10 @@
 #include "tab_configurations.h"
 #include "mainwindow.h"
 #include "widget_resize_button.h"
+#include "style.h"
 
 #include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/ui.h"
 #include "../vkconfig_core/doc.h"
 #include "../vkconfig_core/type_hide_message.h"
 
@@ -36,9 +36,12 @@
 
 TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
     : Tab(TAB_CONFIGURATIONS, window, ui), _settings_tree_manager(ui) {
-    ui->configurations_list->installEventFilter(&window);
-    ui->configurations_layers_list->installEventFilter(&window);
-    ui->configurations_settings->installEventFilter(&window);
+    this->ui->configurations_executable_append->setIcon(::Get(::ICON_FILE_SEARCH));
+    this->ui->configurations_executable_remove->setIcon(::Get(::ICON_FILE_REMOVE));
+
+    this->ui->configurations_list->installEventFilter(&window);
+    this->ui->configurations_layers_list->installEventFilter(&window);
+    this->ui->configurations_settings->installEventFilter(&window);
 
     this->connect(this->ui->configurations_executable_scope, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_configurations_executable_scope_currentIndexChanged(int)));
@@ -258,7 +261,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
             item->setFlags(item->flags() | Qt::ItemIsSelectable);
             item->setSizeHint(QSize(0, ITEM_HEIGHT));
             if (has_multiple_parameter) {
-                item->setIcon(QIcon(":/resourcefiles/drag.png"));
+                item->setIcon(::Get(ICON_DRAG));
             }
             ui->configurations_layers_list->addItem(item);
 
@@ -340,10 +343,10 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
 
     assert(this->advanced_mode != nullptr);
     if (configurator.advanced) {
-        this->advanced_mode->setIcon(QIcon(":/resourcefiles/settings_basic.png"));
+        this->advanced_mode->setIcon(::Get(::ICON_BASIC));
         this->advanced_mode->setToolTip("Click to switch to basic Layers Configuration mode");
     } else {
-        this->advanced_mode->setIcon(QIcon(":/resourcefiles/settings_advanced.png"));
+        this->advanced_mode->setIcon(::Get(::ICON_ADVANCED));
         this->advanced_mode->setToolTip("Click to switch to advanced Layers Configuration mode");
     }
 
@@ -1074,7 +1077,7 @@ void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow)
                 alert.setCheckBox(new QCheckBox("Do not show again."));
                 alert.setInformativeText(format("Use the '%s' tab to add the missing layers.", GetLabel(TAB_LAYERS)).c_str());
 
-                int ret_val = alert.exec();
+                alert.exec();
                 if (alert.checkBox()->isChecked()) {
                     configurator.Set(HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE);
                 }

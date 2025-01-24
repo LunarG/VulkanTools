@@ -21,6 +21,7 @@
 #include "tab_diagnostics.h"
 #include "mainwindow.h"
 #include "widget_resize_button.h"
+#include "style.h"
 
 #include "../vkconfig_core/configurator.h"
 
@@ -29,6 +30,9 @@
 #include <QMenu>
 
 TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
+    this->ui->diagnostic_reset->setIcon(::Get(::ICON_RESET));
+    this->ui->diagnostic_vk_home_browse->setIcon(::Get(::ICON_FOLDER_SEARCH));
+
     this->ui->diagnostic_status_text->installEventFilter(&window);
 
     this->connect(this->ui->diagnostic_keep_running, SIGNAL(toggled(bool)), this, SLOT(on_diagnostic_keep_running_toggled(bool)));
@@ -89,8 +93,6 @@ void TabDiagnostics::on_diagnostic_keep_running_toggled(bool checked) {
 }
 
 void TabDiagnostics::on_diagnostic_vk_home_text_pressed() {
-    Configurator &configurator = Configurator::Get();
-
     Path path(this->ui->diagnostic_vk_home_text->text().toStdString());
     if (path.Exists()) {
         ::SetHomePath(this->ui->diagnostic_vk_home_text->text().toStdString());
@@ -109,7 +111,6 @@ void TabDiagnostics::on_diagnostic_vk_home_text_pressed() {
 }
 
 void TabDiagnostics::on_diagnostic_vk_home_browse_pressed() {
-    Configurator &configurator = Configurator::Get();
     const QString selected_path = QFileDialog::getExistingDirectory(
         this->ui->diagnostic_vk_home_browse, "Select the Vulkan Home Default Working Folder (Set ${VK_HOME} value)...",
         ::Get(Path::HOME).AbsolutePath().c_str());

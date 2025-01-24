@@ -42,9 +42,9 @@ int main(int argc, char* argv[]) {
     // keeping this as 'vkconfig' will ensure that it picks up the
     // settings from the previous version (assuming that's ever an issue)
     QCoreApplication::setApplicationName(VKCONFIG_SHORT_NAME);
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication app(argc, argv);
+    app.setStyle("Fusion");
 
     // This has to go after the construction of QApplication in
     // order to use a QMessageBox and avoid some QThread warnings.

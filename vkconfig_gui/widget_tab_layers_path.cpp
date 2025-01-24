@@ -19,6 +19,7 @@
  */
 
 #include "widget_tab_layers_path.h"
+#include "style.h"
 
 #include "../vkconfig_core/configurator.h"
 
@@ -30,7 +31,7 @@ LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths 
     this->setChecked(this->path_info.enabled);
 
     this->buttom_remove = new QPushButton(this);
-    this->buttom_remove->setIcon(QIcon(":/resourcefiles/folder_remove.png"));
+    this->buttom_remove->setIcon(::Get(::ICON_FOLDER_REMOVE));
     this->buttom_remove->setToolTip("Only layer paths manually added with Vulkan Configurator can be removed.");
     this->buttom_remove->setFixedSize(24, 24);
     this->buttom_remove->setEnabled(layers_path == LAYERS_PATHS_GUI);

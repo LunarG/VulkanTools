@@ -21,10 +21,10 @@
 #include "widget_tab_layers_path.h"
 #include "tab_layers.h"
 #include "mainwindow.h"
+#include "style.h"
 
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/type_hide_message.h"
-#include "../vkconfig_core/is_dll_32.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -34,6 +34,9 @@
 
 TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_LAYERS, window, ui) {
     Configurator &configurator = Configurator::Get();
+
+    this->ui->layers_browse_button->setIcon(::Get(::ICON_FOLDER_SEARCH));
+    this->ui->layers_reload_button->setIcon(::Get(::ICON_FOLDER_RELOAD));
 
     this->ui->layers_progress->setValue(0);
     this->ui->layers_progress->setVisible(false);
@@ -50,6 +53,8 @@ TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : T
 TabLayers::~TabLayers() {}
 
 void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
+    (void)ui_update_mode;
+
     Configurator &configurator = Configurator::Get();
 
     this->ui->layers_paths_tree->blockSignals(true);
@@ -112,7 +117,12 @@ void TabLayers::UpdateUI(UpdateUIMode ui_update_mode) {
 
 void TabLayers::CleanUI() {}
 
-bool TabLayers::EventFilter(QObject *target, QEvent *event) { return false; }
+bool TabLayers::EventFilter(QObject *target, QEvent *event) {
+    (void)target;
+    (void)event;
+
+    return false;
+}
 
 void TabLayers::on_check_box_paths_changed() { this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI); }
 
