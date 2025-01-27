@@ -21,12 +21,10 @@ if (BUILD_WERROR)
 endif()
 
 find_package(VulkanHeaders REQUIRED CONFIG)
-
 find_package(VulkanLoader CONFIG)
-
 find_package(VulkanUtilityLibraries REQUIRED CONFIG)
-
 find_package(valijson REQUIRED CONFIG)
+find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
 
 option(BUILD_TESTS "Build tests")
 option(RUN_ON_GITHUB "Build only tests that can run on Github" OFF)
@@ -107,14 +105,21 @@ if(BUILD_APIDUMP OR BUILD_MONITOR OR BUILD_SCREENSHOT)
 endif()
 
 if(BUILD_LAYERMGR)
-    message(STATUS "INFO: Building Vulkan Configurator")
+    if(NOT Qt6_FOUND)
+        message("WARNING: Vulkan Configurator will be excluded from the build because Qt6 was not found. Please add Qt6 into the PATH environment variable")
+    elseif(Qt6_VERSION VERSION_LESS 6.5)
+        message("WARNING: Vulkan Configurator will be excluded because the found Qt version is too old. Vulkan Configurator requires version 6.5 but found version " ${Qt6_VERSION})
+    else()
 
-    if (WIN32)
-        # Minimize what Windows.h leaks
-        add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
+        message(STATUS "INFO: Building Vulkan Configurator")
+
+        if (WIN32)
+            # Minimize what Windows.h leaks
+            add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
+        endif()
+
+        add_subdirectory(vkconfig_core)
+        add_subdirectory(vkconfig_cmd)
+        add_subdirectory(vkconfig_gui)
     endif()
-
-    add_subdirectory(vkconfig_core)
-    add_subdirectory(vkconfig_cmd)
-    add_subdirectory(vkconfig_gui)
 endif()
