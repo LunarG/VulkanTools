@@ -315,9 +315,9 @@ void MainWindow::OnHelpGPUInfo(bool checked) {
 void MainWindow::closeEvent(QCloseEvent *event) {
     Configurator &configurator = Configurator::Get();
 
-    bool quit = !configurator.GetUseSystemTray();
+    bool close = true;
 
-    if (!quit) {
+    if (configurator.GetUseSystemTray()) {
         // Alert the user to the current state of the vulkan configurator and
         // give them the option to not shutdown.
         if (!(configurator.Get(HIDE_MESSAGE_USE_SYSTEM_TRAY))) {
@@ -334,9 +334,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             QMessageBox alert(this);
             alert.setWindowTitle("Vulkan Configurator will remain in the system tray");
             alert.setText(shut_down_state.c_str());
-            alert.setInformativeText("Are you still ready to move Vulkan Configurator in the system tray?");
             alert.setIcon(QMessageBox::Question);
-            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+            alert.setDefaultButton(QMessageBox::Ok);
             alert.setCheckBox(new QCheckBox("Do not show again."));
 
             int ret_val = alert.exec();
@@ -344,16 +344,23 @@ void MainWindow::closeEvent(QCloseEvent *event) {
                 configurator.Set(HIDE_MESSAGE_USE_SYSTEM_TRAY);
             }
 
-            if (ret_val == QMessageBox::No) {
-                quit = true;
+            if (ret_val == QMessageBox::Cancel) {
+                close = false;
+
+                configurator.SetUseSystemTray(false);
+
+                this->ui->tab_widget->setCurrentIndex(TAB_DIAGNOSTIC);
+                QPalette palette = this->ui->diagnostic_keep_running->palette();
+                palette.setColor(QPalette::WindowText, QColor(Qt::red));
+                this->ui->diagnostic_keep_running->setPalette(palette);
+
+                event->ignore();
                 return;
             }
         }
     }
 
-    QGuiApplication::setQuitOnLastWindowClosed(quit);
-
-    if (quit) {
+    if (close) {
         this->tabs[this->ui->tab_widget->currentIndex()]->CleanUI();
 
         QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
@@ -361,6 +368,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         settings.setValue("vkconfig3/mainwindow/state", this->saveState());
     }
 
+    QGuiApplication::setQuitOnLastWindowClosed(!configurator.GetUseSystemTray() && close);
     QMainWindow::closeEvent(event);
 }
 
