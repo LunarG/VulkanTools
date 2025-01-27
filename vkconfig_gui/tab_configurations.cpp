@@ -155,6 +155,16 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
             ui->configurations_group_box_layers->blockSignals(false);
             ui->configurations_group_box_loader->blockSignals(true);
             ui->configurations_group_box_loader->setChecked(configuration.override_loader);
+            if (configurator.vulkan_system_info.loaderVersion <= Version(1, 4, 304)) {
+                ui->configurations_group_box_loader->setCheckable(configuration.override_layers);
+                ui->configurations_group_box_loader->setEnabled(configuration.override_layers);
+                if (configuration.override_layers) {
+                    ui->configurations_group_box_loader->setToolTip("Configure Loader Messages");
+                } else {
+                    ui->configurations_group_box_loader->setToolTip(
+                        "Due to a Vulkan Loader 304 bug, layers must be overridden for loader messages to be enabled.");
+                }
+            }
             ui->configurations_group_box_loader->blockSignals(false);
             current_row = static_cast<int>(i);
         } else if (has_missing_layer) {
@@ -204,23 +214,32 @@ void TabConfigurations::UpdateUI_LoaderMessages() {
 
     const Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
+        const bool enabled =
+            configurator.vulkan_system_info.loaderVersion <= Version(1, 4, 304) ? configuration->override_layers : true;
+
         ui->configuration_loader_errors->blockSignals(true);
         ui->configuration_loader_errors->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_ERROR));
+        ui->configuration_loader_errors->setEnabled(enabled);
         ui->configuration_loader_errors->blockSignals(false);
         ui->configuration_loader_warns->blockSignals(true);
         ui->configuration_loader_warns->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_WARN));
+        ui->configuration_loader_warns->setEnabled(enabled);
         ui->configuration_loader_warns->blockSignals(false);
         ui->configuration_loader_infos->blockSignals(true);
         ui->configuration_loader_infos->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_INFO));
+        ui->configuration_loader_infos->setEnabled(enabled);
         ui->configuration_loader_infos->blockSignals(false);
         ui->configuration_loader_debug->blockSignals(true);
         ui->configuration_loader_debug->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DEBUG));
+        ui->configuration_loader_debug->setEnabled(enabled);
         ui->configuration_loader_debug->blockSignals(false);
         ui->configuration_loader_layers->blockSignals(true);
         ui->configuration_loader_layers->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_LAYER));
+        ui->configuration_loader_layers->setEnabled(enabled);
         ui->configuration_loader_layers->blockSignals(false);
         ui->configuration_loader_drivers->blockSignals(true);
         ui->configuration_loader_drivers->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DRIVER));
+        ui->configuration_loader_drivers->setEnabled(enabled);
         ui->configuration_loader_drivers->blockSignals(false);
     }
 
