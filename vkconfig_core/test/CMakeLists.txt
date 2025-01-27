@@ -19,10 +19,10 @@ function(vkConfigTest NAME)
         Vulkan::LayerSettings
         GTest::gtest
         GTest::gtest_main
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Widgets
-        Qt5::Network
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
+        Qt6::Network
     )
     if(WIN32)
         target_link_libraries(${TEST_NAME} Cfgmgr32)

@@ -14,6 +14,7 @@
 1. C++17 compatible toolchain
 1. Git
 1. Python >= 3.10
+1. Qt 6.5
 
 ## Optional software packages:
 
@@ -85,7 +86,7 @@ sudo apt-get install git build-essential python3 cmake
 sudo apt-get install libwayland-dev xorg-dev
 
 # Qt5 for vkconfig
-sudo apt-get install qt5-default
+sudo apt-get install qt6-default
 ```
 
 ## Building On Windows

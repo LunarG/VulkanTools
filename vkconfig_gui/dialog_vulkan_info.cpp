@@ -177,7 +177,7 @@ void VulkanInfoDialog::TraverseGenericProperties(QJsonValue &parentJson, QTreeWi
             // Add array list
             QJsonArray jsonArray = fieldValue.toArray();
             QTreeWidgetItem *pArrayParent = new QTreeWidgetItem();
-            pArrayParent->setText(0, QString().asprintf("%s: count = %d", fields[field].toUtf8().constData(), jsonArray.size()));
+            pArrayParent->setText(0, QString().asprintf("%s: count = %lld", fields[field].toUtf8().constData(), jsonArray.size()));
             pParentTreeItem->addChild(pArrayParent);
 
             // The array is just a list of values. No children.
