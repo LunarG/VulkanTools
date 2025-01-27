@@ -61,7 +61,7 @@ class Configuration {
     LayerControl default_control = LAYER_CONTROL_AUTO;
     bool override_layers = true;
     bool override_loader = true;
-    int loader_log_messages_flags = GetBit(LOG_ERROR) | GetBit(LOG_WARN);
+    int loader_log_messages_flags = GetBit(LOG_ERROR);
     std::string selected_layer_name;
 
     std::vector<Parameter> parameters;
