@@ -12,8 +12,7 @@
         "override_layers": true,
         "override_loader": true,
         "loader_message_types": [
-            "error",
-            "warn"
+            "error"
         ],
         "layers": [
             {
