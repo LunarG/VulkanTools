@@ -593,7 +593,8 @@ void TabConfigurations::OnContextMenuNewClicked(ListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    configurator.configurations.CreateConfiguration(configurator.layers, "New Configuration");
+    Configuration &configuration = configurator.configurations.CreateConfiguration(configurator.layers, "New Configuration");
+    configurator.SetActiveConfigurationName(configuration.key);
     configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
