@@ -500,41 +500,43 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
         if (right_click) {
             ListItem *item = static_cast<ListItem *>(ui->configurations_layers_list->itemAt(right_click->pos()));
 
-            const Layer *layer = configurator.layers.Find(item->key, Version::LATEST);
+            if (item != nullptr) {
+                const Layer *layer = configurator.layers.Find(item->key, Version::LATEST);
 
-            QMenu menu(ui->configurations_layers_list);
+                QMenu menu(ui->configurations_layers_list);
 
-            QAction *action_description = new QAction("Open the Layer Description...", nullptr);
-            action_description->setEnabled(item != nullptr);
-            menu.addAction(action_description);
+                QAction *action_description = new QAction("Open the Layer Description...", nullptr);
+                action_description->setEnabled(layer != nullptr);
+                menu.addAction(action_description);
 
-            QAction *export_html_action = new QAction("Open the Layer HTML Documentation...", nullptr);
-            export_html_action->setEnabled(item != nullptr);
-            menu.addAction(export_html_action);
+                QAction *export_html_action = new QAction("Open the Layer HTML Documentation...", nullptr);
+                export_html_action->setEnabled(layer != nullptr);
+                menu.addAction(export_html_action);
 
-            QAction *export_markdown_action = new QAction("Open the Layer Markdown Documentation...", nullptr);
-            export_markdown_action->setEnabled(item != nullptr);
-            menu.addAction(export_markdown_action);
+                QAction *export_markdown_action = new QAction("Open the Layer Markdown Documentation...", nullptr);
+                export_markdown_action->setEnabled(layer != nullptr);
+                menu.addAction(export_markdown_action);
 
-            QAction *visit_layer_website_action = new QAction("Visit the Layer Website...", nullptr);
-            visit_layer_website_action->setEnabled(layer != nullptr ? !layer->url.empty() : false);
-            menu.addAction(visit_layer_website_action);
+                QAction *visit_layer_website_action = new QAction("Visit the Layer Website...", nullptr);
+                visit_layer_website_action->setEnabled(layer != nullptr ? !layer->url.empty() : false);
+                menu.addAction(visit_layer_website_action);
 
-            QPoint point(right_click->globalX(), right_click->globalY());
-            QAction *action = menu.exec(point);
+                QPoint point(right_click->globalX(), right_click->globalY());
+                QAction *action = menu.exec(point);
 
-            if (action == action_description) {
-                Alert::LayerProperties(layer);
-            } else if (action == visit_layer_website_action) {
-                QDesktopServices::openUrl(QUrl(layer->url.c_str()));
-            } else if (action == export_html_action) {
-                const std::string path = format("%s/%s.html", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
-                ExportHtmlDoc(*layer, path);
-                QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
-            } else if (action == export_markdown_action) {
-                const std::string path = format("%s/%s.md", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
-                ExportMarkdownDoc(*layer, path);
-                QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
+                if (action == action_description) {
+                    Alert::LayerProperties(layer);
+                } else if (action == visit_layer_website_action) {
+                    QDesktopServices::openUrl(QUrl(layer->url.c_str()));
+                } else if (action == export_html_action) {
+                    const std::string path = format("%s/%s.html", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
+                    ExportHtmlDoc(*layer, path);
+                    QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
+                } else if (action == export_markdown_action) {
+                    const std::string path = format("%s/%s.md", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
+                    ExportMarkdownDoc(*layer, path);
+                    QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
+                }
             }
         }
     }
