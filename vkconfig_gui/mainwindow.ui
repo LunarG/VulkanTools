@@ -83,7 +83,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -945,6 +945,12 @@
             </property>
             <property name="alternatingRowColors">
              <bool>true</bool>
+            </property>
+            <property name="rootIsDecorated">
+             <bool>false</bool>
+            </property>
+            <property name="itemsExpandable">
+             <bool>false</bool>
             </property>
             <attribute name="headerVisible">
              <bool>false</bool>

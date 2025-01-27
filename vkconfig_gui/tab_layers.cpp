@@ -53,54 +53,70 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
     Configurator &configurator = Configurator::Get();
 
     this->ui->layers_paths_tree->blockSignals(true);
-    this->ui->layers_paths_tree->clear();
 
-    for (std::size_t group_index = configurator.layers.paths.size(); group_index > 0; --group_index) {
-        const LayersPaths group_path = static_cast<LayersPaths>(group_index - 1);
+    switch (ui_update_mode) {
+        case UPDATE_REBUILD_UI: {
+            this->ui->layers_paths_tree->clear();
+            for (std::size_t group_index = configurator.layers.paths.size(); group_index > 0; --group_index) {
+                const LayersPaths group_path = static_cast<LayersPaths>(group_index - 1);
 
-        std::vector<LayersPathInfo> &paths_group = configurator.layers.paths[group_path];
-        for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
-            QTreeWidgetItem *item_state = new QTreeWidgetItem;
-            item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
-            item_state->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-            LayersPathWidget *layer_path_widget = new LayersPathWidget(paths_group[i], group_path);
-            this->connect(layer_path_widget, SIGNAL(itemChanged()), this, SLOT(on_check_box_paths_changed()));
+                std::vector<LayersPathInfo> &paths_group = configurator.layers.paths[group_path];
+                for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
+                    QTreeWidgetItem *item_state = new QTreeWidgetItem;
+                    item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
+                    item_state->setSizeHint(0, QSize(0, ITEM_HEIGHT));
+                    LayersPathWidget *layer_path_widget = new LayersPathWidget(paths_group[i], group_path);
+                    this->connect(layer_path_widget, SIGNAL(itemChanged()), this, SLOT(on_check_box_paths_changed()));
 
-            ui->layers_paths_tree->addTopLevelItem(item_state);
-            ui->layers_paths_tree->setItemWidget(item_state, 0, layer_path_widget);
+                    ui->layers_paths_tree->addTopLevelItem(item_state);
+                    ui->layers_paths_tree->setItemWidget(item_state, 0, layer_path_widget);
 
-            const std::string &layer_path = paths_group[i].path.AbsolutePath();
-            const std::vector<Path> &manifest_paths = CollectFilePaths(layer_path);
+                    const std::string &layer_path = paths_group[i].path.AbsolutePath();
+                    const std::vector<Path> &manifest_paths = CollectFilePaths(layer_path);
 
-            for (std::size_t manifest_index = 0, manifest_count = manifest_paths.size(); manifest_index < manifest_count;
-                 ++manifest_index) {
-                const Layer *layer = configurator.layers.FindFromManifest(manifest_paths[manifest_index], true);
-                if (layer == nullptr) {
-                    continue;  // When the directory has JSON files that are not layer manifest
+                    for (std::size_t manifest_index = 0, manifest_count = manifest_paths.size(); manifest_index < manifest_count;
+                         ++manifest_index) {
+                        const Layer *layer = configurator.layers.FindFromManifest(manifest_paths[manifest_index], true);
+                        if (layer == nullptr) {
+                            continue;  // When the directory has JSON files that are not layer manifest
+                        }
+
+                        std::string label = layer->key;
+
+                        if (layer->is_32bits) {
+                            label += " (32 bits)";
+                        }
+
+                        label += " - " + layer->api_version.str();
+
+                        if (layer->status != STATUS_STABLE) {
+                            label += format(" (%s)", GetToken(layer->status));
+                        }
+
+                        QTreeWidgetItem *item = new QTreeWidgetItem;
+                        item->setText(0, label.c_str());
+                        item->setToolTip(0, layer->manifest_path.AbsolutePath().c_str());
+                        item->setDisabled(!paths_group[i].enabled);
+                        item_state->addChild(item);
+                    }
                 }
-
-                std::string label = layer->key;
-
-                if (layer->is_32bits) {
-                    label += " (32 bits)";
-                }
-
-                label += " - " + layer->api_version.str();
-
-                if (layer->status != STATUS_STABLE) {
-                    label += format(" (%s)", GetToken(layer->status));
-                }
-
-                QTreeWidgetItem *item = new QTreeWidgetItem;
-                item->setText(0, label.c_str());
-                item->setToolTip(0, layer->manifest_path.AbsolutePath().c_str());
-                item->setDisabled(!paths_group[i].enabled);
-                item_state->addChild(item);
             }
-        }
+
+            this->ui->layers_paths_tree->expandAll();
+        } break;
+        case UPDATE_REFRESH_UI: {
+            for (int i = 0; i < this->ui->layers_paths_tree->topLevelItemCount(); ++i) {
+                QTreeWidgetItem *item = this->ui->layers_paths_tree->topLevelItem(i);
+                LayersPathWidget *widget = static_cast<LayersPathWidget *>(ui->layers_paths_tree->itemWidget(item, 0));
+
+                for (int i = 0; i < item->childCount(); ++i) {
+                    QTreeWidgetItem *child_item = item->child(i);
+                    child_item->setDisabled(!widget->isChecked());
+                }
+            }
+        } break;
     }
 
-    this->ui->layers_paths_tree->expandAll();
     this->ui->layers_paths_tree->blockSignals(false);
 }
 
@@ -114,7 +130,7 @@ void TabLayers::CleanUI() {}
 
 bool TabLayers::EventFilter(QObject *target, QEvent *event) { return false; }
 
-void TabLayers::on_check_box_paths_changed() { this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI); }
+void TabLayers::on_check_box_paths_changed() { this->UpdateUI_LayersPaths(UPDATE_REFRESH_UI); }
 
 void TabLayers::on_layers_validate_checkBox_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
