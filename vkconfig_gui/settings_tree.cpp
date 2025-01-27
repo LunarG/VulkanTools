@@ -347,7 +347,7 @@ void SettingsTreeManager::BuildTree() {
     Parameter *parameter = configurator.GetActiveParameter();
     assert(parameter != nullptr);
 
-    const Layer *layer = configurator.layers.Find(parameter->key, parameter->api_version);
+    const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
     assert(layer != nullptr);
 
     for (std::size_t i = 0, n = layer->settings.size(); i < n; ++i) {
