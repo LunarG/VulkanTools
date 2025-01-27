@@ -38,6 +38,7 @@ enum {
     LAYER_CONTROL_UNORDERED_COUNT = LAYER_CONTROL_UNORDERED_LAST - LAYER_CONTROL_UNORDERED_FIRST + 1
 };
 
+LayerControl MapToUnordered(LayerControl control);
 LayerControl GetLayerControl(const char* token);
 const char* GetToken(LayerControl control);
 const char* GetLabel(LayerControl control);

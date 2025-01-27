@@ -24,6 +24,16 @@
 #include <array>
 #include <cstring>
 
+LayerControl MapToUnordered(LayerControl control) {
+    if (control == LAYER_CONTROL_ON) {
+        return LAYER_CONTROL_AUTO;
+    } else if (control == LAYER_CONTROL_OFF) {
+        return LAYER_CONTROL_DISCARD;
+    } else {
+        return control;
+    }
+}
+
 LayerControl GetLayerControl(const char* token) {
     for (int i = LAYER_CONTROL_FIRST, l = LAYER_CONTROL_LAST; i <= l; ++i) {
         const LayerControl type = static_cast<LayerControl>(i);
