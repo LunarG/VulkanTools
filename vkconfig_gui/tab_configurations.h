@@ -68,6 +68,7 @@ class TabConfigurations : public Tab {
     void on_configuration_loader_layers_toggled(bool checked);
     void on_configuration_loader_drivers_toggled(bool checked);
 
+    void on_configurations_list_itemDoubleClicked(QListWidgetItem *item);
     void on_configurations_list_itemChanged(QListWidgetItem *item);
     void on_configurations_list_currentRowChanged(int currentRow);
     void on_configurations_layers_list_currentRowChanged(int currentRow);
