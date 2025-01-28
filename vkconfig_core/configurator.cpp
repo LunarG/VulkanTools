@@ -493,6 +493,8 @@ void Configurator::SetActiveConfigurationName(const std::string& configuration_n
     }
 }
 
+void Configurator::GatherParameters() { this->configurations.GatherConfigurationsParameters(this->layers); }
+
 Configuration* Configurator::GetActiveConfiguration() {
     if (this->executable_scope == EXECUTABLE_PER) {
         const Executable* executable = this->executables.GetActiveExecutable();
