@@ -26,7 +26,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths layers_path)
+LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths layers_path, bool removabled)
     : path_info(path_info), layers_path(layers_path) {
     this->setChecked(this->path_info.enabled);
 
@@ -35,7 +35,10 @@ LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths 
     this->buttom_remove->setToolTip("Only layer paths manually added with Vulkan Configurator can be removed.");
     this->buttom_remove->setFixedSize(24, 24);
     this->buttom_remove->setEnabled(layers_path == LAYERS_PATHS_GUI);
-    this->buttom_remove->show();
+
+    if (!removabled) {
+        this->buttom_remove->hide();
+    }
 
     this->setText(format("[%s] %s", GetLabel(layers_path), path_info.path.RelativePath().c_str()).c_str());
     this->setToolTip(path_info.path.AbsolutePath().c_str());
@@ -117,6 +120,6 @@ void LayersPathWidget::on_toggled(bool checked) {
         Configurator& configurator = Configurator::Get();
         configurator.layers.UpdatePathEnabled(this->path_info, this->layers_path);
 
-        itemChanged();
+        emit itemToggled();
     }
 }
