@@ -70,8 +70,10 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
                     QTreeWidgetItem *item_state = new QTreeWidgetItem;
                     item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
                     item_state->setSizeHint(0, QSize(0, ITEM_HEIGHT));
-                    LayersPathWidget *layer_path_widget = new LayersPathWidget(paths_group[i], group_path);
-                    this->connect(layer_path_widget, SIGNAL(itemChanged()), this, SLOT(on_check_box_paths_changed()));
+                    LayersPathWidget *layer_path_widget =
+                        new LayersPathWidget(paths_group[i], group_path, group_path == LAYERS_PATHS_GUI);
+                    this->connect(layer_path_widget, SIGNAL(itemChanged()), this, SLOT(on_paths_changed()));
+                    this->connect(layer_path_widget, SIGNAL(itemToggled()), this, SLOT(on_paths_toggled()));
 
                     ui->layers_paths_tree->addTopLevelItem(item_state);
                     ui->layers_paths_tree->setItemWidget(item_state, 0, layer_path_widget);
@@ -140,7 +142,9 @@ bool TabLayers::EventFilter(QObject *target, QEvent *event) {
     return false;
 }
 
-void TabLayers::on_check_box_paths_changed() { this->UpdateUI_LayersPaths(UPDATE_REFRESH_UI); }
+void TabLayers::on_paths_changed() { this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI); }
+
+void TabLayers::on_paths_toggled() { this->UpdateUI_LayersPaths(UPDATE_REFRESH_UI); }
 
 void TabLayers::on_layers_validate_checkBox_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
