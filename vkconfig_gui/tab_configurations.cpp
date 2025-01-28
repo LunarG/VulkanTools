@@ -75,6 +75,8 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
 
     this->connect(this->ui->configurations_list, SIGNAL(itemChanged(QListWidgetItem *)), this,
                   SLOT(on_configurations_list_itemChanged(QListWidgetItem *)));
+    this->connect(this->ui->configurations_list, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this,
+                  SLOT(on_configurations_list_itemDoubleClicked(QListWidgetItem *)));
     this->connect(this->ui->configurations_list, SIGNAL(currentRowChanged(int)), this,
                   SLOT(on_configurations_list_currentRowChanged(int)));
     this->connect(this->ui->configurations_layers_list, SIGNAL(currentRowChanged(int)), this,
@@ -1019,6 +1021,8 @@ void TabConfigurations::on_configuration_loader_debug_toggled(bool checked) { th
 void TabConfigurations::on_configuration_loader_layers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
 void TabConfigurations::on_configuration_loader_drivers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
+
+void TabConfigurations::on_configurations_list_itemDoubleClicked(QListWidgetItem *item) { ui->configurations_list->editItem(item); }
 
 /// An item has been changed. Check for edit of the items name (configuration name)
 void TabConfigurations::on_configurations_list_itemChanged(QListWidgetItem *item) { this->OnRenameConfiguration(item); }
