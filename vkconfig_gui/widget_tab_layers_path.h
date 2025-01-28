@@ -31,7 +31,7 @@ class LayersPathWidget : public QCheckBox {
     Q_OBJECT
 
    public:
-    LayersPathWidget(const LayersPathInfo &path_info, LayersPaths layers_path);
+    LayersPathWidget(const LayersPathInfo &path_info, LayersPaths layers_path, bool removabled);
 
    protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -42,6 +42,7 @@ class LayersPathWidget : public QCheckBox {
 
    Q_SIGNALS:
     void itemChanged();
+    void itemToggled();
 
    public:
     LayersPaths layers_path;
