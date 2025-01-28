@@ -82,6 +82,8 @@ class Configurator {
 
     void SetActiveConfigurationName(const std::string& configuration_name);
 
+    void GatherParameters();
+
     Configuration* GetActiveConfiguration();
     const Configuration* GetActiveConfiguration() const;
 
