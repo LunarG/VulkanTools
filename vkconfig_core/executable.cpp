@@ -96,18 +96,18 @@ static bool ExactExecutableFromAppBundle(Path& app_path) {
 }
 
 DefaultPath GetDefaultExecutablePath(const std::string& executable_key) {
-    static const char* DEFAULT_PATH = VKC_PLATFORM == PLATFORM_MACOS ? "/../.." : "";
+    static const std::string DEFAULT_PATH = VKC_PLATFORM == PLATFORM_MACOS ? "/../.." : "";
 
     const std::string& executable_name = executable_key + GetExecutableSuffix();
     DefaultPath default_path{"." + executable_name, "."};
 
     // Using VULKAN_SDK environement variable
-    const Path env = ::Get(Path::BIN);
+    const Path env(Path::BIN);
     if (!env.Empty()) {
-        const Path search_path(env + DEFAULT_PATH + executable_name.c_str());
+        const Path search_path(env.RelativePath() + DEFAULT_PATH + executable_name);
         if (search_path.Exists()) {
-            default_path.executable_path = Path(search_path.AbsolutePath(), true);
-            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
+            default_path.executable_path = search_path.AbsolutePath();
+            default_path.working_folder = search_path.AbsoluteDir();
             return default_path;
         }
     }
@@ -116,15 +116,15 @@ DefaultPath GetDefaultExecutablePath(const std::string& executable_key) {
     if (VKC_PLATFORM == PLATFORM_LINUX) {
         const Path search_path(std::string("/usr/bin") + DEFAULT_PATH + executable_name);
         if (search_path.Exists()) {
-            default_path.executable_path = Path(search_path.AbsolutePath(), true);
-            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
+            default_path.executable_path = search_path.AbsolutePath();
+            default_path.working_folder = search_path.AbsoluteDir();
             return default_path;
         }
     } else if (VKC_PLATFORM == PLATFORM_MACOS) {
         Path search_path(std::string("/Applications") + executable_name);
         if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
-            default_path.executable_path = Path(search_path.AbsolutePath(), true);
-            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
+            default_path.executable_path = search_path.AbsolutePath();
+            default_path.working_folder = search_path.AbsoluteDir();
             return default_path;
         }
     }
@@ -133,15 +133,15 @@ DefaultPath GetDefaultExecutablePath(const std::string& executable_key) {
     if (VKC_PLATFORM == PLATFORM_MACOS) {
         Path search_path(std::string("..") + DEFAULT_PATH + executable_name);
         if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
-            default_path.executable_path = Path(search_path.AbsolutePath(), true);
-            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
+            default_path.executable_path = search_path.AbsolutePath();
+            default_path.working_folder = search_path.AbsoluteDir();
             return default_path;
         }
     } else {
         Path search_path(std::string(".") + DEFAULT_PATH + executable_name);
         if (search_path.Exists()) {
-            default_path.executable_path = Path(search_path.AbsolutePath(), true);
-            default_path.working_folder = Path(search_path.AbsoluteDir(), true);
+            default_path.executable_path = search_path.AbsolutePath();
+            default_path.working_folder = search_path.AbsoluteDir();
             return default_path;
         }
     }
@@ -169,7 +169,7 @@ Executable::Executable(const DefaultExecutable& default_executable) {
     // easily change this later to anywhere they like.
     options.log_file = std::string("${VK_HOME}") + default_executable.key + ".txt";
 
-    this->path = Path(default_paths.executable_path.AbsolutePath(), true);
+    this->path = default_paths.executable_path;
     this->options_list.push_back(options);
     this->active_options = options.label;
 }
@@ -231,7 +231,7 @@ Path Executable::GetLocalLayersSettingsPath() const {
     if (this->GetActiveOptions()->working_folder.Empty()) {
         return this->path.AbsoluteDir() + "/vk_layer_settings.txt";
     } else {
-        return this->GetActiveOptions()->working_folder + "/vk_layer_settings.txt";
+        return this->GetActiveOptions()->working_folder.RelativePath() + "/vk_layer_settings.txt";
     }
 }
 

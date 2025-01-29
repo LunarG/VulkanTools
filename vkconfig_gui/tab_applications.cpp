@@ -67,8 +67,6 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->ui->launch_log_text->document()->setMaximumBlockCount(65536);
     this->ui->launch_log_text->moveCursor(QTextCursor::End);
 
-    this->ui->launch_button->setEnabled(!configurator.executables.Empty());
-
     this->ui->launch_options_args_edit->setToolTip("Eg: '--argA --argB'");
     this->ui->launch_options_envs_edit->setToolTip(VKC_ENV == VKC_ENV_WIN32 ? "Eg: 'ENV_A=ValueA;ENV_B=ValueB'"
                                                                             : "Eg: 'ENV_A=ValueA:ENV_B=ValueB'");
@@ -80,6 +78,10 @@ void TabApplications::UpdateUI(UpdateUIMode mode) {
     const Configurator &configurator = Configurator::Get();
 
     const std::vector<Executable> &executables = configurator.executables.GetExecutables();
+
+    this->ui->launch_executable_search->setEnabled(!configurator.executables.Empty());
+    this->ui->launch_executable_remove->setEnabled(!configurator.executables.Empty());
+    this->ui->launch_button->setEnabled(!configurator.executables.Empty());
 
     if (mode == UPDATE_REBUILD_UI) {
         // Rebuild list of applications
@@ -297,7 +299,7 @@ void TabApplications::on_launch_options_dir_pressed() {
     ExecutableOptions *options = executable->GetActiveOptions();
 
     const QString selected_path = QFileDialog::getExistingDirectory(
-        this->ui->launch_options_dir_button, "Select Working Directory...", this->ui->launch_options_dir_edit->text());
+        this->ui->launch_options_dir_button, "Select Working Directory...", options->working_folder.AbsolutePath().c_str());
 
     if (!selected_path.isEmpty()) {
         options->working_folder = selected_path.toStdString();
@@ -481,6 +483,7 @@ void TabApplications::EnableOptions() {
     const bool options_enabled = executable_enabled && (executable == nullptr ? false : !executable->GetOptions().empty());
 
     this->ui->launch_button->setEnabled(executable_enabled);
+    this->ui->launch_executable_search->setEnabled(executable_enabled);
     this->ui->launch_executable_list->setEnabled(executable_enabled);
     this->ui->launch_executable_remove->setEnabled(executable_enabled);
 
