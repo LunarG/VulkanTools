@@ -83,7 +83,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -247,6 +247,9 @@
                       <height>32</height>
                      </size>
                     </property>
+                    <property name="toolTip">
+                     <string>Add a new executable path</string>
+                    </property>
                     <property name="text">
                      <string/>
                     </property>
@@ -271,6 +274,9 @@
                       <width>32</width>
                       <height>32</height>
                      </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Delete the current executable path</string>
                     </property>
                     <property name="text">
                      <string/>
@@ -582,7 +588,7 @@
                     <item>
                      <widget class="QCheckBox" name="configuration_loader_infos">
                       <property name="text">
-                       <string>Informations</string>
+                       <string>Information</string>
                       </property>
                      </widget>
                     </item>
@@ -1036,14 +1042,10 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>Change the current executable path to a new path</string>
+                <string>Update the current executable path</string>
                </property>
                <property name="text">
                 <string/>
-               </property>
-               <property name="icon">
-                <iconset>
-                 <normaloff>:/resourcefiles/file_search.png</normaloff>:/resourcefiles/file_search.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -1062,7 +1064,7 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>Add the executable path to a new path</string>
+                <string>Add a new executable path</string>
                </property>
                <property name="text">
                 <string/>
@@ -1088,7 +1090,7 @@
                 </size>
                </property>
                <property name="toolTip">
-                <string>Remove the current executable path from Vulkan Configurator</string>
+                <string>Delete the current executable path</string>
                </property>
                <property name="text">
                 <string/>

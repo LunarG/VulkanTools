@@ -27,11 +27,6 @@
 #include <string>
 #include <vector>
 
-struct ReferencedLayer {
-    std::string layer;
-    std::string configuration;
-};
-
 class ConfigurationManager : public Serialize {
    public:
     ConfigurationManager();
@@ -71,9 +66,9 @@ class ConfigurationManager : public Serialize {
     void RemoveConfigurationFiles();
 
     std::vector<Configuration> available_configurations;
-    Path last_path_import_config = Get(Path::HOME);
-    Path last_path_export_config = Get(Path::HOME);
-    Path last_path_export_settings = Get(Path::HOME) + "/vK_layer_settings.txt";
+    Path last_path_import_config = Path(Path::HOME);
+    Path last_path_export_config = Path(Path::HOME);
+    Path last_path_export_settings = Path(Path::HOME).RelativePath() + "/vk_layer_settings.txt";
 
     // Public for unit tests...
     void LoadDefaultConfigurations(const LayerManager& layers);

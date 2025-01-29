@@ -16,7 +16,7 @@
   * Add layers manifest reloading
   * Per-layer enabling of layer settings
 - Improve layers ordering:
-  * Allow ordering of all (implicit layers, unkown layers) layers executed by Vulkan application
+  * Allow ordering of all (implicit layers, unknown layers) layers executed by Vulkan application
   * Allow ordering layers independently from enabling them
   * Allow ordering of layers using drag and drop
 - Improve executable list:
@@ -26,9 +26,9 @@
   * Add per-executable *Vulkan Loader* loader configuration
   * Add *Vulkan Loader* logging outside of application launcher
   * Add *Vulkan Loader* selection of each logging message type
-- Split GUI and command line into two separated executables
+- Split GUI and command line into two separate executables
 - Add system diagnostic
-- Improve ${VULKAN_SDK} applied on executable, profiles and layers path when set
+- Improve ${VULKAN_SDK} variable coverage, working for all paths
 
 ### Improvements:
 - Almost all Vulkan Configurator data is stored in a `$HOME` directory JSON file

@@ -192,6 +192,17 @@ void Alert::ConfigurationNameInvalid() {
     alert.exec();
 }
 
+void Alert::ConfigurationNameTooLong() {
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle("Configuration name is too long...");
+    alert.setText("The configuration name is used to build a filename.");
+    alert.setInformativeText("The name must be a maximum of 255 characters.");
+    alert.setStandardButtons(QMessageBox::Ok);
+    alert.setDefaultButton(QMessageBox::Ok);
+    alert.setIcon(QMessageBox::Warning);
+    alert.exec();
+}
+
 void Alert::ConfigurationNameASCII() {
     QMessageBox alert;
     alert.QDialog::setWindowTitle("Invalid name for a configuration...");

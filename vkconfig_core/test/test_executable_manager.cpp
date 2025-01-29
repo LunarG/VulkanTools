@@ -134,8 +134,8 @@ TEST(test_executable_manager, remove_executable) {
 TEST(test_executable_manager, remove_missing_applications) {
     ExecutableManager executable_manager;
 
-    const Path& path_missing = ::Get(Path::HOME) + "my_missing_executable";
-    const Path& path_exciting = ::Get(Path::HOME) + "my_exciting_executable";
+    const Path& path_missing = ::Path(Path::HOME).RelativePath() + "my_missing_executable";
+    const Path& path_exciting = ::Path(Path::HOME).RelativePath() + "my_exciting_executable";
 
     QFile file(path_exciting.AbsolutePath().c_str());
     const bool result = file.open(QIODevice::WriteOnly);

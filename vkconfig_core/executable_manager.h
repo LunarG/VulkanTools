@@ -54,7 +54,7 @@ class ExecutableManager : public Serialize {
     std::vector<Executable> RemoveMissingExecutables(const std::vector<Executable>& executables) const;
 
     bool launcher_clear_on_launch = true;
-    Path last_path_executable = ::Get(Path::HOME);
+    Path last_path_executable = Path(Path::HOME);
 
    private:
     Path active_executable;

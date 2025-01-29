@@ -29,8 +29,8 @@ TEST(test_configuration_manager, init_default) {
     EXPECT_TRUE(info_unknown == nullptr);
     EXPECT_TRUE(configuration_manager.Empty());
 
-    EXPECT_STREQ(configuration_manager.last_path_import_config.RelativePath().c_str(), Get(Path::HOME).RelativePath().c_str());
-    EXPECT_STREQ(configuration_manager.last_path_export_config.RelativePath().c_str(), Get(Path::HOME).RelativePath().c_str());
+    EXPECT_STREQ(configuration_manager.last_path_import_config.RelativePath().c_str(), Path(Path::HOME).RelativePath().c_str());
+    EXPECT_STREQ(configuration_manager.last_path_export_config.RelativePath().c_str(), Path(Path::HOME).RelativePath().c_str());
 }
 
 TEST(test_configuration_manager, create_remove) {
@@ -211,10 +211,12 @@ TEST(test_configuration_manager, ExportImport) {
     configuration_manager.LoadDefaultConfigurations(layer_manager);
     std::size_t count_init = configuration_manager.available_configurations.size();
 
-    configuration_manager.ExportConfiguration(layer_manager, Get(Path::HOME) + "ValidationExported.json", "Validation");
+    configuration_manager.ExportConfiguration(layer_manager, Path(Path::HOME).RelativePath() + "ValidationExported.json",
+                                              "Validation");
 
     std::string configuration_name;
-    configuration_manager.ImportConfiguration(layer_manager, Get(Path::HOME) + "ValidationExported.json", configuration_name);
+    configuration_manager.ImportConfiguration(layer_manager, Path(Path::HOME).RelativePath() + "ValidationExported.json",
+                                              configuration_name);
     EXPECT_EQ(count_init + 1, configuration_manager.available_configurations.size());
 
     const Configuration* configuration = configuration_manager.FindConfiguration("Validation (Imported)");

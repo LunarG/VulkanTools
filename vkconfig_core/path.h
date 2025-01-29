@@ -42,14 +42,14 @@ class Path {
     };
 
     Path();
+    Path(Path::Builtin path);
     Path(const Path& path);
     Path(const char* path);
-    Path(const std::string& path, bool recover_vars = false);
+    Path(const std::string& path);
 
     Path& operator=(const Path& path);
     Path& operator=(const char* path);
     Path& operator=(const std::string& path);
-    Path& operator+=(const std::string& extend);
 
     bool IsFile() const;
     bool IsDir() const;
@@ -74,19 +74,16 @@ class Path {
 
     friend bool operator==(const Path& a, const Path& b);
     friend bool operator!=(const Path& a, const Path& b);
-    friend Path operator+(const Path& path, const std::string& extend);
 };
 
-Path Get(Path::Builtin path);
 std::string AbsolutePath(Path::Builtin path);
 std::string RelativePath(Path::Builtin path);
 
 bool operator==(const Path& a, const Path& b);
 bool operator!=(const Path& a, const Path& b);
-Path operator+(const Path& path, const std::string& extend);
 bool operator<(const Path& a, const Path& b);
 
-void SetHomePath(const Path& path);
+void SetHomePath(const std::string& path);
 
 std::vector<Path> CollectFilePaths(const Path& directory, const char* filter = "*json");
 

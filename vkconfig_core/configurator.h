@@ -132,7 +132,7 @@ class Configurator {
     bool has_crashed = false;
     TabType active_tab = TAB_CONFIGURATIONS;
     bool advanced = true;
-    Path last_path_status = ::Get(Path::HOME) + "/vkconfig.txt";
+    Path last_path_status = Path(Path::HOME).RelativePath() + "/vkconfig.txt";
 
    private:
     int hide_message_boxes_flags = 0;

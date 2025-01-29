@@ -73,8 +73,8 @@ void TabDiagnostics::UpdateUI(UpdateUIMode mode) {
     this->ui->diagnostic_keep_running->blockSignals(false);
 
     this->ui->diagnostic_vk_home_text->blockSignals(true);
-    this->ui->diagnostic_vk_home_text->setText(::Get(Path::HOME).RelativePath().c_str());
-    this->ui->diagnostic_vk_home_text->setToolTip(::Get(Path::HOME).AbsolutePath().c_str());
+    this->ui->diagnostic_vk_home_text->setText(::Path(Path::HOME).RelativePath().c_str());
+    this->ui->diagnostic_vk_home_text->setToolTip(::Path(Path::HOME).AbsolutePath().c_str());
     this->ui->diagnostic_vk_home_text->blockSignals(false);
 }
 
@@ -103,17 +103,17 @@ void TabDiagnostics::on_diagnostic_vk_home_text_pressed() {
         message.setText(
             format("'%s' is not a valid, it doesn't exist.", this->ui->diagnostic_vk_home_text->text().toStdString().c_str())
                 .c_str());
-        message.setInformativeText(format("Restoring the previous path '%s'.", ::Get(Path::HOME).AbsolutePath().c_str()).c_str());
+        message.setInformativeText(format("Restoring the previous path '%s'.", ::Path(Path::HOME).AbsolutePath().c_str()).c_str());
         message.exec();
 
-        this->ui->diagnostic_vk_home_text->setText(::Get(Path::HOME).AbsolutePath().c_str());
+        this->ui->diagnostic_vk_home_text->setText(::Path(Path::HOME).AbsolutePath().c_str());
     }
 }
 
 void TabDiagnostics::on_diagnostic_vk_home_browse_pressed() {
     const QString selected_path = QFileDialog::getExistingDirectory(
         this->ui->diagnostic_vk_home_browse, "Select the Vulkan Home Default Working Folder (Set ${VK_HOME} value)...",
-        ::Get(Path::HOME).AbsolutePath().c_str());
+        ::Path(Path::HOME).AbsolutePath().c_str());
 
     if (!selected_path.isEmpty()) {
         this->ui->diagnostic_vk_home_text->setText(selected_path);

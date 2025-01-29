@@ -92,39 +92,31 @@ TEST(test_built_in_load, sdk_layers_with_configuration) {
     TestBuilin test;
     EXPECT_TRUE(test.layer_manager.available_layers.size() >= 8);
 
-    {
-        Configuration load_api_dump = test.Load("API dump");
-        Configuration save_api_dump = test.Restore(load_api_dump);
-        EXPECT_STREQ(save_api_dump.key.c_str(), load_api_dump.key.c_str());
-        EXPECT_EQ(save_api_dump.version, load_api_dump.version);
-        EXPECT_EQ(save_api_dump.platform_flags, load_api_dump.platform_flags);
-        EXPECT_EQ(save_api_dump.parameters.size(), load_api_dump.parameters.size());
-        for (std::size_t i = 0, n = save_api_dump.parameters.size(); i < n; ++i) {
-            EXPECT_EQ(save_api_dump.parameters[i], load_api_dump.parameters[i]);
+    const std::string configurations[] = {"API dump", "Frame Capture", "Portability", "Synchronization", "Validation"};
+
+    for (std::size_t i = 0, n = std::size(configurations); i < n; ++i) {
+        Configuration load_config = test.Load(configurations[i].c_str());
+        Configuration save_config = test.Restore(load_config);
+        EXPECT_STREQ(save_config.key.c_str(), load_config.key.c_str());
+        EXPECT_EQ(save_config.version, load_config.version);
+        EXPECT_EQ(save_config.platform_flags, load_config.platform_flags);
+        EXPECT_EQ(save_config.parameters.size(), load_config.parameters.size());
+        for (std::size_t i = 0, n = save_config.parameters.size(); i < n; ++i) {
+            EXPECT_EQ(save_config.parameters[i].type, load_config.parameters[i].type);
+            EXPECT_EQ(save_config.parameters[i].control, load_config.parameters[i].control);
+            EXPECT_EQ(save_config.parameters[i].builtin, load_config.parameters[i].builtin);
+            EXPECT_EQ(save_config.parameters[i].platform_flags, load_config.parameters[i].platform_flags);
+            EXPECT_EQ(save_config.parameters[i].settings.size(), load_config.parameters[i].settings.size());
+            if (save_config.parameters[i].settings.size() == load_config.parameters[i].settings.size()) {
+                for (std::size_t j = 0, m = save_config.parameters[i].settings.size(); j < m; ++j) {
+                    EXPECT_EQ(*save_config.parameters[i].settings[j], *load_config.parameters[i].settings[j]);
+                }
+            }
+            EXPECT_EQ(save_config.parameters[i].overridden_rank, load_config.parameters[i].overridden_rank);
+            EXPECT_EQ(save_config.parameters[i].api_version, load_config.parameters[i].api_version);
+            EXPECT_STREQ(save_config.parameters[i].manifest.RelativePath().c_str(),
+                         load_config.parameters[i].manifest.RelativePath().c_str());
+            EXPECT_EQ(save_config.parameters[i].override_settings, load_config.parameters[i].override_settings);
         }
-    }
-
-    {
-        Configuration load_frame_capture = test.Load("Frame Capture");
-        Configuration save_frame_capture = test.Restore(load_frame_capture);
-        EXPECT_EQ(save_frame_capture, load_frame_capture);
-    }
-
-    {
-        Configuration load_portability = test.Load("Portability");
-        Configuration save_portability = test.Restore(load_portability);
-        EXPECT_EQ(save_portability, load_portability);
-    }
-
-    {
-        Configuration load_synchronization = test.Load("Synchronization");
-        Configuration save_synchronization = test.Restore(load_synchronization);
-        EXPECT_EQ(save_synchronization, load_synchronization);
-    }
-
-    {
-        Configuration load_validation = test.Load("Validation");
-        Configuration save_validation = test.Restore(load_validation);
-        EXPECT_EQ(save_validation, load_validation);
     }
 }
