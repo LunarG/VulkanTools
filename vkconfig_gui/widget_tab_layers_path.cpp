@@ -62,32 +62,7 @@ void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
 
     Configurator& configurator = Configurator::Get();
 
-    std::vector<ReferencedLayer> referenced_layers;
-    // TODO: configurator.configurations.BuildReferencedLayers(configurator.layers, this->path_info);
-    if (!referenced_layers.empty()) {
-        std::string text =
-            format("'%s' contains layers that are referenced by some configurations:", this->path_info.path.AbsolutePath().c_str());
-        for (std::size_t i = 0, n = referenced_layers.size(); i < n; ++i) {
-            const ReferencedLayer& data = referenced_layers[i];
-            text += format(" - %s by '%s' configuration\n", data.layer.c_str(), data.configuration.c_str());
-        }
-        text += format("\nAre you sure you want to remove the following path from %s?", VKCONFIG_NAME).c_str();
-
-        QMessageBox alert;
-        alert.setWindowTitle("Removing layers that are used by existing configuration...");
-        alert.setIcon(QMessageBox::Warning);
-        alert.setDefaultButton(QMessageBox::No);
-        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        alert.setText(format("Are you sure you want to remove the following path from %s?", VKCONFIG_NAME).c_str());
-        alert.setInformativeText(this->path_info.path.AbsolutePath().c_str());
-        int ret_val = alert.exec();
-        if (alert.checkBox()->isChecked()) {
-            configurator.Set(HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH);
-        }
-        if (ret_val == QMessageBox::No) {
-            return;
-        }
-    } else if (!(configurator.Get(HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH))) {
+    if (!(configurator.Get(HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH))) {
         QMessageBox alert;
         alert.setWindowTitle("Removing a layers path...");
         alert.setIcon(QMessageBox::Question);

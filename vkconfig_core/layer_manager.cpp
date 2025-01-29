@@ -329,7 +329,7 @@ void LayerManager::InitSystemPaths() {
     this->paths[LAYERS_PATHS_SDK].clear();
     {
         LayersPathInfo info;
-        info.path = ::Get(Path::SDK_EXPLICIT_LAYERS);
+        info.path = Path(Path::SDK_EXPLICIT_LAYERS);
         info.enabled = true;
         this->paths[LAYERS_PATHS_SDK].push_back(info);
     }

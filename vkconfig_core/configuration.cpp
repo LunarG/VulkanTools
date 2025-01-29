@@ -306,9 +306,10 @@ bool Configuration::Save(const Path& full_path) const {
 
     QJsonDocument doc(root);
 
-    QFile json_file(full_path.AbsolutePath().c_str());
+    const std::string absolute_path = full_path.AbsolutePath();
+
+    QFile json_file(absolute_path.c_str());
     const bool result = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
-    assert(result);
 
     if (!result) {
         QMessageBox alert;
@@ -374,7 +375,7 @@ void Configuration::Reset(const LayerManager& layers) {
     }
 
     // Case 2: reset using configuration files using saved configurations
-    const Path full_path(Get(Path::CONFIGS) + "/" + this->key + ".json");
+    const Path full_path = RelativePath(Path::CONFIGS) + "/" + this->key + ".json";
 
     std::FILE* file = std::fopen(full_path.AbsolutePath().c_str(), "r");
     if (file) {
@@ -481,19 +482,30 @@ void Configuration::GatherParameters(const LayerManager& layers) {
         const Layer* layer = layers.Find(list[i], Version::LATEST);
 
         // The layer is already in the layer tree
-        if (this->Find(layer->key.c_str())) {
-            continue;
+        Parameter* parameter = nullptr;
+
+        for (std::size_t i = 0, n = gathered_parameters.size(); i < n; ++i) {
+            if (gathered_parameters[i].key == layer->key) {
+                parameter = &gathered_parameters[i];
+                break;
+            }
         }
 
-        Parameter parameter;
-        parameter.key = layer->key;
-        parameter.type = layer->type;
-        parameter.control = this->default_control;
-        parameter.api_version = Version::LATEST;
-        parameter.manifest = layer->manifest_path;
-        ::CollectDefaultSettingData(layer->settings, parameter.settings);
+        if (parameter != nullptr) {
+            const Layer* manifest_layer = layers.FindFromManifest(parameter->manifest);
+            const Layer* actual_layer = manifest_layer != nullptr ? manifest_layer : layer;
+            ::CollectDefaultSettingData(actual_layer->settings, parameter->settings);
+        } else {
+            Parameter parameter;
+            parameter.key = layer->key;
+            parameter.type = layer->type;
+            parameter.control = this->default_control;
+            parameter.api_version = Version::LATEST;
+            parameter.manifest = layer->manifest_path;
+            ::CollectDefaultSettingData(layer->settings, parameter.settings);
 
-        gathered_parameters.push_back(parameter);
+            gathered_parameters.push_back(parameter);
+        }
     }
 
     ::AddApplicationEnabledParameters(gathered_parameters, this->default_control);

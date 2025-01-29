@@ -403,8 +403,8 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
 }
 
 bool Configurator::Override(OverrideArea override_area) {
-    const Path& loader_settings_path = ::Get(Path::LOADER_SETTINGS);
-    const Path& layers_settings_path = ::Get(Path::LAYERS_SETTINGS);
+    const Path& loader_settings_path = ::Path(Path::LOADER_SETTINGS);
+    const Path& layers_settings_path = ::Path(Path::LAYERS_SETTINGS);
 
     // Clean up
     this->Surrender(override_area);
@@ -424,8 +424,8 @@ bool Configurator::Override(OverrideArea override_area) {
 }
 
 bool Configurator::Surrender(OverrideArea override_area) {
-    const Path& loader_settings_path = ::Get(Path::LOADER_SETTINGS);
-    const Path& layers_settings_path = ::Get(Path::LAYERS_SETTINGS);
+    const Path& loader_settings_path = ::Path(Path::LOADER_SETTINGS);
+    const Path& layers_settings_path = ::Path(Path::LAYERS_SETTINGS);
 
     bool result_loader_settings = true;
     if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
@@ -441,7 +441,7 @@ bool Configurator::Surrender(OverrideArea override_area) {
 
         const std::vector<Executable>& executables = this->executables.GetExecutables();
         for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
-            Path path(executables[i].GetActiveOptions()->working_folder + "/vk_layer_settings.txt");
+            Path path(executables[i].GetActiveOptions()->working_folder.RelativePath() + "/vk_layer_settings.txt");
             if (path.Exists()) {
                 bool local_removed = path.Remove();
                 if (::EnabledExecutables(this->executable_scope)) {
@@ -459,8 +459,8 @@ bool Configurator::Surrender(OverrideArea override_area) {
 }
 
 bool Configurator::HasOverride() const {
-    const Path& loader_settings_path = ::Get(Path::LOADER_SETTINGS);
-    const Path& layers_settings_path = ::Get(Path::LAYERS_SETTINGS);
+    const Path& loader_settings_path = ::Path(Path::LOADER_SETTINGS);
+    const Path& layers_settings_path = ::Path(Path::LAYERS_SETTINGS);
 
     return loader_settings_path.Exists() || layers_settings_path.Exists();
 }
@@ -468,7 +468,7 @@ bool Configurator::HasOverride() const {
 void Configurator::Reset(bool hard) {
     this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-    const Path& vkconfig_init_path = ::Get(Path::INIT);
+    const Path& vkconfig_init_path = ::Path(Path::INIT);
     vkconfig_init_path.Remove();
 
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
@@ -487,7 +487,9 @@ void Configurator::Reset(bool hard) {
 void Configurator::SetActiveConfigurationName(const std::string& configuration_name) {
     if (this->executable_scope == EXECUTABLE_PER) {
         Executable* executable = this->executables.GetActiveExecutable();
-        executable->configuration = configuration_name;
+        if (executable != nullptr) {
+            executable->configuration = configuration_name;
+        }
     } else {
         this->selected_global_configuration = configuration_name;
     }
@@ -580,19 +582,19 @@ std::string Configurator::Log() const {
     log += format("%s %s - %s:\n", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
     log += format(" - Build: %s %s\n", GetLabel(VKC_PLATFORM), build.c_str());
     log += format(" - Vulkan API version: %s\n", Version::VKHEADER.str().c_str());
-    if (::Get(Path::SDK).Empty()) {
+    if (Path(Path::SDK).Empty()) {
         log += " - ${VULKAN_SDK}: unset\n";
     } else {
-        log += format(" - ${VULKAN_SDK}: %s\n", ::Get(Path::SDK).AbsolutePath().c_str());
+        log += format(" - ${VULKAN_SDK}: %s\n", Path(Path::SDK).AbsolutePath().c_str());
     }
     log += "\n";
 
     log += format("%s Settings:\n", VKCONFIG_NAME);
     log += format(" - Vulkan Loader configuration scope: %s\n", ::GetLabel(this->GetExecutableScope()));
-    log += format("   * Loader settings: %s\n", ::Get(Path::LOADER_SETTINGS).AbsolutePath().c_str());
+    log += format("   * Loader settings: %s\n", Path(Path::LOADER_SETTINGS).AbsolutePath().c_str());
 
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
-        log += format("   * Layers settings: %s\n", ::Get(Path::LAYERS_SETTINGS).AbsolutePath().c_str());
+        log += format("   * Layers settings: %s\n", Path(Path::LAYERS_SETTINGS).AbsolutePath().c_str());
     }
 
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
@@ -630,9 +632,9 @@ std::string Configurator::Log() const {
     }
 
     log += format(" - Use system tray: %s\n", this->use_system_tray ? "true" : "false");
-    log += format(" - ${VULKAN_BIN}: %s\n", ::Get(Path::BIN).AbsolutePath().c_str());
-    log += format(" - ${VULKAN_PROFILES}: %s\n", ::Get(Path::PROFILES).AbsolutePath().c_str());
-    log += format(" - ${VK_HOME}: %s\n", ::Get(Path::HOME).AbsolutePath().c_str());
+    log += format(" - ${VULKAN_BIN}: %s\n", ::Path(Path::BIN).AbsolutePath().c_str());
+    log += format(" - ${VULKAN_PROFILES}: %s\n", ::Path(Path::PROFILES).AbsolutePath().c_str());
+    log += format(" - ${VK_HOME}: %s\n", ::Path(Path::HOME).AbsolutePath().c_str());
     log += "\n";
 
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
@@ -760,7 +762,7 @@ std::string Configurator::Log() const {
 }
 
 bool Configurator::Load() {
-    const Path& vkconfig_init_path = ::Get(Path::INIT);
+    const Path& vkconfig_init_path = ::Path(Path::INIT);
 
     QFile file(vkconfig_init_path.AbsolutePath().c_str());
     const bool has_init_file = file.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -862,7 +864,7 @@ bool Configurator::Save() const {
     // TAB_DIAGNOSTIC
     {
         QJsonObject json_object;
-        json_object.insert("VK_HOME", ::Get(Path::HOME).RelativePath().c_str());
+        json_object.insert("VK_HOME", ::Path(Path::HOME).RelativePath().c_str());
         json_interface_object.insert(GetToken(TAB_DIAGNOSTIC), json_object);
     }
 
@@ -889,7 +891,7 @@ bool Configurator::Save() const {
 
     QJsonDocument json_doc(json_root_object);
 
-    const Path& vkconfig_init_path = ::Get(Path::INIT);
+    const Path& vkconfig_init_path = ::Path(Path::INIT);
     QFile file(vkconfig_init_path.AbsolutePath().c_str());
     const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
     assert(result);

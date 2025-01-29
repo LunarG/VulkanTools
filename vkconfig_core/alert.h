@@ -46,6 +46,7 @@ struct Alert {
     static void ConfigurationRenamingFailed();
     static void ConfigurationNameEmpty();
     static void ConfigurationNameInvalid();
+    static void ConfigurationNameTooLong();
     static void ConfigurationNameASCII();
 
     static void LayerProperties(const Layer* layer);
