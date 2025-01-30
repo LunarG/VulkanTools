@@ -49,7 +49,7 @@ from common_codegen import *
 
 BLOCKING_API_CALLS = [
     'vkWaitForFences', 'vkWaitSemaphores', 'vkQueuePresentKHR', 'vkDeviceWaitIdle',
-    'vkQueueWaitIdle', 'vkAcquireNextImageKHR', 'vkGetQueryPoolResults',
+    'vkQueueWaitIdle', 'vkAcquireNextImageKHR', 'vkGetQueryPoolResults', 'vkWaitSemaphoresKHR'
 ]
 
 COMMON_CODEGEN = """

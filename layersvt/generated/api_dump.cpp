@@ -10382,9 +10382,9 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreCounterValueKHR(VkDevice device, Vk
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkWaitSemaphoresKHR(VkDevice device, const VkSemaphoreWaitInfo* pWaitInfo, uint64_t timeout)
 {
+    VkResult result = device_dispatch_table(device)->WaitSemaphoresKHR(device, pWaitInfo, timeout);
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     dump_function_head(ApiDumpInstance::current(), "vkWaitSemaphoresKHR", "device, pWaitInfo, timeout", "VkResult");
-    VkResult result = device_dispatch_table(device)->WaitSemaphoresKHR(device, pWaitInfo, timeout);
     
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         switch(ApiDumpInstance::current().settings().format())
