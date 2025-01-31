@@ -1,6 +1,6 @@
 ﻿<!-- markdownlint-disable MD041 -->
 <p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
-<p align="left">Copyright &copy; 2015-2024 LunarG, Inc.</p>
+<p align="left">Copyright &copy; 2015-2025 LunarG, Inc.</p>
 
 [![Creative Commons][3]][4]
 
@@ -29,7 +29,6 @@ A Vulkan application may configure layers when creating a Vulkan Instance or usi
 
 * **[Change Log](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/CHANGELOG.md)**: The history of *Vulkan Configurator* releases.
 * **[Bug reports](https://github.com/LunarG/VulkanTools/issues)**: Open a GitHub issue when you encounter a bug.
-* **[Roadmap](https://github.com/LunarG/VulkanTools/projects/2)**: Follow *Vulkan Configurator* future developments.
 * **[Contributing](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/CONTRIBUTING.md)**: Submit a fix or a feature to *Vulkan Configurator*.
 
 --------------
@@ -47,7 +46,7 @@ A Vulkan application may configure layers when creating a Vulkan Instance or usi
 --------------
 ## Using the Vulkan Configurator
 
-Vulkan Configurator is a graphical user interface (GUI) that may be launched from the console using `vkconfig_gui` and a command line tool `vkconfig`.
+Vulkan Configurator is mainly a graphical user interface (GUI) that may be launched from the console using `vkconfig_gui` and a command line tool `vkconfig --gui`.
 
 The tool is distributed differently, depending on the platform:
 - Ubuntu packages: Upon installing the `lunarg-vkconfig` package.
@@ -59,49 +58,6 @@ The tool is distributed differently, depending on the platform:
 Vulkan Configurator may be used with command line arguments to override layers. Use `vkconfig --help` in the console for more information.
 
 ![Vulkan Configurator Animated Presentation](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/images/presentation.gif)
-
-
-### Selecting an Application
-
-The typical use-case for VkConfig is to make changes and run applications while the tool is still open so
-that any changes made are not carried over when the tool exits.
-Because of this, VkConfig has an application launcher built in which allows you to select which
-application to run.
-
-![Application Selection](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/images/vkconfig_applications_collapsed.png)
-
-Select between any previously-defined applications by clicking the down-facing error on the right of
-the application line.
-The application selection can also be expanded so the application name, executable path, command-line
-arguments, and even the log file can be edited.
-To edit these fields in-place, expand the application area by simply expanding the arrow to the left of
-the word "Application".
-
-![Application Selection Expanded](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/images/vkconfig_applications_expanded.png)
-
-To add or further edit an application in the launcher, click the 3 periods (`...`) to the far right
-of the application field.
-This will expand to an application dialog where applications can be added, edited, or removed.
-
-![Application Dialog](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/images/vkconfig_applications_dialog.png)
-
-
-### Applications Listed by Name
-
-Applications are now listed by name so the same application can be added with different names and
-different command-line arguments.
-
-For example, "Rise of the Tomb Raider" and "Half-Life 2" are both available through Valve's Steam
-store.
-In order to run both application's, the `steam` executable must first be run, but with different
-arguments.
-Because applications are now listed by name, it is now possible to add both to the Application list so
-they can be triggered individually.
-This removes the need to edit the command-line when switching between them previously.
-
-This may also prove useful if running the same application with one or more different command-line
-arguments.
-
 
 --------------
 ## Terminology
@@ -133,36 +89,35 @@ https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html
 
 [ ![Vulkan Loader](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/images/vulkan_loader_640px.png) ](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/images/vulkan_loader.png)
 
-For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/main/loader/LoaderAndLayerInterface.md) document.
+For detailed information, read the [Architecture of the Vulkan Loader Interfaces](https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderInterfaceArchitecture.md) document.
 
-## Vulkan Layers Settings
+## Vulkan Loader and Layers Settings
 
-### `vk_layer_settings.txt`
+The loader settings are stored into the `vk_loader_settings.json` file. 
 
-The layer settings are stored into the `vk_layer_settings.txt` file and read directly by the layers.
+The layers settings are stored into the `vk_layer_settings.txt` file and read directly by the layers.
 
-When *Vulkan Configurator is used to override layers, the Vulkan application local `vk_layer_settings.txt` file is ignored by layer ecosystem convention.
+When *Vulkan Configurator* is used to override layers, the Vulkan application local `vk_layer_settings.txt` file is ignored by layer ecosystem convention.
 
-*Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes.
-These changes are documented below:
+*Vulkan Configurator* does not make any system-wide changes to a system, but it does make user-specific changes. These changes are documented below:
 
-#### Linux and macOS
+### Linux and macOS
 
 Unix systems store files in the following paths:
 
-- `$HOME/.local/share/vulkan/implicit_layer.d/VkLayer_override.json` tells a Vulkan application which layers to use
+- `$HOME/.local/share/vulkan/loader_settings.d/vk_loader_settings.json` specifies the enabled layers and their execution order to the Vulkan Loader
 - `$HOME/.local/share/vulkan/settings.d/vk_layer_settings.txt` tells Vulkan layers which settings to use
 
-#### Windows
+### Windows
 
 Windows systems store files in the following paths:
 
-- `%HOME%\AppData\Local\LunarG\vkconfig\override\VkLayerOverride.json` tells a Vulkan application which layers to use
+- `%HOME%\AppData\Local\LunarG\vulkan\vk_loader_settings.json` specifies the enabled layers and their execution order to the Vulkan Loader
 - `%HOME%\AppData\Local\LunarG\vkconfig\override\vk_layer_settings.txt` tells Vulkan layers which settings to use
 
-In addition, Windows system create registry entries in the following locations:
+Windows system has registry entries in the following locations:
 
-- `HKEY_CURRENT_USER\Software\Khronos\Vulkan\ImplicitLayers` will have an entry that points to the JSON file above
-- `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` will have an entry that points to the text file above
-- `HKEY_CURRENT_USER\Software\LunarG\vkconfig` stores the application settings for `vkconfig`
+- `HKEY_CURRENT_USER\Software\Khronos\Vulkan\ImplicitLayers` which locates `vk_loader_settings.json`
+- `HKEY_CURRENT_USER\Software\Khronos\Vulkan\Settings` which locates the global `vk_layer_settings.txt`
+
 

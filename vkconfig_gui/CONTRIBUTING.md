@@ -2,8 +2,7 @@
 
 ## Contributions Welcome
 
-The easiest method for contributing to *Vulkan Configurator* is to examine the [issues list](https://github.com/LunarG/VulkanTools/issues) and the [roadmap](https://github.com/LunarG/VulkanTools/projects/2)
-and look for areas that are of interest.
+The easiest method for contributing to *Vulkan Configurator* is to examine the [issues list](https://github.com/LunarG/VulkanTools/issues).
 
 Furthermore:
 - If you have your own work in mind, please open an issue to describe it and assign it to yourself.
