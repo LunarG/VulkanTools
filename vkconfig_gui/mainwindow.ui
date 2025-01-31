@@ -1768,7 +1768,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html&quot;&gt;Latest Single-file HTML&lt;/a&gt;</string>
+                 <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/view/master/windows/antora/spec/latest/chapters/introduction.html&quot;&gt;Latest HTML&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
                  <enum>Qt::RichText</enum>
