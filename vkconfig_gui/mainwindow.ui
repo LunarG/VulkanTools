@@ -72,9 +72,11 @@
        <font>
         <family>Arial</family>
         <pointsize>10</pointsize>
-        <weight>50</weight>
         <bold>false</bold>
        </font>
+      </property>
+      <property name="toolTip">
+       <string/>
       </property>
       <property name="autoFillBackground">
        <bool>false</bool>
@@ -88,6 +90,9 @@
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
         <string>Tab 1</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Configure Vulkan Loader: layers selection and execution order and loader messages logging</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
         <property name="leftMargin">
@@ -169,7 +174,6 @@
                   <font>
                    <family>Arial</family>
                    <pointsize>10</pointsize>
-                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -327,7 +331,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -434,7 +437,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>9</pointsize>
-                      <weight>50</weight>
                       <italic>true</italic>
                       <bold>false</bold>
                      </font>
@@ -465,7 +467,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -513,7 +514,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>9</pointsize>
-                      <weight>50</weight>
                       <italic>true</italic>
                       <bold>false</bold>
                      </font>
@@ -731,7 +731,6 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -797,6 +796,9 @@
       <widget class="QWidget" name="tab_layers">
        <attribute name="title">
         <string>Tab 2</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Locate Vulkan Layers versions</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <property name="spacing">
@@ -982,6 +984,9 @@
        <attribute name="title">
         <string>Tab 3</string>
        </attribute>
+       <attribute name="toolTip">
+        <string>Vulkan executable launcher</string>
+       </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,0,0">
         <property name="spacing">
          <number>7</number>
@@ -1001,7 +1006,7 @@
         <item>
          <widget class="QGroupBox" name="launcher_applications_list">
           <property name="title">
-           <string>Vulkan Applications List:</string>
+           <string>Vulkan Executables List:</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_23">
            <property name="spacing">
@@ -1248,7 +1253,7 @@
         <item>
          <widget class="QGroupBox" name="launcher_applications_options">
           <property name="title">
-           <string>Vulkan Applications Launch Options:</string>
+           <string>Vulkan Executables Launch Options:</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
            <property name="leftMargin">
@@ -1439,7 +1444,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1457,7 +1461,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1485,7 +1488,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1509,7 +1511,6 @@
              <font>
               <family>Consolas</family>
               <pointsize>9</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -1525,6 +1526,9 @@
       <widget class="QWidget" name="tab_diagnostic">
        <attribute name="title">
         <string>Tab 4</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>Vulkan system diagnostic</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_14">
         <property name="spacing">
@@ -1569,7 +1573,6 @@
               <font>
                <family>Consolas</family>
                <pointsize>10</pointsize>
-               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -1710,6 +1713,9 @@
        <attribute name="title">
         <string>Tab 5</string>
        </attribute>
+       <attribute name="toolTip">
+        <string>Vulkan documentation</string>
+       </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <property name="spacing">
          <number>0</number>
@@ -1753,7 +1759,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -1779,7 +1784,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1803,7 +1807,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1830,7 +1833,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -1856,7 +1858,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1880,7 +1881,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1904,7 +1904,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1931,7 +1930,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -1957,7 +1955,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1981,7 +1978,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2005,7 +2001,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2029,7 +2024,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2053,7 +2047,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2077,7 +2070,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2104,7 +2096,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -2130,7 +2121,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2178,6 +2168,9 @@
        </property>
        <attribute name="title">
         <string>Tab 6</string>
+       </attribute>
+       <attribute name="toolTip">
+        <string>About Vulkan Configurator</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_13">
         <property name="leftMargin">
@@ -2254,7 +2247,6 @@
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
@@ -2281,7 +2273,6 @@
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
@@ -2324,7 +2315,6 @@
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
