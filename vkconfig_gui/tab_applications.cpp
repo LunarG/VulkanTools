@@ -75,8 +75,8 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->ui->launch_log_text->moveCursor(QTextCursor::End);
 
     this->ui->launch_options_args_edit->setToolTip("Eg: '--argA --argB'");
-    this->ui->launch_options_envs_edit->setToolTip(VKC_ENV == VKC_ENV_WIN32 ? "Eg: 'ENV_A=ValueA;ENV_B=ValueB'"
-                                                                            : "Eg: 'ENV_A=ValueA:ENV_B=ValueB'");
+    this->ui->launch_options_envs_edit->setToolTip(VKC_ENV == VKC_ENV_WIN32 ? "Eg: 'ENV_A=ValueA;ENV_B=ValueB;ENV_C='"
+                                                                            : "Eg: 'ENV_A=ValueA:ENV_B=ValueB:ENV_C='");
 }
 
 TabApplications::~TabApplications() { this->ResetLaunchApplication(); }
