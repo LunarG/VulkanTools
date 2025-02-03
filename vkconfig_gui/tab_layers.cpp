@@ -173,7 +173,7 @@ void TabLayers::on_layers_reload_pressed() {
     const std::vector<Path> layers_paths =
         this->new_path.empty() ? configurator.layers.CollectManifestPaths() : ::CollectFilePaths(this->new_path);
 
-    this->ui->layers_progress->setMaximum(layers_paths.size());
+    this->ui->layers_progress->setMaximum(static_cast<int>(layers_paths.size()));
     this->ui->layers_progress->setValue(0);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
@@ -181,7 +181,7 @@ void TabLayers::on_layers_reload_pressed() {
 
         this->ui->layers_progress->setFormat(
             format("%s %s... - %d/%d files", label, layers_paths[i].AbsolutePath().c_str(), i + 1, layers_paths.size()).c_str());
-        this->ui->layers_progress->setValue(i + 1);
+        this->ui->layers_progress->setValue(static_cast<int>(i + 1));
         this->ui->layers_progress->update();
 
         LayerLoadStatus status = configurator.layers.LoadLayer(layers_paths[i]);

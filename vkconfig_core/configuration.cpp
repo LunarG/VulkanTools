@@ -469,8 +469,8 @@ void Configuration::GatherParameters(const LayerManager& layers) {
     std::vector<Parameter> gathered_parameters;
 
     // Loop through the layers. They are expected to be in order
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Parameter& parameter = parameters[i];
+    for (std::size_t i = 0, n = previous_parameters.size(); i < n; ++i) {
+        const Parameter& parameter = previous_parameters[i];
         assert(!parameter.key.empty());
 
         gathered_parameters.push_back(parameter);
