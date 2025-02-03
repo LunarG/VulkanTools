@@ -59,8 +59,6 @@ MainWindow::MainWindow(QWidget *parent)
       ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
-    this->InitTray();
-
     this->tabs[TAB_DIAGNOSTIC].reset(new TabDiagnostics(*this, ui));
     this->tabs[TAB_APPLICATIONS].reset(new TabApplications(*this, ui));
     this->tabs[TAB_LAYERS].reset(new TabLayers(*this, ui));
@@ -68,24 +66,12 @@ MainWindow::MainWindow(QWidget *parent)
     this->tabs[TAB_DOCUMENTATION].reset(new TabDocumentation(*this, ui));
     this->tabs[TAB_ABOUT].reset(new TabAbout(*this, ui));
 
-    connect(qApp, &QGuiApplication::commitDataRequest, this, &MainWindow::commitDataRequest);
+    this->connect(qApp, &QGuiApplication::commitDataRequest, this, &MainWindow::commitDataRequest);
 
     for (int i = TAB_FIRST, l = TAB_LAST; i <= l; ++i) {
         this->ui->tab_widget->setTabText(i, GetLabel(static_cast<TabType>(i)));
     }
-    /*
-        connect(ui->action_find_more_layers, SIGNAL(triggered(bool)), this, SLOT(OnHelpFindLayers(bool)));
-        connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(OnHelpAbout(bool)));
-        connect(ui->actionVulkan_Info, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInfo(bool)));
-        connect(ui->action_readme, SIGNAL(triggered(bool)), this, SLOT(OnHelpReadme(bool)));
-        connect(ui->action_changelog, SIGNAL(triggered(bool)), this, SLOT(OnHelpChangelog(bool)));
-        connect(ui->actionVulkan_specification, SIGNAL(triggered(bool)), this, SLOT(OnHelpVulkanSpec(bool)));
-        connect(ui->actionVulkan_Layer_Specification, SIGNAL(triggered(bool)), this, SLOT(OnHelpLayerSpec(bool)));
-        connect(ui->actionGPU_Info_Reports, SIGNAL(triggered(bool)), this, SLOT(OnHelpGPUInfo(bool)));
 
-        connect(ui->actionVulkan_Installation, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInstallation(bool)));
-        connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetToDefault(bool)));
-    */
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
     this->restoreGeometry(settings.value("vkconfig3/mainwindow/geometry").toByteArray());
     this->restoreState(settings.value("vkconfig3/mainwindow/state").toByteArray());
@@ -93,6 +79,8 @@ MainWindow::MainWindow(QWidget *parent)
     const Configurator &configurator = Configurator::Get();
 
     this->ui->tab_widget->setCurrentIndex(configurator.active_tab);
+
+    this->InitTray();
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 

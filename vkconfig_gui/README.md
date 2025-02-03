@@ -23,9 +23,9 @@ Configuring layers means multiple tasks:
 
 *Vulkan Configurator 3* requires *Vulkan Loader 1.4.304* or newer to run.
 
-* **[Change Log](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/CHANGELOG.md)**: The history of *Vulkan Configurator* releases.
+* **[Change Log](https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CHANGELOG.md)**: The history of *Vulkan Configurator* releases.
 * **[Bug reports](https://github.com/LunarG/VulkanTools/issues)**: Open a GitHub issue when you encounter a bug.
-* **[Contributing](https://github.com/LunarG/VulkanTools/blob/main/vkconfig/CONTRIBUTING.md)**: Submit a fix or a feature to *Vulkan Configurator*.
+* **[Contributing](https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CONTRIBUTING.md)**: Submit a fix or a feature to *Vulkan Configurator*.
 
 --------------
 ## Platforms Support
@@ -53,7 +53,7 @@ The tool is distributed differently, depending on the platform:
 
 *Vulkan Configurator* may be used with command line arguments to configure Vulkan Loader. Use `vkconfig --help` in the console for more information.
 
-<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig/images/presentation.gif" width=400 /></p>
+<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/presentation.gif" width=400 /></p>
 
 --------------
 ## Terminology
