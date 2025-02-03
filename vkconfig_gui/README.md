@@ -42,7 +42,7 @@ Configuring layers means multiple tasks:
 --------------
 ## Using Vulkan Configurator
 
-*Vulkan Configurator* is mainly a graphical user interface (GUI) that may be launched from the console using `vkconfig_gui` and a command line tool `vkconfig --gui`.
+*Vulkan Configurator* is mainly a graphical user interface (GUI) that may be launched from the console using `vkconfig-gui` and a command line tool `vkconfig --gui`.
 
 The tool is distributed differently, depending on the platform:
 - Ubuntu packages: Upon installing the `lunarg-vkconfig` package.

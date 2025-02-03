@@ -2387,6 +2387,7 @@
     </item>
    </layout>
   </widget>
+<!--
   <action name="actionHistory">
    <property name="text">
     <string>History...</string>
@@ -2477,6 +2478,7 @@
     <string>Find More Layers!</string>
    </property>
   </action>
+-->
  </widget>
  <resources>
   <include location="resources.qrc"/>
