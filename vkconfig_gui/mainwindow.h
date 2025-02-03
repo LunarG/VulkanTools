@@ -75,16 +75,7 @@ class MainWindow : public QMainWindow {
    public Q_SLOTS:
     void commitDataRequest(QSessionManager &manager);
 
-    void toolsVulkanInfo(bool checked);
-    void toolsVulkanInstallation(bool checked);
     void toolsResetToDefault(bool checked);
-
-    void OnHelpFindLayers(bool checked);
-    void OnHelpReadme(bool checked);
-    void OnHelpChangelog(bool checked);
-    void OnHelpVulkanSpec(bool checked);
-    void OnHelpLayerSpec(bool checked);
-    void OnHelpGPUInfo(bool checked);
 
     void on_tab_widget_currentChanged(int index);
 
