@@ -85,7 +85,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -1067,6 +1067,10 @@
                </property>
                <property name="text">
                 <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/resourcefiles/file_search.png</normaloff>:/resourcefiles/file_search.png</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -2387,98 +2391,6 @@
     </item>
    </layout>
   </widget>
-<!--
-  <action name="actionHistory">
-   <property name="text">
-    <string>History...</string>
-   </property>
-  </action>
-  <action name="actionSave_Configuration_2">
-   <property name="text">
-    <string>Save Profile...</string>
-   </property>
-  </action>
-  <action name="actionExit_and_Keep">
-   <property name="text">
-    <string>Exit and Keep</string>
-   </property>
-  </action>
-  <action name="actionExit">
-   <property name="text">
-    <string>Exit</string>
-   </property>
-  </action>
-  <action name="actionVulkan_Info">
-   <property name="text">
-    <string>Vulkan Info</string>
-   </property>
-  </action>
-  <action name="actionVulkan_Installation">
-   <property name="text">
-    <string>Vulkan Installation Analysis</string>
-   </property>
-  </action>
-  <action name="actionAbout">
-   <property name="text">
-    <string>About Vulkan Configurator</string>
-   </property>
-  </action>
-  <action name="action_readme">
-   <property name="text">
-    <string>Vulkan Configurator Readme</string>
-   </property>
-  </action>
-  <action name="actionSet_Test_Application">
-   <property name="text">
-    <string>Test Environment...</string>
-   </property>
-  </action>
-  <action name="actionCustom_Layer_Paths">
-   <property name="text">
-    <string>User-Defined Layers Paths...</string>
-   </property>
-  </action>
-  <action name="actionLog_API_Dump">
-   <property name="text">
-    <string>API Dump...</string>
-   </property>
-  </action>
-  <action name="actionCreate_Custom_Profile">
-   <property name="text">
-    <string>Create Custom Profile..</string>
-   </property>
-  </action>
-  <action name="actionRestore_Default_Configurations">
-   <property name="text">
-    <string>Reset To Default</string>
-   </property>
-  </action>
-  <action name="actionVulkan_specification">
-   <property name="text">
-    <string>Vulkan Specification</string>
-   </property>
-  </action>
-  <action name="actionVulkan_Layer_Specification">
-   <property name="text">
-    <string>Vulkan Layer Specification</string>
-   </property>
-  </action>
-  <action name="actionGPU_Info_Reports">
-   <property name="text">
-    <string>Vulkan GPU Info Reports</string>
-   </property>
-  </action>
-  <action name="action_changelog">
-   <property name="text">
-    <string>Vulkan Configurator Changelog</string>
-   </property>
-  </action>
-  <action name="action_find_more_layers">
-   <property name="text">
-    <string>Find More Layers!</string>
-   </property>
-  </action>
--->
  </widget>
  <resources>
   <include location="resources.qrc"/>
