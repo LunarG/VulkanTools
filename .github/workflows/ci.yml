@@ -35,7 +35,7 @@ jobs:
       - name: Test Minimum CMake Version
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: 3.17.2
+          cmakeVersion: 3.22.1
       - uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: linux_back_compat
