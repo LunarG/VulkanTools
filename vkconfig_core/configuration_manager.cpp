@@ -138,9 +138,28 @@ void ConfigurationManager::LoadDefaultConfigurations(const LayerManager &layers)
     }
 }
 
-void ConfigurationManager::GatherConfigurationsParameters(const LayerManager &layers) {
+void ConfigurationManager::UpdateConfigurations(const LayerManager &layers) {
     for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
-        this->available_configurations[i].GatherParameters(layers);
+        Configuration &configuration = this->available_configurations[i];
+
+        for (std::size_t j = 0, o = configuration.parameters.size(); j < o; ++j) {
+            Parameter &parameter = configuration.parameters[j];
+            if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
+                continue;
+            }
+
+            const Layer *current_layer = layers.FindFromManifest(parameter.manifest);
+            const Layer *latest_layer = layers.Find(parameter.key, Version::LATEST);
+            if (latest_layer != nullptr) {
+                if (current_layer == nullptr) {
+                    configuration.SwitchLayerLatest(layers, parameter.key);
+                } else if (current_layer->api_version != parameter.api_version) {
+                    configuration.SwitchLayerLatest(layers, parameter.key);
+                }
+            }
+        }
+
+        configuration.GatherParameters(layers);
     }
 }
 

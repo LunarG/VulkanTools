@@ -48,8 +48,6 @@ Configurator& Configurator::Get() {
 Configurator::Configurator() {}
 
 Configurator::~Configurator() {
-    this->Surrender(OVERRIDE_AREA_ALL);
-
     if (this->reset_hard) {
         return;
     }
@@ -495,7 +493,10 @@ void Configurator::SetActiveConfigurationName(const std::string& configuration_n
     }
 }
 
-void Configurator::GatherParameters() { this->configurations.GatherConfigurationsParameters(this->layers); }
+void Configurator::UpdateConfigurations() {
+    this->configurations.UpdateConfigurations(this->layers);
+    return;
+}
 
 Configuration* Configurator::GetActiveConfiguration() {
     if (this->executable_scope == EXECUTABLE_PER) {

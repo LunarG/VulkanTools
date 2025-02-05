@@ -223,7 +223,7 @@ TEST(test_configuration_manager, ExportImport) {
     EXPECT_TRUE(configuration != nullptr);
 }
 
-TEST(test_configuration_manager, GatherConfigurationsParameters) {
+TEST(test_configuration_manager, UpdateConfigurations) {
     LayerManager layer_manager;
 
     ConfigurationManager configuration_manager;
@@ -241,7 +241,7 @@ TEST(test_configuration_manager, GatherConfigurationsParameters) {
     EXPECT_EQ(2, configuration_init->parameters.size());
 
     layer_manager.LoadLayersFromPath(":/sdk");
-    configuration_manager.GatherConfigurationsParameters(layer_manager);
+    configuration_manager.UpdateConfigurations(layer_manager);
 
     std::size_t count_update = configuration_manager.available_configurations.size();
     EXPECT_TRUE(count_update > 0);
