@@ -40,8 +40,7 @@ LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths 
         this->buttom_remove->hide();
     }
 
-    this->setText(format("[%s] %s", GetLabel(layers_path), path_info.path.RelativePath().c_str()).c_str());
-    this->setToolTip(path_info.path.AbsolutePath().c_str());
+    this->setText(format("[%s] %s", GetLabel(layers_path), path_info.path.AbsolutePath().c_str()).c_str());
 
     this->connect(this, SIGNAL(toggled(bool)), this, SLOT(on_toggled(bool)));
     this->connect(this->buttom_remove, SIGNAL(clicked(bool)), this, SLOT(on_buttom_remove_clicked(bool)));

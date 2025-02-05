@@ -106,6 +106,9 @@ class Configurator {
     bool GetUseSystemTray() const;
     void SetUseSystemTray(bool enabled);
 
+    bool GetUseLayerDevMode() const;
+    void SetUseLayerDevMode(bool enabled);
+
     bool HasActiveSettings() const;
     bool HasEnabledUI(EnabledUI enabled_ui) const;
 
@@ -137,6 +140,7 @@ class Configurator {
    private:
     int hide_message_boxes_flags = 0;
     bool use_system_tray = false;
+    bool use_layer_dev_mode = false;
     ExecutableScope executable_scope = EXECUTABLE_ANY;
     std::string selected_global_configuration = "Validation";
 };

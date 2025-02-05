@@ -989,6 +989,13 @@
         </property>
         <item>
          <widget class="QGroupBox" name="launcher_applications_list">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
           <property name="title">
            <string>Vulkan Executables List:</string>
           </property>
@@ -1236,6 +1243,13 @@
         </item>
         <item>
          <widget class="QGroupBox" name="launcher_applications_options">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
           <property name="title">
            <string>Vulkan Executables Launch Options:</string>
           </property>
@@ -1532,8 +1546,15 @@
         </property>
         <item>
          <widget class="QGroupBox" name="diagnostic_group_box_refresh">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
           <property name="title">
-           <string>Vulkan Developement Status</string>
+           <string>Vulkan Developement Status:</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_21">
            <property name="spacing">
@@ -1567,126 +1588,6 @@
               <bool>true</bool>
              </property>
             </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="diagnostic_group_box_settings">
-          <property name="title">
-           <string>Vulkan Configurator Settings</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_22">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>5</number>
-           </property>
-           <property name="topMargin">
-            <number>5</number>
-           </property>
-           <property name="rightMargin">
-            <number>5</number>
-           </property>
-           <property name="bottomMargin">
-            <number>5</number>
-           </property>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QCheckBox" name="diagnostic_keep_running">
-               <property name="text">
-                <string>Keep Vulkan Configurator running in system tray when closing the main window</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="diagnostic_reset">
-               <property name="toolTip">
-                <string>Resetting Vulkan Configurator to default...</string>
-               </property>
-               <property name="text">
-                <string>Reset To Default</string>
-               </property>
-               <property name="icon">
-                <iconset>
-                 <normaloff>:/resourcefiles/reset.png</normaloff>:/resourcefiles/reset.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_12">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_5">
-               <property name="toolTip">
-                <string>${VK_HOME} is the default environment variable for Vulkan SDK tools outputs implementing it.</string>
-               </property>
-               <property name="text">
-                <string>${VK_HOME}: </string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="diagnostic_vk_home_text"/>
-             </item>
-             <item>
-              <widget class="QPushButton" name="diagnostic_vk_home_browse">
-               <property name="maximumSize">
-                <size>
-                 <width>32</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset>
-                 <normaloff>:/resourcefiles/folder_search.png</normaloff>:/resourcefiles/folder_search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
            </item>
           </layout>
          </widget>
@@ -1747,7 +1648,7 @@
               </font>
              </property>
              <property name="title">
-              <string>Vulkan Specification</string>
+              <string>Vulkan Specification:</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_12">
               <property name="leftMargin">
@@ -1821,7 +1722,7 @@
               </font>
              </property>
              <property name="title">
-              <string>Vulkan Documentation</string>
+              <string>Vulkan Documentation:</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_6">
               <property name="leftMargin">
@@ -1918,7 +1819,7 @@
               </font>
              </property>
              <property name="title">
-              <string>Vulkan SDK</string>
+              <string>Vulkan SDK:</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_18">
               <property name="leftMargin">
@@ -2084,7 +1985,7 @@
               </font>
              </property>
              <property name="title">
-              <string>Vulkan Community</string>
+              <string>Vulkan Community:</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_20">
               <property name="leftMargin">
@@ -2143,6 +2044,193 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Tab 6</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_24">
+        <item>
+         <widget class="QGroupBox" name="diagnostic_group_box_settings">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="title">
+           <string>Vulkan Configurator Settings:</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_22">
+           <property name="spacing">
+            <number>5</number>
+           </property>
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>5</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="settings_keep_running">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Keep Vulkan Configurator running in system tray when closing the main window</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="settings_layer_dev_mode">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Layer Developer Mode</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_5">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>${VK_HOME} is the default environment variable for Vulkan SDK tools outputs implementing it.</string>
+               </property>
+               <property name="text">
+                <string>${VK_HOME}: </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="settings_vk_home_text">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="settings_vk_home_browse">
+               <property name="maximumSize">
+                <size>
+                 <width>32</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>:/resourcefiles/folder_search.png</normaloff>:/resourcefiles/folder_search.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <property name="topMargin">
+           <number>5</number>
+          </property>
+          <property name="bottomMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="settings_reset">
+            <property name="toolTip">
+             <string>Resetting Vulkan Configurator to default...</string>
+            </property>
+            <property name="text">
+             <string>Reset To Default</string>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>:/resourcefiles/reset.png</normaloff>:/resourcefiles/reset.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="tab_about">
        <property name="maximumSize">
         <size>
@@ -2151,7 +2239,7 @@
         </size>
        </property>
        <attribute name="title">
-        <string>Tab 6</string>
+        <string>Tab 7</string>
        </attribute>
        <attribute name="toolTip">
         <string>About Vulkan Configurator</string>
@@ -2374,98 +2462,6 @@
     </item>
    </layout>
   </widget>
-<!--
-  <action name="actionHistory">
-   <property name="text">
-    <string>History...</string>
-   </property>
-  </action>
-  <action name="actionSave_Configuration_2">
-   <property name="text">
-    <string>Save Profile...</string>
-   </property>
-  </action>
-  <action name="actionExit_and_Keep">
-   <property name="text">
-    <string>Exit and Keep</string>
-   </property>
-  </action>
-  <action name="actionExit">
-   <property name="text">
-    <string>Exit</string>
-   </property>
-  </action>
-  <action name="actionVulkan_Info">
-   <property name="text">
-    <string>Vulkan Info</string>
-   </property>
-  </action>
-  <action name="actionVulkan_Installation">
-   <property name="text">
-    <string>Vulkan Installation Analysis</string>
-   </property>
-  </action>
-  <action name="actionAbout">
-   <property name="text">
-    <string>About Vulkan Configurator</string>
-   </property>
-  </action>
-  <action name="action_readme">
-   <property name="text">
-    <string>Vulkan Configurator Readme</string>
-   </property>
-  </action>
-  <action name="actionSet_Test_Application">
-   <property name="text">
-    <string>Test Environment...</string>
-   </property>
-  </action>
-  <action name="actionCustom_Layer_Paths">
-   <property name="text">
-    <string>User-Defined Layers Paths...</string>
-   </property>
-  </action>
-  <action name="actionLog_API_Dump">
-   <property name="text">
-    <string>API Dump...</string>
-   </property>
-  </action>
-  <action name="actionCreate_Custom_Profile">
-   <property name="text">
-    <string>Create Custom Profile..</string>
-   </property>
-  </action>
-  <action name="actionRestore_Default_Configurations">
-   <property name="text">
-    <string>Reset To Default</string>
-   </property>
-  </action>
-  <action name="actionVulkan_specification">
-   <property name="text">
-    <string>Vulkan Specification</string>
-   </property>
-  </action>
-  <action name="actionVulkan_Layer_Specification">
-   <property name="text">
-    <string>Vulkan Layer Specification</string>
-   </property>
-  </action>
-  <action name="actionGPU_Info_Reports">
-   <property name="text">
-    <string>Vulkan GPU Info Reports</string>
-   </property>
-  </action>
-  <action name="action_changelog">
-   <property name="text">
-    <string>Vulkan Configurator Changelog</string>
-   </property>
-  </action>
-  <action name="action_find_more_layers">
-   <property name="text">
-    <string>Find More Layers!</string>
-   </property>
-  </action>
--->
  </widget>
  <resources>
   <include location="resources.qrc"/>

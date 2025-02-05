@@ -28,6 +28,7 @@
 #include "tab_applications.h"
 #include "tab_diagnostics.h"
 #include "tab_documentation.h"
+#include "tab_settings.h"
 #include "tab_about.h"
 #include "ui_mainwindow.h"
 
