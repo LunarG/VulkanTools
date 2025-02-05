@@ -43,7 +43,7 @@ class ConfigurationManager : public Serialize {
     void LoadAllConfigurations(const LayerManager& layers);
     void SaveAllConfigurations() const;
 
-    void GatherConfigurationsParameters(const LayerManager& layers);
+    void UpdateConfigurations(const LayerManager& layers);
 
     Configuration& CreateConfiguration(const LayerManager& layers, const std::string& configuration_name);
     Configuration& DuplicateConfiguration(const LayerManager& layers, const std::string& configuration_name);

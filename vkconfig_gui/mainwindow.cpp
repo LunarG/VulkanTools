@@ -91,6 +91,8 @@ void MainWindow::commitDataRequest(QSessionManager &manager) {
     (void)manager;
 
     Configurator &configurator = Configurator::Get();
+    configurator.Surrender(OVERRIDE_AREA_ALL);
+
     configurator.~Configurator();
 }
 
@@ -296,7 +298,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
                 configurator.SetUseSystemTray(false);
 
-                this->ui->tab_widget->setCurrentIndex(TAB_DIAGNOSTIC);
+                this->ui->tab_widget->setCurrentIndex(TAB_SETTINGS);
                 QPalette palette = this->ui->settings_keep_running->palette();
                 palette.setColor(QPalette::WindowText, QColor(Qt::red));
                 this->ui->settings_keep_running->setPalette(palette);

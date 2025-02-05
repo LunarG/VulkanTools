@@ -404,11 +404,13 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
         const QJsonObject& json_setting = json_array[i].toObject();
 
         const std::string key = ReadStringValue(json_setting, "key");
-        if (this->key == "VK_LAYER_KHRONOS_validation" && key == "enables") {
-            continue;
-        }
-        if (this->key == "VK_LAYER_KHRONOS_validation" && key == "disables") {
-            continue;
+        if (this->key == "VK_LAYER_KHRONOS_validation" && this->api_version > Version(1, 3, 261)) {
+            if (key == "enables") {
+                continue;
+            }
+            if (key == "disables") {
+                continue;
+            }
         }
 
         const std::string desc = ReadStringValue(json_setting, "description");

@@ -133,13 +133,13 @@ void TabLayers::CleanUI() {}
 bool TabLayers::EventFilter(QObject *target, QEvent *event) { return false; }
 
 void TabLayers::on_paths_changed() {
-    Configurator::Get().GatherParameters();
+    Configurator::Get().UpdateConfigurations();
 
     this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
 }
 
 void TabLayers::on_paths_toggled() {
-    Configurator::Get().GatherParameters();
+    Configurator::Get().UpdateConfigurations();
 
     this->UpdateUI_LayersPaths(UPDATE_REFRESH_UI);
 }
@@ -190,7 +190,7 @@ void TabLayers::on_layers_reload_pressed() {
         std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
     }
 
-    configurator.GatherParameters();
+    configurator.UpdateConfigurations();
 
     std::string last_layers_path = configurator.layers.last_layers_path.AbsolutePath();
 
