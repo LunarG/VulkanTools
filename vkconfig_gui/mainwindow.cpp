@@ -64,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->tabs[TAB_LAYERS].reset(new TabLayers(*this, ui));
     this->tabs[TAB_CONFIGURATIONS].reset(new TabConfigurations(*this, ui));
     this->tabs[TAB_DOCUMENTATION].reset(new TabDocumentation(*this, ui));
+    this->tabs[TAB_SETTINGS].reset(new TabSettings(*this, ui));
     this->tabs[TAB_ABOUT].reset(new TabAbout(*this, ui));
 
     this->connect(qApp, &QGuiApplication::commitDataRequest, this, &MainWindow::commitDataRequest);
@@ -255,49 +256,7 @@ void MainWindow::StartTool(Tool tool) {
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
 }
-/*
-/// Create the VulkanInfo dialog if it doesn't already exits & show it.
-void MainWindow::toolsVulkanInfo(bool checked) {
-    (void)checked;
-    this->StartTool(TOOL_VULKAN_INFO);
-}
 
-/// Create the VulkanTools dialog if it doesn't already exist & show it.
-void MainWindow::toolsVulkanInstallation(bool checked) {
-    (void)checked;
-    this->StartTool(TOOL_VULKAN_INSTALL);
-}
-
-void MainWindow::OnHelpFindLayers(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_FIND_LAYERS);
-}
-
-void MainWindow::OnHelpReadme(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_VKCONFIG_README);
-}
-
-void MainWindow::OnHelpChangelog(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_VKCONFIG_CHANGELOG);
-}
-
-void MainWindow::OnHelpVulkanSpec(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_VULKAN_SPEC);
-}
-
-void MainWindow::OnHelpLayerSpec(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_VULKAN_LAYERS);
-}
-
-void MainWindow::OnHelpGPUInfo(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_GPU_INFO);
-}
-*/
 /// The only thing we need to do here is clear the configuration if
 /// the user does not want it active.
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -338,9 +297,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
                 configurator.SetUseSystemTray(false);
 
                 this->ui->tab_widget->setCurrentIndex(TAB_DIAGNOSTIC);
-                QPalette palette = this->ui->diagnostic_keep_running->palette();
+                QPalette palette = this->ui->settings_keep_running->palette();
                 palette.setColor(QPalette::WindowText, QColor(Qt::red));
-                this->ui->diagnostic_keep_running->setPalette(palette);
+                this->ui->settings_keep_running->setPalette(palette);
 
                 event->ignore();
                 return;

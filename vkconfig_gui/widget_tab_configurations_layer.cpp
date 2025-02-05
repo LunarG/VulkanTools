@@ -65,11 +65,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     std::string decorated_name = parameter.key;
 
     if (layer != nullptr) {
-        decorated_name += format(" - %s", layer->api_version.str().c_str());
-
-        if (layer->is_32bits) {
-            decorated_name += " (32 bits)";
-        }
+        decorated_name += format(" - %s (%s)", layer->api_version.str().c_str(), ::GetToken(layer->type));
 
         if (layer->status != STATUS_STABLE) {
             decorated_name += format(" (%s)", GetToken(layer->status));

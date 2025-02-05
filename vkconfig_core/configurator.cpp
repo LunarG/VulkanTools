@@ -545,11 +545,12 @@ std::string Configurator::LogConfiguration(const std::string& configuration_key)
             if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
                 log += format("   * %s: %s\n", parameter.key.c_str(), ::GetToken(parameter.control));
             } else {
-                if (this->layers.Find(parameter.key, parameter.api_version) == nullptr) {
+                const Layer* layer = this->layers.Find(parameter.key, parameter.api_version);
+                if (layer == nullptr) {
                     log += format("   * %s - Missing: %s\n", parameter.key.c_str(), ::GetToken(parameter.control));
                 } else {
-                    log += format("   * %s - %s: %s\n", parameter.key.c_str(), parameter.api_version.str().c_str(),
-                                  ::GetToken(parameter.control));
+                    log += format("   * %s - %s (%s layer): %s\n", parameter.key.c_str(), layer->api_version.str().c_str(),
+                                  ::GetToken(layer->type), ::GetToken(parameter.control));
                 }
                 log += format("     Layer manifest path: %s\n", parameter.manifest.AbsolutePath().c_str());
                 log += format("     Layer settings export: %s\n", parameter.override_settings ? "enabled" : "disabled");
@@ -632,6 +633,7 @@ std::string Configurator::Log() const {
     }
 
     log += format(" - Use system tray: %s\n", this->use_system_tray ? "true" : "false");
+    log += format(" - Use layer developer mode: %s\n", this->use_layer_dev_mode ? "true" : "false");
     log += format(" - ${VULKAN_BIN}: %s\n", ::Path(Path::BIN).AbsolutePath().c_str());
     log += format(" - ${VULKAN_PROFILES}: %s\n", ::Path(Path::PROFILES).AbsolutePath().c_str());
     log += format(" - ${VK_HOME}: %s\n", ::Path(Path::HOME).AbsolutePath().c_str());
@@ -796,6 +798,9 @@ bool Configurator::Load() {
         if (json_interface_object.value(GetToken(TAB_CONFIGURATIONS)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_CONFIGURATIONS)).toObject();
             this->use_system_tray = json_object.value("use_system_tray").toBool();
+            if (json_object.value("use_layer_dev_mode") != QJsonValue::Undefined) {
+                this->use_layer_dev_mode = json_object.value("use_layer_dev_mode").toBool();
+            }
             this->advanced = json_object.value("advanced").toBool();
             this->executable_scope = ::GetExecutableScope(json_object.value("executable_scope").toString().toStdString().c_str());
             this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
@@ -843,6 +848,7 @@ bool Configurator::Save() const {
     {
         QJsonObject json_object;
         json_object.insert("use_system_tray", this->use_system_tray);
+        json_object.insert("use_layer_dev_mode", this->use_layer_dev_mode);
         json_object.insert("advanced", this->advanced);
         json_object.insert("executable_scope", ::GetToken(this->executable_scope));
         json_object.insert("selected_global_configuration", this->selected_global_configuration.c_str());
@@ -919,6 +925,10 @@ void Configurator::SetExecutableScope(ExecutableScope scope) {
 bool Configurator::GetUseSystemTray() const { return this->use_system_tray; }
 
 void Configurator::SetUseSystemTray(bool enabled) { this->use_system_tray = enabled; }
+
+bool Configurator::GetUseLayerDevMode() const { return this->use_layer_dev_mode; }
+
+void Configurator::SetUseLayerDevMode(bool enabled) { this->use_layer_dev_mode = enabled; }
 
 bool Configurator::HasActiveSettings() const {
     switch (this->executable_scope) {

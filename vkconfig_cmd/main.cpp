@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 
             QProcess* gui = new QProcess(&app);
 
-            DefaultPath path = ::GetDefaultExecutablePath("/vkconfig_gui");
+            DefaultPath path = ::GetDefaultExecutablePath("/vkconfig-gui");
             gui->setProgram(path.executable_path.AbsolutePath().c_str());
             gui->setWorkingDirectory(path.working_folder.AbsolutePath().c_str());
             bool result = gui->startDetached(nullptr);
