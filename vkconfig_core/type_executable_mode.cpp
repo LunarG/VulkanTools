@@ -28,7 +28,7 @@ const char* GetLabel(ExecutableScope scope) {
         "No Vulkan Executable",            // EXECUTABLE_NONE
         "Any Running Vulkan Executable",   // EXECUTABLE_ANY
         "All Enabled Vulkan Executables",  // EXECUTABLE_ALL
-        "Per Enabled Vulkan Executable",   // EXECUTABLE_PER
+        "Per Vulkan Working Directory",    // EXECUTABLE_PER
     };
 
     static_assert(std::size(TABLE) == EXECUTABLE_SCOPE_COUNT,

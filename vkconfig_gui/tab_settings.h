@@ -22,26 +22,23 @@
 
 #include "tab.h"
 
-#include <QPushButton>
-
-class TabDiagnostics : public Tab {
+class TabSettings : public Tab {
     Q_OBJECT
 
    public:
-    TabDiagnostics(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui);
-    virtual ~TabDiagnostics();
+    TabSettings(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui);
+    virtual ~TabSettings();
 
     virtual void UpdateUI(UpdateUIMode mode) override;
     virtual void CleanUI() override;
-    virtual bool EventFilter(QObject* target, QEvent* event) override;
+    virtual bool EventFilter(QObject *target, QEvent *event) override;
 
    public Q_SLOTS:
-    void on_customContextMenuRequested(const QPoint& pos);
+    void on_keep_running_toggled(bool checked);
+    void on_vk_home_text_pressed();
+    void on_vk_home_browse_pressed();
+    void on_reset_hard_pressed();
+    void on_layer_dev_mode_toggled(bool checked);
 
    private:
-    QPushButton* widget_refresh = nullptr;
-    QPushButton* widget_export = nullptr;
-    std::string status;
-
-    void UpdateStatus();
 };

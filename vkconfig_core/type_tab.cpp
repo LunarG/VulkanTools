@@ -30,6 +30,7 @@ const char* GetLabel(TabType type) {
         "Application Launcher",      // TAB_APPLICATIONS
         "System Diagnostic",         // TAB_DIAGNOSTIC
         "Documentation",             // TAB_DOCUMENTATION
+        "Settings",                  // TAB_SETTINGS
         "About"                      // TAB_ABOUT
     };
 
@@ -45,6 +46,7 @@ const char* GetToken(TabType type) {
         "APPLICATIONS",    // TAB_APPLICATIONS
         "DIAGNOSTIC",      // TAB_DIAGNOSTIC
         "DOCUMENTATION",   // TAB_DOCUMENTATION
+        "SETTINGS",        // TAB_SETTINGS
         "ABOUT"            // TAB_ABOUT
     };
 

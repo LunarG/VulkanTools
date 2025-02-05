@@ -44,7 +44,7 @@ static const DefaultExecutable defaults_executables[] = {
     {"vkcubepp", "/vkcubepp", "--suppress_popups", "vkcubepp launcher options"},
 #if VKC_ENV == VKC_ENV_WIN32
     {"vulkaninfoSDK", "/vulkaninfoSDK", "--json", "vulkaninfo launcher options"},
-#else
+#elif VKC_PLATFORM == PLATFORM_LINUX
     {"vulkaninfo", "/vulkaninfo", "--json", "vulkaninfo launcher options"},
 #endif
 };

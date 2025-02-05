@@ -104,6 +104,7 @@ SOURCES += \
     tab_configurations.cpp \
     tab_diagnostics.cpp \
     tab_documentation.cpp \
+    tab_settings.cpp \
     tab_layers.cpp \
     settings_tree.cpp
 
@@ -183,6 +184,7 @@ HEADERS += \
     tab_configurations.h \
     tab_diagnostics.h \
     tab_documentation.h \
+    tab_settings.h \
     tab_layers.h \
     settings_tree.h
 
