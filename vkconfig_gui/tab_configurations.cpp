@@ -79,6 +79,7 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
                   SLOT(on_configurations_list_itemDoubleClicked(QListWidgetItem *)));
     this->connect(this->ui->configurations_list, SIGNAL(currentRowChanged(int)), this,
                   SLOT(on_configurations_list_currentRowChanged(int)));
+
     this->connect(this->ui->configurations_layers_list, SIGNAL(currentRowChanged(int)), this,
                   SLOT(on_configurations_layers_list_currentRowChanged(int)));
 
@@ -153,7 +154,7 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         item->setText(configuration.key.c_str());
         if (configurator.GetActiveConfiguration() == &configuration) {
-            item->setIcon(QIcon(":/resourcefiles/system-on.png"));
+            item->setIcon(::Get(::ICON_SYSTEM_ON));
             item->setToolTip(format("Using the '%s' configuration with Vulkan executables", configuration.key.c_str()).c_str());
             ui->configurations_group_box_layers->blockSignals(true);
             ui->configurations_group_box_layers->setChecked(configuration.override_layers);
@@ -173,11 +174,11 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
             ui->configurations_group_box_loader->blockSignals(false);
             current_row = static_cast<int>(i);
         } else if (has_missing_layer) {
-            item->setIcon(QIcon(":/resourcefiles/system-invalid.png"));
+            item->setIcon(::Get(::ICON_SYSTEM_INVALID));
             item->setToolTip(
                 format("The '%s' configuration has missing layers. These layers are ignored.", configuration.key.c_str()).c_str());
         } else {
-            item->setIcon(QIcon(":/resourcefiles/system-off.png"));
+            item->setIcon(::Get(::ICON_SYSTEM_OFF));
             item->setToolTip(
                 format("Select the '%s' configuration to use it with Vulkan executables", configuration.key.c_str()).c_str());
         }
