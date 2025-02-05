@@ -30,6 +30,30 @@
 
 #include <cassert>
 
+QtMessageHandler originalHandler = nullptr;
+
+void log_handler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {
+#if _DEBUG
+    QString message = qFormatLogMessage(type, context, msg);
+    std::string printable_message = qPrintable(message);
+    switch (type) {
+        default:
+            fprintf(stdout, "%s\n", printable_message.c_str());
+            fflush(stdout);
+            break;
+        case QtCriticalMsg:
+        case QtFatalMsg:
+            fprintf(stderr, "%s\n", printable_message.c_str());
+            fflush(stderr);
+            break;
+    }
+
+    if (originalHandler) {
+        (*originalHandler)(type, context, msg);
+    }
+#endif  //_DEBUG
+}
+
 int main(int argc, char* argv[]) {
     InitSignals();
 
@@ -42,6 +66,8 @@ int main(int argc, char* argv[]) {
     // keeping this as 'vkconfig' will ensure that it picks up the
     // settings from the previous version (assuming that's ever an issue)
     QCoreApplication::setApplicationName(VKCONFIG_SHORT_NAME);
+
+    QtMessageHandler originalHandler = qInstallMessageHandler(log_handler);
 
     QApplication app(argc, argv);
     app.setStyle("Fusion");
@@ -85,6 +111,8 @@ int main(int argc, char* argv[]) {
 
         result = app.exec();
     }
+
+    configurator.Surrender(OVERRIDE_AREA_ALL);
 
     if (configurator.reset_hard) {
         singleton.Release();

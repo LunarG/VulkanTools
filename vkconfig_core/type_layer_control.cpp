@@ -74,7 +74,7 @@ const char* GetLabel(LayerControl control) {
 const char* GetDescription(LayerControl control) {
     static const char* TOKENS[] = {
         "Explicit layers are disabled by default and implicit layers are enabled by default.",  // LAYER_CONTROL_AUTO
-        "Discard the layer, don't notify the Vulkan Loader this layer exists.",                 // LAYER_CONTROL_DISCARD
+        "Discard the layer, don't notify the Vulkan Loader that this layer exists.",            // LAYER_CONTROL_DISCARD
         "Enable the layer, ensuring its execution.",                                            // LAYER_CONTROL_ON
         "Disable the layer, preventing its execution.",                                         // LAYER_CONTROL_OFF
     };

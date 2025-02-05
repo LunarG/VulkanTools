@@ -11,7 +11,7 @@
 - Improve layers loading and selection:
   * Add loading of multiple versions of the same layer
   * Add explicit selection of the layer version used by a configuration
-  * No longer load and unload layer manifest when switching configuations
+  * No longer load and unload layer manifest when switching configurations
   * Json validation caching based on layer manifest modified date and time
   * Add layers manifest reloading
   * Per-layer enabling of layer settings
@@ -28,7 +28,6 @@
   * Add *Vulkan Loader* selection of each logging message type
 - Split GUI and command line into two separate executables
 - Add system diagnostic
-- Improve ${VULKAN_SDK} variable coverage, working for all paths
 
 ### Improvements:
 - Almost all Vulkan Configurator data is stored in a `$HOME` directory JSON file
