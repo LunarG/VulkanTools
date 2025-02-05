@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17.2)
+cmake_minimum_required(VERSION 3.22.1)
 
 project(VULKAN_TOOLS LANGUAGES CXX)
 
@@ -62,11 +62,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux|BSD")
     option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
 
 elseif(ANDROID)
-    # https://gitlab.kitware.com/cmake/cmake/issues/18787
-    # https://github.com/android-ndk/ndk/issues/463
-    if (CMAKE_VERSION VERSION_LESS "3.21")
-        message(FATAL_ERROR "Android build requires at least CMake 3.21!")
-    endif()
 
     # Currently the Android build only build the API dump and screen shot layer.
     # - libVkLayer_api_dump.so
