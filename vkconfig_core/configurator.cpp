@@ -58,6 +58,7 @@ Configurator::~Configurator() {
 
 bool Configurator::Init() {
     this->Load();
+
     if (this->has_crashed) {
         if (Alert::ConfiguratorCrashed() == QMessageBox::Yes) {
             this->Reset(true);
@@ -779,7 +780,9 @@ bool Configurator::Load() {
 
         const Version file_format_version = Version(json_root_object.value("file_format_version").toString().toStdString());
         if (file_format_version > Version::VKCONFIG) {
-            return false;  // Vulkan Configurator needs to be updated
+            if (Alert::ConfiguratorOlderVersion(file_format_version) == QMessageBox::Yes) {
+                return false;  // Vulkan Configurator is reset to default
+            }
         }
 
         // interface json object
