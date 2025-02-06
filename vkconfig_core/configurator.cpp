@@ -57,7 +57,10 @@ Configurator::~Configurator() {
 }
 
 bool Configurator::Init() {
-    this->Load();
+    const bool result = this->Load();
+    if (!result) {
+        return false;
+    }
 
     if (this->has_crashed) {
         if (Alert::ConfiguratorCrashed() == QMessageBox::Yes) {
@@ -780,7 +783,7 @@ bool Configurator::Load() {
 
         const Version file_format_version = Version(json_root_object.value("file_format_version").toString().toStdString());
         if (file_format_version > Version::VKCONFIG) {
-            if (Alert::ConfiguratorOlderVersion(file_format_version) == QMessageBox::Yes) {
+            if (Alert::ConfiguratorOlderVersion(file_format_version) == QMessageBox::Cancel) {
                 return false;  // Vulkan Configurator is reset to default
             }
         }
