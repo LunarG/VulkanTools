@@ -19,6 +19,7 @@
  */
 
 #include "alert.h"
+#include "version.h"
 #include <QCheckBox>
 
 QMessageBox::Button Alert::StartSingleton() {
@@ -145,6 +146,19 @@ QMessageBox::Button Alert::ConfiguratorReloadDefault() {
     alert.setDefaultButton(QMessageBox::No);
     alert.setIcon(QMessageBox::Warning);
 
+    return static_cast<QMessageBox::Button>(alert.exec());
+}
+
+QMessageBox::Button Alert::ConfiguratorOlderVersion(const Version& version) {
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle(format("Launching an older version of %s...", VKCONFIG_NAME).c_str());
+    alert.setText(format("Running a Vulkan Configurator %s but a newer %s version was previously launched.",
+                         Version::VKCONFIG.str().c_str(), version.str().c_str())
+                      .c_str());
+    alert.setInformativeText("Do you want to continue? This may cause crashes...");
+    alert.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
+    alert.setDefaultButton(QMessageBox::Cancel);
+    alert.setIcon(QMessageBox::Critical);
     return static_cast<QMessageBox::Button>(alert.exec());
 }
 
