@@ -48,6 +48,7 @@ class Configuration {
     const Parameter* GetActiveParameter() const;
 
     bool HasMissingLayer(const LayerManager& layers, std::vector<std::string>& missing_layers) const;
+    void RemoveParameter(const std::string& layer_key);
     void SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Path& manifest_path);
     void SwitchLayerLatest(const LayerManager& layers, const std::string& layer_key);
     void GatherParameters(const LayerManager& layers);
