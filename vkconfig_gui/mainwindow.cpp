@@ -264,7 +264,7 @@ void MainWindow::StartTool(Tool tool) {
 void MainWindow::closeEvent(QCloseEvent *event) {
     Configurator &configurator = Configurator::Get();
 
-    bool close = true;
+    QGuiApplication::setQuitOnLastWindowClosed(!configurator.GetUseSystemTray());
 
     if (configurator.GetUseSystemTray()) {
         // Alert the user to the current state of the vulkan configurator and
@@ -288,36 +288,32 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             alert.setDefaultButton(QMessageBox::Ok);
             alert.setCheckBox(new QCheckBox("Do not show again."));
 
+            QPalette palette, palette_saved = this->ui->settings_keep_running->palette();
+            palette.setColor(QPalette::WindowText, QColor(Qt::red));
+            this->ui->settings_keep_running->setPalette(palette);
+
+            this->ui->tab_widget->setCurrentIndex(TAB_SETTINGS);
+
             int ret_val = alert.exec();
             if (alert.checkBox()->isChecked()) {
                 configurator.Set(HIDE_MESSAGE_USE_SYSTEM_TRAY);
             }
 
+            this->ui->settings_keep_running->setPalette(palette_saved);
+
             if (ret_val == QMessageBox::Cancel) {
-                close = false;
-
-                configurator.SetUseSystemTray(false);
-
-                this->ui->tab_widget->setCurrentIndex(TAB_SETTINGS);
-                QPalette palette = this->ui->settings_keep_running->palette();
-                palette.setColor(QPalette::WindowText, QColor(Qt::red));
-                this->ui->settings_keep_running->setPalette(palette);
-
-                event->ignore();
+                event->ignore();  // Not closing the window
                 return;
             }
         }
     }
 
-    if (close) {
-        this->tabs[this->ui->tab_widget->currentIndex()]->CleanUI();
+    this->tabs[this->ui->tab_widget->currentIndex()]->CleanUI();
 
-        QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-        settings.setValue("vkconfig3/mainwindow/geometry", this->saveGeometry());
-        settings.setValue("vkconfig3/mainwindow/state", this->saveState());
-    }
+    QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
+    settings.setValue("vkconfig3/mainwindow/geometry", this->saveGeometry());
+    settings.setValue("vkconfig3/mainwindow/state", this->saveState());
 
-    QGuiApplication::setQuitOnLastWindowClosed(!configurator.GetUseSystemTray() && close);
     QMainWindow::closeEvent(event);
 }
 
