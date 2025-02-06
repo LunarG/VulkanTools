@@ -21,6 +21,7 @@
 #include "widget_tab_configurations_layer.h"
 #include "widget_setting.h"
 #include "tab_configurations.h"
+#include "widget_resize_button.h"
 #include "combo_box.h"
 
 #include "../vkconfig_core/configurator.h"
@@ -33,6 +34,12 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     const Layer *layer = configurator.layers.Find(parameter.key, parameter.api_version);
 
     this->layer_state = new ComboBox(this);
+    this->layer_remove = new ResizeButton(this, 0);
+    this->layer_remove->setMaximumWidth(32);
+    this->layer_remove->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    this->layer_remove->adjustSize();
+    this->layer_remove->setText("X");
+    this->connect(this->layer_remove, SIGNAL(clicked()), this, SLOT(on_layer_remove_pressed()));
 
     const int first = parameter.builtin == LAYER_BUILTIN_UNORDERED ? LAYER_CONTROL_UNORDERED_FIRST : LAYER_CONTROL_FIRST;
     const int last = parameter.builtin == LAYER_BUILTIN_UNORDERED ? LAYER_CONTROL_UNORDERED_LAST : LAYER_CONTROL_LAST;
@@ -60,7 +67,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
 
     const bool layer_found = layer != nullptr || parameter.builtin != LAYER_BUILTIN_NONE;
-    this->setEnabled(layer_found);
+    // this->setEnabled(layer_found);
 
     std::string decorated_name = parameter.key;
 
@@ -70,9 +77,16 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
         if (layer->status != STATUS_STABLE) {
             decorated_name += format(" (%s)", GetToken(layer->status));
         }
+        this->layer_remove->setVisible(false);
     } else if (!layer_found) {
         decorated_name += " - Missing";
+        this->layer_state->setVisible(false);
+        this->layer_state->setToolTip("Remove the layer from the configuration");
     }
+    if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
+        this->layer_remove->setVisible(false);
+    }
+
     /*
     if (layer_versions.empty()) {
         // A layers configuration may have excluded layer that are misssing because they are not available on this platform
@@ -112,14 +126,37 @@ void ConfigurationLayerWidget::resizeEvent(QResizeEvent *event) {
     QSize size = event->size();
 
     if (this->layer_state != nullptr) {
-        this->layer_state->adjustSize();
+        if (this->layer_state->isVisible()) {
+            this->layer_state->adjustSize();
 
-        const int width_state = this->layer_state->width();
-        const int height_state = this->layer_state->height();
+            const int width_state = this->layer_state->width();
+            const int height_state = this->layer_state->height();
 
-        const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, height_state);
-        this->layer_state->setGeometry(state_button_rect);
+            const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, height_state);
+            this->layer_state->setGeometry(state_button_rect);
+        }
     }
+
+    if (this->layer_remove != nullptr) {
+        if (this->layer_remove->isVisible()) {
+            this->layer_remove->adjustSize();
+
+            const int width_state = this->layer_remove->width();
+            const int height_state = this->layer_remove->height();
+
+            const QRect state_button_rect = QRect(size.width() - width_state, 0, width_state, height_state);
+            this->layer_remove->setGeometry(state_button_rect);
+        }
+    }
+}
+
+void ConfigurationLayerWidget::on_layer_remove_pressed() {
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    configuration->RemoveParameter(this->layer_name);
+
+    tab->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void ConfigurationLayerWidget::on_layer_state_currentIndexChanged(int index) {

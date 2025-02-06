@@ -3,7 +3,9 @@
 
 ### Features:
 - Add dark mode support, automatically matching the OS mode
+- Add button to remove missing layers
 
+---
 ## Vulkan Configurator 3.0.0 - February 2025
 [Vulkan SDK 1.4.304.1](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.304.1)
 
@@ -38,6 +40,7 @@
 ### Deprecation:
 - Requires Vulkan Loader 1.4.304 or newer
 
+---
 ## Vulkan Configurator 2.6.3 - January 2025
 [Vulkan SDK 1.4.304.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.304.0)
 - Final build

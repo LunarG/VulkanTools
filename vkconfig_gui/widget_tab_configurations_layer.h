@@ -48,9 +48,14 @@ class ConfigurationLayerWidget : public QLabel {
 
    public Q_SLOTS:
     void on_layer_state_currentIndexChanged(int index);
+    void on_layer_remove_pressed();
+
+   Q_SIGNALS:
+    void itemChanged();
 
    private:
     TabConfigurations *tab;
 
     QComboBox *layer_state = nullptr;
+    QPushButton *layer_remove = nullptr;
 };

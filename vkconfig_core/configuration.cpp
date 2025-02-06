@@ -436,6 +436,23 @@ bool Configuration::HasMissingLayer(const LayerManager& layers, std::vector<std:
     return !missing_layers.empty();
 }
 
+void Configuration::RemoveParameter(const std::string& layer_key) {
+    std::vector<Parameter> updated_parameters;
+
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        const Parameter& parameter = parameters[i];
+        assert(!parameter.key.empty());
+
+        if (parameter.key == layer_key) {
+            continue;
+        }
+
+        updated_parameters.push_back(parameter);
+    }
+
+    std::swap(this->parameters, updated_parameters);
+}
+
 void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Path& manifest_path) {
     if (manifest_path.Empty()) {
         this->SwitchLayerLatest(layers, layer_key);
@@ -512,7 +529,7 @@ void Configuration::GatherParameters(const LayerManager& layers) {
 
     ::OrderParameter(gathered_parameters, layers);
 
-    this->parameters = gathered_parameters;
+    std::swap(this->parameters, gathered_parameters);
 }
 
 void Configuration::Reorder(const std::vector<std::string>& layer_names) {
