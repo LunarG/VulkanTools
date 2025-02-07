@@ -31,7 +31,7 @@ static int RunLayersOverride(Configurator& configurator, const CommandLine& comm
     const bool load_result = configurator.configurations.ImportConfiguration(
         configurator.layers, command_line.layers_configuration_path, configuration_name);
     if (!load_result) {
-        fprintf(stderr, "vkconfig: Failed to load %s layers configuration file...\n",
+        fprintf(stderr, "vkconfig: Failed to load `%s` layers configuration file...\n",
                 command_line.layers_configuration_path.c_str());
         return -1;
     }
@@ -54,6 +54,8 @@ static int RunLayersOverride(Configurator& configurator, const CommandLine& comm
     } else {
         fprintf(stderr, "vkconfig: Failed to override Vulkan applications layers...\n");
     }
+
+    configurator.configurations.RemoveConfiguration(configuration_name);
 
     return override_result ? 0 : -1;
 }
