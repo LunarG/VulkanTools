@@ -143,13 +143,13 @@ bool TabLayers::EventFilter(QObject *target, QEvent *event) {
 }
 
 void TabLayers::on_paths_changed() {
-    Configurator::Get().GatherParameters();
+    Configurator::Get().UpdateConfigurations();
 
     this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
 }
 
 void TabLayers::on_paths_toggled() {
-    Configurator::Get().GatherParameters();
+    Configurator::Get().UpdateConfigurations();
 
     this->UpdateUI_LayersPaths(UPDATE_REFRESH_UI);
 }
@@ -183,7 +183,7 @@ void TabLayers::on_layers_reload_pressed() {
     const std::vector<Path> layers_paths =
         this->new_path.empty() ? configurator.layers.CollectManifestPaths() : ::CollectFilePaths(this->new_path);
 
-    this->ui->layers_progress->setMaximum(layers_paths.size());
+    this->ui->layers_progress->setMaximum(static_cast<int>(layers_paths.size()));
     this->ui->layers_progress->setValue(0);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
@@ -191,7 +191,7 @@ void TabLayers::on_layers_reload_pressed() {
 
         this->ui->layers_progress->setFormat(
             format("%s %s... - %d/%d files", label, layers_paths[i].AbsolutePath().c_str(), i + 1, layers_paths.size()).c_str());
-        this->ui->layers_progress->setValue(i + 1);
+        this->ui->layers_progress->setValue(static_cast<int>(i + 1));
         this->ui->layers_progress->update();
 
         LayerLoadStatus status = configurator.layers.LoadLayer(layers_paths[i]);
@@ -200,7 +200,7 @@ void TabLayers::on_layers_reload_pressed() {
         std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
     }
 
-    configurator.GatherParameters();
+    configurator.UpdateConfigurations();
 
     std::string last_layers_path = configurator.layers.last_layers_path.AbsolutePath();
 

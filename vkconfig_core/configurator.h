@@ -82,7 +82,7 @@ class Configurator {
 
     void SetActiveConfigurationName(const std::string& configuration_name);
 
-    void GatherParameters();
+    void UpdateConfigurations();
 
     Configuration* GetActiveConfiguration();
     const Configuration* GetActiveConfiguration() const;
@@ -105,6 +105,9 @@ class Configurator {
 
     bool GetUseSystemTray() const;
     void SetUseSystemTray(bool enabled);
+
+    bool GetUseLayerDevMode() const;
+    void SetUseLayerDevMode(bool enabled);
 
     bool HasActiveSettings() const;
     bool HasEnabledUI(EnabledUI enabled_ui) const;
@@ -132,11 +135,12 @@ class Configurator {
     bool has_crashed = false;
     TabType active_tab = TAB_CONFIGURATIONS;
     bool advanced = true;
-    Path last_path_status = ::Get(Path::HOME) + "/vkconfig.txt";
+    Path last_path_status = Path(Path::HOME).RelativePath() + "/vkconfig.txt";
 
    private:
     int hide_message_boxes_flags = 0;
     bool use_system_tray = false;
+    bool use_layer_dev_mode = false;
     ExecutableScope executable_scope = EXECUTABLE_ANY;
     std::string selected_global_configuration = "Validation";
 };

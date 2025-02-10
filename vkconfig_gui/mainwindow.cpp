@@ -59,32 +59,19 @@ MainWindow::MainWindow(QWidget *parent)
       ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
-    this->InitTray();
-
     this->tabs[TAB_DIAGNOSTIC].reset(new TabDiagnostics(*this, ui));
     this->tabs[TAB_APPLICATIONS].reset(new TabApplications(*this, ui));
     this->tabs[TAB_LAYERS].reset(new TabLayers(*this, ui));
     this->tabs[TAB_CONFIGURATIONS].reset(new TabConfigurations(*this, ui));
     this->tabs[TAB_DOCUMENTATION].reset(new TabDocumentation(*this, ui));
+    this->tabs[TAB_SETTINGS].reset(new TabSettings(*this, ui));
     this->tabs[TAB_ABOUT].reset(new TabAbout(*this, ui));
 
-    connect(qApp, &QGuiApplication::commitDataRequest, this, &MainWindow::commitDataRequest);
+    this->connect(qApp, &QGuiApplication::commitDataRequest, this, &MainWindow::commitDataRequest);
 
     for (int i = TAB_FIRST, l = TAB_LAST; i <= l; ++i) {
         this->ui->tab_widget->setTabText(i, GetLabel(static_cast<TabType>(i)));
     }
-
-    connect(ui->action_find_more_layers, SIGNAL(triggered(bool)), this, SLOT(OnHelpFindLayers(bool)));
-    connect(ui->actionAbout, SIGNAL(triggered(bool)), this, SLOT(OnHelpAbout(bool)));
-    connect(ui->actionVulkan_Info, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInfo(bool)));
-    connect(ui->action_readme, SIGNAL(triggered(bool)), this, SLOT(OnHelpReadme(bool)));
-    connect(ui->action_changelog, SIGNAL(triggered(bool)), this, SLOT(OnHelpChangelog(bool)));
-    connect(ui->actionVulkan_specification, SIGNAL(triggered(bool)), this, SLOT(OnHelpVulkanSpec(bool)));
-    connect(ui->actionVulkan_Layer_Specification, SIGNAL(triggered(bool)), this, SLOT(OnHelpLayerSpec(bool)));
-    connect(ui->actionGPU_Info_Reports, SIGNAL(triggered(bool)), this, SLOT(OnHelpGPUInfo(bool)));
-
-    connect(ui->actionVulkan_Installation, SIGNAL(triggered(bool)), this, SLOT(toolsVulkanInstallation(bool)));
-    connect(ui->actionRestore_Default_Configurations, SIGNAL(triggered(bool)), this, SLOT(toolsResetToDefault(bool)));
 
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
     this->restoreGeometry(settings.value("vkconfig3/mainwindow/geometry").toByteArray());
@@ -93,6 +80,8 @@ MainWindow::MainWindow(QWidget *parent)
     const Configurator &configurator = Configurator::Get();
 
     this->ui->tab_widget->setCurrentIndex(configurator.active_tab);
+
+    this->InitTray();
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
@@ -102,6 +91,8 @@ void MainWindow::commitDataRequest(QSessionManager &manager) {
     (void)manager;
 
     Configurator &configurator = Configurator::Get();
+    configurator.Surrender(OVERRIDE_AREA_ALL);
+
     configurator.~Configurator();
 }
 
@@ -268,54 +259,12 @@ void MainWindow::StartTool(Tool tool) {
     }
 }
 
-/// Create the VulkanInfo dialog if it doesn't already exits & show it.
-void MainWindow::toolsVulkanInfo(bool checked) {
-    (void)checked;
-    this->StartTool(TOOL_VULKAN_INFO);
-}
-
-/// Create the VulkanTools dialog if it doesn't already exist & show it.
-void MainWindow::toolsVulkanInstallation(bool checked) {
-    (void)checked;
-    this->StartTool(TOOL_VULKAN_INSTALL);
-}
-
-void MainWindow::OnHelpFindLayers(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_FIND_LAYERS);
-}
-
-void MainWindow::OnHelpReadme(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_VKCONFIG_README);
-}
-
-void MainWindow::OnHelpChangelog(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_VKCONFIG_CHANGELOG);
-}
-
-void MainWindow::OnHelpVulkanSpec(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_VULKAN_SPEC);
-}
-
-void MainWindow::OnHelpLayerSpec(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_VULKAN_LAYERS);
-}
-
-void MainWindow::OnHelpGPUInfo(bool checked) {
-    (void)checked;
-    ShowDoc(DOC_GPU_INFO);
-}
-
 /// The only thing we need to do here is clear the configuration if
 /// the user does not want it active.
 void MainWindow::closeEvent(QCloseEvent *event) {
     Configurator &configurator = Configurator::Get();
 
-    bool close = true;
+    QGuiApplication::setQuitOnLastWindowClosed(!configurator.GetUseSystemTray());
 
     if (configurator.GetUseSystemTray()) {
         // Alert the user to the current state of the vulkan configurator and
@@ -339,36 +288,32 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             alert.setDefaultButton(QMessageBox::Ok);
             alert.setCheckBox(new QCheckBox("Do not show again."));
 
+            QPalette palette, palette_saved = this->ui->settings_keep_running->palette();
+            palette.setColor(QPalette::WindowText, QColor(Qt::red));
+            this->ui->settings_keep_running->setPalette(palette);
+
+            this->ui->tab_widget->setCurrentIndex(TAB_SETTINGS);
+
             int ret_val = alert.exec();
             if (alert.checkBox()->isChecked()) {
                 configurator.Set(HIDE_MESSAGE_USE_SYSTEM_TRAY);
             }
 
+            this->ui->settings_keep_running->setPalette(palette_saved);
+
             if (ret_val == QMessageBox::Cancel) {
-                close = false;
-
-                configurator.SetUseSystemTray(false);
-
-                this->ui->tab_widget->setCurrentIndex(TAB_DIAGNOSTIC);
-                QPalette palette = this->ui->diagnostic_keep_running->palette();
-                palette.setColor(QPalette::WindowText, QColor(Qt::red));
-                this->ui->diagnostic_keep_running->setPalette(palette);
-
-                event->ignore();
+                event->ignore();  // Not closing the window
                 return;
             }
         }
     }
 
-    if (close) {
-        this->tabs[this->ui->tab_widget->currentIndex()]->CleanUI();
+    this->tabs[this->ui->tab_widget->currentIndex()]->CleanUI();
 
-        QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-        settings.setValue("vkconfig3/mainwindow/geometry", this->saveGeometry());
-        settings.setValue("vkconfig3/mainwindow/state", this->saveState());
-    }
+    QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
+    settings.setValue("vkconfig3/mainwindow/geometry", this->saveGeometry());
+    settings.setValue("vkconfig3/mainwindow/state", this->saveState());
 
-    QGuiApplication::setQuitOnLastWindowClosed(!configurator.GetUseSystemTray() && close);
     QMainWindow::closeEvent(event);
 }
 

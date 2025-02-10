@@ -3,7 +3,9 @@
 
 ### Features:
 - Add dark mode support, automatically matching the OS mode
+- Add button to remove missing layers
 
+---
 ## Vulkan Configurator 3.0.0 - February 2025
 [Vulkan SDK 1.4.304.1](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.304.1)
 
@@ -11,12 +13,12 @@
 - Improve layers loading and selection:
   * Add loading of multiple versions of the same layer
   * Add explicit selection of the layer version used by a configuration
-  * No longer load and unload layer manifest when switching configuations
+  * No longer load and unload layer manifest when switching configurations
   * Json validation caching based on layer manifest modified date and time
   * Add layers manifest reloading
   * Per-layer enabling of layer settings
 - Improve layers ordering:
-  * Allow ordering of all (implicit layers, unkown layers) layers executed by Vulkan application
+  * Allow ordering of all (implicit layers, unknown layers) layers executed by Vulkan application
   * Allow ordering layers independently from enabling them
   * Allow ordering of layers using drag and drop
 - Improve executable list:
@@ -26,9 +28,8 @@
   * Add per-executable *Vulkan Loader* loader configuration
   * Add *Vulkan Loader* logging outside of application launcher
   * Add *Vulkan Loader* selection of each logging message type
-- Split GUI and command line into two separated executables
+- Split GUI and command line into two separate executables
 - Add system diagnostic
-- Improve ${VULKAN_SDK} applied on executable, profiles and layers path when set
 
 ### Improvements:
 - Almost all Vulkan Configurator data is stored in a `$HOME` directory JSON file
@@ -39,6 +40,7 @@
 ### Deprecation:
 - Requires Vulkan Loader 1.4.304 or newer
 
+---
 ## Vulkan Configurator 2.6.3 - January 2025
 [Vulkan SDK 1.4.304.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.304.0)
 - Final build

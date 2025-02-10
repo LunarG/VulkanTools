@@ -19,6 +19,7 @@
  */
 
 #include "alert.h"
+#include "version.h"
 #include <QCheckBox>
 
 QMessageBox::Button Alert::StartSingleton() {
@@ -148,6 +149,19 @@ QMessageBox::Button Alert::ConfiguratorReloadDefault() {
     return static_cast<QMessageBox::Button>(alert.exec());
 }
 
+QMessageBox::Button Alert::ConfiguratorOlderVersion(const Version& version) {
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle(format("Launching an older version of %s...", VKCONFIG_NAME).c_str());
+    alert.setText(format("Running a Vulkan Configurator %s but a newer %s version was previously launched.",
+                         Version::VKCONFIG.str().c_str(), version.str().c_str())
+                      .c_str());
+    alert.setInformativeText("Do you want to continue? This may cause crashes...");
+    alert.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
+    alert.setDefaultButton(QMessageBox::Cancel);
+    alert.setIcon(QMessageBox::Critical);
+    return static_cast<QMessageBox::Button>(alert.exec());
+}
+
 QMessageBox::Button Alert::ConfiguratorCrashed() {
     QMessageBox alert;
     alert.QDialog::setWindowTitle(format("%s crashed during last run...", VKCONFIG_NAME).c_str());
@@ -186,6 +200,17 @@ void Alert::ConfigurationNameInvalid() {
     alert.QDialog::setWindowTitle("Invalid name for a configuration...");
     alert.setText("The configuration name is used to build a filename.");
     alert.setInformativeText("The name can't contain any of the following characters: \\ / : * \" < > |.");
+    alert.setStandardButtons(QMessageBox::Ok);
+    alert.setDefaultButton(QMessageBox::Ok);
+    alert.setIcon(QMessageBox::Warning);
+    alert.exec();
+}
+
+void Alert::ConfigurationNameTooLong() {
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle("Configuration name is too long...");
+    alert.setText("The configuration name is used to build a filename.");
+    alert.setInformativeText("The name must be a maximum of 255 characters.");
     alert.setStandardButtons(QMessageBox::Ok);
     alert.setDefaultButton(QMessageBox::Ok);
     alert.setIcon(QMessageBox::Warning);

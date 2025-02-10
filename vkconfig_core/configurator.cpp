@@ -48,8 +48,6 @@ Configurator& Configurator::Get() {
 Configurator::Configurator() {}
 
 Configurator::~Configurator() {
-    this->Surrender(OVERRIDE_AREA_ALL);
-
     if (this->reset_hard) {
         return;
     }
@@ -59,7 +57,11 @@ Configurator::~Configurator() {
 }
 
 bool Configurator::Init() {
-    this->Load();
+    const bool result = this->Load();
+    if (!result) {
+        return false;
+    }
+
     if (this->has_crashed) {
         if (Alert::ConfiguratorCrashed() == QMessageBox::Yes) {
             this->Reset(true);
@@ -403,8 +405,8 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
 }
 
 bool Configurator::Override(OverrideArea override_area) {
-    const Path& loader_settings_path = ::Get(Path::LOADER_SETTINGS);
-    const Path& layers_settings_path = ::Get(Path::LAYERS_SETTINGS);
+    const Path& loader_settings_path = ::Path(Path::LOADER_SETTINGS);
+    const Path& layers_settings_path = ::Path(Path::LAYERS_SETTINGS);
 
     // Clean up
     this->Surrender(override_area);
@@ -424,8 +426,8 @@ bool Configurator::Override(OverrideArea override_area) {
 }
 
 bool Configurator::Surrender(OverrideArea override_area) {
-    const Path& loader_settings_path = ::Get(Path::LOADER_SETTINGS);
-    const Path& layers_settings_path = ::Get(Path::LAYERS_SETTINGS);
+    const Path& loader_settings_path = ::Path(Path::LOADER_SETTINGS);
+    const Path& layers_settings_path = ::Path(Path::LAYERS_SETTINGS);
 
     bool result_loader_settings = true;
     if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
@@ -441,7 +443,7 @@ bool Configurator::Surrender(OverrideArea override_area) {
 
         const std::vector<Executable>& executables = this->executables.GetExecutables();
         for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
-            Path path(executables[i].GetActiveOptions()->working_folder + "/vk_layer_settings.txt");
+            Path path(executables[i].GetActiveOptions()->working_folder.RelativePath() + "/vk_layer_settings.txt");
             if (path.Exists()) {
                 bool local_removed = path.Remove();
                 if (::EnabledExecutables(this->executable_scope)) {
@@ -459,8 +461,8 @@ bool Configurator::Surrender(OverrideArea override_area) {
 }
 
 bool Configurator::HasOverride() const {
-    const Path& loader_settings_path = ::Get(Path::LOADER_SETTINGS);
-    const Path& layers_settings_path = ::Get(Path::LAYERS_SETTINGS);
+    const Path& loader_settings_path = ::Path(Path::LOADER_SETTINGS);
+    const Path& layers_settings_path = ::Path(Path::LAYERS_SETTINGS);
 
     return loader_settings_path.Exists() || layers_settings_path.Exists();
 }
@@ -468,7 +470,7 @@ bool Configurator::HasOverride() const {
 void Configurator::Reset(bool hard) {
     this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
-    const Path& vkconfig_init_path = ::Get(Path::INIT);
+    const Path& vkconfig_init_path = ::Path(Path::INIT);
     vkconfig_init_path.Remove();
 
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
@@ -487,13 +489,18 @@ void Configurator::Reset(bool hard) {
 void Configurator::SetActiveConfigurationName(const std::string& configuration_name) {
     if (this->executable_scope == EXECUTABLE_PER) {
         Executable* executable = this->executables.GetActiveExecutable();
-        executable->configuration = configuration_name;
+        if (executable != nullptr) {
+            executable->configuration = configuration_name;
+        }
     } else {
         this->selected_global_configuration = configuration_name;
     }
 }
 
-void Configurator::GatherParameters() { this->configurations.GatherConfigurationsParameters(this->layers); }
+void Configurator::UpdateConfigurations() {
+    this->configurations.UpdateConfigurations(this->layers);
+    return;
+}
 
 Configuration* Configurator::GetActiveConfiguration() {
     if (this->executable_scope == EXECUTABLE_PER) {
@@ -543,11 +550,12 @@ std::string Configurator::LogConfiguration(const std::string& configuration_key)
             if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
                 log += format("   * %s: %s\n", parameter.key.c_str(), ::GetToken(parameter.control));
             } else {
-                if (this->layers.Find(parameter.key, parameter.api_version) == nullptr) {
+                const Layer* layer = this->layers.Find(parameter.key, parameter.api_version);
+                if (layer == nullptr) {
                     log += format("   * %s - Missing: %s\n", parameter.key.c_str(), ::GetToken(parameter.control));
                 } else {
-                    log += format("   * %s - %s: %s\n", parameter.key.c_str(), parameter.api_version.str().c_str(),
-                                  ::GetToken(parameter.control));
+                    log += format("   * %s - %s (%s layer): %s\n", parameter.key.c_str(), layer->api_version.str().c_str(),
+                                  ::GetToken(layer->type), ::GetToken(parameter.control));
                 }
                 log += format("     Layer manifest path: %s\n", parameter.manifest.AbsolutePath().c_str());
                 log += format("     Layer settings export: %s\n", parameter.override_settings ? "enabled" : "disabled");
@@ -580,19 +588,19 @@ std::string Configurator::Log() const {
     log += format("%s %s - %s:\n", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
     log += format(" - Build: %s %s\n", GetLabel(VKC_PLATFORM), build.c_str());
     log += format(" - Vulkan API version: %s\n", Version::VKHEADER.str().c_str());
-    if (::Get(Path::SDK).Empty()) {
+    if (Path(Path::SDK).Empty()) {
         log += " - ${VULKAN_SDK}: unset\n";
     } else {
-        log += format(" - ${VULKAN_SDK}: %s\n", ::Get(Path::SDK).AbsolutePath().c_str());
+        log += format(" - ${VULKAN_SDK}: %s\n", Path(Path::SDK).AbsolutePath().c_str());
     }
     log += "\n";
 
     log += format("%s Settings:\n", VKCONFIG_NAME);
     log += format(" - Vulkan Loader configuration scope: %s\n", ::GetLabel(this->GetExecutableScope()));
-    log += format("   * Loader settings: %s\n", ::Get(Path::LOADER_SETTINGS).AbsolutePath().c_str());
+    log += format("   * Loader settings: %s\n", Path(Path::LOADER_SETTINGS).AbsolutePath().c_str());
 
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
-        log += format("   * Layers settings: %s\n", ::Get(Path::LAYERS_SETTINGS).AbsolutePath().c_str());
+        log += format("   * Layers settings: %s\n", Path(Path::LAYERS_SETTINGS).AbsolutePath().c_str());
     }
 
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
@@ -630,9 +638,10 @@ std::string Configurator::Log() const {
     }
 
     log += format(" - Use system tray: %s\n", this->use_system_tray ? "true" : "false");
-    log += format(" - ${VULKAN_BIN}: %s\n", ::Get(Path::BIN).AbsolutePath().c_str());
-    log += format(" - ${VULKAN_PROFILES}: %s\n", ::Get(Path::PROFILES).AbsolutePath().c_str());
-    log += format(" - ${VK_HOME}: %s\n", ::Get(Path::HOME).AbsolutePath().c_str());
+    log += format(" - Use layer developer mode: %s\n", this->use_layer_dev_mode ? "true" : "false");
+    log += format(" - ${VULKAN_BIN}: %s\n", ::Path(Path::BIN).AbsolutePath().c_str());
+    log += format(" - ${VULKAN_PROFILES}: %s\n", ::Path(Path::PROFILES).AbsolutePath().c_str());
+    log += format(" - ${VK_HOME}: %s\n", ::Path(Path::HOME).AbsolutePath().c_str());
     log += "\n";
 
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
@@ -760,7 +769,7 @@ std::string Configurator::Log() const {
 }
 
 bool Configurator::Load() {
-    const Path& vkconfig_init_path = ::Get(Path::INIT);
+    const Path& vkconfig_init_path = ::Path(Path::INIT);
 
     QFile file(vkconfig_init_path.AbsolutePath().c_str());
     const bool has_init_file = file.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -774,7 +783,9 @@ bool Configurator::Load() {
 
         const Version file_format_version = Version(json_root_object.value("file_format_version").toString().toStdString());
         if (file_format_version > Version::VKCONFIG) {
-            return false;  // Vulkan Configurator needs to be updated
+            if (Alert::ConfiguratorOlderVersion(file_format_version) == QMessageBox::Cancel) {
+                return false;  // Vulkan Configurator is reset to default
+            }
         }
 
         // interface json object
@@ -794,6 +805,9 @@ bool Configurator::Load() {
         if (json_interface_object.value(GetToken(TAB_CONFIGURATIONS)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_CONFIGURATIONS)).toObject();
             this->use_system_tray = json_object.value("use_system_tray").toBool();
+            if (json_object.value("use_layer_dev_mode") != QJsonValue::Undefined) {
+                this->use_layer_dev_mode = json_object.value("use_layer_dev_mode").toBool();
+            }
             this->advanced = json_object.value("advanced").toBool();
             this->executable_scope = ::GetExecutableScope(json_object.value("executable_scope").toString().toStdString().c_str());
             this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
@@ -841,6 +855,7 @@ bool Configurator::Save() const {
     {
         QJsonObject json_object;
         json_object.insert("use_system_tray", this->use_system_tray);
+        json_object.insert("use_layer_dev_mode", this->use_layer_dev_mode);
         json_object.insert("advanced", this->advanced);
         json_object.insert("executable_scope", ::GetToken(this->executable_scope));
         json_object.insert("selected_global_configuration", this->selected_global_configuration.c_str());
@@ -862,7 +877,7 @@ bool Configurator::Save() const {
     // TAB_DIAGNOSTIC
     {
         QJsonObject json_object;
-        json_object.insert("VK_HOME", ::Get(Path::HOME).RelativePath().c_str());
+        json_object.insert("VK_HOME", ::Path(Path::HOME).RelativePath().c_str());
         json_interface_object.insert(GetToken(TAB_DIAGNOSTIC), json_object);
     }
 
@@ -889,7 +904,7 @@ bool Configurator::Save() const {
 
     QJsonDocument json_doc(json_root_object);
 
-    const Path& vkconfig_init_path = ::Get(Path::INIT);
+    const Path& vkconfig_init_path = ::Path(Path::INIT);
     QFile file(vkconfig_init_path.AbsolutePath().c_str());
     const bool result = file.open(QIODevice::WriteOnly | QIODevice::Text);
     assert(result);
@@ -917,6 +932,10 @@ void Configurator::SetExecutableScope(ExecutableScope scope) {
 bool Configurator::GetUseSystemTray() const { return this->use_system_tray; }
 
 void Configurator::SetUseSystemTray(bool enabled) { this->use_system_tray = enabled; }
+
+bool Configurator::GetUseLayerDevMode() const { return this->use_layer_dev_mode; }
+
+void Configurator::SetUseLayerDevMode(bool enabled) { this->use_layer_dev_mode = enabled; }
 
 bool Configurator::HasActiveSettings() const {
     switch (this->executable_scope) {

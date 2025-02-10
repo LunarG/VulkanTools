@@ -138,9 +138,28 @@ void ConfigurationManager::LoadDefaultConfigurations(const LayerManager &layers)
     }
 }
 
-void ConfigurationManager::GatherConfigurationsParameters(const LayerManager &layers) {
+void ConfigurationManager::UpdateConfigurations(const LayerManager &layers) {
     for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
-        this->available_configurations[i].GatherParameters(layers);
+        Configuration &configuration = this->available_configurations[i];
+
+        for (std::size_t j = 0, o = configuration.parameters.size(); j < o; ++j) {
+            Parameter &parameter = configuration.parameters[j];
+            if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
+                continue;
+            }
+
+            const Layer *current_layer = layers.FindFromManifest(parameter.manifest);
+            const Layer *latest_layer = layers.Find(parameter.key, Version::LATEST);
+            if (latest_layer != nullptr) {
+                if (current_layer == nullptr) {
+                    configuration.SwitchLayerLatest(layers, parameter.key);
+                } else if (current_layer->api_version != parameter.api_version) {
+                    configuration.SwitchLayerLatest(layers, parameter.key);
+                }
+            }
+        }
+
+        configuration.GatherParameters(layers);
     }
 }
 
@@ -156,7 +175,7 @@ void ConfigurationManager::SortConfigurations() {
 }
 
 void ConfigurationManager::LoadConfigurationsPath(const LayerManager &layers) {
-    const std::vector<Path> &configuration_files = CollectFilePaths(Get(Path::CONFIGS));
+    const std::vector<Path> &configuration_files = ::CollectFilePaths(Path(Path::CONFIGS));
     for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {
         Configuration configuration;
         const bool result = configuration.Load(configuration_files[i], layers);
@@ -179,10 +198,7 @@ void ConfigurationManager::LoadConfigurationsPath(const LayerManager &layers) {
     }
 }
 
-static Path MakeConfigurationPath(const std::string &key) {
-    const Path &path = Get(Path::CONFIGS) + "/" + key + ".json";
-    return path.AbsolutePath();
-}
+static Path MakeConfigurationPath(const std::string &key) { return RelativePath(Path::CONFIGS) + "/" + key + ".json"; }
 
 void ConfigurationManager::SaveAllConfigurations() const {
     for (std::size_t i = 0, n = available_configurations.size(); i < n; ++i) {
@@ -224,7 +240,7 @@ Configuration &ConfigurationManager::DuplicateConfiguration(const LayerManager &
 }
 
 bool ConfigurationManager::HasFile(const Configuration &configuration) const {
-    const std::string base_path = AbsolutePath(Path::CONFIGS);
+    const std::string base_path = ::AbsolutePath(Path::CONFIGS);
 
     const std::string path = base_path + "/" + configuration.key + ".json";
 
@@ -238,14 +254,14 @@ bool ConfigurationManager::HasFile(const Configuration &configuration) const {
 }
 
 void ConfigurationManager::RemoveConfigurationFiles() {
-    const std::vector<Path> &configuration_files = ::CollectFilePaths(Get(Path::CONFIGS));
+    const std::vector<Path> &configuration_files = ::CollectFilePaths(Path(Path::CONFIGS));
     for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {
         configuration_files[i].Remove();
     }
 }
 
 void ConfigurationManager::RemoveConfigurationFile(const std::string &key) {
-    const std::vector<Path> &configuration_files = ::CollectFilePaths(Get(Path::CONFIGS));
+    const std::vector<Path> &configuration_files = ::CollectFilePaths(Path(Path::CONFIGS));
     for (std::size_t j = 0, o = configuration_files.size(); j < o; ++j) {
         if (configuration_files[j].Basename() == key) {
             configuration_files[j].Remove();

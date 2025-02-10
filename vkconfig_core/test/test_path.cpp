@@ -29,10 +29,23 @@
 #include <gtest/gtest.h>
 
 TEST(test_path, native_path) {
-    static const char* table[] = {
-        "/vkconfig/test\\path/format/",  "/vkconfig/test\\path/format\\", "/vkconfig\\test/path/format/",
-        "/vkconfig\\test/path\\format/", "/vkconfig\\test/path/format",   "/vkconfig/test/path/format",
-        "\\vkconfig\\test/path\\format", "/vkconfig/test/path/format/",   "\\vkconfig\\test/path\\format\\"};
+    static const char* table[] = {"/vkconfig/test\\path/format/", "/vkconfig/test\\path/format\\",
+                                  "/vkconfig\\test/path/format/", "/vkconfig\\test/path\\format/",
+                                  "/vkconfig/test/path/format/",  "\\vkconfig\\test/path\\format\\"};
+
+    for (std::size_t i = 0, n = std::size(table); i < n; ++i) {
+        const std::string test_case = table[i];
+
+        if (VKC_ENV == VKC_ENV_WIN32) {
+            EXPECT_STREQ("\\vkconfig\\test\\path\\format\\", Path(test_case).RelativePath().c_str());
+        } else {
+            EXPECT_STREQ("/vkconfig/test/path/format/", Path(test_case).RelativePath().c_str());
+        }
+    }
+}
+
+TEST(test_path, native_path_without_end_separator) {
+    static const char* table[] = {"/vkconfig\\test/path/format", "/vkconfig/test/path/format", "\\vkconfig\\test/path\\format"};
 
     for (std::size_t i = 0, n = std::size(table); i < n; ++i) {
         const std::string test_case = table[i];
@@ -61,9 +74,9 @@ TEST(test_path, native_path_with_file) {
 
 TEST(test_path, path_addition) {
     Path pathR("testA/test");
-    Path pathA = (Path("testA") += "/") + "test";
-    Path pathB = Path("testA") + "/" + "test";
-    Path pathC = Path("testA") += "/test";
+    Path pathA("testA\\test");
+    Path pathB = std::string("testA") + "\\test";
+    Path pathC = std::string("testA") + "/test";
 
     EXPECT_TRUE(pathR == pathA);
     EXPECT_TRUE(pathR == pathB);
@@ -74,6 +87,14 @@ TEST(test_path, path_addition) {
     EXPECT_STREQ(pathR.AbsolutePath().c_str(), pathA.AbsolutePath().c_str());
     EXPECT_STREQ(pathR.AbsolutePath().c_str(), pathB.AbsolutePath().c_str());
     EXPECT_STREQ(pathR.AbsolutePath().c_str(), pathC.AbsolutePath().c_str());
+}
+
+TEST(test_path, path_addition_clear_separator) {
+    Path pathA = Path("testA").RelativePath() + "\\" + "test";
+    EXPECT_STREQ(pathA.RelativePath().c_str(), Path("testA/test").RelativePath().c_str());
+
+    Path pathB = Path("testB").RelativePath() + "/" + "test";
+    EXPECT_STREQ(pathB.RelativePath().c_str(), Path("testB/test").RelativePath().c_str());
 }
 
 TEST(test_path, path_operation_clear) {
@@ -126,7 +147,7 @@ TEST(test_path, path_operations_invalid) {
 };
 
 // Test that GetPath return the home directory when the stored path is empty
-TEST(test_path, get_path) { EXPECT_STRNE(Get(Path::HOME).RelativePath().c_str(), ""); }
+TEST(test_path, get_path) { EXPECT_STRNE(Path(Path::HOME).RelativePath().c_str(), ""); }
 
 TEST(test_path, replace_path_vk_home) {
     const std::string replaced_path = Path("${VK_HOME}/test.txt").AbsolutePath();
@@ -148,19 +169,30 @@ TEST(test_path, replace_path_unknown) {
 }
 
 TEST(test_path, convert_to_variable) {
-    const std::string replaced_path = ::Get(Path::SDK).AbsolutePath();
+    const std::string replaced_path = Path(Path::SDK).AbsolutePath();
 
-    Path recovered_path(replaced_path, true);
+    Path recovered_path(replaced_path);
 
-    EXPECT_EQ(::Get(Path::SDK), recovered_path);
+    EXPECT_EQ(Path(Path::SDK), recovered_path);
+}
+
+TEST(test_path, recover) {
+    Path reference = Path("${VK_HOME}/test.txt");
+    Path absolute_path = reference.AbsolutePath();
+    EXPECT_EQ(reference, absolute_path);
+
+    std::string absolute_string = reference.AbsolutePath();
+    Path recover = absolute_string;
+
+    EXPECT_EQ(reference, recover);
 }
 
 TEST(test_path, convert_to_variable_postfix) {
-    const Path base_path(::Get(Path::SDK).AbsolutePath(), true);
-    const Path reference_path = base_path + "/TestA";
+    const Path base_path(Path(Path::SDK).AbsolutePath());
+    const Path reference_path = base_path.RelativePath() + "/TestA";
 
     const std::string replaced_path = reference_path.AbsolutePath();
-    Path recovered_path(replaced_path, true);
+    Path recovered_path(replaced_path);
 
     EXPECT_EQ(reference_path, recovered_path);
 }
@@ -179,8 +211,10 @@ TEST(test_path, get_path_home) {
     qputenv("VK_HOME", ":/MyVulkanSDKLocalDir");
 
     const std::string value_env(AbsolutePath(Path::HOME).c_str());
+    EXPECT_TRUE(EndsWith(value_env, "MyVulkanSDKLocalDir"));
 
-    EXPECT_STREQ(Path(":/MyVulkanSDKLocalDir").RelativePath().c_str(), value_env.c_str());
+    Path convert(":/MyVulkanSDKLocalDir");
+    EXPECT_STREQ(convert.RelativePath().c_str(), "${VK_HOME}");
 }
 
 TEST(test_path, get_path_appdata) {
@@ -199,9 +233,10 @@ TEST(test_path, get_path_init) {
 }
 
 TEST(test_path, get_path_config) {
-    const QString value(AbsolutePath(Path::CONFIGS).c_str());
+    const std::string path = AbsolutePath(Path::CONFIGS);
+    const QString value(path.c_str());
 
-    EXPECT_TRUE(value.startsWith(AbsolutePath(Path::CONFIGS).c_str()));
+    EXPECT_TRUE(value.startsWith(path.c_str()));
     EXPECT_TRUE(value.endsWith("configurations"));
 }
 
@@ -259,8 +294,8 @@ TEST(test_path, get_path_vulkan_content) {
 }
 
 TEST(test_path, get_path_home_sdk) {
-    Path home_default = Get(Path::DEFAULT_HOME);
-    Path home_current = Get(Path::HOME);
+    Path home_default = Path(Path::DEFAULT_HOME);
+    Path home_current = Path(Path::HOME);
     EXPECT_STREQ(home_current.AbsolutePath().c_str(), home_default.AbsolutePath().c_str());
 
     qputenv("VULKAN_SDK", "~/VulkanSDK");

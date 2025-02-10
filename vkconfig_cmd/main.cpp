@@ -32,6 +32,30 @@
 #include "../vkconfig_core/executable_manager.h"
 #include "../vkconfig_core/vulkan_util.h"
 
+QtMessageHandler originalHandler = nullptr;
+
+void log_handler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {
+#if _DEBUG
+    QString message = qFormatLogMessage(type, context, msg);
+    std::string printable_message = qPrintable(message);
+    switch (type) {
+        default:
+            fprintf(stdout, "%s\n", printable_message.c_str());
+            fflush(stdout);
+            break;
+        case QtCriticalMsg:
+        case QtFatalMsg:
+            fprintf(stderr, "%s\n", printable_message.c_str());
+            fflush(stderr);
+            break;
+    }
+
+    if (originalHandler) {
+        (*originalHandler)(type, context, msg);
+    }
+#endif  //_DEBUG
+}
+
 int main(int argc, char* argv[]) {
     QCoreApplication::setOrganizationName("LunarG");
     QCoreApplication::setOrganizationDomain("lunarg.com");
@@ -42,6 +66,8 @@ int main(int argc, char* argv[]) {
     // keeping this as 'vkconfig' will ensure that it picks up the
     // settings from the previous version (assuming that's ever an issue)
     QCoreApplication::setApplicationName(VKCONFIG_SHORT_NAME);
+
+    QtMessageHandler originalHandler = qInstallMessageHandler(log_handler);
 
     QApplication app(argc, argv);
 
@@ -98,7 +124,7 @@ int main(int argc, char* argv[]) {
 
             QProcess* gui = new QProcess(&app);
 
-            DefaultPath path = ::GetDefaultExecutablePath("/vkconfig_gui");
+            DefaultPath path = ::GetDefaultExecutablePath("/vkconfig-gui");
             gui->setProgram(path.executable_path.AbsolutePath().c_str());
             gui->setWorkingDirectory(path.working_folder.AbsolutePath().c_str());
             bool result = gui->startDetached(nullptr);

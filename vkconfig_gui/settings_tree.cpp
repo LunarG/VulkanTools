@@ -109,8 +109,14 @@ void SettingsTreeManager::CreateGUI() {
                 if (!IsPlatformSupported(layer_preset.platform_flags)) {
                     continue;
                 }
-                if (layer_preset.view == SETTING_VIEW_HIDDEN) {
-                    continue;
+                if (configurator.GetUseLayerDevMode()) {
+                    if (layer_preset.view == SETTING_VIEW_HIDDEN) {
+                        continue;
+                    }
+                } else {
+                    if (layer_preset.view != SETTING_VIEW_STANDARD) {
+                        continue;
+                    }
                 }
 
                 this->ui->configurations_presets->addItem((layer_preset.label + " Preset").c_str());
@@ -195,11 +201,17 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
         return;
     }
 
-    if (meta_object.view == SETTING_VIEW_HIDDEN) {
-        return;
+    Configurator &configurator = Configurator::Get();
+    if (configurator.GetUseLayerDevMode()) {
+        if (meta_object.view == SETTING_VIEW_HIDDEN) {
+            return;
+        }
+    } else {
+        if (meta_object.view != SETTING_VIEW_STANDARD) {
+            return;
+        }
     }
 
-    Configurator &configurator = Configurator::Get();
     Parameter *parameter = configurator.GetActiveParameter();
     assert(parameter != nullptr);
 
@@ -221,6 +233,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
             const SettingMetaGroup &meta = static_cast<const SettingMetaGroup &>(meta_object);
 
             WidgetSettingGroup *widget = new WidgetSettingGroup(this->ui->configurations_settings, item, meta, parameter->settings);
+            (void)widget;
         } break;
         case SETTING_BOOL:
         case SETTING_BOOL_NUMERIC_DEPRECATED: {

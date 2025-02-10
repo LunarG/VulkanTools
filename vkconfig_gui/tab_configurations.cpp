@@ -79,6 +79,7 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
                   SLOT(on_configurations_list_itemDoubleClicked(QListWidgetItem *)));
     this->connect(this->ui->configurations_list, SIGNAL(currentRowChanged(int)), this,
                   SLOT(on_configurations_list_currentRowChanged(int)));
+
     this->connect(this->ui->configurations_layers_list, SIGNAL(currentRowChanged(int)), this,
                   SLOT(on_configurations_layers_list_currentRowChanged(int)));
 
@@ -153,7 +154,7 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         item->setText(configuration.key.c_str());
         if (configurator.GetActiveConfiguration() == &configuration) {
-            item->setIcon(QIcon(":/resourcefiles/system-on.png"));
+            item->setIcon(::Get(::ICON_SYSTEM_ON));
             item->setToolTip(format("Using the '%s' configuration with Vulkan executables", configuration.key.c_str()).c_str());
             ui->configurations_group_box_layers->blockSignals(true);
             ui->configurations_group_box_layers->setChecked(configuration.override_layers);
@@ -173,11 +174,11 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
             ui->configurations_group_box_loader->blockSignals(false);
             current_row = static_cast<int>(i);
         } else if (has_missing_layer) {
-            item->setIcon(QIcon(":/resourcefiles/system-invalid.png"));
+            item->setIcon(::Get(::ICON_SYSTEM_INVALID));
             item->setToolTip(
                 format("The '%s' configuration has missing layers. These layers are ignored.", configuration.key.c_str()).c_str());
         } else {
-            item->setIcon(QIcon(":/resourcefiles/system-off.png"));
+            item->setIcon(::Get(::ICON_SYSTEM_OFF));
             item->setToolTip(
                 format("Select the '%s' configuration to use it with Vulkan executables", configuration.key.c_str()).c_str());
         }
@@ -389,6 +390,10 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
 void TabConfigurations::CleanUI() { this->_settings_tree_manager.CleanupGUI(); }
 
 bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
+    if (target == nullptr || event == nullptr) {
+        return true;
+    }
+
     QEvent::Type event_type = event->type();
 
     if (event_type == QEvent::Wheel) {
@@ -403,8 +408,12 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
         std::vector<std::string> layer_names;
         for (int i = 0, n = ui->configurations_layers_list->count(); i < n; ++i) {
             QWidget *widget = ui->configurations_layers_list->itemWidget(ui->configurations_layers_list->item(i));
-            const std::string &layer_name = static_cast<ConfigurationLayerWidget *>(widget)->layer_name;
-            layer_names.push_back(layer_name);
+            if (widget != nullptr) {
+                ConfigurationLayerWidget *layer_widget = dynamic_cast<ConfigurationLayerWidget *>(widget);
+                if (layer_widget != nullptr) {
+                    layer_names.push_back(layer_widget->layer_name);
+                }
+            }
         }
 
         Configuration *configuration = configurator.GetActiveConfiguration();
@@ -416,7 +425,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
         return true;
     }
 
-    if (configurator.GetExecutableScope() == EXECUTABLE_NONE) {
+    if (configurator.GetExecutableScope() == EXECUTABLE_NONE || !ui->configurations_list->isEnabled()) {
         return true;
     } else if (target == ui->configurations_list) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
@@ -566,6 +575,9 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *list_item) {
     } else if (!IsPortableFilename(new_name)) {
         valid_new_name = false;
         Alert::ConfigurationNameInvalid();
+    } else if (new_name.size() > 255) {
+        valid_new_name = false;
+        Alert::ConfigurationNameTooLong();
     }
 
     Configurator &configurator = Configurator::Get();
@@ -751,7 +763,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
 
     Configurator &configurator = Configurator::Get();
 
-    const Path path_export = configurator.configurations.last_path_export_config + "/" + item->key + ".json";
+    const Path path_export = configurator.configurations.last_path_export_config.RelativePath() + "/" + item->key + ".json";
     const std::string &selected_path =
         QFileDialog::getSaveFileName(&this->window, "Export Loader Configuration File", path_export.AbsolutePath().c_str(),
                                      "JSON configuration(*.json)")
@@ -1145,7 +1157,7 @@ void TabConfigurations::on_configurations_layers_list_currentRowChanged(int curr
                 message.setWindowTitle(::GetLabel(LAYER_BUILTIN_UNORDERED));
                 message.setText(
                     "This item refers to Vulkan Layers not visible by Vulkan Configurator but located and enabled by the Vulkan "
-                    "Application at launched.");
+                    "Application at launch.");
                 message.setInformativeText(
                     "- Vulkan Layers are located by the Vulkan Application by setting 'VK_ADD_LAYER_PATH'.\n"
                     "- Vulkan Layers are enabled by the Vulkan Application using 'VK_LOADER_LAYERS_ENABLE' or 'vkCreateInstance'.");

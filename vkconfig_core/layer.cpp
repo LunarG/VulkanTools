@@ -276,14 +276,14 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
         this->binary_path = json_library_path_value.toString().toStdString();
     }
 
-    const Path& binary = Path(this->manifest_path.AbsoluteDir()) + "/" + this->binary_path.AbsolutePath();
+    const Path& binary = this->manifest_path.AbsoluteDir() + "/" + this->binary_path.AbsolutePath();
     if (::IsDLL32Bit(binary.AbsolutePath())) {
         this->is_32bits = true;
         return LAYER_LOAD_INVALID;
     }
 
     /*
-        const Path& binary = Path(this->manifest_path.AbsoluteDir()) + "/" + this->binary_path.AbsolutePath();
+        const Path& binary = this->manifest_path.AbsoluteDir() + "/" + this->binary_path.AbsolutePath();
         if (::IsDLL32Bit(binary.AbsolutePath())) {
             Configurator& configurator = Configurator::Get();
             if (!configurator.Get(HIDE_MESSAGE_ERROR_32BIT)) {
@@ -372,8 +372,19 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
 void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set) {
     for (std::size_t i = 0, n = meta_set.size(); i < n; ++i) {
         SettingMeta* setting_meta = meta_set[i];
-        SettingData* setting_data = setting_meta->Instantiate();
-        data_set.push_back(setting_data);
+
+        bool setting_found = false;
+        for (auto it = data_set.begin(), end = data_set.end(); it != end; ++it) {
+            if ((*it)->key == setting_meta->key) {
+                setting_found = true;
+                break;
+            }
+        }
+
+        if (!setting_found) {
+            SettingData* setting_data = setting_meta->Instantiate();
+            data_set.push_back(setting_data);
+        }
 
         CollectDefaultSettingData(setting_meta->children, data_set);
 
@@ -393,11 +404,13 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
         const QJsonObject& json_setting = json_array[i].toObject();
 
         const std::string key = ReadStringValue(json_setting, "key");
-        if (this->key == "VK_LAYER_KHRONOS_validation" && key == "enables") {
-            continue;
-        }
-        if (this->key == "VK_LAYER_KHRONOS_validation" && key == "disables") {
-            continue;
+        if (this->key == "VK_LAYER_KHRONOS_validation" && this->api_version > Version(1, 3, 261)) {
+            if (key == "enables") {
+                continue;
+            }
+            if (key == "disables") {
+                continue;
+            }
         }
 
         const std::string desc = ReadStringValue(json_setting, "description");

@@ -63,7 +63,7 @@ class LayerManager : public Serialize {
 
     std::vector<Layer> available_layers;
     std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> paths;
-    Path last_layers_path = Get(Path::HOME);
+    Path last_layers_path = Path(Path::HOME);
     bool validate_manifests = false;
 
    private:

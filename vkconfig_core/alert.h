@@ -41,11 +41,13 @@ struct Alert {
     static void ConfiguratorRestart();
     static QMessageBox::Button ConfiguratorResetAll();
     static QMessageBox::Button ConfiguratorReloadDefault();
+    static QMessageBox::Button ConfiguratorOlderVersion(const Version& version);
     static QMessageBox::Button ConfiguratorCrashed();
 
     static void ConfigurationRenamingFailed();
     static void ConfigurationNameEmpty();
     static void ConfigurationNameInvalid();
+    static void ConfigurationNameTooLong();
     static void ConfigurationNameASCII();
 
     static void LayerProperties(const Layer* layer);

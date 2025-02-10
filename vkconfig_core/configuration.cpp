@@ -306,9 +306,10 @@ bool Configuration::Save(const Path& full_path) const {
 
     QJsonDocument doc(root);
 
-    QFile json_file(full_path.AbsolutePath().c_str());
+    const std::string absolute_path = full_path.AbsolutePath();
+
+    QFile json_file(absolute_path.c_str());
     const bool result = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
-    assert(result);
 
     if (!result) {
         QMessageBox alert;
@@ -374,7 +375,7 @@ void Configuration::Reset(const LayerManager& layers) {
     }
 
     // Case 2: reset using configuration files using saved configurations
-    const Path full_path(Get(Path::CONFIGS) + "/" + this->key + ".json");
+    const Path full_path = RelativePath(Path::CONFIGS) + "/" + this->key + ".json";
 
     std::FILE* file = std::fopen(full_path.AbsolutePath().c_str(), "r");
     if (file) {
@@ -435,6 +436,23 @@ bool Configuration::HasMissingLayer(const LayerManager& layers, std::vector<std:
     return !missing_layers.empty();
 }
 
+void Configuration::RemoveParameter(const std::string& layer_key) {
+    std::vector<Parameter> updated_parameters;
+
+    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
+        const Parameter& parameter = parameters[i];
+        assert(!parameter.key.empty());
+
+        if (parameter.key == layer_key) {
+            continue;
+        }
+
+        updated_parameters.push_back(parameter);
+    }
+
+    std::swap(this->parameters, updated_parameters);
+}
+
 void Configuration::SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Path& manifest_path) {
     if (manifest_path.Empty()) {
         this->SwitchLayerLatest(layers, layer_key);
@@ -468,8 +486,8 @@ void Configuration::GatherParameters(const LayerManager& layers) {
     std::vector<Parameter> gathered_parameters;
 
     // Loop through the layers. They are expected to be in order
-    for (std::size_t i = 0, n = parameters.size(); i < n; ++i) {
-        const Parameter& parameter = parameters[i];
+    for (std::size_t i = 0, n = previous_parameters.size(); i < n; ++i) {
+        const Parameter& parameter = previous_parameters[i];
         assert(!parameter.key.empty());
 
         gathered_parameters.push_back(parameter);
@@ -481,26 +499,37 @@ void Configuration::GatherParameters(const LayerManager& layers) {
         const Layer* layer = layers.Find(list[i], Version::LATEST);
 
         // The layer is already in the layer tree
-        if (this->Find(layer->key.c_str())) {
-            continue;
+        Parameter* parameter = nullptr;
+
+        for (std::size_t i = 0, n = gathered_parameters.size(); i < n; ++i) {
+            if (gathered_parameters[i].key == layer->key) {
+                parameter = &gathered_parameters[i];
+                break;
+            }
         }
 
-        Parameter parameter;
-        parameter.key = layer->key;
-        parameter.type = layer->type;
-        parameter.control = this->default_control;
-        parameter.api_version = Version::LATEST;
-        parameter.manifest = layer->manifest_path;
-        ::CollectDefaultSettingData(layer->settings, parameter.settings);
+        if (parameter != nullptr) {
+            const Layer* manifest_layer = layers.FindFromManifest(parameter->manifest);
+            const Layer* actual_layer = manifest_layer != nullptr ? manifest_layer : layer;
+            ::CollectDefaultSettingData(actual_layer->settings, parameter->settings);
+        } else {
+            Parameter parameter;
+            parameter.key = layer->key;
+            parameter.type = layer->type;
+            parameter.control = this->default_control;
+            parameter.api_version = Version::LATEST;
+            parameter.manifest = layer->manifest_path;
+            ::CollectDefaultSettingData(layer->settings, parameter.settings);
 
-        gathered_parameters.push_back(parameter);
+            gathered_parameters.push_back(parameter);
+        }
     }
 
     ::AddApplicationEnabledParameters(gathered_parameters, this->default_control);
 
     ::OrderParameter(gathered_parameters, layers);
 
-    this->parameters = gathered_parameters;
+    std::swap(this->parameters, gathered_parameters);
 }
 
 void Configuration::Reorder(const std::vector<std::string>& layer_names) {
