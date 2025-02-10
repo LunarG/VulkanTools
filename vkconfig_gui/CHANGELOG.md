@@ -3,7 +3,12 @@
 
 ### Features:
 - Add dark mode support, automatically matching the OS mode
+
+### Improvements:
 - Add button to remove missing layers
+
+### Fixes:
+- Fix application arguments and environment variables splitting
 
 ---
 ## Vulkan Configurator 3.0.0 - February 2025

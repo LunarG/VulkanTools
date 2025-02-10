@@ -74,9 +74,8 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->ui->launch_log_text->document()->setMaximumBlockCount(65536);
     this->ui->launch_log_text->moveCursor(QTextCursor::End);
 
-    this->ui->launch_options_args_edit->setToolTip("Eg: '--argA --argB'");
-    this->ui->launch_options_envs_edit->setToolTip(VKC_ENV == VKC_ENV_WIN32 ? "Eg: 'ENV_A=ValueA;ENV_B=ValueB;ENV_C='"
-                                                                            : "Eg: 'ENV_A=ValueA:ENV_B=ValueB:ENV_C='");
+    this->ui->launch_options_args_edit->setToolTip("Eg: '--argA --argB=valueB \"--argC=value C\" --argD=\"value D\"'");
+    this->ui->launch_options_envs_edit->setToolTip("Eg: 'ENV_A= ENV_B=ValueB \"ENV_C=Value C\" ENV_D=\"Value D\"'");
 }
 
 TabApplications::~TabApplications() { this->ResetLaunchApplication(); }
@@ -229,7 +228,7 @@ void TabApplications::on_launch_options_list_activated(int index) {
     ui->launch_options_dir_edit->setText(options->working_folder.RelativePath().c_str());
     ui->launch_options_dir_edit->setToolTip(options->working_folder.AbsolutePath().c_str());
     ui->launch_options_args_edit->setText(Merge(options->args, " ").c_str());
-    ui->launch_options_envs_edit->setText(Merge(options->envs, GetToken(PARSE_ENV_VAR)).c_str());
+    ui->launch_options_envs_edit->setText(Merge(options->envs, " ").c_str());
     ui->launch_options_log_edit->setText(options->log_file.RelativePath().c_str());
     ui->launch_options_log_edit->setToolTip(options->log_file.AbsolutePath().c_str());
 }
@@ -320,7 +319,7 @@ void TabApplications::on_launch_options_args_textEdited(const QString &text) {
     Executable *executable = configurator.executables.GetActiveExecutable();
     ExecutableOptions *options = executable->GetActiveOptions();
 
-    options->args = Split(text.toStdString(), " ");
+    options->args = SplitSpace(text.toStdString());
 }
 
 void TabApplications::on_launch_options_envs_textEdited(const QString &text) {
@@ -329,7 +328,7 @@ void TabApplications::on_launch_options_envs_textEdited(const QString &text) {
     Executable *executable = configurator.executables.GetActiveExecutable();
     ExecutableOptions *options = executable->GetActiveOptions();
 
-    options->envs = Split(text.toStdString(), ::GetToken(PARSE_ENV_VAR));
+    options->envs = SplitSpace(text.toStdString());
 }
 
 void TabApplications::on_launch_options_log_textEdited(const QString &text) {

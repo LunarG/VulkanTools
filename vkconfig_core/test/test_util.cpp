@@ -131,27 +131,68 @@ TEST(test_util, trim_whitepace) {
     }
 }
 
-TEST(test_util, split_space) {
-    std::vector<std::string> merged_strings;
-    merged_strings.push_back(" \" gna \" \" gni \" \" gne gnu \" \" gny \" \" gno \" ");
-    merged_strings.push_back("gna gni \"gne gnu\" gny gno");
-    merged_strings.push_back("gna gni\"gne gnu\"gny gno");
-    merged_strings.push_back(" gna gni \"gne gnu\" gny gno ");
-    merged_strings.push_back(" \"gna\" \"gni\" \"gne gnu\" \"gny\" \"gno\" ");
-    merged_strings.push_back("\"gna\"\"gni\"\"gne gnu\"\"gny\"\"gno\"");
+TEST(test_util, split_arg_default) {
+    const std::string source_arg = "--argA --argB=valueB \"--argC=value C\" --argD=\"value D\"";
+    const std::vector<std::string> split_arg = SplitSpace(source_arg);
+    EXPECT_EQ(4, split_arg.size());
+    EXPECT_STREQ("--argA", split_arg[0].c_str());
+    EXPECT_STREQ("--argB=valueB", split_arg[1].c_str());
+    EXPECT_STREQ("\"--argC=value C\"", split_arg[2].c_str());
+    EXPECT_STREQ("--argD=\"value D\"", split_arg[3].c_str());
+}
 
-    for (std::size_t i = 0, n = merged_strings.size(); i < n; ++i) {
-        const std::string merge = merged_strings[i];
-        const std::vector<std::string> split = SplitSpace(merge);
+TEST(test_util, split_single) {
+    const std::string source_arg = "--argB=valueB";
+    const std::vector<std::string> split_arg = SplitSpace(source_arg);
+    EXPECT_EQ(1, split_arg.size());
+    EXPECT_STREQ("--argB=valueB", split_arg[0].c_str());
+}
 
-        EXPECT_STREQ("gna", split[0].c_str());
-        EXPECT_STREQ("gni", split[1].c_str());
-        EXPECT_STREQ("gne gnu", split[2].c_str());
-        EXPECT_STREQ("gny", split[3].c_str());
-        EXPECT_STREQ("gno", split[4].c_str());
+TEST(test_util, split_single_quote) {
+    const std::string source_arg = "\"--argC=value C\"";
+    const std::vector<std::string> split_arg = SplitSpace(source_arg);
+    EXPECT_EQ(1, split_arg.size());
+    EXPECT_STREQ("\"--argC=value C\"", split_arg[0].c_str());
+}
 
-        EXPECT_EQ(5, split.size());
-    }
+TEST(test_util, split_no_space) {
+    const std::string source_arg = "\"--argC=valueC\"";
+    const std::vector<std::string> split_arg = SplitSpace(source_arg);
+    EXPECT_EQ(1, split_arg.size());
+    EXPECT_STREQ("\"--argC=valueC\"", split_arg[0].c_str());
+}
+
+TEST(test_util, split_single_quote_value) {
+    const std::string source_arg = "--argD=\"value D\"";
+    const std::vector<std::string> split_arg = SplitSpace(source_arg);
+    EXPECT_EQ(1, split_arg.size());
+    EXPECT_STREQ("--argD=\"value D\"", split_arg[0].c_str());
+}
+
+TEST(test_util, split_no_quote) {
+    const std::string source_arg = "--argA --argB=valueB";
+    const std::vector<std::string> split_arg = SplitSpace(source_arg);
+    EXPECT_EQ(2, split_arg.size());
+    EXPECT_STREQ("--argA", split_arg[0].c_str());
+    EXPECT_STREQ("--argB=valueB", split_arg[1].c_str());
+}
+
+TEST(test_util, split_arg_quote) {
+    const std::string source_arg = "\"--argC=value C\" --argD=\"value D\"";
+    const std::vector<std::string> split_arg = SplitSpace(source_arg);
+    EXPECT_EQ(2, split_arg.size());
+    EXPECT_STREQ("\"--argC=value C\"", split_arg[0].c_str());
+    EXPECT_STREQ("--argD=\"value D\"", split_arg[1].c_str());
+}
+
+TEST(test_util, split_env) {
+    const std::string source_env = "ENV_A= ENV_B=ValueB \"ENV_C=Value C\" ENV_D=\"Value D\"";
+    const std::vector<std::string> split_env = SplitSpace(source_env);
+    EXPECT_EQ(4, split_env.size());
+    EXPECT_STREQ("ENV_A=", split_env[0].c_str());
+    EXPECT_STREQ("ENV_B=ValueB", split_env[1].c_str());
+    EXPECT_STREQ("\"ENV_C=Value C\"", split_env[2].c_str());
+    EXPECT_STREQ("ENV_D=\"Value D\"", split_env[3].c_str());
 }
 
 TEST(test_util, split_merge_delimiter) {
