@@ -6,6 +6,7 @@
 
 ### Improvements:
 - Add button to remove missing layers
+- Add loader messages only configuration
 
 ### Fixes:
 - Fix application arguments and environment variables splitting
