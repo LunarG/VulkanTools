@@ -161,80 +161,39 @@ std::vector<std::string> Split(const std::string& value, const std::string& deli
     return split_result;
 }
 
-static std::string AddMissingSpaces(const std::string& value) {
-    std::string result;
+std::vector<std::string> SplitSpace(const std::string& parse) {
+    const std::string space = " ";
+    const std::string quote = "\"";
 
-    char prev_value = 0;
-    char next_value = 0;
-    bool found_open = false;
-    for (std::size_t i = 0, n = value.size(); i < n; ++i) {
-        next_value = i < n - 1 ? value[i + 1] : 0;
-        if (!found_open && value[i] == '\"') {
-            if (prev_value != ' ' && (i > 0)) {
-                result += ' ';
-            }
-            result += value[i];
-            found_open = true;
-        } else if (found_open && value[i] == '\"') {
-            result += value[i];
-            if (next_value != ' ' && (i != n - 1)) {
-                result += ' ';
-            }
-            found_open = false;
-        } else {
-            result += value[i];
-        }
-        prev_value = value[i];
-    }
+    std::size_t space_start = 0;
+    std::size_t space_end = parse.find(space, space_start);
+    std::size_t quote_start = parse.find(quote, space_start);
+    std::size_t quote_end = quote_start != std::string::npos ? parse.find(quote, quote_start + quote.length()) : std::string::npos;
 
-    return result;
-}
+    std::vector<std::string> split_result;
 
-std::vector<std::string> SplitSpace(const std::string& value) {
-    const std::string& standardized_value = AddMissingSpaces(value);
-
-    std::vector<std::string> split_result = TrimEmpty(Split(standardized_value, " "));
-
-    std::vector<std::string> merge_result;
-
-    bool found_open = false;
-    bool require_push_back = false;
-    for (std::size_t i = 0, n = split_result.size(); i < n; ++i) {
-        const std::string& split_value = split_result[i];
-
-        const std::string& trim_value = TrimString(split_value, "\"");
-
-        if (split_value == "\"") {
-            if (!found_open) {
-                require_push_back = true;  // new element
-            }
-            found_open = !found_open;
-        } else if (split_value.front() == '\"' && split_value.back() == '\"') {
-            merge_result.push_back(trim_value);
-        } else if (split_value.front() == '\"') {
-            merge_result.push_back(trim_value);
-            found_open = true;
-        } else if (split_value.back() == '\"') {
-            merge_result.back() += " " + trim_value;
-            found_open = false;
-        } else {
-            if (found_open && !merge_result.empty() && !require_push_back) {
-                merge_result.back() += " " + trim_value;
-            } else {
-                merge_result.push_back(trim_value);
-                require_push_back = false;
+    while (space_end != std::string::npos) {
+        if (quote_start != std::string::npos) {
+            // Ignore any "space" between "quote"
+            if (space_end > quote_start && space_end < quote_end) {
+                space_end = parse.find(space, space_end + space.length());
+                continue;
             }
         }
+
+        split_result.push_back(parse.substr(space_start, space_end - space_start));
+        space_start = space_end + space.length();
+        space_end = parse.find(space, space_start);
+        quote_start = parse.find(quote, space_start);
+        quote_end = quote_start != std::string::npos ? parse.find(quote, quote_start + quote.length()) : std::string::npos;
     }
 
-    std::vector<std::string> trim_result;
-    trim_result.reserve(merge_result.size());
-
-    for (std::size_t i = 0, n = merge_result.size(); i < n; ++i) {
-        trim_result.push_back(TrimString(merge_result[i], "\""));
+    const std::string last = parse.substr(space_start);
+    if (!last.empty()) {
+        split_result.push_back(last);
     }
 
-    return trim_result;
+    return split_result;
 }
 
 std::string Merge(const std::vector<std::string>& value, const std::string& delimiter) {
