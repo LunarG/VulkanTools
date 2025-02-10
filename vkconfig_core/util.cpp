@@ -70,6 +70,12 @@ bool IsFrames(const std::string& s) {
     return std::regex_search(s, FRAME_REGEX);
 }
 
+bool IsIndex(const std::string& s) {
+    static const std::regex FRAME_REGEX("^([0-9]*)$");
+
+    return std::regex_search(s, FRAME_REGEX);
+}
+
 bool IsNumber(const std::string& s) {
     static const std::regex FRAME_REGEX("^-?([0-9]*|0x[0-9|a-z|A-Z]*)$");
 

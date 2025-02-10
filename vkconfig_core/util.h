@@ -47,6 +47,8 @@ std::string FormatIntelWindows(uint32_t driverVersion);
 
 bool IsFrames(const std::string& s);
 
+bool IsIndex(const std::string& s);
+
 bool IsNumber(const std::string& s);
 
 bool IsFloat(const std::string& s);

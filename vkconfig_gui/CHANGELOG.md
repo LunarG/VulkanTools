@@ -3,6 +3,7 @@
 
 ### Features:
 - Add dark mode support, automatically matching the OS mode
+- Add `vkconfig loader` commands to import, export, delete and use stored loader configurations
 
 ### Improvements:
 - Add button to remove missing layers
