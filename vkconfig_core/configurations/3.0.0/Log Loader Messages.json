@@ -1,7 +1,7 @@
 {
     "file_format_version": "3.0.0",
     "configuration": {
-        "name": "Log Loader Messages",
+        "name": "Loader Messages",
         "platforms": [
             "WINDOWS_X86",
             "WINDOWS_ARM",
