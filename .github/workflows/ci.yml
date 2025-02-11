@@ -24,7 +24,7 @@ on:
 jobs:
   # Ensure we can build on an older Ubuntu distro with an older version of CMake.
   linux_back_compat:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     name: "Ubuntu Backcompat"
     steps:
       - uses: actions/checkout@v4
@@ -67,7 +67,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1
-      - uses: jurplel/install-qt-action@v3
+      - uses: jurplel/install-qt-action@v4
       - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D RUN_ON_GITHUB=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
       - run: cmake --build build
       - run: ctest --output-on-failure --test-dir build
