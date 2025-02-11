@@ -59,7 +59,7 @@ TEST(test_configuration, load_and_save) {
     LayerManager layers;
 
     Configuration configuration_loaded;
-    const bool load_loaded = configuration_loaded.Load(":/test/Configuration 3.0.0.json", layers);
+    const bool load_loaded = configuration_loaded.Load(":/test/reference_configuration.json", layers);
     EXPECT_TRUE(load_loaded);
     EXPECT_EQ(2, configuration_loaded.parameters.size());
 

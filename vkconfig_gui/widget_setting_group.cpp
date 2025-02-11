@@ -36,6 +36,8 @@ WidgetSettingGroup::WidgetSettingGroup(QTreeWidget* tree, QTreeWidgetItem* item,
 }
 
 void WidgetSettingGroup::Refresh(RefreshAreas refresh_areas) {
+    (void)refresh_areas;
+
     const SettingDependenceMode enabled = ::CheckDependence(this->meta, this->data_set);
 
     this->item->setHidden(enabled == SETTING_DEPENDENCE_HIDE);

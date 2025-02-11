@@ -98,6 +98,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.3'
       - uses: lukka/get-cmake@latest
       - name: Configure
         run: |

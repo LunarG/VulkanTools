@@ -34,7 +34,7 @@ static int RunLoaderList(Configurator& configurator, const CommandLine& command_
         for (std::size_t i = 0, n = configurations.size(); i < n; ++i) {
             printf(" - [%zd] %s\n", i, configurations[i].key.c_str());
         }
-        printf("\n  (Use 'vkconfig loader --override <index>' to configure the system Vulkan Loader.)\n", VKCONFIG_NAME);
+        printf("\n  (Use 'vkconfig loader --override <index>' to configure the system Vulkan Loader.)\n");
     }
 
     return 0;

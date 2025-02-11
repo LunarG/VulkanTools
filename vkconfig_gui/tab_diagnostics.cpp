@@ -56,8 +56,6 @@ void TabDiagnostics::UpdateUI(UpdateUIMode mode) {
     (void)mode;
 
     this->UpdateStatus();
-
-    Configurator &configurator = Configurator::Get();
 }
 
 void TabDiagnostics::CleanUI() {}

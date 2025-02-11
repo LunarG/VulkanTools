@@ -370,9 +370,9 @@ std::string GetLabel(VendorID vendorID) {
     switch (vendorID) {
         default:
             return "Unknown Vendor";
-        case VK_VENDOR_ID_KHRONOS:
+        case static_cast<VendorID>(VK_VENDOR_ID_KHRONOS):
             return "KHRONOS";
-        case VK_VENDOR_ID_MESA:
+        case static_cast<VendorID>(VK_VENDOR_ID_MESA):
             return "Mesa";
         case VENDOR_ID_AMD:
             return "AMD";

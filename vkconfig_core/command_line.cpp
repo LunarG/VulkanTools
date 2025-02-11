@@ -267,6 +267,8 @@ CommandLine::CommandLine(int argc, char* argv[])
             }
 
             switch (_command_loader_arg) {
+                default:
+                    break;
                 case COMMAND_LOADER_OVERRIDE: {
                     const std::string layers_configuration = argv[arg_offset + 2];
 
@@ -554,7 +556,7 @@ void CommandLine::usage() const {
             printf("\t\tImport a Vulkan Loader configuration stored by %s on the system.\n", VKCONFIG_NAME);
             printf("\n");
             printf("\tvkconfig loader (--export | -e) (<configuration_index> | <configuration_name>) <configuration_file>\n");
-            printf("\t\tExport a Vulkan Loader configuration stored by %s on the system.", VKCONFIG_NAME);
+            printf("\t\tExport a Vulkan Loader configuration stored by %s on the system.\n", VKCONFIG_NAME);
             printf("\t\t - <configuration_index> is an index enumerated with `vkconfig loader --list`.\n");
             printf("\t\t - <configuration_name> is the name of the stored configuration listed with `vkconfig loader --list`.\n");
             printf("\n");

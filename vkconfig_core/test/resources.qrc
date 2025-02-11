@@ -5,8 +5,7 @@
     </qresource>
 
     <qresource prefix="/test">
-        <file>Configuration 3.0.0.json</file>
-
+        <file>reference_configuration.json</file>
         <file>loader_settings.json</file>
         <file>layers_settings.txt</file>
     </qresource>
