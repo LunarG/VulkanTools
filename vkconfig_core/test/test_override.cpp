@@ -40,7 +40,7 @@ TEST(test_override, write_erase_global) {
     configurator.layers.LoadLayersFromPath(":/layers");
 
     Configuration configuration;
-    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/Configuration 3.0.0.json");
+    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/reference_configuration.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
@@ -94,7 +94,7 @@ TEST(test_override, write_erase_per_application) {
     configurator.layers.LoadLayersFromPath(":/layers");
 
     Configuration configuration;
-    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/Configuration 3.0.0.json");
+    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/reference_configuration.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
@@ -146,7 +146,7 @@ TEST(test_override, vk_layer_settings_txt) {
     configurator.layers.LoadLayersFromPath(":/layers");
 
     Configuration configuration;
-    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/Configuration 3.0.0.json");
+    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/reference_configuration.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 
@@ -298,7 +298,7 @@ TEST(test_override, env_var) {
     configurator.layers.LoadLayersFromPath(":/layers");
 
     Configuration configuration;
-    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/Configuration 3.0.0.json");
+    const bool load = configuration.Load(configurator.layers.selected_layers, ":/test/reference_configuration.json");
     EXPECT_TRUE(load);
     EXPECT_TRUE(!configuration.parameters.empty());
 

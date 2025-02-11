@@ -51,6 +51,10 @@ void log_handler(QtMsgType type, const QMessageLogContext& context, const QStrin
     if (originalHandler) {
         (*originalHandler)(type, context, msg);
     }
+#else
+    (void)type;
+    (void)context;
+    (void)msg;
 #endif  //_DEBUG
 }
 
