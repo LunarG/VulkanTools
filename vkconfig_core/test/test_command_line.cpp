@@ -43,7 +43,7 @@ TEST(test_command_line, execute_mode) {
     EXPECT_EQ(ERROR_NONE, command_line.error);
     EXPECT_TRUE(command_line.error_args.empty());
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_help) {
@@ -56,7 +56,7 @@ TEST(test_command_line, usage_mode_help) {
     EXPECT_TRUE(command_line.error_args.empty());
     EXPECT_EQ(COMMAND_SHOW_USAGE, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_h) {
@@ -69,7 +69,7 @@ TEST(test_command_line, usage_mode_h) {
     EXPECT_TRUE(command_line.error_args.empty());
     EXPECT_EQ(COMMAND_SHOW_USAGE, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_version) {
@@ -82,7 +82,7 @@ TEST(test_command_line, usage_mode_version) {
     EXPECT_TRUE(command_line.error_args.empty());
     EXPECT_EQ(COMMAND_VERSION, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_invalid) {
@@ -95,7 +95,7 @@ TEST(test_command_line, usage_mode_invalid) {
     EXPECT_EQ(1, command_line.error_args.size());
     EXPECT_EQ(COMMAND_NONE, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_layers_missing_argv) {
@@ -108,7 +108,7 @@ TEST(test_command_line, usage_mode_layers_missing_argv) {
     EXPECT_EQ(1, command_line.error_args.size());
     EXPECT_EQ(COMMAND_LAYERS, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_layers_invalid_argv) {
@@ -121,7 +121,7 @@ TEST(test_command_line, usage_mode_layers_invalid_argv) {
     EXPECT_EQ(2, command_line.error_args.size());
     EXPECT_EQ(COMMAND_LAYERS, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_layers_list) {
@@ -134,7 +134,7 @@ TEST(test_command_line, usage_mode_layers_list) {
     EXPECT_TRUE(command_line.error_args.empty());
     EXPECT_EQ(COMMAND_LAYERS, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_LIST, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_layers_surrender) {
@@ -147,7 +147,7 @@ TEST(test_command_line, usage_mode_layers_surrender) {
     EXPECT_TRUE(command_line.error_args.empty());
     EXPECT_EQ(COMMAND_LAYERS, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_SURRENDER, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_layers_surrender_invalid) {
@@ -160,7 +160,7 @@ TEST(test_command_line, usage_mode_layers_surrender_invalid) {
     EXPECT_EQ(1, command_line.error_args.size());
     EXPECT_EQ(COMMAND_LAYERS, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_SURRENDER, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_layers_override) {
@@ -173,7 +173,7 @@ TEST(test_command_line, usage_mode_layers_override) {
     EXPECT_TRUE(command_line.error_args.empty());
     EXPECT_EQ(COMMAND_LAYERS, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_OVERRIDE, command_line.command_layers_arg);
-    EXPECT_TRUE(!command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(!command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_layers_override_invalid) {
@@ -186,7 +186,7 @@ TEST(test_command_line, usage_mode_layers_override_invalid) {
     EXPECT_EQ(1, command_line.error_args.size());
     EXPECT_EQ(COMMAND_LAYERS, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_OVERRIDE, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 TEST(test_command_line, usage_mode_layers_override_invalid_args) {
@@ -199,7 +199,7 @@ TEST(test_command_line, usage_mode_layers_override_invalid_args) {
     EXPECT_EQ(1, command_line.error_args.size());
     EXPECT_EQ(COMMAND_LAYERS, command_line.command);
     EXPECT_EQ(COMMAND_LAYERS_OVERRIDE, command_line.command_layers_arg);
-    EXPECT_TRUE(command_line.layers_configuration_path.empty());
+    EXPECT_TRUE(command_line.layers_configuration_path.Empty());
 }
 
 #if VKC_ENV == VKC_ENV_UNIX
