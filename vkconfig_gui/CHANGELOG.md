@@ -10,6 +10,7 @@
 
 ### Fixes:
 - Fix application arguments and environment variables splitting
+- Fix layer settings crash when reordering layers
 
 ---
 ## Vulkan Configurator 3.0.0 - February 2025
