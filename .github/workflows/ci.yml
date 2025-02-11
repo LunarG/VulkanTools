@@ -67,7 +67,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1
-      - uses: jurplel/install-qt-action@v4
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.3'
       - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D RUN_ON_GITHUB=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
       - run: cmake --build build
       - run: ctest --output-on-failure --test-dir build
