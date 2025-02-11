@@ -420,6 +420,8 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
         if (configuration != nullptr) {
             configuration->Reorder(layer_names);
             configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+
+            this->UpdateUI_Settings(UPDATE_REBUILD_UI);
         }
 
         return true;
