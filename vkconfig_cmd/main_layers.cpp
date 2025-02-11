@@ -78,6 +78,28 @@ static int RunLayersSurrender(Configurator& configurator, const CommandLine& com
     return surrender_result ? 0 : -1;
 }
 
+static int RunLayersPath(Configurator& configurator, const CommandLine& command_line) {
+    printf("vkconfig: Paths to find Vulkan Layers\n");
+
+    for (int layers_paths_index = 0, layers_paths_count = LAYERS_PATHS_COUNT; layers_paths_index < layers_paths_count;
+         ++layers_paths_index) {
+        const std::vector<LayersPathInfo>& paths = configurator.layers.paths[layers_paths_index];
+        printf("\n%s:\n", GetLabel(static_cast<LayersPaths>(layers_paths_index)));
+
+        if (paths.empty()) {
+            printf(" - None\n");
+        } else {
+            for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
+                if (paths[i].enabled) {
+                    printf(" - %s\n", paths[i].path.AbsolutePath().c_str());
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 static int RunLayersList(Configurator& configurator, const CommandLine& command_line) {
     if (configurator.layers.available_layers.empty()) {
         printf("vkconfig: No Vulkan layer found\n");
@@ -110,6 +132,9 @@ int run_layers(const CommandLine& command_line) {
         }
         case COMMAND_LAYERS_SURRENDER: {
             return RunLayersSurrender(configurator, command_line);
+        }
+        case COMMAND_LAYERS_PATH: {
+            return RunLayersPath(configurator, command_line);
         }
         case COMMAND_LAYERS_LIST: {
             return RunLayersList(configurator, command_line);
