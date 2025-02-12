@@ -28,6 +28,7 @@ class Path {
    public:
     enum Builtin {
         HOME,  // Vulkan SDK user directory
+        DOWNLOAD,
         DEFAULT_HOME,
         APPDATA,
         INIT,
@@ -69,6 +70,8 @@ class Path {
 
     bool Empty() const { return this->data.empty(); }
 
+    static const char* Separator();
+
    private:
     std::string data;
 
@@ -84,6 +87,8 @@ bool operator!=(const Path& a, const Path& b);
 bool operator<(const Path& a, const Path& b);
 
 void SetHomePath(const std::string& path);
+
+void SetDownloadPath(const std::string& path);
 
 std::vector<Path> CollectFilePaths(const Path& directory, const char* filter = "*json");
 

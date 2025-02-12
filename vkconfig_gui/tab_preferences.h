@@ -22,6 +22,9 @@
 
 #include "tab.h"
 
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+
 class TabPreferences : public Tab {
     Q_OBJECT
 
@@ -37,8 +40,17 @@ class TabPreferences : public Tab {
     void on_keep_running_toggled(bool checked);
     void on_vk_home_text_pressed();
     void on_vk_home_browse_pressed();
+    void on_vk_download_browse_pressed();
     void on_reset_hard_pressed();
     void on_layer_dev_mode_toggled(bool checked);
+    void on_open_page_pressed();
+    void on_download_pressed();
+    void on_release_downloaded(QNetworkReply *pReply);
+    void on_package_downloaded(QNetworkReply *pReply);
+    void on_download_progress(qint64 bytesReceived, qint64 bytesTotal);
+    void on_notify_releases_toggled(bool checked);
 
    private:
+    QNetworkAccessManager network_manager;
+    QByteArray downloaded_data;
 };

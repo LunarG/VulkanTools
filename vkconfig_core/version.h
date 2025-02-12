@@ -29,6 +29,8 @@ extern const char *VKCONFIG_NAME;
 extern const char *VKCONFIG_SHORT_NAME;
 
 class Version {
+    enum type { WITH_MAJOR = 0, WITH_MINOR, WITH_PATCH, WITH_REVISION };
+
    public:
     static const Version VKCONFIG;
     static const Version VKHEADER;
@@ -36,9 +38,11 @@ class Version {
     static const Version LATEST;
     static const Version REQUIRED_LOADER_VERSION;
 
-    explicit Version() : _major(0), _minor(0), _patch(0) {}
+    explicit Version() : _major(0), _minor(0), _patch(0), _revision(0) {}
     explicit Version(uint32_t version_complete);
+    explicit Version(uint32_t version_major, uint32_t version_minor);
     explicit Version(uint32_t version_major, uint32_t version_minor, uint32_t version_patch);
+    explicit Version(uint32_t version_major, uint32_t version_minor, uint32_t version_patch, uint32_t version_revision);
     explicit Version(const char *version);
     explicit Version(const std::string &version);
 
@@ -54,11 +58,14 @@ class Version {
     uint32_t GetMajor() const { return _major; };
     uint32_t GetMinor() const { return _minor; };
     uint32_t GetPatch() const { return _patch; };
+    uint32_t GetRevision() const { return _revision; };
 
    private:
-    uint32_t _major;
-    uint32_t _minor;
-    uint32_t _patch;
+    uint32_t _major = 0;
+    uint32_t _minor = 0;
+    uint32_t _patch = 0;
+    uint32_t _revision = 0;
+    type type = WITH_PATCH;
 };
 
 #define VKC_ASSERT_VERSION(expression, required_version, current_version) \

@@ -53,6 +53,8 @@ bool IsNumber(const std::string& s);
 
 bool IsFloat(const std::string& s);
 
+std::size_t CountChar(const std::string& value, char c);
+
 // Remove a value if it's present
 void RemoveString(std::vector<std::string>& list, const std::string& value);
 
