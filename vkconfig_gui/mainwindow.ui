@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
+    <width>1200</width>
     <height>640</height>
    </rect>
   </property>
@@ -72,6 +72,7 @@
        <font>
         <family>Arial</family>
         <pointsize>10</pointsize>
+        <weight>50</weight>
         <bold>false</bold>
        </font>
       </property>
@@ -85,7 +86,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -174,6 +175,7 @@
                   <font>
                    <family>Arial</family>
                    <pointsize>10</pointsize>
+                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -323,6 +325,7 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
+                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -429,6 +432,7 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>9</pointsize>
+                      <weight>50</weight>
                       <italic>true</italic>
                       <bold>false</bold>
                      </font>
@@ -459,6 +463,7 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
+                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -506,6 +511,7 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>9</pointsize>
+                      <weight>50</weight>
                       <italic>true</italic>
                       <bold>false</bold>
                      </font>
@@ -723,6 +729,7 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
+                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -993,6 +1000,7 @@
            <font>
             <family>Arial</family>
             <pointsize>10</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1247,6 +1255,7 @@
            <font>
             <family>Arial</family>
             <pointsize>10</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1442,6 +1451,7 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1459,6 +1469,7 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1486,6 +1497,7 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1509,6 +1521,7 @@
              <font>
               <family>Consolas</family>
               <pointsize>9</pointsize>
+              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -1550,6 +1563,7 @@
            <font>
             <family>Arial</family>
             <pointsize>10</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1578,6 +1592,7 @@
               <font>
                <family>Consolas</family>
                <pointsize>10</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -1644,6 +1659,7 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
+               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -1669,6 +1685,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1692,6 +1709,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1718,6 +1736,7 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
+               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -1743,6 +1762,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1766,6 +1786,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1789,6 +1810,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1815,6 +1837,7 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
+               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -1840,6 +1863,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1863,6 +1887,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1886,6 +1911,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1909,6 +1935,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1932,6 +1959,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1955,6 +1983,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1981,6 +2010,7 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
+               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -2006,6 +2036,7 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
+                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2050,11 +2081,12 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_24">
         <item>
-         <widget class="QGroupBox" name="diagnostic_group_box_settings">
+         <widget class="QGroupBox" name="preferences_group_box_settings">
           <property name="font">
            <font>
             <family>Arial</family>
             <pointsize>10</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -2078,11 +2110,12 @@
             <number>5</number>
            </property>
            <item>
-            <widget class="QCheckBox" name="settings_keep_running">
+            <widget class="QCheckBox" name="preferences_keep_running">
              <property name="font">
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -2092,11 +2125,12 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="settings_layer_dev_mode">
+            <widget class="QCheckBox" name="preferences_layer_dev_mode">
              <property name="font">
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -2128,6 +2162,7 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -2140,18 +2175,19 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="settings_vk_home_text">
+              <widget class="QLineEdit" name="preferences_vk_home_text">
                <property name="font">
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="settings_vk_home_browse">
+              <widget class="QPushButton" name="preferences_vk_home_browse">
                <property name="maximumSize">
                 <size>
                  <width>32</width>
@@ -2162,6 +2198,7 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -2175,6 +2212,67 @@
               </widget>
              </item>
             </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Vulkan SDK release</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <property name="spacing">
+            <number>5</number>
+           </property>
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>5</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="checkBox">
+             <property name="text">
+              <string>Notify new Vulkan SDK release at Vulkan Configurator launch</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="preference_open_page">
+             <property name="text">
+              <string>Open Download Page</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="preference_install">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -2214,7 +2312,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="settings_reset">
+           <widget class="QPushButton" name="preferences_reset">
             <property name="toolTip">
              <string>Resetting Vulkan Configurator to default...</string>
             </property>
@@ -2319,6 +2417,7 @@
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
+             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
@@ -2345,6 +2444,7 @@
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
+             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
@@ -2387,6 +2487,7 @@
             <font>
              <family>Arial</family>
              <pointsize>10</pointsize>
+             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>

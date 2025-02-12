@@ -83,9 +83,28 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->InitTray();
     this->UpdateUI(UPDATE_REBUILD_UI);
+
+    this->_last_release = new FileDownloader(QUrl("https://vulkan.lunarg.com/sdk/latest.json"), this);
+    this->connect(this->_last_release, SIGNAL(downloaded()), this, SLOT(on_last_release_downloaded()));
 }
 
 MainWindow::~MainWindow() {}
+
+void MainWindow::on_last_release_downloaded() {
+    QJsonParseError parse_error;
+    QJsonDocument json_doc = QJsonDocument::fromJson(_last_release->downloadedData(), &parse_error);
+    const QJsonObject &json_root_object = json_doc.object();
+    std::string new_version = json_root_object.value("windows").toString().toStdString();
+
+    QMessageBox alert(this);
+    alert.setWindowTitle("A new version of the Vulkan SDK is available");
+    alert.setText(new_version.c_str());
+    alert.setIcon(QMessageBox::Question);
+    alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    alert.setDefaultButton(QMessageBox::Ok);
+    alert.setCheckBox(new QCheckBox("Do not show again."));
+    alert.exec();
+}
 
 void MainWindow::commitDataRequest(QSessionManager &manager) {
     (void)manager;
@@ -288,9 +307,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             alert.setDefaultButton(QMessageBox::Ok);
             alert.setCheckBox(new QCheckBox("Do not show again."));
 
-            QPalette palette, palette_saved = this->ui->settings_keep_running->palette();
+            QPalette palette, palette_saved = this->ui->preferences_keep_running->palette();
             palette.setColor(QPalette::WindowText, QColor(Qt::red));
-            this->ui->settings_keep_running->setPalette(palette);
+            this->ui->preferences_keep_running->setPalette(palette);
 
             this->ui->tab_widget->setCurrentIndex(TAB_PREFERENCES);
 
@@ -299,7 +318,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
                 configurator.Set(HIDE_MESSAGE_USE_SYSTEM_TRAY);
             }
 
-            this->ui->settings_keep_running->setPalette(palette_saved);
+            this->ui->preferences_keep_running->setPalette(palette_saved);
 
             if (ret_val == QMessageBox::Cancel) {
                 event->ignore();  // Not closing the window
