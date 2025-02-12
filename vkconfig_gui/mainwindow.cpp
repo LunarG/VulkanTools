@@ -288,9 +288,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             alert.setDefaultButton(QMessageBox::Ok);
             alert.setCheckBox(new QCheckBox("Do not show again."));
 
-            QPalette palette, palette_saved = this->ui->settings_keep_running->palette();
+            QPalette palette, palette_saved = this->ui->preferences_keep_running->palette();
             palette.setColor(QPalette::WindowText, QColor(Qt::red));
-            this->ui->settings_keep_running->setPalette(palette);
+            this->ui->preferences_keep_running->setPalette(palette);
 
             this->ui->tab_widget->setCurrentIndex(TAB_PREFERENCES);
 
@@ -299,7 +299,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
                 configurator.Set(HIDE_MESSAGE_USE_SYSTEM_TRAY);
             }
 
-            this->ui->settings_keep_running->setPalette(palette_saved);
+            this->ui->preferences_keep_running->setPalette(palette_saved);
 
             if (ret_val == QMessageBox::Cancel) {
                 event->ignore();  // Not closing the window

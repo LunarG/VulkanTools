@@ -65,6 +65,8 @@ std::vector<std::string> GetPlatformTokens(int platform_flags) {
     return result;
 }
 
+bool IsDesktop(PlatformType type) { return type >= PLATFORM_DESKTOP_FIRST && type <= PLATFORM_DESKTOP_LAST; }
+
 bool IsPlatformSupported(int platform_flags) { return platform_flags & (1 << VKC_PLATFORM); }
 
 const char* GetLabel(PlatformType type) {
@@ -79,6 +81,70 @@ const char* GetLabel(PlatformType type) {
         "macOS",        // PLATFORM_MACOS
         "Android",      // PLATFORM_ANDROID
         "iOS",          // PLATFORM_IOS
+    };
+    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[type];
+}
+
+const char* GetLatestReleaseSDK(PlatformType type) {
+    assert(IsDesktop(type));
+
+    static const char* TABLE[] = {
+        "https://vulkan.lunarg.com/sdk/latest/windows.txt",  // PLATFORM_WINDOWS_X86
+        "https://vulkan.lunarg.com/sdk/latest/warm.txt",     // PLATFORM_WINDOWS_ARM
+        "https://vulkan.lunarg.com/sdk/latest/linux.txt",    // PLATFORM_LINUX
+        "https://vulkan.lunarg.com/sdk/latest/mac.txt",      // PLATFORM_MACOS
+        "N/A",                                               // PLATFORM_ANDROID
+        "N/A",                                               // PLATFORM_IOS
+    };
+    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[type];
+}
+
+const char* GetInstallerFilename(PlatformType type) {
+    assert(IsDesktop(type));
+
+    static const char* TABLE[] = {
+        "vulkan_sdk.exe",     // PLATFORM_WINDOWS_X86
+        "vulkan_sdk.exe",     // PLATFORM_WINDOWS_ARM
+        "vulkan_sdk.tar.xz",  // PLATFORM_LINUX
+        "vulkan_sdk.zip",     // PLATFORM_MACOS
+        "N/A",                // PLATFORM_ANDROID
+        "N/A",                // PLATFORM_IOS
+    };
+    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[type];
+}
+
+const char* GetVersionedFilename(PlatformType type) {
+    assert(IsDesktop(type));
+
+    static const char* TABLE[] = {
+        "vulkan_sdk-%s.exe",     // PLATFORM_WINDOWS_X86
+        "vulkan_sdk-%s.exe",     // PLATFORM_WINDOWS_ARM
+        "vulkan_sdk-%s.tar.xz",  // PLATFORM_LINUX
+        "vulkan_sdk-%s.zip",     // PLATFORM_MACOS
+        "N/A",                   // PLATFORM_ANDROID
+        "N/A",                   // PLATFORM_IOS
+    };
+    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return TABLE[type];
+}
+
+const char* GetLatestPackageSDK(PlatformType type) {
+    assert(IsDesktop(type));
+
+    static const char* TABLE[] = {
+        "https://sdk.lunarg.com/sdk/download/latest/windows/vulkan_sdk.exe",   // PLATFORM_WINDOWS_X86
+        "https://sdk.lunarg.com/sdk/download/latest/warm/vulkan_sdk.exe",      // PLATFORM_WINDOWS_ARM
+        "https://sdk.lunarg.com/sdk/download/latest/linux/vulkan_sdk.tar.xz",  // PLATFORM_LINUX
+        "https://sdk.lunarg.com/sdk/download/latest/mac/vulkan_sdk.zip",       // PLATFORM_MACOS
+        "N/A",                                                                 // PLATFORM_ANDROID
+        "N/A",                                                                 // PLATFORM_IOS
     };
     static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
