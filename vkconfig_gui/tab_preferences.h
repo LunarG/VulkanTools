@@ -22,12 +22,12 @@
 
 #include "tab.h"
 
-class TabSettings : public Tab {
+class TabPreferences : public Tab {
     Q_OBJECT
 
    public:
-    TabSettings(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui);
-    virtual ~TabSettings();
+    TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui);
+    virtual ~TabPreferences();
 
     virtual void UpdateUI(UpdateUIMode mode) override;
     virtual void CleanUI() override;
