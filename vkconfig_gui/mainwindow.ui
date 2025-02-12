@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
+    <width>1200</width>
     <height>640</height>
    </rect>
   </property>
@@ -82,10 +82,10 @@
        <bool>false</bool>
       </property>
       <property name="tabShape">
-       <enum>QTabWidget::Rounded</enum>
+       <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -116,7 +116,7 @@
            <number>0</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
           <property name="opaqueResize">
            <bool>true</bool>
@@ -132,7 +132,7 @@
             <number>0</number>
            </property>
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Orientation::Vertical</enum>
            </property>
            <property name="childrenCollapsible">
             <bool>false</bool>
@@ -211,7 +211,7 @@
                      </size>
                     </property>
                     <property name="sizeAdjustPolicy">
-                     <enum>QComboBox::AdjustToContents</enum>
+                     <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                     </property>
                    </widget>
                   </item>
@@ -330,19 +330,19 @@
                      <bool>false</bool>
                     </property>
                     <property name="frameShape">
-                     <enum>QFrame::NoFrame</enum>
+                     <enum>QFrame::Shape::NoFrame</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Plain</enum>
+                     <enum>QFrame::Shadow::Plain</enum>
                     </property>
                     <property name="lineWidth">
                      <number>1</number>
                     </property>
                     <property name="verticalScrollBarPolicy">
-                     <enum>Qt::ScrollBarAlwaysOn</enum>
+                     <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
                     </property>
                     <property name="editTriggers">
-                     <set>QAbstractItemView::NoEditTriggers</set>
+                     <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
                     </property>
                     <property name="alternatingRowColors">
                      <bool>false</bool>
@@ -443,7 +443,7 @@
                      <string>Execute Closer to the Vulkan Application</string>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignmentFlag::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -463,31 +463,31 @@
                      </font>
                     </property>
                     <property name="frameShape">
-                     <enum>QFrame::NoFrame</enum>
+                     <enum>QFrame::Shape::NoFrame</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Plain</enum>
+                     <enum>QFrame::Shadow::Plain</enum>
                     </property>
                     <property name="lineWidth">
                      <number>1</number>
                     </property>
                     <property name="verticalScrollBarPolicy">
-                     <enum>Qt::ScrollBarAlwaysOn</enum>
+                     <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
                     </property>
                     <property name="autoScrollMargin">
                      <number>0</number>
                     </property>
                     <property name="editTriggers">
-                     <set>QAbstractItemView::NoEditTriggers</set>
+                     <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
                     </property>
                     <property name="dragEnabled">
                      <bool>true</bool>
                     </property>
                     <property name="dragDropMode">
-                     <enum>QAbstractItemView::DragDrop</enum>
+                     <enum>QAbstractItemView::DragDropMode::DragDrop</enum>
                     </property>
                     <property name="defaultDropAction">
-                     <enum>Qt::MoveAction</enum>
+                     <enum>Qt::DropAction::MoveAction</enum>
                     </property>
                     <property name="alternatingRowColors">
                      <bool>true</bool>
@@ -520,7 +520,7 @@
                      <string>Execute Closer to the Vulkan Driver</string>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignmentFlag::AlignCenter</set>
                     </property>
                     <property name="margin">
                      <number>0</number>
@@ -634,7 +634,7 @@
             <number>0</number>
            </property>
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Orientation::Vertical</enum>
            </property>
            <widget class="QWidget" name="verticalLayout_17" native="true">
             <property name="enabled">
@@ -727,25 +727,25 @@
                    </font>
                   </property>
                   <property name="frameShape">
-                   <enum>QFrame::Box</enum>
+                   <enum>QFrame::Shape::Box</enum>
                   </property>
                   <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
+                   <enum>QFrame::Shadow::Plain</enum>
                   </property>
                   <property name="lineWidth">
                    <number>0</number>
                   </property>
                   <property name="horizontalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                   <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                   </property>
                   <property name="sizeAdjustPolicy">
-                   <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+                   <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContentsOnFirstShow</enum>
                   </property>
                   <property name="autoScrollMargin">
                    <number>0</number>
                   </property>
                   <property name="editTriggers">
-                   <set>QAbstractItemView::NoEditTriggers</set>
+                   <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
                   </property>
                   <property name="alternatingRowColors">
                    <bool>true</bool>
@@ -855,7 +855,7 @@
                <number>24</number>
               </property>
               <property name="alignment">
-               <set>Qt::AlignCenter</set>
+               <set>Qt::AlignmentFlag::AlignCenter</set>
               </property>
               <property name="textVisible">
                <bool>true</bool>
@@ -933,7 +933,7 @@
              </sizepolicy>
             </property>
             <property name="verticalScrollBarPolicy">
-             <enum>Qt::ScrollBarAlwaysOn</enum>
+             <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
             </property>
             <property name="alternatingRowColors">
              <bool>true</bool>
@@ -1331,7 +1331,7 @@
               <string>Arguments:</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
              </property>
             </widget>
            </item>
@@ -1348,7 +1348,7 @@
               <string>Env Variables:</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
              </property>
             </widget>
            </item>
@@ -1486,7 +1486,7 @@
              <item>
               <spacer name="horizontalSpacer">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -1598,7 +1598,7 @@
               </font>
              </property>
              <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarAlwaysOn</enum>
+              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -1692,13 +1692,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/view/latest/windows/antora/spec/latest/chapters/introduction.html&quot;&gt;Latest HTML&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -1715,13 +1715,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/latest/pdf/vkspec.pdf&quot;&gt;Latest PDF&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -1766,13 +1766,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://docs.vulkan.org/spec/latest/index.html&quot;&gt;Official Vulkan Documentation&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -1789,13 +1789,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/&quot;&gt;Khronos Vulkan Registry&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -1812,13 +1812,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.gpuinfo.org/&quot;&gt;vulkan.gpuinfo.org&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -1863,13 +1863,13 @@
                  <string>Vulkan SDK: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/release_notes.html&quot;&gt;Release Notes&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/sdk/home&quot;&gt;Download Page&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -1886,13 +1886,13 @@
                  <string>Vulkan Configurator: &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/README.md&quot;&gt;Readme&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CHANGELOG.md&quot;&gt;Changelog&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -1909,13 +1909,13 @@
                  <string>Vulkan Loader: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html&quot;&gt;Layers Configuration&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderDebugging.md&quot;&gt;Loader Debugging Guide&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -1932,13 +1932,13 @@
                  <string>Vulkan Validation Layer: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/khronos_validation_layer.html&quot;&gt;Readme&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/validation_error_database.html&quot;&gt;Coverage&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -1955,13 +1955,13 @@
                  <string>Vulkan API Capture and Replay - GFXReconstruct: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html&quot;&gt;Usage&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -1978,13 +1978,13 @@
                  <string>Vulkan Profiles Tools: &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/OVERVIEW.md&quot;&gt;Overview&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/CHANGELOG.md&quot;&gt;Changelog&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://www.lunarg.com/wp-content/uploads/2024/04/The-Vulkan-Profiles-Tools-LunarG-Christophe-Riccio-04-11-2024.pdf&quot;&gt;Whitepaper&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -2029,13 +2029,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://discord.com/invite/vulkan&quot;&gt;Vulkan Discord&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://reddit.com/r/vulkan&quot;&gt;Reddit&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://stackoverflow.com/questions/tagged/vulkan&quot;&gt;Stack Overflow&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://fosstodon.org/@vulkan&quot;&gt;Mastodon&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::RichText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::TextBrowserInteraction</set>
+                 <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
                 </property>
                </widget>
               </item>
@@ -2045,7 +2045,7 @@
            <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -2066,7 +2066,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_24">
         <item>
-         <widget class="QGroupBox" name="diagnostic_group_box_settings">
+         <widget class="QGroupBox" name="preferences_group_box_settings">
           <property name="font">
            <font>
             <family>Arial</family>
@@ -2094,7 +2094,7 @@
             <number>5</number>
            </property>
            <item>
-            <widget class="QCheckBox" name="settings_keep_running">
+            <widget class="QCheckBox" name="preferences_keep_running">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -2108,7 +2108,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="settings_layer_dev_mode">
+            <widget class="QCheckBox" name="preferences_layer_dev_mode">
              <property name="font">
               <font>
                <family>Arial</family>
@@ -2156,7 +2156,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="settings_vk_home_text">
+              <widget class="QLineEdit" name="preferences_vk_home_text">
                <property name="font">
                 <font>
                  <family>Arial</family>
@@ -2167,7 +2167,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="settings_vk_home_browse">
+              <widget class="QPushButton" name="preferences_vk_home_browse">
                <property name="maximumSize">
                 <size>
                  <width>32</width>
@@ -2196,9 +2196,145 @@
          </widget>
         </item>
         <item>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Vulkan SDK Releases</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_25">
+           <property name="spacing">
+            <number>5</number>
+           </property>
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>5</number>
+           </property>
+           <item>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <property name="topMargin">
+              <number>7</number>
+             </property>
+             <property name="bottomMargin">
+              <number>7</number>
+             </property>
+             <item row="1" column="0">
+              <layout class="QHBoxLayout" name="horizontalLayout_8">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_4">
+                 <property name="text">
+                  <string>${VK_DOWNLOAD}: </string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QProgressBar" name="preferences_progress">
+                 <property name="value">
+                  <number>0</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="preferences_vk_download_text"/>
+               </item>
+               <item>
+                <widget class="QPushButton" name="preferences_vk_download_browse">
+                 <property name="maximumSize">
+                  <size>
+                   <width>32</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="0" column="0">
+              <layout class="QHBoxLayout" name="horizontalLayout_11">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QCheckBox" name="preferences_notify_releases">
+                 <property name="text">
+                  <string>Notify new Vulkan SDK release at Vulkan Configurator launch</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="preferences_download">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="preferences_open_page">
+               <property name="text">
+                <string>Open Vulkan SDK download web page...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
          <spacer name="verticalSpacer_2">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -2219,7 +2355,7 @@
           <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -2230,7 +2366,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="settings_reset">
+           <widget class="QPushButton" name="preferences_reset">
             <property name="toolTip">
              <string>Resetting Vulkan Configurator to default...</string>
             </property>
@@ -2303,7 +2439,7 @@
             <pixmap resource="resources.qrc">:/resourcefiles/lunarg_logo.png</pixmap>
            </property>
            <property name="textInteractionFlags">
-            <set>Qt::TextBrowserInteraction</set>
+            <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
            </property>
           </widget>
           <widget class="QLabel" name="label_10">
@@ -2342,7 +2478,7 @@
             <string>Vulkan Configurator licensed under Apache 2.0</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -2365,13 +2501,13 @@
             </font>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
+            <enum>Qt::LayoutDirection::LeftToRight</enum>
            </property>
            <property name="text">
             <string>Copyright (c) 2020-2025 LunarG, Inc.</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -2410,7 +2546,7 @@
             <string>Qt licensed under LGPL 3.0</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
@@ -2447,7 +2583,7 @@
             <bool>true</bool>
            </property>
            <property name="textInteractionFlags">
-            <set>Qt::TextBrowserInteraction</set>
+            <set>Qt::TextInteractionFlag::TextBrowserInteraction</set>
            </property>
           </widget>
           <widget class="QPushButton" name="about_lunarg_pushButton">
@@ -2468,7 +2604,7 @@
         <item>
          <widget class="QTextEdit" name="about_changelog_textEdit">
           <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
+           <enum>QFrame::Shape::NoFrame</enum>
           </property>
          </widget>
         </item>
