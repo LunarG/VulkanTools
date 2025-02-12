@@ -48,6 +48,7 @@ SOURCES += \
     ../vkconfig_core/layer.cpp \
     ../vkconfig_core/layer_manager.cpp \
     ../vkconfig_core/layer_preset.cpp \
+    ../vkconfig_core/file_downloader.cpp \
     ../vkconfig_core/parameter.cpp \
     ../vkconfig_core/path.cpp \
     ../vkconfig_core/registry.cpp \
@@ -130,6 +131,7 @@ HEADERS += \
     ../vkconfig_core/layer.h \
     ../vkconfig_core/layer_manager.h \
     ../vkconfig_core/layer_preset.h \
+    ../vkconfig_core/file_downloader.h \
     ../vkconfig_core/parameter.h \
     ../vkconfig_core/path.h \
     ../vkconfig_core/registry.h \
