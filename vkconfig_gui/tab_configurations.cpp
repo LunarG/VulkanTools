@@ -783,17 +783,8 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
         msg.setWindowTitle("Exporting of a Loader Configuration file failed...");
         msg.setText(format("Couldn't be create '%s' Loader configuration file.", selected_path.c_str()).c_str());
         msg.exec();
-    } else if (!(configurator.Get(HIDE_MESSAGE_NOTIFICATION_EXPORT_CONFIGURATION))) {
-        QMessageBox msg;
-        msg.setIcon(QMessageBox::Information);
-        msg.setWindowTitle("Exporting of a Loader Configuration file successful.");
-        msg.setText(format("'%s' Loader configuration file was created.", selected_path.c_str()).c_str());
-        msg.setCheckBox(new QCheckBox("Do not show again."));
-        msg.exec();
-
-        if (msg.checkBox()->isChecked()) {
-            configurator.Set(HIDE_MESSAGE_NOTIFICATION_EXPORT_CONFIGURATION);
-        }
+    } else {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path.c_str()));
     }
 }
 
@@ -820,17 +811,8 @@ void TabConfigurations::OnContextMenuExportSettingsClicked(ListItem *item) {
         msg.setWindowTitle("Exporting of a layers settings file failed...");
         msg.setText(format("Couldn't be create '%s' layers settings file.", selected_path.c_str()).c_str());
         msg.exec();
-    } else if (!(configurator.Get(HIDE_MESSAGE_NOTIFICATION_EXPORT_LAYERS_SETTINGS))) {
-        QMessageBox msg;
-        msg.setIcon(QMessageBox::Information);
-        msg.setWindowTitle("Exporting of a layers Configuration file successful.");
-        msg.setText(format("'%s' layers configuration file was created.", selected_path.c_str()).c_str());
-        msg.setCheckBox(new QCheckBox("Do not show again."));
-        msg.exec();
-
-        if (msg.checkBox()->isChecked()) {
-            configurator.Set(HIDE_MESSAGE_NOTIFICATION_EXPORT_LAYERS_SETTINGS);
-        }
+    } else {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path.c_str()));
     }
 }
 

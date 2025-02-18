@@ -8,6 +8,8 @@
 ### Improvements:
 - Add button to remove missing layers
 - Add loader messages only configuration
+- Open created files on export
+- Add button to open launcher log file
 
 ### Fixes:
 - Fix application arguments and environment variables splitting
