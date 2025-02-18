@@ -72,8 +72,7 @@ TEST(test_type_hide_message, convert_type_to_bit) {
 }
 
 TEST(test_type_hide_message, convert_specific_flags) {
-    const std::vector<std::string> TOKENS = {"HIDE_MESSAGE_NEED_APPLICATION_RESTART",
-                                             "HIDE_MESSAGE_NOTIFICATION_EXPORT_CONFIGURATION"};
+    const std::vector<std::string> TOKENS = {"HIDE_MESSAGE_NEED_APPLICATION_RESTART", "HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE"};
 
     HideMessageFlags flags = GetHideMessageFlags(TOKENS);
     const std::vector<std::string>& back = GetHideMessageTokens(flags);

@@ -58,6 +58,7 @@ class TabApplications : public Tab {
     void on_launch_options_envs_textEdited(const QString& text);
     void on_launch_options_log_textEdited(const QString& text);
     void on_launch_options_log_pressed();
+    void on_launch_options_log_open_pressed();
 
     void on_launch_clear_at_launch_toggled(bool checked);
     void on_launch_clear_log_pressed();
