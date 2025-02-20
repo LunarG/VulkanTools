@@ -45,7 +45,10 @@ enum PlatformType {
     PLATFORM_IOS = 5,
 
     PLATFORM_FIRST = PLATFORM_WINDOWS_X86,
-    PLATFORM_LAST = PLATFORM_IOS
+    PLATFORM_LAST = PLATFORM_IOS,
+
+    PLATFORM_DESKTOP_FIRST = PLATFORM_WINDOWS_X86,
+    PLATFORM_DESKTOP_LAST = PLATFORM_MACOS
 };
 
 enum { PLATFORM_COUNT = PLATFORM_LAST - PLATFORM_FIRST + 1 };
@@ -88,6 +91,16 @@ std::vector<std::string> GetPlatformTokens(int platform_flags);
 #error "Unknown platform"
 #endif
 
+bool IsDesktop(PlatformType type);
+
 bool IsPlatformSupported(int platform_flags);
 
 const char* GetLabel(PlatformType type);
+
+const char* GetLatestReleaseSDK(PlatformType type);
+
+const char* GetLatestPackageSDK(PlatformType type);
+
+const char* GetInstallerFilename(PlatformType type);
+
+const char* GetVersionedFilename(PlatformType type);

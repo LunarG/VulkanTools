@@ -59,11 +59,11 @@ class MainWindow : public QMainWindow {
     std::unique_ptr<QDialog> vk_info_dialog;
     std::unique_ptr<QDialog> vk_installation_dialog;
 
-    QSystemTrayIcon *_tray_icon;
-    QMenu *_tray_icon_menu;
-    QAction *_tray_restore_action;
+    QSystemTrayIcon *_tray_icon = nullptr;
+    QMenu *_tray_icon_menu = nullptr;
+    QAction *_tray_restore_action = nullptr;
     std::array<QAction *, EXECUTABLE_SCOPE_COUNT> _tray_layers;
-    QAction *_tray_quit_action;
+    QAction *_tray_quit_action = nullptr;
 
    private slots:
     void trayActionRestore();
@@ -71,6 +71,7 @@ class MainWindow : public QMainWindow {
     void on_tray_any(bool checked);
     void on_tray_all(bool checked);
     void on_tray_per(bool checked);
+
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
    public Q_SLOTS:

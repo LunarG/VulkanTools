@@ -88,6 +88,18 @@ bool IsFloat(const std::string& s) {
     return std::regex_search(s, FRAME_REGEX);
 }
 
+std::size_t CountChar(const std::string& value, char c) {
+    std::size_t count = 0;
+
+    for (std::size_t i = 0, n = value.size(); i < n; ++i) {
+        if (value[i] == c) {
+            ++count;
+        }
+    }
+
+    return count;
+}
+
 void RemoveString(std::vector<std::string>& list, const std::string& value) {
     std::vector<std::string> new_list;
     new_list.reserve(list.size());

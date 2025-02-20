@@ -38,9 +38,10 @@ struct BuiltinDesc {
     const Path::Builtin path;
 };
 
-static const BuiltinDesc VARIABLES[] = {
-    {"${VK_HOME}", Path::HOME},   {"${VK_APPDATA}", Path::APPDATA},       {"${VULKAN_BIN}", Path::BIN},
-    {"${VULKAN_SDK}", Path::SDK}, {"${VULKAN_PROFILES}", Path::PROFILES}, {"${VULKAN_CONTENT}", Path::CONTENT}};
+static const BuiltinDesc VARIABLES[] = {{"${VK_HOME}", Path::HOME},          {"${VK_DOWNLOAD}", Path::DOWNLOAD},
+                                        {"${VK_APPDATA}", Path::APPDATA},    {"${VULKAN_BIN}", Path::BIN},
+                                        {"${VULKAN_SDK}", Path::SDK},        {"${VULKAN_PROFILES}", Path::PROFILES},
+                                        {"${VULKAN_CONTENT}", Path::CONTENT}};
 
 static std::string ConvertSeparators(const std::string& path, const char* native_separator, const char* alien_separator) {
     const std::size_t native_separator_size = std::strlen(native_separator);
@@ -74,13 +75,13 @@ static std::string ConvertSeparators(const std::string& path, const char* native
     return current_path;
 }
 
-static const char* GetNativeSeparator() {
+const char* Path::Separator() {
     static const char* native_separator = VKC_ENV == VKC_ENV_WIN32 ? "\\" : "/";
     return native_separator;
 }
 
 static std::string ConvertNativeSeparators(const std::string& path) {
-    const char* native_separator = GetNativeSeparator();
+    const char* native_separator = Path::Separator();
     const char* alien_separator = VKC_ENV != VKC_ENV_WIN32 ? "\\" : "/";
 
     return ConvertSeparators(path, native_separator, alien_separator);
@@ -247,6 +248,20 @@ static const std::string GetHomeDir() {
     return absolute_path;
 }
 
+static std::string VK_CURRENT_DOWNLOAD_PATH = GetDefaultHomeDir() + "/Releases";
+
+void SetDownloadPath(const std::string& path) { ::VK_CURRENT_DOWNLOAD_PATH = path; }
+
+static const std::string GetDownloadDir() {
+    std::string absolute_path = qgetenv("VK_DOWNLOAD").toStdString();
+
+    if (absolute_path.empty()) {  // Default path
+        absolute_path = VK_CURRENT_DOWNLOAD_PATH;
+    }
+
+    return absolute_path;
+}
+
 static const std::string GetAppDataDir() {
     const char* TABLE[] = {
         "/AppData/Local/LunarG",  // ENVIRONMENT_WIN32
@@ -391,6 +406,9 @@ Path::Path(Path::Builtin path) {
             assert(0);
         case HOME:
             this->data = ::GetHomeDir();
+            break;
+        case DOWNLOAD:
+            this->data = ::GetDownloadDir();
             break;
         case DEFAULT_HOME:
             this->data = ::GetDefaultHomeDir();
