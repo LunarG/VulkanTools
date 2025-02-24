@@ -39,14 +39,61 @@ const char* GetExecutableFilter() {
     return TABLE[VKC_PLATFORM];
 }
 
+const char* GetExecutable(ExecutableId id) {
+    switch (id) {
+        default: {
+            assert(0);
+            return nullptr;
+        }
+        case EXECUTABLE_VKCUBE: {
+            static const char* TABLE[] = {
+                "/vkcube.exe",  // PLATFORM_WINDOWS_X86
+                "/vkcube.exe",  // PLATFORM_WINDOWS_ARM
+                "/vkcube",      // PLATFORM_LINUX
+                "/vkcube.app",  // PLATFORM_MACOS
+                "N/A",          // PLATFORM_ANDROID
+                "N/A"           // PLATFORM_IOS
+            };
+            static_assert(std::size(TABLE) == PLATFORM_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
+
+            return TABLE[VKC_PLATFORM];
+        }
+        case EXECUTABLE_VKCUBEPP: {
+            static const char* TABLE[] = {
+                "/vkcubepp.exe",  // PLATFORM_WINDOWS_X86
+                "/vkcubepp.exe",  // PLATFORM_WINDOWS_ARM
+                "/vkcubepp",      // PLATFORM_LINUX
+                "/vkcubepp.app",  // PLATFORM_MACOS
+                "N/A",            // PLATFORM_ANDROID
+                "N/A"             // PLATFORM_IOS
+            };
+            static_assert(std::size(TABLE) == PLATFORM_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
+
+            return TABLE[VKC_PLATFORM];
+        }
+        case EXECUTABLE_VKINFO: {
+            static const char* TABLE[] = {
+                "/vulkaninfoSDK.exe",  // PLATFORM_WINDOWS_X86
+                "/vulkaninfoSDK.exe",  // PLATFORM_WINDOWS_ARM
+                "/vulkaninfo",         // PLATFORM_LINUX
+                "/vulkaninfo",         // PLATFORM_MACOS
+                "N/A",                 // PLATFORM_ANDROID
+                "N/A"                  // PLATFORM_IOS
+            };
+            static_assert(std::size(TABLE) == PLATFORM_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
+
+            return TABLE[VKC_PLATFORM];
+        }
+    }
+}
+
 static const DefaultExecutable defaults_executables[] = {
-    {"vkcube", "/vkcube", "--suppress_popups", "vkcube launcher options"},
-    {"vkcubepp", "/vkcubepp", "--suppress_popups", "vkcubepp launcher options"},
-#if VKC_ENV == VKC_ENV_WIN32
-    {"vulkaninfoSDK", "/vulkaninfoSDK", "--json", "vulkaninfo launcher options"},
-#elif VKC_PLATFORM == PLATFORM_LINUX
-    {"vulkaninfo", "/vulkaninfo", "--json", "vulkaninfo launcher options"},
-#endif
+    {GetExecutable(EXECUTABLE_VKCUBE), "vkcube", "--suppress_popups", "vkcube launcher options"},
+    {GetExecutable(EXECUTABLE_VKCUBEPP), "vkcubepp", "--suppress_popups", "vkcubepp launcher options"},
+    {GetExecutable(EXECUTABLE_VKINFO), "vulkaninfo", "--json", "vulkaninfo launcher options"},
 };
 
 std::string ExecutableManager::Log() const {

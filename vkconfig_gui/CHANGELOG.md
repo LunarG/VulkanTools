@@ -11,6 +11,7 @@
 - Add loader messages only configuration
 - Open created files on export
 - Add button to open launcher log file
+- Add `vulkaninfo` as default application on macOS
 
 ### Fixes:
 - Fix application arguments and environment variables splitting

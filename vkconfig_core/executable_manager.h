@@ -26,6 +26,17 @@
 #include <string>
 #include <vector>
 
+enum ExecutableId {
+    EXECUTABLE_VKCUBE = 0,
+    EXECUTABLE_VKCUBEPP,
+    EXECUTABLE_VKINFO,
+
+    EXECUTABLE_FIRST = EXECUTABLE_VKCUBE,
+    EXECUTABLE_LAST = EXECUTABLE_VKINFO,
+};
+
+enum { EXECUTABLE_COUNT = EXECUTABLE_LAST - EXECUTABLE_FIRST + 1 };
+
 class ExecutableManager : public Serialize {
    public:
     bool Load(const QJsonObject& json_root_object) override;
