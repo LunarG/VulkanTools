@@ -23,8 +23,8 @@
 #include "path.h"
 
 struct DefaultExecutable {
-    std::string name;
     std::string key;
+    std::string name;
     std::string arguments;
     std::string label;
 };

@@ -24,20 +24,6 @@
 
 #include <QTextStream>
 
-static const char* GetExecutableSuffix() {
-    static const char* TABLE[] = {
-        ".exe",  // PLATFORM_WINDOWS_X86
-        ".exe",  // PLATFORM_WINDOWS_ARM
-        "",      // PLATFORM_LINUX
-        ".app",  // PLATFORM_MACOS
-        "N/A",   // PLATFORM_ANDROID
-        "N/A"    // PLATFORM_IOS
-    };
-    static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
-
-    return TABLE[VKC_PLATFORM];
-}
-
 ///////////////////////////////////////////////////////////////////////////
 /// This is only used on macOS to extract the executable from the bundle.
 /// You have to look at the plist.info file, you can't just assume whatever
@@ -98,7 +84,7 @@ static bool ExactExecutableFromAppBundle(Path& app_path) {
 DefaultPath GetDefaultExecutablePath(const std::string& executable_key) {
     static const std::string DEFAULT_PATH = VKC_PLATFORM == PLATFORM_MACOS ? "/../.." : "";
 
-    const std::string& executable_name = executable_key + GetExecutableSuffix();
+    const std::string& executable_name = executable_key;
     DefaultPath default_path{"." + executable_name, "."};
 
     // Using VULKAN_SDK environement variable
@@ -167,7 +153,7 @@ Executable::Executable(const DefaultExecutable& default_executable) {
     // initially will be set to the users home folder across all OS's. This is highly visible
     // in the application launcher and should not present a usability issue. The developer can
     // easily change this later to anywhere they like.
-    options.log_file = std::string("${VK_HOME}") + default_executable.key + ".txt";
+    options.log_file = std::string("${VK_HOME}/") + default_executable.name + ".txt";
 
     this->path = default_paths.executable_path;
     this->options_list.push_back(options);
