@@ -18,7 +18,7 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "tab_settings.h"
+#include "tab_preferences.h"
 #include "style.h"
 
 #include "../vkconfig_core/configurator.h"
@@ -26,7 +26,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-TabSettings::TabSettings(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
+TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
     this->ui->settings_reset->setIcon(::Get(::ICON_RESET));
     this->ui->settings_vk_home_browse->setIcon(::Get(::ICON_FOLDER_SEARCH));
 
@@ -37,9 +37,9 @@ TabSettings::TabSettings(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
     this->connect(this->ui->settings_layer_dev_mode, SIGNAL(toggled(bool)), this, SLOT(on_layer_dev_mode_toggled(bool)));
 }
 
-TabSettings::~TabSettings() {}
+TabPreferences::~TabPreferences() {}
 
-void TabSettings::UpdateUI(UpdateUIMode mode) {
+void TabPreferences::UpdateUI(UpdateUIMode mode) {
     (void)mode;
 
     Configurator &configurator = Configurator::Get();
@@ -58,21 +58,21 @@ void TabSettings::UpdateUI(UpdateUIMode mode) {
     this->ui->settings_layer_dev_mode->blockSignals(false);
 }
 
-void TabSettings::CleanUI() {}
+void TabPreferences::CleanUI() {}
 
-bool TabSettings::EventFilter(QObject *target, QEvent *event) {
+bool TabPreferences::EventFilter(QObject *target, QEvent *event) {
     (void)target;
     (void)event;
 
     return false;
 }
 
-void TabSettings::on_keep_running_toggled(bool checked) {
+void TabPreferences::on_keep_running_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.SetUseSystemTray(checked);
 }
 
-void TabSettings::on_vk_home_text_pressed() {
+void TabPreferences::on_vk_home_text_pressed() {
     Path path(this->ui->settings_vk_home_text->text().toStdString());
     if (path.Exists()) {
         ::SetHomePath(this->ui->settings_vk_home_text->text().toStdString());
@@ -90,7 +90,7 @@ void TabSettings::on_vk_home_text_pressed() {
     }
 }
 
-void TabSettings::on_vk_home_browse_pressed() {
+void TabPreferences::on_vk_home_browse_pressed() {
     const QString selected_path = QFileDialog::getExistingDirectory(
         this->ui->settings_vk_home_browse, "Select the Vulkan Home Default Working Folder (Set ${VK_HOME} value)...",
         ::Path(Path::HOME).AbsolutePath().c_str());
@@ -102,7 +102,7 @@ void TabSettings::on_vk_home_browse_pressed() {
     }
 }
 
-void TabSettings::on_reset_hard_pressed() {
+void TabPreferences::on_reset_hard_pressed() {
     QMessageBox message;
     message.setIcon(QMessageBox::Critical);
     message.setWindowTitle(format("Restoring and Resetting %s to default...", VKCONFIG_NAME).c_str());
@@ -118,7 +118,7 @@ void TabSettings::on_reset_hard_pressed() {
     }
 }
 
-void TabSettings::on_layer_dev_mode_toggled(bool checked) {
+void TabPreferences::on_layer_dev_mode_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.SetUseLayerDevMode(checked);
 }

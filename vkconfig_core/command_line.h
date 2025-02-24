@@ -21,17 +21,39 @@
 
 #pragma once
 
+#include "path.h"
+
 #include <string>
 #include <vector>
 
-enum CommandType { COMMAND_NONE = 0, COMMAND_SHOW_USAGE, COMMAND_VERSION, COMMAND_GUI, COMMAND_RESET, COMMAND_LAYERS, COMMAND_DOC };
+enum CommandType {
+    COMMAND_NONE = 0,
+    COMMAND_SHOW_USAGE,
+    COMMAND_VERSION,
+    COMMAND_GUI,
+    COMMAND_RESET,
+    COMMAND_LAYERS,
+    COMMAND_LOADER,
+    COMMAND_DOC
+};
 
 enum CommandLayersArg {
     COMMAND_LAYERS_NONE = 0,
     COMMAND_LAYERS_OVERRIDE,
     COMMAND_LAYERS_SURRENDER,
+    COMMAND_LAYERS_PATH,
     COMMAND_LAYERS_LIST,
     COMMAND_LAYERS_VERBOSE
+};
+
+enum CommandLoaderArg {
+    COMMAND_LOADER_NONE = 0,
+    COMMAND_LOADER_OVERRIDE,
+    COMMAND_LOADER_SURRENDER,
+    COMMAND_LOADER_LIST,
+    COMMAND_LOADER_IMPORT,
+    COMMAND_LOADER_EXPORT,
+    COMMAND_LOADER_DELETE
 };
 
 enum CommandDocArg { COMMAND_DOC_NONE = 0, COMMAND_DOC_HTML, COMMAND_DOC_MARKDOWN, COMMAND_DOC_SETTINGS };
@@ -48,7 +70,7 @@ enum CommandError {
     ERROR_FILE_NOTFOUND
 };
 
-enum HelpType { HELP_NONE, HELP_DEFAULT, HELP_HELP, HELP_VERSION, HELP_LAYERS, HELP_GUI, HELP_DOC, HELP_RESET };
+enum HelpType { HELP_NONE = 0, HELP_DEFAULT, HELP_HELP, HELP_VERSION, HELP_LAYERS, HELP_LOADER, HELP_GUI, HELP_DOC, HELP_RESET };
 
 class CommandLine {
    public:
@@ -60,7 +82,9 @@ class CommandLine {
     const CommandType& command;
     const CommandResetArg& command_reset_arg;
     const CommandLayersArg& command_layers_arg;
-    const std::string& layers_configuration_path;
+    const CommandLoaderArg& command_loader_arg;
+    const std::string& layers_configuration_name;
+    const Path& layers_configuration_path;
     const CommandDocArg& command_doc_arg;
     const std::string& doc_layer_name;
     const std::string& doc_out_dir;
@@ -75,7 +99,9 @@ class CommandLine {
     CommandType _command = COMMAND_SHOW_USAGE;
     CommandResetArg _command_reset_arg = COMMAND_RESET_NONE;
     CommandLayersArg _command_layers_arg = COMMAND_LAYERS_NONE;
-    std::string _layers_configuration_path;
+    CommandLoaderArg _command_loader_arg = COMMAND_LOADER_NONE;
+    std::string _layers_configuration_name;
+    Path _layers_configuration_path;
     CommandDocArg _command_doc_arg = COMMAND_DOC_NONE;
     std::string _doc_layer_name;
     std::string _doc_out_dir;

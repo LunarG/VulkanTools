@@ -3,7 +3,17 @@
 
 ### Features:
 - Add dark mode support, automatically matching the OS mode
+- Add `vkconfig loader` commands to import, export, delete and use stored loader configurations
+
+### Improvements:
 - Add button to remove missing layers
+- Add loader messages only configuration
+- Open created files on export
+- Add button to open launcher log file
+
+### Fixes:
+- Fix application arguments and environment variables splitting
+- Fix layer settings crash when reordering layers
 
 ---
 ## Vulkan Configurator 3.0.0 - February 2025

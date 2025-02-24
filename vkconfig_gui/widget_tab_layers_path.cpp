@@ -27,7 +27,7 @@
 #include <QMessageBox>
 
 LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths layers_path, bool removabled)
-    : path_info(path_info), layers_path(layers_path) {
+    : layers_path(layers_path), path_info(path_info) {
     this->setChecked(this->path_info.enabled);
 
     this->buttom_remove = new QPushButton(this);

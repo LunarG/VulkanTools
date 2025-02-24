@@ -23,6 +23,7 @@
 
 #include "main_reset.h"
 #include "main_layers.h"
+#include "main_loader.h"
 #include "main_doc.h"
 
 #include "../vkconfig_core/path.h"
@@ -53,6 +54,10 @@ void log_handler(QtMsgType type, const QMessageLogContext& context, const QStrin
     if (originalHandler) {
         (*originalHandler)(type, context, msg);
     }
+#else
+    (void)type;
+    (void)context;
+    (void)msg;
 #endif  //_DEBUG
 }
 
@@ -140,6 +145,9 @@ int main(int argc, char* argv[]) {
         }
         case COMMAND_LAYERS: {
             return run_layers(command_line);
+        }
+        case COMMAND_LOADER: {
+            return run_loader(command_line);
         }
         case COMMAND_RESET: {
             return run_reset(argc, argv, command_line);

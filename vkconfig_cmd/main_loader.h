@@ -20,25 +20,6 @@
 
 #pragma once
 
-#include "tab.h"
+#include "../vkconfig_core/command_line.h"
 
-class TabSettings : public Tab {
-    Q_OBJECT
-
-   public:
-    TabSettings(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui);
-    virtual ~TabSettings();
-
-    virtual void UpdateUI(UpdateUIMode mode) override;
-    virtual void CleanUI() override;
-    virtual bool EventFilter(QObject *target, QEvent *event) override;
-
-   public Q_SLOTS:
-    void on_keep_running_toggled(bool checked);
-    void on_vk_home_text_pressed();
-    void on_vk_home_browse_pressed();
-    void on_reset_hard_pressed();
-    void on_layer_dev_mode_toggled(bool checked);
-
-   private:
-};
+int run_loader(const CommandLine& command_line);

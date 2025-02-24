@@ -20,23 +20,25 @@
 
 #pragma once
 
-enum TabType {
-    TAB_CONFIGURATIONS = 0,
-    TAB_LAYERS,
-    TAB_APPLICATIONS,
-    TAB_DIAGNOSTIC,
-    TAB_DOCUMENTATION,
-    TAB_PREFERENCES,
-    TAB_ABOUT,
+#include "tab.h"
 
-    TAB_FIRST = TAB_CONFIGURATIONS,
-    TAB_LAST = TAB_ABOUT
+class TabPreferences : public Tab {
+    Q_OBJECT
+
+   public:
+    TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui);
+    virtual ~TabPreferences();
+
+    virtual void UpdateUI(UpdateUIMode mode) override;
+    virtual void CleanUI() override;
+    virtual bool EventFilter(QObject *target, QEvent *event) override;
+
+   public Q_SLOTS:
+    void on_keep_running_toggled(bool checked);
+    void on_vk_home_text_pressed();
+    void on_vk_home_browse_pressed();
+    void on_reset_hard_pressed();
+    void on_layer_dev_mode_toggled(bool checked);
+
+   private:
 };
-
-enum { TAB_COUNT = TAB_LAST - TAB_FIRST + 1 };
-
-const char* GetLabel(TabType type);
-
-const char* GetToken(TabType type);
-
-TabType GetTabType(const char* token);

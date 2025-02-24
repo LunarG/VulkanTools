@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->tabs[TAB_LAYERS].reset(new TabLayers(*this, ui));
     this->tabs[TAB_CONFIGURATIONS].reset(new TabConfigurations(*this, ui));
     this->tabs[TAB_DOCUMENTATION].reset(new TabDocumentation(*this, ui));
-    this->tabs[TAB_SETTINGS].reset(new TabSettings(*this, ui));
+    this->tabs[TAB_PREFERENCES].reset(new TabPreferences(*this, ui));
     this->tabs[TAB_ABOUT].reset(new TabAbout(*this, ui));
 
     this->connect(qApp, &QGuiApplication::commitDataRequest, this, &MainWindow::commitDataRequest);
@@ -292,7 +292,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
             palette.setColor(QPalette::WindowText, QColor(Qt::red));
             this->ui->settings_keep_running->setPalette(palette);
 
-            this->ui->tab_widget->setCurrentIndex(TAB_SETTINGS);
+            this->ui->tab_widget->setCurrentIndex(TAB_PREFERENCES);
 
             int ret_val = alert.exec();
             if (alert.checkBox()->isChecked()) {

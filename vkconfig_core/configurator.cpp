@@ -804,10 +804,6 @@ bool Configurator::Load() {
         // TAB_CONFIGURATIONS
         if (json_interface_object.value(GetToken(TAB_CONFIGURATIONS)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_CONFIGURATIONS)).toObject();
-            this->use_system_tray = json_object.value("use_system_tray").toBool();
-            if (json_object.value("use_layer_dev_mode") != QJsonValue::Undefined) {
-                this->use_layer_dev_mode = json_object.value("use_layer_dev_mode").toBool();
-            }
             this->advanced = json_object.value("advanced").toBool();
             this->executable_scope = ::GetExecutableScope(json_object.value("executable_scope").toString().toStdString().c_str());
             this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
@@ -823,13 +819,13 @@ bool Configurator::Load() {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_APPLICATIONS)).toObject();
         }
 
-        // TAB_DIAGNOSTIC
-        if (json_interface_object.value(GetToken(TAB_DIAGNOSTIC)) != QJsonValue::Undefined) {
-            const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_DIAGNOSTIC)).toObject();
+        // TAB_PREFERENCES
+        if (json_interface_object.value(GetToken(TAB_PREFERENCES)) != QJsonValue::Undefined) {
+            const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_PREFERENCES)).toObject();
 
-            if (json_object.value("VK_HOME") != QJsonValue::Undefined) {
-                ::SetHomePath(json_object.value("VK_HOME").toString().toStdString());
-            }
+            this->use_layer_dev_mode = json_object.value("use_layer_dev_mode").toBool();
+            this->use_system_tray = json_object.value("use_system_tray").toBool();
+            ::SetHomePath(json_object.value("VK_HOME").toString().toStdString());
         }
 
         this->executables.Load(json_root_object);
@@ -854,8 +850,6 @@ bool Configurator::Save() const {
     // TAB_CONFIGURATIONS
     {
         QJsonObject json_object;
-        json_object.insert("use_system_tray", this->use_system_tray);
-        json_object.insert("use_layer_dev_mode", this->use_layer_dev_mode);
         json_object.insert("advanced", this->advanced);
         json_object.insert("executable_scope", ::GetToken(this->executable_scope));
         json_object.insert("selected_global_configuration", this->selected_global_configuration.c_str());
@@ -874,11 +868,13 @@ bool Configurator::Save() const {
         json_interface_object.insert(GetToken(TAB_APPLICATIONS), json_object);
     }
 
-    // TAB_DIAGNOSTIC
+    // TAB_PREFERENCES
     {
         QJsonObject json_object;
+        json_object.insert("use_system_tray", this->use_system_tray);
+        json_object.insert("use_layer_dev_mode", this->use_layer_dev_mode);
         json_object.insert("VK_HOME", ::Path(Path::HOME).RelativePath().c_str());
-        json_interface_object.insert(GetToken(TAB_DIAGNOSTIC), json_object);
+        json_interface_object.insert(GetToken(TAB_PREFERENCES), json_object);
     }
 
     // interface json object
