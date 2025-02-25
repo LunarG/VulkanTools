@@ -21,12 +21,12 @@
 #include "mainwindow.h"
 
 #include "../vkconfig_core/vulkan_util.h"
-#include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/application_singleton.h"
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/configurator_signal.h"
 
 #include <QApplication>
+#include <QMessageBox>
 
 #include <cassert>
 
@@ -80,7 +80,19 @@ int main(int argc, char* argv[]) {
     // order to use a QMessageBox and avoid some QThread warnings.
     ApplicationSingleton singleton("vkconfig_single_instance");
     while (singleton.IsLocked()) {
-        if (Alert::StartSingleton() == QMessageBox::Cancel) {
+        QMessageBox alert;
+        alert.QDialog::setWindowTitle(format("Cannot start a new instance of %s", VKCONFIG_NAME).c_str());
+        alert.setIcon(QMessageBox::Critical);
+        alert.setDefaultButton(QMessageBox::Cancel);
+        alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        alert.setText(format("Another instance of %s is currently running. Please close it to continue.", VKCONFIG_NAME).c_str());
+        alert.setInformativeText(format("Press OK to continue launching the new instance of %s when the other instance is "
+                                        "stopped.\nPress CANCEL to stop the launch of a new %s instance.",
+                                        VKCONFIG_NAME, VKCONFIG_NAME)
+                                     .c_str());
+        int button = alert.exec();
+
+        if (button == QMessageBox::Cancel) {
             return -1;
         }
     }
@@ -91,21 +103,38 @@ int main(int argc, char* argv[]) {
     configurator.vulkan_system_info = BuildVulkanSystemInfo();
 
     if (configurator.vulkan_system_info.loaderVersion == Version::NONE) {
-        Alert::StartLoaderFailure();
+        QMessageBox alert;
+        alert.QDialog::setWindowTitle("Vulkan Configurator failed to start...");
+        alert.setText("Could not find a Vulkan Loader. Please install the Vulkan SDK.");
+        alert.setInformativeText("<a href=\"https://vulkan.lunarg.com/sdk/home\">https://vulkan.lunarg.com/sdk/home</a>");
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
         return -1;
     }
 
     if (configurator.vulkan_system_info.loaderVersion < Version::REQUIRED_LOADER_VERSION) {
-        Alert::StartLoaderIncompatibleVersions(configurator.vulkan_system_info.loaderVersion, Version::REQUIRED_LOADER_VERSION);
+        QMessageBox alert;
+        alert.setWindowTitle("Vulkan Configurator failed to start...");
+        alert.setText(
+            format("The system has Vulkan Loader version % s but version %s is required. Please update the Vulkan Runtime.",
+                   configurator.vulkan_system_info.loaderVersion.str().c_str(), Version::REQUIRED_LOADER_VERSION.str().c_str())
+                .c_str());
+        alert.setInformativeText("<a href=\"https://vulkan.lunarg.com/sdk/home\">https://vulkan.lunarg.com/sdk/home</a>");
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
         return -1;
     }
 
     if (configurator.vulkan_system_info.physicalDevices.empty()) {
-        Alert::StartPhysicalDeviceFailure();
+        QMessageBox alert;
+        alert.setWindowTitle("Vulkan Configurator failed to start...");
+        alert.setText("Cannot find any Vulkan Physical Devices.");
+        alert.setIcon(QMessageBox::Critical);
+        alert.exec();
         return -1;
     }
 
-    const bool init = configurator.Init();
+    const bool init = configurator.Init(CONFIGURATOR_MODE_GUI);
     int result = 0;
 
     if (init) {

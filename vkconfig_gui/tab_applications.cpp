@@ -23,10 +23,21 @@
 #include "style.h"
 
 #include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/alert.h"
 
 #include <QFileDialog>
 #include <QDesktopServices>
+#include <QMessageBox>
+
+static void PathInvalid(const Path &path, const char *message) {
+    const std::string text = format("'%s' is not a valid path.", path.AbsolutePath().c_str());
+
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle("The select path doesn't exist...");
+    alert.setText(text.c_str());
+    alert.setInformativeText(message);
+    alert.setIcon(QMessageBox::Critical);
+    alert.exec();
+}
 
 TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
     : Tab(TAB_APPLICATIONS, window, ui), _launch_application(nullptr) {
@@ -403,18 +414,16 @@ void TabApplications::on_launch_button_pressed() {
     assert(!active_executable->path.Empty());
     launch_log += format("- Executable: %s\n", active_executable->path.AbsolutePath().c_str());
     if (!active_executable->path.Exists()) {
-        Alert::PathInvalid(
-            active_executable->path,
-            format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
+        ::PathInvalid(active_executable->path,
+                      format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
     }
 
     const ExecutableOptions *options = active_executable->GetActiveOptions();
 
     launch_log += format("- Working Directory: %s\n", options->working_folder.AbsolutePath().c_str());
     if (!options->working_folder.Exists()) {
-        Alert::PathInvalid(
-            options->working_folder,
-            format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
+        ::PathInvalid(options->working_folder,
+                      format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
     }
 
     if (!options->args.empty()) {
@@ -449,7 +458,11 @@ void TabApplications::on_launch_button_pressed() {
             }
 
             if (!this->_log_file.open(mode)) {
-                Alert::LogFileFailed();
+                QMessageBox alert;
+                alert.setWindowTitle("Cannot open log file");
+                alert.setText(format("Cannot open %s...", options->log_file.AbsolutePath().c_str()).c_str());
+                alert.setIcon(QMessageBox::Warning);
+                alert.exec();
             }
         }
     }

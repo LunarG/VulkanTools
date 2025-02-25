@@ -20,7 +20,6 @@
 
 #include "util.h"
 #include "json.h"
-#include "alert.h"
 #include "path.h"
 #include "type_platform.h"
 

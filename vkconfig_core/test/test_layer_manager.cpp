@@ -36,7 +36,7 @@ TEST(test_layer_manager, load_json) {
     QJsonObject json_object;
 
     LayerManager layer_manager;
-    bool result = layer_manager.Load(json_object);
+    bool result = layer_manager.Load(json_object, CONFIGURATOR_MODE_CMD);
     EXPECT_TRUE(result);
 }
 
@@ -59,7 +59,7 @@ TEST(test_layer_manager, save_json) {
 
 TEST(test_layer_manager, load_all) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     EXPECT_EQ(16, layer_manager.Size());
     EXPECT_TRUE(!layer_manager.Empty());
@@ -72,7 +72,7 @@ TEST(test_layer_manager, load_dir) {
     LayerManager layer_manager;
     EXPECT_TRUE(layer_manager.Empty());
 
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     EXPECT_TRUE(layer_manager.Find("VK_LAYER_LUNARG_reference_1_1_0", Version::LATEST) != nullptr);
 
     layer_manager.Clear();
@@ -85,7 +85,7 @@ TEST(test_layer_manager, load_file) {
     LayerManager layer_manager;
     EXPECT_TRUE(layer_manager.Empty());
 
-    layer_manager.LoadLayersFromPath(":/layers/VK_LAYER_LUNARG_reference_1_1_0.json");
+    layer_manager.LoadLayersFromPath(":/layers/VK_LAYER_LUNARG_reference_1_1_0.json", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     EXPECT_TRUE(!layer_manager.Empty());
     EXPECT_EQ(1, layer_manager.Size());
@@ -99,7 +99,7 @@ TEST(test_layer_manager, load_file) {
 TEST(test_layer_manager, reset) {
     LayerManager layer_manager;
 
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     EXPECT_FALSE(layer_manager.Empty());
 
     layer_manager.Clear();
@@ -108,7 +108,7 @@ TEST(test_layer_manager, reset) {
 
 TEST(test_layer_manager, find_single) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     EXPECT_TRUE(layer_manager.Find("VK_LAYER_LUNARG_test_03", Version::LATEST) != nullptr);
 
@@ -119,13 +119,14 @@ TEST(test_layer_manager, find_single) {
 
 TEST(test_layer_manager, reload) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     EXPECT_TRUE(layer_manager.Size() > 1);
 
     const std::size_t initial_size = layer_manager.Size();
 
-    LayerLoadStatus status1 = layer_manager.LoadLayer(":/layers/VK_LAYER_LUNARG_test_04.json");
+    LayerLoadStatus status1 =
+        layer_manager.LoadLayer(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(status1, LAYER_LOAD_RELOADED);
 
     Layer* layer1 = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_test_04.json", false);
@@ -134,7 +135,8 @@ TEST(test_layer_manager, reload) {
     const std::size_t reloaded_size1 = layer_manager.Size();
     EXPECT_EQ(initial_size, reloaded_size1);
 
-    LayerLoadStatus status2 = layer_manager.LoadLayer(":/layers/VK_LAYER_LUNARG_test_04.json");
+    LayerLoadStatus status2 =
+        layer_manager.LoadLayer(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(status2, LAYER_LOAD_RELOADED);
 
     const std::size_t reloaded_size2 = layer_manager.Size();
@@ -143,7 +145,7 @@ TEST(test_layer_manager, reload) {
 
 TEST(test_layer_manager, find_multiple) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     const Layer* layer135 = layer_manager.Find("VK_LAYER_LUNARG_version", Version(1, 1, 135));
     EXPECT_TRUE(layer135 != nullptr);
@@ -180,7 +182,7 @@ TEST(test_layer_manager, find_multiple) {
 
 TEST(test_layer_manager, FindLastModified) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     const std::size_t initial_count = layer_manager.Size();
 
     Layer* layer204_modified = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
@@ -188,7 +190,7 @@ TEST(test_layer_manager, FindLastModified) {
     Path modified_path = layer204_modified->manifest_path;
     layer204_modified->manifest_path = ":/layers/VK_LAYER_LUNARG_version_204_copy.json";
 
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     const std::size_t reloaded_count = layer_manager.Size();
     EXPECT_EQ(initial_count + 1, reloaded_count);
 
@@ -208,7 +210,7 @@ TEST(test_layer_manager, FindLastModified) {
 
 TEST(test_layer_manager, FindFromManifest) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     const std::size_t initial_count = layer_manager.Size();
 
     Layer* layer204 = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
@@ -233,19 +235,19 @@ TEST(test_layer_manager, FindFromManifest) {
     EXPECT_TRUE(layer204_disabledC != nullptr);
     EXPECT_TRUE(layer204_disabledC->enabled);
 
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     const std::size_t enabled_count = layer_manager.Size();
     EXPECT_EQ(initial_count, enabled_count);
 
     layer204->enabled = false;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     const std::size_t disabled_count = layer_manager.Size();
     EXPECT_EQ(initial_count, disabled_count);
 }
 
 TEST(test_layer_manager, GatherManifests) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     const std::vector<Path>& versions_notfound = layer_manager.GatherManifests("VK_LAYER_LUNARG_version_not_found");
     EXPECT_TRUE(versions_notfound.empty());
@@ -282,7 +284,7 @@ TEST(test_layer_manager, GatherManifests) {
 
 TEST(test_layer_manager, GatherVersions) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     const std::vector<Version>& versions_notfound = layer_manager.GatherVersions("VK_LAYER_LUNARG_version_not_found");
     EXPECT_TRUE(versions_notfound.empty());
@@ -311,7 +313,7 @@ TEST(test_layer_manager, GatherVersions) {
 
 TEST(test_layer_manager, BuildLayerNameList) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     EXPECT_EQ(layer_manager.GatherLayerNames().size(), 13);
 }
@@ -322,10 +324,10 @@ TEST(test_layer_manager, avoid_duplicate) {
     LayerManager layer_manager;
     EXPECT_TRUE(layer_manager.Empty());
 
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     std::size_t first_load_count = layer_manager.Size();
 
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     std::size_t second_load_count = layer_manager.Size();
 
     EXPECT_EQ(first_load_count, second_load_count);
@@ -370,7 +372,7 @@ TEST(test_layer_manager, custom_path_append_remove) {
 
 TEST(test_layer_manager, custom_path_update_layers) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     LayersPathInfo info;
     info.path = ":/layers";

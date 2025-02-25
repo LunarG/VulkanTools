@@ -194,7 +194,7 @@ void TabLayers::on_layers_reload_pressed() {
         this->ui->layers_progress->setValue(static_cast<int>(i + 1));
         this->ui->layers_progress->update();
 
-        LayerLoadStatus status = configurator.layers.LoadLayer(layers_paths[i]);
+        LayerLoadStatus status = configurator.layers.LoadLayer(layers_paths[i], LAYER_TYPE_EXPLICIT, configurator.mode);
         ++layers_count[status];
 
         std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
