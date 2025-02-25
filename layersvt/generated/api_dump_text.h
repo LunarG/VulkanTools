@@ -45,6 +45,7 @@ void dump_text_VkPerformanceValueDataINTEL(const VkPerformanceValueDataINTEL& ob
 void dump_text_VkPipelineExecutableStatisticValueKHR(const VkPipelineExecutableStatisticValueKHR& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkDescriptorDataEXT(const VkDescriptorDataEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkAccelerationStructureMotionInstanceDataNV(const VkAccelerationStructureMotionInstanceDataNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureOpInputNV(const VkClusterAccelerationStructureOpInputNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkIndirectExecutionSetInfoEXT(const VkIndirectExecutionSetInfoEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkIndirectCommandsTokenDataEXT(const VkIndirectCommandsTokenDataEXT& object, const ApiDumpSettings& settings, int indents);
 
@@ -353,6 +354,8 @@ void dump_text_VkOpacityMicromapSpecialIndexEXT(VkOpacityMicromapSpecialIndexEXT
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkDisplacementMicromapFormatNV(VkDisplacementMicromapFormatNV object, const ApiDumpSettings& settings, int indents);
 #endif // VK_ENABLE_BETA_EXTENSIONS
+void dump_text_VkRayTracingLssIndexingModeNV(VkRayTracingLssIndexingModeNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkRayTracingLssPrimitiveEndCapsModeNV(VkRayTracingLssPrimitiveEndCapsModeNV object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkSubpassMergeStatusEXT(VkSubpassMergeStatusEXT object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkDirectDriverLoadingModeLUNARG(VkDirectDriverLoadingModeLUNARG object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkOpticalFlowPerformanceLevelNV(VkOpticalFlowPerformanceLevelNV object, const ApiDumpSettings& settings, int indents);
@@ -362,6 +365,7 @@ void dump_text_VkAntiLagStageAMD(VkAntiLagStageAMD object, const ApiDumpSettings
 void dump_text_VkShaderCodeTypeEXT(VkShaderCodeTypeEXT object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkDepthClampModeEXT(VkDepthClampModeEXT object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkRayTracingInvocationReorderModeNV(VkRayTracingInvocationReorderModeNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkCooperativeVectorMatrixLayoutNV(VkCooperativeVectorMatrixLayoutNV object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkLayerSettingTypeEXT(VkLayerSettingTypeEXT object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkLatencyMarkerNV(VkLatencyMarkerNV object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkOutOfBandQueueTypeNV(VkOutOfBandQueueTypeNV object, const ApiDumpSettings& settings, int indents);
@@ -372,6 +376,10 @@ void dump_text_VkCubicFilterWeightsQCOM(VkCubicFilterWeightsQCOM object, const A
 void dump_text_VkLayeredDriverUnderlyingApiMSFT(VkLayeredDriverUnderlyingApiMSFT object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkDisplaySurfaceStereoTypeNV(VkDisplaySurfaceStereoTypeNV object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceLayeredApiKHR(VkPhysicalDeviceLayeredApiKHR object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureTypeNV(VkClusterAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureOpTypeNV(VkClusterAccelerationStructureOpTypeNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureOpModeNV(VkClusterAccelerationStructureOpModeNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPartitionedAccelerationStructureOpTypeNV(VkPartitionedAccelerationStructureOpTypeNV object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkIndirectExecutionSetInfoTypeEXT(VkIndirectExecutionSetInfoTypeEXT object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkIndirectCommandsTokenTypeEXT(VkIndirectCommandsTokenTypeEXT object, const ApiDumpSettings& settings, int indents);
 
@@ -534,8 +542,16 @@ void dump_text_VkVideoEncodeAV1CapabilityFlagBitsKHR(VkVideoEncodeAV1CapabilityF
 void dump_text_VkVideoEncodeAV1StdFlagBitsKHR(VkVideoEncodeAV1StdFlagBitsKHR object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkVideoEncodeAV1SuperblockSizeFlagBitsKHR(VkVideoEncodeAV1SuperblockSizeFlagBitsKHR object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkVideoEncodeAV1RateControlFlagBitsKHR(VkVideoEncodeAV1RateControlFlagBitsKHR object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureAddressResolutionFlagBitsNV(VkClusterAccelerationStructureAddressResolutionFlagBitsNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureClusterFlagBitsNV(VkClusterAccelerationStructureClusterFlagBitsNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureGeometryFlagBitsNV(VkClusterAccelerationStructureGeometryFlagBitsNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureIndexFormatFlagBitsNV(VkClusterAccelerationStructureIndexFormatFlagBitsNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPartitionedAccelerationStructureInstanceFlagBitsNV(VkPartitionedAccelerationStructureInstanceFlagBitsNV object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkIndirectCommandsInputModeFlagBitsEXT(VkIndirectCommandsInputModeFlagBitsEXT object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkIndirectCommandsLayoutUsageFlagBitsEXT(VkIndirectCommandsLayoutUsageFlagBitsEXT object, const ApiDumpSettings& settings, int indents);
+// 64 bit bitmasks don't have an enum of bit values.
+typedef VkFlags64 VkAccessFlagBits3KHR;
+void dump_text_VkAccessFlagBits3KHR(VkAccessFlagBits3KHR object, const ApiDumpSettings& settings, int indents);
 
 //=========================== Flag Implementations ==========================//
 
@@ -682,8 +698,14 @@ void dump_text_VkVideoEncodeAV1CapabilityFlagsKHR(VkVideoEncodeAV1CapabilityFlag
 void dump_text_VkVideoEncodeAV1StdFlagsKHR(VkVideoEncodeAV1StdFlagsKHR object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkVideoEncodeAV1SuperblockSizeFlagsKHR(VkVideoEncodeAV1SuperblockSizeFlagsKHR object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkVideoEncodeAV1RateControlFlagsKHR(VkVideoEncodeAV1RateControlFlagsKHR object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureAddressResolutionFlagsNV(VkClusterAccelerationStructureAddressResolutionFlagsNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureClusterFlagsNV(VkClusterAccelerationStructureClusterFlagsNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureGeometryFlagsNV(VkClusterAccelerationStructureGeometryFlagsNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureIndexFormatFlagsNV(VkClusterAccelerationStructureIndexFormatFlagsNV object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPartitionedAccelerationStructureInstanceFlagsNV(VkPartitionedAccelerationStructureInstanceFlagsNV object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkIndirectCommandsInputModeFlagsEXT(VkIndirectCommandsInputModeFlagsEXT object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkIndirectCommandsLayoutUsageFlagsEXT(VkIndirectCommandsLayoutUsageFlagsEXT object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkAccessFlags3KHR(VkAccessFlags3KHR object, const ApiDumpSettings& settings, int indents);
 
 
 void dump_text_VkDeviceCreateFlags(VkDeviceCreateFlags object, const ApiDumpSettings& settings, int indents);
@@ -1850,7 +1872,7 @@ void dump_text_VkImageViewSlicedCreateInfoEXT(const VkImageViewSlicedCreateInfoE
 void dump_text_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE(const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkDescriptorSetBindingReferenceVALVE(const VkDescriptorSetBindingReferenceVALVE& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkDescriptorSetLayoutHostMappingInfoVALVE(const VkDescriptorSetLayoutHostMappingInfoVALVE& object, const ApiDumpSettings& settings, int indents);
-void dump_text_VkPhysicalDeviceDepthClampZeroOneFeaturesEXT(const VkPhysicalDeviceDepthClampZeroOneFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR(const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT(const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceRenderPassStripedFeaturesARM(const VkPhysicalDeviceRenderPassStripedFeaturesARM& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceRenderPassStripedPropertiesARM(const VkPhysicalDeviceRenderPassStripedPropertiesARM& object, const ApiDumpSettings& settings, int indents);
@@ -1871,6 +1893,9 @@ void dump_text_VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV(const Vk
 void dump_text_VkComputePipelineIndirectBufferInfoNV(const VkComputePipelineIndirectBufferInfoNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPipelineIndirectDeviceAddressInfoNV(const VkPipelineIndirectDeviceAddressInfoNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkBindPipelineIndirectCommandNV(const VkBindPipelineIndirectCommandNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV(const VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkAccelerationStructureGeometryLinearSweptSpheresDataNV(const VkAccelerationStructureGeometryLinearSweptSpheresDataNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkAccelerationStructureGeometrySpheresDataNV(const VkAccelerationStructureGeometrySpheresDataNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceLinearColorAttachmentFeaturesNV(const VkPhysicalDeviceLinearColorAttachmentFeaturesNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR(const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT(const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
@@ -1940,6 +1965,10 @@ void dump_text_VkAmigoProfilingSubmitInfoSEC(const VkAmigoProfilingSubmitInfoSEC
 void dump_text_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM(const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV(const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV(const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDeviceCooperativeVectorPropertiesNV(const VkPhysicalDeviceCooperativeVectorPropertiesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDeviceCooperativeVectorFeaturesNV(const VkPhysicalDeviceCooperativeVectorFeaturesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkCooperativeVectorPropertiesNV(const VkCooperativeVectorPropertiesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkConvertCooperativeVectorMatrixInfoNV(const VkConvertCooperativeVectorMatrixInfoNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV(const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV(const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT(const VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
@@ -2038,6 +2067,31 @@ void dump_text_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR(const VkPhysicalDev
 void dump_text_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV(const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT(const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceRayTracingValidationFeaturesNV(const VkPhysicalDeviceRayTracingValidationFeaturesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDeviceClusterAccelerationStructureFeaturesNV(const VkPhysicalDeviceClusterAccelerationStructureFeaturesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDeviceClusterAccelerationStructurePropertiesNV(const VkPhysicalDeviceClusterAccelerationStructurePropertiesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureClustersBottomLevelInputNV(const VkClusterAccelerationStructureClustersBottomLevelInputNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureTriangleClusterInputNV(const VkClusterAccelerationStructureTriangleClusterInputNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureMoveObjectsInputNV(const VkClusterAccelerationStructureMoveObjectsInputNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureInputInfoNV(const VkClusterAccelerationStructureInputInfoNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureCommandsInfoNV(const VkClusterAccelerationStructureCommandsInfoNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkStridedDeviceAddressNV(const VkStridedDeviceAddressNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV(const VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureMoveObjectsInfoNV(const VkClusterAccelerationStructureMoveObjectsInfoNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureBuildClustersBottomLevelInfoNV(const VkClusterAccelerationStructureBuildClustersBottomLevelInfoNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureBuildTriangleClusterInfoNV(const VkClusterAccelerationStructureBuildTriangleClusterInfoNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureBuildTriangleClusterTemplateInfoNV(const VkClusterAccelerationStructureBuildTriangleClusterTemplateInfoNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureInstantiateClusterInfoNV(const VkClusterAccelerationStructureInstantiateClusterInfoNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV(const VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV(const VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV(const VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPartitionedAccelerationStructureFlagsNV(const VkPartitionedAccelerationStructureFlagsNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkBuildPartitionedAccelerationStructureIndirectCommandNV(const VkBuildPartitionedAccelerationStructureIndirectCommandNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPartitionedAccelerationStructureWriteInstanceDataNV(const VkPartitionedAccelerationStructureWriteInstanceDataNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPartitionedAccelerationStructureUpdateInstanceDataNV(const VkPartitionedAccelerationStructureUpdateInstanceDataNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPartitionedAccelerationStructureWritePartitionTranslationDataNV(const VkPartitionedAccelerationStructureWritePartitionTranslationDataNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkWriteDescriptorSetPartitionedAccelerationStructureNV(const VkWriteDescriptorSetPartitionedAccelerationStructureNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPartitionedAccelerationStructureInstancesInputNV(const VkPartitionedAccelerationStructureInstancesInputNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkBuildPartitionedAccelerationStructureInfoNV(const VkBuildPartitionedAccelerationStructureInfoNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT(const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT(const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkGeneratedCommandsMemoryRequirementsInfoEXT(const VkGeneratedCommandsMemoryRequirementsInfoEXT& object, const ApiDumpSettings& settings, int indents);
@@ -2059,17 +2113,35 @@ void dump_text_VkBindIndexBufferIndirectCommandEXT(const VkBindIndexBufferIndire
 void dump_text_VkGeneratedCommandsPipelineInfoEXT(const VkGeneratedCommandsPipelineInfoEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkGeneratedCommandsShaderInfoEXT(const VkGeneratedCommandsShaderInfoEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkWriteIndirectExecutionSetShaderEXT(const VkWriteIndirectExecutionSetShaderEXT& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDeviceMaintenance8FeaturesKHR(const VkPhysicalDeviceMaintenance8FeaturesKHR& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkMemoryBarrierAccessFlags3KHR(const VkMemoryBarrierAccessFlags3KHR& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceImageAlignmentControlFeaturesMESA(const VkPhysicalDeviceImageAlignmentControlFeaturesMESA& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceImageAlignmentControlPropertiesMESA(const VkPhysicalDeviceImageAlignmentControlPropertiesMESA& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkImageAlignmentControlCreateInfoMESA(const VkImageAlignmentControlCreateInfoMESA& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceDepthClampControlFeaturesEXT(const VkPhysicalDeviceDepthClampControlFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPipelineViewportDepthClampControlCreateInfoEXT(const VkPipelineViewportDepthClampControlCreateInfoEXT& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDeviceVideoMaintenance2FeaturesKHR(const VkPhysicalDeviceVideoMaintenance2FeaturesKHR& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkVideoDecodeH264InlineSessionParametersInfoKHR(const VkVideoDecodeH264InlineSessionParametersInfoKHR& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkVideoDecodeH265InlineSessionParametersInfoKHR(const VkVideoDecodeH265InlineSessionParametersInfoKHR& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkVideoDecodeAV1InlineSessionParametersInfoKHR(const VkVideoDecodeAV1InlineSessionParametersInfoKHR& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceHdrVividFeaturesHUAWEI(const VkPhysicalDeviceHdrVividFeaturesHUAWEI& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkHdrVividDynamicMetadataHUAWEI(const VkHdrVividDynamicMetadataHUAWEI& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkCooperativeMatrixFlexibleDimensionsPropertiesNV(const VkCooperativeMatrixFlexibleDimensionsPropertiesNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceCooperativeMatrix2FeaturesNV(const VkPhysicalDeviceCooperativeMatrix2FeaturesNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkPhysicalDeviceCooperativeMatrix2PropertiesNV(const VkPhysicalDeviceCooperativeMatrix2PropertiesNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDevicePipelineOpacityMicromapFeaturesARM(const VkPhysicalDevicePipelineOpacityMicromapFeaturesARM& object, const ApiDumpSettings& settings, int indents);
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_text_VkImportMemoryMetalHandleInfoEXT(const VkImportMemoryMetalHandleInfoEXT& object, const ApiDumpSettings& settings, int indents);
+#endif // VK_USE_PLATFORM_METAL_EXT
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_text_VkMemoryMetalHandlePropertiesEXT(const VkMemoryMetalHandlePropertiesEXT& object, const ApiDumpSettings& settings, int indents);
+#endif // VK_USE_PLATFORM_METAL_EXT
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_text_VkMemoryGetMetalHandleInfoEXT(const VkMemoryGetMetalHandleInfoEXT& object, const ApiDumpSettings& settings, int indents);
+#endif // VK_USE_PLATFORM_METAL_EXT
 void dump_text_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT(const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkSetPresentConfigNV(const VkSetPresentConfigNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkPhysicalDevicePresentMeteringFeaturesNV(const VkPhysicalDevicePresentMeteringFeaturesNV& object, const ApiDumpSettings& settings, int indents);
 
 //========================== Union Implementations ==========================//
 
@@ -2086,6 +2158,7 @@ void dump_text_VkPerformanceValueDataINTEL(const VkPerformanceValueDataINTEL& ob
 void dump_text_VkPipelineExecutableStatisticValueKHR(const VkPipelineExecutableStatisticValueKHR& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkDescriptorDataEXT(const VkDescriptorDataEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkAccelerationStructureMotionInstanceDataNV(const VkAccelerationStructureMotionInstanceDataNV& object, const ApiDumpSettings& settings, int indents);
+void dump_text_VkClusterAccelerationStructureOpInputNV(const VkClusterAccelerationStructureOpInputNV& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkIndirectExecutionSetInfoEXT(const VkIndirectExecutionSetInfoEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_text_VkIndirectCommandsTokenDataEXT(const VkIndirectCommandsTokenDataEXT& object, const ApiDumpSettings& settings, int indents);
 
@@ -2892,6 +2965,9 @@ void dump_text_vkGetPipelineBinaryDataKHR(ApiDumpInstance& dump_inst, VkResult r
 void dump_text_vkReleaseCapturedPipelineDataKHR(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, const VkReleaseCapturedPipelineDataInfoKHR* pInfo, const VkAllocationCallbacks* pAllocator);
 void dump_text_vkGetFramebufferTilePropertiesQCOM(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, VkFramebuffer framebuffer, uint32_t* pPropertiesCount, VkTilePropertiesQCOM* pProperties);
 void dump_text_vkGetDynamicRenderingTilePropertiesQCOM(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, const VkRenderingInfo* pRenderingInfo, VkTilePropertiesQCOM* pProperties);
+void dump_text_vkGetPhysicalDeviceCooperativeVectorPropertiesNV(ApiDumpInstance& dump_inst, VkResult result, VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkCooperativeVectorPropertiesNV* pProperties);
+void dump_text_vkConvertCooperativeVectorMatrixNV(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, const VkConvertCooperativeVectorMatrixInfoNV* pInfo);
+void dump_text_vkCmdConvertCooperativeVectorMatrixNV(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, uint32_t infoCount, const VkConvertCooperativeVectorMatrixInfoNV* pInfos);
 void dump_text_vkSetLatencySleepModeNV(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, VkSwapchainKHR swapchain, const VkLatencySleepModeInfoNV* pSleepModeInfo);
 void dump_text_vkLatencySleepNV(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, VkSwapchainKHR swapchain, const VkLatencySleepInfoNV* pSleepInfo);
 void dump_text_vkSetLatencyMarkerNV(ApiDumpInstance& dump_inst, VkDevice device, VkSwapchainKHR swapchain, const VkSetLatencyMarkerInfoNV* pLatencyMarkerInfo);
@@ -2909,6 +2985,10 @@ void dump_text_vkCmdPushDescriptorSet2KHR(ApiDumpInstance& dump_inst, VkCommandB
 void dump_text_vkCmdPushDescriptorSetWithTemplate2KHR(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkPushDescriptorSetWithTemplateInfo* pPushDescriptorSetWithTemplateInfo);
 void dump_text_vkCmdSetDescriptorBufferOffsets2EXT(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkSetDescriptorBufferOffsetsInfoEXT* pSetDescriptorBufferOffsetsInfo);
 void dump_text_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
+void dump_text_vkGetClusterAccelerationStructureBuildSizesNV(ApiDumpInstance& dump_inst, VkDevice device, const VkClusterAccelerationStructureInputInfoNV* pInfo, VkAccelerationStructureBuildSizesInfoKHR* pSizeInfo);
+void dump_text_vkCmdBuildClusterAccelerationStructureIndirectNV(ApiDumpInstance& dump_inst, VkCommandBuffer                     commandBuffer, const VkClusterAccelerationStructureCommandsInfoNV*  pCommandInfos);
+void dump_text_vkGetPartitionedAccelerationStructuresBuildSizesNV(ApiDumpInstance& dump_inst, VkDevice device, const VkPartitionedAccelerationStructureInstancesInputNV* pInfo, VkAccelerationStructureBuildSizesInfoKHR*                  pSizeInfo);
+void dump_text_vkCmdBuildPartitionedAccelerationStructuresNV(ApiDumpInstance& dump_inst, VkCommandBuffer                     commandBuffer, const VkBuildPartitionedAccelerationStructureInfoNV*  pBuildInfo);
 void dump_text_vkGetGeneratedCommandsMemoryRequirementsEXT(ApiDumpInstance& dump_inst, VkDevice device, const VkGeneratedCommandsMemoryRequirementsInfoEXT* pInfo, VkMemoryRequirements2* pMemoryRequirements);
 void dump_text_vkCmdPreprocessGeneratedCommandsEXT(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo, VkCommandBuffer stateCommandBuffer);
 void dump_text_vkCmdExecuteGeneratedCommandsEXT(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, VkBool32 isPreprocessed, const VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo);
@@ -2919,5 +2999,11 @@ void dump_text_vkDestroyIndirectExecutionSetEXT(ApiDumpInstance& dump_inst, VkDe
 void dump_text_vkUpdateIndirectExecutionSetPipelineEXT(ApiDumpInstance& dump_inst, VkDevice device, VkIndirectExecutionSetEXT indirectExecutionSet, uint32_t executionSetWriteCount, const VkWriteIndirectExecutionSetPipelineEXT* pExecutionSetWrites);
 void dump_text_vkUpdateIndirectExecutionSetShaderEXT(ApiDumpInstance& dump_inst, VkDevice device, VkIndirectExecutionSetEXT indirectExecutionSet, uint32_t executionSetWriteCount, const VkWriteIndirectExecutionSetShaderEXT* pExecutionSetWrites);
 void dump_text_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV(ApiDumpInstance& dump_inst, VkResult result, VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkCooperativeMatrixFlexibleDimensionsPropertiesNV* pProperties);
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_text_vkGetMemoryMetalHandleEXT(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, const VkMemoryGetMetalHandleInfoEXT* pGetMetalHandleInfo, void** pHandle);
+#endif // VK_USE_PLATFORM_METAL_EXT
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_text_vkGetMemoryMetalHandlePropertiesEXT(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, VkExternalMemoryHandleTypeFlagBits handleType, const void* pHandle, VkMemoryMetalHandlePropertiesEXT* pMemoryMetalHandleProperties);
+#endif // VK_USE_PLATFORM_METAL_EXT
 
 
