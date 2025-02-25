@@ -3337,9 +3337,6 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000420002:
         settings.stream() << "\"VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE\"";
         break;
-    case 1000421000:
-        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_EXT\"";
-        break;
     case 1000422000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT\"";
         break;
@@ -3387,6 +3384,15 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
         break;
     case 1000428002:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV\"";
+        break;
+    case 1000429008:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_LINEAR_SWEPT_SPHERES_FEATURES_NV\"";
+        break;
+    case 1000429009:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_LINEAR_SWEPT_SPHERES_DATA_NV\"";
+        break;
+    case 1000429010:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_SPHERES_DATA_NV\"";
         break;
     case 1000430000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV\"";
@@ -3570,6 +3576,18 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
         break;
     case 1000490001:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV\"";
+        break;
+    case 1000491000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_FEATURES_NV\"";
+        break;
+    case 1000491001:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_PROPERTIES_NV\"";
+        break;
+    case 1000491002:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_COOPERATIVE_VECTOR_PROPERTIES_NV\"";
+        break;
+    case 1000491004:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_CONVERT_COOPERATIVE_VECTOR_MATRIX_INFO_NV\"";
         break;
     case 1000492000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV\"";
@@ -3838,6 +3856,48 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000568000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV\"";
         break;
+    case 1000569000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_ACCELERATION_STRUCTURE_FEATURES_NV\"";
+        break;
+    case 1000569001:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_ACCELERATION_STRUCTURE_PROPERTIES_NV\"";
+        break;
+    case 1000569002:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_CLUSTERS_BOTTOM_LEVEL_INPUT_NV\"";
+        break;
+    case 1000569003:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_TRIANGLE_CLUSTER_INPUT_NV\"";
+        break;
+    case 1000569004:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_MOVE_OBJECTS_INPUT_NV\"";
+        break;
+    case 1000569005:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_INPUT_INFO_NV\"";
+        break;
+    case 1000569006:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_COMMANDS_INFO_NV\"";
+        break;
+    case 1000569007:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CLUSTER_ACCELERATION_STRUCTURE_CREATE_INFO_NV\"";
+        break;
+    case 1000570000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PARTITIONED_ACCELERATION_STRUCTURE_FEATURES_NV\"";
+        break;
+    case 1000570001:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PARTITIONED_ACCELERATION_STRUCTURE_PROPERTIES_NV\"";
+        break;
+    case 1000570002:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_PARTITIONED_ACCELERATION_STRUCTURE_NV\"";
+        break;
+    case 1000570003:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCES_INPUT_NV\"";
+        break;
+    case 1000570004:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_BUILD_PARTITIONED_ACCELERATION_STRUCTURE_INFO_NV\"";
+        break;
+    case 1000570005:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_FLAGS_NV\"";
+        break;
     case 1000572000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_EXT\"";
         break;
@@ -3880,6 +3940,12 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000572014:
         settings.stream() << "\"VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT\"";
         break;
+    case 1000574000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_8_FEATURES_KHR\"";
+        break;
+    case 1000574002:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_MEMORY_BARRIER_ACCESS_FLAGS_3_KHR\"";
+        break;
     case 1000575000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA\"";
         break;
@@ -3894,6 +3960,18 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
         break;
     case 1000582001:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT\"";
+        break;
+    case 1000586000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR\"";
+        break;
+    case 1000586001:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_INLINE_SESSION_PARAMETERS_INFO_KHR\"";
+        break;
+    case 1000586002:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_INLINE_SESSION_PARAMETERS_INFO_KHR\"";
+        break;
+    case 1000586003:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_INLINE_SESSION_PARAMETERS_INFO_KHR\"";
         break;
     case 1000590000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI\"";
@@ -3910,8 +3988,29 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000593002:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_PROPERTIES_NV\"";
         break;
+    case 1000596000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_OPACITY_MICROMAP_FEATURES_ARM\"";
+        break;
+    case 1000602000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_IMPORT_MEMORY_METAL_HANDLE_INFO_EXT\"";
+        break;
+    case 1000602001:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_MEMORY_METAL_HANDLE_PROPERTIES_EXT\"";
+        break;
+    case 1000602002:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_MEMORY_GET_METAL_HANDLE_INFO_EXT\"";
+        break;
+    case 1000421000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR\"";
+        break;
     case 1000608000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT\"";
+        break;
+    case 1000613000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV\"";
+        break;
+    case 1000613001:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_METERING_FEATURES_NV\"";
         break;
     default:
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
@@ -6104,6 +6203,9 @@ void dump_json_VkDescriptorType(VkDescriptorType object, const ApiDumpSettings& 
     case 1000351000:
         settings.stream() << "\"VK_DESCRIPTOR_TYPE_MUTABLE_EXT\"";
         break;
+    case 1000570000:
+        settings.stream() << "\"VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV\"";
+        break;
     default:
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
@@ -7060,6 +7162,12 @@ void dump_json_VkGeometryTypeKHR(VkGeometryTypeKHR object, const ApiDumpSettings
     case 2:
         settings.stream() << "\"VK_GEOMETRY_TYPE_INSTANCES_KHR\"";
         break;
+    case 1000429004:
+        settings.stream() << "\"VK_GEOMETRY_TYPE_SPHERES_NV\"";
+        break;
+    case 1000429005:
+        settings.stream() << "\"VK_GEOMETRY_TYPE_LINEAR_SWEPT_SPHERES_NV\"";
+        break;
     default:
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
@@ -7468,6 +7576,18 @@ void dump_json_VkComponentTypeKHR(VkComponentTypeKHR object, const ApiDumpSettin
         break;
     case 10:
         settings.stream() << "\"VK_COMPONENT_TYPE_UINT64_KHR\"";
+        break;
+    case 1000491000:
+        settings.stream() << "\"VK_COMPONENT_TYPE_SINT8_PACKED_NV\"";
+        break;
+    case 1000491001:
+        settings.stream() << "\"VK_COMPONENT_TYPE_UINT8_PACKED_NV\"";
+        break;
+    case 1000491002:
+        settings.stream() << "\"VK_COMPONENT_TYPE_FLOAT_E4M3_NV\"";
+        break;
+    case 1000491003:
+        settings.stream() << "\"VK_COMPONENT_TYPE_FLOAT_E5M2_NV\"";
         break;
     default:
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
@@ -7891,6 +8011,9 @@ void dump_json_VkOpacityMicromapSpecialIndexEXT(VkOpacityMicromapSpecialIndexEXT
     case -4:
         settings.stream() << "\"VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_OPAQUE_EXT\"";
         break;
+    case -5:
+        settings.stream() << "\"VK_OPACITY_MICROMAP_SPECIAL_INDEX_CLUSTER_GEOMETRY_DISABLE_OPACITY_MICROMAP_NV\"";
+        break;
     default:
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
@@ -7914,6 +8037,34 @@ void dump_json_VkDisplacementMicromapFormatNV(VkDisplacementMicromapFormatNV obj
     }
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
+void dump_json_VkRayTracingLssIndexingModeNV(VkRayTracingLssIndexingModeNV object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"VK_RAY_TRACING_LSS_INDEXING_MODE_LIST_NV\"";
+        break;
+    case 1:
+        settings.stream() << "\"VK_RAY_TRACING_LSS_INDEXING_MODE_SUCCESSIVE_NV\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_VkRayTracingLssPrimitiveEndCapsModeNV(VkRayTracingLssPrimitiveEndCapsModeNV object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"VK_RAY_TRACING_LSS_PRIMITIVE_END_CAPS_MODE_NONE_NV\"";
+        break;
+    case 1:
+        settings.stream() << "\"VK_RAY_TRACING_LSS_PRIMITIVE_END_CAPS_MODE_CHAINED_NV\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
 void dump_json_VkSubpassMergeStatusEXT(VkSubpassMergeStatusEXT object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
@@ -8101,6 +8252,26 @@ void dump_json_VkRayTracingInvocationReorderModeNV(VkRayTracingInvocationReorder
         break;
     case 1:
         settings.stream() << "\"VK_RAY_TRACING_INVOCATION_REORDER_MODE_REORDER_NV\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_VkCooperativeVectorMatrixLayoutNV(VkCooperativeVectorMatrixLayoutNV object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_ROW_MAJOR_NV\"";
+        break;
+    case 1:
+        settings.stream() << "\"VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_COLUMN_MAJOR_NV\"";
+        break;
+    case 2:
+        settings.stream() << "\"VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_INFERENCING_OPTIMAL_NV\"";
+        break;
+    case 3:
+        settings.stream() << "\"VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_TRAINING_OPTIMAL_NV\"";
         break;
     default:
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
@@ -8319,6 +8490,80 @@ void dump_json_VkPhysicalDeviceLayeredApiKHR(VkPhysicalDeviceLayeredApiKHR objec
         break;
     case 4:
         settings.stream() << "\"VK_PHYSICAL_DEVICE_LAYERED_API_OPENGLES_KHR\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_VkClusterAccelerationStructureTypeNV(VkClusterAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_TYPE_CLUSTERS_BOTTOM_LEVEL_NV\"";
+        break;
+    case 1:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_TYPE_TRIANGLE_CLUSTER_NV\"";
+        break;
+    case 2:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_TYPE_TRIANGLE_CLUSTER_TEMPLATE_NV\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_VkClusterAccelerationStructureOpTypeNV(VkClusterAccelerationStructureOpTypeNV object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_OP_TYPE_MOVE_OBJECTS_NV\"";
+        break;
+    case 1:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_OP_TYPE_BUILD_CLUSTERS_BOTTOM_LEVEL_NV\"";
+        break;
+    case 2:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_OP_TYPE_BUILD_TRIANGLE_CLUSTER_NV\"";
+        break;
+    case 3:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_OP_TYPE_BUILD_TRIANGLE_CLUSTER_TEMPLATE_NV\"";
+        break;
+    case 4:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_OP_TYPE_INSTANTIATE_TRIANGLE_CLUSTER_NV\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_VkClusterAccelerationStructureOpModeNV(VkClusterAccelerationStructureOpModeNV object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_OP_MODE_IMPLICIT_DESTINATIONS_NV\"";
+        break;
+    case 1:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_OP_MODE_EXPLICIT_DESTINATIONS_NV\"";
+        break;
+    case 2:
+        settings.stream() << "\"VK_CLUSTER_ACCELERATION_STRUCTURE_OP_MODE_COMPUTE_SIZES_NV\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_VkPartitionedAccelerationStructureOpTypeNV(VkPartitionedAccelerationStructureOpTypeNV object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"VK_PARTITIONED_ACCELERATION_STRUCTURE_OP_TYPE_WRITE_INSTANCE_NV\"";
+        break;
+    case 1:
+        settings.stream() << "\"VK_PARTITIONED_ACCELERATION_STRUCTURE_OP_TYPE_UPDATE_INSTANCE_NV\"";
+        break;
+    case 2:
+        settings.stream() << "\"VK_PARTITIONED_ACCELERATION_STRUCTURE_OP_TYPE_WRITE_PARTITION_TRANSLATION_NV\"";
         break;
     default:
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
@@ -8807,6 +9052,9 @@ void dump_json_VkImageUsageFlagBits(VkImageUsageFlagBits object, const ApiDumpSe
     if(object & 8388608) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_RESERVED_23_BIT_EXT"; is_first = false;
     }
+    if(object & 134217728) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_RESERVED_27_QCOM"; is_first = false;
+    }
     if(object & 33554432) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR"; is_first = false;
     }
@@ -8837,6 +9085,9 @@ void dump_json_VkMemoryHeapFlagBits(VkMemoryHeapFlagBits object, const ApiDumpSe
     }
     if(object & 2) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_MEMORY_HEAP_MULTI_INSTANCE_BIT"; is_first = false;
+    }
+    if(object & 8) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_MEMORY_HEAP_RESERVED_3_QCOM"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -8930,6 +9181,9 @@ void dump_json_VkDeviceQueueCreateFlagBits(VkDeviceQueueCreateFlagBits object, c
     }
     if(object & 2) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_DEVICE_QUEUE_CREATE_RESERVED_1_BIT_QCOM"; is_first = false;
+    }
+    if(object & 4) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_DEVICE_QUEUE_CREATE_RESERVED_2_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -9257,9 +9511,6 @@ void dump_json_VkBufferUsageFlagBits(VkBufferUsageFlagBits object, const ApiDump
     if(object & 65536) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_VIDEO_ENCODE_SRC_BIT_KHR"; is_first = false;
     }
-    if(object & 134217728) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_RESERVED_27_BIT_QCOM"; is_first = false;
-    }
     if(object & 2097152) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT"; is_first = false;
     }
@@ -9274,6 +9525,9 @@ void dump_json_VkBufferUsageFlagBits(VkBufferUsageFlagBits object, const ApiDump
     }
     if(object & 16777216) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT"; is_first = false;
+    }
+    if(object & 134217728) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_RESERVED_27_BIT_QCOM"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -9302,6 +9556,9 @@ void dump_json_VkPipelineCacheCreateFlagBits(VkPipelineCacheCreateFlagBits objec
     settings.stream() << '"' << object;
     if(object & 1) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT"; is_first = false;
+    }
+    if(object & 8) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CACHE_CREATE_INTERNALLY_SYNCHRONIZED_MERGE_BIT_KHR"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -9675,7 +9932,10 @@ void dump_json_VkDependencyFlagBits(VkDependencyFlagBits object, const ApiDumpSe
         settings.stream() << (is_first ? " (" : " | ") << "VK_DEPENDENCY_FEEDBACK_LOOP_BIT_EXT"; is_first = false;
     }
     if(object & 32) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_DEPENDENCY_EXTENSION_575_BIT_KHR"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_DEPENDENCY_QUEUE_FAMILY_OWNERSHIP_TRANSFER_USE_ALL_STAGES_BIT_KHR"; is_first = false;
+    }
+    if(object & 64) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_DEPENDENCY_EXTENSION_585_BIT_EXT"; is_first = false;
     }
     if(object & 16) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_DEPENDENCY_EXTENSION_586_BIT_IMG"; is_first = false;
@@ -9959,10 +10219,13 @@ void dump_json_VkExternalMemoryHandleTypeFlagBits(VkExternalMemoryHandleTypeFlag
         settings.stream() << (is_first ? " (" : " | ") << "VK_EXTERNAL_MEMORY_HANDLE_TYPE_590_BIT_HUAWEI"; is_first = false;
     }
     if(object & 65536) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_EXTERNAL_MEMORY_HANDLE_TYPE_603_BIT_EXT"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_EXTERNAL_MEMORY_HANDLE_TYPE_MTLBUFFER_BIT_EXT"; is_first = false;
     }
     if(object & 131072) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_EXTERNAL_MEMORY_HANDLE_TYPE_603_BIT_2_EXT"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_EXTERNAL_MEMORY_HANDLE_TYPE_MTLTEXTURE_BIT_EXT"; is_first = false;
+    }
+    if(object & 262144) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_EXTERNAL_MEMORY_HANDLE_TYPE_MTLHEAP_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -10342,7 +10605,7 @@ void dump_json_VkPipelineStageFlagBits2(VkPipelineStageFlagBits2 object, const A
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_2_OPTICAL_FLOW_BIT_NV"; is_first = false;
     }
     if(object & 17592186044416) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_2_RESERVED_44_BIT_NV"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_2_CONVERT_COOPERATIVE_VECTOR_MATRIX_BIT_NV"; is_first = false;
     }
     if(object & 4398046511104) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_2_RESERVED_42_BIT_EXT"; is_first = false;
@@ -10563,9 +10826,6 @@ void dump_json_VkRenderingFlagBits(VkRenderingFlagBits object, const ApiDumpSett
     if(object & 8) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT"; is_first = false;
     }
-    if(object & 32) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_EXTENSION_505_BIT_EXT"; is_first = false;
-    }
     if(object & 16) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_CONTENTS_INLINE_BIT_KHR"; is_first = false;
     }
@@ -10689,7 +10949,7 @@ void dump_json_VkFormatFeatureFlagBits2(VkFormatFeatureFlagBits2 object, const A
         settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR"; is_first = false;
     }
     if(object & 2251799813685248) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_RESERVED_51_BIT_EXT"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_RADIUS_BUFFER_BIT_NV"; is_first = false;
     }
     if(object & 274877906944) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_LINEAR_COLOR_ATTACHMENT_BIT_NV"; is_first = false;
@@ -10786,7 +11046,7 @@ void dump_json_VkPipelineCreateFlagBits2(VkPipelineCreateFlagBits2 object, const
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_RESERVED_39_BIT_KHR"; is_first = false;
     }
     if(object & 8589934592) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_33_BIT_KHR"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_SPHERES_AND_LINEAR_SWEPT_SPHERES_BIT_NV"; is_first = false;
     }
     if(object & 17179869184) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT"; is_first = false;
@@ -10857,6 +11117,9 @@ void dump_json_VkPipelineCreateFlagBits2(VkPipelineCreateFlagBits2 object, const
     if(object & 536870912) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT"; is_first = false;
     }
+    if(object & 137438953472) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_DISALLOW_OPACITY_MICROMAP_BIT_ARM"; is_first = false;
+    }
     if(object & 2147483648) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR"; is_first = false;
     }
@@ -10867,7 +11130,7 @@ void dump_json_VkPipelineCreateFlagBits2(VkPipelineCreateFlagBits2 object, const
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_35_BIT_KHR"; is_first = false;
     }
     if(object & 137438953472) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_37_BIT_ARM"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_DISALLOW_OPACITY_MICROMAP_BIT_ARM"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -10913,9 +11176,6 @@ void dump_json_VkBufferUsageFlagBits2(VkBufferUsageFlagBits2 object, const ApiDu
     if(object & 268435456) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_28_BIT_KHR"; is_first = false;
     }
-    if(object & 134217728) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_27_BIT_QCOM"; is_first = false;
-    }
     if(object & 512) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT"; is_first = false;
     }
@@ -10960,6 +11220,12 @@ void dump_json_VkBufferUsageFlagBits2(VkBufferUsageFlagBits2 object, const ApiDu
     }
     if(object & 16777216) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT"; is_first = false;
+    }
+    if(object & 134217728) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_27_BIT_QCOM"; is_first = false;
+    }
+    if(object & 4294967296) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_32_BIT_NV"; is_first = false;
     }
     if(object & 2147483648) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT"; is_first = false;
@@ -11229,10 +11495,7 @@ void dump_json_VkVideoSessionCreateFlagBitsKHR(VkVideoSessionCreateFlagBitsKHR o
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_SESSION_CREATE_ALLOW_ENCODE_EMPHASIS_MAP_BIT_KHR"; is_first = false;
     }
     if(object & 32) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_SESSION_CREATE_RESERVED_5_BIT_KHR"; is_first = false;
-    }
-    if(object & 64) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_SESSION_CREATE_RESERVED_6_BIT_KHR"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_SESSION_CREATE_INLINE_SESSION_PARAMETERS_BIT_KHR"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -11330,6 +11593,9 @@ void dump_json_VkVideoEncodeH264CapabilityFlagBitsKHR(VkVideoEncodeH264Capabilit
     }
     if(object & 256) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_H264_CAPABILITY_GENERATE_PREFIX_NALU_BIT_KHR"; is_first = false;
+    }
+    if(object & 1024) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_H264_CAPABILITY_RESERVED_10_BIT_KHR"; is_first = false;
     }
     if(object & 512) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_H264_CAPABILITY_MB_QP_DIFF_WRAPAROUND_BIT_KHR"; is_first = false;
@@ -11462,6 +11728,9 @@ void dump_json_VkVideoEncodeH265CapabilityFlagBitsKHR(VkVideoEncodeH265Capabilit
     }
     if(object & 512) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_H265_CAPABILITY_MULTIPLE_SLICE_SEGMENTS_PER_TILE_BIT_KHR"; is_first = false;
+    }
+    if(object & 2048) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_H265_CAPABILITY_RESERVED_11_BIT_KHR"; is_first = false;
     }
     if(object & 1024) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_H265_CAPABILITY_CU_QP_DIFF_WRAPAROUND_BIT_KHR"; is_first = false;
@@ -11919,6 +12188,9 @@ void dump_json_VkVideoEncodeFlagBitsKHR(VkVideoEncodeFlagBitsKHR object, const A
 {
     bool is_first = true;
     settings.stream() << '"' << object;
+    if(object & 4) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_RESERVED_2_BIT_KHR"; is_first = false;
+    }
     if(object & 1) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_WITH_QUANTIZATION_DELTA_MAP_BIT_KHR"; is_first = false;
     }
@@ -12501,6 +12773,100 @@ void dump_json_VkVideoEncodeAV1RateControlFlagBitsKHR(VkVideoEncodeAV1RateContro
         settings.stream() << ')';
     settings.stream() << "\"";
 }
+void dump_json_VkClusterAccelerationStructureAddressResolutionFlagBitsNV(VkClusterAccelerationStructureAddressResolutionFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+{
+    bool is_first = true;
+    settings.stream() << '"' << object;
+    if(object & 1) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_ADDRESS_RESOLUTION_INDIRECTED_DST_IMPLICIT_DATA_BIT_NV"; is_first = false;
+    }
+    if(object & 2) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_ADDRESS_RESOLUTION_INDIRECTED_SCRATCH_DATA_BIT_NV"; is_first = false;
+    }
+    if(object & 4) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_ADDRESS_RESOLUTION_INDIRECTED_DST_ADDRESS_ARRAY_BIT_NV"; is_first = false;
+    }
+    if(object & 8) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_ADDRESS_RESOLUTION_INDIRECTED_DST_SIZES_ARRAY_BIT_NV"; is_first = false;
+    }
+    if(object & 16) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_ADDRESS_RESOLUTION_INDIRECTED_SRC_INFOS_ARRAY_BIT_NV"; is_first = false;
+    }
+    if(object & 32) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_ADDRESS_RESOLUTION_INDIRECTED_SRC_INFOS_COUNT_BIT_NV"; is_first = false;
+    }
+    if(!is_first)
+        settings.stream() << ')';
+    settings.stream() << "\"";
+}
+void dump_json_VkClusterAccelerationStructureClusterFlagBitsNV(VkClusterAccelerationStructureClusterFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+{
+    bool is_first = true;
+    settings.stream() << '"' << object;
+    if(object & 1) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_CLUSTER_ALLOW_DISABLE_OPACITY_MICROMAPS_NV"; is_first = false;
+    }
+    if(!is_first)
+        settings.stream() << ')';
+    settings.stream() << "\"";
+}
+void dump_json_VkClusterAccelerationStructureGeometryFlagBitsNV(VkClusterAccelerationStructureGeometryFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+{
+    bool is_first = true;
+    settings.stream() << '"' << object;
+    if(object & 1) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_GEOMETRY_CULL_DISABLE_BIT_NV"; is_first = false;
+    }
+    if(object & 2) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_GEOMETRY_NO_DUPLICATE_ANYHIT_INVOCATION_BIT_NV"; is_first = false;
+    }
+    if(object & 4) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_GEOMETRY_OPAQUE_BIT_NV"; is_first = false;
+    }
+    if(!is_first)
+        settings.stream() << ')';
+    settings.stream() << "\"";
+}
+void dump_json_VkClusterAccelerationStructureIndexFormatFlagBitsNV(VkClusterAccelerationStructureIndexFormatFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+{
+    bool is_first = true;
+    settings.stream() << '"' << object;
+    if(object & 1) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_INDEX_FORMAT_8BIT_NV"; is_first = false;
+    }
+    if(object & 2) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_INDEX_FORMAT_16BIT_NV"; is_first = false;
+    }
+    if(object & 4) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_CLUSTER_ACCELERATION_STRUCTURE_INDEX_FORMAT_32BIT_NV"; is_first = false;
+    }
+    if(!is_first)
+        settings.stream() << ')';
+    settings.stream() << "\"";
+}
+void dump_json_VkPartitionedAccelerationStructureInstanceFlagBitsNV(VkPartitionedAccelerationStructureInstanceFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+{
+    bool is_first = true;
+    settings.stream() << '"' << object;
+    if(object & 1) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_TRIANGLE_FACING_CULL_DISABLE_BIT_NV"; is_first = false;
+    }
+    if(object & 2) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_TRIANGLE_FLIP_FACING_BIT_NV"; is_first = false;
+    }
+    if(object & 4) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_FORCE_OPAQUE_BIT_NV"; is_first = false;
+    }
+    if(object & 8) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_FORCE_NO_OPAQUE_BIT_NV"; is_first = false;
+    }
+    if(object & 16) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_ENABLE_EXPLICIT_BOUNDING_BOX_NV"; is_first = false;
+    }
+    if(!is_first)
+        settings.stream() << ')';
+    settings.stream() << "\"";
+}
 void dump_json_VkIndirectCommandsInputModeFlagBitsEXT(VkIndirectCommandsInputModeFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
@@ -12524,6 +12890,17 @@ void dump_json_VkIndirectCommandsLayoutUsageFlagBitsEXT(VkIndirectCommandsLayout
     }
     if(object & 2) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_EXT"; is_first = false;
+    }
+    if(!is_first)
+        settings.stream() << ')';
+    settings.stream() << "\"";
+}
+void dump_json_VkAccessFlagBits3KHR(VkAccessFlagBits3KHR object, const ApiDumpSettings& settings, int indents)
+{
+    bool is_first = true;
+    settings.stream() << '"' << object;
+    if(object == 0) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_3_NONE_KHR"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -13092,6 +13469,26 @@ void dump_json_VkVideoEncodeAV1RateControlFlagsKHR(VkVideoEncodeAV1RateControlFl
 {
     dump_json_VkVideoEncodeAV1RateControlFlagBitsKHR((VkVideoEncodeAV1RateControlFlagBitsKHR) object, settings, indents);
 }
+void dump_json_VkClusterAccelerationStructureAddressResolutionFlagsNV(VkClusterAccelerationStructureAddressResolutionFlagsNV object, const ApiDumpSettings& settings, int indents)
+{
+    dump_json_VkClusterAccelerationStructureAddressResolutionFlagBitsNV((VkClusterAccelerationStructureAddressResolutionFlagBitsNV) object, settings, indents);
+}
+void dump_json_VkClusterAccelerationStructureClusterFlagsNV(VkClusterAccelerationStructureClusterFlagsNV object, const ApiDumpSettings& settings, int indents)
+{
+    dump_json_VkClusterAccelerationStructureClusterFlagBitsNV((VkClusterAccelerationStructureClusterFlagBitsNV) object, settings, indents);
+}
+void dump_json_VkClusterAccelerationStructureGeometryFlagsNV(VkClusterAccelerationStructureGeometryFlagsNV object, const ApiDumpSettings& settings, int indents)
+{
+    dump_json_VkClusterAccelerationStructureGeometryFlagBitsNV((VkClusterAccelerationStructureGeometryFlagBitsNV) object, settings, indents);
+}
+void dump_json_VkClusterAccelerationStructureIndexFormatFlagsNV(VkClusterAccelerationStructureIndexFormatFlagsNV object, const ApiDumpSettings& settings, int indents)
+{
+    dump_json_VkClusterAccelerationStructureIndexFormatFlagBitsNV((VkClusterAccelerationStructureIndexFormatFlagBitsNV) object, settings, indents);
+}
+void dump_json_VkPartitionedAccelerationStructureInstanceFlagsNV(VkPartitionedAccelerationStructureInstanceFlagsNV object, const ApiDumpSettings& settings, int indents)
+{
+    dump_json_VkPartitionedAccelerationStructureInstanceFlagBitsNV((VkPartitionedAccelerationStructureInstanceFlagBitsNV) object, settings, indents);
+}
 void dump_json_VkIndirectCommandsInputModeFlagsEXT(VkIndirectCommandsInputModeFlagsEXT object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkIndirectCommandsInputModeFlagBitsEXT((VkIndirectCommandsInputModeFlagBitsEXT) object, settings, indents);
@@ -13099,6 +13496,10 @@ void dump_json_VkIndirectCommandsInputModeFlagsEXT(VkIndirectCommandsInputModeFl
 void dump_json_VkIndirectCommandsLayoutUsageFlagsEXT(VkIndirectCommandsLayoutUsageFlagsEXT object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkIndirectCommandsLayoutUsageFlagBitsEXT((VkIndirectCommandsLayoutUsageFlagBitsEXT) object, settings, indents);
+}
+void dump_json_VkAccessFlags3KHR(VkAccessFlags3KHR object, const ApiDumpSettings& settings, int indents)
+{
+    dump_json_VkAccessFlagBits3KHR((VkAccessFlagBits3KHR) object, settings, indents);
 }
 
 
@@ -30310,7 +30711,7 @@ void dump_json_VkDescriptorSetLayoutHostMappingInfoVALVE(const VkDescriptorSetLa
     dump_json_value<const uint32_t>(object.descriptorSize, NULL, settings, "uint32_t", "descriptorSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
-void dump_json_VkPhysicalDeviceDepthClampZeroOneFeaturesEXT(const VkPhysicalDeviceDepthClampZeroOneFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR(const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
@@ -30612,6 +31013,86 @@ void dump_json_VkBindPipelineIndirectCommandNV(const VkBindPipelineIndirectComma
 {
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const VkDeviceAddress>(object.pipelineAddress, NULL, settings, "VkDeviceAddress", "pipelineAddress", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV(const VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.spheres, NULL, settings, "VkBool32", "spheres", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.linearSweptSpheres, NULL, settings, "VkBool32", "linearSweptSpheres", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkAccelerationStructureGeometryLinearSweptSpheresDataNV(const VkAccelerationStructureGeometryLinearSweptSpheresDataNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkFormat>(object.vertexFormat, NULL, settings, "VkFormat", "vertexFormat", false, false, indents + 1, dump_json_VkFormat);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceOrHostAddressConstKHR>(object.vertexData, NULL, settings, "VkDeviceOrHostAddressConstKHR", "vertexData", false, true, indents + 1, dump_json_VkDeviceOrHostAddressConstKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.vertexStride, NULL, settings, "VkDeviceSize", "vertexStride", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << ",\n";
+    dump_json_value<const VkFormat>(object.radiusFormat, NULL, settings, "VkFormat", "radiusFormat", false, false, indents + 1, dump_json_VkFormat);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceOrHostAddressConstKHR>(object.radiusData, NULL, settings, "VkDeviceOrHostAddressConstKHR", "radiusData", false, true, indents + 1, dump_json_VkDeviceOrHostAddressConstKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.radiusStride, NULL, settings, "VkDeviceSize", "radiusStride", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << ",\n";
+    dump_json_value<const VkIndexType>(object.indexType, NULL, settings, "VkIndexType", "indexType", false, false, indents + 1, dump_json_VkIndexType);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceOrHostAddressConstKHR>(object.indexData, NULL, settings, "VkDeviceOrHostAddressConstKHR", "indexData", false, true, indents + 1, dump_json_VkDeviceOrHostAddressConstKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.indexStride, NULL, settings, "VkDeviceSize", "indexStride", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << ",\n";
+    dump_json_value<const VkRayTracingLssIndexingModeNV>(object.indexingMode, NULL, settings, "VkRayTracingLssIndexingModeNV", "indexingMode", false, false, indents + 1, dump_json_VkRayTracingLssIndexingModeNV);
+    settings.stream() << ",\n";
+    dump_json_value<const VkRayTracingLssPrimitiveEndCapsModeNV>(object.endCapsMode, NULL, settings, "VkRayTracingLssPrimitiveEndCapsModeNV", "endCapsMode", false, false, indents + 1, dump_json_VkRayTracingLssPrimitiveEndCapsModeNV);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkAccelerationStructureGeometrySpheresDataNV(const VkAccelerationStructureGeometrySpheresDataNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkFormat>(object.vertexFormat, NULL, settings, "VkFormat", "vertexFormat", false, false, indents + 1, dump_json_VkFormat);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceOrHostAddressConstKHR>(object.vertexData, NULL, settings, "VkDeviceOrHostAddressConstKHR", "vertexData", false, true, indents + 1, dump_json_VkDeviceOrHostAddressConstKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.vertexStride, NULL, settings, "VkDeviceSize", "vertexStride", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << ",\n";
+    dump_json_value<const VkFormat>(object.radiusFormat, NULL, settings, "VkFormat", "radiusFormat", false, false, indents + 1, dump_json_VkFormat);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceOrHostAddressConstKHR>(object.radiusData, NULL, settings, "VkDeviceOrHostAddressConstKHR", "radiusData", false, true, indents + 1, dump_json_VkDeviceOrHostAddressConstKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.radiusStride, NULL, settings, "VkDeviceSize", "radiusStride", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << ",\n";
+    dump_json_value<const VkIndexType>(object.indexType, NULL, settings, "VkIndexType", "indexType", false, false, indents + 1, dump_json_VkIndexType);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceOrHostAddressConstKHR>(object.indexData, NULL, settings, "VkDeviceOrHostAddressConstKHR", "indexData", false, true, indents + 1, dump_json_VkDeviceOrHostAddressConstKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.indexStride, NULL, settings, "VkDeviceSize", "indexStride", false, false, indents + 1, dump_json_VkDeviceSize);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceLinearColorAttachmentFeaturesNV(const VkPhysicalDeviceLinearColorAttachmentFeaturesNV& object, const ApiDumpSettings& settings, int indents)
@@ -31662,6 +32143,102 @@ void dump_json_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV(const VkPhy
     }
     settings.stream() << ",\n";
     dump_json_value<const VkBool32>(object.rayTracingInvocationReorder, NULL, settings, "VkBool32", "rayTracingInvocationReorder", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPhysicalDeviceCooperativeVectorPropertiesNV(const VkPhysicalDeviceCooperativeVectorPropertiesNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkShaderStageFlags>(object.cooperativeVectorSupportedStages, NULL, settings, "VkShaderStageFlags", "cooperativeVectorSupportedStages", false, false, indents + 1, dump_json_VkShaderStageFlags);
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.cooperativeVectorTrainingFloat16Accumulation, NULL, settings, "VkBool32", "cooperativeVectorTrainingFloat16Accumulation", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.cooperativeVectorTrainingFloat32Accumulation, NULL, settings, "VkBool32", "cooperativeVectorTrainingFloat32Accumulation", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxCooperativeVectorComponents, NULL, settings, "uint32_t", "maxCooperativeVectorComponents", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPhysicalDeviceCooperativeVectorFeaturesNV(const VkPhysicalDeviceCooperativeVectorFeaturesNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.cooperativeVector, NULL, settings, "VkBool32", "cooperativeVector", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.cooperativeVectorTraining, NULL, settings, "VkBool32", "cooperativeVectorTraining", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkCooperativeVectorPropertiesNV(const VkCooperativeVectorPropertiesNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkComponentTypeKHR>(object.inputType, NULL, settings, "VkComponentTypeKHR", "inputType", false, false, indents + 1, dump_json_VkComponentTypeKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkComponentTypeKHR>(object.inputInterpretation, NULL, settings, "VkComponentTypeKHR", "inputInterpretation", false, false, indents + 1, dump_json_VkComponentTypeKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkComponentTypeKHR>(object.matrixInterpretation, NULL, settings, "VkComponentTypeKHR", "matrixInterpretation", false, false, indents + 1, dump_json_VkComponentTypeKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkComponentTypeKHR>(object.biasInterpretation, NULL, settings, "VkComponentTypeKHR", "biasInterpretation", false, false, indents + 1, dump_json_VkComponentTypeKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkComponentTypeKHR>(object.resultType, NULL, settings, "VkComponentTypeKHR", "resultType", false, false, indents + 1, dump_json_VkComponentTypeKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.transpose, NULL, settings, "VkBool32", "transpose", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkConvertCooperativeVectorMatrixInfoNV(const VkConvertCooperativeVectorMatrixInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const size_t>(object.srcSize, NULL, settings, "size_t", "srcSize", false, false, indents + 1, dump_json_size_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceOrHostAddressConstKHR>(object.srcData, NULL, settings, "VkDeviceOrHostAddressConstKHR", "srcData", false, true, indents + 1, dump_json_VkDeviceOrHostAddressConstKHR);
+    settings.stream() << ",\n";
+    dump_json_pointer<const size_t>(object.pDstSize, settings, "size_t*", "pDstSize", false, false, indents + 1, dump_json_size_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceOrHostAddressKHR>(object.dstData, NULL, settings, "VkDeviceOrHostAddressKHR", "dstData", false, true, indents + 1, dump_json_VkDeviceOrHostAddressKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkComponentTypeKHR>(object.srcComponentType, NULL, settings, "VkComponentTypeKHR", "srcComponentType", false, false, indents + 1, dump_json_VkComponentTypeKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkComponentTypeKHR>(object.dstComponentType, NULL, settings, "VkComponentTypeKHR", "dstComponentType", false, false, indents + 1, dump_json_VkComponentTypeKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.numRows, NULL, settings, "uint32_t", "numRows", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.numColumns, NULL, settings, "uint32_t", "numColumns", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkCooperativeVectorMatrixLayoutNV>(object.srcLayout, NULL, settings, "VkCooperativeVectorMatrixLayoutNV", "srcLayout", false, false, indents + 1, dump_json_VkCooperativeVectorMatrixLayoutNV);
+    settings.stream() << ",\n";
+    dump_json_value<const size_t>(object.srcStride, NULL, settings, "size_t", "srcStride", false, false, indents + 1, dump_json_size_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkCooperativeVectorMatrixLayoutNV>(object.dstLayout, NULL, settings, "VkCooperativeVectorMatrixLayoutNV", "dstLayout", false, false, indents + 1, dump_json_VkCooperativeVectorMatrixLayoutNV);
+    settings.stream() << ",\n";
+    dump_json_value<const size_t>(object.dstStride, NULL, settings, "size_t", "dstStride", false, false, indents + 1, dump_json_size_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV(const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV& object, const ApiDumpSettings& settings, int indents)
@@ -33168,6 +33745,454 @@ void dump_json_VkPhysicalDeviceRayTracingValidationFeaturesNV(const VkPhysicalDe
     dump_json_value<const VkBool32>(object.rayTracingValidation, NULL, settings, "VkBool32", "rayTracingValidation", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
+void dump_json_VkPhysicalDeviceClusterAccelerationStructureFeaturesNV(const VkPhysicalDeviceClusterAccelerationStructureFeaturesNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.clusterAccelerationStructure, NULL, settings, "VkBool32", "clusterAccelerationStructure", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPhysicalDeviceClusterAccelerationStructurePropertiesNV(const VkPhysicalDeviceClusterAccelerationStructurePropertiesNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxVerticesPerCluster, NULL, settings, "uint32_t", "maxVerticesPerCluster", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxTrianglesPerCluster, NULL, settings, "uint32_t", "maxTrianglesPerCluster", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.clusterScratchByteAlignment, NULL, settings, "uint32_t", "clusterScratchByteAlignment", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.clusterByteAlignment, NULL, settings, "uint32_t", "clusterByteAlignment", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.clusterTemplateByteAlignment, NULL, settings, "uint32_t", "clusterTemplateByteAlignment", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.clusterBottomLevelByteAlignment, NULL, settings, "uint32_t", "clusterBottomLevelByteAlignment", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.clusterTemplateBoundsByteAlignment, NULL, settings, "uint32_t", "clusterTemplateBoundsByteAlignment", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxClusterGeometryIndex, NULL, settings, "uint32_t", "maxClusterGeometryIndex", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureClustersBottomLevelInputNV(const VkClusterAccelerationStructureClustersBottomLevelInputNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxTotalClusterCount, NULL, settings, "uint32_t", "maxTotalClusterCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxClusterCountPerAccelerationStructure, NULL, settings, "uint32_t", "maxClusterCountPerAccelerationStructure", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureTriangleClusterInputNV(const VkClusterAccelerationStructureTriangleClusterInputNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkFormat>(object.vertexFormat, NULL, settings, "VkFormat", "vertexFormat", false, false, indents + 1, dump_json_VkFormat);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxGeometryIndexValue, NULL, settings, "uint32_t", "maxGeometryIndexValue", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxClusterUniqueGeometryCount, NULL, settings, "uint32_t", "maxClusterUniqueGeometryCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxClusterTriangleCount, NULL, settings, "uint32_t", "maxClusterTriangleCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxClusterVertexCount, NULL, settings, "uint32_t", "maxClusterVertexCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxTotalTriangleCount, NULL, settings, "uint32_t", "maxTotalTriangleCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxTotalVertexCount, NULL, settings, "uint32_t", "maxTotalVertexCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.minPositionTruncateBitCount, NULL, settings, "uint32_t", "minPositionTruncateBitCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureMoveObjectsInputNV(const VkClusterAccelerationStructureMoveObjectsInputNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkClusterAccelerationStructureTypeNV>(object.type, NULL, settings, "VkClusterAccelerationStructureTypeNV", "type", false, false, indents + 1, dump_json_VkClusterAccelerationStructureTypeNV);
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.noMoveOverlap, NULL, settings, "VkBool32", "noMoveOverlap", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.maxMovedBytes, NULL, settings, "VkDeviceSize", "maxMovedBytes", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureInputInfoNV(const VkClusterAccelerationStructureInputInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxAccelerationStructureCount, NULL, settings, "uint32_t", "maxAccelerationStructureCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkBuildAccelerationStructureFlagsKHR>(object.flags, NULL, settings, "VkBuildAccelerationStructureFlagsKHR", "flags", false, false, indents + 1, dump_json_VkBuildAccelerationStructureFlagsKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkClusterAccelerationStructureOpTypeNV>(object.opType, NULL, settings, "VkClusterAccelerationStructureOpTypeNV", "opType", false, false, indents + 1, dump_json_VkClusterAccelerationStructureOpTypeNV);
+    settings.stream() << ",\n";
+    dump_json_value<const VkClusterAccelerationStructureOpModeNV>(object.opMode, NULL, settings, "VkClusterAccelerationStructureOpModeNV", "opMode", false, false, indents + 1, dump_json_VkClusterAccelerationStructureOpModeNV);
+    settings.stream() << ",\n";
+    dump_json_value<const VkClusterAccelerationStructureOpInputNV>(object.opInput, NULL, settings, "VkClusterAccelerationStructureOpInputNV", "opInput", false, true, indents + 1, dump_json_VkClusterAccelerationStructureOpInputNV);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureCommandsInfoNV(const VkClusterAccelerationStructureCommandsInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkClusterAccelerationStructureInputInfoNV>(object.input, NULL, settings, "VkClusterAccelerationStructureInputInfoNV", "input", true, false, indents + 1, dump_json_VkClusterAccelerationStructureInputInfoNV);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.dstImplicitData, NULL, settings, "VkDeviceAddress", "dstImplicitData", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.scratchData, NULL, settings, "VkDeviceAddress", "scratchData", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkStridedDeviceAddressRegionKHR>(object.dstAddressesArray, NULL, settings, "VkStridedDeviceAddressRegionKHR", "dstAddressesArray", true, false, indents + 1, dump_json_VkStridedDeviceAddressRegionKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkStridedDeviceAddressRegionKHR>(object.dstSizesArray, NULL, settings, "VkStridedDeviceAddressRegionKHR", "dstSizesArray", true, false, indents + 1, dump_json_VkStridedDeviceAddressRegionKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkStridedDeviceAddressRegionKHR>(object.srcInfosArray, NULL, settings, "VkStridedDeviceAddressRegionKHR", "srcInfosArray", true, false, indents + 1, dump_json_VkStridedDeviceAddressRegionKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.srcInfosCount, NULL, settings, "VkDeviceAddress", "srcInfosCount", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkClusterAccelerationStructureAddressResolutionFlagsNV>(object.addressResolutionFlags, NULL, settings, "VkClusterAccelerationStructureAddressResolutionFlagsNV", "addressResolutionFlags", false, false, indents + 1, dump_json_VkClusterAccelerationStructureAddressResolutionFlagsNV);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkStridedDeviceAddressNV(const VkStridedDeviceAddressNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkDeviceAddress>(object.startAddress, NULL, settings, "VkDeviceAddress", "startAddress", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.strideInBytes, NULL, settings, "VkDeviceSize", "strideInBytes", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV(const VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.geometryIndex, NULL, settings, "uint32_t geometryIndex:24", "geometryIndex", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t reserved:5", "reserved", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.geometryFlags, NULL, settings, "uint32_t geometryFlags:3", "geometryFlags", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureMoveObjectsInfoNV(const VkClusterAccelerationStructureMoveObjectsInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkDeviceAddress>(object.srcAccelerationStructure, NULL, settings, "VkDeviceAddress", "srcAccelerationStructure", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureBuildClustersBottomLevelInfoNV(const VkClusterAccelerationStructureBuildClustersBottomLevelInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.clusterReferencesCount, NULL, settings, "uint32_t", "clusterReferencesCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.clusterReferencesStride, NULL, settings, "uint32_t", "clusterReferencesStride", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.clusterReferences, NULL, settings, "VkDeviceAddress", "clusterReferences", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureBuildTriangleClusterInfoNV(const VkClusterAccelerationStructureBuildTriangleClusterInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.clusterID, NULL, settings, "uint32_t", "clusterID", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkClusterAccelerationStructureClusterFlagsNV>(object.clusterFlags, NULL, settings, "VkClusterAccelerationStructureClusterFlagsNV", "clusterFlags", false, false, indents + 1, dump_json_VkClusterAccelerationStructureClusterFlagsNV);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.triangleCount, NULL, settings, "uint32_t triangleCount:9", "triangleCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.vertexCount, NULL, settings, "uint32_t vertexCount:9", "vertexCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.positionTruncateBitCount, NULL, settings, "uint32_t positionTruncateBitCount:6", "positionTruncateBitCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.indexType, NULL, settings, "uint32_t indexType:4", "indexType", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.opacityMicromapIndexType, NULL, settings, "uint32_t opacityMicromapIndexType:4", "opacityMicromapIndexType", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV>(object.baseGeometryIndexAndGeometryFlags, NULL, settings, "VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV", "baseGeometryIndexAndGeometryFlags", true, false, indents + 1, dump_json_VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.indexBufferStride, NULL, settings, "uint16_t", "indexBufferStride", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.vertexBufferStride, NULL, settings, "uint16_t", "vertexBufferStride", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.geometryIndexAndFlagsBufferStride, NULL, settings, "uint16_t", "geometryIndexAndFlagsBufferStride", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.opacityMicromapIndexBufferStride, NULL, settings, "uint16_t", "opacityMicromapIndexBufferStride", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.indexBuffer, NULL, settings, "VkDeviceAddress", "indexBuffer", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.vertexBuffer, NULL, settings, "VkDeviceAddress", "vertexBuffer", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.geometryIndexAndFlagsBuffer, NULL, settings, "VkDeviceAddress", "geometryIndexAndFlagsBuffer", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.opacityMicromapArray, NULL, settings, "VkDeviceAddress", "opacityMicromapArray", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.opacityMicromapIndexBuffer, NULL, settings, "VkDeviceAddress", "opacityMicromapIndexBuffer", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureBuildTriangleClusterTemplateInfoNV(const VkClusterAccelerationStructureBuildTriangleClusterTemplateInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.clusterID, NULL, settings, "uint32_t", "clusterID", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkClusterAccelerationStructureClusterFlagsNV>(object.clusterFlags, NULL, settings, "VkClusterAccelerationStructureClusterFlagsNV", "clusterFlags", false, false, indents + 1, dump_json_VkClusterAccelerationStructureClusterFlagsNV);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.triangleCount, NULL, settings, "uint32_t triangleCount:9", "triangleCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.vertexCount, NULL, settings, "uint32_t vertexCount:9", "vertexCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.positionTruncateBitCount, NULL, settings, "uint32_t positionTruncateBitCount:6", "positionTruncateBitCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.indexType, NULL, settings, "uint32_t indexType:4", "indexType", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.opacityMicromapIndexType, NULL, settings, "uint32_t opacityMicromapIndexType:4", "opacityMicromapIndexType", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV>(object.baseGeometryIndexAndGeometryFlags, NULL, settings, "VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV", "baseGeometryIndexAndGeometryFlags", true, false, indents + 1, dump_json_VkClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.indexBufferStride, NULL, settings, "uint16_t", "indexBufferStride", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.vertexBufferStride, NULL, settings, "uint16_t", "vertexBufferStride", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.geometryIndexAndFlagsBufferStride, NULL, settings, "uint16_t", "geometryIndexAndFlagsBufferStride", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint16_t>(object.opacityMicromapIndexBufferStride, NULL, settings, "uint16_t", "opacityMicromapIndexBufferStride", false, false, indents + 1, dump_json_uint16_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.indexBuffer, NULL, settings, "VkDeviceAddress", "indexBuffer", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.vertexBuffer, NULL, settings, "VkDeviceAddress", "vertexBuffer", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.geometryIndexAndFlagsBuffer, NULL, settings, "VkDeviceAddress", "geometryIndexAndFlagsBuffer", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.opacityMicromapArray, NULL, settings, "VkDeviceAddress", "opacityMicromapArray", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.opacityMicromapIndexBuffer, NULL, settings, "VkDeviceAddress", "opacityMicromapIndexBuffer", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.instantiationBoundingBoxLimit, NULL, settings, "VkDeviceAddress", "instantiationBoundingBoxLimit", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureInstantiateClusterInfoNV(const VkClusterAccelerationStructureInstantiateClusterInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.clusterIdOffset, NULL, settings, "uint32_t", "clusterIdOffset", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.geometryIndexOffset, NULL, settings, "uint32_t geometryIndexOffset:24", "geometryIndexOffset", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t reserved:8", "reserved", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.clusterTemplateAddress, NULL, settings, "VkDeviceAddress", "clusterTemplateAddress", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkStridedDeviceAddressNV>(object.vertexBuffer, NULL, settings, "VkStridedDeviceAddressNV", "vertexBuffer", true, false, indents + 1, dump_json_VkStridedDeviceAddressNV);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV(const VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.allowClusterAccelerationStructure, NULL, settings, "VkBool32", "allowClusterAccelerationStructure", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV(const VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.partitionedAccelerationStructure, NULL, settings, "VkBool32", "partitionedAccelerationStructure", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV(const VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxPartitionCount, NULL, settings, "uint32_t", "maxPartitionCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPartitionedAccelerationStructureFlagsNV(const VkPartitionedAccelerationStructureFlagsNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.enablePartitionTranslation, NULL, settings, "VkBool32", "enablePartitionTranslation", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkBuildPartitionedAccelerationStructureIndirectCommandNV(const VkBuildPartitionedAccelerationStructureIndirectCommandNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkPartitionedAccelerationStructureOpTypeNV>(object.opType, NULL, settings, "VkPartitionedAccelerationStructureOpTypeNV", "opType", false, false, indents + 1, dump_json_VkPartitionedAccelerationStructureOpTypeNV);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.argCount, NULL, settings, "uint32_t", "argCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkStridedDeviceAddressNV>(object.argData, NULL, settings, "VkStridedDeviceAddressNV", "argData", true, false, indents + 1, dump_json_VkStridedDeviceAddressNV);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPartitionedAccelerationStructureWriteInstanceDataNV(const VkPartitionedAccelerationStructureWriteInstanceDataNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkTransformMatrixKHR>(object.transform, NULL, settings, "VkTransformMatrixKHR", "transform", true, false, indents + 1, dump_json_VkTransformMatrixKHR);
+    settings.stream() << ",\n";
+    dump_json_array<const float>(object.explicitAABB, 6, settings, "float[6]", "float", "explicitAABB", false, false, indents + 1, dump_json_float); // IQA
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.instanceID, NULL, settings, "uint32_t", "instanceID", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.instanceMask, NULL, settings, "uint32_t", "instanceMask", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.instanceContributionToHitGroupIndex, NULL, settings, "uint32_t", "instanceContributionToHitGroupIndex", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkPartitionedAccelerationStructureInstanceFlagsNV>(object.instanceFlags, NULL, settings, "VkPartitionedAccelerationStructureInstanceFlagsNV", "instanceFlags", false, false, indents + 1, dump_json_VkPartitionedAccelerationStructureInstanceFlagsNV);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.instanceIndex, NULL, settings, "uint32_t", "instanceIndex", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.partitionIndex, NULL, settings, "uint32_t", "partitionIndex", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.accelerationStructure, NULL, settings, "VkDeviceAddress", "accelerationStructure", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPartitionedAccelerationStructureUpdateInstanceDataNV(const VkPartitionedAccelerationStructureUpdateInstanceDataNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.instanceIndex, NULL, settings, "uint32_t", "instanceIndex", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.instanceContributionToHitGroupIndex, NULL, settings, "uint32_t", "instanceContributionToHitGroupIndex", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.accelerationStructure, NULL, settings, "VkDeviceAddress", "accelerationStructure", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPartitionedAccelerationStructureWritePartitionTranslationDataNV(const VkPartitionedAccelerationStructureWritePartitionTranslationDataNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.partitionIndex, NULL, settings, "uint32_t", "partitionIndex", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_array<const float>(object.partitionTranslation, 3, settings, "float[3]", "float", "partitionTranslation", false, false, indents + 1, dump_json_float); // IQA
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkWriteDescriptorSetPartitionedAccelerationStructureNV(const VkWriteDescriptorSetPartitionedAccelerationStructureNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.accelerationStructureCount, NULL, settings, "uint32_t", "accelerationStructureCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_array<const VkDeviceAddress>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkDeviceAddress*", "const VkDeviceAddress", "pAccelerationStructures", false, false, indents + 1, dump_json_VkDeviceAddress); // JQA
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPartitionedAccelerationStructureInstancesInputNV(const VkPartitionedAccelerationStructureInstancesInputNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBuildAccelerationStructureFlagsKHR>(object.flags, NULL, settings, "VkBuildAccelerationStructureFlagsKHR", "flags", false, false, indents + 1, dump_json_VkBuildAccelerationStructureFlagsKHR);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.instanceCount, NULL, settings, "uint32_t", "instanceCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxInstancePerPartitionCount, NULL, settings, "uint32_t", "maxInstancePerPartitionCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.partitionCount, NULL, settings, "uint32_t", "partitionCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.maxInstanceInGlobalPartitionCount, NULL, settings, "uint32_t", "maxInstanceInGlobalPartitionCount", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkBuildPartitionedAccelerationStructureInfoNV(const VkBuildPartitionedAccelerationStructureInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkPartitionedAccelerationStructureInstancesInputNV>(object.input, NULL, settings, "VkPartitionedAccelerationStructureInstancesInputNV", "input", true, false, indents + 1, dump_json_VkPartitionedAccelerationStructureInstancesInputNV);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.srcAccelerationStructureData, NULL, settings, "VkDeviceAddress", "srcAccelerationStructureData", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.dstAccelerationStructureData, NULL, settings, "VkDeviceAddress", "dstAccelerationStructureData", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.scratchData, NULL, settings, "VkDeviceAddress", "scratchData", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.srcInfos, NULL, settings, "VkDeviceAddress", "srcInfos", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceAddress>(object.srcInfosCount, NULL, settings, "VkDeviceAddress", "srcInfosCount", false, false, indents + 1, dump_json_VkDeviceAddress);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
 void dump_json_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT(const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
@@ -33505,6 +34530,36 @@ void dump_json_VkWriteIndirectExecutionSetShaderEXT(const VkWriteIndirectExecuti
     dump_json_value<const VkShaderEXT>(object.shader, NULL, settings, "VkShaderEXT", "shader", false, false, indents + 1, dump_json_VkShaderEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
+void dump_json_VkPhysicalDeviceMaintenance8FeaturesKHR(const VkPhysicalDeviceMaintenance8FeaturesKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.maintenance8, NULL, settings, "VkBool32", "maintenance8", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkMemoryBarrierAccessFlags3KHR(const VkMemoryBarrierAccessFlags3KHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkAccessFlags3KHR>(object.srcAccessMask3, NULL, settings, "VkAccessFlags3KHR", "srcAccessMask3", false, false, indents + 1, dump_json_VkAccessFlags3KHR);
+    settings.stream() << ",\n";
+    dump_json_value<const VkAccessFlags3KHR>(object.dstAccessMask3, NULL, settings, "VkAccessFlags3KHR", "dstAccessMask3", false, false, indents + 1, dump_json_VkAccessFlags3KHR);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
 void dump_json_VkPhysicalDeviceImageAlignmentControlFeaturesMESA(const VkPhysicalDeviceImageAlignmentControlFeaturesMESA& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
@@ -33575,6 +34630,68 @@ void dump_json_VkPipelineViewportDepthClampControlCreateInfoEXT(const VkPipeline
     dump_json_value<const VkDepthClampModeEXT>(object.depthClampMode, NULL, settings, "VkDepthClampModeEXT", "depthClampMode", false, false, indents + 1, dump_json_VkDepthClampModeEXT);
     settings.stream() << ",\n";
     dump_json_pointer<const VkDepthClampRangeEXT>(object.pDepthClampRange, settings, "const VkDepthClampRangeEXT*", "pDepthClampRange", true, false, indents + 1, dump_json_VkDepthClampRangeEXT);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPhysicalDeviceVideoMaintenance2FeaturesKHR(const VkPhysicalDeviceVideoMaintenance2FeaturesKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.videoMaintenance2, NULL, settings, "VkBool32", "videoMaintenance2", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkVideoDecodeH264InlineSessionParametersInfoKHR(const VkVideoDecodeH264InlineSessionParametersInfoKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoH264SequenceParameterSet>(object.pStdSPS, settings, "const StdVideoH264SequenceParameterSet*", "pStdSPS", false, false, indents + 1, dump_json_StdVideoH264SequenceParameterSet);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoH264PictureParameterSet>(object.pStdPPS, settings, "const StdVideoH264PictureParameterSet*", "pStdPPS", false, false, indents + 1, dump_json_StdVideoH264PictureParameterSet);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkVideoDecodeH265InlineSessionParametersInfoKHR(const VkVideoDecodeH265InlineSessionParametersInfoKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoH265VideoParameterSet>(object.pStdVPS, settings, "const StdVideoH265VideoParameterSet*", "pStdVPS", false, false, indents + 1, dump_json_StdVideoH265VideoParameterSet);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoH265SequenceParameterSet>(object.pStdSPS, settings, "const StdVideoH265SequenceParameterSet*", "pStdSPS", false, false, indents + 1, dump_json_StdVideoH265SequenceParameterSet);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoH265PictureParameterSet>(object.pStdPPS, settings, "const StdVideoH265PictureParameterSet*", "pStdPPS", false, false, indents + 1, dump_json_StdVideoH265PictureParameterSet);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkVideoDecodeAV1InlineSessionParametersInfoKHR(const VkVideoDecodeAV1InlineSessionParametersInfoKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoAV1SequenceHeader>(object.pStdSequenceHeader, settings, "const StdVideoAV1SequenceHeader*", "pStdSequenceHeader", false, false, indents + 1, dump_json_StdVideoAV1SequenceHeader);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceHdrVividFeaturesHUAWEI(const VkPhysicalDeviceHdrVividFeaturesHUAWEI& object, const ApiDumpSettings& settings, int indents)
@@ -33683,6 +34800,72 @@ void dump_json_VkPhysicalDeviceCooperativeMatrix2PropertiesNV(const VkPhysicalDe
     dump_json_value<const uint32_t>(object.cooperativeMatrixWorkgroupScopeReservedSharedMemory, NULL, settings, "uint32_t", "cooperativeMatrixWorkgroupScopeReservedSharedMemory", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
+void dump_json_VkPhysicalDevicePipelineOpacityMicromapFeaturesARM(const VkPhysicalDevicePipelineOpacityMicromapFeaturesARM& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.pipelineOpacityMicromap, NULL, settings, "VkBool32", "pipelineOpacityMicromap", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_json_VkImportMemoryMetalHandleInfoEXT(const VkImportMemoryMetalHandleInfoEXT& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkExternalMemoryHandleTypeFlagBits>(object.handleType, NULL, settings, "VkExternalMemoryHandleTypeFlagBits", "handleType", false, false, indents + 1, dump_json_VkExternalMemoryHandleTypeFlagBits);
+    settings.stream() << ",\n";
+    dump_json_value<const void*>(object.handle, NULL, settings, "void*", "handle", false, false, indents + 1, dump_json_void);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+#endif // VK_USE_PLATFORM_METAL_EXT
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_json_VkMemoryMetalHandlePropertiesEXT(const VkMemoryMetalHandlePropertiesEXT& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.memoryTypeBits, NULL, settings, "uint32_t", "memoryTypeBits", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+#endif // VK_USE_PLATFORM_METAL_EXT
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_json_VkMemoryGetMetalHandleInfoEXT(const VkMemoryGetMetalHandleInfoEXT& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceMemory>(object.memory, NULL, settings, "VkDeviceMemory", "memory", false, false, indents + 1, dump_json_VkDeviceMemory);
+    settings.stream() << ",\n";
+    dump_json_value<const VkExternalMemoryHandleTypeFlagBits>(object.handleType, NULL, settings, "VkExternalMemoryHandleTypeFlagBits", "handleType", false, false, indents + 1, dump_json_VkExternalMemoryHandleTypeFlagBits);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+#endif // VK_USE_PLATFORM_METAL_EXT
 void dump_json_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT(const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
@@ -33695,6 +34878,36 @@ void dump_json_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT(const VkPhys
     }
     settings.stream() << ",\n";
     dump_json_value<const VkBool32>(object.vertexAttributeRobustness, NULL, settings, "VkBool32", "vertexAttributeRobustness", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkSetPresentConfigNV(const VkSetPresentConfigNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.numFramesPerBatch, NULL, settings, "uint32_t", "numFramesPerBatch", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.presentConfigFeedback, NULL, settings, "uint32_t", "presentConfigFeedback", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPhysicalDevicePresentMeteringFeaturesNV(const VkPhysicalDevicePresentMeteringFeaturesNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.presentMetering, NULL, settings, "VkBool32", "presentMetering", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 
@@ -33829,6 +35042,16 @@ void dump_json_VkAccelerationStructureMotionInstanceDataNV(const VkAccelerationS
     dump_json_value<const VkAccelerationStructureMatrixMotionInstanceNV>(object.matrixMotionInstance, NULL, settings, "VkAccelerationStructureMatrixMotionInstanceNV", "matrixMotionInstance", true, false, indents + 2, dump_json_VkAccelerationStructureMatrixMotionInstanceNV);
     settings.stream() << ",\n"; // Only need commas when more than one field is printed
     dump_json_value<const VkAccelerationStructureSRTMotionInstanceNV>(object.srtMotionInstance, NULL, settings, "VkAccelerationStructureSRTMotionInstanceNV", "srtMotionInstance", true, false, indents + 2, dump_json_VkAccelerationStructureSRTMotionInstanceNV);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkClusterAccelerationStructureOpInputNV(const VkClusterAccelerationStructureOpInputNV& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_pointer<const VkClusterAccelerationStructureClustersBottomLevelInputNV>(object.pClustersBottomLevel, settings, "VkClusterAccelerationStructureClustersBottomLevelInputNV*", "pClustersBottomLevel", true, false, indents + 2, dump_json_VkClusterAccelerationStructureClustersBottomLevelInputNV);
+    settings.stream() << ",\n"; // Only need commas when more than one field is printed
+    dump_json_pointer<const VkClusterAccelerationStructureTriangleClusterInputNV>(object.pTriangleClusters, settings, "VkClusterAccelerationStructureTriangleClusterInputNV*", "pTriangleClusters", true, false, indents + 2, dump_json_VkClusterAccelerationStructureTriangleClusterInputNV);
+    settings.stream() << ",\n"; // Only need commas when more than one field is printed
+    dump_json_pointer<const VkClusterAccelerationStructureMoveObjectsInputNV>(object.pMoveObjects, settings, "VkClusterAccelerationStructureMoveObjectsInputNV*", "pMoveObjects", true, false, indents + 2, dump_json_VkClusterAccelerationStructureMoveObjectsInputNV);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkIndirectExecutionSetInfoEXT(const VkIndirectExecutionSetInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -36371,7 +37594,7 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         dump_json_pNext<const VkDescriptorSetLayoutHostMappingInfoVALVE>(static_cast<const VkDescriptorSetLayoutHostMappingInfoVALVE*>(object), settings, "VkDescriptorSetLayoutHostMappingInfoVALVE", indents, dump_json_VkDescriptorSetLayoutHostMappingInfoVALVE);
         break;
     case 1000421000:
-        dump_json_pNext<const VkPhysicalDeviceDepthClampZeroOneFeaturesEXT>(static_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthClampZeroOneFeaturesEXT", indents, dump_json_VkPhysicalDeviceDepthClampZeroOneFeaturesEXT);
+        dump_json_pNext<const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR>(static_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR*>(object), settings, "VkPhysicalDeviceDepthClampZeroOneFeaturesKHR", indents, dump_json_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR);
         break;
     case 1000422000:
         dump_json_pNext<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>(static_cast<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(object), settings, "VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT", indents, dump_json_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT);
@@ -36420,6 +37643,15 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         break;
     case 1000428002:
         dump_json_pNext<const VkPipelineIndirectDeviceAddressInfoNV>(static_cast<const VkPipelineIndirectDeviceAddressInfoNV*>(object), settings, "VkPipelineIndirectDeviceAddressInfoNV", indents, dump_json_VkPipelineIndirectDeviceAddressInfoNV);
+        break;
+    case 1000429008:
+        dump_json_pNext<const VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV>(static_cast<const VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV", indents, dump_json_VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV);
+        break;
+    case 1000429009:
+        dump_json_pNext<const VkAccelerationStructureGeometryLinearSweptSpheresDataNV>(static_cast<const VkAccelerationStructureGeometryLinearSweptSpheresDataNV*>(object), settings, "VkAccelerationStructureGeometryLinearSweptSpheresDataNV", indents, dump_json_VkAccelerationStructureGeometryLinearSweptSpheresDataNV);
+        break;
+    case 1000429010:
+        dump_json_pNext<const VkAccelerationStructureGeometrySpheresDataNV>(static_cast<const VkAccelerationStructureGeometrySpheresDataNV*>(object), settings, "VkAccelerationStructureGeometrySpheresDataNV", indents, dump_json_VkAccelerationStructureGeometrySpheresDataNV);
         break;
     case 1000430000:
         dump_json_pNext<const VkPhysicalDeviceLinearColorAttachmentFeaturesNV>(static_cast<const VkPhysicalDeviceLinearColorAttachmentFeaturesNV*>(object), settings, "VkPhysicalDeviceLinearColorAttachmentFeaturesNV", indents, dump_json_VkPhysicalDeviceLinearColorAttachmentFeaturesNV);
@@ -36594,6 +37826,18 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         break;
     case 1000490000:
         dump_json_pNext<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>(static_cast<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV", indents, dump_json_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV);
+        break;
+    case 1000491001:
+        dump_json_pNext<const VkPhysicalDeviceCooperativeVectorPropertiesNV>(static_cast<const VkPhysicalDeviceCooperativeVectorPropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeVectorPropertiesNV", indents, dump_json_VkPhysicalDeviceCooperativeVectorPropertiesNV);
+        break;
+    case 1000491000:
+        dump_json_pNext<const VkPhysicalDeviceCooperativeVectorFeaturesNV>(static_cast<const VkPhysicalDeviceCooperativeVectorFeaturesNV*>(object), settings, "VkPhysicalDeviceCooperativeVectorFeaturesNV", indents, dump_json_VkPhysicalDeviceCooperativeVectorFeaturesNV);
+        break;
+    case 1000491002:
+        dump_json_pNext<const VkCooperativeVectorPropertiesNV>(static_cast<const VkCooperativeVectorPropertiesNV*>(object), settings, "VkCooperativeVectorPropertiesNV", indents, dump_json_VkCooperativeVectorPropertiesNV);
+        break;
+    case 1000491004:
+        dump_json_pNext<const VkConvertCooperativeVectorMatrixInfoNV>(static_cast<const VkConvertCooperativeVectorMatrixInfoNV*>(object), settings, "VkConvertCooperativeVectorMatrixInfoNV", indents, dump_json_VkConvertCooperativeVectorMatrixInfoNV);
         break;
     case 1000492000:
         dump_json_pNext<const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV>(static_cast<const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV*>(object), settings, "VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV", indents, dump_json_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV);
@@ -36860,6 +38104,48 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     case 1000568000:
         dump_json_pNext<const VkPhysicalDeviceRayTracingValidationFeaturesNV>(static_cast<const VkPhysicalDeviceRayTracingValidationFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingValidationFeaturesNV", indents, dump_json_VkPhysicalDeviceRayTracingValidationFeaturesNV);
         break;
+    case 1000569000:
+        dump_json_pNext<const VkPhysicalDeviceClusterAccelerationStructureFeaturesNV>(static_cast<const VkPhysicalDeviceClusterAccelerationStructureFeaturesNV*>(object), settings, "VkPhysicalDeviceClusterAccelerationStructureFeaturesNV", indents, dump_json_VkPhysicalDeviceClusterAccelerationStructureFeaturesNV);
+        break;
+    case 1000569001:
+        dump_json_pNext<const VkPhysicalDeviceClusterAccelerationStructurePropertiesNV>(static_cast<const VkPhysicalDeviceClusterAccelerationStructurePropertiesNV*>(object), settings, "VkPhysicalDeviceClusterAccelerationStructurePropertiesNV", indents, dump_json_VkPhysicalDeviceClusterAccelerationStructurePropertiesNV);
+        break;
+    case 1000569002:
+        dump_json_pNext<const VkClusterAccelerationStructureClustersBottomLevelInputNV>(static_cast<const VkClusterAccelerationStructureClustersBottomLevelInputNV*>(object), settings, "VkClusterAccelerationStructureClustersBottomLevelInputNV", indents, dump_json_VkClusterAccelerationStructureClustersBottomLevelInputNV);
+        break;
+    case 1000569003:
+        dump_json_pNext<const VkClusterAccelerationStructureTriangleClusterInputNV>(static_cast<const VkClusterAccelerationStructureTriangleClusterInputNV*>(object), settings, "VkClusterAccelerationStructureTriangleClusterInputNV", indents, dump_json_VkClusterAccelerationStructureTriangleClusterInputNV);
+        break;
+    case 1000569004:
+        dump_json_pNext<const VkClusterAccelerationStructureMoveObjectsInputNV>(static_cast<const VkClusterAccelerationStructureMoveObjectsInputNV*>(object), settings, "VkClusterAccelerationStructureMoveObjectsInputNV", indents, dump_json_VkClusterAccelerationStructureMoveObjectsInputNV);
+        break;
+    case 1000569005:
+        dump_json_pNext<const VkClusterAccelerationStructureInputInfoNV>(static_cast<const VkClusterAccelerationStructureInputInfoNV*>(object), settings, "VkClusterAccelerationStructureInputInfoNV", indents, dump_json_VkClusterAccelerationStructureInputInfoNV);
+        break;
+    case 1000569006:
+        dump_json_pNext<const VkClusterAccelerationStructureCommandsInfoNV>(static_cast<const VkClusterAccelerationStructureCommandsInfoNV*>(object), settings, "VkClusterAccelerationStructureCommandsInfoNV", indents, dump_json_VkClusterAccelerationStructureCommandsInfoNV);
+        break;
+    case 1000569007:
+        dump_json_pNext<const VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV>(static_cast<const VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV*>(object), settings, "VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV", indents, dump_json_VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV);
+        break;
+    case 1000570000:
+        dump_json_pNext<const VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV>(static_cast<const VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV*>(object), settings, "VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV", indents, dump_json_VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV);
+        break;
+    case 1000570001:
+        dump_json_pNext<const VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV>(static_cast<const VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV*>(object), settings, "VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV", indents, dump_json_VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV);
+        break;
+    case 1000570005:
+        dump_json_pNext<const VkPartitionedAccelerationStructureFlagsNV>(static_cast<const VkPartitionedAccelerationStructureFlagsNV*>(object), settings, "VkPartitionedAccelerationStructureFlagsNV", indents, dump_json_VkPartitionedAccelerationStructureFlagsNV);
+        break;
+    case 1000570002:
+        dump_json_pNext<const VkWriteDescriptorSetPartitionedAccelerationStructureNV>(static_cast<const VkWriteDescriptorSetPartitionedAccelerationStructureNV*>(object), settings, "VkWriteDescriptorSetPartitionedAccelerationStructureNV", indents, dump_json_VkWriteDescriptorSetPartitionedAccelerationStructureNV);
+        break;
+    case 1000570003:
+        dump_json_pNext<const VkPartitionedAccelerationStructureInstancesInputNV>(static_cast<const VkPartitionedAccelerationStructureInstancesInputNV*>(object), settings, "VkPartitionedAccelerationStructureInstancesInputNV", indents, dump_json_VkPartitionedAccelerationStructureInstancesInputNV);
+        break;
+    case 1000570004:
+        dump_json_pNext<const VkBuildPartitionedAccelerationStructureInfoNV>(static_cast<const VkBuildPartitionedAccelerationStructureInfoNV*>(object), settings, "VkBuildPartitionedAccelerationStructureInfoNV", indents, dump_json_VkBuildPartitionedAccelerationStructureInfoNV);
+        break;
     case 1000572000:
         dump_json_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT>(static_cast<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT", indents, dump_json_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT);
         break;
@@ -36902,6 +38188,12 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     case 1000572009:
         dump_json_pNext<const VkWriteIndirectExecutionSetShaderEXT>(static_cast<const VkWriteIndirectExecutionSetShaderEXT*>(object), settings, "VkWriteIndirectExecutionSetShaderEXT", indents, dump_json_VkWriteIndirectExecutionSetShaderEXT);
         break;
+    case 1000574000:
+        dump_json_pNext<const VkPhysicalDeviceMaintenance8FeaturesKHR>(static_cast<const VkPhysicalDeviceMaintenance8FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance8FeaturesKHR", indents, dump_json_VkPhysicalDeviceMaintenance8FeaturesKHR);
+        break;
+    case 1000574002:
+        dump_json_pNext<const VkMemoryBarrierAccessFlags3KHR>(static_cast<const VkMemoryBarrierAccessFlags3KHR*>(object), settings, "VkMemoryBarrierAccessFlags3KHR", indents, dump_json_VkMemoryBarrierAccessFlags3KHR);
+        break;
     case 1000575000:
         dump_json_pNext<const VkPhysicalDeviceImageAlignmentControlFeaturesMESA>(static_cast<const VkPhysicalDeviceImageAlignmentControlFeaturesMESA*>(object), settings, "VkPhysicalDeviceImageAlignmentControlFeaturesMESA", indents, dump_json_VkPhysicalDeviceImageAlignmentControlFeaturesMESA);
         break;
@@ -36916,6 +38208,18 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         break;
     case 1000582001:
         dump_json_pNext<const VkPipelineViewportDepthClampControlCreateInfoEXT>(static_cast<const VkPipelineViewportDepthClampControlCreateInfoEXT*>(object), settings, "VkPipelineViewportDepthClampControlCreateInfoEXT", indents, dump_json_VkPipelineViewportDepthClampControlCreateInfoEXT);
+        break;
+    case 1000586000:
+        dump_json_pNext<const VkPhysicalDeviceVideoMaintenance2FeaturesKHR>(static_cast<const VkPhysicalDeviceVideoMaintenance2FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoMaintenance2FeaturesKHR", indents, dump_json_VkPhysicalDeviceVideoMaintenance2FeaturesKHR);
+        break;
+    case 1000586001:
+        dump_json_pNext<const VkVideoDecodeH264InlineSessionParametersInfoKHR>(static_cast<const VkVideoDecodeH264InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeH264InlineSessionParametersInfoKHR", indents, dump_json_VkVideoDecodeH264InlineSessionParametersInfoKHR);
+        break;
+    case 1000586002:
+        dump_json_pNext<const VkVideoDecodeH265InlineSessionParametersInfoKHR>(static_cast<const VkVideoDecodeH265InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeH265InlineSessionParametersInfoKHR", indents, dump_json_VkVideoDecodeH265InlineSessionParametersInfoKHR);
+        break;
+    case 1000586003:
+        dump_json_pNext<const VkVideoDecodeAV1InlineSessionParametersInfoKHR>(static_cast<const VkVideoDecodeAV1InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeAV1InlineSessionParametersInfoKHR", indents, dump_json_VkVideoDecodeAV1InlineSessionParametersInfoKHR);
         break;
     case 1000590000:
         dump_json_pNext<const VkPhysicalDeviceHdrVividFeaturesHUAWEI>(static_cast<const VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceHdrVividFeaturesHUAWEI", indents, dump_json_VkPhysicalDeviceHdrVividFeaturesHUAWEI);
@@ -36932,8 +38236,32 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     case 1000593002:
         dump_json_pNext<const VkPhysicalDeviceCooperativeMatrix2PropertiesNV>(static_cast<const VkPhysicalDeviceCooperativeMatrix2PropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrix2PropertiesNV", indents, dump_json_VkPhysicalDeviceCooperativeMatrix2PropertiesNV);
         break;
+    case 1000596000:
+        dump_json_pNext<const VkPhysicalDevicePipelineOpacityMicromapFeaturesARM>(static_cast<const VkPhysicalDevicePipelineOpacityMicromapFeaturesARM*>(object), settings, "VkPhysicalDevicePipelineOpacityMicromapFeaturesARM", indents, dump_json_VkPhysicalDevicePipelineOpacityMicromapFeaturesARM);
+        break;
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+    case 1000602000:
+        dump_json_pNext<const VkImportMemoryMetalHandleInfoEXT>(static_cast<const VkImportMemoryMetalHandleInfoEXT*>(object), settings, "VkImportMemoryMetalHandleInfoEXT", indents, dump_json_VkImportMemoryMetalHandleInfoEXT);
+        break;
+#endif // VK_USE_PLATFORM_METAL_EXT
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+    case 1000602001:
+        dump_json_pNext<const VkMemoryMetalHandlePropertiesEXT>(static_cast<const VkMemoryMetalHandlePropertiesEXT*>(object), settings, "VkMemoryMetalHandlePropertiesEXT", indents, dump_json_VkMemoryMetalHandlePropertiesEXT);
+        break;
+#endif // VK_USE_PLATFORM_METAL_EXT
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+    case 1000602002:
+        dump_json_pNext<const VkMemoryGetMetalHandleInfoEXT>(static_cast<const VkMemoryGetMetalHandleInfoEXT*>(object), settings, "VkMemoryGetMetalHandleInfoEXT", indents, dump_json_VkMemoryGetMetalHandleInfoEXT);
+        break;
+#endif // VK_USE_PLATFORM_METAL_EXT
     case 1000608000:
         dump_json_pNext<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT>(static_cast<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT*>(object), settings, "VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT", indents, dump_json_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT);
+        break;
+    case 1000613000:
+        dump_json_pNext<const VkSetPresentConfigNV>(static_cast<const VkSetPresentConfigNV*>(object), settings, "VkSetPresentConfigNV", indents, dump_json_VkSetPresentConfigNV);
+        break;
+    case 1000613001:
+        dump_json_pNext<const VkPhysicalDevicePresentMeteringFeaturesNV>(static_cast<const VkPhysicalDevicePresentMeteringFeaturesNV*>(object), settings, "VkPhysicalDevicePresentMeteringFeaturesNV", indents, dump_json_VkPhysicalDevicePresentMeteringFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
     case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
@@ -51503,6 +52831,68 @@ void dump_json_vkGetDynamicRenderingTilePropertiesQCOM(ApiDumpInstance& dump_ins
     settings.stream() << settings.indentation(2) << "}";
     if (settings.shouldFlush()) settings.stream().flush();
 }
+void dump_json_vkGetPhysicalDeviceCooperativeVectorPropertiesNV(ApiDumpInstance& dump_inst, VkResult result, VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkCooperativeVectorPropertiesNV* pProperties)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << settings.indentation(3) << "\"returnValue\" : ";
+    dump_json_VkResult(result, settings, 0);
+    if(settings.showParams())
+        settings.stream() << ",";
+    settings.stream() << "\n";
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkPhysicalDevice>(physicalDevice, NULL, settings, "VkPhysicalDevice", "physicalDevice", false, false, 4, dump_json_VkPhysicalDevice);
+        settings.stream() << ",\n";
+        dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
+        settings.stream() << ",\n";
+        dump_json_array<const VkCooperativeVectorPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeVectorPropertiesNV*", "VkCooperativeVectorPropertiesNV", "pProperties", true, false, 4, dump_json_VkCooperativeVectorPropertiesNV); // PQA
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
+void dump_json_vkConvertCooperativeVectorMatrixNV(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, const VkConvertCooperativeVectorMatrixInfoNV* pInfo)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << settings.indentation(3) << "\"returnValue\" : ";
+    dump_json_VkResult(result, settings, 0);
+    if(settings.showParams())
+        settings.stream() << ",";
+    settings.stream() << "\n";
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkDevice>(device, NULL, settings, "VkDevice", "device", false, false, 4, dump_json_VkDevice);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkConvertCooperativeVectorMatrixInfoNV>(pInfo, settings, "const VkConvertCooperativeVectorMatrixInfoNV*", "pInfo", true, false, 4, dump_json_VkConvertCooperativeVectorMatrixInfoNV);
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
+void dump_json_vkCmdConvertCooperativeVectorMatrixNV(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, uint32_t infoCount, const VkConvertCooperativeVectorMatrixInfoNV* pInfos)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkCommandBuffer>(commandBuffer, NULL, settings, "VkCommandBuffer", "commandBuffer", false, false, 4, dump_json_VkCommandBuffer);
+        settings.stream() << ",\n";
+        dump_json_value<const uint32_t>(infoCount, NULL, settings, "uint32_t", "infoCount", false, false, 4, dump_json_uint32_t);
+        settings.stream() << ",\n";
+        dump_json_array<const VkConvertCooperativeVectorMatrixInfoNV>(pInfos, infoCount, settings, "const VkConvertCooperativeVectorMatrixInfoNV*", "const VkConvertCooperativeVectorMatrixInfoNV", "pInfos", true, false, 4, dump_json_VkConvertCooperativeVectorMatrixInfoNV); // PQA
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
 void dump_json_vkSetLatencySleepModeNV(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, VkSwapchainKHR swapchain, const VkLatencySleepModeInfoNV* pSleepModeInfo)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -51779,6 +53169,74 @@ void dump_json_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(ApiDumpInstance& du
     settings.stream() << settings.indentation(2) << "}";
     if (settings.shouldFlush()) settings.stream().flush();
 }
+void dump_json_vkGetClusterAccelerationStructureBuildSizesNV(ApiDumpInstance& dump_inst, VkDevice device, const VkClusterAccelerationStructureInputInfoNV* pInfo, VkAccelerationStructureBuildSizesInfoKHR* pSizeInfo)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkDevice>(device, NULL, settings, "VkDevice", "device", false, false, 4, dump_json_VkDevice);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkClusterAccelerationStructureInputInfoNV>(pInfo, settings, "const VkClusterAccelerationStructureInputInfoNV*", "pInfo", true, false, 4, dump_json_VkClusterAccelerationStructureInputInfoNV);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkAccelerationStructureBuildSizesInfoKHR>(pSizeInfo, settings, "VkAccelerationStructureBuildSizesInfoKHR*", "pSizeInfo", true, false, 4, dump_json_VkAccelerationStructureBuildSizesInfoKHR);
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
+void dump_json_vkCmdBuildClusterAccelerationStructureIndirectNV(ApiDumpInstance& dump_inst, VkCommandBuffer                     commandBuffer, const VkClusterAccelerationStructureCommandsInfoNV*  pCommandInfos)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkCommandBuffer>(commandBuffer, NULL, settings, "VkCommandBuffer", "commandBuffer", false, false, 4, dump_json_VkCommandBuffer);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkClusterAccelerationStructureCommandsInfoNV>(pCommandInfos, settings, "const VkClusterAccelerationStructureCommandsInfoNV*", "pCommandInfos", true, false, 4, dump_json_VkClusterAccelerationStructureCommandsInfoNV);
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
+void dump_json_vkGetPartitionedAccelerationStructuresBuildSizesNV(ApiDumpInstance& dump_inst, VkDevice device, const VkPartitionedAccelerationStructureInstancesInputNV* pInfo, VkAccelerationStructureBuildSizesInfoKHR*                  pSizeInfo)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkDevice>(device, NULL, settings, "VkDevice", "device", false, false, 4, dump_json_VkDevice);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkPartitionedAccelerationStructureInstancesInputNV>(pInfo, settings, "const VkPartitionedAccelerationStructureInstancesInputNV*", "pInfo", true, false, 4, dump_json_VkPartitionedAccelerationStructureInstancesInputNV);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkAccelerationStructureBuildSizesInfoKHR>(pSizeInfo, settings, "VkAccelerationStructureBuildSizesInfoKHR*", "pSizeInfo", true, false, 4, dump_json_VkAccelerationStructureBuildSizesInfoKHR);
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
+void dump_json_vkCmdBuildPartitionedAccelerationStructuresNV(ApiDumpInstance& dump_inst, VkCommandBuffer                     commandBuffer, const VkBuildPartitionedAccelerationStructureInfoNV*  pBuildInfo)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkCommandBuffer>(commandBuffer, NULL, settings, "VkCommandBuffer", "commandBuffer", false, false, 4, dump_json_VkCommandBuffer);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkBuildPartitionedAccelerationStructureInfoNV>(pBuildInfo, settings, "const VkBuildPartitionedAccelerationStructureInfoNV*", "pBuildInfo", true, false, 4, dump_json_VkBuildPartitionedAccelerationStructureInfoNV);
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
 void dump_json_vkGetGeneratedCommandsMemoryRequirementsEXT(ApiDumpInstance& dump_inst, VkDevice device, const VkGeneratedCommandsMemoryRequirementsInfoEXT* pInfo, VkMemoryRequirements2* pMemoryRequirements)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -51982,5 +53440,57 @@ void dump_json_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesN
     settings.stream() << settings.indentation(2) << "}";
     if (settings.shouldFlush()) settings.stream().flush();
 }
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_json_vkGetMemoryMetalHandleEXT(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, const VkMemoryGetMetalHandleInfoEXT* pGetMetalHandleInfo, void** pHandle)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << settings.indentation(3) << "\"returnValue\" : ";
+    dump_json_VkResult(result, settings, 0);
+    if(settings.showParams())
+        settings.stream() << ",";
+    settings.stream() << "\n";
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkDevice>(device, NULL, settings, "VkDevice", "device", false, false, 4, dump_json_VkDevice);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkMemoryGetMetalHandleInfoEXT>(pGetMetalHandleInfo, settings, "const VkMemoryGetMetalHandleInfoEXT*", "pGetMetalHandleInfo", true, false, 4, dump_json_VkMemoryGetMetalHandleInfoEXT);
+        settings.stream() << ",\n";
+        dump_json_pointer<const void*>(pHandle, settings, "void**", "pHandle", false, false, 4, dump_json_void);
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
+#endif // VK_USE_PLATFORM_METAL_EXT
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_json_vkGetMemoryMetalHandlePropertiesEXT(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, VkExternalMemoryHandleTypeFlagBits handleType, const void* pHandle, VkMemoryMetalHandlePropertiesEXT* pMemoryMetalHandleProperties)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << settings.indentation(3) << "\"returnValue\" : ";
+    dump_json_VkResult(result, settings, 0);
+    if(settings.showParams())
+        settings.stream() << ",";
+    settings.stream() << "\n";
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkDevice>(device, NULL, settings, "VkDevice", "device", false, false, 4, dump_json_VkDevice);
+        settings.stream() << ",\n";
+        dump_json_value<const VkExternalMemoryHandleTypeFlagBits>(handleType, NULL, settings, "VkExternalMemoryHandleTypeFlagBits", "handleType", false, false, 4, dump_json_VkExternalMemoryHandleTypeFlagBits);
+        settings.stream() << ",\n";
+        dump_json_value<const void*>(pHandle, NULL, settings, "const void*", "pHandle", false, false, 4, dump_json_void);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkMemoryMetalHandlePropertiesEXT>(pMemoryMetalHandleProperties, settings, "VkMemoryMetalHandlePropertiesEXT*", "pMemoryMetalHandleProperties", true, false, 4, dump_json_VkMemoryMetalHandlePropertiesEXT);
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
+#endif // VK_USE_PLATFORM_METAL_EXT
 
 
