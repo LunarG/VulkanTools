@@ -25,6 +25,7 @@ jobs:
   # Ensure we can build on an older Ubuntu distro with an older version of CMake.
   linux_back_compat:
     runs-on: ubuntu-22.04
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     name: "Ubuntu Backcompat"
     steps:
       - uses: actions/checkout@v4
@@ -51,6 +52,7 @@ jobs:
 
   linux:
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
@@ -64,6 +66,7 @@ jobs:
 
   windows:
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1
@@ -78,6 +81,7 @@ jobs:
 
   android:
     runs-on: macos-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
       - uses: actions/checkout@v4
       - uses: lukka/get-cmake@latest
@@ -96,6 +100,7 @@ jobs:
 
   macos:
     runs-on: macos-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
       - uses: actions/checkout@v4
       - name: Install Qt
@@ -116,6 +121,7 @@ jobs:
   apple-cross-compile:
     name: iOS
     runs-on: macos-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
         - uses: actions/checkout@v4
         - uses: actions/setup-python@v5
@@ -141,6 +147,7 @@ jobs:
 
   mingw:
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     defaults:
       run:
         shell: bash
@@ -168,6 +175,7 @@ jobs:
 
   chromium:
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
