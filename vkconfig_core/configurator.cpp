@@ -24,7 +24,6 @@
 #include "registry.h"
 #include "util.h"
 #include "path.h"
-#include "alert.h"
 #include "date.h"
 
 #include <QDir>
@@ -45,7 +44,7 @@ Configurator& Configurator::Get() {
     return configurator;
 }
 
-Configurator::Configurator() {}
+Configurator::Configurator() : mode(init_mode) {}
 
 Configurator::~Configurator() {
     if (this->reset_hard) {
@@ -56,16 +55,39 @@ Configurator::~Configurator() {
     this->Save();
 }
 
-bool Configurator::Init() {
+bool Configurator::Init(ConfiguratorMode configurator_mode) {
+    this->init_mode = configurator_mode;
+
     const bool result = this->Load();
     if (!result) {
         return false;
     }
 
     if (this->has_crashed) {
-        if (Alert::ConfiguratorCrashed() == QMessageBox::Yes) {
-            this->Reset(true);
-            return false;
+        switch (this->mode) {
+            default:
+            case CONFIGURATOR_MODE_NONE: {
+            } break;
+            case CONFIGURATOR_MODE_GUI: {
+                QMessageBox alert;
+                alert.setWindowTitle(format("%s crashed during last run...", VKCONFIG_NAME).c_str());
+                alert.setText("Do you want to reset to default resolve the issue?");
+                alert.setInformativeText("All layers configurations will be lost...");
+                alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                alert.setDefaultButton(QMessageBox::No);
+                alert.setIcon(QMessageBox::Critical);
+                int result = alert.exec();
+
+                if (result == QMessageBox::Yes) {
+                    this->Reset(true);
+                    return false;
+                }
+            } break;
+            case CONFIGURATOR_MODE_CMD: {
+                fprintf(stderr, "%s: [ERROR] crashed during last run...\n", VKCONFIG_SHORT_NAME);
+                fprintf(stderr, "\n  (Run \"%s reset --hard\" to reset to default %s if the problem continue)\n",
+                        VKCONFIG_SHORT_NAME, VKCONFIG_NAME);
+            } break;
         }
     }
 
@@ -783,8 +805,30 @@ bool Configurator::Load() {
 
         const Version file_format_version = Version(json_root_object.value("file_format_version").toString().toStdString());
         if (file_format_version > Version::VKCONFIG) {
-            if (Alert::ConfiguratorOlderVersion(file_format_version) == QMessageBox::Cancel) {
-                return false;  // Vulkan Configurator is reset to default
+            switch (this->mode) {
+                default:
+                case CONFIGURATOR_MODE_NONE:
+                    break;
+                case CONFIGURATOR_MODE_GUI: {
+                    QMessageBox alert;
+                    alert.setWindowTitle(format("Launching an older version of %s...", VKCONFIG_NAME).c_str());
+                    alert.setText(format("Running a Vulkan Configurator %s but a newer %s version was previously launched.",
+                                         Version::VKCONFIG.str().c_str(), file_format_version.str().c_str())
+                                      .c_str());
+                    alert.setInformativeText("Do you want to continue? This may cause crashes...");
+                    alert.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
+                    alert.setDefaultButton(QMessageBox::Cancel);
+                    alert.setIcon(QMessageBox::Critical);
+                    if (alert.exec() == QMessageBox::Cancel) {
+                        return false;  // Vulkan Configurator is reset to default
+                    }
+                } break;
+                case CONFIGURATOR_MODE_CMD: {
+                    fprintf(stderr, "vkconfig: [WARNING] Launching an older version %s of %s...\n", Version::VKCONFIG.str().c_str(),
+                            VKCONFIG_NAME);
+                    fprintf(stderr, "\n  (Run \"%s reset --hard\" to reset to default %s if the problem continue)\n",
+                            VKCONFIG_SHORT_NAME, VKCONFIG_NAME);
+                } break;
             }
         }
 
@@ -837,12 +881,12 @@ bool Configurator::Load() {
             }
         }
 
-        this->executables.Load(json_root_object);
-        this->layers.Load(json_root_object);
-        this->configurations.Load(json_root_object);
+        this->executables.Load(json_root_object, this->mode);
+        this->layers.Load(json_root_object, this->mode);
+        this->configurations.Load(json_root_object, this->mode);
     } else {
         this->executables.Reset();
-        this->layers.LoadAllInstalledLayers();
+        this->layers.LoadAllInstalledLayers(this->mode);
     }
 
     this->configurations.LoadAllConfigurations(this->layers);

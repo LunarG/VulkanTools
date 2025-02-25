@@ -25,7 +25,6 @@
 #include "dialog_vulkan_info.h"
 
 #include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/ui.h"
 #include "../vkconfig_core/version.h"
@@ -230,7 +229,17 @@ void MainWindow::on_tray_per(bool checked) {
 void MainWindow::toolsResetToDefault(bool checked) {
     (void)checked;
 
-    if (Alert::ConfiguratorResetAll() == QMessageBox::No) {
+    QMessageBox alert;
+    alert.QDialog::setWindowTitle("Restoring and Resetting all Layers Configurations to default");
+    alert.setText(
+        "You are about to delete all the user-defined configurations and resetting all default configurations to their default "
+        "state.");
+    alert.setInformativeText("Do you want to continue?");
+    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    alert.setDefaultButton(QMessageBox::Yes);
+    alert.setIcon(QMessageBox::Warning);
+
+    if (alert.exec() == QMessageBox::No) {
         return;
     }
 

@@ -36,7 +36,6 @@
 #include "widget_setting_list.h"
 
 #include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/type_platform.h"
@@ -431,14 +430,6 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     }
 
     this->ui->configurations_settings->blockSignals(false);
-
-    /*
-        if (!(configurator.Get(HIDE_MESSAGE_NEED_APPLICATION_RESTART))) {
-            configurator.Set(HIDE_MESSAGE_NEED_APPLICATION_RESTART);
-
-            Alert::ConfiguratorRestart();
-        }
-    */
 
     // Refresh layer configuration
     configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);

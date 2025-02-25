@@ -67,7 +67,8 @@ TEST(test_layer_preset, has_preset) {
 
 TEST(test_layer_preset, find_preset_index_no_preset) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_03.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_03.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     SettingDataSet layer_settings;
@@ -79,7 +80,8 @@ TEST(test_layer_preset, find_preset_index_no_preset) {
 
 TEST(test_layer_preset, find_preset_index_empty) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     SettingDataSet layer_settings;
@@ -89,7 +91,8 @@ TEST(test_layer_preset, find_preset_index_empty) {
 
 TEST(test_layer_preset, find_preset_index_found) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     SettingDataSet layer_settings;
@@ -114,7 +117,8 @@ TEST(test_layer_preset, find_preset_index_found) {
 
 TEST(test_layer_preset, find_preset_index_missing_value) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     SettingDataSet layer_settings;

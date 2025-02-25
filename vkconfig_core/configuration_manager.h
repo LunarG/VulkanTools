@@ -32,7 +32,7 @@ class ConfigurationManager : public Serialize {
     ConfigurationManager();
     ~ConfigurationManager();
 
-    bool Load(const QJsonObject& json_root_object) override;
+    bool Load(const QJsonObject& json_root_object, ConfiguratorMode configurator_mode) override;
     bool Save(QJsonObject& json_root_object) const override;
     std::string Log() const override;
 

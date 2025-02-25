@@ -26,7 +26,7 @@
 
 static int RunReset(int argc, char* argv[], bool hard) {
     Configurator& configurator = Configurator::Get();
-    configurator.Init();
+    configurator.Init(CONFIGURATOR_MODE_CMD);
     configurator.Reset(hard);
 
     return 0;

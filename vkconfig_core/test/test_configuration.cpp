@@ -194,7 +194,7 @@ TEST(test_configuration, make_duplicate_tagged_name_mix) {
 
 TEST(test_configuration, create) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration = Configuration::Create(layer_manager, "New Configuration");
 
@@ -214,7 +214,7 @@ TEST(test_configuration, create) {
 
 TEST(test_configuration, create_disabled) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration = Configuration::CreateDisabled(layer_manager);
 
@@ -234,7 +234,7 @@ TEST(test_configuration, create_disabled) {
 
 TEST(test_configuration, SwitchLayerVersion) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration = Configuration::Create(layer_manager, "New Configuration");
     for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
@@ -261,7 +261,7 @@ TEST(test_configuration, SwitchLayerVersion) {
 
 TEST(test_configuration, gather_parameters_exist) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration;
     configuration.key = "New Configuration";
@@ -293,7 +293,7 @@ TEST(test_configuration, gather_parameters_exist) {
 
 TEST(test_configuration, gather_parameters_repeat) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration;
     configuration.key = "New Configuration";
@@ -326,7 +326,7 @@ TEST(test_configuration, gather_parameters_missing) {
     Configuration configuration;
     configuration.key = "New Configuration";
 
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     configuration.GatherParameters(layer_manager);
 
     layer_manager.Clear();
@@ -362,7 +362,7 @@ TEST(test_configuration, HasMissingLayer_UnsupportPlatform) {
     Configuration configuration;
     configuration.key = "New Configuration";
 
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     configuration.GatherParameters(layer_manager);
 
     layer_manager.Clear();
@@ -382,7 +382,7 @@ TEST(test_configuration, HasMissingLayer_Off) {
     Configuration configuration;
     configuration.key = "New Configuration";
 
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     configuration.GatherParameters(layer_manager);
 
     layer_manager.Clear();
@@ -402,7 +402,7 @@ TEST(test_configuration, gather_parameters_missing_but_unsupported_platform) {
     Configuration configuration;
     configuration.key = "New Configuration";
 
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     configuration.GatherParameters(layer_manager);
 
     layer_manager.Clear();
@@ -418,7 +418,7 @@ TEST(test_configuration, gather_parameters_missing_but_unsupported_platform) {
 
 TEST(test_configuration, Reorder_full) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration = Configuration::Create(layer_manager, "New Configuration");
 
@@ -454,7 +454,7 @@ TEST(test_configuration, Reorder_full) {
 
 TEST(test_configuration, Reorder_partial) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration = Configuration::Create(layer_manager, "New Configuration");
 
@@ -482,7 +482,7 @@ TEST(test_configuration, Reorder_partial) {
 
 TEST(test_configuration, Reorder_missing) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration = Configuration::Create(layer_manager, "New Configuration");
 
@@ -512,7 +512,7 @@ TEST(test_configuration, Reorder_missing) {
 
 TEST(test_configuration, Reorder_empty) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers");
+    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration = Configuration::Create(layer_manager, "New Configuration");
     std::size_t size = configuration.parameters.size();
@@ -525,7 +525,7 @@ TEST(test_configuration, Reorder_empty) {
 
 TEST(test_configuration, IsDefault_True) {
     LayerManager layers;
-    layers.LoadLayersFromPath(":/layers");
+    layers.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration;
     const bool loaded = configuration.Load(":/configurations/Validation.json", layers);
@@ -535,7 +535,7 @@ TEST(test_configuration, IsDefault_True) {
 
 TEST(test_configuration, IsDefault_False) {
     LayerManager layers;
-    layers.LoadLayersFromPath(":/layers");
+    layers.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
 
     Configuration configuration = Configuration::Create(layers, "New Configuration");
     EXPECT_FALSE(configuration.IsDefault());

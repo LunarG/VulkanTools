@@ -32,6 +32,7 @@
 #include "type_hide_message.h"
 #include "type_tab.h"
 #include "type_executable_mode.h"
+#include "type_configurator_mode.h"
 #include "serialization.h"
 
 enum EnabledUI {
@@ -66,7 +67,7 @@ class Configurator {
     };
 
     static Configurator& Get();
-    bool Init();
+    bool Init(ConfiguratorMode mode);
 
    public:
     bool Load();
@@ -128,11 +129,15 @@ class Configurator {
     void BuildLoaderSettings(const std::string& configuration_key, const std::string& executable_path,
                              std::vector<LoaderSettings>& loader_settings_array) const;
 
+    ConfiguratorMode init_mode = CONFIGURATOR_MODE_NONE;
+
    public:
     LayerManager layers;
     ConfigurationManager configurations;
     ExecutableManager executables;
     VulkanSystemInfo vulkan_system_info;
+
+    const ConfiguratorMode& mode;
 
     bool reset_hard = false;
     bool has_crashed = false;

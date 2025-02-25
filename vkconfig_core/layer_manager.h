@@ -33,7 +33,7 @@ class LayerManager : public Serialize {
    public:
     LayerManager();
 
-    bool Load(const QJsonObject& json_root_object) override;
+    bool Load(const QJsonObject& json_root_object, ConfiguratorMode configurator_mode) override;
     bool Save(QJsonObject& json_root_object) const override;
     std::string Log() const override;
 
@@ -48,9 +48,9 @@ class LayerManager : public Serialize {
     const Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false) const;
     Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false);
 
-    void LoadAllInstalledLayers();
-    void LoadLayersFromPath(const Path& layers_path, LayerType type = LAYER_TYPE_EXPLICIT);
-    LayerLoadStatus LoadLayer(const Path& layer_path, LayerType type = LAYER_TYPE_EXPLICIT);
+    void LoadAllInstalledLayers(ConfiguratorMode configurator_mode);
+    void LoadLayersFromPath(const Path& layers_path, LayerType type, ConfiguratorMode configurator_mode);
+    LayerLoadStatus LoadLayer(const Path& layer_path, LayerType type, ConfiguratorMode configurator_mode);
 
     bool AreLayersEnabled(const LayersPathInfo& path_info) const;
     void AppendPath(const LayersPathInfo& path_info);

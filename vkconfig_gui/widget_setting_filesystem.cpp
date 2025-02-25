@@ -23,7 +23,6 @@
 #include "widget_setting.h"
 
 #include "../vkconfig_core/path.h"
-#include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/configurator.h"
 
 #include <QFileDialog>

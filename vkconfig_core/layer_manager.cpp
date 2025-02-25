@@ -175,7 +175,7 @@ static LayersPathInfo *FindPathInfo(std::array<std::vector<LayersPathInfo>, LAYE
 
 LayerManager::LayerManager() { this->InitSystemPaths(); }
 
-bool LayerManager::Load(const QJsonObject &json_root_object) {
+bool LayerManager::Load(const QJsonObject &json_root_object, ConfiguratorMode configurator_mode) {
     // LAYERS_PATHS_GUI
     if (json_root_object.value("layers") != QJsonValue::Undefined) {
         const QJsonObject &json_layers_object = json_root_object.value("layers").toObject();
@@ -213,7 +213,7 @@ bool LayerManager::Load(const QJsonObject &json_root_object) {
         }
     }
 
-    this->LoadAllInstalledLayers();
+    this->LoadAllInstalledLayers(configurator_mode);
 
     return true;
 }
@@ -462,7 +462,7 @@ Layer *LayerManager::FindFromManifest(const Path &manifest_path, bool find_disab
 }
 
 // Find all installed layers on the system.
-void LayerManager::LoadAllInstalledLayers() {
+void LayerManager::LoadAllInstalledLayers(ConfiguratorMode configurator_mode) {
     this->available_layers.clear();
 
     for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
@@ -470,21 +470,21 @@ void LayerManager::LoadAllInstalledLayers() {
 
         const std::vector<LayersPathInfo> &paths_group = this->paths[group_index];
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
-            this->LoadLayersFromPath(paths_group[i].path, paths_group[i].type);
+            this->LoadLayersFromPath(paths_group[i].path, paths_group[i].type, configurator_mode);
             this->UpdatePathEnabled(paths_group[i], layers_path);
         }
     }
 }
 
-void LayerManager::LoadLayersFromPath(const Path &layers_path, LayerType type) {
+void LayerManager::LoadLayersFromPath(const Path &layers_path, LayerType type, ConfiguratorMode configurator_mode) {
     const std::vector<Path> &layers_paths = CollectFilePaths(layers_path);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        this->LoadLayer(layers_paths[i], type);
+        this->LoadLayer(layers_paths[i], type, configurator_mode);
     }
 }
 
-LayerLoadStatus LayerManager::LoadLayer(const Path &layer_path, LayerType type) {
+LayerLoadStatus LayerManager::LoadLayer(const Path &layer_path, LayerType type, ConfiguratorMode configurator_mode) {
     const std::string &last_modified = layer_path.LastModified();
 
     Layer *already_loaded_layer = this->FindFromManifest(layer_path, true);
@@ -498,7 +498,8 @@ LayerLoadStatus LayerManager::LoadLayer(const Path &layer_path, LayerType type) 
         }
 
         // Modified to reload
-        LayerLoadStatus status = already_loaded_layer->Load(layer_path, type, this->validate_manifests, this->layers_validated);
+        LayerLoadStatus status =
+            already_loaded_layer->Load(layer_path, type, this->validate_manifests, this->layers_validated, configurator_mode);
         if (status == LAYER_LOAD_ADDED) {
             it->second = already_loaded_layer->validated_last_modified;
             return LAYER_LOAD_RELOADED;
@@ -507,7 +508,7 @@ LayerLoadStatus LayerManager::LoadLayer(const Path &layer_path, LayerType type) 
         }
     } else {
         Layer layer;
-        LayerLoadStatus status = layer.Load(layer_path, type, this->validate_manifests, this->layers_validated);
+        LayerLoadStatus status = layer.Load(layer_path, type, this->validate_manifests, this->layers_validated, configurator_mode);
         if (status == LAYER_LOAD_ADDED) {
             this->available_layers.push_back(layer);
             this->layers_validated.insert(std::make_pair(layer.manifest_path, layer.validated_last_modified));

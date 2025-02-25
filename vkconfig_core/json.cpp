@@ -19,7 +19,6 @@
  */
 
 #include "json.h"
-#include "alert.h"
 
 #include <QJsonArray>
 #include <QFile>

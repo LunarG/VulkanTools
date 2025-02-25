@@ -27,6 +27,7 @@
 #include "path.h"
 #include "type_layer_type.h"
 #include "type_layer_control.h"
+#include "type_configurator_mode.h"
 
 #include <QObject>
 #include <QJsonDocument>
@@ -106,7 +107,7 @@ class Layer {
     std::vector<LayerPreset> presets;
 
     LayerLoadStatus Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
-                         const std::map<Path, std::string>& layers_validated);
+                         const std::map<Path, std::string>& layers_validated, ConfiguratorMode configurator_mode);
 
    private:
     Layer& operator=(const Layer&) = delete;

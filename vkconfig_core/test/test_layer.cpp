@@ -60,7 +60,8 @@ TEST(test_layer, collect_settings) {
 
 TEST(test_layer, load_header_overridden) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_00.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_00.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -83,7 +84,8 @@ TEST(test_layer, load_header_overridden) {
 
 TEST(test_layer, load_header_default) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_01.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_01.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -101,7 +103,8 @@ TEST(test_layer, load_header_default) {
 
 TEST(test_layer, load_header_override) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_02.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_02.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -113,7 +116,8 @@ TEST(test_layer, load_header_override) {
 
 TEST(test_layer, load_setting_interit) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_03.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_03.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -135,7 +139,8 @@ TEST(test_layer, load_setting_interit) {
 
 TEST(test_layer, load_preset_interit) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -152,7 +157,8 @@ TEST(test_layer, load_preset_interit) {
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[1].platform_flags);
     EXPECT_EQ(STATUS_ALPHA, layer.presets[1].status);
 
-    const LayerLoadStatus reloaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus reloaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(reloaded, LAYER_LOAD_ADDED);
     EXPECT_EQ(1, layer.settings.size());
     EXPECT_EQ(2, layer.presets.size());
@@ -160,7 +166,8 @@ TEST(test_layer, load_preset_interit) {
 
 TEST(test_layer, load_setting_children_interit) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_05.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_05.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -183,7 +190,8 @@ TEST(test_layer, load_setting_children_interit) {
 
 TEST(test_layer, load_setting_enum_interit) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_06.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_06.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -225,7 +233,8 @@ TEST(test_layer, load_setting_enum_interit) {
 
 TEST(test_layer, load_setting_missing) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_IMPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_IMPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -237,14 +246,16 @@ TEST(test_layer, load_setting_missing) {
     LayerControl layer_controlA = layer.GetActualControl();
     EXPECT_EQ(layer_controlA, LAYER_CONTROL_ON);
 
-    const LayerLoadStatus reloaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_IMPLICIT, false, Dummy());
+    const LayerLoadStatus reloaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_IMPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(1, layer.settings.size());
     EXPECT_EQ(1, layer.presets.size());
 }
 
 TEST(test_layer, load_env_variable) {
     Layer layer;
-    const LayerLoadStatus load_loaded = layer.Load(":/layers/VK_LAYER_LUNARG_test_08.json", LAYER_TYPE_IMPLICIT, false, Dummy());
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_08.json", LAYER_TYPE_IMPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
@@ -293,7 +304,7 @@ TEST(test_layer, load_env_variable) {
 TEST(test_layer, load_1_1_0_header) {
     Layer layer;
     const LayerLoadStatus load_loaded =
-        layer.Load(":/layers/VK_LAYER_LUNARG_reference_1_1_0.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+        layer.Load(":/layers/VK_LAYER_LUNARG_reference_1_1_0.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 1, 0), layer.file_format_version);
@@ -312,7 +323,7 @@ TEST(test_layer, load_1_1_0_header) {
 TEST(test_layer, load_1_2_0_preset_and_setting_type) {
     Layer layer;
     const LayerLoadStatus load_loaded =
-        layer.Load(":/layers/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT, false, Dummy());
+        layer.Load(":/layers/VK_LAYER_LUNARG_reference_1_2_0.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     // Preset Enum

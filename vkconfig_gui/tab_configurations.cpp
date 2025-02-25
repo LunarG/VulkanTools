@@ -24,7 +24,6 @@
 #include "widget_resize_button.h"
 #include "style.h"
 
-#include "../vkconfig_core/alert.h"
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/doc.h"
 #include "../vkconfig_core/type_hide_message.h"
@@ -33,6 +32,38 @@
 #include <QMenu>
 #include <QFileDialog>
 #include <QDesktopServices>
+#include <QMessageBox>
+
+static std::string BuildPropertiesLog(const Layer &layer) {
+    std::string description;
+    if (!layer.description.empty()) {
+        description += layer.description + "\n";
+    }
+    description += "API Version: " + layer.api_version.str() + " - Implementation Version: " + layer.implementation_version + "\n";
+    if (layer.platforms != 0) {
+        description += "Supported Platforms: ";
+
+        const std::vector<std::string> &platforms = GetPlatformTokens(layer.platforms);
+        for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
+            description += platforms[i];
+            if (i < n - 1) {
+                description += ", ";
+            }
+        }
+
+        description += "\n";
+    }
+
+    description += "\n";
+    description += layer.manifest_path.AbsolutePath() + "\n";
+    description += format("- %s Layers Path \n", GetToken(layer.type));
+    description += "- File Format: " + layer.file_format_version.str() + "\n";
+    description += "- Layer Binary Path:\n    " + layer.binary_path.AbsolutePath() + "\n";
+    description += "\n";
+    description +=
+        format("Total Settings Count: %d - Total Presets Count: %d", CountSettings(layer.settings), layer.presets.size());
+    return description;
+}
 
 TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
     : Tab(TAB_CONFIGURATIONS, window, ui), _settings_tree_manager(ui) {
@@ -541,7 +572,26 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 QAction *action = menu.exec(point);
 
                 if (action == action_description) {
-                    Alert::LayerProperties(layer);
+                    assert(layer != nullptr);
+
+                    std::string title = layer->key;
+                    if (layer->status != STATUS_STABLE) {
+                        title += format(" (%s)", GetToken(layer->status));
+                    }
+
+                    std::string text;
+                    if (!layer->introduction.empty()) {
+                        text += layer->introduction + "\n\n";
+                    }
+                    text += BuildPropertiesLog(*layer);
+
+                    QMessageBox alert;
+                    alert.setWindowTitle(title.c_str());
+                    alert.setText(text.c_str());
+                    alert.setStandardButtons(QMessageBox::Ok);
+                    alert.setDefaultButton(QMessageBox::Ok);
+                    alert.setIcon(QMessageBox::Information);
+                    alert.exec();
                 } else if (action == visit_layer_website_action) {
                     QDesktopServices::openUrl(QUrl(layer->url.c_str()));
                 } else if (action == export_html_action) {
@@ -573,20 +623,49 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *list_item) {
 
     if (new_name.empty()) {
         valid_new_name = false;
-        Alert::ConfigurationNameEmpty();
+        QMessageBox alert;
+        alert.setWindowTitle("Renaming of the layers configuration failed...");
+        alert.setText("The configuration name is empty.");
+        alert.setInformativeText("The configuration name is required.");
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setDefaultButton(QMessageBox::Ok);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
     } else if (!IsPortableFilename(new_name)) {
         valid_new_name = false;
-        Alert::ConfigurationNameInvalid();
+        QMessageBox alert;
+        alert.setWindowTitle("Invalid name for a configuration...");
+        alert.setText("The configuration name is used to build a filename.");
+        alert.setInformativeText("The name can't contain any of the following characters: \\ / : * \" < > |.");
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setDefaultButton(QMessageBox::Ok);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
     } else if (new_name.size() > 255) {
         valid_new_name = false;
-        Alert::ConfigurationNameTooLong();
+        QMessageBox alert;
+        alert.setWindowTitle("Configuration name is too long...");
+        alert.setText("The configuration name is used to build a filename.");
+        alert.setInformativeText("The name must be a maximum of 255 characters.");
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setDefaultButton(QMessageBox::Ok);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
     }
 
     Configurator &configurator = Configurator::Get();
 
     if (configurator.configurations.FindConfiguration(new_name) != nullptr) {
         valid_new_name = false;
-        Alert::ConfigurationRenamingFailed();
+
+        QMessageBox alert;
+        alert.setWindowTitle("Renaming of the layers configuration failed...");
+        alert.setText("There is already a configuration with the same name.");
+        alert.setInformativeText("Use a different name for the configuration.");
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setDefaultButton(QMessageBox::Ok);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
     }
 
     if (valid_new_name) {
