@@ -21,13 +21,14 @@
 #include "util.h"
 #include "configuration_manager.h"
 #include "configurator.h"
-#include "alert.h"
 
 ConfigurationManager::ConfigurationManager() {}
 
 ConfigurationManager::~ConfigurationManager() {}
 
-bool ConfigurationManager::Load(const QJsonObject &json_root_object) {
+bool ConfigurationManager::Load(const QJsonObject &json_root_object, ConfiguratorMode configurator_mode) {
+    (void)configurator_mode;
+
     // configurations json object
     if (json_root_object.value("configurations") != QJsonValue::Undefined) {
         const QJsonObject &json_configurations_object = json_root_object.value("configurations").toObject();

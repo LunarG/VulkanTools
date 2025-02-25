@@ -82,7 +82,7 @@ int run_doc(const CommandLine& command_line) {
     assert(command_line.error == ERROR_NONE);
 
     Configurator& configurator = Configurator::Get();
-    configurator.Init();
+    configurator.Init(CONFIGURATOR_MODE_CMD);
 
     switch (command_line.command_doc_arg) {
         case COMMAND_DOC_HTML: {

@@ -34,7 +34,6 @@
 #include "path.h"
 #include "json.h"
 #include "json_validator.h"
-#include "alert.h"
 #include "is_dll_32.h"
 #include "configurator.h"
 
@@ -44,6 +43,8 @@
 #include <QJsonArray>
 #include <QDateTime>
 #include <QCheckBox>
+#include <QDesktopServices>
+#include <QFileDialog>
 
 #include <cassert>
 #include <string>
@@ -194,7 +195,7 @@ SettingMeta* Layer::Instantiate(SettingMetaSet& meta_set, const std::string& key
 }
 
 LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
-                            const std::map<Path, std::string>& layers_validated) {
+                            const std::map<Path, std::string>& layers_validated, ConfiguratorMode configurator_mode) {
     this->type = type;  // Set layer type, no way to know this from the json file
 
     if (full_path_to_file.Empty()) {
@@ -235,8 +236,23 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
 
     this->file_format_version = ReadVersionValue(json_root_object, "file_format_version");
     if (this->file_format_version.GetMajor() > 1) {
-        const std::string message = format("Unsupported layer file format: %s", this->file_format_version.str().c_str());
-        Alert::LayerInvalid(full_path_to_file, message.c_str());
+        switch (configurator_mode) {
+            default: {
+            } break;
+            case CONFIGURATOR_MODE_GUI: {
+                QMessageBox alert;
+                alert.setWindowTitle("Failed to load a layer manifest...");
+                alert.setText(format("Unsupported layer file format: %s.", this->file_format_version.str().c_str()).c_str());
+                alert.setInformativeText(
+                    format("The %s layer is being ignored.", full_path_to_file.AbsolutePath().c_str()).c_str());
+                alert.setIcon(QMessageBox::Critical);
+                alert.exec();
+            } break;
+            case CONFIGURATOR_MODE_CMD: {
+                fprintf(stderr, "vkconfig: [ERROR] Unsupported layer file format: %s\n", this->file_format_version.str().c_str());
+                fprintf(stderr, "\n  (%s layer is ignored\n)", full_path_to_file.AbsolutePath().c_str());
+            } break;
+        }
         return LAYER_LOAD_INVALID;
     }
 
@@ -265,7 +281,32 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
 
     if (!is_valid) {
         this->validated_last_modified.clear();
-        Alert::LayerInvalid(full_path_to_file, validator.message.toStdString().c_str());
+        switch (configurator_mode) {
+            default: {
+            } break;
+            case CONFIGURATOR_MODE_GUI: {
+                QMessageBox alert;
+                alert.setWindowTitle("Failed to load a layer manifest...");
+                alert.setText(format("%s is not a valid layer file", full_path_to_file.AbsolutePath().c_str()).c_str());
+                alert.setInformativeText("Do you want to save the validation log?");
+                alert.setIcon(QMessageBox::Critical);
+                alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                alert.setDefaultButton(QMessageBox::Yes);
+                int result = alert.exec();
+                if (result == QMessageBox::Yes) {
+                    const std::string& selected_path =
+                        QFileDialog::getSaveFileName(
+                            nullptr, format("Export %s validation log", full_path_to_file.AbsolutePath().c_str()).c_str(),
+                            AbsolutePath(Path::HOME).c_str(), "Log(*.txt)")
+                            .toStdString();
+                    QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path.c_str()));
+                }
+            } break;
+            case CONFIGURATOR_MODE_CMD: {
+                fprintf(stderr, "vkconfig: [ERROR] Couldn't validate layer file: %s\n", full_path_to_file.AbsolutePath().c_str());
+                fprintf(stderr, "\n%s\n)", validator.message.toStdString().c_str());
+            } break;
+        }
         return LAYER_LOAD_INVALID;
     } else if (request_validate_manifest) {
         this->validated_last_modified = last_modified;
@@ -281,27 +322,6 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
         this->is_32bits = true;
         return LAYER_LOAD_INVALID;
     }
-
-    /*
-        const Path& binary = this->manifest_path.AbsoluteDir() + "/" + this->binary_path.AbsolutePath();
-        if (::IsDLL32Bit(binary.AbsolutePath())) {
-            Configurator& configurator = Configurator::Get();
-            if (!configurator.Get(HIDE_MESSAGE_ERROR_32BIT)) {
-                QMessageBox message;
-                message.setIcon(QMessageBox::Information);
-                message.setWindowTitle("Trying to load a 32 bit layer...");
-                message.setText(format("'%s' refers to a 32 bit layer which is not supported. This layer will be ignored.",
-                                       this->manifest_path.AbsolutePath().c_str())
-                                    .c_str());
-                message.setCheckBox(new QCheckBox("Do not show again."));
-                message.exec();
-                if (message.checkBox()->isChecked()) {
-                    configurator.Set(HIDE_MESSAGE_ERROR_32BIT);
-                }
-            }
-            return false;
-        }
-    */
 
     this->implementation_version = ReadStringValue(json_layer_object, "implementation_version");
     if (json_layer_object.value("status") != QJsonValue::Undefined) {

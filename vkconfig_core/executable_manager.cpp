@@ -105,7 +105,9 @@ bool ExecutableManager::Empty() const { return this->data.empty(); }
 
 std::size_t ExecutableManager::Size() const { return this->data.size(); }
 
-bool ExecutableManager::Load(const QJsonObject& json_root_object) {
+bool ExecutableManager::Load(const QJsonObject& json_root_object, ConfiguratorMode configurator_mode) {
+    (void)configurator_mode;
+
     // applications json object
     const QJsonObject& json_executables_object = json_root_object.value("executables").toObject();
 

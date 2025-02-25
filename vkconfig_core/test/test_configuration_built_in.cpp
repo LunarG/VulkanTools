@@ -59,7 +59,7 @@ std::map<std::string, std::string> Dummy() { return std::map<std::string, std::s
 
 struct TestBuilin {
     TestBuilin() : layer_manager() {
-        this->layer_manager.LoadLayersFromPath(":/sdk");
+        this->layer_manager.LoadLayersFromPath(":/sdk", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
         EXPECT_TRUE(!this->layer_manager.available_layers.empty());
     }
 

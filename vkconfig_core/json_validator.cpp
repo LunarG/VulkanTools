@@ -78,13 +78,13 @@ bool JsonValidator::Check(const QString &json_data) {
                 context += *itr;
             }
 
-            if (error_num <= 3) {
-                std::string log = format("Error #%d\n", error_num);
-                log += "\t context: " + context + "\n";
-                log += "\t desc:    " + error.description + "\n\n";
+            // if (error_num <= 3) {
+            std::string log = format("Error #%d\n", error_num);
+            log += "\t context: " + context + "\n";
+            log += "\t desc:    " + error.description + "\n\n";
 
-                message += log.c_str();
-            }
+            message += log.c_str();
+            //}
 
             ++error_num;
         }
