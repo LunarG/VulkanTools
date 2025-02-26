@@ -226,6 +226,8 @@ void TabApplications::on_launch_executable_list_textEdited(const QString &text) 
         executable->path = text.toStdString();
     }
 
+    this->ui->launch_executable_list->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
+
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 

@@ -47,12 +47,12 @@ const char* GetExecutable(ExecutableId id) {
         }
         case EXECUTABLE_VKCUBE: {
             static const char* TABLE[] = {
-                "/vkcube.exe",  // PLATFORM_WINDOWS_X86
-                "/vkcube.exe",  // PLATFORM_WINDOWS_ARM
-                "/vkcube",      // PLATFORM_LINUX
-                "/vkcube.app",  // PLATFORM_MACOS
-                "N/A",          // PLATFORM_ANDROID
-                "N/A"           // PLATFORM_IOS
+                "vkcube.exe",  // PLATFORM_WINDOWS_X86
+                "vkcube.exe",  // PLATFORM_WINDOWS_ARM
+                "vkcube",      // PLATFORM_LINUX
+                "vkcube.app",  // PLATFORM_MACOS
+                "N/A",         // PLATFORM_ANDROID
+                "N/A"          // PLATFORM_IOS
             };
             static_assert(std::size(TABLE) == PLATFORM_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");
@@ -61,12 +61,12 @@ const char* GetExecutable(ExecutableId id) {
         }
         case EXECUTABLE_VKCUBEPP: {
             static const char* TABLE[] = {
-                "/vkcubepp.exe",  // PLATFORM_WINDOWS_X86
-                "/vkcubepp.exe",  // PLATFORM_WINDOWS_ARM
-                "/vkcubepp",      // PLATFORM_LINUX
-                "/vkcubepp.app",  // PLATFORM_MACOS
-                "N/A",            // PLATFORM_ANDROID
-                "N/A"             // PLATFORM_IOS
+                "vkcubepp.exe",  // PLATFORM_WINDOWS_X86
+                "vkcubepp.exe",  // PLATFORM_WINDOWS_ARM
+                "vkcubepp",      // PLATFORM_LINUX
+                "vkcubepp.app",  // PLATFORM_MACOS
+                "N/A",           // PLATFORM_ANDROID
+                "N/A"            // PLATFORM_IOS
             };
             static_assert(std::size(TABLE) == PLATFORM_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");
@@ -75,12 +75,12 @@ const char* GetExecutable(ExecutableId id) {
         }
         case EXECUTABLE_VKINFO: {
             static const char* TABLE[] = {
-                "/vulkaninfoSDK.exe",  // PLATFORM_WINDOWS_X86
-                "/vulkaninfoSDK.exe",  // PLATFORM_WINDOWS_ARM
-                "/vulkaninfo",         // PLATFORM_LINUX
-                "/vulkaninfo",         // PLATFORM_MACOS
-                "N/A",                 // PLATFORM_ANDROID
-                "N/A"                  // PLATFORM_IOS
+                "vulkaninfoSDK.exe",  // PLATFORM_WINDOWS_X86
+                "vulkaninfoSDK.exe",  // PLATFORM_WINDOWS_ARM
+                "vulkaninfo",         // PLATFORM_LINUX
+                "vulkaninfo",         // PLATFORM_MACOS
+                "N/A",                // PLATFORM_ANDROID
+                "N/A"                 // PLATFORM_IOS
             };
             static_assert(std::size(TABLE) == PLATFORM_COUNT,
                           "The tranlation table size doesn't match the enum number of elements");

@@ -12,6 +12,7 @@
 - Open created files on export
 - Add button to open launcher log file
 - Add `vulkaninfo` as default application on macOS
+- Enable text editing the executable path
 
 ### Fixes:
 - Fix application arguments and environment variables splitting
