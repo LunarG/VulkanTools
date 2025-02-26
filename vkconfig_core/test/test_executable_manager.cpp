@@ -65,17 +65,17 @@ TEST(test_executable_manager, reset_default_applications_no_sdk) {
 
     EXPECT_TRUE(executables[0].path.RelativePath().find("vkcube") != std::string::npos);
     const std::vector<ExecutableOptions>& options0 = executables[0].GetOptions();
-    EXPECT_TRUE(options0[0].working_folder.RelativePath().find(".") != std::string::npos);
+    EXPECT_TRUE(options0[0].working_folder.Empty());
     EXPECT_TRUE(options0[0].log_file.RelativePath().find("${VK_HOME}") != std::string::npos);
 
     EXPECT_TRUE(executables[1].path.RelativePath().find("vkcubepp") != std::string::npos);
     const std::vector<ExecutableOptions>& options1 = executables[1].GetOptions();
-    EXPECT_TRUE(options1[0].working_folder.RelativePath().find(".") != std::string::npos);
+    EXPECT_TRUE(options1[0].working_folder.Empty());
     EXPECT_TRUE(options1[0].log_file.RelativePath().find("${VK_HOME}") != std::string::npos);
 
     EXPECT_TRUE(executables[2].path.RelativePath().find("vulkaninfo") != std::string::npos);
     const std::vector<ExecutableOptions>& options2 = executables[2].GetOptions();
-    EXPECT_TRUE(options2[0].working_folder.RelativePath().find(".") != std::string::npos);
+    EXPECT_TRUE(options2[0].working_folder.Empty());
     EXPECT_TRUE(options2[0].log_file.RelativePath().find("${VK_HOME}") != std::string::npos);
 }
 
