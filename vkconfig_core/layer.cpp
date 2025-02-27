@@ -275,8 +275,7 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
     if (it != layers_validated.end()) {
         cached_last_modified = it->second;
     }
-    const bool should_validate =
-        request_validate_manifest && last_modified != cached_last_modified && !this->manifest_path.IsBuiltIn();
+    const bool should_validate = request_validate_manifest && last_modified != cached_last_modified;
     const bool is_valid = should_validate ? validator.Check(json_text) : true;
 
     if (!is_valid) {
@@ -294,12 +293,22 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
                 alert.setDefaultButton(QMessageBox::Yes);
                 int result = alert.exec();
                 if (result == QMessageBox::Yes) {
-                    const std::string& selected_path =
-                        QFileDialog::getSaveFileName(
-                            nullptr, format("Export %s validation log", full_path_to_file.AbsolutePath().c_str()).c_str(),
-                            AbsolutePath(Path::HOME).c_str(), "Log(*.txt)")
-                            .toStdString();
-                    QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path.c_str()));
+                    const QString& selected_path = QFileDialog::getSaveFileName(
+                        nullptr, format("Export %s validation log", full_path_to_file.AbsolutePath().c_str()).c_str(),
+                        (AbsolutePath(Path::HOME) + "/" + full_path_to_file.Basename() + "_log.txt").c_str(), "Log(*.txt)");
+                    QFile log_file(selected_path);
+                    const bool result = log_file.open(QIODevice::WriteOnly | QIODevice::Text);
+                    if (result) {
+                        QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path));
+                        log_file.write(validator.message.toStdString().c_str());
+                        log_file.close();
+                    } else {
+                        QMessageBox alert;
+                        alert.setWindowTitle("Failed to save layer manifest log...");
+                        alert.setText(format("Couldn't not open %s file...", selected_path.toStdString().c_str()).c_str());
+                        alert.setIcon(QMessageBox::Critical);
+                        alert.exec();
+                    }
                 }
             } break;
             case CONFIGURATOR_MODE_CMD: {
