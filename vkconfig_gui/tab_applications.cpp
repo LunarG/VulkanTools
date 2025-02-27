@@ -221,11 +221,14 @@ void TabApplications::on_launch_executable_list_activated(int index) {
 void TabApplications::on_launch_executable_list_textEdited(const QString &text) {
     Configurator &configurator = Configurator::Get();
 
+    int index = configurator.executables.GetActiveExecutableIndex();
+
     Executable *executable = configurator.executables.GetActiveExecutable();
     if (executable != nullptr) {
         executable->path = text.toStdString();
     }
 
+    configurator.executables.SetActiveExecutable(index);
     this->ui->launch_executable_list->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
 
     this->UpdateUI(UPDATE_REBUILD_UI);
@@ -415,7 +418,7 @@ void TabApplications::on_launch_button_pressed() {
 
     assert(!active_executable->path.Empty());
     launch_log += format("- Executable: %s\n", active_executable->path.AbsolutePath().c_str());
-    if (!active_executable->path.Exists()) {
+    if (false && !active_executable->path.Exists()) {
         ::PathInvalid(active_executable->path,
                       format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
     }
@@ -423,7 +426,7 @@ void TabApplications::on_launch_button_pressed() {
     const ExecutableOptions *options = active_executable->GetActiveOptions();
 
     launch_log += format("- Working Directory: %s\n", options->working_folder.AbsolutePath().c_str());
-    if (!options->working_folder.Exists()) {
+    if (!options->working_folder.Empty() && !options->working_folder.Exists()) {
         ::PathInvalid(options->working_folder,
                       format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
     }
