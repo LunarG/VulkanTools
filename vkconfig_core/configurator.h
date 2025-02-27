@@ -113,6 +113,8 @@ class Configurator {
     bool GetUseNotifyReleases() const;
     void SetUseNotifyReleases(bool enabled);
 
+    bool ShouldNotify() const;
+
     bool HasActiveSettings() const;
     bool HasEnabledUI(EnabledUI enabled_ui) const;
 
@@ -144,8 +146,9 @@ class Configurator {
     TabType active_tab = TAB_CONFIGURATIONS;
     bool advanced = true;
     Path last_path_status = Path(Path::HOME).RelativePath() + "/vkconfig.txt";
-    Version latest_sdk_version = Version::VKHEADER;
+    Version latest_sdk_version = Version::NONE;
     Version online_sdk_version = Version::NONE;
+    Version last_vkconfig_version = Version::NONE;
 
    private:
     int hide_message_boxes_flags = 0;

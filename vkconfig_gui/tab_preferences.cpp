@@ -203,7 +203,7 @@ void TabPreferences::on_release_downloaded(QNetworkReply *pReply) {
 
     pReply->deleteLater();
 
-    if (configurator.latest_sdk_version < configurator.online_sdk_version && configurator.online_sdk_version != Version::NONE) {
+    if (configurator.ShouldNotify()) {
         this->ui->preferences_download->setText(
             format("Download Latest Vulkan SDK %s", configurator.online_sdk_version.str().c_str()).c_str());
 
@@ -228,6 +228,11 @@ void TabPreferences::on_release_downloaded(QNetworkReply *pReply) {
         }
     } else {
         this->ui->preferences_download->setText("Open Vulkan SDK download directory...");
+    }
+
+    // Vulkan Configurator just got updated, the latest online sdk version is considered updated
+    if (configurator.last_vkconfig_version < Version::VKCONFIG) {
+        configurator.latest_sdk_version = configurator.online_sdk_version;
     }
 }
 

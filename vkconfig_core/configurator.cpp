@@ -868,10 +868,15 @@ bool Configurator::Load() {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_PREFERENCES)).toObject();
 
             this->use_layer_dev_mode = json_object.value("use_layer_dev_mode").toBool();
-            this->latest_sdk_version = Version(json_object.value("latest_sdk_version").toString().toStdString().c_str());
 
             if (json_object.value("use_notify_releases") != QJsonValue::Undefined) {
                 this->use_notify_releases = json_object.value("use_notify_releases").toBool();
+            }
+
+            this->latest_sdk_version = Version(json_object.value("latest_sdk_version").toString().toStdString().c_str());
+
+            if (json_object.value("last_vkconfig_version") != QJsonValue::Undefined) {
+                this->last_vkconfig_version = Version(json_object.value("last_vkconfig_version").toString().toStdString().c_str());
             }
 
             this->use_system_tray = json_object.value("use_system_tray").toBool();
@@ -928,6 +933,7 @@ bool Configurator::Save() const {
         json_object.insert("use_layer_dev_mode", this->use_layer_dev_mode);
         json_object.insert("use_notify_releases", this->use_notify_releases);
         json_object.insert("latest_sdk_version", this->latest_sdk_version.str().c_str());
+        json_object.insert("last_vkconfig_version", Version::VKCONFIG.str().c_str());
         json_object.insert("VK_HOME", ::Path(Path::HOME).RelativePath().c_str());
         json_object.insert("VK_DOWNLOAD", ::Path(Path::DOWNLOAD).RelativePath().c_str());
         json_interface_object.insert(GetToken(TAB_PREFERENCES), json_object);
@@ -992,6 +998,11 @@ void Configurator::SetUseLayerDevMode(bool enabled) { this->use_layer_dev_mode =
 bool Configurator::GetUseNotifyReleases() const { return this->use_notify_releases; }
 
 void Configurator::SetUseNotifyReleases(bool enabled) { this->use_notify_releases = enabled; }
+
+bool Configurator::ShouldNotify() const {
+    return this->latest_sdk_version < this->online_sdk_version && this->online_sdk_version != Version::NONE &&
+           !(Version::VKCONFIG > this->last_vkconfig_version);
+}
 
 bool Configurator::HasActiveSettings() const {
     switch (this->executable_scope) {
