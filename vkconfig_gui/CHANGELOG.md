@@ -13,6 +13,7 @@
 - Add button to open launcher log file
 - Add `vulkaninfo` as default application on macOS
 - Enable text editing the executable path
+- Add layer manifest validation log saving option
 
 ### Fixes:
 - Fix application arguments and environment variables splitting

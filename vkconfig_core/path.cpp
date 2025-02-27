@@ -212,7 +212,7 @@ std::string Path::RelativePath() const {
 }
 
 std::string Path::LastModified() const {
-    QFileInfo file_info(this->data.c_str());
+    QFileInfo file_info(this->AbsolutePath().c_str());
 
     return file_info.lastModified().toString(Qt::ISODate).toStdString();
 }
