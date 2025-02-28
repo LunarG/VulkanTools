@@ -4,10 +4,12 @@ if (NOT DEFINED CMAKE_INSTALL_BINDIR)
     include(GNUInstallDirs)
 endif()
 
-# Use the static runtime library?
-if(USE_STATIC_CRT_VKFG)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    message(STATUS "vkconfig tests will link against static runtime")
+if(WIN32)
+    # Use the static runtime library? This is for special builds of Vulkan Configurator only
+    if(USE_STATIC_RT_VKCONFIG)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        message(STATUS "vkconfig-core will link against static runtime")
+    endif()    
 endif()
 
 function(vkConfigTest NAME)
