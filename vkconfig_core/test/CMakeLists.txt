@@ -4,8 +4,14 @@ if (NOT DEFINED CMAKE_INSTALL_BINDIR)
     include(GNUInstallDirs)
 endif()
 
+# Use the static runtime library?
+if(USE_STATIC_CRT_VKFG)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    message(STATUS "vkconfig tests will link against static runtime")
+endif()
+
 function(vkConfigTest NAME)
-	set(TEST_FILE ./${NAME}.cpp)
+    set(TEST_FILE ./${NAME}.cpp)
     set(TEST_NAME vkconfig_${NAME})
 
     file(GLOB FILES_LAYER_JSON ./layers/*.json)
@@ -25,6 +31,12 @@ function(vkConfigTest NAME)
         Qt6::Network
     )
     if(WIN32)
+	# Use the static runtime library?
+	if(USE_STATIC_CRT_VKFG)
+ 	    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	    message(STATUS "vkconfig tests will link against static runtime")
+	endif()
+
         target_link_libraries(${TEST_NAME} Cfgmgr32)
     endif()
     if (RUN_ON_GITHUB)
