@@ -12,6 +12,12 @@ source_group("Docs Files" FILES ${FILES_DOCS})
 
 set(FILES_ALL ${FILES_UI} ${FILES_SOURCE} ${FILES_HEADER} ${FILES_DOCS})
 
+# Use the static runtime library?
+if(USE_STATIC_CRT_VKFG)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    message(STATUS "vkconfig-core will link against static runtime")
+endif()    
+
 if(NOT APPLE)
     if (NOT DEFINED CMAKE_INSTALL_BINDIR)
         include(GNUInstallDirs)
