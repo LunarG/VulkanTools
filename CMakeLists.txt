@@ -28,6 +28,7 @@ find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
 
 option(BUILD_TESTS "Build tests")
 option(RUN_ON_GITHUB "Build only tests that can run on Github" OFF)
+option(USE_STATIC_RT_VKCONFIG "Use static C runtime for VkConfig when linking against static Qt libraires")
 
 if(BUILD_TESTS)
     enable_testing()
