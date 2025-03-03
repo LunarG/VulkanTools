@@ -39,6 +39,7 @@ enum SettingInputError {
 };
 
 enum SettingType {  // Enum value can't be changed
+    SETTING_INVALID = -1,
     SETTING_STRING = 0,
     SETTING_INT,
     SETTING_FLOAT,

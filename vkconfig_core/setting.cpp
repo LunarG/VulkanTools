@@ -44,7 +44,6 @@ SettingType GetSettingType(const char* token) {
         if (ToUpperCase(token) == GetToken(type)) return type;
     }
 
-    assert(0);  // Unknown token
     return static_cast<SettingType>(-1);
 }
 

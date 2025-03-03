@@ -170,7 +170,7 @@ Executable::Executable(const DefaultExecutable& default_executable) {
     // initially will be set to the users home folder across all OS's. This is highly visible
     // in the application launcher and should not present a usability issue. The developer can
     // easily change this later to anywhere they like.
-    options.log_file = std::string("${VK_HOME}/") + default_executable.name + ".txt";
+    options.log_file = std::string("${VULKAN_HOME}/") + default_executable.name + ".txt";
 
     this->path = default_paths.executable_path;
     this->options_list.push_back(options);
@@ -180,7 +180,7 @@ Executable::Executable(const DefaultExecutable& default_executable) {
 Executable::Executable(const Path& executable_path) {
     ExecutableOptions options;
     options.working_folder = executable_path.AbsoluteDir();
-    options.log_file = std::string("${VK_HOME}/") + executable_path.Basename() + ".txt";
+    options.log_file = std::string("${VULKAN_HOME}/") + executable_path.Basename() + ".txt";
 
     this->path = executable_path;
     this->options_list.push_back(options);

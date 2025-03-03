@@ -2148,7 +2148,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>${VK_HOME} is the default environment variable for Vulkan SDK tools outputs implementing it.</string>
+                <string>${VULKAN_HOME} is the default environment variable for Vulkan SDK tools outputs implementing it.</string>
                </property>
                <property name="text">
                 <string>${VULKAN_HOME}: </string>

@@ -56,7 +56,7 @@ TEST(test_executable, ctor_path) {
     EXPECT_TRUE(!options->working_folder.Empty());
     EXPECT_EQ(true, options->args.empty());
     EXPECT_EQ(true, options->envs.empty());
-    EXPECT_STREQ(Path("${VK_HOME}/vkcube.txt").RelativePath().c_str(), options->log_file.RelativePath().c_str());
+    EXPECT_STREQ(Path("${VULKAN_HOME}/vkcube.txt").RelativePath().c_str(), options->log_file.RelativePath().c_str());
 }
 
 TEST(test_executable, remove_last) {
@@ -187,7 +187,7 @@ TEST(test_executable, DefaultExecutable) {
 #endif
     EXPECT_STREQ(options->args[0].c_str(), "--suppress_popups");
     EXPECT_TRUE(options->envs.empty());
-    EXPECT_STREQ(options->log_file.RelativePath().c_str(), Path("${VK_HOME}/vkcube.txt").RelativePath().c_str());
+    EXPECT_STREQ(options->log_file.RelativePath().c_str(), Path("${VULKAN_HOME}/vkcube.txt").RelativePath().c_str());
 
     qputenv("VULKAN_SDK", saved.c_str());
 }
