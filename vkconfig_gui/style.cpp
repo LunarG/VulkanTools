@@ -23,14 +23,16 @@
 #include <QStyleHints>
 #include <QGuiApplication>
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-#error "Vulkan Configurator 3 requires Qt 6.5"
-#endif  // QT_VERSION
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
+#error "Vulkan Configurator 3 requires Qt 6.2"
+#elif QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
+bool isDarkMode() { return false; }
+#else
 bool isDarkMode() {
     const auto scheme = QGuiApplication::styleHints()->colorScheme();
     return scheme == Qt::ColorScheme::Dark;
 }
+#endif  // QT_VERSION
 
 QIcon Get(Icon icon) {
     static const char* ICONS[] = {

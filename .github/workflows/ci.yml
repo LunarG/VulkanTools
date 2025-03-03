@@ -57,7 +57,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.5.3'
+        version: '6.2.*'
     - name: Clone repository
       uses: actions/checkout@v4
     - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev

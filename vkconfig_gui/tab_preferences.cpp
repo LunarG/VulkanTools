@@ -49,7 +49,7 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
 
     QUrl url(GetLatestReleaseSDK(VKC_PLATFORM));
     QNetworkRequest request(url);
-    QNetworkReply *reply = this->network_manager.get(request);
+    this->network_manager.get(request);
     this->connect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_release_downloaded(QNetworkReply *)));
 
     this->ui->preferences_download->setText("Searching Latest Vulkan SDK...");
@@ -182,7 +182,6 @@ void TabPreferences::on_download_pressed() {
         QNetworkReply *reply = this->network_manager.get(request);
         this->connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(on_download_progress(qint64, qint64)));
 
-        Configurator &configurator = Configurator::Get();
         this->ui->preferences_progress->setFormat((std::string(GetLatestPackageSDK(VKC_PLATFORM)) + " - %p%").c_str());
     } else {
         const Path &path_latest = ::AbsolutePath(Path::DOWNLOAD) + Path::Separator() + GetInstallerFilename(VKC_PLATFORM);

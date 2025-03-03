@@ -1,3 +1,19 @@
+# ~~~
+# Copyright (c) 2020-2025 LunarG, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ~~~
+
 cmake_minimum_required(VERSION 3.22.1)
 
 project(VULKAN_TOOLS LANGUAGES CXX)
@@ -103,8 +119,8 @@ endif()
 if(BUILD_LAYERMGR)
     if(NOT Qt6_FOUND)
         message("WARNING: Vulkan Configurator will be excluded from the build because Qt6 was not found. Please add Qt6 into the PATH environment variable")
-    elseif(Qt6_VERSION VERSION_LESS 6.5)
-        message("WARNING: Vulkan Configurator will be excluded because the found Qt version is too old. Vulkan Configurator requires version 6.5 but found version " ${Qt6_VERSION})
+    elseif(Qt6_VERSION VERSION_LESS 6.2)
+        message("WARNING: Vulkan Configurator will be excluded because the found Qt version is too old. Vulkan Configurator requires version 6.2 and recommand version 6.5 but found version " ${Qt6_VERSION})
     else()
 
         message(STATUS "INFO: Building Vulkan Configurator")
