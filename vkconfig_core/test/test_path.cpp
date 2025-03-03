@@ -150,15 +150,15 @@ TEST(test_path, path_operations_invalid) {
 TEST(test_path, get_path) { EXPECT_STRNE(Path(Path::HOME).RelativePath().c_str(), ""); }
 
 TEST(test_path, replace_path_vk_home) {
-    const std::string replaced_path = Path("${VK_HOME}/test.txt").AbsolutePath();
+    const std::string replaced_path = Path("${VULKAN_HOME}/test.txt").AbsolutePath();
 
-    EXPECT_TRUE(replaced_path.find("${VK_HOME}") > replaced_path.size());
+    EXPECT_TRUE(replaced_path.find("${VULKAN_HOME}") > replaced_path.size());
 }
 
 TEST(test_path, replace_path_vk_appdata) {
-    const std::string replaced_path = Path("${VK_APPDATA}/test.txt").AbsolutePath();
+    const std::string replaced_path = Path("${VULKAN_APPDATA}/test.txt").AbsolutePath();
 
-    EXPECT_TRUE(replaced_path.find("${VK_APPDATA}") > replaced_path.size());
+    EXPECT_TRUE(replaced_path.find("${VULKAN_APPDATA}") > replaced_path.size());
 }
 
 TEST(test_path, replace_path_unknown) {
@@ -177,7 +177,7 @@ TEST(test_path, convert_to_variable) {
 }
 
 TEST(test_path, recover) {
-    Path reference = Path("${VK_HOME}/test.txt");
+    Path reference = Path("${VULKAN_HOME}/test.txt");
     Path absolute_path = reference.AbsolutePath();
     EXPECT_EQ(reference, absolute_path);
 
@@ -214,7 +214,7 @@ TEST(test_path, get_path_home) {
     EXPECT_TRUE(EndsWith(value_env, "MyVulkanSDKLocalDir"));
 
     Path convert(":/MyVulkanSDKLocalDir");
-    EXPECT_STREQ(convert.RelativePath().c_str(), "${VK_HOME}");
+    EXPECT_STREQ(convert.RelativePath().c_str(), "${VULKAN_HOME}");
 }
 
 TEST(test_path, get_path_appdata) {

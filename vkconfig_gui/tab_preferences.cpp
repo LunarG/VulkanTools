@@ -115,7 +115,7 @@ void TabPreferences::on_vk_home_text_pressed() {
 
 void TabPreferences::on_vk_home_browse_pressed() {
     const QString selected_path = QFileDialog::getExistingDirectory(
-        this->ui->preferences_vk_home_browse, "Select the Vulkan Home Default Working Folder (Set ${VK_HOME} value)...",
+        this->ui->preferences_vk_home_browse, "Select the Vulkan Home Default Working Folder (Set ${VULKAN_HOME} value)...",
         ::Path(Path::HOME).AbsolutePath().c_str());
 
     if (!selected_path.isEmpty()) {
@@ -126,10 +126,10 @@ void TabPreferences::on_vk_home_browse_pressed() {
 }
 
 void TabPreferences::on_vk_download_browse_pressed() {
-    const QString selected_path =
-        QFileDialog::getExistingDirectory(this->ui->preferences_vk_download_browse,
-                                          "Select the Vulkan Configurator Download Default Folder (Set ${VK_DOWNLOAD} value)...",
-                                          ::Path(Path::DOWNLOAD).AbsolutePath().c_str());
+    const QString selected_path = QFileDialog::getExistingDirectory(
+        this->ui->preferences_vk_download_browse,
+        "Select the Vulkan Configurator Download Default Folder (Set ${VULKAN_DOWNLOAD} value)...",
+        ::Path(Path::DOWNLOAD).AbsolutePath().c_str());
 
     if (!selected_path.isEmpty()) {
         this->ui->preferences_vk_download_text->setText(selected_path);

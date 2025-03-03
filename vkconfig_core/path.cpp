@@ -37,10 +37,10 @@ struct BuiltinDesc {
     const Path::Builtin path;
 };
 
-static const BuiltinDesc VARIABLES[] = {{"${VK_HOME}", Path::HOME},          {"${VK_DOWNLOAD}", Path::DOWNLOAD},
-                                        {"${VK_APPDATA}", Path::APPDATA},    {"${VULKAN_BIN}", Path::BIN},
-                                        {"${VULKAN_SDK}", Path::SDK},        {"${VULKAN_PROFILES}", Path::PROFILES},
-                                        {"${VULKAN_CONTENT}", Path::CONTENT}};
+static const BuiltinDesc VARIABLES[] = {{"${VULKAN_HOME}", Path::HOME},         {"${VK_HOME}", Path::HOME},
+                                        {"${VULKAN_DOWNLOAD}", Path::DOWNLOAD}, {"${VULKAN_APPDATA}", Path::APPDATA},
+                                        {"${VULKAN_BIN}", Path::BIN},           {"${VULKAN_SDK}", Path::SDK},
+                                        {"${VULKAN_PROFILES}", Path::PROFILES}, {"${VULKAN_CONTENT}", Path::CONTENT}};
 
 static std::string ConvertSeparators(const std::string& path, const char* native_separator, const char* alien_separator) {
     const std::size_t native_separator_size = std::strlen(native_separator);
@@ -226,6 +226,10 @@ bool operator<(const Path& a, const Path& b) { return a.RelativePath() < b.Relat
 static const std::string GetDefaultHomeDir() {
     std::string absolute_path = qgetenv("VK_HOME").toStdString();
 
+    if (absolute_path.empty()) {
+        absolute_path = qgetenv("VULKAN_HOME").toStdString();
+    }
+
     if (absolute_path.empty()) {  // Default path
         absolute_path = QDir().homePath().toStdString() + "/VulkanSDK";
     }
@@ -240,6 +244,10 @@ void SetHomePath(const std::string& path) { ::VK_CURRENT_HOME_PATH = path; }
 static const std::string GetHomeDir() {
     std::string absolute_path = qgetenv("VK_HOME").toStdString();
 
+    if (absolute_path.empty()) {
+        absolute_path = qgetenv("VULKAN_HOME").toStdString();
+    }
+
     if (absolute_path.empty()) {  // Default path
         absolute_path = VK_CURRENT_HOME_PATH;
     }
@@ -252,7 +260,7 @@ static std::string VK_CURRENT_DOWNLOAD_PATH = GetDefaultHomeDir() + "/Releases";
 void SetDownloadPath(const std::string& path) { ::VK_CURRENT_DOWNLOAD_PATH = path; }
 
 static const std::string GetDownloadDir() {
-    std::string absolute_path = qgetenv("VK_DOWNLOAD").toStdString();
+    std::string absolute_path = qgetenv("VULKAN_DOWNLOAD").toStdString();
 
     if (absolute_path.empty()) {  // Default path
         absolute_path = VK_CURRENT_DOWNLOAD_PATH;

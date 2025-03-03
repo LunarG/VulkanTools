@@ -19,7 +19,7 @@
                     {
                         "key": "capture_file",
                         "type": "SAVE_FILE",
-                        "value": "${VK_HOME}/gfxrecon_capture.gfxr"
+                        "value": "${VULKAN_HOME}/gfxrecon_capture.gfxr"
                     }
                 ],
                 "control": "on",
