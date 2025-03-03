@@ -85,7 +85,7 @@
        <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -2151,7 +2151,7 @@
                 <string>${VK_HOME} is the default environment variable for Vulkan SDK tools outputs implementing it.</string>
                </property>
                <property name="text">
-                <string>${VK_HOME}: </string>
+                <string>${VULKAN_HOME}: </string>
                </property>
               </widget>
              </item>
@@ -2244,7 +2244,7 @@
                <item>
                 <widget class="QLabel" name="label_4">
                  <property name="text">
-                  <string>${VK_DOWNLOAD}: </string>
+                  <string>${VULKAN_DOWNLOAD}: </string>
                  </property>
                 </widget>
                </item>

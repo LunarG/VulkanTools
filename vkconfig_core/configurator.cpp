@@ -664,7 +664,8 @@ std::string Configurator::Log() const {
     log += format(" - Use layer developer mode: %s\n", this->use_layer_dev_mode ? "true" : "false");
     log += format(" - ${VULKAN_BIN}: %s\n", ::Path(Path::BIN).AbsolutePath().c_str());
     log += format(" - ${VULKAN_PROFILES}: %s\n", ::Path(Path::PROFILES).AbsolutePath().c_str());
-    log += format(" - ${VK_HOME}: %s\n", ::Path(Path::HOME).AbsolutePath().c_str());
+    log += format(" - ${VULKAN_HOME}: %s\n", ::Path(Path::HOME).AbsolutePath().c_str());
+    log += format(" - ${VULKAN_DOWNLOAD}: %s\n", ::Path(Path::DOWNLOAD).AbsolutePath().c_str());
     log += "\n";
 
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
@@ -881,9 +882,12 @@ bool Configurator::Load() {
             }
 
             this->use_system_tray = json_object.value("use_system_tray").toBool();
-            ::SetHomePath(json_object.value("VK_HOME").toString().toStdString());
-            if (json_object.value("VK_DOWNLOAD") != QJsonValue::Undefined) {
-                ::SetDownloadPath(json_object.value("VK_DOWNLOAD").toString().toStdString());
+
+            if (json_object.value("VULKAN_HOME") != QJsonValue::Undefined) {
+                ::SetHomePath(json_object.value("VULKAN_HOME").toString().toStdString());
+            }
+            if (json_object.value("VULKAN_DOWNLOAD") != QJsonValue::Undefined) {
+                ::SetDownloadPath(json_object.value("VULKAN_DOWNLOAD").toString().toStdString());
             }
         }
 
@@ -935,8 +939,8 @@ bool Configurator::Save() const {
         json_object.insert("use_notify_releases", this->use_notify_releases);
         json_object.insert("latest_sdk_version", this->latest_sdk_version.str().c_str());
         json_object.insert("last_vkconfig_version", Version::VKCONFIG.str().c_str());
-        json_object.insert("VK_HOME", ::Path(Path::HOME).RelativePath().c_str());
-        json_object.insert("VK_DOWNLOAD", ::Path(Path::DOWNLOAD).RelativePath().c_str());
+        json_object.insert("VULKAN_HOME", ::Path(Path::HOME).RelativePath().c_str());
+        json_object.insert("VULKAN_DOWNLOAD", ::Path(Path::DOWNLOAD).RelativePath().c_str());
         json_interface_object.insert(GetToken(TAB_PREFERENCES), json_object);
     }
 
