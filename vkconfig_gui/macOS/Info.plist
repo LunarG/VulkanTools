@@ -21,7 +21,7 @@
 	<key>CFBundleLongVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleName</key>
-	<string>VkConfig</string>
+	<string>Vulkan Configurator</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

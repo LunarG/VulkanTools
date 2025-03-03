@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,21 +80,6 @@ bool SettingData::Equal(const SettingData& other) const {
     else if (this->type != other.type)
         return false;
     return true;
-}
-
-std::string TrimPrefix(const std::string& layer_key) {
-    std::string key{};
-    if (layer_key.find("VK_LAYER_") == 0) {
-        std::size_t prefix = std::strlen("VK_LAYER_");
-        key = layer_key.substr(prefix, layer_key.size() - prefix);
-    } else {
-        key = layer_key;
-    }
-    return key;
-}
-
-static std::string GetEnv(const std::string& layer_key, const std::string& setting_key) {
-    return std::string("VK_") + ToUpperCase(TrimPrefix(layer_key)) + std::string("_") + ToUpperCase(setting_key);
 }
 
 SettingMeta::SettingMeta(Layer& layer, const std::string& key, const SettingType type)
