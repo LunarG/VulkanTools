@@ -208,7 +208,7 @@ TEST(test_path, get_path_home) {
 
     EXPECT_TRUE(EndsWith(value_default, "VulkanSDK"));
 
-    qputenv("VK_HOME", ":/MyVulkanSDKLocalDir");
+    qputenv("VULKAN_HOME", ":/MyVulkanSDKLocalDir");
 
     const std::string value_env(AbsolutePath(Path::HOME).c_str());
     EXPECT_TRUE(EndsWith(value_env, "MyVulkanSDKLocalDir"));

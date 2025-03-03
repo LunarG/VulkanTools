@@ -36,6 +36,12 @@
 #include <vector>
 #include <string>
 
+struct LayerStatus {
+    std::string last_modified;
+    bool validated = false;
+    bool disabled = false;
+};
+
 struct LayersPathInfo {
     Path path;
     LayerType type = LAYER_TYPE_EXPLICIT;
@@ -57,6 +63,10 @@ enum LayerLoadStatus {
     LAYER_LOAD_FIRST = LAYER_LOAD_ADDED,
     LAYER_LOAD_LAST = LAYER_LOAD_IGNORED,
 };
+
+inline bool IsDisabled(LayerLoadStatus status) {
+    return status == LAYER_LOAD_FAILED || status == LAYER_LOAD_INVALID || status == LAYER_LOAD_IGNORED;
+}
 
 enum { LAYER_LOAD_COUNT = LAYER_LOAD_LAST - LAYER_LOAD_FIRST + 1 };
 
@@ -88,7 +98,7 @@ class Layer {
     Path binary_path;
     Version api_version;
     std::string implementation_version;
-    std::string validated_last_modified;
+    std::string last_modified;
     StatusType status;
     std::string description;
     std::string introduction;
@@ -107,7 +117,7 @@ class Layer {
     std::vector<LayerPreset> presets;
 
     LayerLoadStatus Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
-                         const std::map<Path, std::string>& layers_validated, ConfiguratorMode configurator_mode);
+                         const std::map<Path, LayerStatus>& layers_found, ConfiguratorMode configurator_mode);
 
    private:
     Layer& operator=(const Layer&) = delete;

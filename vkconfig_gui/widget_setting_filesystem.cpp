@@ -138,7 +138,7 @@ void WidgetSettingFilesystem::LoadPath(const Path& path) {
 void WidgetSettingFilesystem::browseButtonClicked() {
     Path path(this->field->text().toStdString());
     if (path.Empty()) {
-        path = Path("${VK_HOME}");
+        path = Path("${VULKAN_HOME}");
         this->data().SetValue(path);
     }
 

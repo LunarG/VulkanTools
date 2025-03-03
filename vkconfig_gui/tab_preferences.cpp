@@ -102,7 +102,7 @@ void TabPreferences::on_vk_home_text_pressed() {
     } else {
         QMessageBox message;
         message.setIcon(QMessageBox::Critical);
-        message.setWindowTitle("Invalid ${VK_HOME} path...");
+        message.setWindowTitle("Invalid ${VULKAN_HOME} path...");
         message.setText(
             format("'%s' is not a valid, it doesn't exist.", this->ui->preferences_vk_home_text->text().toStdString().c_str())
                 .c_str());

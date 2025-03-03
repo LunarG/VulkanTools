@@ -14,6 +14,7 @@
 - Add `vulkaninfo` as default application on macOS
 - Enable text editing the executable path
 - Add layer manifest validation log saving option
+- Add ignoring invalid layer manifest when invalid until the file is modified
 
 ### Fixes:
 - Fix application arguments and environment variables splitting

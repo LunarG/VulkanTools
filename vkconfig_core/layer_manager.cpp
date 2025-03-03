@@ -188,15 +188,21 @@ bool LayerManager::Load(const QJsonObject &json_root_object, ConfiguratorMode co
             this->validate_manifests = json_layers_object.value("validate_manifests").toBool();
         }
 
-        if (json_layers_object.value("validated") != QJsonValue::Undefined) {
-            const QJsonObject &json_layers_validated_object = json_layers_object.value("validated").toObject();
-            const QStringList &json_layers_validated_keys = json_layers_validated_object.keys();
+        if (json_layers_object.value("found") != QJsonValue::Undefined) {
+            const QJsonObject &json_layers_found_object = json_layers_object.value("found").toObject();
+            const QStringList &json_layers_found_keys = json_layers_found_object.keys();
 
-            for (int i = 0, n = json_layers_validated_keys.length(); i < n; ++i) {
-                const Path &manifest_path = json_layers_validated_keys[i].toStdString();
-                const std::string &last_modified =
-                    json_layers_validated_object.value(json_layers_validated_keys[i]).toString().toStdString();
-                this->layers_validated.insert(std::make_pair(manifest_path, last_modified));
+            for (int i = 0, n = json_layers_found_keys.length(); i < n; ++i) {
+                const QJsonObject &json_status_object = json_layers_found_object.value(json_layers_found_keys[i]).toObject();
+
+                LayerStatus layer_status;
+                layer_status.last_modified = json_status_object.value("last_modified").toString().toStdString();
+                layer_status.validated = json_status_object.value("validated").toBool();
+                layer_status.disabled = json_status_object.value("disabled").toBool();
+
+                const Path &manifest_path = json_layers_found_keys[i].toStdString();
+
+                this->layers_found.insert(std::make_pair(manifest_path, layer_status));
             }
         }
 
@@ -219,11 +225,13 @@ bool LayerManager::Load(const QJsonObject &json_root_object, ConfiguratorMode co
 }
 
 bool LayerManager::Save(QJsonObject &json_root_object) const {
-    QJsonObject json_layers_paths_object;
-    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
-        const Layer &layer = this->available_layers[i];
-
-        json_layers_paths_object.insert(layer.manifest_path.AbsolutePath().c_str(), layer.validated_last_modified.c_str());
+    QJsonObject json_layers_status_object;
+    for (auto it = this->layers_found.begin(); it != this->layers_found.end(); ++it) {
+        QJsonObject json_layer_status_object;
+        json_layer_status_object.insert("last_modified", it->second.last_modified.c_str());
+        json_layer_status_object.insert("validated", it->second.validated);
+        json_layer_status_object.insert("disabled", it->second.disabled);
+        json_layers_status_object.insert(it->first.AbsolutePath().c_str(), json_layer_status_object);
     }
 
     QJsonObject json_paths_object;
@@ -238,7 +246,7 @@ bool LayerManager::Save(QJsonObject &json_root_object) const {
     QJsonObject json_layers_object;
     json_layers_object.insert("validate_manifests", this->validate_manifests);
     json_layers_object.insert("last_layers_path", this->last_layers_path.RelativePath().c_str());
-    json_layers_object.insert("validated", json_layers_paths_object);
+    json_layers_object.insert("found", json_layers_status_object);
     json_layers_object.insert("paths", json_paths_object);
 
     json_root_object.insert("layers", json_layers_object);
@@ -303,7 +311,7 @@ std::string LayerManager::Log() const {
 
 void LayerManager::InitSystemPaths() {
     this->available_layers.clear();
-    this->layers_validated.clear();
+    this->layers_found.clear();
 
     this->paths[LAYERS_PATHS_IMPLICIT_SYSTEM] = GetImplicitLayerPaths();
 
@@ -424,7 +432,7 @@ const Layer *LayerManager::FindLastModified(const std::string &layer_name, const
             continue;
         }
         if (result != nullptr) {
-            if (result->validated_last_modified > this->available_layers[i].validated_last_modified) {
+            if (result->last_modified > this->available_layers[i].last_modified) {
                 continue;
             }
         }
@@ -490,28 +498,41 @@ LayerLoadStatus LayerManager::LoadLayer(const Path &layer_path, LayerType type, 
     Layer *already_loaded_layer = this->FindFromManifest(layer_path, true);
     if (already_loaded_layer != nullptr) {
         // Already loaded
-        auto it = this->layers_validated.find(layer_path);
-        if (it != layers_validated.end()) {
-            if (last_modified == it->second) {
+        auto it = this->layers_found.find(layer_path);
+        if (it != layers_found.end()) {
+            if (last_modified == it->second.last_modified) {
                 return LAYER_LOAD_UNMODIFIED;
             }
         }
 
         // Modified to reload
         LayerLoadStatus status =
-            already_loaded_layer->Load(layer_path, type, this->validate_manifests, this->layers_validated, configurator_mode);
+            already_loaded_layer->Load(layer_path, type, this->validate_manifests, this->layers_found, configurator_mode);
         if (status == LAYER_LOAD_ADDED) {
-            it->second = already_loaded_layer->validated_last_modified;
+            it->second.last_modified = already_loaded_layer->last_modified;
             return LAYER_LOAD_RELOADED;
         } else {
+            it->second.disabled = IsDisabled(status);
             return status;
         }
     } else {
         Layer layer;
-        LayerLoadStatus status = layer.Load(layer_path, type, this->validate_manifests, this->layers_validated, configurator_mode);
+        LayerLoadStatus status = layer.Load(layer_path, type, this->validate_manifests, this->layers_found, configurator_mode);
         if (status == LAYER_LOAD_ADDED) {
             this->available_layers.push_back(layer);
-            this->layers_validated.insert(std::make_pair(layer.manifest_path, layer.validated_last_modified));
+        }
+
+        auto it = this->layers_found.find(layer_path);
+        if (it != layers_found.end()) {
+            it->second.disabled = IsDisabled(status);
+            it->second.validated = this->validate_manifests && !it->second.disabled;
+            it->second.last_modified = layer.last_modified;
+        } else {
+            LayerStatus found;
+            found.disabled = IsDisabled(status);
+            found.validated = this->validate_manifests && !found.disabled;
+            found.last_modified = layer.last_modified;
+            this->layers_found.insert(std::make_pair(layer.manifest_path, found));
         }
 
         return status;

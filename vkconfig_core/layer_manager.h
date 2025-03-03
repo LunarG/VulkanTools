@@ -70,5 +70,5 @@ class LayerManager : public Serialize {
     void InitSystemPaths();
     void UpdateLayersEnabled(const LayersPathInfo& path_info);
 
-    std::map<Path, std::string> layers_validated;
+    std::map<Path, LayerStatus> layers_found;
 };
