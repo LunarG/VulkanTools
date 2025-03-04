@@ -113,6 +113,9 @@ class Configurator {
     bool GetUseNotifyReleases() const;
     void SetUseNotifyReleases(bool enabled);
 
+    bool GetShowDiagnosticSearch() const;
+    void SetShowDiagnosticSearch(bool enabled);
+
     bool ShouldNotify() const;
 
     bool HasActiveSettings() const;
@@ -149,12 +152,14 @@ class Configurator {
     Version latest_sdk_version = Version::NONE;
     Version online_sdk_version = Version::NONE;
     Version last_vkconfig_version = Version::NONE;
+    std::string diagnostic_search_text;
 
    private:
     int hide_message_boxes_flags = 0;
     bool use_system_tray = false;
     bool use_layer_dev_mode = false;
     bool use_notify_releases = true;
+    bool show_diagnostic_search = false;
     ExecutableScope executable_scope = EXECUTABLE_ANY;
     std::string selected_global_configuration = "Validation";
 };
