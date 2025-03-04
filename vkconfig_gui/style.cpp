@@ -36,6 +36,13 @@ QIcon Get(Icon icon) {
     static const char* ICONS[] = {
         "clear.png",              // ICON_CLEAR
         "drag.png",               // ICON_DRAG
+        "next.png",               // ICON_NEXT
+        "prev.png",               // ICON_PREV
+        "down.png",               // ICON_MODE
+        "exit.png",               // ICON_EXIT
+        "search_case.png",        // ICON_SEARCH_CASE
+        "search_whole.png",       // ICON_SEARCH_WHOLE
+        "search_regex.png",       // ICON_SEARCH_REGEX
         "file_append.png",        // ICON_FILE_APPEND,
         "file_export.png",        // ICON_FILE_EXPORT,
         "file_remove.png",        // ICON_FILE_REMOVE,
