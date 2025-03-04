@@ -1,5 +1,16 @@
-## Vulkan Configurator 3.1.0 - March 2025
+## Vulkan Configurator 3.2.0 - May 2025
 [Vulkan SDK 1.4.3XX.0](https://github.com/LunarG/VulkanTools/tree/main)
+
+### Features:
+
+
+### Improvements:
+
+
+### Fixes:
+
+## Vulkan Configurator 3.1.0 - March 2025
+[Vulkan SDK 1.4.309.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.309)
 
 ### Features:
 - Add dark mode support, automatically matching the OS mode
