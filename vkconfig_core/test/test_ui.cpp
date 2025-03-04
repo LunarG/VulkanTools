@@ -27,5 +27,5 @@
 TEST(test_ui, GetMainWindowTitle) {
     std::string title = ::GetMainWindowTitle();
 
-    EXPECT_STREQ(("Vulkan Configurator " + Version::VKCONFIG.str() + "-" + GetBuildDate() + " (BETA)").c_str(), title.c_str());
+    EXPECT_STREQ(("Vulkan Configurator " + Version::VKCONFIG.str() + "-" + GetBuildDate()).c_str(), title.c_str());
 }

@@ -24,6 +24,6 @@
 #include "version.h"
 
 std::string GetMainWindowTitle() {
-    std::string title = format("%s %s-%s (BETA)", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
+    std::string title = format("%s %s-%s", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
     return title;
 }
