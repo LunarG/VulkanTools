@@ -900,6 +900,14 @@ bool Configurator::Load() {
 
             this->use_system_tray = json_object.value("use_system_tray").toBool();
 
+            if (json_object.value("show_diagnostic_search") != QJsonValue::Undefined) {
+                this->show_diagnostic_search = json_object.value("show_diagnostic_search").toBool();
+            }
+
+            if (json_object.value("diagnostic_search_text") != QJsonValue::Undefined) {
+                this->diagnostic_search_text = json_object.value("diagnostic_search_text").toString().toStdString();
+            }
+
             if (json_object.value("VULKAN_HOME") != QJsonValue::Undefined) {
                 ::SetHomePath(json_object.value("VULKAN_HOME").toString().toStdString());
             }
@@ -962,6 +970,8 @@ bool Configurator::Save() const {
         json_object.insert("use_notify_releases", this->use_notify_releases);
         json_object.insert("latest_sdk_version", this->latest_sdk_version.str().c_str());
         json_object.insert("last_vkconfig_version", Version::VKCONFIG.str().c_str());
+        json_object.insert("show_diagnostic_search", this->show_diagnostic_search);
+        json_object.insert("diagnostic_search_text", this->diagnostic_search_text.c_str());
         json_object.insert("VULKAN_HOME", ::Path(Path::HOME).RelativePath().c_str());
         json_object.insert("VULKAN_DOWNLOAD", ::Path(Path::DOWNLOAD).RelativePath().c_str());
         json_interface_object.insert(GetToken(TAB_PREFERENCES), json_object);
@@ -1026,6 +1036,10 @@ void Configurator::SetUseLayerDevMode(bool enabled) { this->use_layer_dev_mode =
 bool Configurator::GetUseNotifyReleases() const { return this->use_notify_releases; }
 
 void Configurator::SetUseNotifyReleases(bool enabled) { this->use_notify_releases = enabled; }
+
+bool Configurator::GetShowDiagnosticSearch() const { return show_diagnostic_search; }
+
+void Configurator::SetShowDiagnosticSearch(bool enabled) { this->show_diagnostic_search = enabled; }
 
 bool Configurator::ShouldNotify() const {
     return this->latest_sdk_version < this->online_sdk_version && this->online_sdk_version != Version::NONE &&

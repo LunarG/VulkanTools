@@ -2,7 +2,7 @@
 [Vulkan SDK 1.4.3XX.0](https://github.com/LunarG/VulkanTools/tree/main)
 
 ### Features:
-
+- Add search in diagnostic tab
 
 ### Improvements:
 

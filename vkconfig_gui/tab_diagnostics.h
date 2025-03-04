@@ -37,11 +37,24 @@ class TabDiagnostics : public Tab {
 
    public Q_SLOTS:
     void on_customContextMenuRequested(const QPoint& pos);
+    void on_show_search();
+    void on_hide_search();
+    void on_search_textEdited(const QString& text);
+    void on_search_next_pressed();
+    void on_search_prev_pressed();
+    void on_search_case_toggled(bool checked);
+    void on_search_whole_toggled(bool checked);
+    void on_search_regex_toggled(bool checked);
 
    private:
     QPushButton* widget_refresh = nullptr;
     QPushButton* widget_export = nullptr;
     std::string status;
+    bool search_case = false;
+    bool search_whole = false;
+    bool search_regex = false;
 
     void UpdateStatus();
+    void ShowSearch(bool visible);
+    void SearchFind(bool prev);
 };
