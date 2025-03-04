@@ -62,6 +62,7 @@ class TabApplications : public Tab {
 
     void on_launch_clear_at_launch_toggled(bool checked);
     void on_launch_clear_log_pressed();
+    void on_launch_admin_toggled(bool checked);
     void on_launch_button_pressed();
 
     void standardOutputAvailable();                                 // stdout output is available

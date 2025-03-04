@@ -85,7 +85,7 @@
        <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -1495,6 +1495,13 @@
                 </size>
                </property>
               </spacer>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="launch_admin">
+               <property name="text">
+                <string>Run As Administrator</string>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QPushButton" name="launch_button">

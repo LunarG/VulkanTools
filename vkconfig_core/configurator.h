@@ -113,6 +113,9 @@ class Configurator {
     bool GetUseNotifyReleases() const;
     void SetUseNotifyReleases(bool enabled);
 
+    bool GetRunAsAdmin() const;
+    void SetRunAsAdmin(bool enabled);
+
     bool ShouldNotify() const;
 
     bool HasActiveSettings() const;
@@ -155,6 +158,7 @@ class Configurator {
     bool use_system_tray = false;
     bool use_layer_dev_mode = false;
     bool use_notify_releases = true;
+    bool run_as_admin = false;
     ExecutableScope executable_scope = EXECUTABLE_ANY;
     std::string selected_global_configuration = "Validation";
 };

@@ -1004,6 +1004,10 @@ bool Configurator::GetUseNotifyReleases() const { return this->use_notify_releas
 
 void Configurator::SetUseNotifyReleases(bool enabled) { this->use_notify_releases = enabled; }
 
+bool Configurator::GetRunAsAdmin() const { return this->run_as_admin; }
+
+void Configurator::SetRunAsAdmin(bool enabled) { this->run_as_admin = enabled; }
+
 bool Configurator::ShouldNotify() const {
     return this->latest_sdk_version < this->online_sdk_version && this->online_sdk_version != Version::NONE &&
            !(Version::VKCONFIG > this->last_vkconfig_version);

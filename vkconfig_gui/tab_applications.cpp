@@ -28,6 +28,8 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 
+#include <shellapi.h>
+
 static void PathInvalid(const Path &path, const char *message) {
     const std::string text = format("'%s' is not a valid path.", path.AbsolutePath().c_str());
 
@@ -80,6 +82,10 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->connect(this->ui->launch_clear_at_launch, SIGNAL(toggled(bool)), this, SLOT(on_launch_clear_at_launch_toggled(bool)));
     this->connect(this->ui->launch_clear_log, SIGNAL(clicked()), this, SLOT(on_launch_clear_log_pressed()));
     this->connect(this->ui->launch_button, SIGNAL(clicked()), this, SLOT(on_launch_button_pressed()));
+
+    this->connect(this->ui->launch_admin, SIGNAL(toggled(bool)), this, SLOT(on_launch_admin_toggled(bool)));
+
+    this->ui->launch_admin->setVisible(VKC_ENV == VKC_ENV_WIN32);
 
     // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
     // Whenever the control surpasses this block count, old blocks are discarded.
@@ -396,9 +402,15 @@ void TabApplications::on_launch_clear_at_launch_toggled(bool checked) {
 }
 
 void TabApplications::on_launch_clear_log_pressed() {
-    ui->launch_log_text->clear();
-    ui->launch_log_text->update();
-    ui->launch_clear_log->setEnabled(false);
+    this->ui->launch_log_text->clear();
+    this->ui->launch_log_text->update();
+    this->ui->launch_clear_log->setEnabled(false);
+}
+
+void TabApplications::on_launch_admin_toggled(bool checked) {
+    Configurator &configurator = Configurator::Get();
+
+    configurator.SetRunAsAdmin(checked);
 }
 
 void TabApplications::on_launch_button_pressed() {
@@ -486,33 +498,63 @@ void TabApplications::on_launch_button_pressed() {
                       SLOT(processClosed(int, QProcess::ExitStatus)));
     }
 
-    this->_launch_application->setProgram(active_executable->path.AbsolutePath().c_str());
-    this->_launch_application->setWorkingDirectory(options->working_folder.AbsolutePath().c_str());
-
     QStringList env = QProcess::systemEnvironment();
     if (!options->envs.empty()) {
         const QStringList envs = ConvertString(options->envs);
         env << envs;
     }
-    this->_launch_application->setEnvironment(env);
 
-    QStringList args;
-    if (!options->args.empty()) {
-        args = ConvertString(options->args);
-    }
-    this->_launch_application->setArguments(args);
+    if (configurator.GetRunAsAdmin()) {
+        std::string path = active_executable->path.AbsolutePath();
+        std::wstring spath = std::wstring(path.begin(), path.end());
 
-    this->ui->launch_button->setText("Terminate");
-    this->_launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
-    this->_launch_application->setProcessChannelMode(QProcess::MergedChannels);
-    this->_launch_application->closeWriteChannel();
+        std::string directory = options->working_folder.AbsolutePath();
+        std::wstring sdirectory = std::wstring(directory.begin(), directory.end());
 
-    // Wait... did we start? Give it 4 seconds, more than enough time
-    if (!this->_launch_application->waitForStarted(4000)) {
-        this->ui->launch_button->setText("Launch");
+        std::string parameters = Merge(options->args, " ");
+        std::wstring sparameters = std::wstring(parameters.begin(), parameters.end());
 
-        const std::string failed_log = std::string("Failed to launch ") + active_executable->path.AbsolutePath().c_str() + "!\n";
-        this->Log(failed_log);
+        for (int i = 0, n = env.size(); i < n; ++i) {
+            // SetEnvironmentVariable();
+        }
+
+        // this->_launch_application->setProgram(("runas /user:administrator " + active_executable->path.AbsolutePath()).c_str());
+        SHELLEXECUTEINFO ShExecInfo = {0};
+        ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+        ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+        ShExecInfo.hwnd = NULL;
+        ShExecInfo.lpVerb = TEXT("runas");
+        ShExecInfo.lpFile = spath.c_str();
+        ShExecInfo.lpParameters = sparameters.c_str();
+        ShExecInfo.lpDirectory = sdirectory.c_str();
+        ShExecInfo.nShow = SW_SHOW;
+        ShExecInfo.hInstApp = NULL;
+        ShellExecuteEx(&ShExecInfo);
+        WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
+    } else {
+        this->_launch_application->setProgram(active_executable->path.AbsolutePath().c_str());
+        this->_launch_application->setWorkingDirectory(options->working_folder.AbsolutePath().c_str());
+        this->_launch_application->setEnvironment(env);
+
+        QStringList args;
+        if (!options->args.empty()) {
+            args = ConvertString(options->args);
+        }
+        this->_launch_application->setArguments(args);
+
+        this->ui->launch_button->setText("Terminate");
+        this->_launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
+        this->_launch_application->setProcessChannelMode(QProcess::MergedChannels);
+        this->_launch_application->closeWriteChannel();
+
+        // Wait... did we start? Give it 4 seconds, more than enough time
+        if (!this->_launch_application->waitForStarted(4000)) {
+            this->ui->launch_button->setText("Launch");
+
+            const std::string failed_log =
+                std::string("Failed to launch ") + active_executable->path.AbsolutePath().c_str() + "!\n";
+            this->Log(failed_log);
+        }
     }
 }
 
