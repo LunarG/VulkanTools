@@ -2,12 +2,13 @@
 [Vulkan SDK 1.4.main](https://github.com/LunarG/VulkanTools/tree/main)
 
 ### Features:
-
+- Add search in diagnostic tab
 
 ### Improvements:
 - Add Vulkan Header version used to build in about tab
 - Refactor layer version combobox
 - Clean up UI layout
+- Add button to remove missing layers
 
 ### Fixes:
 - Fix layer settings all display with the layer development status
