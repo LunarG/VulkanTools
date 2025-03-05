@@ -107,7 +107,7 @@
             "sub_dir": "jsoncpp",
             "build_dir": "jsoncpp/build",
             "install_dir": "jsoncpp/build/install",
-            "commit": "1.9.5",
+            "commit": "1.9.6",
             "cmake_options": [
                 "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
                 "-DJSONCPP_WITH_TESTS=OFF",
