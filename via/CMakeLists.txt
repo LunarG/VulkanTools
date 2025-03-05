@@ -66,9 +66,6 @@ elseif (MSVC)
     target_compile_definitions(vkvia PRIVATE _CRT_SECURE_NO_WARNINGS _USE_MATH_DEFINES)
 endif()
 
-# NOTE: jsoncpp hasn't had updates in a bit and isn't getting fixes.
-# may be worth using nlohmann/json in the future which gets more updates
-# and has better CMake support.
 find_package(jsoncpp CONFIG)
 if (TARGET jsoncpp_static)
     target_link_libraries(vkvia PRIVATE jsoncpp_static)
