@@ -27,6 +27,13 @@ bool isDarkMode();
 enum Icon {
     ICON_CLEAR = 0,
     ICON_DRAG,
+    ICON_NEXT,
+    ICON_PREV,
+    ICON_MODE,
+    ICON_EXIT,
+    ICON_SEARCH_CASE,
+    ICON_SEARCH_WHOLE,
+    ICON_SEARCH_REGEX,
     ICON_FILE_APPEND,
     ICON_FILE_EXPORT,
     ICON_FILE_REMOVE,
