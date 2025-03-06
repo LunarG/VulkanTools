@@ -28,10 +28,17 @@ set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/macOS/Resources/VulkanIc
                             PROPERTIES
                             MACOSX_PACKAGE_LOCATION
                             "Resources")
-target_link_libraries(vkconfig-gui vkconfig-core Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
+
 target_link_libraries(vkconfig-gui "-framework Cocoa -framework QuartzCore")
 
-get_target_property(QMAKE_EXE Qt6::qmake IMPORTED_LOCATION)
+if(Qt6_FOUND)
+    target_link_libraries(vkconfig-gui vkconfig-core Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
+    get_target_property(QMAKE_EXE Qt6::qmake IMPORTED_LOCATION)
+elseif(Qt5_FOUND)
+    target_link_libraries(vkconfig-gui vkconfig-core Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+    get_target_property(QMAKE_EXE Qt5::qmake IMPORTED_LOCATION)
+endif()
+
 get_filename_component(QT_BIN_DIR "${QMAKE_EXE}" DIRECTORY)
 find_program(MACDEPLOYQT_EXE macdeployqt HINTS "${QT_BIN_DIR}")
 

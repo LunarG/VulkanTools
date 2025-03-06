@@ -1213,25 +1213,6 @@ void TabConfigurations::on_configurations_layers_list_currentRowChanged(int curr
     assert(configuration != nullptr);
 
     if (configuration->selected_layer_name != layer_string) {
-        if (layer_string == ::GetLabel(LAYER_BUILTIN_UNORDERED)) {
-            if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_UNORDERED_LAYER)) {
-                QMessageBox message;
-                message.setIcon(QMessageBox::Information);
-                message.setWindowTitle(::GetLabel(LAYER_BUILTIN_UNORDERED));
-                message.setText(
-                    "This item refers to Vulkan Layers not visible by Vulkan Configurator but located and enabled by the Vulkan "
-                    "Application at launch.");
-                message.setInformativeText(
-                    "- Vulkan Layers are located by the Vulkan Application by setting 'VK_ADD_LAYER_PATH'.\n"
-                    "- Vulkan Layers are enabled by the Vulkan Application using 'VK_LOADER_LAYERS_ENABLE' or 'vkCreateInstance'.");
-                message.setCheckBox(new QCheckBox("Do not show again."));
-                message.exec();
-                if (message.checkBox()->isChecked()) {
-                    configurator.Set(HIDE_MESSAGE_NOTIFICATION_UNORDERED_LAYER);
-                }
-            }
-        }
-
         configuration->selected_layer_name = layer_string;
 
         this->UpdateUI_Settings(UPDATE_REBUILD_UI);

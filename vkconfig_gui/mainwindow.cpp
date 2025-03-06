@@ -21,9 +21,6 @@
 
 #include "mainwindow.h"
 
-#include "dialog_vulkan_analysis.h"
-#include "dialog_vulkan_info.h"
-
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/ui.h"
@@ -245,27 +242,6 @@ void MainWindow::toolsResetToDefault(bool checked) {
 
     Configurator &configurator = Configurator::Get();
     configurator.Reset(true);
-}
-
-void MainWindow::StartTool(Tool tool) {
-    Configurator &configurator = Configurator::Get();
-
-    if (configurator.GetExecutableScope() == EXECUTABLE_ANY) {
-        configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-    }
-
-    switch (tool) {
-        case TOOL_VULKAN_INFO:
-            vk_info_dialog.reset(new VulkanInfoDialog(this));
-            break;
-        case TOOL_VULKAN_INSTALL:
-            vk_installation_dialog.reset(new VulkanAnalysisDialog(this));
-            break;
-    }
-
-    if (configurator.GetExecutableScope() == EXECUTABLE_ANY) {
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-    }
 }
 
 /// The only thing we need to do here is clear the configuration if

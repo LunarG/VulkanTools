@@ -33,7 +33,6 @@ const char* GetToken(HideMessageType value) {
                                 "HIDE_MESSAGE_WIDGET_SETTING_INT",
                                 "HIDE_MESSAGE_WIDGET_SETTING_FRAMES",
                                 "HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED",
-                                "HIDE_MESSAGE_NOTIFICATION_UNORDERED_LAYER",
                                 "HIDE_MESSAGE_NOTIFICATION_EXECUTABLE_ALL",
                                 "HIDE_MESSAGE_NOTIFICATION_EXECUTABLE_PER",
                                 "HIDE_MESSAGE_NOTIFICATION_PER_CONFIG_UPDATE",

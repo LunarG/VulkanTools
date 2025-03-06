@@ -40,8 +40,6 @@
 #include <string>
 #include <array>
 
-enum Tool { TOOL_VULKAN_INFO, TOOL_VULKAN_INSTALL };
-
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -55,9 +53,6 @@ class MainWindow : public QMainWindow {
     void closeEvent(QCloseEvent *event) override;
     void showEvent(QShowEvent *event) override;
     bool eventFilter(QObject *target, QEvent *event) override;
-
-    std::unique_ptr<QDialog> vk_info_dialog;
-    std::unique_ptr<QDialog> vk_installation_dialog;
 
     QSystemTrayIcon *_tray_icon = nullptr;
     QMenu *_tray_icon_menu = nullptr;
@@ -88,7 +83,6 @@ class MainWindow : public QMainWindow {
     MainWindow &operator=(const MainWindow &) = delete;
 
     void InitTray();
-    void StartTool(Tool tool);
 
     std::shared_ptr<Ui::MainWindow> ui;
     std::array<std::shared_ptr<Tab>, TAB_COUNT> tabs;
