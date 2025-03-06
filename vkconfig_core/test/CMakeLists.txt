@@ -39,15 +39,12 @@ function(vkConfigTest NAME)
 
     add_executable(${TEST_NAME} ${TEST_FILE} ${FILES_JSON} ${FILES_TEXT} resources.qrc)
     set_target_properties(${TEST_NAME} PROPERTIES FOLDER "vkconfig/tests")
-    target_link_libraries(${TEST_NAME} vkconfig-core
-        Vulkan::LayerSettings
-        GTest::gtest
-        GTest::gtest_main
-        Qt6::Core
-        Qt6::Gui
-        Qt6::Widgets
-        Qt6::Network
-    )
+if(Qt6_FOUND)
+    target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest GTest::gtest_main Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
+elseif(Qt5_FOUND)
+    target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest GTest::gtest_main Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+endif()
+
     if(WIN32)
 	# Use the static runtime library?
 	if(USE_STATIC_CRT_VKFG)

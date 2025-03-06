@@ -32,7 +32,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.5.3'
+          version: '5.15.*'
       - name: Test Minimum CMake Version
         uses: lukka/get-cmake@latest
         with:
@@ -63,6 +63,21 @@ jobs:
     - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
     - run: python3 scripts/github_ci_linux.py --config Debug --tests GitHubCI
     - run: python3 scripts/generate_source.py --verify external/Vulkan-Headers/registry
+
+  windows_qt5_compat:
+    runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '5.15.*'
+      - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D RUN_ON_GITHUB=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
+      - run: cmake --build build
+      - run: ctest --output-on-failure --test-dir build
+      - run: cmake --install build --prefix build/install
 
   windows:
     runs-on: windows-latest

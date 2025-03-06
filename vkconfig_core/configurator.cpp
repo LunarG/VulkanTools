@@ -1006,7 +1006,7 @@ void Configurator::SetUseNotifyReleases(bool enabled) { this->use_notify_release
 
 bool Configurator::ShouldNotify() const {
     return this->latest_sdk_version < this->online_sdk_version && this->online_sdk_version != Version::NONE &&
-           !(Version::VKCONFIG > this->last_vkconfig_version);
+           !(Version::VKCONFIG > this->last_vkconfig_version) && (Version::VKHEADER < this->online_sdk_version);
 }
 
 bool Configurator::HasActiveSettings() const {

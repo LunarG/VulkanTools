@@ -92,8 +92,6 @@ SOURCES += \
     widget_setting_string.cpp \
     widget_setting_list_element.cpp \
     widget_setting_list.cpp \
-    dialog_vulkan_analysis.cpp \
-    dialog_vulkan_info.cpp \
     item_tree.cpp \
     item_list.cpp \
     main.cpp \
@@ -174,8 +172,6 @@ HEADERS += \
     widget_setting_string.h \
     widget_setting_list_element.h \
     widget_setting_list.h \
-    dialog_vulkan_analysis.h \
-    dialog_vulkan_info.h \
     item_tree.h \
     item_list.h \
     mainwindow.h \
@@ -191,8 +187,6 @@ HEADERS += \
     style.h
 
 FORMS += \
-    dialog_vulkan_analysis.ui \
-    dialog_vulkan_info.ui \
     mainwindow.ui
 
 TRANSLATIONS += \
