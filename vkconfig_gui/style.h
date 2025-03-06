@@ -22,8 +22,6 @@
 
 #include <QIcon>
 
-bool isDarkMode();
-
 enum Icon {
     ICON_CLEAR = 0,
     ICON_DRAG,

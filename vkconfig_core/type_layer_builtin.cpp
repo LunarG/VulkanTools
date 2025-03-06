@@ -55,8 +55,7 @@ const char* GetLabel(LayerBuiltin builtin) {
 const char* GetDescription(LayerBuiltin builtin) {
     static const char* TABLE[] = {
         "N/A",  // LAYER_BUILTIN_NONE
-        "Located and Enabled Layers using 'VK_LOADER_LAYERS_ENABLE' Environment Variable and 'vkCreateInstance' by the Vulkan "
-        "Application at launch",  // LAYER_BUILTIN_UNORDERED
+        "Vulkan Layers are located by the Vulkan Application by setting 'VK_ADD_LAYER_PATH' Application at launch",  // LAYER_BUILTIN_UNORDERED
     };
     static_assert(std::size(TABLE) == LAYER_BUILTIN_COUNT);
 
