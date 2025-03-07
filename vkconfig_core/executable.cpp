@@ -88,27 +88,18 @@ DefaultPath GetDefaultExecutablePath(const std::string& executable_name) {
 
     // Using VULKAN_SDK environement variable
     const Path vulkan_sdk_bin_path(Path::BIN);
-    if (!vulkan_sdk_bin_path.Empty()) {
-        if (is_app) {
-            Path search_path(vulkan_sdk_bin_path.RelativePath() + std::string("../Applications/") + executable_name);
-            if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
-                default_path.executable_path = search_path.AbsolutePath();
-                default_path.working_folder = search_path.AbsoluteDir();
-                return default_path;
-            }
-        } else {
-            const Path search_path(vulkan_sdk_bin_path.RelativePath() + "/" + executable_name);
-            if (search_path.Exists()) {
-                default_path.executable_path = search_path.AbsolutePath();
-                default_path.working_folder = search_path.AbsoluteDir();
-                return default_path;
-            }
+    if (!vulkan_sdk_bin_path.Empty() && !is_app) {
+        const Path search_path(vulkan_sdk_bin_path.RelativePath() + "/" + executable_name);
+        if (search_path.Exists()) {
+            default_path.executable_path = search_path.AbsolutePath();
+            default_path.working_folder = search_path.AbsoluteDir();
+            return default_path;
         }
     }
 
     // Search the default applications from package installation (Linux)
     if (is_app) {
-        Path search_path(std::string("/Applications") + executable_name);
+        Path search_path(std::string("/Applications/") + executable_name);
         if (search_path.Exists() && ExactExecutableFromAppBundle(search_path)) {
             default_path.executable_path = search_path.AbsolutePath();
             default_path.working_folder = search_path.AbsoluteDir();

@@ -206,7 +206,7 @@ macx: {
 #shellScript.files = $$files(macOS/vkconfig.sh)
 #shellScript.path = $$OUT_PWD/VkConfig.app/Contents/MacOS
 
-QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.10
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15
 
 QMAKE_INFO_PLIST = macOS/Info.plist
 RC_FILE = macOS/Resources/VulkanIcon.icns

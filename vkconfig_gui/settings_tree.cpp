@@ -388,8 +388,13 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
     }
 
     const Layer *layer = configurator.layers.Find(parameter->key.c_str(), parameter->api_version);
+    if (layer == nullptr) {
+        return;
+    }
 
-    assert(preset_index >= 0 && static_cast<std::size_t>(preset_index) < layer->presets.size());
+    if (!(preset_index >= 0 && static_cast<std::size_t>(preset_index) < layer->presets.size())) {
+        return;
+    }
 
     const LayerPreset &preset = layer->presets[preset_index];
     parameter->ApplyPresetSettings(preset);
