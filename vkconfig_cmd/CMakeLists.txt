@@ -32,7 +32,7 @@ if(WIN32)
     # Use the static runtime library? This is for special builds of Vulkan Configurator only
     if(USE_STATIC_RT_VKCONFIG)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-        message(STATUS "vkconfig-core will link against static runtime")
+        message(STATUS "vkconfig-cmd will link against static runtime")
     endif()    
 endif()
 
