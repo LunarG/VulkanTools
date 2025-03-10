@@ -81,18 +81,17 @@ int run_doc(const CommandLine& command_line) {
     assert(command_line.command == COMMAND_DOC);
     assert(command_line.error == ERROR_NONE);
 
-    Configurator& configurator = Configurator::Get();
-    configurator.Init(CONFIGURATOR_MODE_CMD);
+    ConfiguratorGuard configurator_guard(CONFIGURATOR_MODE_CMD);
 
     switch (command_line.command_doc_arg) {
         case COMMAND_DOC_HTML: {
-            return run_doc_html(configurator, command_line);
+            return run_doc_html(configurator_guard.Get(), command_line);
         }
         case COMMAND_DOC_MARKDOWN: {
-            return run_doc_markdown(configurator, command_line);
+            return run_doc_markdown(configurator_guard.Get(), command_line);
         }
         case COMMAND_DOC_SETTINGS: {
-            return run_doc_settings(configurator, command_line);
+            return run_doc_settings(configurator_guard.Get(), command_line);
         }
         default: {
             assert(0);

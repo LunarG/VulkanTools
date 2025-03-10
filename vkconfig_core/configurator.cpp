@@ -39,10 +39,26 @@
 #include <cstdio>
 #include <algorithm>
 
-Configurator& Configurator::Get() {
-    static Configurator configurator;
-    return configurator;
+ConfiguratorGuard::ConfiguratorGuard(ConfiguratorMode mode) {
+    Configurator& configurator = Configurator::Get();
+    configurator.Init(mode);
 }
+
+ConfiguratorGuard::~ConfiguratorGuard() { Configurator::Release(); }
+
+Configurator& ConfiguratorGuard::Get() { return Configurator::Get(); }
+
+static std::unique_ptr<Configurator> configurator = nullptr;
+
+Configurator& Configurator::Get() {
+    if (::configurator == nullptr) {
+        ::configurator.reset(new Configurator);
+    }
+
+    return *::configurator;
+}
+
+void Configurator::Release() { ::configurator.reset(); }
 
 Configurator::Configurator() : mode(init_mode) {}
 

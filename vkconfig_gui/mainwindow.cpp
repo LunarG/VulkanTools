@@ -90,7 +90,7 @@ void MainWindow::commitDataRequest(QSessionManager &manager) {
     Configurator &configurator = Configurator::Get();
     configurator.Surrender(OVERRIDE_AREA_ALL);
 
-    configurator.~Configurator();
+    Configurator::Release();
 }
 
 void MainWindow::UpdateUI(UpdateUIMode mode) {

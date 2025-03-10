@@ -67,6 +67,7 @@ class Configurator {
     };
 
     static Configurator& Get();
+    static void Release();
     bool Init(ConfiguratorMode mode);
 
    public:
@@ -159,4 +160,11 @@ class Configurator {
     bool use_notify_releases = true;
     ExecutableScope executable_scope = EXECUTABLE_ANY;
     std::string selected_global_configuration = "Validation";
+};
+
+struct ConfiguratorGuard {
+    ConfiguratorGuard(ConfiguratorMode mode);
+    ~ConfiguratorGuard();
+
+    Configurator& Get();
 };
