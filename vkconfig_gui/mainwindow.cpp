@@ -69,11 +69,12 @@ MainWindow::MainWindow(QWidget *parent)
         this->ui->tab_widget->setTabText(i, GetLabel(static_cast<TabType>(i)));
     }
 
-    QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-    this->restoreGeometry(settings.value("vkconfig3/mainwindow/geometry").toByteArray());
-    this->restoreState(settings.value("vkconfig3/mainwindow/state").toByteArray());
-
     const Configurator &configurator = Configurator::Get();
+
+    if (!configurator.window_geometry.isEmpty()) {
+        this->restoreGeometry(configurator.window_geometry);
+        this->restoreState(configurator.window_state);
+    }
 
     this->ui->tab_widget->setCurrentIndex(configurator.active_tab);
 
@@ -295,9 +296,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     this->tabs[this->ui->tab_widget->currentIndex()]->CleanUI();
 
-    QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-    settings.setValue("vkconfig3/mainwindow/geometry", this->saveGeometry());
-    settings.setValue("vkconfig3/mainwindow/state", this->saveState());
+    configurator.window_geometry = this->saveGeometry();
+    configurator.window_state = this->saveState();
 
     QMainWindow::closeEvent(event);
 }
