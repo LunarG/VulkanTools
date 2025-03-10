@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
     QtMessageHandler originalHandler = qInstallMessageHandler(log_handler);
 
     QApplication app(argc, argv);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#if false && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     app.setStyle("Fusion");
 #endif
 
