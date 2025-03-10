@@ -1,6 +1,4 @@
-QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
+QT       += core gui widgets network
 
 CONFIG += c++17
 CONFIG += sdk_no_version_check
