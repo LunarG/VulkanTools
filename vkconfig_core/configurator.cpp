@@ -59,11 +59,8 @@ bool Configurator::Init(ConfiguratorMode configurator_mode) {
     this->init_mode = configurator_mode;
 
     const bool result = this->Load();
-    if (!result) {
-        return false;
-    }
 
-    if (this->has_crashed) {
+    if (result && this->has_crashed) {
         switch (this->mode) {
             default:
             case CONFIGURATOR_MODE_NONE: {
@@ -802,6 +799,10 @@ bool Configurator::Load() {
         QString init_data = file.readAll();
         file.close();
 
+        QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
+        this->window_geometry = settings.value("vkconfig3/mainwindow/geometry").toByteArray();
+        this->window_state = settings.value("vkconfig3/mainwindow/state").toByteArray();
+
         const QJsonDocument& json_doc = QJsonDocument::fromJson(init_data.toLocal8Bit());
         const QJsonObject& json_root_object = json_doc.object();
 
@@ -901,10 +902,16 @@ bool Configurator::Load() {
 
     this->configurations.LoadAllConfigurations(this->layers);
 
-    return true;
+    return has_init_file;
 }
 
 bool Configurator::Save() const {
+    if (!this->window_geometry.isEmpty()) {
+        QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
+        settings.setValue("vkconfig3/mainwindow/geometry", this->window_geometry);
+        settings.setValue("vkconfig3/mainwindow/state", this->window_state);
+    }
+
     QJsonObject json_root_object;
     json_root_object.insert("file_format_version", Version::VKCONFIG.str().c_str());
 

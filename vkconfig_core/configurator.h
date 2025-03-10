@@ -149,6 +149,8 @@ class Configurator {
     Version latest_sdk_version = Version::NONE;
     Version online_sdk_version = Version::NONE;
     Version last_vkconfig_version = Version::NONE;
+    QByteArray window_geometry;
+    QByteArray window_state;
 
    private:
     int hide_message_boxes_flags = 0;
