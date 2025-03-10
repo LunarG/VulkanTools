@@ -105,10 +105,20 @@ const char* GetExecutable(ExecutableId id) {
 }
 
 static const DefaultExecutable defaults_executables[] = {
-    {GetExecutable(EXECUTABLE_VKCUBE), "vkcube", "--suppress_popups", "vkcube launcher options"},
-    {GetExecutable(EXECUTABLE_VKCUBEPP), "vkcubepp", "--suppress_popups", "vkcubepp launcher options"},
-    {GetExecutable(EXECUTABLE_VKINFO), "vulkaninfo", "--json", "vulkaninfo launcher options"},
-};
+    {GetExecutable(EXECUTABLE_VKCUBE),
+     "vkcube",
+     {{"Simple Launch", "", "--suppress_popups", ""},
+      {"API Validated Launch", "", "--suppress_popups --validate", ""},
+      {"Env Validated Launch", "", "--suppress_popups", "VK_LOADER_LAYERS_ENABLE=*validation"}}},
+    {GetExecutable(EXECUTABLE_VKCUBEPP),
+     "vkcubepp",
+     {{"Simple Launch", "", "--suppress_popups", ""},
+      {"API Validated Launch", "", "--suppress_popups --validate", ""},
+      {"Env Validated Launch", "", "--suppress_popups", "VK_LOADER_LAYERS_ENABLE=*validation"}}},
+    {GetExecutable(EXECUTABLE_VKINFO),
+     "vulkaninfo",
+     {{"Vulkan Info stdout summary", "${VULKAN_HOME}", "--summary"},
+      {"GPU 0 Vulkan Profile JSON export", "${VULKAN_HOME}", "--json=0 --show-promoted-structs"}}}};
 
 std::string ExecutableManager::Log() const {
     std::string log;
@@ -222,7 +232,7 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
 
             QJsonArray json_env_array;
             for (std::size_t k = 0, p = options.envs.size(); k < p; ++k) {
-                json_env_array.append(TrimSurroundingWhitespace(options.envs[k]).c_str());
+                json_env_array.append(TrimSurroundingWhitespace(options.envs[k], " \t\n\r").c_str());
             }
 
             QJsonObject json_option_object;

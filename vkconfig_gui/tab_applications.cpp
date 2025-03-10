@@ -431,14 +431,14 @@ void TabApplications::on_launch_button_pressed() {
     if (!options->args.empty()) {
         launch_log += "- Command-line Arguments:\n";
         for (std::size_t i = 0, n = options->args.size(); i < n; ++i) {
-            launch_log += format("  - %s\n", options->args[i].c_str());
+            launch_log += format("  - %s\n", TrimSurroundingWhitespace(options->args[i]).c_str());
         }
     }
 
     if (!options->envs.empty()) {
         launch_log += "- Environment Variables:\n";
         for (std::size_t i = 0, n = options->envs.size(); i < n; ++i) {
-            launch_log += format("  - %s\n", options->envs[i].c_str());
+            launch_log += format("  - %s\n", TrimSurroundingWhitespace(options->envs[i]).c_str());
         }
     }
 
@@ -472,7 +472,7 @@ void TabApplications::on_launch_button_pressed() {
     if (ui->launch_clear_at_launch->isChecked()) {
         ui->launch_log_text->clear();
     }
-    this->Log(launch_log.c_str());
+    this->Log(launch_log.c_str(), true);
 
     // Launch the test application
     if (_launch_application == nullptr) {
@@ -509,7 +509,7 @@ void TabApplications::on_launch_button_pressed() {
         this->ui->launch_button->setText("Launch");
 
         const std::string failed_log = std::string("Failed to launch ") + active_executable->path.AbsolutePath().c_str() + "!\n";
-        this->Log(failed_log);
+        this->Log(failed_log, true);
     }
 }
 
@@ -563,14 +563,14 @@ void TabApplications::RebuildOptions() {
 }
 
 void TabApplications::ResetLaunchApplication() {
-    if (_launch_application != nullptr) {
-        if (_launch_application->processId() > 0) {
+    if (this->_launch_application != nullptr) {
+        if (this->_launch_application->processId() > 0) {
             this->_launch_application->kill();
             this->_launch_application->waitForFinished();
         }
     }
 
-    ui->launch_button->setText("Launch");
+    this->ui->launch_button->setText("Launch");
 }
 
 /// The process we are following is closed. We don't actually care about the
@@ -581,15 +581,15 @@ void TabApplications::processClosed(int exit_code, QProcess::ExitStatus status) 
     (void)exit_code;
     (void)status;
 
-    assert(_launch_application);
+    assert(this->_launch_application);
 
-    Log("Process terminated");
+    this->Log("Process terminated", true);
 
-    if (_log_file.isOpen()) {
-        _log_file.close();
+    if (this->_log_file.isOpen()) {
+        this->_log_file.close();
     }
 
-    ResetLaunchApplication();
+    this->ResetLaunchApplication();
 }
 
 /// This signal get's raised whenever the spawned Vulkan appliction writes
@@ -598,24 +598,26 @@ void TabApplications::processClosed(int exit_code, QProcess::ExitStatus status) 
 /// the string and append it to the text browser.
 /// If a log file is open, we also write the output to the log.
 void TabApplications::standardOutputAvailable() {
-    if (_launch_application) {
-        this->Log(_launch_application->readAllStandardOutput().toStdString());
+    if (this->_launch_application) {
+        this->Log(this->_launch_application->readAllStandardOutput().toStdString(), false);
     }
 }
 
 void TabApplications::errorOutputAvailable() {
-    if (_launch_application) {
-        this->Log(_launch_application->readAllStandardError().toStdString());
+    if (this->_launch_application) {
+        this->Log(this->_launch_application->readAllStandardError().toStdString(), false);
     }
 }
 
-void TabApplications::Log(const std::string &log) {
+void TabApplications::Log(const std::string &log, bool flush) {
     this->ui->launch_log_text->setPlainText(ui->launch_log_text->toPlainText() + "\n" + log.c_str());
     this->ui->launch_log_text->moveCursor(QTextCursor::End);
     this->ui->launch_clear_log->setEnabled(true);
 
     if (this->_log_file.isOpen()) {
         this->_log_file.write(log.c_str(), log.size());
-        this->_log_file.flush();
+        if (flush) {
+            this->_log_file.flush();
+        }
     }
 }
