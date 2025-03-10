@@ -25,8 +25,9 @@
 #include <cassert>
 
 static int RunReset(int argc, char* argv[], bool hard) {
-    Configurator& configurator = Configurator::Get();
-    configurator.Init(CONFIGURATOR_MODE_CMD);
+    ConfiguratorGuard configurator_guard(CONFIGURATOR_MODE_CMD);
+
+    Configurator& configurator = configurator_guard.Get();
     configurator.Reset(hard);
 
     return 0;
