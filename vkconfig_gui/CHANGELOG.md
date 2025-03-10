@@ -13,7 +13,6 @@
 [Vulkan SDK 1.4.309.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.309)
 
 ### Features:
-- Add dark mode support, automatically matching the OS mode, when Qt dark mode is available on the OS
 - Add `vkconfig loader` commands to import, export, delete and use stored loader configurations
 - Add new Vulkan SDK notification and download
 
