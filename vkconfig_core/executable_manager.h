@@ -27,11 +27,12 @@
 #include <vector>
 
 enum ExecutableId {
-    EXECUTABLE_VKCUBE = 0,
+    EXECUTABLE_VKCONFIG_GUI = 0,
+    EXECUTABLE_VKCUBE,
     EXECUTABLE_VKCUBEPP,
     EXECUTABLE_VKINFO,
 
-    EXECUTABLE_FIRST = EXECUTABLE_VKCUBE,
+    EXECUTABLE_FIRST = EXECUTABLE_VKCONFIG_GUI,
     EXECUTABLE_LAST = EXECUTABLE_VKINFO,
 };
 
@@ -77,3 +78,4 @@ class ExecutableManager : public Serialize {
 };
 
 const char* GetExecutableFilter();
+const char* GetExecutable(ExecutableId id);
