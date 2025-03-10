@@ -85,7 +85,7 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     // Whenever the control surpasses this block count, old blocks are discarded.
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
-    this->ui->launch_log_text->document()->setMaximumBlockCount(65536);
+    // this->ui->launch_log_text->document()->setMaximumBlockCount(65536);
     this->ui->launch_log_text->moveCursor(QTextCursor::End);
 
     this->ui->launch_options_args_edit->setToolTip("Eg: '--argA --argB=valueB \"--argC=value C\" --argD=\"value D\"'");
@@ -509,7 +509,7 @@ void TabApplications::on_launch_button_pressed() {
         this->ui->launch_button->setText("Launch");
 
         const std::string failed_log = std::string("Failed to launch ") + active_executable->path.AbsolutePath().c_str() + "!\n";
-        this->Log(failed_log, true);
+        this->Log(failed_log.c_str(), true);
     }
 }
 
@@ -599,23 +599,23 @@ void TabApplications::processClosed(int exit_code, QProcess::ExitStatus status) 
 /// If a log file is open, we also write the output to the log.
 void TabApplications::standardOutputAvailable() {
     if (this->_launch_application) {
-        this->Log(this->_launch_application->readAllStandardOutput().toStdString(), false);
+        this->Log(this->_launch_application->readAllStandardOutput(), false);
     }
 }
 
 void TabApplications::errorOutputAvailable() {
     if (this->_launch_application) {
-        this->Log(this->_launch_application->readAllStandardError().toStdString(), false);
+        this->Log(this->_launch_application->readAllStandardError(), false);
     }
 }
 
-void TabApplications::Log(const std::string &log, bool flush) {
-    this->ui->launch_log_text->setPlainText(ui->launch_log_text->toPlainText() + "\n" + log.c_str());
+void TabApplications::Log(const QString &log, bool flush) {
+    this->ui->launch_log_text->appendPlainText(log);
     this->ui->launch_log_text->moveCursor(QTextCursor::End);
     this->ui->launch_clear_log->setEnabled(true);
 
     if (this->_log_file.isOpen()) {
-        this->_log_file.write(log.c_str(), log.size());
+        this->_log_file.write(log.toStdString().c_str(), log.size());
         if (flush) {
             this->_log_file.flush();
         }
