@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
-    QtMessageHandler originalHandler = qInstallMessageHandler(log_handler);
+    qInstallMessageHandler(log_handler);
 
     QApplication app(argc, argv);
 #if false && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)

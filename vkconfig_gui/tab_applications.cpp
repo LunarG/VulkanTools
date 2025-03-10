@@ -103,9 +103,6 @@ void TabApplications::UpdateUI(UpdateUIMode mode) {
     this->ui->launch_executable_remove->setEnabled(!configurator.executables.Empty());
     this->ui->launch_button->setEnabled(!configurator.executables.Empty());
 
-    const Executable *executable = configurator.executables.GetActiveExecutable();
-    const ExecutableOptions *options = executable->GetActiveOptions();
-
     if (mode == UPDATE_REBUILD_UI) {
         // Rebuild list of applications
         ui->launch_executable_list->blockSignals(true);

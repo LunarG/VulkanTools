@@ -26,6 +26,6 @@
 
 #include <QMenu>
 
-Tab::Tab(TabType type, MainWindow& window, std::shared_ptr<Ui::MainWindow> ui) : type(type), window(window), ui(ui) {}
+Tab::Tab(TabType type, MainWindow& window, std::shared_ptr<Ui::MainWindow> ui) : type(type), ui(ui), window(window) {}
 
 Tab::~Tab() {}
