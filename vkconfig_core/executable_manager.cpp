@@ -45,6 +45,20 @@ const char* GetExecutable(ExecutableId id) {
             assert(0);
             return nullptr;
         }
+        case EXECUTABLE_VKCONFIG_GUI: {
+            static const char* TABLE[] = {
+                "vkconfig-gui.exe",  // PLATFORM_WINDOWS_X86
+                "vkconfig-gui.exe",  // PLATFORM_WINDOWS_ARM
+                "vkconfig-gui",      // PLATFORM_LINUX
+                "vkconfig-gui.app",  // PLATFORM_MACOS
+                "N/A",               // PLATFORM_ANDROID
+                "N/A"                // PLATFORM_IOS
+            };
+            static_assert(std::size(TABLE) == PLATFORM_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
+
+            return TABLE[VKC_PLATFORM];
+        }
         case EXECUTABLE_VKCUBE: {
             static const char* TABLE[] = {
                 "vkcube.exe",  // PLATFORM_WINDOWS_X86

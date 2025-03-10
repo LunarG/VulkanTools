@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     // settings from the previous version (assuming that's ever an issue)
     QCoreApplication::setApplicationName(VKCONFIG_SHORT_NAME);
 
-    QtMessageHandler originalHandler = qInstallMessageHandler(log_handler);
+    qInstallMessageHandler(log_handler);
 
     QApplication app(argc, argv);
 
@@ -127,19 +127,15 @@ int main(int argc, char* argv[]) {
         case COMMAND_GUI: {
             singleton.Release();
 
+            const DefaultExecutable defaults_executable{::GetExecutable(EXECUTABLE_VKCONFIG_GUI), "vkconfig-gui", "options"};
+            const Executable executable(defaults_executable);
+            const ExecutableOptions* options = executable.GetActiveOptions();
+
             QProcess* gui = new QProcess(&app);
 
-            DefaultPath path = ::GetDefaultExecutablePath("/vkconfig-gui");
-            gui->setProgram(path.executable_path.AbsolutePath().c_str());
-            gui->setWorkingDirectory(path.working_folder.AbsolutePath().c_str());
+            gui->setProgram(executable.path.AbsolutePath().c_str());
+            gui->setWorkingDirectory(options->working_folder.AbsolutePath().c_str());
             bool result = gui->startDetached(nullptr);
-
-            if (!result) {
-                DefaultPath path = ::GetDefaultExecutablePath("/vkconfig");
-                gui->setProgram(path.executable_path.AbsolutePath().c_str());
-                gui->setWorkingDirectory(path.working_folder.AbsolutePath().c_str());
-                result = gui->startDetached(nullptr);
-            }
 
             return result ? 0 : 1;
         }
