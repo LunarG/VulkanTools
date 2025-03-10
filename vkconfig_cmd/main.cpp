@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
         case COMMAND_GUI: {
             singleton.Release();
 
-            const DefaultExecutable defaults_executable{::GetExecutable(EXECUTABLE_VKCONFIG_GUI), "vkconfig-gui", "options"};
+            const DefaultExecutable defaults_executable{::GetExecutable(EXECUTABLE_VKCONFIG_GUI), "vkconfig-gui"};
             const Executable executable(defaults_executable);
             const ExecutableOptions* options = executable.GetActiveOptions();
 
