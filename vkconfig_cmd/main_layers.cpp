@@ -123,24 +123,23 @@ int run_layers(const CommandLine& command_line) {
     assert(command_line.command == COMMAND_LAYERS);
     assert(command_line.error == ERROR_NONE);
 
-    Configurator& configurator = Configurator::Get();
-    configurator.Init(CONFIGURATOR_MODE_CMD);
+    ConfiguratorGuard configurator_guard(CONFIGURATOR_MODE_CMD);
 
     switch (command_line.command_layers_arg) {
         case COMMAND_LAYERS_OVERRIDE: {
-            return RunLayersOverride(configurator, command_line);
+            return RunLayersOverride(configurator_guard.Get(), command_line);
         }
         case COMMAND_LAYERS_SURRENDER: {
-            return RunLayersSurrender(configurator, command_line);
+            return RunLayersSurrender(configurator_guard.Get(), command_line);
         }
         case COMMAND_LAYERS_PATH: {
-            return RunLayersPath(configurator, command_line);
+            return RunLayersPath(configurator_guard.Get(), command_line);
         }
         case COMMAND_LAYERS_LIST: {
-            return RunLayersList(configurator, command_line);
+            return RunLayersList(configurator_guard.Get(), command_line);
         }
         case COMMAND_LAYERS_VERBOSE: {
-            return RunLayersVerbose(configurator, command_line);
+            return RunLayersVerbose(configurator_guard.Get(), command_line);
         }
         default: {
             assert(0);

@@ -153,9 +153,13 @@ int main(int argc, char* argv[]) {
     configurator.Surrender(OVERRIDE_AREA_ALL);
 
     if (configurator.reset_hard) {
+        configurator.Release();
+
         singleton.Release();
 
         QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+    } else {
+        configurator.Release();
     }
 
     return result;

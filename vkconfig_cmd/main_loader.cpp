@@ -206,27 +206,26 @@ int run_loader(const CommandLine& command_line) {
     assert(command_line.command == COMMAND_LOADER);
     assert(command_line.error == ERROR_NONE);
 
-    Configurator& configurator = Configurator::Get();
-    configurator.Init(CONFIGURATOR_MODE_CMD);
+    ConfiguratorGuard configurator_guard(CONFIGURATOR_MODE_CMD);
 
     switch (command_line.command_loader_arg) {
         case COMMAND_LOADER_OVERRIDE: {
-            return RunLoaderOverride(configurator, command_line);
+            return RunLoaderOverride(configurator_guard.Get(), command_line);
         }
         case COMMAND_LOADER_SURRENDER: {
-            return RunLoaderSurrender(configurator, command_line);
+            return RunLoaderSurrender(configurator_guard.Get(), command_line);
         }
         case COMMAND_LOADER_LIST: {
-            return RunLoaderList(configurator, command_line);
+            return RunLoaderList(configurator_guard.Get(), command_line);
         }
         case COMMAND_LOADER_IMPORT: {
-            return RunLoaderImport(configurator, command_line);
+            return RunLoaderImport(configurator_guard.Get(), command_line);
         }
         case COMMAND_LOADER_EXPORT: {
-            return RunLoaderExport(configurator, command_line);
+            return RunLoaderExport(configurator_guard.Get(), command_line);
         }
         case COMMAND_LOADER_DELETE: {
-            return RunLoaderDelete(configurator, command_line);
+            return RunLoaderDelete(configurator_guard.Get(), command_line);
         }
         default: {
             assert(0);
