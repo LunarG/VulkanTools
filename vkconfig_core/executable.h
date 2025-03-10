@@ -22,11 +22,17 @@
 
 #include "path.h"
 
+struct DefaultOptions {
+    std::string label;
+    Path working_folder;
+    std::string args;
+    std::string envs;
+};
+
 struct DefaultExecutable {
     std::string key;
     std::string name;
-    std::string arguments;
-    std::string label;
+    std::vector<DefaultOptions> options;
 };
 
 struct DefaultPath {

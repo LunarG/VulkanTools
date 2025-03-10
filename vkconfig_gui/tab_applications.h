@@ -72,7 +72,7 @@ class TabApplications : public Tab {
     void EnableOptions();
     void RebuildOptions();
 
-    void Log(const std::string& log);
+    void Log(const std::string& log, bool flush);
 
     std::unique_ptr<QProcess> _launch_application;  // Keeps track of the monitored app
     QFile _log_file;                                // Log file for layer output

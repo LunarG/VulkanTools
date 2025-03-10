@@ -131,6 +131,19 @@ TEST(test_util, trim_whitepace) {
     }
 }
 
+TEST(test_util, trim_surrounding_whitepace) {
+    std::vector<std::string> strings;
+    strings.push_back("-o profile.json");
+    strings.push_back(" -o profile.json ");
+    strings.push_back("\"-o profile.json\"");
+
+    for (std::size_t i = 0, n = strings.size(); i < n; ++i) {
+        std::string trimed_string = TrimSurroundingWhitespace(strings[i]);
+
+        EXPECT_STREQ("-o profile.json", trimed_string.c_str());
+    }
+}
+
 TEST(test_util, split_arg_default) {
     const std::string source_arg = "--argA --argB=valueB \"--argC=value C\" --argD=\"value D\"";
     const std::vector<std::string> split_arg = SplitSpace(source_arg);

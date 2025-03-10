@@ -303,7 +303,8 @@ QStringList ConvertString(const std::vector<std::string>& strings) {
     QStringList string_list;
 
     for (std::size_t i = 0, n = strings.size(); i < n; ++i) {
-        string_list.append(TrimSurroundingWhitespace(strings[i]).c_str());
+        const std::string& value = TrimSurroundingWhitespace(strings[i]);
+        string_list.append(value.c_str());
     }
 
     return string_list;

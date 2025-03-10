@@ -48,7 +48,7 @@ TEST(test_executable_manager, reset_default_applications_sdk_found) {
 
         EXPECT_TRUE(executables[2].path.RelativePath().find("${VULKAN_BIN}") != std::string::npos);
         const std::vector<ExecutableOptions>& options2 = executables[2].GetOptions();
-        EXPECT_TRUE(options2[0].working_folder.RelativePath().find("${VULKAN_BIN}") != std::string::npos);
+        EXPECT_TRUE(options2[0].working_folder.RelativePath().find("${VULKAN_HOME}") != std::string::npos);
         EXPECT_TRUE(options2[0].log_file.RelativePath().find("${VULKAN_HOME}") != std::string::npos);
     }
 }
@@ -79,9 +79,7 @@ TEST(test_executable_manager, reset_default_applications_no_sdk) {
 
     EXPECT_TRUE(executables[2].path.RelativePath().find("vulkaninfo") != std::string::npos);
     const std::vector<ExecutableOptions>& options2 = executables[2].GetOptions();
-#ifndef __APPLE__
-    EXPECT_TRUE(options2[0].working_folder.Empty());
-#endif
+    EXPECT_TRUE(options2[0].working_folder.RelativePath().find("${VULKAN_HOME}") != std::string::npos);
     EXPECT_TRUE(options2[0].log_file.RelativePath().find("${VULKAN_HOME}") != std::string::npos);
 }
 
