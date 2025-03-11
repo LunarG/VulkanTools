@@ -153,30 +153,36 @@ Executable::Executable(const DefaultExecutable& default_executable) {
 
     this->path = default_paths.executable_path;
 
-    for (std::size_t i = 0, n = default_executable.options.size(); i < n; ++i) {
+    if (default_executable.options.empty()) {
         ExecutableOptions options;
-        options.label = default_executable.options[i].label;
-        if (default_executable.options[i].working_folder.Empty()) {
-            options.working_folder = default_paths.working_folder;
-        } else {
-            options.working_folder = default_executable.options[i].working_folder;
-        }
-        options.args = SplitSpace(default_executable.options[i].args);
-        options.envs = SplitSpace(default_executable.options[i].envs);
-
-        // On all operating systems, but Windows we keep running into problems with this ending up
-        // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
-        // initially will be set to the users home folder across all OS's. This is highly visible
-        // in the application launcher and should not present a usability issue. The developer can
-        // easily change this later to anywhere they like.
+        options.label = "Default Options";
+        options.working_folder = default_paths.working_folder;
         options.log_file = std::string("${VULKAN_HOME}/") + default_executable.name + ".txt";
-
         this->options_list.push_back(options);
+    } else {
+        for (std::size_t i = 0, n = default_executable.options.size(); i < n; ++i) {
+            ExecutableOptions options;
+            options.label = default_executable.options[i].label;
+            if (default_executable.options[i].working_folder.Empty()) {
+                options.working_folder = default_paths.working_folder;
+            } else {
+                options.working_folder = default_executable.options[i].working_folder;
+            }
+            options.args = SplitSpace(default_executable.options[i].args);
+            options.envs = SplitSpace(default_executable.options[i].envs);
 
-        if (i == 0) {
-            this->active_options = options.label;
+            // On all operating systems, but Windows we keep running into problems with this ending up
+            // somewhere the user isn't allowed to create and write files. For consistncy sake, the log
+            // initially will be set to the users home folder across all OS's. This is highly visible
+            // in the application launcher and should not present a usability issue. The developer can
+            // easily change this later to anywhere they like.
+            options.log_file = std::string("${VULKAN_HOME}/") + default_executable.name + ".txt";
+
+            this->options_list.push_back(options);
         }
     }
+
+    this->active_options = this->options_list[0].label;
 }
 
 Executable::Executable(const Path& executable_path) {
