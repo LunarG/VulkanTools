@@ -37,7 +37,7 @@ class Configuration {
     static Configuration Create(const LayerManager& layers, const std::string& configuration_key);
 
     bool Load(const Path& full_path, const LayerManager& layers);
-    bool Save(const Path& full_path) const;
+    bool Save(const Path& full_path, bool export_mode = false) const;
     void Reset(const LayerManager& layers);
 
     Parameter* Find(const std::string& layer_key);

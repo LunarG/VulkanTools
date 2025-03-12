@@ -234,7 +234,7 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
     return true;
 }
 
-bool Configuration::Save(const Path& full_path) const {
+bool Configuration::Save(const Path& full_path, bool export_mode) const {
     assert(!full_path.Empty());
 
     QJsonObject root;
@@ -254,6 +254,10 @@ bool Configuration::Save(const Path& full_path) const {
     for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
         const Parameter& parameter = this->parameters[i];
 
+        if (parameter.type == LAYER_TYPE_IMPLICIT && parameter.control == LAYER_CONTROL_AUTO) {
+            continue;
+        }
+
         QJsonObject json_layer;
         json_layer.insert("name", parameter.key.c_str());
         json_layer.insert("type", ::GetToken(parameter.type));
@@ -263,7 +267,7 @@ bool Configuration::Save(const Path& full_path) const {
         json_layer.insert("control", GetToken(parameter.control));
         json_layer.insert("rank", parameter.overridden_rank);
         json_layer.insert("version", parameter.api_version == Version::LATEST ? "latest" : parameter.api_version.str().c_str());
-        if (parameter.builtin == LAYER_BUILTIN_NONE) {
+        if (parameter.builtin == LAYER_BUILTIN_NONE && !export_mode) {
             json_layer.insert("manifest", parameter.manifest.RelativePath().c_str());
         }
         SaveStringArray(json_layer, "platforms", GetPlatformTokens(parameter.platform_flags));
