@@ -149,6 +149,8 @@ void TabPreferences::on_reset_hard_pressed() {
     message.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     message.setDefaultButton(QMessageBox::No);
     if (message.exec() == QMessageBox::Yes) {
+        this->disconnect(qApp, &QGuiApplication::commitDataRequest, nullptr, nullptr);
+
         Configurator::Get().Reset(true);
         qApp->quit();
     }
