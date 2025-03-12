@@ -379,5 +379,5 @@ bool ConfigurationManager::ExportConfiguration(const LayerManager &layers, const
     Configuration *configuration = this->FindConfiguration(configuration_name);
     assert(configuration);
 
-    return configuration->Save(full_export_path);
+    return configuration->Save(full_export_path, true);
 }

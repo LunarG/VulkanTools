@@ -318,10 +318,10 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
             Configuration* configuration = this->configurations.FindConfiguration(layers_settings.configuration_name);
             if (configuration == nullptr) {
                 if (layers_settings.executable_path.Empty()) {
-                    fprintf(stderr, "Fail to apply unknown '%s' global configuration\n",
+                    fprintf(stderr, "vkconfig: [ERROR] Fail to apply unknown '%s' global configuration\n",
                             layers_settings.configuration_name.c_str());
                 } else {
-                    fprintf(stderr, "Fail to apply unknown '%s' configuration to '%s'\n",
+                    fprintf(stderr, "vkconfig: [ERROR] Fail to apply unknown '%s' configuration to '%s'\n",
                             layers_settings.configuration_name.c_str(), layers_settings.executable_path.AbsolutePath().c_str());
                 }
 
@@ -338,7 +338,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
             QFile file(layers_settings.settings_path.AbsolutePath().c_str());
             result_settings_file = result_settings_file && file.open(QIODevice::WriteOnly | QIODevice::Text);
             if (!result_settings_file) {
-                fprintf(stderr, "Cannot open file %s\n", layers_settings.settings_path.AbsolutePath().c_str());
+                fprintf(stderr, "vkconfig: [ERROR] Cannot open file %s\n", layers_settings.settings_path.AbsolutePath().c_str());
                 continue;
             }
             QTextStream stream(&file);
@@ -364,7 +364,18 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
 
                 const Layer* layer = this->layers.Find(parameter.key.c_str(), parameter.api_version);
                 if (layer == nullptr) {
-                    has_missing_layers = true;
+                    if (parameter.control == LAYER_CONTROL_ON) {
+                        has_missing_layers = true;
+                        fprintf(stderr,
+                                "vkconfig: [ERROR] `%s` layer is set to `%s` in `%s` loader configuration but missing and being "
+                                "ignored\n",
+                                parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str());
+                    } else {
+                        fprintf(stderr,
+                                "vkconfig: [WARNING] `%s` layer is set to `%s` in `%s` loader configuration but missing and being "
+                                "ignored\n",
+                                parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str());
+                    }
                     continue;
                 }
 
