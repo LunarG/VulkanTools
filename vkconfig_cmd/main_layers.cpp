@@ -31,7 +31,7 @@ static int RunLayersOverride(Configurator& configurator, const CommandLine& comm
     const bool load_result = configurator.configurations.ImportConfiguration(
         configurator.layers, command_line.layers_configuration_path, configuration_name);
     if (!load_result) {
-        fprintf(stderr, "vkconfig: Failed to load `%s` loader configuration file...\n",
+        fprintf(stderr, "vkconfig: [ERROR] Failed to load `%s` loader configuration file...\n",
                 command_line.layers_configuration_path.AbsolutePath().c_str());
         return -1;
     }
@@ -39,20 +39,28 @@ static int RunLayersOverride(Configurator& configurator, const CommandLine& comm
     configurator.SetActiveConfigurationName(configuration_name);
     const bool override_result = configurator.Override(OVERRIDE_AREA_ALL);
     if (override_result) {
-        printf("vkconfig: Layers configuration \"%s\" applied to all Vulkan Applications, including Vulkan layers:\n",
+        printf("vkconfig: [INFO] Layers configuration \"%s\" applied to all Vulkan Applications, including Vulkan layers:\n",
                command_line.layers_configuration_path.AbsolutePath().c_str());
         const Configuration* configuration = configurator.GetActiveConfiguration();
 
         printf(" (Execute Closer to the Vulkan Application)\n");
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             const Parameter& parameter = configuration->parameters[i];
+
+            if (parameter.builtin == LAYER_BUILTIN_NONE) {
+                const Layer* layer = configurator.layers.Find(parameter.key.c_str(), parameter.api_version);
+                if (layer == nullptr) {
+                    continue;
+                }
+            }
+
             printf("- %s (%s)\n", parameter.key.c_str(), GetToken(parameter.control));
         }
         printf(" (Execute Closer to the Vulkan Driver)\n");
 
         printf("\n  (Run \"vkconfig layers --surrender\" to return Vulkan layers control to Vulkan applications)\n");
     } else {
-        fprintf(stderr, "vkconfig: Failed to override Vulkan applications layers...\n");
+        fprintf(stderr, "vkconfig: [ERROR] Failed to override Vulkan applications layers...\n");
     }
 
     configurator.configurations.RemoveConfiguration(configuration_name);
@@ -66,10 +74,10 @@ static int RunLayersSurrender(Configurator& configurator, const CommandLine& com
 
     if (has_overridden_layers) {
         if (surrender_result) {
-            printf("vkconfig: Full Vulkan layers control returned to Vulkan applications.\n");
+            printf("vkconfig: [INFO] Full Vulkan layers control returned to Vulkan applications.\n");
             printf("\n  (Run \"vkconfig layers --override <layers_configuration_file> to take control of Vulkan layers)\n");
         } else {
-            fprintf(stderr, "vkconfig: Failed to surrender Vulkan applications layers...\n");
+            fprintf(stderr, "vkconfig: [ERROR] Failed to surrender Vulkan applications layers...\n");
         }
     } else {
         fprintf(stderr, "vkconfig: No overridden Vulkan layers, nothing to surrender\n");
@@ -79,7 +87,7 @@ static int RunLayersSurrender(Configurator& configurator, const CommandLine& com
 }
 
 static int RunLayersPath(Configurator& configurator, const CommandLine& command_line) {
-    printf("vkconfig: Paths to find Vulkan Layers\n");
+    printf("vkconfig: [INFO] Paths to find Vulkan Layers\n");
 
     for (int layers_paths_index = 0, layers_paths_count = LAYERS_PATHS_COUNT; layers_paths_index < layers_paths_count;
          ++layers_paths_index) {
@@ -102,7 +110,7 @@ static int RunLayersPath(Configurator& configurator, const CommandLine& command_
 
 static int RunLayersList(Configurator& configurator, const CommandLine& command_line) {
     if (configurator.layers.available_layers.empty()) {
-        printf("vkconfig: No Vulkan layer found\n");
+        printf("vkconfig: [INFO] No Vulkan layer found\n");
     } else {
         const std::vector<std::string>& layer_names = configurator.layers.GatherLayerNames();
 
