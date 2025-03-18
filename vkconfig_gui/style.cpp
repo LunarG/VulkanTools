@@ -23,7 +23,7 @@
 #include <QStyleHints>
 #include <QGuiApplication>
 
-#if true || QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
 static bool IsDarkMode() { return false; }
 #else
 static bool IsDarkMode() {

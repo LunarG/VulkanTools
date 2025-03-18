@@ -45,11 +45,11 @@ class SettingsTreeManager : public QObject {
     void CleanupGUI();
 
     void RefreshPresetLabel();
-    void RefreshVersion();
+    // void RefreshVersion();
     void Refresh(RefreshAreas refresh_areas);
 
    public Q_SLOTS:
-    void OnLayerVersionChanged();
+    void OnLayerVersionChanged(int layer_version_index);
     void OnSettingChanged();
     void OnPresetChanged(int combox_preset_index);
 
@@ -71,5 +71,6 @@ class SettingsTreeManager : public QObject {
     void RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent);
 
     std::shared_ptr<Ui::MainWindow> ui;
-    LayerVersionComboBox *layer_version = nullptr;
+    // LayerVersionComboBox *layer_version = nullptr;
+    std::vector<Path> layer_version_path;
 };

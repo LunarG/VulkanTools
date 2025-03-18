@@ -6,8 +6,11 @@
 
 ### Improvements:
 - Add Vulkan Header version used to build in about tab
+- Refactor layer version combobox
+- Clean up UI layout
 
 ### Fixes:
+- Fix layer settings all display with the layer development status
 
 ## Vulkan Configurator 3.1.0 - March 2025
 [Vulkan SDK 1.4.309.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.309)

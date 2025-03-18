@@ -51,9 +51,9 @@
 SettingsTreeManager::SettingsTreeManager(std::shared_ptr<Ui::MainWindow> ui) : ui(ui) {
     assert(ui.get() != nullptr);
 
-    this->layer_version = new LayerVersionComboBox(this->ui->configurations_group_box_settings);
-    this->connect(this->layer_version, SIGNAL(itemChanged()), this, SLOT(OnLayerVersionChanged()));
-    this->ui->configurations_group_box_settings->installEventFilter(this->layer_version);
+    // this->layer_version = new LayerVersionComboBox(this->ui->configurations_group_box_settings);
+    this->connect(this->ui->configurations_versions, SIGNAL(currentIndexChanged(int)), this, SLOT(OnLayerVersionChanged(int)));
+    // this->ui->configurations_group_box_settings->installEventFilter(this->layer_version);
 }
 
 void SettingsTreeManager::CreateGUI() {
@@ -73,12 +73,17 @@ void SettingsTreeManager::CreateGUI() {
         }
     }
 
-    this->RefreshVersion();
+    // this->RefreshVersion();
 
     const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
 
     std::string title = parameter->key;
-    title.erase(0, strlen("VK_LAYER_"));
+    if (layer != nullptr) {
+        if (layer->status != STATUS_STABLE) {
+            title += format(" (%s)", GetToken(layer->status));
+        }
+    }
+    // title.erase(0, strlen("VK_LAYER_"));
 
     this->ui->configurations_group_box_settings->blockSignals(true);
     this->ui->configurations_group_box_settings->setTitle(format("%s:", title.c_str()).c_str());
@@ -89,16 +94,58 @@ void SettingsTreeManager::CreateGUI() {
     this->ui->configurations_presets->setVisible(!layer->presets.empty());
 
     const std::vector<Path> &layer_versions = configurator.layers.GatherManifests(parameter->key);
-    this->layer_version->setEnabled(true);
-    this->layer_version->setVisible(!layer_versions.empty());
+    this->ui->configurations_versions->setEnabled(true);
+    this->ui->configurations_versions->setVisible(!layer_versions.empty());
     if (!layer_versions.empty()) {
-        this->layer_version->Init(*parameter, layer_versions);
+        const Layer *layer_select = configurator.layers.FindFromManifest(parameter->manifest);
+        const Layer *layer_latest = configurator.layers.Find(parameter->key, Version::LATEST);
+
+        this->ui->configurations_versions->blockSignals(true);
+        this->ui->configurations_versions->clear();
+
+        this->layer_version_path.clear();
+
+        const std::string &latest_label = "Latest - " + layer_latest->manifest_path.AbsolutePath();
+        this->ui->configurations_versions->addItem(latest_label.c_str());
+        this->ui->configurations_versions->setItemData(0, layer_latest->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
+
+        this->layer_version_path.push_back(layer_latest->manifest_path);
+
+        int version_index = 0;
+        for (std::size_t i = 0, n = layer_versions.size(); i < n; ++i) {
+            if (layer_versions[i] == parameter->manifest) {
+                version_index = this->ui->configurations_versions->count();
+            }
+
+            const Layer *layer_version = configurator.layers.FindFromManifest(layer_versions[i]);
+
+            const int current_index = this->ui->configurations_versions->count();
+
+            const std::string &label = layer_version->api_version.str() + " - " + layer_version->manifest_path.AbsolutePath();
+
+            this->ui->configurations_versions->addItem(label.c_str());
+            this->ui->configurations_versions->setItemData(current_index, layer_version->manifest_path.AbsolutePath().c_str(),
+                                                           Qt::ToolTipRole);
+
+            this->layer_version_path.push_back(layer_version->manifest_path);
+        }
+
+        if (parameter->api_version != Version::LATEST) {
+            this->ui->configurations_versions->setCurrentIndex(version_index);
+        }
+
+        this->ui->configurations_versions->blockSignals(false);
+
+        if (layer_select != nullptr) {
+            this->ui->configurations_versions->setToolTip(layer_select->manifest_path.AbsolutePath().c_str());
+        }
     }
 
     // preset combobox
     {
         this->ui->configurations_presets->blockSignals(true);
         this->ui->configurations_presets->clear();
+        this->ui->configurations_presets->setToolTip("Change to apply a layer setting preset");
         if (!layer->presets.empty()) {
             this->ui->configurations_presets->addItem("User-Defined Settings");
 
@@ -158,7 +205,7 @@ void SettingsTreeManager::CleanupGUI() {
         this->ui->configurations_group_box_settings->setTitle("No Layer Settings");
         this->ui->configurations_group_box_settings->setCheckable(false);
         this->ui->configurations_presets->setVisible(false);
-        this->layer_version->setVisible(false);
+        this->ui->configurations_versions->setVisible(false);
         return;
     }
 
@@ -166,7 +213,7 @@ void SettingsTreeManager::CleanupGUI() {
         this->ui->configurations_group_box_settings->setTitle("Select a layer to display settings");
         this->ui->configurations_group_box_settings->setCheckable(false);
         this->ui->configurations_presets->setVisible(false);
-        this->layer_version->setVisible(false);
+        this->ui->configurations_versions->setVisible(false);
         return;
     }
 }
@@ -367,10 +414,25 @@ void SettingsTreeManager::BuildTree() {
     }
 }
 
-void SettingsTreeManager::OnLayerVersionChanged() {
-    this->CreateGUI();
+void SettingsTreeManager::OnLayerVersionChanged(int index) {
+    const Path &path = this->layer_version_path[index];
 
     Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    Parameter *parameter = configuration->GetActiveParameter();
+    if (index == 0) {
+        configuration->SwitchLayerLatest(configurator.layers, parameter->key);
+    } else {
+        configuration->SwitchLayerVersion(configurator.layers, parameter->key, path);
+    }
+
+    const Layer *layer = configurator.layers.FindFromManifest(path);
+    assert(layer != nullptr);
+    this->ui->configurations_versions->setToolTip(layer->manifest_path.AbsolutePath().c_str());
+
+    this->CreateGUI();
+
     configurator.Override(OVERRIDE_AREA_ALL);
 
     emit signalLayerVersionChanged();
@@ -416,6 +478,7 @@ void SettingsTreeManager::RefreshPresetLabel() {
     this->ui->configurations_presets->setCurrentIndex(preset_index);
 }
 
+/*
 void SettingsTreeManager::RefreshVersion() {
     if (this->layer_version != nullptr) {
         this->layer_version->setEnabled(true);
@@ -423,6 +486,7 @@ void SettingsTreeManager::RefreshVersion() {
         this->layer_version->eventFilter(nullptr, &resize_event);
     }
 }
+*/
 
 void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     Configurator &configurator = Configurator::Get();
