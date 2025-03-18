@@ -73,13 +73,9 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
 
     if (layer != nullptr) {
         decorated_name += format(" - %s (%s)", layer->api_version.str().c_str(), ::GetToken(layer->type));
-
-        if (layer->status != STATUS_STABLE) {
-            decorated_name += format(" (%s)", GetToken(layer->status));
-        }
         this->layer_remove->setVisible(false);
     } else if (!layer_found) {
-        decorated_name += " - Missing";
+        decorated_name += " - (Missing)";
         this->layer_state->setVisible(false);
         this->layer_state->setToolTip("Remove the layer from the configuration");
     }

@@ -1061,7 +1061,6 @@ void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) 
     }
 
     // The layer version combobox is on even when the layer settings group is unchecked
-    this->_settings_tree_manager.RefreshVersion();
     this->UpdateUI_Settings(UPDATE_REFRESH_UI);
 }
 

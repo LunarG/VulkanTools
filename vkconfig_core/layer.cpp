@@ -369,7 +369,7 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
         this->settings.clear();
         const QJsonValue& json_settings_value = json_features_object.value("settings");
         if (json_settings_value != QJsonValue::Undefined) {
-            AddSettingsSet(this->settings, nullptr, json_settings_value);
+            this->AddSettingsSet(this->settings, nullptr, json_settings_value);
         }
 
         // Load layer presets
@@ -383,13 +383,12 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
 
                 LayerPreset preset;
                 preset.platform_flags = this->platforms;
-                preset.status = this->status;
-                LoadMetaHeader(preset, json_preset_object);
+                ::LoadMetaHeader(preset, json_preset_object);
 
                 const QJsonArray& json_setting_array = ReadArray(json_preset_object, "settings");
                 for (int setting_index = 0, setting_count = json_setting_array.size(); setting_index < setting_count;
                      ++setting_index) {
-                    AddSettingData((SettingDataSet&)preset.settings, json_setting_array[setting_index]);
+                    this->AddSettingData((SettingDataSet&)preset.settings, json_setting_array[setting_index]);
                 }
 
                 this->presets.push_back(preset);
@@ -460,7 +459,7 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
 
         SettingMeta* setting_meta = Instantiate(settings, key, type);
         setting_meta->platform_flags = parent == nullptr ? this->platforms : parent->platform_flags;
-        setting_meta->status = parent == nullptr ? this->status : parent->status;
+        setting_meta->status = parent == nullptr ? STATUS_STABLE : parent->status;
         if (parent != nullptr) {
             setting_meta->view = parent->view;
         }

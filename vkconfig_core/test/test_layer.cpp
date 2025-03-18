@@ -128,7 +128,7 @@ TEST(test_layer, load_setting_interit) {
 
     EXPECT_STREQ("int_inherit", layer.settings[0]->key.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.settings[0]->platform_flags);
-    EXPECT_EQ(STATUS_BETA, layer.settings[0]->status);
+    EXPECT_EQ(STATUS_STABLE, layer.settings[0]->status);
     EXPECT_EQ(SETTING_VIEW_STANDARD, layer.settings[0]->view);
 
     EXPECT_STREQ("int_override", layer.settings[1]->key.c_str());
@@ -151,7 +151,7 @@ TEST(test_layer, load_preset_interit) {
 
     EXPECT_STREQ("Preset Inherit", layer.presets[0].label.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.presets[0].platform_flags);
-    EXPECT_EQ(STATUS_BETA, layer.presets[0].status);
+    EXPECT_EQ(STATUS_STABLE, layer.presets[0].status);
 
     EXPECT_STREQ("Preset Override", layer.presets[1].label.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[1].platform_flags);
@@ -206,7 +206,7 @@ TEST(test_layer, load_setting_enum_interit) {
     EXPECT_STREQ("value0", setting_inherit->enum_values[0].key.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT | PLATFORM_ANDROID_BIT,
               setting_inherit->enum_values[0].platform_flags);
-    EXPECT_EQ(STATUS_BETA, setting_inherit->enum_values[0].status);
+    EXPECT_EQ(STATUS_STABLE, setting_inherit->enum_values[0].status);
     EXPECT_EQ(SETTING_VIEW_STANDARD, setting_inherit->enum_values[0].view);
 
     EXPECT_STREQ("value1", setting_inherit->enum_values[1].key.c_str());
