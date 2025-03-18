@@ -1,11 +1,11 @@
 ## Vulkan Configurator 3.2.0 - May 2025
-[Vulkan SDK 1.4.3XX.0](https://github.com/LunarG/VulkanTools/tree/main)
+[Vulkan SDK 1.4.main](https://github.com/LunarG/VulkanTools/tree/main)
 
 ### Features:
 
 
 ### Improvements:
-
+- Add Vulkan Header version used to build in about tab
 
 ### Fixes:
 

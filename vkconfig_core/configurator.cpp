@@ -632,9 +632,9 @@ std::string Configurator::Log() const {
 #endif
 
     log += format("%s %s - %s:\n", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
+    log += format(" - Vulkan API version: %s\n", Version::VKHEADER.str().c_str());
     log += format(" - Build: %s %s\n", GetLabel(VKC_PLATFORM), build.c_str());
     log += format(" - Qt version: %d.%d.%d\n", QT_VERSION_MAJOR, QT_VERSION_MINOR, QT_VERSION_PATCH);
-    log += format(" - Vulkan API version: %s\n", Version::VKHEADER.str().c_str());
     if (Path(Path::SDK).Empty()) {
         log += " - ${VULKAN_SDK}: unset\n";
     } else {

@@ -85,7 +85,7 @@
        <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <attribute name="title">
@@ -2643,6 +2643,32 @@
            </property>
            <property name="text">
             <string>About LunarG</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="about_version">
+           <property name="geometry">
+            <rect>
+             <x>420</x>
+             <y>20</y>
+             <width>141</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>14</pointsize>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LayoutDirection::LeftToRight</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </widget>

@@ -34,6 +34,10 @@ TabAbout::TabAbout(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab
     const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
     assert(result);
 
+    this->ui->about_version->setText(format("Vulkan %s", Version::VKHEADER.str().c_str()).c_str());
+    QPalette palette = this->ui->about_version->palette();
+    palette.setColor(QPalette::WindowText, QColor(164, 30, 34));
+    this->ui->about_version->setPalette(palette);
     this->ui->about_changelog_textEdit->setMarkdown(file.readAll());
     this->ui->about_changelog_textEdit->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
     file.close();
