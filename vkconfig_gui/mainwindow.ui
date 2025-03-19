@@ -78,7 +78,6 @@
        <font>
         <family>Arial</family>
         <pointsize>10</pointsize>
-        <weight>50</weight>
         <bold>false</bold>
        </font>
       </property>
@@ -89,10 +88,10 @@
        <bool>true</bool>
       </property>
       <property name="tabShape">
-       <enum>QTabWidget::Rounded</enum>
+       <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -146,6 +145,9 @@
              <property name="lineWidth">
               <number>0</number>
              </property>
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
              <property name="opaqueResize">
               <bool>true</bool>
              </property>
@@ -158,6 +160,9 @@
              <widget class="QSplitter" name="splitter_configurations">
               <property name="lineWidth">
                <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
               </property>
               <property name="childrenCollapsible">
                <bool>false</bool>
@@ -199,7 +204,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -246,12 +250,11 @@
                         <font>
                          <family>Arial</family>
                          <pointsize>10</pointsize>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
                        <property name="sizeAdjustPolicy">
-                        <enum>QComboBox::AdjustToContents</enum>
+                        <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                        </property>
                       </widget>
                      </item>
@@ -279,7 +282,6 @@
                         <font>
                          <family>Arial</family>
                          <pointsize>10</pointsize>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -362,7 +364,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -391,7 +392,6 @@
                         <font>
                          <family>Arial</family>
                          <pointsize>10</pointsize>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
@@ -399,16 +399,16 @@
                         <bool>false</bool>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::NoFrame</enum>
+                        <enum>QFrame::Shape::NoFrame</enum>
                        </property>
                        <property name="lineWidth">
                         <number>1</number>
                        </property>
                        <property name="verticalScrollBarPolicy">
-                        <enum>Qt::ScrollBarAsNeeded</enum>
+                        <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
                        </property>
                        <property name="editTriggers">
-                        <set>QAbstractItemView::NoEditTriggers</set>
+                        <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
                        </property>
                        <property name="alternatingRowColors">
                         <bool>false</bool>
@@ -462,7 +462,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -509,7 +508,6 @@
                         <font>
                          <family>Arial</family>
                          <pointsize>9</pointsize>
-                         <weight>50</weight>
                          <italic>true</italic>
                          <bold>false</bold>
                         </font>
@@ -522,6 +520,9 @@
                        </property>
                        <property name="text">
                         <string>Execute Closer to the Vulkan Application</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -537,33 +538,32 @@
                         <font>
                          <family>Arial</family>
                          <pointsize>10</pointsize>
-                         <weight>50</weight>
                          <bold>false</bold>
                         </font>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::NoFrame</enum>
+                        <enum>QFrame::Shape::NoFrame</enum>
                        </property>
                        <property name="lineWidth">
                         <number>1</number>
                        </property>
                        <property name="verticalScrollBarPolicy">
-                        <enum>Qt::ScrollBarAsNeeded</enum>
+                        <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
                        </property>
                        <property name="autoScrollMargin">
                         <number>0</number>
                        </property>
                        <property name="editTriggers">
-                        <set>QAbstractItemView::NoEditTriggers</set>
+                        <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
                        </property>
                        <property name="dragEnabled">
                         <bool>true</bool>
                        </property>
                        <property name="dragDropMode">
-                        <enum>QAbstractItemView::NoDragDrop</enum>
+                        <enum>QAbstractItemView::DragDropMode::NoDragDrop</enum>
                        </property>
                        <property name="defaultDropAction">
-                        <enum>Qt::IgnoreAction</enum>
+                        <enum>Qt::DropAction::IgnoreAction</enum>
                        </property>
                        <property name="alternatingRowColors">
                         <bool>true</bool>
@@ -588,7 +588,6 @@
                         <font>
                          <family>Arial</family>
                          <pointsize>9</pointsize>
-                         <weight>50</weight>
                          <italic>true</italic>
                          <bold>false</bold>
                         </font>
@@ -601,6 +600,9 @@
                        </property>
                        <property name="text">
                         <string>Execute Closer to the Vulkan Driver</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
                        </property>
                        <property name="margin">
                         <number>0</number>
@@ -616,7 +618,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -665,7 +666,6 @@
                           <font>
                            <family>Arial</family>
                            <pointsize>10</pointsize>
-                           <weight>50</weight>
                            <bold>false</bold>
                           </font>
                          </property>
@@ -680,7 +680,6 @@
                           <font>
                            <family>Arial</family>
                            <pointsize>10</pointsize>
-                           <weight>50</weight>
                            <bold>false</bold>
                           </font>
                          </property>
@@ -695,7 +694,6 @@
                           <font>
                            <family>Arial</family>
                            <pointsize>10</pointsize>
-                           <weight>50</weight>
                            <bold>false</bold>
                           </font>
                          </property>
@@ -710,7 +708,6 @@
                           <font>
                            <family>Arial</family>
                            <pointsize>10</pointsize>
-                           <weight>50</weight>
                            <bold>false</bold>
                           </font>
                          </property>
@@ -725,7 +722,6 @@
                           <font>
                            <family>Arial</family>
                            <pointsize>10</pointsize>
-                           <weight>50</weight>
                            <bold>false</bold>
                           </font>
                          </property>
@@ -740,7 +736,6 @@
                           <font>
                            <family>Arial</family>
                            <pointsize>10</pointsize>
-                           <weight>50</weight>
                            <bold>false</bold>
                           </font>
                          </property>
@@ -768,6 +763,9 @@
               </property>
               <property name="lineWidth">
                <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <widget class="QWidget" name="verticalLayout_17" native="true">
                <property name="enabled">
@@ -819,7 +817,6 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
@@ -857,7 +854,6 @@
                       <font>
                        <family>Arial</family>
                        <pointsize>10</pointsize>
-                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -884,7 +880,6 @@
                       <font>
                        <family>Arial</family>
                        <pointsize>10</pointsize>
-                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -896,7 +891,6 @@
                       <font>
                        <family>Arial</family>
                        <pointsize>10</pointsize>
-                       <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
@@ -904,22 +898,22 @@
                       <string>Edit to change the layer settings</string>
                      </property>
                      <property name="frameShape">
-                      <enum>QFrame::NoFrame</enum>
+                      <enum>QFrame::Shape::NoFrame</enum>
                      </property>
                      <property name="lineWidth">
                       <number>0</number>
                      </property>
                      <property name="horizontalScrollBarPolicy">
-                      <enum>Qt::ScrollBarAsNeeded</enum>
+                      <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
                      </property>
                      <property name="sizeAdjustPolicy">
-                      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+                      <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored</enum>
                      </property>
                      <property name="autoScrollMargin">
                       <number>0</number>
                      </property>
                      <property name="editTriggers">
-                      <set>QAbstractItemView::NoEditTriggers</set>
+                      <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
                      </property>
                      <property name="alternatingRowColors">
                       <bool>true</bool>
@@ -1165,10 +1159,10 @@
               </sizepolicy>
              </property>
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarAsNeeded</enum>
+              <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
              </property>
              <property name="alternatingRowColors">
               <bool>true</bool>
@@ -1232,7 +1226,6 @@
            <font>
             <family>Arial</family>
             <pointsize>10</pointsize>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -1290,7 +1283,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1408,7 +1400,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1441,7 +1432,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1529,7 +1519,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -1561,7 +1550,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1588,7 +1576,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1617,7 +1604,6 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -1665,7 +1651,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1680,7 +1665,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1695,7 +1679,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1722,7 +1705,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -1751,7 +1733,6 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -1868,7 +1849,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1898,7 +1878,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1909,6 +1888,9 @@
              </item>
              <item>
               <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Vertical</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -1935,7 +1917,6 @@
                 <font>
                  <family>Arial</family>
                  <pointsize>10</pointsize>
-                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1959,12 +1940,11 @@
              <font>
               <family>Consolas</family>
               <pointsize>9</pointsize>
-              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
             <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
+             <enum>QFrame::Shape::NoFrame</enum>
             </property>
             <property name="lineWidth">
              <number>1</number>
@@ -2037,7 +2017,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -2248,18 +2227,17 @@
                  <font>
                   <family>Consolas</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
+                 <enum>QFrame::Shape::NoFrame</enum>
                 </property>
                 <property name="lineWidth">
                  <number>0</number>
                 </property>
                 <property name="verticalScrollBarPolicy">
-                 <enum>Qt::ScrollBarAsNeeded</enum>
+                 <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
                 </property>
                 <property name="readOnly">
                  <bool>true</bool>
@@ -2330,7 +2308,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -2359,7 +2336,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2367,13 +2343,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/view/latest/windows/antora/spec/latest/chapters/introduction.html&quot;&gt;Latest HTML&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByKeyboard</set>
                 </property>
                </widget>
               </item>
@@ -2383,7 +2359,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2391,13 +2366,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/latest/pdf/vkspec.pdf&quot;&gt;Latest PDF&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2410,7 +2385,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -2439,7 +2413,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2447,13 +2420,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://docs.vulkan.org/spec/latest/index.html&quot;&gt;Official Vulkan Documentation&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2463,7 +2436,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2471,13 +2443,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/&quot;&gt;Khronos Vulkan Registry&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2487,7 +2459,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2495,13 +2466,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.gpuinfo.org/&quot;&gt;vulkan.gpuinfo.org&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2514,7 +2485,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -2543,7 +2513,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2551,13 +2520,13 @@
                  <string>Vulkan SDK: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/release_notes.html&quot;&gt;Release Notes&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/sdk/home&quot;&gt;Download Page&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2567,7 +2536,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2575,13 +2543,13 @@
                  <string>Vulkan Configurator: &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/README.md&quot;&gt;Readme&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CHANGELOG.md&quot;&gt;Changelog&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2591,7 +2559,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2599,13 +2566,13 @@
                  <string>Vulkan Loader: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html&quot;&gt;Layers Configuration&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderDebugging.md&quot;&gt;Loader Debugging Guide&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2615,7 +2582,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2623,13 +2589,13 @@
                  <string>Vulkan Validation Layer: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/khronos_validation_layer.html&quot;&gt;Readme&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/validation_error_database.html&quot;&gt;Coverage&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2639,7 +2605,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2647,13 +2612,13 @@
                  <string>Vulkan API Capture and Replay - GFXReconstruct: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html&quot;&gt;Usage&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2663,7 +2628,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2671,13 +2635,13 @@
                  <string>Vulkan Profiles Tools: &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/OVERVIEW.md&quot;&gt;Overview&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/CHANGELOG.md&quot;&gt;Changelog&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://www.lunarg.com/wp-content/uploads/2024/04/The-Vulkan-Profiles-Tools-LunarG-Christophe-Riccio-04-11-2024.pdf&quot;&gt;Whitepaper&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2690,7 +2654,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -2716,7 +2679,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2724,13 +2686,13 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://discord.com/invite/vulkan&quot;&gt;Vulkan Discord&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://reddit.com/r/vulkan&quot;&gt;Reddit&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://stackoverflow.com/questions/tagged/vulkan&quot;&gt;Stack Overflow&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://fosstodon.org/@vulkan&quot;&gt;Mastodon&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::PlainText</enum>
+                 <enum>Qt::TextFormat::PlainText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                 <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
+                 <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
                 </property>
                </widget>
               </item>
@@ -2740,7 +2702,7 @@
            <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -2820,7 +2782,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -2855,7 +2816,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2870,7 +2830,6 @@
                  <font>
                   <family>Arial</family>
                   <pointsize>10</pointsize>
-                  <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -2902,7 +2861,6 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -2932,7 +2890,6 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -2956,7 +2913,6 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -2982,7 +2938,6 @@
               <font>
                <family>Arial</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
                <bold>true</bold>
               </font>
              </property>
@@ -3048,7 +3003,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -3075,7 +3029,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -3102,7 +3055,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -3126,7 +3078,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -3160,7 +3111,6 @@
                      <font>
                       <family>Arial</family>
                       <pointsize>10</pointsize>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -3175,7 +3125,7 @@
                   <item>
                    <spacer name="horizontalSpacer_2">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -3205,7 +3155,6 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -3232,7 +3181,6 @@
                    <font>
                     <family>Arial</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -3252,10 +3200,10 @@
         <item>
          <spacer name="verticalSpacer_2">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeType">
-           <enum>QSizePolicy::Expanding</enum>
+           <enum>QSizePolicy::Policy::Expanding</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -3276,7 +3224,7 @@
           <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -3393,7 +3341,7 @@
                <pixmap resource="resources.qrc">:/resourcefiles/lunarg_logo.png</pixmap>
               </property>
               <property name="textInteractionFlags">
-               <set>Qt::NoTextInteraction</set>
+               <set>Qt::TextInteractionFlag::NoTextInteraction</set>
               </property>
              </widget>
              <widget class="QLabel" name="label_10">
@@ -3425,7 +3373,6 @@
                <font>
                 <family>Arial</family>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -3433,7 +3380,7 @@
                <string>Vulkan Configurator licensed under Apache 2.0</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -3452,18 +3399,17 @@
                <font>
                 <family>Arial</family>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
               <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
+               <enum>Qt::LayoutDirection::LeftToRight</enum>
               </property>
               <property name="text">
                <string>Copyright (c) 2020-2025 LunarG, Inc.</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -3507,7 +3453,6 @@
                <font>
                 <family>Arial</family>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -3515,7 +3460,7 @@
                <string>Qt licensed under LGPL 3.0</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -3552,7 +3497,7 @@
                <bool>true</bool>
               </property>
               <property name="textInteractionFlags">
-               <set>Qt::NoTextInteraction</set>
+               <set>Qt::TextInteractionFlag::NoTextInteraction</set>
               </property>
              </widget>
              <widget class="QPushButton" name="about_lunarg_pushButton">
@@ -3593,12 +3538,11 @@
                <font>
                 <family>Arial</family>
                 <pointsize>14</pointsize>
-                <weight>75</weight>
                 <bold>true</bold>
                </font>
               </property>
               <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
+               <enum>Qt::LayoutDirection::LeftToRight</enum>
               </property>
               <property name="text">
                <string/>
@@ -3612,10 +3556,10 @@
               <bool>false</bool>
              </property>
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="textInteractionFlags">
-              <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
              </property>
             </widget>
            </item>
