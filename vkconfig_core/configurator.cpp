@@ -529,6 +529,7 @@ void Configurator::Reset(bool hard) {
         this->configurations.RemoveConfigurationFiles();
     }
 
+    this->use_system_tray = false;  // This prevents Vulkan Configurator to abort the restart
     this->reset_hard = true;
 }
 
