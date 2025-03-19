@@ -39,6 +39,9 @@
 #include <cstdio>
 #include <algorithm>
 
+const char* MAINWINDOW_GEOMETRY = "vkconfig/mainwindow_geometry";
+const char* MAINWINDOW_STATE = "vkconfig/mainwindow_state";
+
 ConfiguratorGuard::ConfiguratorGuard(ConfiguratorMode mode) {
     Configurator& configurator = Configurator::Get();
     configurator.Init(mode);
@@ -828,8 +831,8 @@ bool Configurator::Load() {
         file.close();
 
         QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-        this->window_geometry = settings.value("vkconfig3/mainwindow/geometry").toByteArray();
-        this->window_state = settings.value("vkconfig3/mainwindow/state").toByteArray();
+        this->window_geometry = settings.value(MAINWINDOW_GEOMETRY).toByteArray();
+        this->window_state = settings.value(MAINWINDOW_STATE).toByteArray();
 
         const QJsonDocument& json_doc = QJsonDocument::fromJson(init_data.toLocal8Bit());
         const QJsonObject& json_root_object = json_doc.object();
@@ -944,8 +947,8 @@ bool Configurator::Load() {
 bool Configurator::Save() const {
     if (!this->window_geometry.isEmpty()) {
         QSettings settings("LunarG", VKCONFIG_SHORT_NAME);
-        settings.setValue("vkconfig3/mainwindow/geometry", this->window_geometry);
-        settings.setValue("vkconfig3/mainwindow/state", this->window_state);
+        settings.setValue(MAINWINDOW_GEOMETRY, this->window_geometry);
+        settings.setValue(MAINWINDOW_STATE, this->window_state);
     }
 
     QJsonObject json_root_object;
