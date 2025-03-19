@@ -91,7 +91,7 @@
        <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -2316,7 +2316,7 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_12">
               <property name="spacing">
-               <number>0</number>
+               <number>5</number>
               </property>
               <property name="leftMargin">
                <number>7</number>
@@ -2343,7 +2343,7 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/view/latest/windows/antora/spec/latest/chapters/introduction.html&quot;&gt;Latest HTML&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2366,7 +2366,7 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/specs/latest/pdf/vkspec.pdf&quot;&gt;Latest PDF&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2393,7 +2393,7 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_6">
               <property name="spacing">
-               <number>0</number>
+               <number>5</number>
               </property>
               <property name="leftMargin">
                <number>7</number>
@@ -2420,7 +2420,7 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://docs.vulkan.org/spec/latest/index.html&quot;&gt;Official Vulkan Documentation&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2443,7 +2443,7 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://registry.khronos.org/vulkan/&quot;&gt;Khronos Vulkan Registry&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2466,7 +2466,7 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.gpuinfo.org/&quot;&gt;vulkan.gpuinfo.org&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2493,7 +2493,7 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_18">
               <property name="spacing">
-               <number>0</number>
+               <number>5</number>
               </property>
               <property name="leftMargin">
                <number>7</number>
@@ -2520,7 +2520,7 @@
                  <string>Vulkan SDK: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/release_notes.html&quot;&gt;Release Notes&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/sdk/home&quot;&gt;Download Page&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2543,7 +2543,7 @@
                  <string>Vulkan Configurator: &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/README.md&quot;&gt;Readme&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CHANGELOG.md&quot;&gt;Changelog&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2566,7 +2566,7 @@
                  <string>Vulkan Loader: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html&quot;&gt;Layers Configuration&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderDebugging.md&quot;&gt;Loader Debugging Guide&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2589,7 +2589,7 @@
                  <string>Vulkan Validation Layer: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/khronos_validation_layer.html&quot;&gt;Readme&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/validation_error_database.html&quot;&gt;Coverage&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2612,7 +2612,7 @@
                  <string>Vulkan API Capture and Replay - GFXReconstruct: &lt;a style=&quot;color:%s;&quot; href=&quot;https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html&quot;&gt;Usage&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2635,7 +2635,7 @@
                  <string>Vulkan Profiles Tools: &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/OVERVIEW.md&quot;&gt;Overview&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/CHANGELOG.md&quot;&gt;Changelog&lt;/a&gt;, &lt;a style=&quot;color:%s;&quot; href=&quot;https://www.lunarg.com/wp-content/uploads/2024/04/The-Vulkan-Profiles-Tools-LunarG-Christophe-Riccio-04-11-2024.pdf&quot;&gt;Whitepaper&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
@@ -2686,7 +2686,7 @@
                  <string>&lt;a style=&quot;color:%s;&quot; href=&quot;https://discord.com/invite/vulkan&quot;&gt;Vulkan Discord&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://reddit.com/r/vulkan&quot;&gt;Reddit&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://stackoverflow.com/questions/tagged/vulkan&quot;&gt;Stack Overflow&lt;/a&gt; - &lt;a style=&quot;color:%s;&quot; href=&quot;https://fosstodon.org/@vulkan&quot;&gt;Mastodon&lt;/a&gt;</string>
                 </property>
                 <property name="textFormat">
-                 <enum>Qt::TextFormat::PlainText</enum>
+                 <enum>Qt::TextFormat::RichText</enum>
                 </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
