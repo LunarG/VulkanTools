@@ -21,58 +21,20 @@
 #include "tab_documentation.h"
 #include "mainwindow.h"
 
-static void UpdateColor1(QLabel *label, const QColor &color) {
-    std::string ref = label->text().toStdString();
-    const std::string hex = color.name().toStdString();
-    std::string text = format(ref.c_str(), hex.c_str());
-    label->setText(text.c_str());
-}
-
-static void UpdateColor2(QLabel *label, const QColor &color) {
-    std::string ref = label->text().toStdString();
-    const std::string hex = color.name().toStdString();
-    std::string text = format(ref.c_str(), hex.c_str(), hex.c_str());
-    label->setText(text.c_str());
-}
-
-static void UpdateColor3(QLabel *label, const QColor &color) {
-    std::string ref = label->text().toStdString();
-    const std::string hex = color.name().toStdString();
-    std::string text = format(ref.c_str(), hex.c_str(), hex.c_str(), hex.c_str());
-    label->setText(text.c_str());
-}
-
-static void UpdateColor4(QLabel *label, const QColor &color) {
-    std::string ref = label->text().toStdString();
-    const std::string hex = color.name().toStdString();
-    std::string text = format(ref.c_str(), hex.c_str(), hex.c_str(), hex.c_str(), hex.c_str());
-    label->setText(text.c_str());
-}
-
-TabDocumentation::TabDocumentation(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DOCUMENTATION, window, ui) {
-    QPalette palette = this->ui->documentation_spec->palette();
-    QColor color = palette.color(QPalette::Text);
-
-    ::UpdateColor1(this->ui->documentation_spec_html, color);
-    ::UpdateColor1(this->ui->documentation_spec_pdf, color);
-
-    ::UpdateColor1(this->ui->documentation_doc0, color);
-    ::UpdateColor1(this->ui->documentation_doc1, color);
-    ::UpdateColor1(this->ui->documentation_doc2, color);
-
-    ::UpdateColor2(this->ui->documentation_sdk0, color);
-    ::UpdateColor2(this->ui->documentation_sdk1, color);
-    ::UpdateColor2(this->ui->documentation_sdk2, color);
-    ::UpdateColor2(this->ui->documentation_sdk3, color);
-    ::UpdateColor1(this->ui->documentation_sdk4, color);
-    ::UpdateColor3(this->ui->documentation_sdk5, color);
-
-    ::UpdateColor4(this->ui->documentation_com0, color);
-}
+TabDocumentation::TabDocumentation(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DOCUMENTATION, window, ui) {}
 
 TabDocumentation::~TabDocumentation() {}
 
-void TabDocumentation::UpdateUI(UpdateUIMode mode) { (void)mode; }
+void TabDocumentation::UpdateUI(UpdateUIMode mode) {
+    if (mode == UPDATE_REBUILD_UI) {
+        // We need to rebuild in case the style theme changed
+        QFile file_spec(":/resourcefiles/DOCUMENTATION.md");
+        const bool result_spec = file_spec.open(QIODevice::ReadOnly | QIODevice::Text);
+        assert(result_spec);
+        this->ui->documentation_text->setMarkdown(file_spec.readAll());
+        file_spec.close();
+    }
+}
 
 void TabDocumentation::CleanUI() {}
 

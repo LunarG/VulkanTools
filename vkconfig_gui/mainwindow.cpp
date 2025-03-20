@@ -45,13 +45,14 @@
 
 #include <cassert>
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QApplication &app, QWidget *parent)
     : QMainWindow(parent),
       _tray_icon(nullptr),
       _tray_icon_menu(nullptr),
       _tray_restore_action(nullptr),
       _tray_layers{nullptr, nullptr, nullptr, nullptr},
       _tray_quit_action(nullptr),
+      app(app),
       ui(new Ui::MainWindow) {
     ui->setupUi(this);
 

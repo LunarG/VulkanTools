@@ -67,9 +67,6 @@ static std::string BuildPropertiesLog(const Layer &layer) {
 
 TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
     : Tab(TAB_CONFIGURATIONS, window, ui), _settings_tree_manager(ui) {
-    this->ui->configurations_executable_append->setIcon(::Get(::ICON_FILE_SEARCH));
-    this->ui->configurations_executable_remove->setIcon(::Get(::ICON_FILE_REMOVE));
-
     this->ui->configurations_list->installEventFilter(&window);
     this->ui->configurations_layers_list->installEventFilter(&window);
     this->ui->configurations_settings->installEventFilter(&window);

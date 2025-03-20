@@ -44,7 +44,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
    public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QApplication &app, QWidget *parent = nullptr);
     ~MainWindow();
 
     void UpdateUI(UpdateUIMode mode);
@@ -84,6 +84,10 @@ class MainWindow : public QMainWindow {
 
     void InitTray();
 
+   public:
+    QApplication &app;
+
+   private:
     std::shared_ptr<Ui::MainWindow> ui;
     std::array<std::shared_ptr<Tab>, TAB_COUNT> tabs;
 };

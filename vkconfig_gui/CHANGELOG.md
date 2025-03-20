@@ -2,6 +2,7 @@
 [Vulkan SDK 1.4.main](https://github.com/LunarG/VulkanTools/tree/main)
 
 ### Features:
+- Add appearance selection: dark, light, device theme modes
 - Add search in diagnostic tab
 
 ### Improvements:

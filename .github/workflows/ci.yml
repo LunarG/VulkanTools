@@ -1,5 +1,5 @@
-# Copyright (c) 2023 Valve Corporation
-# Copyright (c) 2023 LunarG, Inc.
+# Copyright (c) 2023-2025 Valve Corporation
+# Copyright (c) 2023-2025 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '5.15.*'
+          version: '6.2.*'
       - name: Test Minimum CMake Version
         uses: lukka/get-cmake@latest
         with:
@@ -57,7 +57,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.2.*'
+        version: '6.5.*'
     - name: Clone repository
       uses: actions/checkout@v4
     - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
@@ -88,7 +88,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.5.3'
+          version: '6.8.*'
       - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D RUN_ON_GITHUB=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
       - run: cmake --build build
       - run: ctest --output-on-failure --test-dir build
@@ -121,7 +121,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.5.3'
+          version: '6.8.*'
       - uses: lukka/get-cmake@latest
       - name: Configure
         run: |

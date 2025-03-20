@@ -35,9 +35,6 @@
 TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_LAYERS, window, ui) {
     Configurator &configurator = Configurator::Get();
 
-    this->ui->layers_browse_button->setIcon(::Get(::ICON_FOLDER_SEARCH));
-    this->ui->layers_reload_button->setIcon(::Get(::ICON_FOLDER_RELOAD));
-
     this->ui->layers_progress->setValue(0);
     this->ui->layers_progress->setVisible(false);
     this->ui->layers_path_lineedit->setVisible(true);

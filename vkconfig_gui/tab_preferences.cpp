@@ -20,19 +20,24 @@
 
 #include "tab_preferences.h"
 #include "style.h"
+#include "mainwindow.h"
 
 #include "../vkconfig_core/configurator.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDesktopServices>
+#include <QStyleHints>
 
 TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
     Configurator &configurator = Configurator::Get();
 
-    this->ui->preferences_reset->setIcon(::Get(::ICON_RESET));
-    this->ui->preferences_vk_home_browse->setIcon(::Get(::ICON_FOLDER_SEARCH));
-    this->ui->preferences_vk_download_browse->setIcon(::Get(::ICON_FOLDER_SEARCH));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    this->window.app.setStyle("Fusion");
+#else
+    this->ui->preferences_theme_mode->setToolTip(
+        "Vulkan Configurator must be build with Qt 6.8 or newer to support UI appearance control.");
+#endif
 
     this->connect(this->ui->preferences_keep_running, SIGNAL(toggled(bool)), this, SLOT(on_keep_running_toggled(bool)));
     this->connect(this->ui->preferences_vk_home_text, SIGNAL(returnPressed()), this, SLOT(on_vk_home_text_pressed()));
@@ -43,9 +48,16 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->preferences_open_page, SIGNAL(clicked()), this, SLOT(on_open_page_pressed()));
     this->connect(this->ui->preferences_notify_releases, SIGNAL(toggled(bool)), this, SLOT(on_notify_releases_toggled(bool)));
     this->connect(this->ui->preferences_download, SIGNAL(clicked()), this, SLOT(on_download_pressed()));
+    this->connect(this->ui->preferences_theme_mode, SIGNAL(currentIndexChanged(int)), this, SLOT(on_theme_mode_changed(int)));
 
     this->ui->preferences_progress->setVisible(false);
     this->ui->preferences_notify_releases->setChecked(configurator.GetUseNotifyReleases());
+    this->ui->preferences_theme_mode->blockSignals(true);
+    this->ui->preferences_theme_mode->setCurrentIndex(configurator.GetThemeMode());
+    this->ui->preferences_theme_mode->blockSignals(false);
+    this->ui->preferences_theme_mode->setEnabled(QT_VERSION >= QT_VERSION_CHECK(6, 8, 0));
+
+    this->on_theme_mode_changed(configurator.GetThemeMode());
 
     QUrl url(GetLatestReleaseSDK(VKC_PLATFORM));
     QNetworkRequest request(url);
@@ -88,6 +100,58 @@ bool TabPreferences::EventFilter(QObject *target, QEvent *event) {
     (void)event;
 
     return false;
+}
+
+void TabPreferences::on_theme_mode_changed(int index) {
+    const ThemeMode mode = QT_VERSION >= QT_VERSION_CHECK(6, 8, 0) ? static_cast<ThemeMode>(index) : THEME_MODE_USE_DEVICE;
+
+    Configurator &configurator = Configurator::Get();
+    configurator.SetThemeMode(mode);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    switch (mode) {
+        case THEME_MODE_USE_DEVICE:
+            this->window.app.styleHints()->unsetColorScheme();
+            break;
+        case THEME_MODE_FORCE_LIGHT:
+            this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
+            break;
+        case THEME_MODE_FORCE_DARK:
+            this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+            break;
+    }
+#endif
+
+    // Configurations
+    this->ui->configurations_executable_append->setIcon(::Get(::ICON_FILE_SEARCH));
+    this->ui->configurations_executable_remove->setIcon(::Get(::ICON_FILE_REMOVE));
+
+    // Layers
+    this->ui->layers_browse_button->setIcon(::Get(::ICON_FOLDER_SEARCH));
+    this->ui->layers_reload_button->setIcon(::Get(::ICON_FOLDER_RELOAD));
+
+    // Applications
+    this->ui->launch_executable_search->setIcon(::Get(::ICON_FILE_SEARCH));
+    this->ui->launch_executable_append->setIcon(::Get(::ICON_FILE_APPEND));
+    this->ui->launch_executable_remove->setIcon(::Get(::ICON_FILE_REMOVE));
+    this->ui->launch_options_append->setIcon(::Get(::ICON_OPTIONS_COPY));
+    this->ui->launch_options_remove->setIcon(::Get(::ICON_OPTIONS_REMOVE));
+    this->ui->launch_options_dir_button->setIcon(::Get(::ICON_FOLDER_SEARCH));
+    this->ui->launch_options_log_button->setIcon(::Get(::ICON_FILE_SEARCH));
+    this->ui->launch_options_log_open->setIcon(::Get(::ICON_FILE_EXPORT));
+
+    // Diagnostics
+    this->ui->diagnostic_search_next->setIcon(::Get(::ICON_NEXT));
+    this->ui->diagnostic_search_prev->setIcon(::Get(::ICON_PREV));
+    this->ui->diagnostic_search_hide->setIcon(::Get(::ICON_EXIT));
+    this->ui->diagnostic_search_case->setIcon(::Get(::ICON_SEARCH_CASE));
+    this->ui->diagnostic_search_whole->setIcon(::Get(::ICON_SEARCH_WHOLE));
+    this->ui->diagnostic_search_regex->setIcon(::Get(::ICON_SEARCH_REGEX));
+
+    // Preferences
+    this->ui->preferences_reset->setIcon(::Get(::ICON_RESET));
+    this->ui->preferences_vk_home_browse->setIcon(::Get(::ICON_FOLDER_SEARCH));
+    this->ui->preferences_vk_download_browse->setIcon(::Get(::ICON_FOLDER_SEARCH));
 }
 
 void TabPreferences::on_keep_running_toggled(bool checked) {

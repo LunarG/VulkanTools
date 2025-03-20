@@ -33,6 +33,7 @@
 #include "type_tab.h"
 #include "type_executable_mode.h"
 #include "type_configurator_mode.h"
+#include "type_theme_mode.h"
 #include "serialization.h"
 
 enum EnabledUI {
@@ -117,6 +118,9 @@ class Configurator {
     bool GetShowDiagnosticSearch() const;
     void SetShowDiagnosticSearch(bool enabled);
 
+    ThemeMode GetThemeMode() const;
+    void SetThemeMode(ThemeMode mode);
+
     bool ShouldNotify() const;
 
     bool HasActiveSettings() const;
@@ -165,6 +169,7 @@ class Configurator {
     bool show_diagnostic_search = false;
     ExecutableScope executable_scope = EXECUTABLE_ANY;
     std::string selected_global_configuration = "Validation";
+    ThemeMode theme_mode = THEME_MODE_USE_DEVICE;
 };
 
 struct ConfiguratorGuard {

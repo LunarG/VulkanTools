@@ -21,6 +21,7 @@
 #pragma once
 
 #include "tab.h"
+#include "../vkconfig_core/type_theme_mode.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -49,6 +50,7 @@ class TabPreferences : public Tab {
     void on_package_downloaded(QNetworkReply *pReply);
     void on_download_progress(qint64 bytesReceived, qint64 bytesTotal);
     void on_notify_releases_toggled(bool checked);
+    void on_theme_mode_changed(int index);
 
    private:
     QNetworkAccessManager network_manager;

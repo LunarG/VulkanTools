@@ -30,22 +30,24 @@ TabAbout::TabAbout(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab
     this->connect(this->ui->about_lunarg_pushButton, SIGNAL(pressed()), this, SLOT(on_about_lunarg_pushButton_pressed()));
     this->connect(this->ui->about_qt_pushButton, SIGNAL(pressed()), this, SLOT(on_about_qt_pushButton_pressed()));
 
-    QFile file(":/CHANGELOG.md");
-    const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
-    assert(result);
-
     this->ui->about_version->setText(format("Vulkan %s", Version::VKHEADER.str().c_str()).c_str());
     QPalette palette = this->ui->about_version->palette();
     palette.setColor(QPalette::WindowText, QColor(164, 30, 34));
     this->ui->about_version->setPalette(palette);
-    this->ui->about_changelog_textEdit->setMarkdown(file.readAll());
-    this->ui->about_changelog_textEdit->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
-    file.close();
 }
 
 TabAbout::~TabAbout() {}
 
-void TabAbout::UpdateUI(UpdateUIMode mode) { (void)mode; }
+void TabAbout::UpdateUI(UpdateUIMode mode) {
+    if (mode == UPDATE_REBUILD_UI) {
+        // We need to rebuild in case the style theme changed
+        QFile file(":/CHANGELOG.md");
+        const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
+        assert(result);
+        this->ui->about_changelog_textBrowser->setMarkdown(file.readAll());
+        file.close();
+    }
+}
 
 void TabAbout::CleanUI() {}
 

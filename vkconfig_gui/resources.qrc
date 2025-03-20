@@ -43,6 +43,7 @@
         <file>resourcefiles/dark/system-off.png</file>
         <file>resourcefiles/dark/system-on.png</file>
 
+        <file>resourcefiles/DOCUMENTATION.md</file>
 
         <file>resourcefiles/light/clear.png</file>
         <file>resourcefiles/light/drag.png</file>

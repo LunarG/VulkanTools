@@ -70,6 +70,7 @@ SOURCES += \
     ../vkconfig_core/type_status.cpp \
     ../vkconfig_core/type_tab.cpp \
     ../vkconfig_core/type_override_area.cpp \
+    ../vkconfig_core/type_theme_mode.cpp \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/ui.cpp \
     ../vkconfig_core/version.cpp \
@@ -150,6 +151,7 @@ HEADERS += \
     ../vkconfig_core/type_status.h \
     ../vkconfig_core/type_tab.h \
     ../vkconfig_core/type_override_area.h \
+    ../vkconfig_core/type_theme_mode.h \
     ../vkconfig_core/util.h \
     ../vkconfig_core/ui.h \
     ../vkconfig_core/version.h \
