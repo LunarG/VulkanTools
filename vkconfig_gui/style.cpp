@@ -20,6 +20,8 @@
 
 #include "style.h"
 
+#include "../vkconfig_core/configurator.h"
+
 #include <QStyleHints>
 #include <QGuiApplication>
 
@@ -27,8 +29,17 @@
 static bool IsDarkMode() { return false; }
 #else
 static bool IsDarkMode() {
-    const auto scheme = QGuiApplication::styleHints()->colorScheme();
-    return scheme == Qt::ColorScheme::Dark;
+    Configurator& configurator = Configurator::Get();
+
+    switch (configurator.GetThemeMode()) {
+        default:
+        case THEME_MODE_USE_DEVICE:
+            return QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+        case THEME_MODE_FORCE_LIGHT:
+            return false;
+        case THEME_MODE_FORCE_DARK:
+            return true;
+    }
 }
 #endif  // QT_VERSION
 

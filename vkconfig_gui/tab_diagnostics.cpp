@@ -50,12 +50,6 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     Configurator &configurator = Configurator::Get();
 
     this->ui->diagnostic_search_edit->setText(configurator.diagnostic_search_text.c_str());
-    this->ui->diagnostic_search_next->setIcon(::Get(::ICON_NEXT));
-    this->ui->diagnostic_search_prev->setIcon(::Get(::ICON_PREV));
-    this->ui->diagnostic_search_hide->setIcon(::Get(::ICON_EXIT));
-    this->ui->diagnostic_search_case->setIcon(::Get(::ICON_SEARCH_CASE));
-    this->ui->diagnostic_search_whole->setIcon(::Get(::ICON_SEARCH_WHOLE));
-    this->ui->diagnostic_search_regex->setIcon(::Get(::ICON_SEARCH_REGEX));
 
     this->ui->diagnostic_status_text->installEventFilter(&window);
     this->ui->diagnostic_status_text->document()->setMaximumBlockCount(65536);

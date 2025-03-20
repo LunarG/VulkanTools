@@ -26,6 +26,7 @@
 #include "../vkconfig_core/configurator_signal.h"
 
 #include <QApplication>
+#include <QGuiApplication>
 #include <QMessageBox>
 
 #include <cassert>
@@ -77,9 +78,6 @@ int main(int argc, char* argv[]) {
     qInstallMessageHandler(log_handler);
 
     QApplication app(argc, argv);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    app.setStyle("Fusion");
-#endif
 
     // This has to go after the construction of QApplication in
     // order to use a QMessageBox and avoid some QThread warnings.
@@ -144,7 +142,7 @@ int main(int argc, char* argv[]) {
 
     if (init) {
         // The main GUI is driven here
-        MainWindow main_window;
+        MainWindow main_window(app);
         main_window.show();
 
         result = app.exec();
