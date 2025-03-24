@@ -79,7 +79,7 @@ const char* Path::Separator() {
     return native_separator;
 }
 
-static std::string ConvertNativeSeparators(const std::string& path) {
+std::string ConvertNativeSeparators(const std::string& path) {
     const char* native_separator = Path::Separator();
     const char* alien_separator = VKC_ENV != VKC_ENV_WIN32 ? "\\" : "/";
 
@@ -93,7 +93,7 @@ Path::Path(const Path& path) : data(path.data) {}
 Path::Path(const char* path) : Path(std::string(path)) {}
 
 Path::Path(const std::string& path) {
-    std::string result = ConvertNativeSeparators(path);
+    std::string result = ::ConvertNativeSeparators(path);
 
     if (true) {
         for (std::size_t i = 0, n = std::size(VARIABLES); i < n; ++i) {
@@ -104,7 +104,7 @@ Path::Path(const std::string& path) {
                 assert(found == 0);  // The builtin variable must be first part of the path
                 const std::size_t offset = found + substring.size();
                 const std::string replaced_path = VARIABLES[i].key + result.substr(found + offset, result.size() - offset);
-                result = ConvertNativeSeparators(replaced_path);
+                result = ::ConvertNativeSeparators(replaced_path);
                 break;
             }
         }

@@ -32,7 +32,6 @@
 #include "../vkconfig_core/type_hide_message.h"
 
 #include <QMenu>
-#include <QProcess>
 #include <QMessageBox>
 #include <QFrame>
 #include <QComboBox>
