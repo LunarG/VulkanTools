@@ -33,7 +33,7 @@ TEST(test_executable_manager, reset_default_applications_sdk_found) {
     std::string result = qgetenv("VULKAN_SDK").toStdString();
 
     if (!result.empty()) {
-        EXPECT_EQ(3, executables.size());
+        EXPECT_EQ(4, executables.size());
 
         // Make sure the variable are not replaced
         EXPECT_TRUE(executables[0].path.RelativePath().find("${VULKAN_BIN}") != std::string::npos);
@@ -61,7 +61,7 @@ TEST(test_executable_manager, reset_default_applications_no_sdk) {
 
     const std::vector<Executable>& executables = executable_manager.GetExecutables();
 
-    EXPECT_EQ(3, executables.size());
+    EXPECT_EQ(4, executables.size());
 
     EXPECT_TRUE(executables[0].path.RelativePath().find("vkcube") != std::string::npos);
     const std::vector<ExecutableOptions>& options0 = executables[0].GetOptions();
@@ -113,12 +113,16 @@ TEST(test_executable_manager, remove_executable) {
     ExecutableManager executable_manager;
     executable_manager.Reset();
 
-    EXPECT_EQ(3, executable_manager.GetExecutables().size());
+    EXPECT_EQ(4, executable_manager.GetExecutables().size());
 
     EXPECT_EQ(executable_manager.GetActiveExecutableIndex(), 0);
 
     executable_manager.SetActiveExecutable(2);
     EXPECT_EQ(executable_manager.GetActiveExecutableIndex(), 2);
+
+    EXPECT_TRUE(executable_manager.RemoveExecutable());
+    EXPECT_EQ(3, executable_manager.GetExecutables().size());
+    EXPECT_EQ(executable_manager.GetActiveExecutableIndex(), 0);
 
     EXPECT_TRUE(executable_manager.RemoveExecutable());
     EXPECT_EQ(2, executable_manager.GetExecutables().size());

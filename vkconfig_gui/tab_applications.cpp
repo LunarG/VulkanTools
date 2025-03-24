@@ -460,33 +460,34 @@ void TabApplications::on_launch_button_pressed() {
         }
     }
 
-    if (ui->launch_clear_at_launch->isChecked()) {
-        ui->launch_log_text->clear();
+    if (this->ui->launch_clear_at_launch->isChecked()) {
+        this->ui->launch_log_text->clear();
     }
     this->Log(launch_log.c_str(), true);
 
     // Launch the test application
-    if (_launch_application == nullptr) {
-        _launch_application.reset(new QProcess(this));
-        this->connect(_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
-        this->connect(_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-        this->connect(_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
+    if (this->_launch_application == nullptr) {
+        this->_launch_application.reset(new QProcess(this));
+        this->connect(this->_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
+        this->connect(this->_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
+        this->connect(this->_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
                       SLOT(processClosed(int, QProcess::ExitStatus)));
     }
 
     this->_launch_application->setProgram(active_executable->path.AbsolutePath().c_str());
     this->_launch_application->setWorkingDirectory(options->working_folder.AbsolutePath().c_str());
 
-    QStringList env = QProcess::systemEnvironment();
-    if (!options->envs.empty()) {
-        const QStringList envs = ConvertString(options->envs);
-        env << envs;
+    QStringList envs = QProcess::systemEnvironment();
+    for (std::size_t i = 0, n = options->envs.size(); i < n; ++i) {
+        std::string env = TrimSurroundingWhitespace(options->envs[i]);
+        envs.append(env.c_str());
     }
-    this->_launch_application->setEnvironment(env);
+    this->_launch_application->setEnvironment(envs);
 
     QStringList args;
-    if (!options->args.empty()) {
-        args = ConvertString(options->args);
+    for (std::size_t i = 0, n = options->args.size(); i < n; ++i) {
+        std::string arg = TrimSurroundingWhitespace(options->args[i]);
+        args.append(arg.c_str());
     }
     this->_launch_application->setArguments(args);
 

@@ -34,10 +34,14 @@
 #include <QSettings>
 #include <QApplication>
 #include <QProcess>
+#include <QLibraryInfo>
+#include <QSysInfo>
+#include <QOperatingSystemVersion>
 
 #include <cassert>
 #include <cstdio>
 #include <algorithm>
+#include <thread>
 
 const char* MAINWINDOW_GEOMETRY = "vkconfig/mainwindow_geometry";
 const char* MAINWINDOW_STATE = "vkconfig/mainwindow_state";
@@ -638,12 +642,31 @@ std::string Configurator::Log() const {
     log += format("%s %s - %s:\n", VKCONFIG_NAME, Version::VKCONFIG.str().c_str(), GetBuildDate().c_str());
     log += format(" - Vulkan API version: %s\n", Version::VKHEADER.str().c_str());
     log += format(" - Build: %s %s\n", GetLabel(VKC_PLATFORM), build.c_str());
-    log += format(" - Qt version: %d.%d.%d\n", QT_VERSION_MAJOR, QT_VERSION_MINOR, QT_VERSION_PATCH);
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
+    log += format(" - Qt version: %s %s\n", QLibraryInfo::version().toString().toStdString().c_str(),
+                  QLibraryInfo::isDebugBuild() ? "Debug" : "Release");
+#else
+    log += format(" - Qt version: %s %s-%s\n", QLibraryInfo::version().toString().toStdString().c_str(),
+                  QLibraryInfo::isSharedBuild() ? "Shared" : "Static", QLibraryInfo::isDebugBuild() ? "Debug" : "Release");
+#endif
+
     if (Path(Path::SDK).Empty()) {
         log += " - ${VULKAN_SDK}: unset\n";
     } else {
         log += format(" - ${VULKAN_SDK}: %s\n", Path(Path::SDK).AbsolutePath().c_str());
     }
+    log += "\n";
+
+    log += "System Information:\n";
+#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
+    log += format(" - %s\n", QSysInfo::prettyProductName().toStdString().c_str());
+#else
+    const QOperatingSystemVersion& current = QOperatingSystemVersion::current();
+    log += format(" - %s %s\n", current.name().toStdString().c_str(), current.version().toString().toStdString().c_str());
+#endif
+
+    log += format(" - CPU architechture: %s\n", QSysInfo::currentCpuArchitecture().toStdString().c_str());
+    log += format(" - Logical CPU core count: %d\n", std::thread::hardware_concurrency());
     log += "\n";
 
     log += format("%s Settings:\n", VKCONFIG_NAME);

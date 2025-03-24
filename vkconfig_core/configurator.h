@@ -33,6 +33,7 @@
 #include "type_tab.h"
 #include "type_executable_mode.h"
 #include "type_configurator_mode.h"
+#include "type_diagnostic_mode.h"
 #include "type_theme_mode.h"
 #include "serialization.h"
 

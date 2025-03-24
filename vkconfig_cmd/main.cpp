@@ -131,11 +131,11 @@ int main(int argc, char* argv[]) {
             const Executable executable(defaults_executable);
             const ExecutableOptions* options = executable.GetActiveOptions();
 
-            QProcess* gui = new QProcess(&app);
+            QProcess* process = new QProcess(&app);
 
-            gui->setProgram(executable.path.AbsolutePath().c_str());
-            gui->setWorkingDirectory(options->working_folder.AbsolutePath().c_str());
-            bool result = gui->startDetached(nullptr);
+            process->setProgram(executable.path.AbsolutePath().c_str());
+            process->setWorkingDirectory(options->working_folder.AbsolutePath().c_str());
+            bool result = process->startDetached(nullptr);
 
             return result ? 0 : 1;
         }

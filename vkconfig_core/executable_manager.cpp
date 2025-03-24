@@ -101,6 +101,20 @@ const char* GetExecutable(ExecutableId id) {
 
             return TABLE[VKC_PLATFORM];
         }
+        case EXECUTABLE_VKCAPSVIEWER: {
+            static const char* TABLE[] = {
+                "vulkanCapsViewer.exe",  // PLATFORM_WINDOWS_X86
+                "vulkanCapsViewer.exe",  // PLATFORM_WINDOWS_ARM
+                "vulkanCapsViewer",      // PLATFORM_LINUX
+                "vulkanCapsViewer",      // PLATFORM_MACOS
+                "N/A",                   // PLATFORM_ANDROID
+                "N/A"                    // PLATFORM_IOS
+            };
+            static_assert(std::size(TABLE) == PLATFORM_COUNT,
+                          "The tranlation table size doesn't match the enum number of elements");
+
+            return TABLE[VKC_PLATFORM];
+        }
     }
 }
 
@@ -118,7 +132,10 @@ static const DefaultExecutable defaults_executables[] = {
     {GetExecutable(EXECUTABLE_VKINFO),
      "vulkaninfo",
      {{"Vulkan Info stdout summary", "${VULKAN_HOME}", "--summary"},
-      {"GPU 0 Vulkan Profile JSON export", "${VULKAN_HOME}", "--json=0 --show-promoted-structs"}}}};
+      {"GPU 0 Vulkan Profile JSON export", "${VULKAN_HOME}", "--json=0 --show-promoted-structs"}}},
+    {GetExecutable(EXECUTABLE_VKCAPSVIEWER),
+     "vulkanCapsViewer",
+     {{"Open GUI", "${VULKAN_HOME}", ""}, {"Export GPU Info", "${VULKAN_HOME}", "--deviceindex=0 \"-s vulkanCapsViewer.json\""}}}};
 
 std::string ExecutableManager::Log() const {
     std::string log;
