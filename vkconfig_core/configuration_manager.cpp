@@ -101,6 +101,10 @@ void ConfigurationManager::LoadAllConfigurations(const LayerManager &layers) {
 }
 
 void ConfigurationManager::LoadDefaultConfigurations(const LayerManager &layers) {
+    if (this->available_configurations.empty()) {
+        this->removed_built_in_configuration.clear();
+    }
+
     const std::vector<Path> &configuration_files = CollectFilePaths(":/configurations/");
 
     for (std::size_t i = 0, n = configuration_files.size(); i < n; ++i) {
