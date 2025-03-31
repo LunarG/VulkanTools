@@ -5,7 +5,6 @@
 - Add appearance selection: dark, light, device theme modes
 - Add muliple diagnostic modes
 - Add search in diagnostic tab
-- Add export of log bundle
 
 ### Improvements:
 - Add Vulkan Header version used to build in about tab
