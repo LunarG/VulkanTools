@@ -141,7 +141,9 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->launch_options_log_open->setIcon(::Get(::ICON_FILE_EXPORT));
 
     // Diagnostics
-    this->ui->diagnostic_export->setIcon(::Get(::ICON_FILE_EXPORT));
+    this->ui->diagnostic_export_folder->setIcon(::Get(::ICON_FOLDER_EXPORT));
+    this->ui->diagnostic_export_file->setIcon(::Get(::ICON_FILE_EXPORT));
+    this->ui->diagnostic_search_clear->setIcon(::Get(::ICON_EXIT));
     this->ui->diagnostic_search_next->setIcon(::Get(::ICON_NEXT));
     this->ui->diagnostic_search_prev->setIcon(::Get(::ICON_PREV));
     this->ui->diagnostic_search_case->setIcon(::Get(::ICON_SEARCH_CASE));

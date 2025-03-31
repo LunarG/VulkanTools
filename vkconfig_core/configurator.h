@@ -160,7 +160,6 @@ class Configurator {
     Version last_vkconfig_version = Version::NONE;
     QByteArray window_geometry;
     QByteArray window_state;
-    std::string diagnostic_search_text;
 
    private:
     int hide_message_boxes_flags = 0;

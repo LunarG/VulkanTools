@@ -952,10 +952,6 @@ bool Configurator::Load() {
                 this->show_diagnostic_search = json_object.value("show_diagnostic_search").toBool();
             }
 
-            if (json_object.value("diagnostic_search_text") != QJsonValue::Undefined) {
-                this->diagnostic_search_text = json_object.value("diagnostic_search_text").toString().toStdString();
-            }
-
             if (json_object.value("VULKAN_HOME") != QJsonValue::Undefined) {
                 ::SetHomePath(json_object.value("VULKAN_HOME").toString().toStdString());
             }
@@ -1020,7 +1016,6 @@ bool Configurator::Save() const {
         json_object.insert("latest_sdk_version", this->latest_sdk_version.str().c_str());
         json_object.insert("last_vkconfig_version", Version::VKCONFIG.str().c_str());
         json_object.insert("show_diagnostic_search", this->show_diagnostic_search);
-        json_object.insert("diagnostic_search_text", this->diagnostic_search_text.c_str());
         json_object.insert("VULKAN_HOME", ::Path(Path::HOME).RelativePath().c_str());
         json_object.insert("VULKAN_DOWNLOAD", ::Path(Path::DOWNLOAD).RelativePath().c_str());
         json_interface_object.insert(GetToken(TAB_PREFERENCES), json_object);

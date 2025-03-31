@@ -2023,6 +2023,31 @@
               <number>0</number>
              </property>
              <item>
+              <widget class="QPushButton" name="diagnostic_export_folder">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QComboBox" name="diagnostic_mode">
                <property name="minimumSize">
                 <size>
@@ -2051,12 +2076,12 @@
                </item>
                <item>
                 <property name="text">
-                 <string>VulkanInfo Full Log</string>
+                 <string>VulkanInfo Full Text</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>Device Vulkan Profile</string>
+                 <string>Vulkan Profile</string>
                 </property>
                </item>
                <item>
@@ -2066,12 +2091,7 @@
                </item>
                <item>
                 <property name="text">
-                 <string>Active Loader Configuration</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Vulkan Loader Settings</string>
+                 <string>Vulkan Loader Configuration</string>
                 </property>
                </item>
                <item>
@@ -2079,10 +2099,34 @@
                  <string>Vulkan Layers Settings</string>
                 </property>
                </item>
+               <item>
+                <property name="text">
+                 <string>Vulkan Loader Settings</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="diagnostic_export">
+              <widget class="QComboBox" name="diagnostic_mode_options">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="diagnostic_export_file">
                <property name="minimumSize">
                 <size>
                  <width>24</width>
@@ -2094,6 +2138,9 @@
                  <width>24</width>
                  <height>24</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Export Diagnostic File</string>
                </property>
                <property name="text">
                 <string/>
@@ -2117,6 +2164,34 @@
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="diagnostic_search_clear">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Clear the search text</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="diagnostic_search_next">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -2135,6 +2210,9 @@
                  <width>24</width>
                  <height>24</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Find Next (F3)</string>
                </property>
                <property name="text">
                 <string/>
@@ -2161,6 +2239,9 @@
                  <height>24</height>
                 </size>
                </property>
+               <property name="toolTip">
+                <string>Find Previous (Shift+F3)</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -2185,6 +2266,9 @@
                  <width>24</width>
                  <height>24</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Match case (Alt+C)</string>
                </property>
                <property name="text">
                 <string/>
@@ -2214,6 +2298,9 @@
                  <height>24</height>
                 </size>
                </property>
+               <property name="toolTip">
+                <string>Match whole word (Alt+W)</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -2241,6 +2328,9 @@
                  <width>24</width>
                  <height>24</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>Use Regular Expressions  (Alt+R)</string>
                </property>
                <property name="text">
                 <string/>
@@ -2272,6 +2362,9 @@
              </property>
              <property name="readOnly">
               <bool>true</bool>
+             </property>
+             <property name="tabStopDistance">
+              <double>10.000000000000000</double>
              </property>
             </widget>
            </item>
