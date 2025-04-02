@@ -51,54 +51,70 @@ static std::string BuildPlatformsMarkdown(int platform_flags) {
     return text;
 }
 
-static void WriteSettingsOverviewHtml(std::string& text, const Layer& layer, const SettingMetaSet& settings) {
+static std::string GetTabs(std::size_t depth) {
+    std::string result;
+    for (std::size_t i = 0, n = depth; i < n; ++i) {
+        result += "&nbsp;&nbsp;&nbsp;&nbsp;";
+    }
+    return result;
+}
+
+static void WriteSettingsOverviewHtml(std::string& text, const Layer& layer, const SettingMetaSet& settings, std::size_t depth) {
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         const SettingMeta* setting = settings[i];
 
-        if (setting->type != SETTING_GROUP && setting->view == SETTING_VIEW_STANDARD) {
+        if (setting->view == SETTING_VIEW_STANDARD) {
             text += "<tr>\n";
-            text += format("\t<td><a id=\"%s\"href=\"#%s-detailed\">%s</a></td>\n", setting->key.c_str(), setting->key.c_str(),
-                           setting->label.c_str());
-
+            text += format("\t<td>%s<a id=\"%s\" href=\"#%s-detailed\">%s</a></td>\n", ::GetTabs(depth).c_str(),
+                           setting->key.c_str(), setting->key.c_str(), setting->label.c_str());
             text += format("\t<td><span class=\"code\">%s</span></td>\n", setting->key.c_str());
             text += format("\t<td><span class=\"code\">%s</span></td>\n", GetToken(setting->type));
             text += format("\t<td><span class=\"code\">%s</span></td>\n", setting->Export(EXPORT_MODE_DOC).c_str());
+
             text += format("\t<td>%s</td>\n", BuildPlatformsHtml(setting->platform_flags).c_str());
+
             text += "</tr>\n";
         }
 
         if (IsEnum(setting->type) || IsFlags(setting->type)) {
             const SettingMetaEnumeration& setting_enum = static_cast<const SettingMetaEnumeration&>(*setting);
             for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
-                WriteSettingsOverviewHtml(text, layer, setting_enum.enum_values[j].settings);
+                WriteSettingsOverviewHtml(text, layer, setting_enum.enum_values[j].settings, depth + 1);
             }
         }
 
-        WriteSettingsOverviewHtml(text, layer, setting->children);
+        WriteSettingsOverviewHtml(text, layer, setting->children, depth + 1);
     }
 }
 
-static void WriteSettingsOverviewMarkdown(std::string& text, const Layer& layer, const SettingMetaSet& settings) {
+std::string BuildArchor(const std::string& label) {
+    std::string tmp = ToLowerCase(label);
+    std::replace(tmp.begin(), tmp.end(), ' ', '-');
+    return tmp;
+}
+
+static void WriteSettingsOverviewMarkdown(std::string& text, const Layer& layer, const SettingMetaSet& settings,
+                                          std::size_t depth) {
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         const SettingMeta* setting = settings[i];
 
-        if (setting->type != SETTING_GROUP && setting->view == SETTING_VIEW_STANDARD) {
-            text += "|";
-            text += setting->label + "|";
-            text += setting->key + "|";
-            text += GetToken(setting->type) + std::string("|");
-            text += setting->Export(EXPORT_MODE_DOC) + "|";
-            text += BuildPlatformsMarkdown(setting->platform_flags) + "|\n";
+        if (setting->view == SETTING_VIEW_STANDARD) {
+            text += "| ";
+            text += ::GetTabs(depth) + "[" + setting->label + "](#" + ::BuildArchor(setting->label) + ") | ";
+            text += setting->key + " | ";
+            text += GetToken(setting->type) + std::string(" | ");
+            text += setting->Export(EXPORT_MODE_DOC) + " | ";
+            text += BuildPlatformsMarkdown(setting->platform_flags) + " |\n";
         }
 
         if (IsEnum(setting->type) || IsFlags(setting->type)) {
             const SettingMetaEnumeration& setting_enum = static_cast<const SettingMetaEnumeration&>(*setting);
             for (std::size_t j = 0, o = setting_enum.enum_values.size(); j < o; ++j) {
-                WriteSettingsOverviewMarkdown(text, layer, setting_enum.enum_values[j].settings);
+                WriteSettingsOverviewMarkdown(text, layer, setting_enum.enum_values[j].settings, depth + 1);
             }
         }
 
-        WriteSettingsOverviewMarkdown(text, layer, setting->children);
+        WriteSettingsOverviewMarkdown(text, layer, setting->children, depth + 1);
     }
 }
 
@@ -114,7 +130,7 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         const SettingMeta* setting = settings[i];
 
-        if (setting->type != SETTING_GROUP && setting->view == SETTING_VIEW_STANDARD) {
+        if (setting->view == SETTING_VIEW_STANDARD) {
             if (setting->status == STATUS_STABLE) {
                 text += format("<h3><a id=\"%s-detailed\" href=\"#%s\">%s</a></h3>\n", setting->key.c_str(), setting->key.c_str(),
                                setting->label.c_str());
@@ -125,25 +141,32 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
 
             text += format("\t<p>%s</p>\n", setting->description.c_str());
 
-            text += format("<h4><a href=\"%s\">Setting Variables:</a></h4>\n", GetLayerSettingsDocURL(layer).c_str());
-            text += "<ul>\n";
-            text += format("\t<li>VK_EXT_layer_settings variable: <span class=\"code\">%s</span></li>\n", setting->key.c_str());
-            text += format("\t<li>vk_layer_settings.txt variable: <span class=\"code\">%s</span></li>\n",
-                           (GetLayerSettingPrefix(layer.key) + setting->key).c_str());
+            if (setting->type != SETTING_GROUP) {
+                text += "<table>\n";
+                text += format("<thead><tr><th><a href=\"%s\">Settings Methods</a></th><th>Settings Variables</th></tr></thead>\n",
+                               GetLayerSettingsDocURL(layer).c_str());
+                text += "<tbody>\n";
+                text += format("\t<tr><td>VK_EXT_layer_settings variable:</td><td><span class=\"code\">%s</span></td></tr>\n",
+                               setting->key.c_str());
+                text += format("\t<tr><td>vk_layer_settings.txt variable:</td><td><span class=\"code\">%s</span></td></tr>\n",
+                               (GetLayerSettingPrefix(layer.key) + setting->key).c_str());
 
-            std::vector<std::string> envs = BuildEnvVariablesList(layer.key.c_str(), setting->key.c_str());
-            if (!setting->env.empty()) {
-                envs.push_back(setting->env);
+                std::vector<std::string> envs = BuildEnvVariablesList(layer.key.c_str(), setting->key.c_str());
+                if (!setting->env.empty()) {
+                    envs.push_back(setting->env);
+                }
+                text += format("\t<tr><td>Environment variables:</td><td><span class=\"code\">%s</span></td></tr>\n",
+                               Merge(envs, "<BR/>").c_str());
+                text += "</tbody></table>\n";
             }
-            text +=
-                format("\t<li>Environment variables: <BR/> <span class=\"code\">%s</span></li>\n", Merge(envs, "<BR/>").c_str());
-            text += "</ul>\n";
 
-            text += "<h4>Setting Properties:</h4>\n";
             text += "<ul>\n";
 
             text += format("\t<li>Type: <span class=\"code\">%s</span></li>\n", GetToken(setting->type));
-            text += format("\t<li>Default Value: <span class=\"code\">%s</span></li>\n", setting->Export(EXPORT_MODE_DOC).c_str());
+            if (setting->type != SETTING_GROUP) {
+                text +=
+                    format("\t<li>Default Value: <span class=\"code\">%s</span></li>\n", setting->Export(EXPORT_MODE_DOC).c_str());
+            }
             text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHtml(setting->platform_flags).c_str());
             text += "</ul>\n";
 
@@ -184,7 +207,48 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
                     }
                 }
             }
+
+            if (!setting->dependence.empty()) {
+                text += "<h4>Setting Dependences</h4>\n";
+                if (setting->dependence.size() > 1) {
+                    switch (setting->dependence_mode) {
+                        case DEPENDENCE_NONE:
+                            // text += "\n";
+                            break;
+                        case DEPENDENCE_ALL:
+                            text += "<p>All the following condition must be fulfilled for the setting to be applied.</p>\n";
+                            break;
+                        case DEPENDENCE_ANY:
+                            text += "<p>Any of the following condition must be fulfilled for the setting to be applied.</p>\n";
+                            break;
+                    }
+                }
+
+                text += "<table><thead><tr>";
+                text += format("<th>Label</th><th><a href=\"%s\">Variables Key</a></th><th>Type</th><th>Value</th>",
+                               GetLayerSettingsDocURL(layer).c_str());
+                text += "</tr></thead><tbody>\n";
+
+                for (std::size_t i = 0, n = setting->dependence.size(); i < n; ++i) {
+                    const SettingMeta* setting_dep = ::FindSetting(layer.settings, setting->dependence[i]->key.c_str());
+                    if (setting_dep == nullptr) {
+                        continue;
+                    }
+
+                    text += "<tr>\n";
+                    text +=
+                        format("<td><a href=\"#%s-detailed\">%s</a></td>", setting_dep->key.c_str(), setting_dep->label.c_str());
+                    text += format("<td>%s</td>", setting_dep->key.c_str());
+                    text += format("<td>%s</td>", GetToken(setting_dep->type));
+                    text += format("<td>%s</td>", setting->dependence[i]->Export(EXPORT_MODE_DOC).c_str());
+                    text += "</tr>\n";
+                }
+
+                text += "</tbody></table>\n";
+            }
         }
+
+        text += "<hr>\n";
 
         WriteSettingsDetailsHtml(text, layer, setting->children);
     }
@@ -194,7 +258,7 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         const SettingMeta* setting = settings[i];
 
-        if (setting->type != SETTING_GROUP && setting->view == SETTING_VIEW_STANDARD) {
+        if (setting->view == SETTING_VIEW_STANDARD) {
             if (setting->status == STATUS_STABLE) {
                 text += "#### " + setting->label;
             } else {
@@ -204,22 +268,26 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
 
             text += setting->description + "\n";
 
-            text += "##### Setting Variables:\n";
-            text += "- VK_EXT_layer_settings variable: " + setting->key + "\n";
-            text += "- vk_layer_settings.txt variable: " + GetLayerSettingPrefix(layer.key) + setting->key + "\n";
+            if (setting->type != SETTING_GROUP) {
+                text += "| Setting Methods | Setting Variables |\n";
+                text += "|---|---|\n";
+                text += "| VK_EXT_layer_settings variable: | " + setting->key + " |\n";
+                text += "| vk_layer_settings.txt variable: | " + GetLayerSettingPrefix(layer.key) + setting->key + " |\n";
 
-            std::vector<std::string> envs = BuildEnvVariablesList(layer.key.c_str(), setting->key.c_str());
-            if (!setting->env.empty()) {
-                envs.push_back(setting->env);
-            }
-            text += "- Environment variables:\n";
-            for (std::size_t i = 0, n = envs.size(); i < n; ++i) {
-                text += format("  - %s\n", envs[i].c_str());
+                std::vector<std::string> envs = BuildEnvVariablesList(layer.key.c_str(), setting->key.c_str());
+                if (!setting->env.empty()) {
+                    envs.push_back(setting->env);
+                }
+
+                for (std::size_t i = 0, n = envs.size(); i < n; ++i) {
+                    text += format("| %s | %s |\n", i == 0 ? "Environment variables:" : "", envs[i].c_str());
+                }
             }
 
-            text += "##### Setting Properties:\n";
             text += format("- Type: %s\n", GetToken(setting->type));
-            text += format("- Default Value: %s\n", setting->Export(EXPORT_MODE_DOC).c_str());
+            if (setting->type != SETTING_GROUP) {
+                text += format("- Default Value: %s\n", setting->Export(EXPORT_MODE_DOC).c_str());
+            }
             text += "- Platforms: " + BuildPlatformsMarkdown(setting->platform_flags) + "\n";
             text += "\n";
 
@@ -253,21 +321,43 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
                     }
                 }
             }
+
+            if (!setting->dependence.empty()) {
+                text += "##### Dependences\n";
+                if (setting->dependence.size() > 1) {
+                    switch (setting->dependence_mode) {
+                        case DEPENDENCE_NONE:
+                            text += "\n";
+                            break;
+                        case DEPENDENCE_ALL:
+                            text += "All the following condition must be fulfilled for the setting to be applied.\n";
+                            break;
+                        case DEPENDENCE_ANY:
+                            text += "Any of the following condition must be fulfilled for the setting to be applied.\n";
+                            break;
+                    }
+                }
+
+                text += "| Label | Variables Key | Type | Value | \n";
+                text += "|---|---|---|---|\n";
+                for (std::size_t i = 0, n = setting->dependence.size(); i < n; ++i) {
+                    const SettingMeta* setting_dep = ::FindSetting(layer.settings, setting->dependence[i]->key.c_str());
+                    if (setting_dep == nullptr) {
+                        continue;
+                    }
+
+                    text += "| ";
+                    text += "[" + setting_dep->label + "](#" + ::BuildArchor(setting_dep->label) + ") | ";
+                    text += setting_dep->key + " | ";
+                    text += GetToken(setting_dep->type) + std::string(" | ");
+                    text += setting->dependence[i]->Export(EXPORT_MODE_DOC) + " |\n";
+                }
+                text += "\n";
+            }
         }
 
         WriteSettingsDetailsMarkdown(text, layer, setting->children);
     }
-}
-
-size_t GetNumSettings(const Layer& layer) {
-    std::size_t rval = layer.settings.size();
-    for (std::size_t i = 0, n = layer.settings.size(); i < n; ++i) {
-        const SettingMeta* setting = layer.settings[i];
-        if (setting->type != SETTING_GROUP && setting->view != SETTING_VIEW_HIDDEN) {
-            rval += setting->children.size();
-        }
-    }
-    return rval;
 }
 
 bool ExportHtmlDoc(const Layer& layer, const std::string& path) {
@@ -323,7 +413,8 @@ bool ExportHtmlDoc(const Layer& layer, const std::string& path) {
         text += format("\t<li>Status: %s</li>\n", GetToken(layer.status));
     }
     if (!layer.settings.empty()) {
-        text += format("\t<li><a href=\"#settings\">Number of Layer Settings: %d</a></li>\n", GetNumSettings(layer));
+        text +=
+            format("\t<li><a href=\"#settings\">Number of Layer Settings: %d</a></li>\n", ::CountSettings(layer.settings, true));
     }
     if (!layer.presets.empty()) {
         text += format("\t<li><a href=\"#presets\">Number of Layer Presets: %d</a></li>\n", layer.presets.size());
@@ -337,7 +428,7 @@ bool ExportHtmlDoc(const Layer& layer, const std::string& path) {
             format("<th>Label</th><th><a href=\"%s\">Variables Key</a></th><th>Type</th><th>Default Value</th><th>Platforms</th>",
                    GetLayerSettingsDocURL(layer).c_str());
         text += "</tr></thead><tbody>\n";
-        WriteSettingsOverviewHtml(text, layer, layer.settings);
+        WriteSettingsOverviewHtml(text, layer, layer.settings, 0);
         text += "</tbody></table>\n";
 
         text += "<h2>Layer Settings Details</h2>\n";
@@ -415,7 +506,7 @@ bool ExportMarkdownDoc(const Layer& layer, const std::string& path) {
         text += format(" - Status: %s\n", GetToken(layer.status));
     }
     if (!layer.settings.empty()) {
-        text += format("- Number of Layer Settings: %d\n", layer.settings.size());
+        text += format("- Number of Layer Settings: %d\n", ::CountSettings(layer.settings, true));
     }
     if (!layer.presets.empty()) {
         text += format("- Number of Layer Presets: %d\n", layer.presets.size());
@@ -426,7 +517,7 @@ bool ExportMarkdownDoc(const Layer& layer, const std::string& path) {
         text += "### Layer Settings Overview\n";
         text += "|Label|Variables Key|Type|Default Value|Platforms|\n";
         text += "|---|---|---|---|---|\n";
-        WriteSettingsOverviewMarkdown(text, layer, layer.settings);
+        WriteSettingsOverviewMarkdown(text, layer, layer.settings, 0);
         text += "\n";
 
         text += "### Layer Settings Details\n";
