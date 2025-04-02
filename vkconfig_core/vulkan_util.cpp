@@ -275,7 +275,7 @@ enum TrimMode {
     TRIM_LAST = TRIM_NAMESPACE,
 };
 
-static std::string TrimPrefix(const std::string &layer_key) {
+std::string TrimPrefix(const std::string &layer_key) {
     std::string key{};
     if (layer_key.find("VK_LAYER_") == 0) {
         std::size_t prefix = std::strlen("VK_LAYER_");

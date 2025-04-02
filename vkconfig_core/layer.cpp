@@ -452,6 +452,8 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
         SettingView view = SETTING_VIEW_STANDARD;
         if (json_setting.value("view") != QJsonValue::Undefined) {
             view = GetSettingView(ReadStringValue(json_setting, "view").c_str());
+        } else if (parent != nullptr) {
+            view = parent->view;
         }
         if (view == SETTING_VIEW_HIDDEN) {
             continue;
@@ -460,9 +462,7 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
         SettingMeta* setting_meta = Instantiate(settings, key, type);
         setting_meta->platform_flags = parent == nullptr ? this->platforms : parent->platform_flags;
         setting_meta->status = parent == nullptr ? STATUS_STABLE : parent->status;
-        if (parent != nullptr) {
-            setting_meta->view = parent->view;
-        }
+        setting_meta->view = view;
 
         LoadMetaHeader(*setting_meta, json_setting);
         if (json_setting.value("env") != QJsonValue::Undefined) {

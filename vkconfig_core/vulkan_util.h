@@ -61,6 +61,7 @@ struct VulkanSystemInfo {
 
 VulkanSystemInfo BuildVulkanSystemInfo();
 
+std::string TrimPrefix(const std::string &layer_key);
 std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char *setting_key);
 
 const char *GetLabel(VkPhysicalDeviceType deviceType);
