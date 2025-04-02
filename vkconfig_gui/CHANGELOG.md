@@ -11,8 +11,11 @@
 - Refactor layer version combobox
 - Clean up UI layout
 - Add button to remove missing layers
-- Clarify VK_EXT_layer_settings variable names in generated layer documentation
-- Hide `advanced` settings from generated layer documentation, used only by layer developers
+- Improved generated layer documentation
+  - Add links within the documentation to reach detailed part of a setting documentation
+  - Clarify VK_EXT_layer_settings variable names
+  - Hide `advanced` settings, used only by layer developers
+  - Add setting dependences section
 
 ### Fixes:
 - Fix layer settings all display with the layer development status

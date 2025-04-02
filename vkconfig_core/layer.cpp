@@ -516,7 +516,7 @@ void Layer::AddSettingData(SettingDataSet& settings_data, const QJsonValue& json
 
     const std::string& key = ReadStringValue(json_setting_object, "key");
 
-    SettingMeta* setting_meta = FindSetting(this->settings, key.c_str());
+    SettingMeta* setting_meta = ::FindSetting(this->settings, key.c_str());
     if (setting_meta == nullptr) {
         return;
     }

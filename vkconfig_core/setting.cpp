@@ -246,8 +246,20 @@ const SettingData* FindSetting(const SettingDataSet& settings, const char* key) 
     return nullptr;
 }
 
-std::size_t CountSettings(const SettingMetaSet& settings) {
-    std::size_t count = settings.size();
+static std::size_t CountStandardSettings(const SettingMetaSet& settings) {
+    std::size_t count = 0;
+
+    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
+        if (settings[i]->view == SETTING_VIEW_STANDARD) {
+            ++count;
+        }
+    }
+
+    return count;
+}
+
+std::size_t CountSettings(const SettingMetaSet& settings, bool only_standard) {
+    std::size_t count = only_standard ? ::CountStandardSettings(settings) : settings.size();
 
     for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
         count += CountSettings(settings[i]->children);

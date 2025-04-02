@@ -193,7 +193,7 @@ const T* FindSetting(const SettingDataSet& settings, const char* key) {
     return static_cast<const T*>(FindSetting(settings, key));
 }
 
-std::size_t CountSettings(const SettingMetaSet& settings);
+std::size_t CountSettings(const SettingMetaSet& settings, bool only_standard = false);
 
 bool CheckSettingOverridden(const SettingMeta& meta);
 
