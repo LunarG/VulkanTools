@@ -121,7 +121,7 @@ bool SettingMetaList::Load(const QJsonObject& json_setting) {
         }
     }
 
-    if (this->layer.key == "VK_LAYER_KHRONOS_validation") {
+    if (this->layer.key == "VK_LAYER_KHRONOS_validation" && this->key == "message_id_filter") {
         ::LoadVUIDs(this->list);
     }
 
