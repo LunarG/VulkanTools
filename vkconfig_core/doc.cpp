@@ -157,6 +157,14 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
                 }
                 text += format("\t<tr><td>Environment variables:</td><td><span class=\"code\">%s</span></td></tr>\n",
                                Merge(envs, "<BR/>").c_str());
+
+                if (setting->platform_flags & PLATFORM_ANDROID_BIT) {
+                    text += format(
+                        "\t<tr><td>Android system properties:</td><td><span class=\"code\">adb setprop "
+                        "debug.vulkan.%s</span></td></tr>\n",
+                        (GetLayerSettingPrefix(layer.key) + setting->key).c_str());
+                }
+
                 text += "</tbody></table>\n";
             }
 
@@ -281,6 +289,11 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
 
                 for (std::size_t i = 0, n = envs.size(); i < n; ++i) {
                     text += format("| %s | %s |\n", i == 0 ? "Environment variables:" : "", envs[i].c_str());
+                }
+
+                if (setting->platform_flags & PLATFORM_ANDROID_BIT) {
+                    text += "| Android system properties: | adb setprop debug.vulkan." + GetLayerSettingPrefix(layer.key) +
+                            setting->key + " |\n";
                 }
             }
 
@@ -498,6 +511,8 @@ bool ExportMarkdownDoc(const Layer& layer, const std::string& path) {
     text += "- Variables:\n";
     text += format("  - vk_layer_settings.txt namespace: %s\n", ToLowerCase(TrimPrefix(layer.key)).c_str());
     text += format("  - Environment Variable prefix: VK_%s_\n", ToUpperCase(TrimPrefix(layer.key)).c_str());
+    text +=
+        format("  - Android system property prefix: adb setprop debug.vulkan.%s.\n", ToLowerCase(TrimPrefix(layer.key)).c_str());
 
     if (layer.platforms != 0) {
         text += "- Platforms: " + BuildPlatformsMarkdown(layer.platforms) + "\n";
