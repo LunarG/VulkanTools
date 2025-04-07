@@ -39,3 +39,5 @@ enum { DIAGNOSTIC_MODE_COUNT = DIAGNOSTIC_MODE_LAST - DIAGNOSTIC_MODE_FIRST + 1 
 const char* GetToken(DiagnosticMode mode);
 
 DiagnosticMode GetDiagnosticMode(const char* token);
+
+const char* GetFilename(DiagnosticMode mode);

@@ -154,7 +154,7 @@ class Configurator {
     bool has_crashed = false;
     TabType active_tab = TAB_CONFIGURATIONS;
     bool advanced = true;
-    Path last_path_status = Path(Path::HOME).RelativePath() + "/vkconfig.txt";
+    Path last_path_status = Path(Path::HOME);
     Version latest_sdk_version = Version::NONE;
     Version online_sdk_version = Version::NONE;
     Version last_vkconfig_version = Version::NONE;
