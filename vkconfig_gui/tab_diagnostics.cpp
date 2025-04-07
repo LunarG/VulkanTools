@@ -64,8 +64,6 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     Configurator &configurator = Configurator::Get();
 
     this->ui->diagnostic_export_folder->setVisible(false);
-    this->ui->diagnostic_export_file->setVisible(false);
-    this->ui->diagnostic_mode_options->setVisible(false);
 
     this->ui->diagnostic_search_next->setEnabled(false);
     this->ui->diagnostic_search_prev->setEnabled(false);
@@ -297,7 +295,69 @@ void TabDiagnostics::on_mode_options_changed(int index) {
 
 void TabDiagnostics::on_export_folder() {}
 
-void TabDiagnostics::on_export_file() {}
+void TabDiagnostics::on_export_file() {
+    Configurator &configurator = Configurator::Get();
+
+    const Configuration *configuration = nullptr;
+
+    Path export_path = configurator.last_path_status;
+
+    switch (this->mode) {
+        default:
+        case DIAGNOSTIC_VULKAN_STATUS:
+        case DIAGNOSTIC_VULKAN_INFO_SUMMARY:
+        case DIAGNOSTIC_VULKAN_INFO_TEXT:
+        case DIAGNOSTIC_VULKAN_LOADER_LOG:
+        case DIAGNOSTIC_VULKAN_LOADER_SETTINGS:
+            export_path = export_path.RelativePath() + ::GetFilename(this->mode);
+            break;
+        case DIAGNOSTIC_VULKAN_PROFILE: {
+            std::size_t index = this->ui->diagnostic_mode_options->currentIndex();
+
+            export_path = export_path.RelativePath() +
+                          format("/%s.json", configurator.vulkan_system_info.physicalDevices[index].deviceName.c_str());
+        } break;
+        case DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION:
+        case DIAGNOSTIC_VULKAN_LAYERS_SETTINGS: {
+            if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
+                int index = this->ui->diagnostic_mode_options->currentIndex();
+                const std::vector<Executable> &executables = configurator.executables.GetExecutables();
+                configuration = configurator.configurations.FindConfiguration(executables[index].configuration);
+            } else {
+                configuration = configurator.GetActiveConfiguration();
+            }
+
+            if (this->mode == DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION) {
+                export_path = export_path.RelativePath() + format("/%s.json", configuration->key.c_str());
+            } else {
+                export_path = export_path.RelativePath() + format("/%s.txt", configuration->key.c_str());
+            }
+        } break;
+    }
+
+    export_path = QFileDialog::getSaveFileName(this->ui->diagnostic_export_file, "Save file...", export_path.AbsolutePath().c_str(),
+                                               "Log (*.*)")
+                      .toStdString();
+
+    if (!export_path.Empty()) {
+        configurator.last_path_status = export_path.AbsoluteDir();
+
+        QFile json_file(export_path.AbsolutePath().c_str());
+        const bool result = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
+        if (result) {
+            json_file.write(this->status.c_str());
+            json_file.close();
+
+            QDesktopServices::openUrl(QUrl::fromLocalFile(export_path.AbsolutePath().c_str()));
+        } else {
+            QMessageBox message;
+            message.setIcon(QMessageBox::Critical);
+            message.setWindowTitle("Failed to save the diagnostic log!");
+            message.setText(format("Couldn't write to '%s'.", export_path.AbsolutePath().c_str()).c_str());
+            message.setInformativeText("Select a file path with 'write' rights.");
+        }
+    }
+}
 
 void TabDiagnostics::on_focus_search() { this->ui->diagnostic_search_edit->setFocus(); }
 
@@ -368,11 +428,11 @@ void TabDiagnostics::on_context_menu(const QPoint &pos) {
     QAction *action_refresh = new QAction(this->status.empty() ? "Refresh" : "Clear", nullptr);
     action_refresh->setEnabled(true);
     menu->addAction(action_refresh);
-
+    /*
     QAction *action_save = new QAction("Save...", nullptr);
     action_save->setEnabled(!this->status.empty());
     menu->addAction(action_save);
-
+    */
     menu->addSeparator();
 
     QAction *action_search = new QAction("Search...", nullptr);
@@ -391,7 +451,7 @@ void TabDiagnostics::on_context_menu(const QPoint &pos) {
         }
     } else if (action == action_search) {
         this->on_focus_search();
-    } else if (action == action_save) {
+    } /* else if (action == action_save) {
         const QString selected_path =
             QFileDialog::getSaveFileName(this->ui->diagnostic_status_text, "Select Log file...",
                                          configurator.last_path_status.AbsolutePath().c_str(), "Log (*.txt)");
@@ -415,7 +475,7 @@ void TabDiagnostics::on_context_menu(const QPoint &pos) {
 
             QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path.toStdString().c_str()));
         }
-    }
+    } */
 
     menu->deleteLater();
 }
