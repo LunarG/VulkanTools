@@ -807,6 +807,8 @@ std::string Configurator::Log() const {
     }
     if (qEnvironmentVariableIsSet("VK_INSTANCE_LAYERS")) {
         log += format("   * ${VK_INSTANCE_LAYERS}: %s\n", qgetenv("VK_INSTANCE_LAYERS").toStdString().c_str());
+    } else {
+        log += "   * ${VK_INSTANCE_LAYERS}: unset\n";
     }
     log += " - Vulkan Loader Drivers environment variables:\n";
     if (qEnvironmentVariableIsSet("VK_DRIVER_FILES")) {
@@ -1183,8 +1185,6 @@ std::string Configurator::GenerateVulkanStatus() const {
     log += this->layers.Log();
     log += this->configurations.Log();
     log += this->executables.Log();
-    // log += "Vulkan Loader Log:\n";
-    // log += ::GenerateLoaderLog();
 
     return log;
 }
