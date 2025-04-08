@@ -13,14 +13,15 @@
 - Add button to remove missing layers
 - Improved generated layer documentation
   - Add links within the documentation to reach detailed part of a setting documentation
-  - Clarify VK_EXT_layer_settings variable names
+  - Clarify `VK_EXT_layer_settings` variable names
   - Hide `advanced` settings, used only by layer developers
   - Add setting dependences section
+  - Add support for Android system property prefix, eg `debug.vvl.validate_core` instead of `debug.vulkan.khronos_validation.validate_core`
+  - Fix broken generated layer doc links
 
 ### Fixes:
 - Fix layer settings all display with the layer development status
 - Fix reset to default when stay in system tray is checked
-- Fix broken generated layer doc links
 
 ## Vulkan Configurator 3.1.0 - March 2025
 [Vulkan SDK 1.4.309.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.309)

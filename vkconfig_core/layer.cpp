@@ -334,6 +334,9 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
         return LAYER_LOAD_INVALID;
     }
 
+    if (json_layer_object.value("prefix") != QJsonValue::Undefined) {
+        this->prefix = ReadStringValue(json_layer_object, "prefix");
+    }
     this->implementation_version = ReadStringValue(json_layer_object, "implementation_version");
     if (json_layer_object.value("status") != QJsonValue::Undefined) {
         this->status = GetStatusType(ReadStringValue(json_layer_object, "status").c_str());

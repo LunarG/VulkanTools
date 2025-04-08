@@ -258,12 +258,12 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
     return vulkan_system_info;
 }
 
-static const char *GetDefaultPrefix() {
-#ifdef __ANDROID__
-    return "vulkan";
-#else
-    return "";
-#endif
+static const char *GetDefaultPrefix(bool android_sysprop) {
+    if (android_sysprop) {
+        return "vulkan";
+    } else {
+        return "";
+    }
 }
 
 enum TrimMode {
@@ -300,55 +300,67 @@ static std::string TrimVendor(const std::string &layer_key) {
     return namespace_key.substr(trimmed_beg + 1, namespace_key.size());
 }
 
+static std::string GetFileSettingName(const char *pLayerName, const char *pSettingName) {
+    assert(pLayerName != nullptr);
+    assert(pSettingName != nullptr);
+
+    std::stringstream settingName;
+    settingName << ToLowerCase(TrimPrefix(pLayerName)) << "." << pSettingName;
+
+    return settingName.str();
+}
+
 static std::string GetEnvSettingName(const char *layer_key, const char *requested_prefix, const char *setting_key,
-                                     TrimMode trim_mode) {
+                                     TrimMode trim_mode, bool android_sysprop) {
     std::stringstream result;
-    const std::string prefix = (requested_prefix == nullptr || trim_mode != TRIM_NAMESPACE) ? GetDefaultPrefix() : requested_prefix;
+    const std::string prefix =
+        (requested_prefix == nullptr || trim_mode != TRIM_NAMESPACE) ? GetDefaultPrefix(android_sysprop) : requested_prefix;
 
-#if defined(__ANDROID__)
-    const std::string full_prefix = std::string("debug.") + prefix + ".";
-    switch (trim_mode) {
-        default:
-        case TRIM_NONE: {
-            result << full_prefix << GetFileSettingName(layer_key, setting_key);
-            break;
+    if (android_sysprop) {
+        const std::string full_prefix = std::string("debug.") + prefix + ".";
+        switch (trim_mode) {
+            default:
+            case TRIM_NONE: {
+                result << full_prefix << GetFileSettingName(layer_key, setting_key);
+                break;
+            }
+            case TRIM_VENDOR: {
+                result << full_prefix << GetFileSettingName(TrimVendor(layer_key).c_str(), setting_key);
+                break;
+            }
+            case TRIM_NAMESPACE: {
+                result << full_prefix << setting_key;
+                break;
+            }
         }
-        case TRIM_VENDOR: {
-            result << full_prefix << GetFileSettingName(TrimVendor(layer_key).c_str(), setting_key);
-            break;
-        }
-        case TRIM_NAMESPACE: {
-            result << full_prefix << setting_key;
-            break;
+    } else {
+        const std::string full_prefix = std::string("VK_") + (prefix.empty() ? "" : prefix + "_");
+        switch (trim_mode) {
+            default:
+            case TRIM_NONE: {
+                result << full_prefix << ToUpperCase(TrimPrefix(layer_key)) << "_" << ToUpperCase(setting_key);
+                break;
+            }
+            case TRIM_VENDOR: {
+                result << full_prefix << ToUpperCase(TrimVendor(layer_key)) << "_" << ToUpperCase(setting_key);
+                break;
+            }
+            case TRIM_NAMESPACE: {
+                result << full_prefix << ToUpperCase(setting_key);
+                break;
+            }
         }
     }
-#else
-    const std::string full_prefix = std::string("VK_") + (prefix.empty() ? "" : prefix + "_");
-    switch (trim_mode) {
-        default:
-        case TRIM_NONE: {
-            result << full_prefix << ToUpperCase(TrimPrefix(layer_key)) << "_" << ToUpperCase(setting_key);
-            break;
-        }
-        case TRIM_VENDOR: {
-            result << full_prefix << ToUpperCase(TrimVendor(layer_key)) << "_" << ToUpperCase(setting_key);
-            break;
-        }
-        case TRIM_NAMESPACE: {
-            result << full_prefix << ToUpperCase(setting_key);
-            break;
-        }
-    }
 
-#endif
     return result.str();
 }
 
-std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char *setting_key) {
+std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char *setting_key, bool android_sysprop) {
     std::vector<std::string> results;
 
     for (int trim_index = TRIM_FIRST; trim_index <= TRIM_LAST; ++trim_index) {
-        results.push_back(GetEnvSettingName(layer_key, GetDefaultPrefix(), setting_key, static_cast<TrimMode>(trim_index)));
+        results.push_back(GetEnvSettingName(layer_key, GetDefaultPrefix(android_sysprop), setting_key,
+                                            static_cast<TrimMode>(trim_index), android_sysprop));
     }
 
     return results;

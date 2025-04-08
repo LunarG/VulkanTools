@@ -94,6 +94,7 @@ class Layer {
 
    public:
     std::string key;
+    std::string prefix;
     Version file_format_version;
     Path binary_path;
     Version api_version;
