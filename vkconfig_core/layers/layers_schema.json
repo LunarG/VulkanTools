@@ -1476,6 +1476,10 @@
                     "type": "string",
                     "pattern": "^VK_LAYER_[A-Z0-9]+_[A-Za-z0-9_]+"
                 },
+                "shortcut": {
+                    "description": "Short name used to reference a layer variable. Eg on Android: debug.vvl.validate_core instead of debug.vulkan.khronos_validation.validate_core",
+                    "type": "string"
+                },
                 "library_path": {
                     "description": "The library_path specifies either a filename, a relative pathname, or a full pathname to a layer shared library file. If library_path specifies a relative pathname, it is relative to the path of the JSON manifest file (e.g. for cases when an application provides a layer that is in the same folder hierarchy as the rest of the application files). If library_path specifies a filename, the library must live in the system's shared object search path. There are no rules about the name of the layer shared library files other than it should end with the appropriate suffix (.DLL on Windows, .so on Linux, and .dylib on macOS). This field must not be present if component_layers is defined.",
                     "type": "string"

@@ -159,10 +159,19 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
                                Merge(envs, "<BR/>").c_str());
 
                 if (setting->platform_flags & PLATFORM_ANDROID_BIT) {
-                    text += format(
-                        "\t<tr><td>Android system properties:</td><td><span class=\"code\">adb setprop "
-                        "debug.vulkan.%s</span></td></tr>\n",
-                        (GetLayerSettingPrefix(layer.key) + setting->key).c_str());
+                    std::vector<std::string> commands = BuildEnvVariablesList(layer.key.c_str(), setting->key.c_str(), true);
+                    std::vector<std::string> list;
+
+                    for (std::size_t i = 0, n = commands.size(); i < n; ++i) {
+                        list.push_back(format("adb setprop %s", commands[i].c_str()));
+                    }
+
+                    if (!layer.prefix.empty()) {
+                        list.push_back(format("adb setprop debug.%s", (layer.prefix + "." + setting->key).c_str()));
+                    }
+
+                    text += format("\t<tr><td>Android system properties:</td><td><span class=\"code\">%s</span></td></tr>\n",
+                                   Merge(list, "<BR/>").c_str());
                 }
 
                 text += "</tbody></table>\n";
@@ -292,8 +301,16 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
                 }
 
                 if (setting->platform_flags & PLATFORM_ANDROID_BIT) {
-                    text += "| Android system properties: | adb setprop debug.vulkan." + GetLayerSettingPrefix(layer.key) +
-                            setting->key + " |\n";
+                    std::vector<std::string> commands = BuildEnvVariablesList(layer.key.c_str(), setting->key.c_str(), true);
+
+                    for (std::size_t i = 0, n = commands.size(); i < n; ++i) {
+                        text +=
+                            format("| %s | adb setprop %s |\n", i == 0 ? "Android system properties :" : "", commands[i].c_str());
+                    }
+
+                    if (!layer.prefix.empty()) {
+                        text += format("|  | adb setprop debug.%s |\n", (layer.prefix + "." + setting->key).c_str());
+                    }
                 }
             }
 
