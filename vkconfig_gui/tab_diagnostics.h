@@ -70,8 +70,9 @@ class TabDiagnostics : public Tab {
     bool search_whole = false;
     bool search_regex = false;
 
+    std::string BuildStatus(DiagnosticMode selected_mode, std::size_t mode_index);
     void UpdateStatus();
     void SearchFind(bool prev);
 
-    std::unique_ptr<QProcess> launch_application;  // Keeps track of the monitored app for diagnostic generation
+    std::unique_ptr<QProcess> process;  // Keeps track of the monitored app for diagnostic generation
 };

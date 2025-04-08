@@ -59,8 +59,6 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->diagnostic_status_text);
     this->connect(shortcut_regex, SIGNAL(activated()), this, SLOT(on_search_regex_activated()));
 
-    this->ui->diagnostic_export_folder->setVisible(false);
-
     this->ui->diagnostic_search_next->setEnabled(false);
     this->ui->diagnostic_search_prev->setEnabled(false);
 
@@ -73,8 +71,10 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
 
 TabDiagnostics::~TabDiagnostics() {}
 
-void TabDiagnostics::UpdateStatus() {
+std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_t mode_index) {
     this->log_path.Clear();
+
+    std::string log_status;
 
     Path working_directory = AbsolutePath(Path::APPDATA) + "/vkconfig/diagnostic";
     if (!working_directory.Exists()) {
@@ -85,12 +85,12 @@ void TabDiagnostics::UpdateStatus() {
 
     // configurator.Surrender(OVERRIDE_AREA_ALL);
 
-    switch (this->mode) {
+    switch (selected_mode) {
         default: {
             assert(0);
         } break;
         case DIAGNOSTIC_VULKAN_STATUS: {
-            this->status = configurator.GenerateVulkanStatus();
+            log_status = configurator.GenerateVulkanStatus();
         } break;
         case DIAGNOSTIC_VULKAN_INFO_SUMMARY:
         case DIAGNOSTIC_VULKAN_INFO_TEXT:
@@ -99,29 +99,32 @@ void TabDiagnostics::UpdateStatus() {
             const DefaultExecutable defaults_executable{::GetExecutable(EXECUTABLE_VKINFO), "vulkaninfo"};
             const Executable executable(defaults_executable);
 
-            if (this->launch_application == nullptr) {
-                this->launch_application.reset(new QProcess(this));
-                this->connect(this->launch_application.get(), SIGNAL(readyReadStandardOutput()), this,
-                              SLOT(standardOutputAvailable()));
-                this->connect(this->launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-                this->connect(this->launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
+            if (this->process == nullptr) {
+                this->process.reset(new QProcess(this));
+                this->connect(this->process.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
+                this->connect(this->process.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
+                this->connect(this->process.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
                               SLOT(processClosed(int, QProcess::ExitStatus)));
             }
 
-            this->launch_application->setProgram(executable.path.AbsolutePath().c_str());
-            this->launch_application->setWorkingDirectory(working_directory.AbsolutePath().c_str());
-            this->launch_application->setEnvironment(QProcess::systemEnvironment());
+            this->process->setProgram(executable.path.AbsolutePath().c_str());
+            this->process->setWorkingDirectory(working_directory.AbsolutePath().c_str());
+            this->process->setEnvironment(QProcess::systemEnvironment());
 
             QStringList args;
 
             std::string filename;
 
-            if (this->mode == DIAGNOSTIC_VULKAN_LOADER_LOG) {
+            if (selected_mode == DIAGNOSTIC_VULKAN_LOADER_LOG) {
+                this->status.clear();
+
                 args += "--summary";
                 args += "-o";
                 args += "vulkaninfo_tmp.txt";
             }
-            if (this->mode == DIAGNOSTIC_VULKAN_INFO_SUMMARY) {
+            if (selected_mode == DIAGNOSTIC_VULKAN_INFO_SUMMARY) {
+                this->status.clear();
+
                 filename = "vulkaninfo_summary.txt";
 
                 args += "--summary";
@@ -129,19 +132,17 @@ void TabDiagnostics::UpdateStatus() {
                 args += filename.c_str();
             }
 
-            if (this->mode == DIAGNOSTIC_VULKAN_INFO_TEXT) {
+            if (selected_mode == DIAGNOSTIC_VULKAN_INFO_TEXT) {
                 filename = "vulkaninfo.txt";
 
                 args += "--text";
                 args += "-o";
                 args += filename.c_str();
             }
-            if (this->mode == DIAGNOSTIC_VULKAN_PROFILE) {
-                std::size_t index = this->ui->diagnostic_mode_options->currentIndex();
+            if (selected_mode == DIAGNOSTIC_VULKAN_PROFILE) {
+                filename = format("%s.json", configurator.vulkan_system_info.physicalDevices[mode_index].deviceName.c_str());
 
-                filename = format("%s.json", configurator.vulkan_system_info.physicalDevices[index].deviceName.c_str());
-
-                args += format("--json=%d", index).c_str();
+                args += format("--json=%d", mode_index).c_str();
                 args += "-o";
                 args += filename.c_str();
             }
@@ -150,20 +151,24 @@ void TabDiagnostics::UpdateStatus() {
                 this->log_path = working_directory.AbsolutePath() + "/" + filename;
             }
 
-            this->launch_application->setArguments(args);
+            this->process->setArguments(args);
 
-            this->launch_application->setProcessChannelMode(QProcess::MergedChannels);
-            this->launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
-            this->launch_application->closeWriteChannel();
+            this->process->setProcessChannelMode(QProcess::MergedChannels);
+            this->process->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
+            this->process->closeWriteChannel();
+
+            while (this->process->waitForFinished(1000)) {
+            }
+
+            log_status = this->status;
         } break;
         case DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION: {
             const Configuration *configuration = nullptr;
 
             Configurator &configurator = Configurator::Get();
             if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
-                int index = this->ui->diagnostic_mode_options->currentIndex();
                 const std::vector<Executable> &executables = configurator.executables.GetExecutables();
-                configuration = configurator.configurations.FindConfiguration(executables[index].configuration);
+                configuration = configurator.configurations.FindConfiguration(executables[mode_index].configuration);
             } else {
                 configuration = configurator.GetActiveConfiguration();
             }
@@ -175,26 +180,25 @@ void TabDiagnostics::UpdateStatus() {
                 QFile file(path.AbsolutePath().c_str());
                 const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
                 assert(result);
-                this->status = file.readAll().toStdString();
+                log_status = file.readAll().toStdString();
                 file.close();
             } else {
-                this->status = "No active loader configuration selected.";
+                log_status = "No active loader configuration selected.";
             }
         } break;
         case DIAGNOSTIC_VULKAN_LAYERS_SETTINGS: {
             Path path = AbsolutePath(Path::LAYERS_SETTINGS);
             if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
-                int index = this->ui->diagnostic_mode_options->currentIndex();
                 const std::vector<Executable> &executables = configurator.executables.GetExecutables();
-                path = executables[index].GetLocalLayersSettingsPath();
+                path = executables[mode_index].GetLocalLayersSettingsPath();
             }
 
             QFile file(path.AbsolutePath().c_str());
             const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
             if (result) {
-                this->status = file.readAll().toStdString();
+                log_status = file.readAll().toStdString();
             } else {
-                this->status = "No active loader configuration applied.";
+                log_status = "No active loader configuration applied.";
             }
             file.close();
         } break;
@@ -204,22 +208,35 @@ void TabDiagnostics::UpdateStatus() {
             QFile file(path.AbsolutePath().c_str());
             const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
             if (result) {
-                this->status = file.readAll().toStdString();
+                log_status = file.readAll().toStdString();
             } else {
-                this->status = "No active loader configuration applied.";
+                log_status = "No active loader configuration applied.";
             }
             file.close();
         } break;
     }
 
-    if (this->log_path.Empty()) {
-        this->ui->diagnostic_status_text->setText(this->status.c_str());
-    }
+    /*
+        if (this->log_path.Empty()) {
+            this->ui->diagnostic_status_text->setText(log_status.c_str());
+        }
+    */
+
+    // this->ui->diagnostic_search_clear->setVisible(!this->ui->diagnostic_search_edit->text().isEmpty());
+    // this->ui->diagnostic_search_edit->setFocus();
+
+    // configurator.Override(OVERRIDE_AREA_ALL);
+
+    return log_status;
+}
+
+void TabDiagnostics::UpdateStatus() {
+    this->status = this->BuildStatus(this->mode, this->ui->diagnostic_mode_options->currentIndex());
+
+    this->ui->diagnostic_status_text->setText(this->status.c_str());
 
     this->ui->diagnostic_search_clear->setVisible(!this->ui->diagnostic_search_edit->text().isEmpty());
     this->ui->diagnostic_search_edit->setFocus();
-
-    // configurator.Override(OVERRIDE_AREA_ALL);
 }
 
 void TabDiagnostics::UpdateUI(UpdateUIMode mode) {
@@ -280,18 +297,96 @@ void TabDiagnostics::on_mode_changed(int index) {
         this->ui->diagnostic_mode_options->blockSignals(false);
     }
 
-    this->status.clear();
     this->UpdateStatus();
 }
 
-void TabDiagnostics::on_mode_options_changed(int index) {
-    (void)index;
+void TabDiagnostics::on_mode_options_changed(int index) { this->status = this->BuildStatus(this->mode, index); }
 
-    this->status.clear();
-    this->UpdateStatus();
+void TabDiagnostics::on_export_folder() {
+    Configurator &configurator = Configurator::Get();
+    const Configuration *configuration = nullptr;
+
+    std::string saved_status = this->status;
+
+    Path export_dir = configurator.last_path_status;
+    if (!export_dir.Exists()) {
+        export_dir.Create(false);
+    }
+
+    const QString selected_dir = QFileDialog::getExistingDirectory(
+        this->ui->diagnostic_export_folder, "Select Diagnostic Logs Directory...", export_dir.AbsolutePath().c_str());
+    if (selected_dir.isEmpty()) {
+        return;
+    }
+
+    configurator.last_path_status = export_dir = selected_dir.toStdString();
+    QDesktopServices::openUrl(QUrl::fromLocalFile(export_dir.AbsolutePath().c_str()));
+
+    for (int diag_index = 0, diag_count = DIAGNOSTIC_MODE_COUNT; diag_index < diag_count; ++diag_index) {
+        DiagnosticMode current_mode = static_cast<DiagnosticMode>(diag_index);
+        std::size_t options_count = 1;
+
+        switch (diag_index) {
+            case DIAGNOSTIC_VULKAN_PROFILE:
+                options_count = configurator.vulkan_system_info.physicalDevices.size();
+                break;
+            case DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION:
+            case DIAGNOSTIC_VULKAN_LAYERS_SETTINGS:
+                if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
+                    options_count = configurator.executables.GetExecutables().size();
+                }
+                break;
+            default:
+                break;
+        }
+
+        for (std::size_t options_index = 0; options_index < options_count; ++options_index) {
+            std::string log_status = this->BuildStatus(current_mode, options_index);
+
+            Path export_path = export_dir;
+
+            switch (current_mode) {
+                default:
+                case DIAGNOSTIC_VULKAN_STATUS:
+                case DIAGNOSTIC_VULKAN_INFO_SUMMARY:
+                case DIAGNOSTIC_VULKAN_INFO_TEXT:
+                case DIAGNOSTIC_VULKAN_LOADER_LOG:
+                case DIAGNOSTIC_VULKAN_LOADER_SETTINGS:
+                    export_path = export_dir.RelativePath() + ::GetFilename(current_mode);
+                    break;
+                case DIAGNOSTIC_VULKAN_PROFILE: {
+                    export_path =
+                        export_dir.RelativePath() +
+                        format("/%s.json", configurator.vulkan_system_info.physicalDevices[options_index].deviceName.c_str());
+                } break;
+                case DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION:
+                case DIAGNOSTIC_VULKAN_LAYERS_SETTINGS: {
+                    if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
+                        const std::vector<Executable> &executables = configurator.executables.GetExecutables();
+                        configuration = configurator.configurations.FindConfiguration(executables[options_index].configuration);
+                    } else {
+                        configuration = configurator.GetActiveConfiguration();
+                    }
+
+                    if (current_mode == DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION) {
+                        export_path = export_dir.RelativePath() + format("/%s.json", configuration->key.c_str());
+                    } else {
+                        export_path = export_dir.RelativePath() + format("/%s.txt", configuration->key.c_str());
+                    }
+                } break;
+            }
+
+            QFile json_file(export_path.AbsolutePath().c_str());
+            const bool result = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
+            if (result) {
+                json_file.write(log_status.c_str());
+                json_file.close();
+            }
+        }
+    }
+
+    this->status = saved_status;
 }
-
-void TabDiagnostics::on_export_folder() {}
 
 void TabDiagnostics::on_export_file() {
     Configurator &configurator = Configurator::Get();
@@ -442,7 +537,8 @@ void TabDiagnostics::on_context_menu(const QPoint &pos) {
 
     if (action == action_refresh) {
         if (this->status.empty()) {
-            this->UpdateStatus();
+            this->status = this->BuildStatus(static_cast<DiagnosticMode>(this->ui->diagnostic_mode->currentIndex()),
+                                             this->ui->diagnostic_mode_options->currentIndex());
         } else {
             this->status.clear();
             this->ui->diagnostic_status_text->clear();
@@ -482,7 +578,7 @@ void TabDiagnostics::processClosed(int exit_code, QProcess::ExitStatus status) {
     (void)exit_code;
     (void)status;
 
-    assert(this->launch_application);
+    assert(this->process);
 
     if (!this->log_path.Empty()) {
         QFile file(this->log_path.AbsolutePath().c_str());
@@ -494,20 +590,20 @@ void TabDiagnostics::processClosed(int exit_code, QProcess::ExitStatus status) {
 
     this->ui->diagnostic_status_text->setText(this->status.c_str());
 
-    if (this->launch_application->processId() > 0) {
-        this->launch_application->kill();
-        this->launch_application->waitForFinished();
+    if (this->process->processId() > 0) {
+        this->process->kill();
+        this->process->waitForFinished();
     }
 }
 
 void TabDiagnostics::standardOutputAvailable() {
-    if (this->launch_application != nullptr && this->log_path.Empty()) {
-        this->status += this->launch_application->readAllStandardOutput().toStdString();
+    if (this->process != nullptr && this->log_path.Empty()) {
+        this->status += this->process->readAllStandardOutput().toStdString();
     }
 }
 
 void TabDiagnostics::errorOutputAvailable() {
-    if (this->launch_application != nullptr && this->log_path.Empty()) {
-        this->status += this->launch_application->readAllStandardError().toStdString();
+    if (this->process != nullptr && this->log_path.Empty()) {
+        this->status += this->process->readAllStandardError().toStdString();
     }
 }

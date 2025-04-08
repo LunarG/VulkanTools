@@ -4,6 +4,7 @@
 ### Features:
 - Add appearance selection: dark, light, device theme modes
 - Add muliple diagnostic modes
+- Add diagnostic logs export
 - Add search in diagnostic tab
 
 ### Improvements:

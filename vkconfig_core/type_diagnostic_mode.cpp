@@ -53,7 +53,7 @@ DiagnosticMode GetDiagnosticMode(const char* token) {
 const char* GetFilename(DiagnosticMode mode) {
     static const char* TABLE[] = {
         "/vkconfig_status.txt",                 // DIAGNOSTIC_VULKAN_STATUS
-        "/vkconfig_vulkanInfo.txt",             // DIAGNOSTIC_VULKAN_INFO_SUMMARY
+        "/vkconfig_vulkanInfo_summary.txt",     // DIAGNOSTIC_VULKAN_INFO_SUMMARY
         "/vkconfig_vulkanInfo.txt",             // DIAGNOSTIC_VULKAN_INFO_TEXT
         "/vkconfig_vulkanInfo.json",            // DIAGNOSTIC_VULKAN_PROFILE
         "/vkconfig_loader_log.txt",             // DIAGNOSTIC_VULKAN_LOADER_LOG
