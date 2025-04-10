@@ -35,3 +35,4 @@ out64/*
 *.includes
 .vscode/
 .cache
+.DS_Store

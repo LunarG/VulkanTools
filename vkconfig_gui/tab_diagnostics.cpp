@@ -20,8 +20,6 @@
 
 #include "tab_diagnostics.h"
 #include "mainwindow.h"
-#include "widget_resize_button.h"
-#include "style.h"
 
 #include "../vkconfig_core/configurator.h"
 
@@ -60,8 +58,6 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(shortcut_whole, SIGNAL(activated()), this, SLOT(on_search_whole_activated()));
     QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->diagnostic_status_text);
     this->connect(shortcut_regex, SIGNAL(activated()), this, SLOT(on_search_regex_activated()));
-
-    Configurator &configurator = Configurator::Get();
 
     this->ui->diagnostic_export_folder->setVisible(false);
 
@@ -289,6 +285,8 @@ void TabDiagnostics::on_mode_changed(int index) {
 }
 
 void TabDiagnostics::on_mode_options_changed(int index) {
+    (void)index;
+
     this->status.clear();
     this->UpdateStatus();
 }
