@@ -915,11 +915,13 @@ bool Configurator::Load() {
         // TAB_LAYERS
         if (json_interface_object.value(GetToken(TAB_LAYERS)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_LAYERS)).toObject();
+            (void)json_object;
         }
 
         // TAB_APPLICATIONS
         if (json_interface_object.value(GetToken(TAB_APPLICATIONS)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_APPLICATIONS)).toObject();
+            (void)json_object;
         }
 
         // TAB_PREFERENCES

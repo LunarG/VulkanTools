@@ -217,9 +217,11 @@ bool Executable::SetActiveOptions(const std::string& label) {
 }
 
 ExecutableOptions* Executable::GetActiveOptions() {
-    const int index = this->GetActiveOptionsIndex();
+    const int option_index = this->GetActiveOptionsIndex();
 
-    if (index != INVALID_OPTIONS) {
+    if (option_index != INVALID_OPTIONS) {
+        std::size_t index = static_cast<std::size_t>(option_index);
+
         assert(index < this->options_list.size());
         return &this->options_list[index];
     } else {
@@ -307,8 +309,9 @@ bool Executable::DuplicateActiveOptions() {
         return false;
     }
 
-    assert(executable_index < this->options_list.size());
-    ExecutableOptions new_options = this->options_list[executable_index];
+    std::size_t index = static_cast<std::size_t>(executable_index);
+    assert(index < this->options_list.size());
+    ExecutableOptions new_options = this->options_list[index];
     new_options.label = MakeOptionsName(new_options.label);
     this->options_list.push_back(new_options);
 
