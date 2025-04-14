@@ -2066,6 +2066,9 @@ VALIDITY_CHECKS = {
 # outputs
 DUPLICATE_TYPES_IN_VIDEO_HEADER = ['uint32_t', 'uint16_t', 'uint8_t', 'int32_t', 'int16_t', 'int8_t']
 
+# Short list of all of the functions that are 'global', meaning they can be queried from vkGetInstanceProcAddr(NULL, "<func_name>")
+GLOBAL_FUNCTION_NAMES = ['vkEnumerateInstanceLayerProperties', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceVersion', 'vkCreateInstance']
+
 class ApiDumpGeneratorOptions(GeneratorOptions):
     def __init__(self,
                  conventions = None,
@@ -2828,10 +2831,14 @@ class VulkanFunction:
         self.namedParams = ', '.join(p.name for p in self.parameters)
         self.typedParams = ', '.join(p.text for p in self.parameters)
 
-        self.dispatchType = 'global'
-        if self.parameters[0].type in ['VkInstance', 'VkPhysicalDevice']:
+        if self.name in GLOBAL_FUNCTION_NAMES:
+            self.dispatchType = 'global'
+        elif self.parameters[0].type in ['VkInstance', 'VkPhysicalDevice']:
             self.dispatchType = 'instance'
         elif self.parameters[0].type in ['VkDevice', 'VkCommandBuffer', 'VkQueue']:
+            self.dispatchType = 'device'
+        else:
+            print(f"Warning: {self.parameters[0].type} is an unknown dispatchable handle, defaulting to VkDevice")
             self.dispatchType = 'device'
 
         if self.name in extensions and extensions[self.name].type == 'instance':
