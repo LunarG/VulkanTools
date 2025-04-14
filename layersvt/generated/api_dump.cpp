@@ -11830,6 +11830,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEncodeVideoKHR(VkCommandBuffer commandBuffer, co
         }
     }
 }
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateCudaModuleNV(VkDevice device, const VkCudaModuleCreateInfoNV* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkCudaModuleNV* pModule)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -11852,6 +11853,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateCudaModuleNV(VkDevice device, const VkCud
     }
     return result;
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetCudaModuleCacheNV(VkDevice device, VkCudaModuleNV module, size_t* pCacheSize, void* pCacheData)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -11874,6 +11877,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetCudaModuleCacheNV(VkDevice device, VkCudaMod
     }
     return result;
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateCudaFunctionNV(VkDevice device, const VkCudaFunctionCreateInfoNV* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkCudaFunctionNV* pFunction)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -11896,6 +11901,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateCudaFunctionNV(VkDevice device, const VkC
     }
     return result;
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR void VKAPI_CALL vkDestroyCudaModuleNV(VkDevice device, VkCudaModuleNV module, const VkAllocationCallbacks* pAllocator)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -11917,6 +11924,8 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCudaModuleNV(VkDevice device, VkCudaModuleNV
         }
     }
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR void VKAPI_CALL vkDestroyCudaFunctionNV(VkDevice device, VkCudaFunctionNV function, const VkAllocationCallbacks* pAllocator)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -11938,6 +11947,8 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCudaFunctionNV(VkDevice device, VkCudaFuncti
         }
     }
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR void VKAPI_CALL vkCmdCudaLaunchKernelNV(VkCommandBuffer commandBuffer, const VkCudaLaunchInfoNV* pLaunchInfo)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -11955,6 +11966,70 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCudaLaunchKernelNV(VkCommandBuffer commandBuffer
                 break;
             case ApiDumpFormat::Json:
                 dump_json_vkCmdCudaLaunchKernelNV(ApiDumpInstance::current(), commandBuffer, pLaunchInfo);
+                break;
+        }
+    }
+}
+#endif // VK_ENABLE_BETA_EXTENSIONS
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(VkCommandBuffer commandBuffer)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchTileQCOM", "commandBuffer", "void");
+    device_dispatch_table(commandBuffer)->CmdDispatchTileQCOM(commandBuffer);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer);
+                break;
+        }
+    }
+}
+VKAPI_ATTR void VKAPI_CALL vkCmdBeginPerTileExecutionQCOM(VkCommandBuffer commandBuffer, const VkPerTileBeginInfoQCOM* pPerTileBeginInfo)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBeginPerTileExecutionQCOM", "commandBuffer, pPerTileBeginInfo", "void");
+    device_dispatch_table(commandBuffer)->CmdBeginPerTileExecutionQCOM(commandBuffer, pPerTileBeginInfo);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkCmdBeginPerTileExecutionQCOM(ApiDumpInstance::current(), commandBuffer, pPerTileBeginInfo);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkCmdBeginPerTileExecutionQCOM(ApiDumpInstance::current(), commandBuffer, pPerTileBeginInfo);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkCmdBeginPerTileExecutionQCOM(ApiDumpInstance::current(), commandBuffer, pPerTileBeginInfo);
+                break;
+        }
+    }
+}
+VKAPI_ATTR void VKAPI_CALL vkCmdEndPerTileExecutionQCOM(VkCommandBuffer commandBuffer, const VkPerTileEndInfoQCOM* pPerTileEndInfo)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkCmdEndPerTileExecutionQCOM", "commandBuffer, pPerTileEndInfo", "void");
+    device_dispatch_table(commandBuffer)->CmdEndPerTileExecutionQCOM(commandBuffer, pPerTileEndInfo);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkCmdEndPerTileExecutionQCOM(ApiDumpInstance::current(), commandBuffer, pPerTileEndInfo);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkCmdEndPerTileExecutionQCOM(ApiDumpInstance::current(), commandBuffer, pPerTileEndInfo);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkCmdEndPerTileExecutionQCOM(ApiDumpInstance::current(), commandBuffer, pPerTileEndInfo);
                 break;
         }
     }
@@ -15341,6 +15416,70 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(VkComma
         }
     }
 }
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateExternalComputeQueueNV(VkDevice device, const VkExternalComputeQueueCreateInfoNV* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkExternalComputeQueueNV* pExternalQueue)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkCreateExternalComputeQueueNV", "device, pCreateInfo, pAllocator, pExternalQueue", "VkResult");
+    VkResult result = device_dispatch_table(device)->CreateExternalComputeQueueNV(device, pCreateInfo, pAllocator, pExternalQueue);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkCreateExternalComputeQueueNV(ApiDumpInstance::current(), result, device, pCreateInfo, pAllocator, pExternalQueue);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkCreateExternalComputeQueueNV(ApiDumpInstance::current(), result, device, pCreateInfo, pAllocator, pExternalQueue);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkCreateExternalComputeQueueNV(ApiDumpInstance::current(), result, device, pCreateInfo, pAllocator, pExternalQueue);
+                break;
+        }
+    }
+    return result;
+}
+VKAPI_ATTR void VKAPI_CALL vkDestroyExternalComputeQueueNV(VkDevice device, VkExternalComputeQueueNV externalQueue, const VkAllocationCallbacks* pAllocator)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkDestroyExternalComputeQueueNV", "device, externalQueue, pAllocator", "void");
+    device_dispatch_table(device)->DestroyExternalComputeQueueNV(device, externalQueue, pAllocator);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkDestroyExternalComputeQueueNV(ApiDumpInstance::current(), device, externalQueue, pAllocator);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkDestroyExternalComputeQueueNV(ApiDumpInstance::current(), device, externalQueue, pAllocator);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkDestroyExternalComputeQueueNV(ApiDumpInstance::current(), device, externalQueue, pAllocator);
+                break;
+        }
+    }
+}
+VKAPI_ATTR void VKAPI_CALL vkGetExternalComputeQueueDataNV(VkExternalComputeQueueNV externalQueue, VkExternalComputeQueueDataParamsNV* params, void* pData)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkGetExternalComputeQueueDataNV", "externalQueue, params, pData", "void");
+    device_dispatch_table(externalQueue)->GetExternalComputeQueueDataNV(externalQueue, params, pData);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkGetExternalComputeQueueDataNV(ApiDumpInstance::current(), externalQueue, params, pData);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkGetExternalComputeQueueDataNV(ApiDumpInstance::current(), externalQueue, params, pData);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkGetExternalComputeQueueDataNV(ApiDumpInstance::current(), externalQueue, params, pData);
+                break;
+        }
+    }
+}
 VKAPI_ATTR void VKAPI_CALL vkGetClusterAccelerationStructureBuildSizesNV(VkDevice device, const VkClusterAccelerationStructureInputInfoNV* pInfo, VkAccelerationStructureBuildSizesInfoKHR* pSizeInfo)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -15664,6 +15803,27 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandlePropertiesEXT(VkDevice devi
     return result;
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
+VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering2EXT(VkCommandBuffer                   commandBuffer, const VkRenderingEndInfoEXT*        pRenderingEndInfo)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkCmdEndRendering2EXT", "commandBuffer, pRenderingEndInfo", "void");
+    device_dispatch_table(commandBuffer)->CmdEndRendering2EXT(commandBuffer, pRenderingEndInfo);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkCmdEndRendering2EXT(ApiDumpInstance::current(), commandBuffer, pRenderingEndInfo);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkCmdEndRendering2EXT(ApiDumpInstance::current(), commandBuffer, pRenderingEndInfo);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkCmdEndRendering2EXT(ApiDumpInstance::current(), commandBuffer, pRenderingEndInfo);
+                break;
+        }
+    }
+}
 
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char* pName)
 {
@@ -16851,18 +17011,36 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetEncodedVideoSessionParametersKHR);
     if(strcmp(pName, "vkCmdEncodeVideoKHR") == 0 && (!device || device_dispatch_table(device)->CmdEncodeVideoKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEncodeVideoKHR);
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if(strcmp(pName, "vkCreateCudaModuleNV") == 0 && (!device || device_dispatch_table(device)->CreateCudaModuleNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateCudaModuleNV);
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if(strcmp(pName, "vkGetCudaModuleCacheNV") == 0 && (!device || device_dispatch_table(device)->GetCudaModuleCacheNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetCudaModuleCacheNV);
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if(strcmp(pName, "vkCreateCudaFunctionNV") == 0 && (!device || device_dispatch_table(device)->CreateCudaFunctionNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateCudaFunctionNV);
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if(strcmp(pName, "vkDestroyCudaModuleNV") == 0 && (!device || device_dispatch_table(device)->DestroyCudaModuleNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyCudaModuleNV);
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if(strcmp(pName, "vkDestroyCudaFunctionNV") == 0 && (!device || device_dispatch_table(device)->DestroyCudaFunctionNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyCudaFunctionNV);
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if(strcmp(pName, "vkCmdCudaLaunchKernelNV") == 0 && (!device || device_dispatch_table(device)->CmdCudaLaunchKernelNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCudaLaunchKernelNV);
+#endif // VK_ENABLE_BETA_EXTENSIONS
+    if(strcmp(pName, "vkCmdDispatchTileQCOM") == 0 && (!device || device_dispatch_table(device)->CmdDispatchTileQCOM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDispatchTileQCOM);
+    if(strcmp(pName, "vkCmdBeginPerTileExecutionQCOM") == 0 && (!device || device_dispatch_table(device)->CmdBeginPerTileExecutionQCOM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginPerTileExecutionQCOM);
+    if(strcmp(pName, "vkCmdEndPerTileExecutionQCOM") == 0 && (!device || device_dispatch_table(device)->CmdEndPerTileExecutionQCOM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndPerTileExecutionQCOM);
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     if(strcmp(pName, "vkExportMetalObjectsEXT") == 0 && (!device || device_dispatch_table(device)->ExportMetalObjectsEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkExportMetalObjectsEXT);
@@ -17201,6 +17379,12 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetDescriptorBufferOffsets2EXT);
     if(strcmp(pName, "vkCmdBindDescriptorBufferEmbeddedSamplers2EXT") == 0 && (!device || device_dispatch_table(device)->CmdBindDescriptorBufferEmbeddedSamplers2EXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindDescriptorBufferEmbeddedSamplers2EXT);
+    if(strcmp(pName, "vkCreateExternalComputeQueueNV") == 0 && (!device || device_dispatch_table(device)->CreateExternalComputeQueueNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCreateExternalComputeQueueNV);
+    if(strcmp(pName, "vkDestroyExternalComputeQueueNV") == 0 && (!device || device_dispatch_table(device)->DestroyExternalComputeQueueNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyExternalComputeQueueNV);
+    if(strcmp(pName, "vkGetExternalComputeQueueDataNV") == 0 && (!device || device_dispatch_table(device)->GetExternalComputeQueueDataNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetExternalComputeQueueDataNV);
     if(strcmp(pName, "vkGetClusterAccelerationStructureBuildSizesNV") == 0 && (!device || device_dispatch_table(device)->GetClusterAccelerationStructureBuildSizesNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetClusterAccelerationStructureBuildSizesNV);
     if(strcmp(pName, "vkCmdBuildClusterAccelerationStructureIndirectNV") == 0 && (!device || device_dispatch_table(device)->CmdBuildClusterAccelerationStructureIndirectNV))
@@ -17235,6 +17419,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
     if(strcmp(pName, "vkGetMemoryMetalHandlePropertiesEXT") == 0 && (!device || device_dispatch_table(device)->GetMemoryMetalHandlePropertiesEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryMetalHandlePropertiesEXT);
 #endif // VK_USE_PLATFORM_METAL_EXT
+    if(strcmp(pName, "vkCmdEndRendering2EXT") == 0 && (!device || device_dispatch_table(device)->CmdEndRendering2EXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndRendering2EXT);
 
     return nullptr;
 }

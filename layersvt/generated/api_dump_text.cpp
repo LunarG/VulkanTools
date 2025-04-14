@@ -943,6 +943,7 @@ void dump_text_VkIndirectCommandsLayoutNV(const VkIndirectCommandsLayoutNV objec
         settings.stream() << "address";
     }
 }
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkCudaModuleNV(const VkCudaModuleNV object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
@@ -956,6 +957,8 @@ void dump_text_VkCudaModuleNV(const VkCudaModuleNV object, const ApiDumpSettings
         settings.stream() << "address";
     }
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkCudaFunctionNV(const VkCudaFunctionNV object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
@@ -969,6 +972,7 @@ void dump_text_VkCudaFunctionNV(const VkCudaFunctionNV object, const ApiDumpSett
         settings.stream() << "address";
     }
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_USE_PLATFORM_FUCHSIA)
 void dump_text_VkBufferCollectionFUCHSIA(const VkBufferCollectionFUCHSIA object, const ApiDumpSettings& settings, int indents)
 {
@@ -1024,6 +1028,19 @@ void dump_text_VkShaderEXT(const VkShaderEXT object, const ApiDumpSettings& sett
     }
 }
 void dump_text_VkPipelineBinaryKHR(const VkPipelineBinaryKHR object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress()) {
+        settings.stream() << object;
+
+        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
+        if (it != ApiDumpInstance::current().object_name_map.end()) {
+            settings.stream() << " [" << it->second << "]";
+        }
+    } else {
+        settings.stream() << "address";
+    }
+}
+void dump_text_VkExternalComputeQueueNV(const VkExternalComputeQueueNV object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << object;
@@ -2563,6 +2580,9 @@ void dump_text_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000044008:
         settings.stream() << "VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD (";
         break;
+    case 1000141000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_BFLOAT16_FEATURES_KHR (";
+        break;
     case 1000143000:
         settings.stream() << "VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT (";
         break;
@@ -3181,6 +3201,24 @@ void dump_text_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000308000:
         settings.stream() << "VK_STRUCTURE_TYPE_REFRESH_OBJECT_LIST_KHR (";
         break;
+    case 1000309000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM (";
+        break;
+    case 1000309001:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_PROPERTIES_QCOM (";
+        break;
+    case 1000309002:
+        settings.stream() << "VK_STRUCTURE_TYPE_RENDER_PASS_TILE_SHADING_CREATE_INFO_QCOM (";
+        break;
+    case 1000309003:
+        settings.stream() << "VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM (";
+        break;
+    case 1000309004:
+        settings.stream() << "VK_STRUCTURE_TYPE_PER_TILE_END_INFO_QCOM (";
+        break;
+    case 1000309005:
+        settings.stream() << "VK_STRUCTURE_TYPE_DISPATCH_TILE_INFO_QCOM (";
+        break;
     case 1000310000:
         settings.stream() << "VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV (";
         break;
@@ -3642,15 +3680,6 @@ void dump_text_VkStructureType(VkStructureType object, const ApiDumpSettings& se
         break;
     case 1000424004:
         settings.stream() << "VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM (";
-        break;
-    case 1000425000:
-        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM (";
-        break;
-    case 1000425001:
-        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM (";
-        break;
-    case 1000425002:
-        settings.stream() << "VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM (";
         break;
     case 1000426000:
         settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_NV (";
@@ -4114,6 +4143,18 @@ void dump_text_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000555000:
         settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV (";
         break;
+    case 1000556000:
+        settings.stream() << "VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_DEVICE_CREATE_INFO_NV (";
+        break;
+    case 1000556001:
+        settings.stream() << "VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_CREATE_INFO_NV (";
+        break;
+    case 1000556002:
+        settings.stream() << "VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_DATA_PARAMS_NV (";
+        break;
+    case 1000556003:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_COMPUTE_QUEUE_PROPERTIES_NV (";
+        break;
     case 1000558000:
         settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_RELAXED_EXTENDED_INSTRUCTION_FEATURES_KHR (";
         break;
@@ -4299,6 +4340,18 @@ void dump_text_VkStructureType(VkStructureType object, const ApiDumpSettings& se
         break;
     case 1000613001:
         settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_METERING_FEATURES_NV (";
+        break;
+    case 1000425000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT (";
+        break;
+    case 1000425001:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_EXT (";
+        break;
+    case 1000425002:
+        settings.stream() << "VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT (";
+        break;
+    case 1000619003:
+        settings.stream() << "VK_STRUCTURE_TYPE_RENDERING_END_INFO_EXT (";
         break;
     default:
         settings.stream() << "UNKNOWN (";
@@ -4578,6 +4631,9 @@ void dump_text_VkObjectType(VkObjectType object, const ApiDumpSettings& settings
         break;
     case 1000489000:
         settings.stream() << "VK_OBJECT_TYPE_SEMAPHORE_SCI_SYNC_POOL_NV (";
+        break;
+    case 1000556000:
+        settings.stream() << "VK_OBJECT_TYPE_EXTERNAL_COMPUTE_QUEUE_NV (";
         break;
     case 1000572000:
         settings.stream() << "VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_EXT (";
@@ -7954,6 +8010,9 @@ void dump_text_VkComponentTypeKHR(VkComponentTypeKHR object, const ApiDumpSettin
     case 10:
         settings.stream() << "VK_COMPONENT_TYPE_UINT64_KHR (";
         break;
+    case 1000141000:
+        settings.stream() << "VK_COMPONENT_TYPE_BFLOAT16_KHR (";
+        break;
     case 1000491000:
         settings.stream() << "VK_COMPONENT_TYPE_SINT8_PACKED_NV (";
         break;
@@ -9153,10 +9212,10 @@ void dump_text_VkAccessFlagBits(VkAccessFlagBits object, const ApiDumpSettings& 
         settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR"; is_first = false;
     }
     if(object & 131072) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_COMMAND_PREPROCESS_READ_BIT_NV"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_COMMAND_PREPROCESS_READ_BIT_EXT"; is_first = false;
     }
     if(object & 262144) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_COMMAND_PREPROCESS_WRITE_BIT_NV"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_COMMAND_PREPROCESS_WRITE_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -9365,11 +9424,11 @@ void dump_text_VkImageCreateFlagBits(VkImageCreateFlagBits object, const ApiDump
     if(object & 131072) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2D_VIEW_COMPATIBLE_BIT_EXT"; is_first = false;
     }
-    if(object & 32768) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_FRAGMENT_DENSITY_MAP_OFFSET_BIT_QCOM"; is_first = false;
-    }
     if(object & 1048576) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR"; is_first = false;
+    }
+    if(object & 32768) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_FRAGMENT_DENSITY_MAP_OFFSET_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -9682,14 +9741,14 @@ void dump_text_VkPipelineStageFlagBits(VkPipelineStageFlagBits object, const Api
     if(object & 4194304) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR"; is_first = false;
     }
-    if(object & 131072) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV"; is_first = false;
-    }
     if(object & 524288) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_TASK_SHADER_BIT_EXT"; is_first = false;
     }
     if(object & 1048576) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_MESH_SHADER_BIT_EXT"; is_first = false;
+    }
+    if(object & 131072) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -10356,6 +10415,9 @@ void dump_text_VkRenderPassCreateFlagBits(VkRenderPassCreateFlagBits object, con
     if(object & 2) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM"; is_first = false;
     }
+    if(object & 4) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_RENDER_PASS_CREATE_RESERVED_2_BIT_VALVE"; is_first = false;
+    }
     if(!is_first)
         settings.stream() << ")";
 }
@@ -10374,6 +10436,9 @@ void dump_text_VkSubpassDescriptionFlagBits(VkSubpassDescriptionFlagBits object,
     }
     if(object & 8) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM"; is_first = false;
+    }
+    if(object & 256) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SUBPASS_DESCRIPTION_TILE_SHADING_APRON_BIT_QCOM"; is_first = false;
     }
     if(object & 16) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SUBPASS_DESCRIPTION_RASTERIZATION_ORDER_ATTACHMENT_COLOR_ACCESS_BIT_EXT"; is_first = false;
@@ -10932,7 +10997,7 @@ void dump_text_VkPipelineStageFlagBits2(VkPipelineStageFlagBits2 object, const A
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_2_CONDITIONAL_RENDERING_BIT_EXT"; is_first = false;
     }
     if(object & 131072) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_NV"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_EXT"; is_first = false;
     }
     if(object & 4194304) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR"; is_first = false;
@@ -11082,16 +11147,10 @@ void dump_text_VkAccessFlagBits2(VkAccessFlagBits2 object, const ApiDumpSettings
         settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR"; is_first = false;
     }
     if(object & 2251799813685248) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_RESERVED_51_BIT_QCOM"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_SHADER_TILE_ATTACHMENT_READ_BIT_QCOM"; is_first = false;
     }
     if(object & 4503599627370496) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_RESERVED_52_BIT_QCOM"; is_first = false;
-    }
-    if(object & 9007199254740992) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_RESERVED_53_BIT_QCOM"; is_first = false;
-    }
-    if(object & 18014398509481984) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_RESERVED_54_BIT_QCOM"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_SHADER_TILE_ATTACHMENT_WRITE_BIT_QCOM"; is_first = false;
     }
     if(object & 33554432) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT"; is_first = false;
@@ -11106,10 +11165,10 @@ void dump_text_VkAccessFlagBits2(VkAccessFlagBits2 object, const ApiDumpSettings
         settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT"; is_first = false;
     }
     if(object & 131072) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_COMMAND_PREPROCESS_READ_BIT_NV"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_COMMAND_PREPROCESS_READ_BIT_EXT"; is_first = false;
     }
     if(object & 262144) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_COMMAND_PREPROCESS_WRITE_BIT_NV"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_COMMAND_PREPROCESS_WRITE_BIT_EXT"; is_first = false;
     }
     if(object & 8388608) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR"; is_first = false;
@@ -11196,6 +11255,9 @@ void dump_text_VkRenderingFlagBits(VkRenderingFlagBits object, const ApiDumpSett
     }
     if(object & 16) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_CONTENTS_INLINE_BIT_KHR"; is_first = false;
+    }
+    if(object & 32) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_RESERVED_5_BIT_VALVE"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -11340,6 +11402,9 @@ void dump_text_VkFormatFeatureFlagBits2(VkFormatFeatureFlagBits2 object, const A
     }
     if(object & 549755813888) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_RESERVED_39_BIT_EXT"; is_first = false;
+    }
+    if(object & 8796093022208) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_RESERVED_43_BIT_EXT"; is_first = false;
     }
     if(object & 1099511627776) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV"; is_first = false;
@@ -11500,6 +11565,15 @@ void dump_text_VkPipelineCreateFlagBits2(VkPipelineCreateFlagBits2 object, const
     }
     if(object & 137438953472) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_DISALLOW_OPACITY_MICROMAP_BIT_ARM"; is_first = false;
+    }
+    if(object & 1099511627776) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_40_BIT_VALVE"; is_first = false;
+    }
+    if(object & 2199023255552) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_41_BIT_KHR"; is_first = false;
+    }
+    if(object & 4398046511104) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_42_BIT_KHR"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -12640,6 +12714,19 @@ void dump_text_VkDeviceDiagnosticsConfigFlagBitsNV(VkDeviceDiagnosticsConfigFlag
     if(!is_first)
         settings.stream() << ")";
 }
+void dump_text_VkTileShadingRenderPassFlagBitsQCOM(VkTileShadingRenderPassFlagBitsQCOM object, const ApiDumpSettings& settings, int indents)
+{
+    bool is_first = true;
+    settings.stream() << object;
+    if(object & 1) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_TILE_SHADING_RENDER_PASS_ENABLE_BIT_QCOM"; is_first = false;
+    }
+    if(object & 2) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_TILE_SHADING_RENDER_PASS_PER_TILE_EXECUTION_BIT_QCOM"; is_first = false;
+    }
+    if(!is_first)
+        settings.stream() << ")";
+}
 #if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_text_VkExportMetalObjectTypeFlagBitsEXT(VkExportMetalObjectTypeFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
 {
@@ -13000,6 +13087,15 @@ void dump_text_VkShaderCreateFlagBitsEXT(VkShaderCreateFlagBitsEXT object, const
     if(object & 512) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_RESERVED_9_BIT_EXT"; is_first = false;
     }
+    if(object & 4096) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_RESERVED_12_BIT_EXT"; is_first = false;
+    }
+    if(object & 8192) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_RESERVED_13_BIT_EXT"; is_first = false;
+    }
+    if(object & 16384) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_RESERVED_14_BIT_EXT"; is_first = false;
+    }
     if(!is_first)
         settings.stream() << ")";
 }
@@ -13021,6 +13117,9 @@ void dump_text_VkVideoEncodeAV1CapabilityFlagBitsKHR(VkVideoEncodeAV1CapabilityF
     }
     if(object & 16) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_AV1_CAPABILITY_MOTION_VECTOR_SCALING_BIT_KHR"; is_first = false;
+    }
+    if(object & 32) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_AV1_CAPABILITY_RESERVED_5_BIT_KHR"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -13681,6 +13780,10 @@ void dump_text_VkVideoEncodeContentFlagsKHR(VkVideoEncodeContentFlagsKHR object,
 void dump_text_VkDeviceDiagnosticsConfigFlagsNV(VkDeviceDiagnosticsConfigFlagsNV object, const ApiDumpSettings& settings, int indents)
 {
     dump_text_VkDeviceDiagnosticsConfigFlagBitsNV((VkDeviceDiagnosticsConfigFlagBitsNV) object, settings, indents);
+}
+void dump_text_VkTileShadingRenderPassFlagsQCOM(VkTileShadingRenderPassFlagsQCOM object, const ApiDumpSettings& settings, int indents)
+{
+    dump_text_VkTileShadingRenderPassFlagBitsQCOM((VkTileShadingRenderPassFlagBitsQCOM) object, settings, indents);
 }
 #if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_text_VkExportMetalObjectTypeFlagsEXT(VkExportMetalObjectTypeFlagsEXT object, const ApiDumpSettings& settings, int indents)
@@ -22394,6 +22497,21 @@ void dump_text_VkAttachmentSampleCountInfoAMD(const VkAttachmentSampleCountInfoA
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
+void dump_text_VkPhysicalDeviceShaderBfloat16FeaturesKHR(const VkPhysicalDeviceShaderBfloat16FeaturesKHR& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
+    dump_text_value<const VkBool32>(object.shaderBFloat16Type, settings, "VkBool32", "shaderBFloat16Type", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.shaderBFloat16DotProduct, settings, "VkBool32", "shaderBFloat16DotProduct", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.shaderBFloat16CooperativeMatrix, settings, "VkBool32", "shaderBFloat16CooperativeMatrix", indents + 1, dump_text_VkBool32);  // AET
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
 void dump_text_VkSampleLocationEXT(const VkSampleLocationEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
@@ -25538,6 +25656,7 @@ void dump_text_VkDeviceDiagnosticsConfigCreateInfoNV(const VkDeviceDiagnosticsCo
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkCudaModuleCreateInfoNV(const VkCudaModuleCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
@@ -25552,6 +25671,8 @@ void dump_text_VkCudaModuleCreateInfoNV(const VkCudaModuleCreateInfoNV& object, 
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkCudaFunctionCreateInfoNV(const VkCudaFunctionCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
@@ -25566,6 +25687,8 @@ void dump_text_VkCudaFunctionCreateInfoNV(const VkCudaFunctionCreateInfoNV& obje
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkCudaLaunchInfoNV(const VkCudaLaunchInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
@@ -25590,6 +25713,8 @@ void dump_text_VkCudaLaunchInfoNV(const VkCudaLaunchInfoNV& object, const ApiDum
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkPhysicalDeviceCudaKernelLaunchFeaturesNV(const VkPhysicalDeviceCudaKernelLaunchFeaturesNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
@@ -25603,6 +25728,8 @@ void dump_text_VkPhysicalDeviceCudaKernelLaunchFeaturesNV(const VkPhysicalDevice
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkPhysicalDeviceCudaKernelLaunchPropertiesNV(const VkPhysicalDeviceCudaKernelLaunchPropertiesNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
@@ -25613,6 +25740,99 @@ void dump_text_VkPhysicalDeviceCudaKernelLaunchPropertiesNV(const VkPhysicalDevi
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
     dump_text_value<const uint32_t>(object.computeCapabilityMinor, settings, "uint32_t", "computeCapabilityMinor", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.computeCapabilityMajor, settings, "uint32_t", "computeCapabilityMajor", indents + 1, dump_text_uint32_t);  // AET
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
+#endif // VK_ENABLE_BETA_EXTENSIONS
+void dump_text_VkPhysicalDeviceTileShadingFeaturesQCOM(const VkPhysicalDeviceTileShadingFeaturesQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
+    dump_text_value<const VkBool32>(object.tileShading, settings, "VkBool32", "tileShading", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingFragmentStage, settings, "VkBool32", "tileShadingFragmentStage", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingColorAttachments, settings, "VkBool32", "tileShadingColorAttachments", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingDepthAttachments, settings, "VkBool32", "tileShadingDepthAttachments", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingStencilAttachments, settings, "VkBool32", "tileShadingStencilAttachments", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingInputAttachments, settings, "VkBool32", "tileShadingInputAttachments", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingSampledAttachments, settings, "VkBool32", "tileShadingSampledAttachments", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingPerTileDraw, settings, "VkBool32", "tileShadingPerTileDraw", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingPerTileDispatch, settings, "VkBool32", "tileShadingPerTileDispatch", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingDispatchTile, settings, "VkBool32", "tileShadingDispatchTile", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingApron, settings, "VkBool32", "tileShadingApron", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingAnisotropicApron, settings, "VkBool32", "tileShadingAnisotropicApron", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingAtomicOps, settings, "VkBool32", "tileShadingAtomicOps", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkBool32>(object.tileShadingImageProcessing, settings, "VkBool32", "tileShadingImageProcessing", indents + 1, dump_text_VkBool32);  // AET
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
+void dump_text_VkPhysicalDeviceTileShadingPropertiesQCOM(const VkPhysicalDeviceTileShadingPropertiesQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
+    dump_text_value<const uint32_t>(object.maxApronSize, settings, "uint32_t", "maxApronSize", indents + 1, dump_text_uint32_t);  // AET
+    dump_text_value<const VkBool32>(object.preferNonCoherent, settings, "VkBool32", "preferNonCoherent", indents + 1, dump_text_VkBool32);  // AET
+    dump_text_value<const VkExtent2D>(object.tileGranularity, settings, "VkExtent2D", "tileGranularity", indents + 1, dump_text_VkExtent2D);  // AET
+    dump_text_value<const VkExtent2D>(object.maxTileShadingRate, settings, "VkExtent2D", "maxTileShadingRate", indents + 1, dump_text_VkExtent2D);  // AET
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
+void dump_text_VkRenderPassTileShadingCreateInfoQCOM(const VkRenderPassTileShadingCreateInfoQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
+    dump_text_value<const VkTileShadingRenderPassFlagsQCOM>(object.flags, settings, "VkTileShadingRenderPassFlagsQCOM", "flags", indents + 1, dump_text_VkTileShadingRenderPassFlagsQCOM);  // AET
+    dump_text_value<const VkExtent2D>(object.tileApronSize, settings, "VkExtent2D", "tileApronSize", indents + 1, dump_text_VkExtent2D);  // AET
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
+void dump_text_VkPerTileBeginInfoQCOM(const VkPerTileBeginInfoQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
+void dump_text_VkPerTileEndInfoQCOM(const VkPerTileEndInfoQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
+void dump_text_VkDispatchTileInfoQCOM(const VkDispatchTileInfoQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
@@ -28097,7 +28317,7 @@ void dump_text_VkRenderPassStripeSubmitInfoARM(const VkRenderPassStripeSubmitInf
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
-void dump_text_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM(const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& object, const ApiDumpSettings& settings, int indents)
+void dump_text_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT(const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
         settings.stream() << &object << ":\n";
@@ -28110,7 +28330,7 @@ void dump_text_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM(const VkPhys
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
-void dump_text_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM(const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& object, const ApiDumpSettings& settings, int indents)
+void dump_text_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT(const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
         settings.stream() << &object << ":\n";
@@ -28123,7 +28343,7 @@ void dump_text_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM(const VkPh
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
-void dump_text_VkSubpassFragmentDensityMapOffsetEndInfoQCOM(const VkSubpassFragmentDensityMapOffsetEndInfoQCOM& object, const ApiDumpSettings& settings, int indents)
+void dump_text_VkRenderPassFragmentDensityMapOffsetEndInfoEXT(const VkRenderPassFragmentDensityMapOffsetEndInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
         settings.stream() << &object << ":\n";
@@ -30447,6 +30667,59 @@ void dump_text_VkPhysicalDeviceRawAccessChainsFeaturesNV(const VkPhysicalDeviceR
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
+void dump_text_VkExternalComputeQueueDeviceCreateInfoNV(const VkExternalComputeQueueDeviceCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
+    dump_text_value<const uint32_t>(object.reservedExternalQueues, settings, "uint32_t", "reservedExternalQueues", indents + 1, dump_text_uint32_t);  // AET
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
+void dump_text_VkExternalComputeQueueCreateInfoNV(const VkExternalComputeQueueCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
+    dump_text_value<const VkQueue>(object.preferredQueue, settings, "VkQueue", "preferredQueue", indents + 1, dump_text_VkQueue);  // AET
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
+void dump_text_VkExternalComputeQueueDataParamsNV(const VkExternalComputeQueueDataParamsNV& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
+    dump_text_value<const uint32_t>(object.deviceIndex, settings, "uint32_t", "deviceIndex", indents + 1, dump_text_uint32_t);  // AET
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
+void dump_text_VkPhysicalDeviceExternalComputeQueuePropertiesNV(const VkPhysicalDeviceExternalComputeQueuePropertiesNV& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
+    dump_text_value<const uint32_t>(object.externalDataSize, settings, "uint32_t", "externalDataSize", indents + 1, dump_text_uint32_t);  // AET
+    dump_text_value<const uint32_t>(object.maxExternalQueues, settings, "uint32_t", "maxExternalQueues", indents + 1, dump_text_uint32_t);  // AET
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
 void dump_text_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR(const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
@@ -31543,6 +31816,7 @@ void dump_text_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT(const VkPhys
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkSetPresentConfigNV(const VkSetPresentConfigNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
@@ -31557,6 +31831,8 @@ void dump_text_VkSetPresentConfigNV(const VkSetPresentConfigNV& object, const Ap
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_VkPhysicalDevicePresentMeteringFeaturesNV(const VkPhysicalDevicePresentMeteringFeaturesNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
@@ -31566,6 +31842,19 @@ void dump_text_VkPhysicalDevicePresentMeteringFeaturesNV(const VkPhysicalDeviceP
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
     dump_text_value<const VkBool32>(object.presentMetering, settings, "VkBool32", "presentMetering", indents + 1, dump_text_VkBool32);  // AET
+    if(object.pNext != nullptr){
+        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
+    }
+}
+#endif // VK_ENABLE_BETA_EXTENSIONS
+void dump_text_VkRenderingEndInfoEXT(const VkRenderingEndInfoEXT& object, const ApiDumpSettings& settings, int indents)
+{
+    if(settings.showAddress())
+        settings.stream() << &object << ":\n";
+    else
+        settings.stream() << "address:\n";
+    dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
+    dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
@@ -33151,6 +33440,9 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
         case 1000044008:
             settings.stream() << "VkAttachmentSampleCountInfoAMD\n";
             break;
+        case 1000141000:
+            settings.stream() << "VkPhysicalDeviceShaderBfloat16FeaturesKHR\n";
+            break;
         case 1000143000:
             settings.stream() << "VkSampleLocationsInfoEXT\n";
             break;
@@ -33755,20 +34047,48 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
         case 1000300001:
             settings.stream() << "VkDeviceDiagnosticsConfigCreateInfoNV\n";
             break;
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
         case 1000307000:
             settings.stream() << "VkCudaModuleCreateInfoNV\n";
             break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
         case 1000307001:
             settings.stream() << "VkCudaFunctionCreateInfoNV\n";
             break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
         case 1000307002:
             settings.stream() << "VkCudaLaunchInfoNV\n";
             break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
         case 1000307003:
             settings.stream() << "VkPhysicalDeviceCudaKernelLaunchFeaturesNV\n";
             break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
         case 1000307004:
             settings.stream() << "VkPhysicalDeviceCudaKernelLaunchPropertiesNV\n";
+            break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+        case 1000309000:
+            settings.stream() << "VkPhysicalDeviceTileShadingFeaturesQCOM\n";
+            break;
+        case 1000309001:
+            settings.stream() << "VkPhysicalDeviceTileShadingPropertiesQCOM\n";
+            break;
+        case 1000309002:
+            settings.stream() << "VkRenderPassTileShadingCreateInfoQCOM\n";
+            break;
+        case 1000309003:
+            settings.stream() << "VkPerTileBeginInfoQCOM\n";
+            break;
+        case 1000309004:
+            settings.stream() << "VkPerTileEndInfoQCOM\n";
+            break;
+        case 1000309005:
+            settings.stream() << "VkDispatchTileInfoQCOM\n";
             break;
         case 1000310000:
             settings.stream() << "VkQueryLowLatencySupportNV\n";
@@ -34285,13 +34605,13 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
             settings.stream() << "VkRenderPassStripeSubmitInfoARM\n";
             break;
         case 1000425000:
-            settings.stream() << "VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM\n";
+            settings.stream() << "VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT\n";
             break;
         case 1000425001:
-            settings.stream() << "VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM\n";
+            settings.stream() << "VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT\n";
             break;
         case 1000425002:
-            settings.stream() << "VkSubpassFragmentDensityMapOffsetEndInfoQCOM\n";
+            settings.stream() << "VkRenderPassFragmentDensityMapOffsetEndInfoEXT\n";
             break;
         case 1000426000:
             settings.stream() << "VkPhysicalDeviceCopyMemoryIndirectFeaturesNV\n";
@@ -34744,6 +35064,18 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
         case 1000555000:
             settings.stream() << "VkPhysicalDeviceRawAccessChainsFeaturesNV\n";
             break;
+        case 1000556000:
+            settings.stream() << "VkExternalComputeQueueDeviceCreateInfoNV\n";
+            break;
+        case 1000556001:
+            settings.stream() << "VkExternalComputeQueueCreateInfoNV\n";
+            break;
+        case 1000556002:
+            settings.stream() << "VkExternalComputeQueueDataParamsNV\n";
+            break;
+        case 1000556003:
+            settings.stream() << "VkPhysicalDeviceExternalComputeQueuePropertiesNV\n";
+            break;
         case 1000558000:
             settings.stream() << "VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR\n";
             break;
@@ -34927,11 +35259,18 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
         case 1000608000:
             settings.stream() << "VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT\n";
             break;
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
         case 1000613000:
             settings.stream() << "VkSetPresentConfigNV\n";
             break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
         case 1000613001:
             settings.stream() << "VkPhysicalDevicePresentMeteringFeaturesNV\n";
+            break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+        case 1000619003:
+            settings.stream() << "VkRenderingEndInfoEXT\n";
             break;
         case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
         case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
@@ -36344,6 +36683,9 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     case 1000044008:
         dump_text_pNext<const VkAttachmentSampleCountInfoAMD>(reinterpret_cast<const VkAttachmentSampleCountInfoAMD*>(object), settings, "VkAttachmentSampleCountInfoAMD", indents, dump_text_VkAttachmentSampleCountInfoAMD);
         break;
+    case 1000141000:
+        dump_text_pNext<const VkPhysicalDeviceShaderBfloat16FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderBfloat16FeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderBfloat16FeaturesKHR", indents, dump_text_VkPhysicalDeviceShaderBfloat16FeaturesKHR);
+        break;
     case 1000143000:
         dump_text_pNext<const VkSampleLocationsInfoEXT>(reinterpret_cast<const VkSampleLocationsInfoEXT*>(object), settings, "VkSampleLocationsInfoEXT", indents, dump_text_VkSampleLocationsInfoEXT);
         break;
@@ -36948,20 +37290,48 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     case 1000300001:
         dump_text_pNext<const VkDeviceDiagnosticsConfigCreateInfoNV>(reinterpret_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(object), settings, "VkDeviceDiagnosticsConfigCreateInfoNV", indents, dump_text_VkDeviceDiagnosticsConfigCreateInfoNV);
         break;
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     case 1000307000:
         dump_text_pNext<const VkCudaModuleCreateInfoNV>(reinterpret_cast<const VkCudaModuleCreateInfoNV*>(object), settings, "VkCudaModuleCreateInfoNV", indents, dump_text_VkCudaModuleCreateInfoNV);
         break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     case 1000307001:
         dump_text_pNext<const VkCudaFunctionCreateInfoNV>(reinterpret_cast<const VkCudaFunctionCreateInfoNV*>(object), settings, "VkCudaFunctionCreateInfoNV", indents, dump_text_VkCudaFunctionCreateInfoNV);
         break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     case 1000307002:
         dump_text_pNext<const VkCudaLaunchInfoNV>(reinterpret_cast<const VkCudaLaunchInfoNV*>(object), settings, "VkCudaLaunchInfoNV", indents, dump_text_VkCudaLaunchInfoNV);
         break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     case 1000307003:
         dump_text_pNext<const VkPhysicalDeviceCudaKernelLaunchFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCudaKernelLaunchFeaturesNV*>(object), settings, "VkPhysicalDeviceCudaKernelLaunchFeaturesNV", indents, dump_text_VkPhysicalDeviceCudaKernelLaunchFeaturesNV);
         break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     case 1000307004:
         dump_text_pNext<const VkPhysicalDeviceCudaKernelLaunchPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCudaKernelLaunchPropertiesNV*>(object), settings, "VkPhysicalDeviceCudaKernelLaunchPropertiesNV", indents, dump_text_VkPhysicalDeviceCudaKernelLaunchPropertiesNV);
+        break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+    case 1000309000:
+        dump_text_pNext<const VkPhysicalDeviceTileShadingFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceTileShadingFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTileShadingFeaturesQCOM", indents, dump_text_VkPhysicalDeviceTileShadingFeaturesQCOM);
+        break;
+    case 1000309001:
+        dump_text_pNext<const VkPhysicalDeviceTileShadingPropertiesQCOM>(reinterpret_cast<const VkPhysicalDeviceTileShadingPropertiesQCOM*>(object), settings, "VkPhysicalDeviceTileShadingPropertiesQCOM", indents, dump_text_VkPhysicalDeviceTileShadingPropertiesQCOM);
+        break;
+    case 1000309002:
+        dump_text_pNext<const VkRenderPassTileShadingCreateInfoQCOM>(reinterpret_cast<const VkRenderPassTileShadingCreateInfoQCOM*>(object), settings, "VkRenderPassTileShadingCreateInfoQCOM", indents, dump_text_VkRenderPassTileShadingCreateInfoQCOM);
+        break;
+    case 1000309003:
+        dump_text_pNext<const VkPerTileBeginInfoQCOM>(reinterpret_cast<const VkPerTileBeginInfoQCOM*>(object), settings, "VkPerTileBeginInfoQCOM", indents, dump_text_VkPerTileBeginInfoQCOM);
+        break;
+    case 1000309004:
+        dump_text_pNext<const VkPerTileEndInfoQCOM>(reinterpret_cast<const VkPerTileEndInfoQCOM*>(object), settings, "VkPerTileEndInfoQCOM", indents, dump_text_VkPerTileEndInfoQCOM);
+        break;
+    case 1000309005:
+        dump_text_pNext<const VkDispatchTileInfoQCOM>(reinterpret_cast<const VkDispatchTileInfoQCOM*>(object), settings, "VkDispatchTileInfoQCOM", indents, dump_text_VkDispatchTileInfoQCOM);
         break;
     case 1000310000:
         dump_text_pNext<const VkQueryLowLatencySupportNV>(reinterpret_cast<const VkQueryLowLatencySupportNV*>(object), settings, "VkQueryLowLatencySupportNV", indents, dump_text_VkQueryLowLatencySupportNV);
@@ -37478,13 +37848,13 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         dump_text_pNext<const VkRenderPassStripeSubmitInfoARM>(reinterpret_cast<const VkRenderPassStripeSubmitInfoARM*>(object), settings, "VkRenderPassStripeSubmitInfoARM", indents, dump_text_VkRenderPassStripeSubmitInfoARM);
         break;
     case 1000425000:
-        dump_text_pNext<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM*>(object), settings, "VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM", indents, dump_text_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM);
+        dump_text_pNext<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT", indents, dump_text_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT);
         break;
     case 1000425001:
-        dump_text_pNext<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM*>(object), settings, "VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM", indents, dump_text_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM);
+        dump_text_pNext<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT", indents, dump_text_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT);
         break;
     case 1000425002:
-        dump_text_pNext<const VkSubpassFragmentDensityMapOffsetEndInfoQCOM>(reinterpret_cast<const VkSubpassFragmentDensityMapOffsetEndInfoQCOM*>(object), settings, "VkSubpassFragmentDensityMapOffsetEndInfoQCOM", indents, dump_text_VkSubpassFragmentDensityMapOffsetEndInfoQCOM);
+        dump_text_pNext<const VkRenderPassFragmentDensityMapOffsetEndInfoEXT>(reinterpret_cast<const VkRenderPassFragmentDensityMapOffsetEndInfoEXT*>(object), settings, "VkRenderPassFragmentDensityMapOffsetEndInfoEXT", indents, dump_text_VkRenderPassFragmentDensityMapOffsetEndInfoEXT);
         break;
     case 1000426000:
         dump_text_pNext<const VkPhysicalDeviceCopyMemoryIndirectFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectFeaturesNV*>(object), settings, "VkPhysicalDeviceCopyMemoryIndirectFeaturesNV", indents, dump_text_VkPhysicalDeviceCopyMemoryIndirectFeaturesNV);
@@ -37937,6 +38307,18 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     case 1000555000:
         dump_text_pNext<const VkPhysicalDeviceRawAccessChainsFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRawAccessChainsFeaturesNV*>(object), settings, "VkPhysicalDeviceRawAccessChainsFeaturesNV", indents, dump_text_VkPhysicalDeviceRawAccessChainsFeaturesNV);
         break;
+    case 1000556000:
+        dump_text_pNext<const VkExternalComputeQueueDeviceCreateInfoNV>(reinterpret_cast<const VkExternalComputeQueueDeviceCreateInfoNV*>(object), settings, "VkExternalComputeQueueDeviceCreateInfoNV", indents, dump_text_VkExternalComputeQueueDeviceCreateInfoNV);
+        break;
+    case 1000556001:
+        dump_text_pNext<const VkExternalComputeQueueCreateInfoNV>(reinterpret_cast<const VkExternalComputeQueueCreateInfoNV*>(object), settings, "VkExternalComputeQueueCreateInfoNV", indents, dump_text_VkExternalComputeQueueCreateInfoNV);
+        break;
+    case 1000556002:
+        dump_text_pNext<const VkExternalComputeQueueDataParamsNV>(reinterpret_cast<const VkExternalComputeQueueDataParamsNV*>(object), settings, "VkExternalComputeQueueDataParamsNV", indents, dump_text_VkExternalComputeQueueDataParamsNV);
+        break;
+    case 1000556003:
+        dump_text_pNext<const VkPhysicalDeviceExternalComputeQueuePropertiesNV>(reinterpret_cast<const VkPhysicalDeviceExternalComputeQueuePropertiesNV*>(object), settings, "VkPhysicalDeviceExternalComputeQueuePropertiesNV", indents, dump_text_VkPhysicalDeviceExternalComputeQueuePropertiesNV);
+        break;
     case 1000558000:
         dump_text_pNext<const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR", indents, dump_text_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR);
         break;
@@ -38120,11 +38502,18 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     case 1000608000:
         dump_text_pNext<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT*>(object), settings, "VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT", indents, dump_text_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT);
         break;
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     case 1000613000:
         dump_text_pNext<const VkSetPresentConfigNV>(reinterpret_cast<const VkSetPresentConfigNV*>(object), settings, "VkSetPresentConfigNV", indents, dump_text_VkSetPresentConfigNV);
         break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
     case 1000613001:
         dump_text_pNext<const VkPhysicalDevicePresentMeteringFeaturesNV>(reinterpret_cast<const VkPhysicalDevicePresentMeteringFeaturesNV*>(object), settings, "VkPhysicalDevicePresentMeteringFeaturesNV", indents, dump_text_VkPhysicalDevicePresentMeteringFeaturesNV);
+        break;
+#endif // VK_ENABLE_BETA_EXTENSIONS
+    case 1000619003:
+        dump_text_pNext<const VkRenderingEndInfoEXT>(reinterpret_cast<const VkRenderingEndInfoEXT*>(object), settings, "VkRenderingEndInfoEXT", indents, dump_text_VkRenderingEndInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
     case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
@@ -45362,6 +45751,7 @@ void dump_text_vkCmdEncodeVideoKHR(ApiDumpInstance& dump_inst, VkCommandBuffer c
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_vkCreateCudaModuleNV(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, const VkCudaModuleCreateInfoNV* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkCudaModuleNV* pModule)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -45377,6 +45767,8 @@ void dump_text_vkCreateCudaModuleNV(ApiDumpInstance& dump_inst, VkResult result,
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_vkGetCudaModuleCacheNV(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, VkCudaModuleNV module, size_t* pCacheSize, void* pCacheData)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -45392,6 +45784,8 @@ void dump_text_vkGetCudaModuleCacheNV(ApiDumpInstance& dump_inst, VkResult resul
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_vkCreateCudaFunctionNV(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, const VkCudaFunctionCreateInfoNV* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkCudaFunctionNV* pFunction)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -45407,6 +45801,8 @@ void dump_text_vkCreateCudaFunctionNV(ApiDumpInstance& dump_inst, VkResult resul
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_vkDestroyCudaModuleNV(ApiDumpInstance& dump_inst, VkDevice device, VkCudaModuleNV module, const VkAllocationCallbacks* pAllocator)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -45419,6 +45815,8 @@ void dump_text_vkDestroyCudaModuleNV(ApiDumpInstance& dump_inst, VkDevice device
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_vkDestroyCudaFunctionNV(ApiDumpInstance& dump_inst, VkDevice device, VkCudaFunctionNV function, const VkAllocationCallbacks* pAllocator)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -45431,6 +45829,8 @@ void dump_text_vkDestroyCudaFunctionNV(ApiDumpInstance& dump_inst, VkDevice devi
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
+#endif // VK_ENABLE_BETA_EXTENSIONS
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_text_vkCmdCudaLaunchKernelNV(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkCudaLaunchInfoNV* pLaunchInfo)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -45439,6 +45839,39 @@ void dump_text_vkCmdCudaLaunchKernelNV(ApiDumpInstance& dump_inst, VkCommandBuff
     {
         dump_text_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_text_VkCommandBuffer); // MET
         dump_text_pointer<const VkCudaLaunchInfoNV>(pLaunchInfo, settings, "const VkCudaLaunchInfoNV*", "pLaunchInfo", 1, dump_text_VkCudaLaunchInfoNV);
+    }
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
+}
+#endif // VK_ENABLE_BETA_EXTENSIONS
+void dump_text_vkCmdDispatchTileQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << ":\n";
+    if(settings.showParams())
+    {
+        dump_text_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_text_VkCommandBuffer); // MET
+    }
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
+}
+void dump_text_vkCmdBeginPerTileExecutionQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkPerTileBeginInfoQCOM* pPerTileBeginInfo)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << ":\n";
+    if(settings.showParams())
+    {
+        dump_text_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_text_VkCommandBuffer); // MET
+        dump_text_pointer<const VkPerTileBeginInfoQCOM>(pPerTileBeginInfo, settings, "const VkPerTileBeginInfoQCOM*", "pPerTileBeginInfo", 1, dump_text_VkPerTileBeginInfoQCOM);
+    }
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
+}
+void dump_text_vkCmdEndPerTileExecutionQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkPerTileEndInfoQCOM* pPerTileEndInfo)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << ":\n";
+    if(settings.showParams())
+    {
+        dump_text_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_text_VkCommandBuffer); // MET
+        dump_text_pointer<const VkPerTileEndInfoQCOM>(pPerTileEndInfo, settings, "const VkPerTileEndInfoQCOM*", "pPerTileEndInfo", 1, dump_text_VkPerTileEndInfoQCOM);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -47609,6 +48042,45 @@ void dump_text_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(ApiDumpInstance& du
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
+void dump_text_vkCreateExternalComputeQueueNV(ApiDumpInstance& dump_inst, VkResult result, VkDevice device, const VkExternalComputeQueueCreateInfoNV* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkExternalComputeQueueNV* pExternalQueue)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << " ";
+    dump_text_VkResult(result, settings, 0);
+    settings.stream() << ":\n";
+    if(settings.showParams())
+    {
+        dump_text_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_text_VkDevice); // MET
+        dump_text_pointer<const VkExternalComputeQueueCreateInfoNV>(pCreateInfo, settings, "const VkExternalComputeQueueCreateInfoNV*", "pCreateInfo", 1, dump_text_VkExternalComputeQueueCreateInfoNV);
+        dump_text_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", 1, dump_text_VkAllocationCallbacks);
+        dump_text_pointer<const VkExternalComputeQueueNV>(pExternalQueue, settings, "VkExternalComputeQueueNV*", "pExternalQueue", 1, dump_text_VkExternalComputeQueueNV);
+    }
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
+}
+void dump_text_vkDestroyExternalComputeQueueNV(ApiDumpInstance& dump_inst, VkDevice device, VkExternalComputeQueueNV externalQueue, const VkAllocationCallbacks* pAllocator)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << ":\n";
+    if(settings.showParams())
+    {
+        dump_text_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_text_VkDevice); // MET
+        dump_text_value<const VkExternalComputeQueueNV>(externalQueue, settings, "VkExternalComputeQueueNV", "externalQueue", 1, dump_text_VkExternalComputeQueueNV); // MET
+        dump_text_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", 1, dump_text_VkAllocationCallbacks);
+    }
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
+}
+void dump_text_vkGetExternalComputeQueueDataNV(ApiDumpInstance& dump_inst, VkExternalComputeQueueNV externalQueue, VkExternalComputeQueueDataParamsNV* params, void* pData)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << ":\n";
+    if(settings.showParams())
+    {
+        dump_text_value<const VkExternalComputeQueueNV>(externalQueue, settings, "VkExternalComputeQueueNV", "externalQueue", 1, dump_text_VkExternalComputeQueueNV); // MET
+        dump_text_pointer<const VkExternalComputeQueueDataParamsNV>(params, settings, "VkExternalComputeQueueDataParamsNV*", "params", 1, dump_text_VkExternalComputeQueueDataParamsNV);
+        dump_text_value<const void*>(pData, settings, "void*", "pData", 1, dump_text_void); // MET
+    }
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
+}
 void dump_text_vkGetClusterAccelerationStructureBuildSizesNV(ApiDumpInstance& dump_inst, VkDevice device, const VkClusterAccelerationStructureInputInfoNV* pInfo, VkAccelerationStructureBuildSizesInfoKHR* pSizeInfo)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
@@ -47818,5 +48290,16 @@ void dump_text_vkGetMemoryMetalHandlePropertiesEXT(ApiDumpInstance& dump_inst, V
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
+void dump_text_vkCmdEndRendering2EXT(ApiDumpInstance& dump_inst, VkCommandBuffer                   commandBuffer, const VkRenderingEndInfoEXT*        pRenderingEndInfo)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    settings.stream() << ":\n";
+    if(settings.showParams())
+    {
+        dump_text_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_text_VkCommandBuffer); // MET
+        dump_text_pointer<const VkRenderingEndInfoEXT>(pRenderingEndInfo, settings, "const VkRenderingEndInfoEXT*", "pRenderingEndInfo", 1, dump_text_VkRenderingEndInfoEXT);
+    }
+    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
+}
 
 
