@@ -91,7 +91,7 @@
        <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -405,7 +405,10 @@
                         <number>1</number>
                        </property>
                        <property name="verticalScrollBarPolicy">
-                        <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+                        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+                       </property>
+                       <property name="sizeAdjustPolicy">
+                        <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
                        </property>
                        <property name="editTriggers">
                         <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
@@ -548,7 +551,10 @@
                         <number>1</number>
                        </property>
                        <property name="verticalScrollBarPolicy">
-                        <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+                        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+                       </property>
+                       <property name="sizeAdjustPolicy">
+                        <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
                        </property>
                        <property name="autoScrollMargin">
                         <number>0</number>
@@ -559,11 +565,14 @@
                        <property name="dragEnabled">
                         <bool>true</bool>
                        </property>
+                       <property name="dragDropOverwriteMode">
+                        <bool>false</bool>
+                       </property>
                        <property name="dragDropMode">
-                        <enum>QAbstractItemView::DragDropMode::NoDragDrop</enum>
+                        <enum>QAbstractItemView::DragDropMode::DragDrop</enum>
                        </property>
                        <property name="defaultDropAction">
-                        <enum>Qt::DropAction::IgnoreAction</enum>
+                        <enum>Qt::DropAction::MoveAction</enum>
                        </property>
                        <property name="alternatingRowColors">
                         <bool>true</bool>
@@ -850,6 +859,12 @@
                    </property>
                    <item>
                     <widget class="QComboBox" name="configurations_versions">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
                      <property name="font">
                       <font>
                        <family>Arial</family>
@@ -857,12 +872,21 @@
                        <bold>false</bold>
                       </font>
                      </property>
+                     <property name="sizeAdjustPolicy">
+                      <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                     </property>
                     </widget>
                    </item>
                    <item>
                     <widget class="QComboBox" name="configurations_presets">
                      <property name="enabled">
                       <bool>true</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
                      </property>
                      <property name="minimumSize">
                       <size>
@@ -882,6 +906,9 @@
                        <pointsize>10</pointsize>
                        <bold>false</bold>
                       </font>
+                     </property>
+                     <property name="sizeAdjustPolicy">
+                      <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                      </property>
                     </widget>
                    </item>
@@ -907,7 +934,7 @@
                       <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
                      </property>
                      <property name="sizeAdjustPolicy">
-                      <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored</enum>
+                      <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
                      </property>
                      <property name="autoScrollMargin">
                       <number>0</number>
@@ -1162,7 +1189,10 @@
               <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
              </property>
              <property name="alternatingRowColors">
               <bool>true</bool>
@@ -1949,6 +1979,12 @@
             <property name="lineWidth">
              <number>1</number>
             </property>
+            <property name="verticalScrollBarPolicy">
+             <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+            </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+            </property>
             <property name="readOnly">
              <bool>true</bool>
             </property>
@@ -2358,7 +2394,10 @@
               <number>0</number>
              </property>
              <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -2449,6 +2488,12 @@
              </property>
              <property name="frameShadow">
               <enum>QFrame::Shadow::Plain</enum>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -3399,6 +3444,12 @@
              </property>
              <property name="frameShape">
               <enum>QFrame::Shape::NoFrame</enum>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
              </property>
              <property name="textInteractionFlags">
               <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
