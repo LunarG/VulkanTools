@@ -466,7 +466,7 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
 
 void SettingsTreeManager::OnSettingChanged() {
     this->RefreshPresetLabel();
-    this->Refresh(REFRESH_ENABLE_ONLY);
+    this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
 
 void SettingsTreeManager::RefreshPresetLabel() {
@@ -508,7 +508,9 @@ void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetIte
     QWidget *widget = this->ui->configurations_settings->itemWidget(parent, 0);
     if (widget != nullptr) {
         WidgetSettingBase *widget_base = dynamic_cast<WidgetSettingBase *>(widget);
-        if (widget_base != nullptr) widget_base->Refresh(refresh_areas);
+        if (widget_base != nullptr) {
+            widget_base->Refresh(refresh_areas);
+        }
     }
 
     for (int i = 0, n = parent->childCount(); i < n; ++i) {
