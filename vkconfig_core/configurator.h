@@ -143,6 +143,7 @@ class Configurator {
     ConfigurationManager configurations;
     ExecutableManager executables;
     VulkanSystemInfo vulkan_system_info;
+    IgnoredMessages ignored_messages;
 
     const ConfiguratorMode& mode;
 

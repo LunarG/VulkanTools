@@ -44,6 +44,7 @@ SOURCES += \
     ../vkconfig_core/layer.cpp \
     ../vkconfig_core/layer_manager.cpp \
     ../vkconfig_core/layer_preset.cpp \
+    ../vkconfig_core/message.cpp \
     ../vkconfig_core/parameter.cpp \
     ../vkconfig_core/path.cpp \
     ../vkconfig_core/registry.cpp \
@@ -57,6 +58,7 @@ SOURCES += \
     ../vkconfig_core/setting_int.cpp \
     ../vkconfig_core/setting_list.cpp \
     ../vkconfig_core/setting_string.cpp \
+    ../vkconfig_core/type_button.cpp \
     ../vkconfig_core/type_configurator_mode.cpp \
     ../vkconfig_core/type_diagnostic_mode.cpp \
     ../vkconfig_core/type_executable_mode.cpp \
@@ -67,6 +69,7 @@ SOURCES += \
     ../vkconfig_core/type_layers_paths.cpp \
     ../vkconfig_core/type_log.cpp \
     ../vkconfig_core/type_platform.cpp \
+    ../vkconfig_core/type_severity.cpp \
     ../vkconfig_core/type_status.cpp \
     ../vkconfig_core/type_tab.cpp \
     ../vkconfig_core/type_override_area.cpp \
@@ -125,6 +128,7 @@ HEADERS += \
     ../vkconfig_core/layer.h \
     ../vkconfig_core/layer_manager.h \
     ../vkconfig_core/layer_preset.h \
+    ../vkconfig_core/message.h \
     ../vkconfig_core/parameter.h \
     ../vkconfig_core/path.h \
     ../vkconfig_core/registry.h \
@@ -138,6 +142,7 @@ HEADERS += \
     ../vkconfig_core/setting_int.h \
     ../vkconfig_core/setting_list.h \
     ../vkconfig_core/setting_string.h \
+    ../vkconfig_core/type_button.h \
     ../vkconfig_core/type_configurator_mode.h \
     ../vkconfig_core/type_diagnostic_mode.h \
     ../vkconfig_core/type_executable_mode.h \
@@ -148,6 +153,7 @@ HEADERS += \
     ../vkconfig_core/type_layers_paths.h \
     ../vkconfig_core/type_log.h \
     ../vkconfig_core/type_platform.h \
+    ../vkconfig_core/type_severity.h \
     ../vkconfig_core/type_status.h \
     ../vkconfig_core/type_tab.h \
     ../vkconfig_core/type_override_area.h \

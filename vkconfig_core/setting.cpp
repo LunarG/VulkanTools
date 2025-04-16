@@ -34,6 +34,7 @@
 #include <cassert>
 
 #include <QJsonArray>
+#include <QCheckBox>
 
 SettingType GetSettingType(const char* token) {
     assert(token != nullptr);
@@ -365,4 +366,46 @@ DependenceMode GetDependenceMode(const char* token) {
 
     assert(0);
     return static_cast<DependenceMode>(-1);
+}
+
+void CheckMessage(IgnoredMessages& ignored_messages, const SettingMeta& meta, SettingDataSet& data_set) {
+    for (std::size_t i = 0, n = meta.messages.size(); i < n; ++i) {
+        const Message& message = meta.messages[i];
+
+        auto it = ignored_messages.find(message.key);
+        if (it != ignored_messages.end()) {
+            if (it->second >= message.version) {
+                continue;
+            }
+        }
+
+        if (!message.Triggered(data_set)) {
+            continue;
+        }
+
+        QMessageBox alert;
+        alert.setWindowTitle(message.title.c_str());
+        alert.setText(message.description.c_str());
+        if (!message.informative.empty()) {
+            alert.setInformativeText(message.informative.c_str());
+        }
+        alert.setIcon(::GetIcon(message.severity));
+        alert.setCheckBox(new QCheckBox("Do not show again."));
+
+        alert.setStandardButtons(message.GetStandardButtons());
+        alert.setDefaultButton(::GetStandardButton(message.default_button));
+        int button = alert.exec();
+
+        message.Apply(data_set, static_cast<QMessageBox::StandardButtons>(button));
+
+        if (alert.checkBox()->isChecked()) {
+            if (it != ignored_messages.end()) {
+                ignored_messages[message.key] = message.version;
+            } else {
+                ignored_messages.insert(std::make_pair(message.key, message.version));
+            }
+        }
+
+        break;
+    }
 }

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "header.h"
+#include "message.h"
 
 #include <memory>
 #include <vector>
@@ -126,6 +127,7 @@ struct SettingMeta : public Header {
     SettingMetaSet children;
     SettingDataSet dependence;
     DependenceMode dependence_mode;
+    std::vector<Message> messages;
 
    protected:
     virtual bool Equal(const SettingMeta& other) const;
@@ -200,6 +202,10 @@ bool CheckSettingOverridden(const SettingMeta& meta);
 std::string GetSettingOverride(const SettingMeta& meta);
 
 SettingDependenceMode CheckDependence(const SettingMeta& meta, const SettingDataSet& data_set);
+
+typedef std::map<std::string, int> IgnoredMessages;
+
+void CheckMessage(IgnoredMessages& ignored_messages, const SettingMeta& meta, SettingDataSet& data_set);
 
 template <typename SETTING_DATA>
 inline SETTING_DATA* Instantiate(SettingMeta* meta) {

@@ -903,6 +903,16 @@ bool Configurator::Load() {
             this->hide_message_boxes_flags |= GetHideMessageBit(token.c_str());
         }
 
+        const QJsonObject& json_hide_layer_message_boxes_object =
+            json_interface_object.value("hide_layer_message_boxes").toObject();
+        this->ignored_messages.clear();
+        const QStringList json_hide_layer_message_boxes_keys = json_hide_layer_message_boxes_object.keys();
+        for (int i = 0, n = json_hide_layer_message_boxes_keys.size(); i < n; ++i) {
+            const std::string& key = json_hide_layer_message_boxes_keys[i].toStdString();
+            const int version = json_hide_layer_message_boxes_object.value(key.c_str()).toInt();
+            this->ignored_messages.insert(std::make_pair(key, version));
+        }
+
         this->active_tab = GetTabType(json_interface_object.value("active_tab").toString().toStdString().c_str());
 
         // TAB_CONFIGURATIONS
@@ -1033,6 +1043,13 @@ bool Configurator::Save() const {
             }
         }
         json_interface_object.insert("hide_message_boxes", json_hide_message_boxes_array);
+
+        QJsonObject json_hide_layer_message_boxes_object;
+        for (auto it = this->ignored_messages.begin(); it != this->ignored_messages.end(); ++it) {
+            json_hide_layer_message_boxes_object.insert(it->first.c_str(), it->second);
+        }
+        json_interface_object.insert("hide_layer_message_boxes", json_hide_layer_message_boxes_object);
+
         json_interface_object.insert("active_tab", GetToken(this->active_tab));
 
         json_root_object.insert("interface", json_interface_object);
