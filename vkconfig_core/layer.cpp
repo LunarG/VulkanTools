@@ -493,7 +493,7 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
 
         const QJsonValue& json_children = json_setting.value("settings");
         if (json_children != QJsonValue::Undefined) {
-            AddSettingsSet(setting_meta->children, setting_meta, json_children);
+            this->AddSettingsSet(setting_meta->children, setting_meta, json_children);
         }
 
         const QJsonValue& json_dependence_value = json_setting.value("dependence");
@@ -507,8 +507,52 @@ void Layer::AddSettingsSet(SettingMetaSet& settings, const SettingMeta* parent, 
             if (json_settings_value != QJsonValue::Undefined) {
                 const QJsonArray& json_settings_array = json_settings_value.toArray();
                 for (int j = 0, o = json_settings_array.size(); j < o; ++j) {
-                    AddSettingData(setting_meta->dependence, json_settings_array[j]);
+                    this->AddSettingData(setting_meta->dependence, json_settings_array[j]);
                 }
+            }
+        }
+
+        const QJsonValue& json_messages_value = json_setting.value("messages");
+        if (json_messages_value != QJsonValue::Undefined) {
+            setting_meta->messages.clear();
+
+            assert(json_messages_value.isArray());
+            const QJsonArray& json_messages_array = json_messages_value.toArray();
+            for (int i = 0, n = json_messages_array.size(); i < n; ++i) {
+                Message message;
+                const QJsonObject& json_message_object = json_messages_array[i].toObject();
+
+                message.key = json_message_object.value("key").toString().toStdString();
+                message.version = json_message_object.value("version").toInt();
+                message.title = json_message_object.value("title").toString().toStdString();
+                message.description = json_message_object.value("description").toString().toStdString();
+                message.informative = json_message_object.value("informative").toString().toStdString();
+                message.severity = ::GetSeverityType(json_message_object.value("severity").toString().toStdString().c_str());
+
+                const QJsonValue& json_conditions_value = json_message_object.value("conditions");
+                assert(json_conditions_value != QJsonValue::Undefined);
+                const QJsonArray& json_settings_array = json_conditions_value.toArray();
+                for (int j = 0, o = json_settings_array.size(); j < o; ++j) {
+                    this->AddSettingData(message.conditions, json_settings_array[j]);
+                }
+
+                const QJsonValue& json_actions_value = json_setting.value("actions");
+                if (json_actions_value != QJsonValue::Undefined) {
+                    message.actions.clear();
+                    const QJsonObject& json_actions_object = json_actions_value.toObject();
+                    const QStringList keys = json_actions_object.keys();
+                    for (std::size_t key_index = 0, key_count = keys.size(); key_index < key_count; ++key_index) {
+                        const QJsonValue& json_value = json_setting.value(keys[key_index]);
+                        const QJsonArray& json_settings_array = json_value.toArray();
+                        SettingDataSet actions;
+                        for (int j = 0, o = json_settings_array.size(); j < o; ++j) {
+                            this->AddSettingData(actions, json_settings_array[j]);
+                        }
+                        message.actions.insert(std::make_pair(GetButtonType(keys[key_index].toStdString().c_str()), actions));
+                    }
+                }
+
+                setting_meta->messages.push_back(message);
             }
         }
     }
