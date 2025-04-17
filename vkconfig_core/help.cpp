@@ -60,7 +60,7 @@ void ShowDoc(DocType doc_type) {
             break;
         }
         case DOC_VKCONFIG_CHANGELOG: {
-            QDesktopServices::openUrl(QUrl("https://github.com/LunarG/VulkanTools/blob/main/vkconfig/CHANGELOG.md"));
+            QDesktopServices::openUrl(QUrl("https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CHANGELOG.md"));
             break;
         }
         case DOC_GPU_INFO: {
