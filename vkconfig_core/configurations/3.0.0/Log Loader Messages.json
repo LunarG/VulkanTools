@@ -2,13 +2,13 @@
     "file_format_version": "3.0.0",
     "configuration": {
         "name": "Loader Messages",
+        "version": 1,
         "platforms": [
             "WINDOWS_X86",
             "WINDOWS_ARM",
             "LINUX",
             "MACOS"
         ],
-        "version": 1,
         "override_layers": false,
         "override_loader": true,
         "loader_message_types": [

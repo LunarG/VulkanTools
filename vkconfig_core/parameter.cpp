@@ -96,7 +96,9 @@ ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& 
     assert(!parameter.key.empty());
 
     const Layer* layer = layers.Find(parameter.key, parameter.api_version);
-    if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
+    if (parameter.overridden_rank != Parameter::NO_RANK) {
+        return PARAMETER_RANK_ORDERED_LAYER;
+    } else if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
         return PARAMETER_RANK_UNORDERED_LAYER;
     } else if (layer == nullptr) {
         return PARAMETER_RANK_MISSING_LAYER;
