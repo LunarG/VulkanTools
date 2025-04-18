@@ -25,7 +25,6 @@
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/ui.h"
 #include "../vkconfig_core/version.h"
-#include "../vkconfig_core/help.h"
 #include "../vkconfig_core/date.h"
 #include "../vkconfig_core/type_platform.h"
 #include "../vkconfig_core/type_log.h"

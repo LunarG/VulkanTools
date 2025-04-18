@@ -22,7 +22,6 @@
 #include "command_line.h"
 #include "util.h"
 #include "version.h"
-#include "help.h"
 
 #include <QFile>
 
