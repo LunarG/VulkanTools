@@ -539,11 +539,16 @@ void Configuration::GatherParameters(const LayerManager& layers) {
 void Configuration::Reorder(const std::vector<std::string>& layer_names) {
     std::vector<Parameter> ordered_parameters;
 
+    int rank = 0;
+
     for (std::size_t i = 0, n = layer_names.size(); i < n; ++i) {
         Parameter* parameter = this->Find(layer_names[i]);
         if (parameter == nullptr) {
             continue;
         }
+
+        parameter->overridden_rank = rank;
+        ++rank;
         ordered_parameters.push_back(*parameter);
     }
 
@@ -559,6 +564,8 @@ void Configuration::Reorder(const std::vector<std::string>& layer_names) {
         }
 
         if (!found) {
+            parameter.overridden_rank = rank;
+            ++rank;
             ordered_parameters.push_back(parameter);
         }
     }

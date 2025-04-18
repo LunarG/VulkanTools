@@ -261,7 +261,7 @@ TEST(test_parameter, order_parameter_manual_partial) {
     EXPECT_STREQ(parameters[4].key.c_str(), "VK_LAYER_KHRONOS_validation");
     EXPECT_STREQ(parameters[5].key.c_str(), "VK_LAYER_KHRONOS_profiles");
     EXPECT_STREQ(parameters[6].key.c_str(), "VK_LAYER_KHRONOS_memory_decompression");
-    EXPECT_STREQ(parameters[7].key.c_str(), "VK_LAYER_KHRONOS_shader_object");
-    EXPECT_STREQ(parameters[8].key.c_str(), "VK_LAYER_KHRONOS_synchronization2");
-    EXPECT_STREQ(parameters[9].key.c_str(), "VK_LAYER_KHRONOS_timeline_semaphore");
+    EXPECT_STREQ(parameters[7].key.c_str(), "VK_LAYER_KHRONOS_synchronization2");
+    EXPECT_STREQ(parameters[8].key.c_str(), "VK_LAYER_KHRONOS_timeline_semaphore");
+    EXPECT_STREQ(parameters[9].key.c_str(), "VK_LAYER_KHRONOS_shader_object");
 }

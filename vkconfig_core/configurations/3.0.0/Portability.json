@@ -2,7 +2,7 @@
     "file_format_version": "3.0.0",
     "configuration": {
         "name": "Portability",
-        "version": 1,
+        "version": 2,
         "platforms": [
             "WINDOWS",
             "LINUX",
@@ -19,7 +19,7 @@
         "layers": [
             {
                 "name": "VK_LAYER_KHRONOS_validation",
-                "rank": 4,
+                "rank": 0,
                 "settings": [
                 ],
                 "control": "on",
@@ -27,7 +27,7 @@
             },
             {
                 "name": "VK_LAYER_KHRONOS_profiles",
-                "rank": 5,
+                "rank": 1,
                 "settings": [
                     {
                         "key": "profile_dirs",
