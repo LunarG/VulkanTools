@@ -39,14 +39,15 @@ class Path {
         SDK,
         SDK_EXPLICIT_LAYERS,
         PROFILES,
-        CONTENT
+        CONTENT,
+        URL_SDK
     };
 
     Path();
     Path(Path::Builtin path);
     Path(const Path& path);
     Path(const char* path);
-    Path(const std::string& path);
+    Path(const std::string& path, bool native_separator = true);
 
     Path& operator=(const Path& path);
     Path& operator=(const char* path);
@@ -64,8 +65,8 @@ class Path {
     std::string Filename() const;
     std::string Basename() const;
     std::string AbsoluteDir() const;
-    std::string AbsolutePath() const;  // Translate built-in variables into actual path
-    std::string RelativePath() const;  // May contain built-in variables
+    std::string AbsolutePath(bool native_separator = true) const;  // Translate built-in variables into actual path
+    std::string RelativePath(bool native_separator = true) const;  // May contain built-in variables
     std::string LastModified() const;
 
     bool Empty() const { return this->data.empty(); }
@@ -79,7 +80,7 @@ class Path {
     friend bool operator!=(const Path& a, const Path& b);
 };
 
-std::string AbsolutePath(Path::Builtin path);
+std::string AbsolutePath(Path::Builtin path, bool native_separator = true);
 std::string RelativePath(Path::Builtin path);
 
 std::string ConvertNativeSeparators(const std::string& path);

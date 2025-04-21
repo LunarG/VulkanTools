@@ -408,10 +408,10 @@ bool ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += "</style>\n";
 
     text += "<h1 id=\"top\">";
-    if (layer.url.empty()) {
+    if (layer.url.Empty()) {
         text += format("%s\n", layer.key.c_str());
     } else {
-        text += format("<a href=\"%s\">%s</a>\n", layer.url.c_str(), layer.key.c_str());
+        text += format("<a href=\"%s\">%s</a>\n", layer.url.AbsolutePath(false).c_str(), layer.key.c_str());
     }
 
     if (layer.status != STATUS_STABLE) {

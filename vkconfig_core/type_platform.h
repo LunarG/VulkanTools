@@ -70,15 +70,7 @@ enum PlatformFlags {
 int GetPlatformFlags(const std::vector<std::string>& platform_strings);
 std::vector<std::string> GetPlatformTokens(int platform_flags);
 
-#ifdef _WIN32
-#ifdef _M_ARM64
-#define VKC_PLATFORM PLATFORM_WINDOWS_ARM
-#else
-#define VKC_PLATFORM PLATFORM_WINDOWS_X86
-#endif
-#define VKC_ENV VKC_ENV_WIN32
-
-#elif defined(__linux__)
+#if defined(__linux__)
 #define VKC_PLATFORM PLATFORM_LINUX
 #define VKC_ENV VKC_ENV_UNIX
 
@@ -86,6 +78,14 @@ std::vector<std::string> GetPlatformTokens(int platform_flags);
 
 #define VKC_PLATFORM PLATFORM_MACOS
 #define VKC_ENV VKC_ENV_UNIX
+
+#elif defined(_WIN32)
+#ifdef _M_ARM64
+#define VKC_PLATFORM PLATFORM_WINDOWS_ARM
+#else
+#define VKC_PLATFORM PLATFORM_WINDOWS_X86
+#endif
+#define VKC_ENV VKC_ENV_WIN32
 
 #else
 #error "Unknown platform"
@@ -104,3 +104,5 @@ const char* GetLatestPackageSDK(PlatformType type);
 const char* GetInstallerFilename(PlatformType type);
 
 const char* GetVersionedFilename(PlatformType type);
+
+std::string GetLunarGUrl(PlatformType type);

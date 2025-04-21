@@ -19,6 +19,7 @@
  */
 
 #include "util.h"
+#include "version.h"
 #include "type_platform.h"
 
 #include <map>
@@ -149,4 +150,20 @@ const char* GetLatestPackageSDK(PlatformType type) {
     static_assert(std::size(TABLE) == PLATFORM_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
     return TABLE[type];
+}
+
+std::string GetLunarGUrl(PlatformType type) {
+    assert(IsDesktop(type));
+
+    const char* TABLE[] = {
+        "windows",  // PLATFORM_WINDOWS_X86
+        "windows",  // PLATFORM_WINDOWS_ARM
+        "linux",    // PLATFORM_LINUX
+        "mac",      // PLATFORM_MACOS
+        "N/A",      // PLATFORM_ANDROID
+        "N/A",      // PLATFORM_IOS
+    };
+    static_assert(std::size(TABLE) == PLATFORM_COUNT);
+
+    return format("https://vulkan.lunarg.com/doc/sdk/%s.0/%s", Version::VKHEADER.str().c_str(), TABLE[type]);
 }

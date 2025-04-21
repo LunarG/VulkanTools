@@ -54,7 +54,7 @@ void LoadMetaHeader(Header& header, const QJsonObject& json_object) {
     header.label = ReadStringValue(json_object, "label");
     header.description = ReadStringValue(json_object, "description");
     if (json_object.value("url") != QJsonValue::Undefined) {
-        header.url = ReadStringValue(json_object, "url");
+        header.url = Path(ReadStringValue(json_object, "url"), false);
     }
     if (json_object.value("status") != QJsonValue::Undefined) {
         header.status = GetStatusType(ReadStringValue(json_object, "status").c_str());

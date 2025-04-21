@@ -103,7 +103,7 @@ class Layer {
     StatusType status;
     std::string description;
     std::string introduction;
-    std::string url;
+    Path url;
     int platforms = PLATFORM_DESKTOP_BIT;
     Path manifest_path;
     LayerType type = LAYER_TYPE_EXPLICIT;
