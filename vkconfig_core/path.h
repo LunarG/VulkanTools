@@ -83,6 +83,7 @@ std::string AbsolutePath(Path::Builtin path);
 std::string RelativePath(Path::Builtin path);
 
 std::string ConvertNativeSeparators(const std::string& path);
+std::string TrimEndSeparator(const std::string& path);
 
 bool operator==(const Path& a, const Path& b);
 bool operator!=(const Path& a, const Path& b);
