@@ -168,7 +168,9 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
             Configurator &configurator = Configurator::Get();
             if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
                 const std::vector<Executable> &executables = configurator.executables.GetExecutables();
-                configuration = configurator.configurations.FindConfiguration(executables[mode_index].configuration);
+                if (!executables.empty()) {
+                    configuration = configurator.configurations.FindConfiguration(executables[mode_index].configuration);
+                }
             } else {
                 configuration = configurator.GetActiveConfiguration();
             }
@@ -273,14 +275,16 @@ void TabDiagnostics::on_mode_changed(int index) {
     const bool per_executable =
         (this->mode == DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION || this->mode == DIAGNOSTIC_VULKAN_LAYERS_SETTINGS) &&
         configurator.GetExecutableScope() == EXECUTABLE_PER;
-    const bool multiple_gpu = this->mode == DIAGNOSTIC_VULKAN_PROFILE && configurator.vulkan_system_info.physicalDevices.size() > 1;
+    const bool profile_mode = this->mode == DIAGNOSTIC_VULKAN_PROFILE;
 
-    this->ui->diagnostic_mode_options->setVisible(multiple_gpu || per_executable);
+    this->ui->diagnostic_mode_options->setEnabled((profile_mode && configurator.vulkan_system_info.physicalDevices.size() > 1) ||
+                                                  (per_executable && configurator.executables.GetExecutables().size() > 1));
+    this->ui->diagnostic_mode_options->setVisible(profile_mode || per_executable);
 
     if (this->ui->diagnostic_mode_options->isVisible()) {
         this->ui->diagnostic_mode_options->blockSignals(true);
         this->ui->diagnostic_mode_options->clear();
-        if (multiple_gpu) {
+        if (profile_mode) {
             for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
                 this->ui->diagnostic_mode_options->addItem(configurator.vulkan_system_info.physicalDevices[i].deviceName.c_str());
             }
