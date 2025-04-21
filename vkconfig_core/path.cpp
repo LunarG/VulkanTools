@@ -37,10 +37,10 @@ struct BuiltinDesc {
     const Path::Builtin path;
 };
 
-static const BuiltinDesc VARIABLES[] = {{"${VULKAN_HOME}", Path::HOME},         {"${VK_HOME}", Path::HOME},
-                                        {"${VULKAN_DOWNLOAD}", Path::DOWNLOAD}, {"${VULKAN_APPDATA}", Path::APPDATA},
-                                        {"${VULKAN_BIN}", Path::BIN},           {"${VULKAN_SDK}", Path::SDK},
-                                        {"${VULKAN_PROFILES}", Path::PROFILES}, {"${VULKAN_CONTENT}", Path::CONTENT}};
+static const BuiltinDesc VARIABLES[] = {
+    {"${VULKAN_HOME}", Path::HOME},         {"${VK_HOME}", Path::HOME},           {"${VULKAN_DOWNLOAD}", Path::DOWNLOAD},
+    {"${VULKAN_APPDATA}", Path::APPDATA},   {"${VULKAN_BIN}", Path::BIN},         {"${VULKAN_SDK}", Path::SDK},
+    {"${VULKAN_PROFILES}", Path::PROFILES}, {"${VULKAN_CONTENT}", Path::CONTENT}, {"${LUNARG_SDK}", Path::URL_SDK}};
 
 static std::string ConvertSeparators(const std::string& path, const char* native_separator, const char* alien_separator) {
     const std::size_t native_separator_size = std::strlen(native_separator);
@@ -107,8 +107,8 @@ Path::Path(const Path& path) : data(path.data) {}
 
 Path::Path(const char* path) : Path(std::string(path)) {}
 
-Path::Path(const std::string& path) {
-    std::string result = ::ConvertNativeSeparators(path);
+Path::Path(const std::string& path, bool native_separator) {
+    std::string result = native_separator ? ::ConvertNativeSeparators(path) : path;
 
     if (true) {
         for (std::size_t i = 0, n = std::size(VARIABLES); i < n; ++i) {
@@ -119,7 +119,7 @@ Path::Path(const std::string& path) {
                 assert(found == 0);  // The builtin variable must be first part of the path
                 const std::size_t offset = found + substring.size();
                 const std::string replaced_path = VARIABLES[i].key + result.substr(found + offset, result.size() - offset);
-                result = ::ConvertNativeSeparators(replaced_path);
+                result = native_separator ? ::ConvertNativeSeparators(replaced_path) : replaced_path;
                 break;
             }
         }
@@ -205,7 +205,7 @@ std::string Path::AbsoluteDir() const {
     return ConvertNativeSeparators(info.absoluteDir().path().toStdString());
 }
 
-std::string Path::AbsolutePath() const {
+std::string Path::AbsolutePath(bool native_separator) const {
     for (std::size_t i = 0, n = std::size(VARIABLES); i < n; ++i) {
         const std::size_t found = this->data.find(VARIABLES[i].key);
         if (found < this->data.size()) {
@@ -213,17 +213,30 @@ std::string Path::AbsolutePath() const {
             const std::size_t offset = found + std::strlen(VARIABLES[i].key);
             const std::string replaced_path =
                 Path(VARIABLES[i].path).RelativePath() + this->data.substr(found + offset, this->data.size() - offset);
-            return ConvertNativeSeparators(replaced_path);
+
+            if (native_separator) {
+                return ConvertNativeSeparators(replaced_path);
+            } else {
+                return replaced_path;
+            }
         }
     }
 
     // No built-in variable found, return unchanged
-    return ConvertNativeSeparators(this->data);
+    if (native_separator) {
+        return ConvertNativeSeparators(this->data);
+    } else {
+        return this->data;
+    }
 }
 
-std::string Path::RelativePath() const {
+std::string Path::RelativePath(bool native_separator) const {
     // Store trailing separator to enable operator + and +=
-    return ConvertNativeSeparators(this->data);
+    if (native_separator) {
+        return ConvertNativeSeparators(this->data);
+    } else {
+        return this->data;
+    }
 }
 
 std::string Path::LastModified() const {
@@ -498,22 +511,27 @@ Path::Path(Path::Builtin path) {
         case PROFILES:
             this->data = ::GetVulkanProfilesDir();
             break;
+        case URL_SDK:
+            this->data = ::GetLunarGUrl(VKC_PLATFORM);
+            break;
     }
 
-    if (!is_file) {
-        if (!this->Exists()) {
-            this->Create(false);
-        }
-    } else {
-        Path dir;
-        dir.data = this->AbsoluteDir();
-        if (!dir.Exists()) {
-            dir.Create(false);
+    if (path != URL_SDK) {
+        if (!is_file) {
+            if (!this->Exists()) {
+                this->Create(false);
+            }
+        } else {
+            Path dir;
+            dir.data = this->AbsoluteDir();
+            if (!dir.Exists()) {
+                dir.Create(false);
+            }
         }
     }
 }
 
-std::string AbsolutePath(Path::Builtin path) { return Path(path).AbsolutePath(); }
+std::string AbsolutePath(Path::Builtin path, bool native_separator) { return Path(path).AbsolutePath(native_separator); }
 
 std::string RelativePath(Path::Builtin path) { return Path(path).RelativePath(); }
 

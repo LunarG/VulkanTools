@@ -349,7 +349,7 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
         this->introduction = ReadStringValue(json_layer_object, "introduction");
     }
     if (json_layer_object.value("url") != QJsonValue::Undefined) {
-        this->url = ReadStringValue(json_layer_object, "url");
+        this->url = Path(ReadStringValue(json_layer_object, "url"), false);
     }
 
     if (json_layer_object.value("disable_environment") != QJsonValue::Undefined) {

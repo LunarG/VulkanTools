@@ -23,6 +23,7 @@
 #include "type_platform.h"
 #include "type_status.h"
 #include "json.h"
+#include "path.h"
 
 #include <string>
 
@@ -45,7 +46,7 @@ struct Header {
 
     std::string label;
     std::string description;
-    std::string url;
+    Path url;
     StatusType status;
     SettingView view;
     int platform_flags;

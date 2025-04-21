@@ -20,6 +20,7 @@
 
 #include "../path.h"
 #include "../util.h"
+#include "../version.h"
 #include "../type_platform.h"
 
 #include <array>
@@ -342,6 +343,13 @@ TEST(test_path, get_path_home_sdk) {
     qputenv("VULKAN_SDK", "~/VulkanSDK");
     const std::string value = AbsolutePath(Path::SDK);
     EXPECT_STREQ(Path("~/VulkanSDK").AbsolutePath().c_str(), value.c_str());
+}
+
+TEST(test_path, get_path_url_sdk) {
+    const std::string value = AbsolutePath(Path::URL_SDK, false);
+    const std::string expected = format("https://vulkan.lunarg.com/doc/sdk/%s.0/", Version::VKHEADER.str().c_str());
+
+    EXPECT_TRUE(value.find(expected) != std::string::npos);
 }
 
 TEST(test_path, collect_file_paths_success_set1) {

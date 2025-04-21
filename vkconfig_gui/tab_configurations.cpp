@@ -562,7 +562,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 menu.addAction(export_markdown_action);
 
                 QAction *visit_layer_website_action = new QAction("Visit the Layer Website...", nullptr);
-                visit_layer_website_action->setEnabled(layer != nullptr ? !layer->url.empty() : false);
+                visit_layer_website_action->setEnabled(layer != nullptr ? !layer->url.Empty() : false);
                 menu.addAction(visit_layer_website_action);
 
                 QPoint point(right_click->globalX(), right_click->globalY());
@@ -590,7 +590,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                     alert.setIcon(QMessageBox::Information);
                     alert.exec();
                 } else if (action == visit_layer_website_action) {
-                    QDesktopServices::openUrl(QUrl(layer->url.c_str()));
+                    QDesktopServices::openUrl(QUrl(layer->url.AbsolutePath(false).c_str()));
                 } else if (action == export_html_action) {
                     const std::string path = format("%s/%s.html", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
                     ExportHtmlDoc(*layer, path);

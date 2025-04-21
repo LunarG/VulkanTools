@@ -8,7 +8,7 @@
         "description": "test layer",
         "platforms": [ "WINDOWS", "MACOS" ],
         "status": "BETA",
-        "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html",
+        "url": "${LUNARG_SDK}/layer_dummy.html",
         "device_extensions": [
             {
                 "name": "VK_EXT_tooling_info",
