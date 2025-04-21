@@ -159,7 +159,7 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
 }
 
 void Configurator::BuildLoaderSettings(const std::string& configuration_key, const std::string& executable_path,
-                                       std::vector<LoaderSettings>& loader_settings_array) const {
+                                       std::vector<LoaderSettings>& loader_settings_array, bool full_loader_log) const {
     if (configuration_key.empty()) {
         return;
     }
@@ -173,7 +173,7 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
     result.executable_path = executable_path;
     result.override_loader = configuration->override_loader;
     result.override_layers = configuration->override_layers;
-    result.stderr_log_flags = configuration->loader_log_messages_flags;
+    result.stderr_log_flags = full_loader_log ? ~0 : configuration->loader_log_messages_flags;
 
     for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
         LoaderLayerSettings loader_layer_settings;
@@ -223,7 +223,7 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
 
         switch (this->executable_scope) {
             case EXECUTABLE_ANY:
-                this->BuildLoaderSettings(configuration, "", loader_settings_array);
+                this->BuildLoaderSettings(configuration, "", loader_settings_array, this->force_full_loader_log);
                 break;
             case EXECUTABLE_ALL:
             case EXECUTABLE_PER: {
@@ -237,7 +237,8 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
                         configuration = executables[i].configuration;
                     }
 
-                    this->BuildLoaderSettings(configuration, executables[i].path.AbsolutePath(), loader_settings_array);
+                    this->BuildLoaderSettings(configuration, executables[i].path.AbsolutePath(), loader_settings_array,
+                                              this->force_full_loader_log);
                 }
                 break;
             }

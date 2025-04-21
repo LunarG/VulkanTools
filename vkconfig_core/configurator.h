@@ -138,7 +138,7 @@ class Configurator {
     Configurator& operator=(const Configurator&) = delete;
 
     void BuildLoaderSettings(const std::string& configuration_key, const std::string& executable_path,
-                             std::vector<LoaderSettings>& loader_settings_array) const;
+                             std::vector<LoaderSettings>& loader_settings_array, bool full_loader_log) const;
 
     ConfiguratorMode init_mode = CONFIGURATOR_MODE_NONE;
 
@@ -150,6 +150,7 @@ class Configurator {
 
     const ConfiguratorMode& mode;
 
+    bool force_full_loader_log = false;
     bool reset_hard = false;
     bool has_crashed = false;
     TabType active_tab = TAB_CONFIGURATIONS;

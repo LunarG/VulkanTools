@@ -83,8 +83,6 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
 
     Configurator &configurator = Configurator::Get();
 
-    // configurator.Surrender(OVERRIDE_AREA_ALL);
-
     switch (selected_mode) {
         default: {
             assert(0);
@@ -111,11 +109,15 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
             this->process->setWorkingDirectory(working_directory.AbsolutePath().c_str());
             this->process->setEnvironment(QProcess::systemEnvironment());
 
+            ExecutableScope saved_scope = configurator.GetExecutableScope();
+
             QStringList args;
 
             std::string filename;
 
             if (selected_mode == DIAGNOSTIC_VULKAN_LOADER_LOG) {
+                configurator.force_full_loader_log = true;
+
                 this->status.clear();
 
                 args += "--summary";
@@ -151,14 +153,23 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
                 this->log_path = working_directory.AbsolutePath() + "/" + filename;
             }
 
-            this->process->setArguments(args);
+            configurator.SetExecutableScope(selected_mode == DIAGNOSTIC_VULKAN_PROFILE ? EXECUTABLE_NONE : EXECUTABLE_ANY);
+            configurator.Override(OVERRIDE_AREA_ALL);
 
+            this->process->setArguments(args);
             this->process->setProcessChannelMode(QProcess::MergedChannels);
             this->process->start(QIODevice::ReadOnly | QIODevice::Unbuffered);
             this->process->closeWriteChannel();
 
             while (this->process->waitForFinished(1000)) {
             }
+
+            if (selected_mode == DIAGNOSTIC_VULKAN_LOADER_LOG) {
+                configurator.force_full_loader_log = false;
+            }
+
+            configurator.SetExecutableScope(saved_scope);
+            configurator.Override(OVERRIDE_AREA_ALL);
 
             log_status = this->status;
         } break;
