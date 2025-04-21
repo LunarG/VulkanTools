@@ -86,6 +86,21 @@ std::string ConvertNativeSeparators(const std::string& path) {
     return ConvertSeparators(path, native_separator, alien_separator);
 }
 
+std::string TrimEndSeparator(const std::string& path) {
+    const std::string separator = Path::Separator();
+
+    if (path.size() < separator.size()) {
+        return path;
+    }
+
+    std::string sub = path.substr(path.size() - separator.size(), path.size());
+    if (sub == separator) {
+        return path.substr(0, path.size() - separator.size());
+    } else {
+        return path;
+    }
+}
+
 Path::Path() {}
 
 Path::Path(const Path& path) : data(path.data) {}
@@ -217,11 +232,41 @@ std::string Path::LastModified() const {
     return file_info.lastModified().toString(Qt::ISODate).toStdString();
 }
 
-bool operator==(const Path& a, const Path& b) { return a.AbsolutePath() == b.AbsolutePath(); }
-
 bool operator!=(const Path& a, const Path& b) { return !(a == b); }
 
-bool operator<(const Path& a, const Path& b) { return a.RelativePath() < b.RelativePath(); }
+bool operator==(const Path& a, const Path& b) {
+    const std::string separator = Path::Separator();
+
+    std::string sub_a = a.AbsolutePath();
+    std::string sub_b = b.AbsolutePath();
+
+    if (VKC_ENV == VKC_ENV_WIN32) {
+        sub_a = ToLowerCase(sub_a);
+        sub_b = ToLowerCase(sub_b);
+    }
+
+    sub_a = TrimEndSeparator(sub_a);
+    sub_b = TrimEndSeparator(sub_b);
+
+    return sub_a == sub_b;
+}
+
+bool operator<(const Path& a, const Path& b) {
+    const std::string separator = Path::Separator();
+
+    std::string sub_a = a.AbsolutePath();
+    std::string sub_b = b.AbsolutePath();
+
+    if (VKC_ENV == VKC_ENV_WIN32) {
+        sub_a = ToLowerCase(sub_a);
+        sub_b = ToLowerCase(sub_b);
+    }
+
+    sub_a = TrimEndSeparator(sub_a);
+    sub_b = TrimEndSeparator(sub_b);
+
+    return sub_a < sub_b;
+}
 
 static const std::string GetDefaultHomeDir() {
     std::string absolute_path = qgetenv("VK_HOME").toStdString();

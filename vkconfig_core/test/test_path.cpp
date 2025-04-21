@@ -44,6 +44,47 @@ TEST(test_path, native_path) {
     }
 }
 
+TEST(test_path, native_compare) {
+    static const Path table[] = {
+        "/vkconfig/test\\path/format/",
+        "/vkconfig/test\\path/format\\",
+        "/vkconfig\\test/path/format/",
+        "/vkconfig\\test/path\\format/",
+        "/vkconfig/test/path/format/",
+        "\\vkconfig\\test/path\\format\\",
+        "/vkconfig/test\\path/format",
+        "/vkconfig/test\\path/format",
+        "/vkconfig\\test/path/format",
+        "/vkconfig\\test/path\\format",
+        "/vkconfig/test/path/format",
+        "\\vkconfig\\test/path\\format",
+#if (VKC_ENV == VKC_ENV_WIN32)  // Only on Windows the case doesn't matter for paths
+        "/vkConfig/test\\path/format/",
+        "/vkConfig/Test\\Path/Format\\",
+        "/vkconfig\\test/path/Format/",
+        "/vkConfig\\test/path\\format/",
+        "/vkConfig/Test/Path/Format/",
+        "\\vkconfig\\test/path\\Format\\",
+        "/vkConfig/test\\path/format",
+        "/vkConfig/Test\\Path/Format",
+        "/vkconfig\\test/path/Format",
+        "/vkConfig\\test/path\\format",
+        "/vkConfig/Test/Path/Format",
+        "\\vkconfig\\test/path\\Format"
+#endif
+    };
+
+    for (std::size_t j = 0, n = std::size(table); j < n; ++j) {
+        const Path testJ = table[j];
+        for (std::size_t i = 0, n = std::size(table); i < n; ++i) {
+            const Path testI = table[i];
+
+            EXPECT_TRUE(testI == testJ);
+            EXPECT_FALSE(testI < testJ);
+        }
+    }
+}
+
 TEST(test_path, native_path_without_end_separator) {
     static const char* table[] = {"/vkconfig\\test/path/format", "/vkconfig/test/path/format", "\\vkconfig\\test/path\\format"};
 
