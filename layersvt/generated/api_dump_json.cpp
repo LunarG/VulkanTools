@@ -3811,6 +3811,21 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000546000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV\"";
         break;
+    case 1000547000:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM\"";
+        break;
+    case 1000547001:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_PROPERTIES_QCOM\"";
+        break;
+    case 1000547002:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_TILE_MEMORY_REQUIREMENTS_QCOM\"";
+        break;
+    case 1000547003:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM\"";
+        break;
+    case 1000547004:
+        settings.stream() << "\"VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM\"";
+        break;
     case 1000551000:
         settings.stream() << "\"VK_STRUCTURE_TYPE_DISPLAY_SURFACE_STEREO_CREATE_INFO_NV\"";
         break;
@@ -9107,7 +9122,7 @@ void dump_json_VkImageUsageFlagBits(VkImageUsageFlagBits object, const ApiDumpSe
         settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_RESERVED_23_BIT_EXT"; is_first = false;
     }
     if(object & 134217728) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_RESERVED_27_QCOM"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_TILE_MEMORY_QCOM"; is_first = false;
     }
     if(object & 33554432) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR"; is_first = false;
@@ -9141,7 +9156,7 @@ void dump_json_VkMemoryHeapFlagBits(VkMemoryHeapFlagBits object, const ApiDumpSe
         settings.stream() << (is_first ? " (" : " | ") << "VK_MEMORY_HEAP_MULTI_INSTANCE_BIT"; is_first = false;
     }
     if(object & 8) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_MEMORY_HEAP_RESERVED_3_QCOM"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_MEMORY_HEAP_TILE_MEMORY_BIT_QCOM"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -9581,7 +9596,7 @@ void dump_json_VkBufferUsageFlagBits(VkBufferUsageFlagBits object, const ApiDump
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT"; is_first = false;
     }
     if(object & 134217728) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_RESERVED_27_BIT_QCOM"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_TILE_MEMORY_QCOM"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -10221,6 +10236,9 @@ void dump_json_VkMemoryAllocateFlagBits(VkMemoryAllocateFlagBits object, const A
     }
     if(object & 4) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT"; is_first = false;
+    }
+    if(object & 8) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_MEMORY_ALLOCATE_EXTENSION_621_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ')';
@@ -11291,7 +11309,7 @@ void dump_json_VkBufferUsageFlagBits2(VkBufferUsageFlagBits2 object, const ApiDu
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT"; is_first = false;
     }
     if(object & 134217728) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_27_BIT_QCOM"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_TILE_MEMORY_QCOM"; is_first = false;
     }
     if(object & 4294967296) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_32_BIT_NV"; is_first = false;
@@ -33632,6 +33650,80 @@ void dump_json_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV(const VkPh
     dump_json_value<const VkBool32>(object.descriptorPoolOverallocation, NULL, settings, "VkBool32", "descriptorPoolOverallocation", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
+void dump_json_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM(const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.tileMemoryHeap, NULL, settings, "VkBool32", "tileMemoryHeap", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM(const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.queueSubmitBoundary, NULL, settings, "VkBool32", "queueSubmitBoundary", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << ",\n";
+    dump_json_value<const VkBool32>(object.tileBufferTransfers, NULL, settings, "VkBool32", "tileBufferTransfers", false, false, indents + 1, dump_json_VkBool32);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkTileMemoryRequirementsQCOM(const VkTileMemoryRequirementsQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.size, NULL, settings, "VkDeviceSize", "size", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.alignment, NULL, settings, "VkDeviceSize", "alignment", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkTileMemoryBindInfoQCOM(const VkTileMemoryBindInfoQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceMemory>(object.memory, NULL, settings, "VkDeviceMemory", "memory", false, false, indents + 1, dump_json_VkDeviceMemory);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_VkTileMemorySizeInfoQCOM(const VkTileMemorySizeInfoQCOM& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const VkStructureType>(object.sType, NULL, settings, "VkStructureType", "sType", false, false, indents + 1, dump_json_VkStructureType);
+    settings.stream() << ",\n";
+    if(object.pNext != nullptr){
+        dump_json_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
+    }
+    settings.stream() << ",\n";
+    dump_json_value<const VkDeviceSize>(object.size, NULL, settings, "VkDeviceSize", "size", false, false, indents + 1, dump_json_VkDeviceSize);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
 void dump_json_VkDisplaySurfaceStereoCreateInfoNV(const VkDisplaySurfaceStereoCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
@@ -38378,6 +38470,21 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         break;
     case 1000546000:
         dump_json_pNext<const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV>(static_cast<const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV*>(object), settings, "VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV", indents, dump_json_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV);
+        break;
+    case 1000547000:
+        dump_json_pNext<const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM>(static_cast<const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTileMemoryHeapFeaturesQCOM", indents, dump_json_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM);
+        break;
+    case 1000547001:
+        dump_json_pNext<const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM>(static_cast<const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM*>(object), settings, "VkPhysicalDeviceTileMemoryHeapPropertiesQCOM", indents, dump_json_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM);
+        break;
+    case 1000547002:
+        dump_json_pNext<const VkTileMemoryRequirementsQCOM>(static_cast<const VkTileMemoryRequirementsQCOM*>(object), settings, "VkTileMemoryRequirementsQCOM", indents, dump_json_VkTileMemoryRequirementsQCOM);
+        break;
+    case 1000547003:
+        dump_json_pNext<const VkTileMemoryBindInfoQCOM>(static_cast<const VkTileMemoryBindInfoQCOM*>(object), settings, "VkTileMemoryBindInfoQCOM", indents, dump_json_VkTileMemoryBindInfoQCOM);
+        break;
+    case 1000547004:
+        dump_json_pNext<const VkTileMemorySizeInfoQCOM>(static_cast<const VkTileMemorySizeInfoQCOM*>(object), settings, "VkTileMemorySizeInfoQCOM", indents, dump_json_VkTileMemorySizeInfoQCOM);
         break;
     case 1000551000:
         dump_json_pNext<const VkDisplaySurfaceStereoCreateInfoNV>(static_cast<const VkDisplaySurfaceStereoCreateInfoNV*>(object), settings, "VkDisplaySurfaceStereoCreateInfoNV", indents, dump_json_VkDisplaySurfaceStereoCreateInfoNV);
@@ -53585,6 +53692,22 @@ void dump_json_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(ApiDumpInstance& du
         dump_json_value<const VkCommandBuffer>(commandBuffer, NULL, settings, "VkCommandBuffer", "commandBuffer", false, false, 4, dump_json_VkCommandBuffer);
         settings.stream() << ",\n";
         dump_json_pointer<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT>(pBindDescriptorBufferEmbeddedSamplersInfo, settings, "const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*", "pBindDescriptorBufferEmbeddedSamplersInfo", true, false, 4, dump_json_VkBindDescriptorBufferEmbeddedSamplersInfoEXT);
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+    settings.stream() << settings.indentation(2) << "}";
+    if (settings.shouldFlush()) settings.stream().flush();
+}
+void dump_json_vkCmdBindTileMemoryQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkTileMemoryBindInfoQCOM* pTileMemoryBindInfo)
+{
+    const ApiDumpSettings& settings(dump_inst.settings());
+    // Display parameter values
+    if(settings.showParams())
+    {
+        settings.stream() << settings.indentation(3) << "\"args\" :\n";
+        settings.stream() << settings.indentation(3) << "[\n";
+        dump_json_value<const VkCommandBuffer>(commandBuffer, NULL, settings, "VkCommandBuffer", "commandBuffer", false, false, 4, dump_json_VkCommandBuffer);
+        settings.stream() << ",\n";
+        dump_json_pointer<const VkTileMemoryBindInfoQCOM>(pTileMemoryBindInfo, settings, "const VkTileMemoryBindInfoQCOM*", "pTileMemoryBindInfo", true, false, 4, dump_json_VkTileMemoryBindInfoQCOM);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     settings.stream() << settings.indentation(2) << "}";

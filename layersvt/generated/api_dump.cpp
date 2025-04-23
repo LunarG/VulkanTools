@@ -15416,6 +15416,27 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(VkComma
         }
     }
 }
+VKAPI_ATTR void VKAPI_CALL vkCmdBindTileMemoryQCOM(VkCommandBuffer commandBuffer, const VkTileMemoryBindInfoQCOM* pTileMemoryBindInfo)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBindTileMemoryQCOM", "commandBuffer, pTileMemoryBindInfo", "void");
+    device_dispatch_table(commandBuffer)->CmdBindTileMemoryQCOM(commandBuffer, pTileMemoryBindInfo);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkCmdBindTileMemoryQCOM(ApiDumpInstance::current(), commandBuffer, pTileMemoryBindInfo);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkCmdBindTileMemoryQCOM(ApiDumpInstance::current(), commandBuffer, pTileMemoryBindInfo);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkCmdBindTileMemoryQCOM(ApiDumpInstance::current(), commandBuffer, pTileMemoryBindInfo);
+                break;
+        }
+    }
+}
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateExternalComputeQueueNV(VkDevice device, const VkExternalComputeQueueCreateInfoNV* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkExternalComputeQueueNV* pExternalQueue)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -17379,6 +17400,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetDescriptorBufferOffsets2EXT);
     if(strcmp(pName, "vkCmdBindDescriptorBufferEmbeddedSamplers2EXT") == 0 && (!device || device_dispatch_table(device)->CmdBindDescriptorBufferEmbeddedSamplers2EXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindDescriptorBufferEmbeddedSamplers2EXT);
+    if(strcmp(pName, "vkCmdBindTileMemoryQCOM") == 0 && (!device || device_dispatch_table(device)->CmdBindTileMemoryQCOM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindTileMemoryQCOM);
     if(strcmp(pName, "vkCreateExternalComputeQueueNV") == 0 && (!device || device_dispatch_table(device)->CreateExternalComputeQueueNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateExternalComputeQueueNV);
     if(strcmp(pName, "vkDestroyExternalComputeQueueNV") == 0 && (!device || device_dispatch_table(device)->DestroyExternalComputeQueueNV))
