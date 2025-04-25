@@ -45,37 +45,12 @@
             ]
         },
         {
-            "name": "volk",
-            "api": "vulkan",
-            "url": "https://github.com/zeux/volk",
-            "sub_dir": "volk",
-            "build_dir": "volk/build",
-            "install_dir": "volk/build/install",
-            "cmake_options": [
-                "-DVOLK_INSTALL=ON"
-            ],
-            "commit": "vulkan-sdk-1.4.309",
-            "deps": [
-                {
-                    "var_name": "VULKAN_HEADERS_INSTALL_DIR",
-                    "repo_name": "Vulkan-Headers"
-                }
-            ],
-            "build_platforms": [
-                "windows",
-                "linux"
-            ],
-            "optional": [
-                "tests"
-            ]
-        },
-        {
             "name": "Vulkan-Tools",
             "url": "https://github.com/KhronosGroup/Vulkan-Tools.git",
             "sub_dir": "Vulkan-Tools",
             "build_dir": "Vulkan-Tools/build",
             "install_dir": "Vulkan-Tools/build/install",
-            "commit": "v1.4.313",
+            "commit": "682e42f7ae70a8fadf374199c02de737daa5c70d",
             "deps": [
                 {
                     "var_name": "VULKAN_HEADERS_INSTALL_DIR",
@@ -84,10 +59,6 @@
                 {
                     "var_name": "VULKAN_LOADER_INSTALL_DIR",
                     "repo_name": "Vulkan-Loader"
-                },
-                {
-                    "var_name": "VOLK_INSTALL_DIR",
-                    "repo_name": "volk"
                 }
             ],
             "cmake_options": [
