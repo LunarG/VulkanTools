@@ -66,13 +66,12 @@ class MainWindow : public QMainWindow {
     void on_tray_any(bool checked);
     void on_tray_all(bool checked);
     void on_tray_per(bool checked);
+    void changeEvent(QEvent *event);
 
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
    public Q_SLOTS:
     void commitDataRequest(QSessionManager &manager);
-
-    void toolsResetToDefault(bool checked);
 
     void on_tab_widget_currentChanged(int index);
 

@@ -223,25 +223,11 @@ void MainWindow::on_tray_per(bool checked) {
     }
 }
 
-void MainWindow::toolsResetToDefault(bool checked) {
-    (void)checked;
-
-    QMessageBox alert;
-    alert.QDialog::setWindowTitle("Restoring and Resetting all Layers Configurations to default");
-    alert.setText(
-        "You are about to delete all the user-defined configurations and resetting all default configurations to their default "
-        "state.");
-    alert.setInformativeText("Do you want to continue?");
-    alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    alert.setDefaultButton(QMessageBox::Yes);
-    alert.setIcon(QMessageBox::Warning);
-
-    if (alert.exec() == QMessageBox::No) {
-        return;
+void MainWindow::changeEvent(QEvent *event) {
+    if (event->type() == QEvent::ThemeChange) {
+        Configurator &configurator = Configurator::Get();
+        static_cast<TabPreferences *>(this->tabs[TAB_PREFERENCES].get())->on_theme_mode_changed();
     }
-
-    Configurator &configurator = Configurator::Get();
-    configurator.Reset(true);
 }
 
 /// The only thing we need to do here is clear the configuration if

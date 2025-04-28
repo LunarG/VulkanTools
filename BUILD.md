@@ -14,7 +14,7 @@
 1. C++17 compatible toolchain
 1. Git
 1. Python >= 3.10
-1. Qt 6.8
+1. Qt 6.5
 
 ## Optional software packages:
 
