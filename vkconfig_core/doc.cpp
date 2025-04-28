@@ -277,16 +277,17 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
 
         if (setting->view == SETTING_VIEW_STANDARD) {
             if (setting->status == STATUS_STABLE) {
-                text += "#### " + setting->label;
+                text += "#### " + setting->label + "\n";
             } else {
-                text += "#### " + setting->label + "(" + GetToken(setting->status) + ")";
+                text += "#### " + setting->label + "(" + GetToken(setting->status) + ")\n";
             }
             text += "\n";
 
             text += setting->description + "\n";
 
             if (setting->type != SETTING_GROUP) {
-                text += "| Setting Methods | Setting Variables |\n";
+                text += "\n";
+                text += "|Setting Methods|Setting Variables|\n";
                 text += "|---|---|\n";
                 text += "| VK_EXT_layer_settings variable: | " + setting->key + " |\n";
                 text += "| vk_layer_settings.txt variable: | " + GetLayerSettingPrefix(layer.key) + setting->key + " |\n";
@@ -312,6 +313,7 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
                         text += format("|  | adb setprop debug.%s |\n", (layer.prefix + "." + setting->key).c_str());
                     }
                 }
+                text += "\n";
             }
 
             text += format("- Type: %s\n", GetToken(setting->type));
@@ -353,7 +355,6 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
             }
 
             if (!setting->dependence.empty()) {
-                text += "##### Dependences\n";
                 if (setting->dependence.size() > 1) {
                     switch (setting->dependence_mode) {
                         case DEPENDENCE_NONE:
@@ -366,9 +367,10 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
                             text += "Any of the following condition must be fulfilled for the setting to be applied.\n";
                             break;
                     }
+                    text += "\n";
                 }
 
-                text += "| Label | Variables Key | Type | Value | \n";
+                text += "| Dependences | Variables Key | Type | Value |\n";
                 text += "|---|---|---|---|\n";
                 for (std::size_t i = 0, n = setting->dependence.size(); i < n; ++i) {
                     const SettingMeta* setting_dep = ::FindSetting(layer.settings, setting->dependence[i]->key.c_str());
@@ -507,16 +509,20 @@ bool ExportMarkdownDoc(const Layer& layer, const std::string& path) {
     std::string text;
 
     text += format("## %s\n", layer.key.c_str());
+    text += "\n";
 
     if (!layer.description.empty()) {
         text += "### " + layer.description + "\n";
+        text += "\n";
     }
 
     if (!layer.introduction.empty()) {
         text += layer.introduction + "\n";
+        text += "\n";
     }
 
-    text += "### Layer Properties\n\n";
+    text += "### Layer Properties\n";
+    text += "\n";
     text += "- API Version: " + layer.api_version.str() + "\n";
     text += "- Implementation Version: " + layer.implementation_version + "\n";
     text += "- Layer Manifest: " + QFileInfo(layer.manifest_path.RelativePath().c_str()).fileName().toStdString() + "\n";
@@ -547,22 +553,27 @@ bool ExportMarkdownDoc(const Layer& layer, const std::string& path) {
 
     if (!layer.settings.empty()) {
         text += "### Layer Settings Overview\n";
+        text += "\n";
         text += "|Label|Variables Key|Type|Default Value|Platforms|\n";
         text += "|---|---|---|---|---|\n";
         WriteSettingsOverviewMarkdown(text, layer, layer.settings, 0);
         text += "\n";
 
         text += "### Layer Settings Details\n";
+        text += "\n";
         WriteSettingsDetailsMarkdown(text, layer, layer.settings);
     }
 
     if (!layer.presets.empty()) {
         text += "### Layer Presets\n";
+        text += "\n";
         for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
             const LayerPreset& preset = layer.presets[i];
 
             text += "#### " + preset.label + "\n";
-            text += preset.description + "\n\n";
+            text += "\n";
+            text += preset.description + "\n";
+            text += "\n";
             text += "##### Preset Setting Values:\n";
             for (std::size_t j = 0, o = preset.settings.size(); j < o; ++j) {
                 const SettingData* data = preset.settings[j];
