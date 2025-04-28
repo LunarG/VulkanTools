@@ -28,11 +28,16 @@ TabDocumentation::~TabDocumentation() {}
 void TabDocumentation::UpdateUI(UpdateUIMode mode) {
     if (mode == UPDATE_REBUILD_UI) {
         // We need to rebuild in case the style theme changed
-        QFile file_spec(":/resourcefiles/DOCUMENTATION.md");
-        const bool result_spec = file_spec.open(QIODevice::ReadOnly | QIODevice::Text);
-        assert(result_spec);
-        this->ui->documentation_text->setMarkdown(file_spec.readAll());
-        file_spec.close();
+        QFile file(":/resourcefiles/DOCUMENTATION.md");
+        const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
+        assert(result);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        this->ui->documentation_text->setMarkdown(file.readAll());
+#else
+        // Workaround, only for building, display will be broken
+        this->ui->documentation_text->setText(file.readAll());
+#endif
+        file.close();
     }
 }
 

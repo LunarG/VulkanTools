@@ -14,11 +14,11 @@
 1. C++17 compatible toolchain
 1. Git
 1. Python >= 3.10
-1. Qt 6.5
+1. Qt 6.8
 
 ## Optional software packages:
 
-- *[Qt 5](https://www.qt.io/download)* is required to build *[Vulkan Configurator]*(./vkconfig/vkconfig.md).
+- *[Qt 6](https://www.qt.io/download)* is required to build *[Vulkan Configurator]*(./vkconfig/vkconfig.md).
   - The Qt `bin` directory requires to be added to the `PATH` environment variable for *Qt* to be detected and Vulkan Configurator built.
   - If `Qt` is not directed, *[Vulkan Configurator]* build will be skipped.
 
@@ -85,7 +85,7 @@ sudo apt-get install git build-essential python3 cmake
 # Linux WSI system libraries
 sudo apt-get install libwayland-dev xorg-dev
 
-# Qt5 for vkconfig
+# Qt6 for vkconfig
 sudo apt-get install qt6-default
 ```
 
