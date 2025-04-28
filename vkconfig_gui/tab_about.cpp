@@ -44,7 +44,12 @@ void TabAbout::UpdateUI(UpdateUIMode mode) {
         QFile file(":/CHANGELOG.md");
         const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
         assert(result);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         this->ui->about_changelog_textBrowser->setMarkdown(file.readAll());
+#else
+        // Workaround, only for building, display will be broken
+        this->ui->about_changelog_textBrowser->setText(file.readAll());
+#endif
         file.close();
     }
 }
