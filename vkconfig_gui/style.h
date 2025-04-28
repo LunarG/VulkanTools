@@ -58,3 +58,5 @@ enum Icon {
 enum { ICON_COUNT = ICON_LAST - ICON_FIRST + 1 };
 
 QIcon Get(Icon icon);
+
+bool IsDarkMode();

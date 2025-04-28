@@ -2,7 +2,7 @@
 [Vulkan SDK 1.4.313.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.313)
 
 ### Features:
-- Add appearance selection: dark, light, device theme modes
+- Add dark mode, following the OS theme
 - Add muliple diagnostic modes
 - Add diagnostic logs export
 - Add search in diagnostic tab

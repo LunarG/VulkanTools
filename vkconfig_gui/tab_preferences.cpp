@@ -53,11 +53,13 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->ui->preferences_progress->setVisible(false);
     this->ui->preferences_notify_releases->setChecked(configurator.GetUseNotifyReleases());
     this->ui->preferences_theme_mode->blockSignals(true);
-    this->ui->preferences_theme_mode->setCurrentIndex(configurator.GetThemeMode());
+    this->ui->preferences_theme_mode->setCurrentIndex(this->current_theme_mode);
     this->ui->preferences_theme_mode->blockSignals(false);
     this->ui->preferences_theme_mode->setEnabled(QT_VERSION >= QT_VERSION_CHECK(6, 8, 0));
 
-    this->on_theme_mode_changed(configurator.GetThemeMode());
+    this->ui->preferences_appearance->setVisible(false);
+
+    this->on_theme_mode_changed();
 
     QUrl url(GetLatestReleaseSDK(VKC_PLATFORM));
     QNetworkRequest request(url);
@@ -102,25 +104,11 @@ bool TabPreferences::EventFilter(QObject *target, QEvent *event) {
     return false;
 }
 
-void TabPreferences::on_theme_mode_changed(int index) {
-    const ThemeMode mode = QT_VERSION >= QT_VERSION_CHECK(6, 8, 0) ? static_cast<ThemeMode>(index) : THEME_MODE_USE_DEVICE;
-
-    Configurator &configurator = Configurator::Get();
-    configurator.SetThemeMode(mode);
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    switch (mode) {
-        case THEME_MODE_USE_DEVICE:
-            this->window.app.styleHints()->unsetColorScheme();
-            break;
-        case THEME_MODE_FORCE_LIGHT:
-            this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
-            break;
-        case THEME_MODE_FORCE_DARK:
-            this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
-            break;
+void TabPreferences::on_theme_mode_changed() {
+    const ThemeMode mew_theme_mode = ::IsDarkMode() ? THEME_MODE_FORCE_DARK : THEME_MODE_FORCE_LIGHT;
+    if (this->current_theme_mode == mew_theme_mode) {
+        return;
     }
-#endif
 
     // Configurations
     this->ui->configurations_executable_append->setIcon(::Get(::ICON_FILE_SEARCH));
@@ -154,6 +142,28 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->preferences_reset->setIcon(::Get(::ICON_RESET));
     this->ui->preferences_vk_home_browse->setIcon(::Get(::ICON_FOLDER_SEARCH));
     this->ui->preferences_vk_download_browse->setIcon(::Get(::ICON_FOLDER_SEARCH));
+
+    this->current_theme_mode = mew_theme_mode;
+
+    /*
+    #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+        switch (mode) {
+            case THEME_MODE_USE_DEVICE:
+                this->window.app.styleHints()->unsetColorScheme();
+                break;
+            case THEME_MODE_FORCE_LIGHT:
+                if (this->window.app.styleHints()->colorScheme() != Qt::ColorScheme::Light) {
+                    this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
+                }
+                break;
+            case THEME_MODE_FORCE_DARK:
+                if (this->window.app.styleHints()->colorScheme() != Qt::ColorScheme::Dark) {
+                    this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+                }
+                break;
+        }
+    #endif
+    */
 }
 
 void TabPreferences::on_keep_running_toggled(bool checked) {

@@ -26,21 +26,9 @@
 #include <QGuiApplication>
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-static bool IsDarkMode() { return false; }
+bool IsDarkMode() { return false; }
 #else
-static bool IsDarkMode() {
-    Configurator& configurator = Configurator::Get();
-
-    switch (configurator.GetThemeMode()) {
-        default:
-        case THEME_MODE_USE_DEVICE:
-            return QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
-        case THEME_MODE_FORCE_LIGHT:
-            return false;
-        case THEME_MODE_FORCE_DARK:
-            return true;
-    }
-}
+bool IsDarkMode() { return QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark; }
 #endif  // QT_VERSION
 
 QIcon Get(Icon icon) {
