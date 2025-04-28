@@ -929,10 +929,6 @@ bool Configurator::Load() {
         if (json_interface_object.value(GetToken(TAB_PREFERENCES)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_PREFERENCES)).toObject();
 
-            if (json_object.value("theme_mode") != QJsonValue::Undefined) {
-                this->theme_mode = ::GetThemeMode(json_object.value("theme_mode").toString().toStdString().c_str());
-            }
-
             if (json_object.value("use_layer_dev_mode") != QJsonValue::Undefined) {
                 this->use_layer_dev_mode = json_object.value("use_layer_dev_mode").toBool();
             }
@@ -1014,7 +1010,6 @@ bool Configurator::Save() const {
     // TAB_PREFERENCES
     {
         QJsonObject json_object;
-        json_object.insert("theme_mode", ::GetToken(this->theme_mode));
         json_object.insert("use_system_tray", this->use_system_tray);
         json_object.insert("use_layer_dev_mode", this->use_layer_dev_mode);
         json_object.insert("use_notify_releases", this->use_notify_releases);
@@ -1089,10 +1084,6 @@ void Configurator::SetUseNotifyReleases(bool enabled) { this->use_notify_release
 bool Configurator::GetShowDiagnosticSearch() const { return show_diagnostic_search; }
 
 void Configurator::SetShowDiagnosticSearch(bool enabled) { this->show_diagnostic_search = enabled; }
-
-ThemeMode Configurator::GetThemeMode() const { return this->theme_mode; }
-
-void Configurator::SetThemeMode(ThemeMode mode) { this->theme_mode = mode; }
 
 bool Configurator::ShouldNotify() const {
     // Notify if

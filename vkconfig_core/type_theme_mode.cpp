@@ -25,9 +25,9 @@
 
 const char* GetToken(ThemeMode mode) {
     static const char* TOKENS[] = {
-        "Device",  // THEME_MODE_USE_DEVICE
-        "Light",   // THEME_MODE_FORCE_LIGHT
-        "Dark",    // THEME_MODE_FORCE_DARK
+        "None",   // THEME_MODE_USE_DEVICE
+        "Light",  // THEME_MODE_FORCE_LIGHT
+        "Dark",   // THEME_MODE_FORCE_DARK
     };
     static_assert(std::size(TOKENS) == THEME_MODE_COUNT);
 
@@ -42,5 +42,5 @@ ThemeMode GetThemeMode(const char* token) {
         }
     }
 
-    return THEME_MODE_USE_DEVICE;
+    return THEME_MODE_NONE;
 }

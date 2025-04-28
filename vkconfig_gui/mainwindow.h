@@ -53,6 +53,7 @@ class MainWindow : public QMainWindow {
     void closeEvent(QCloseEvent *event) override;
     void showEvent(QShowEvent *event) override;
     bool eventFilter(QObject *target, QEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
     QSystemTrayIcon *_tray_icon = nullptr;
     QMenu *_tray_icon_menu = nullptr;
@@ -71,8 +72,6 @@ class MainWindow : public QMainWindow {
 
    public Q_SLOTS:
     void commitDataRequest(QSessionManager &manager);
-
-    void toolsResetToDefault(bool checked);
 
     void on_tab_widget_currentChanged(int index);
 
