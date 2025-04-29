@@ -59,7 +59,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     this->layer_state->setCurrentIndex(parameter.control);
 
     if (parameter.control == LAYER_CONTROL_AUTO && layer != nullptr) {
-        std::string message = ::GetLabel(layer->GetActualControl());
+        std::string message = ::GetToken(layer->type) + std::string(" layer: ") + ::GetLabel(layer->GetActualControl());
         message += format(". %s", layer->GetActualControlTooltip().c_str());
         this->layer_state->setToolTip(message.c_str());
     } else {
@@ -74,10 +74,10 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     std::string decorated_name = parameter.key;
 
     if (layer != nullptr) {
-        decorated_name += format(" - %s (%s)", layer->api_version.str().c_str(), ::GetToken(layer->type));
+        decorated_name += format(" - %s", layer->api_version.str().c_str());
         this->layer_remove->setVisible(false);
     } else if (!layer_found) {
-        decorated_name += " - (Missing)";
+        decorated_name += " - Missing";
         this->layer_state->setVisible(false);
         this->layer_state->setToolTip("Remove the layer from the configuration");
     }
