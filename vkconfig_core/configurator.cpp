@@ -1088,10 +1088,10 @@ void Configurator::SetShowDiagnosticSearch(bool enabled) { this->show_diagnostic
 bool Configurator::ShouldNotify() const {
     // Notify if
     return this->latest_sdk_version < this->online_sdk_version  // There is an online SDK version newer than the latest SDK version
-           && this->online_sdk_version != Version::NONE         // We could query the online SDK version
-           //        && Version::VKCONFIG < this->last_vkconfig_version // The Vulkan Configurator version
-           && Version::VKHEADER < this->online_sdk_version;  // The Vulkan Header version used to build Vulkan Configurator is older
-                                                             // than the online version
+           && this->online_sdk_version != Version::NONE;        // We could query the online SDK version
+    //        && Version::VKCONFIG < this->last_vkconfig_version // The Vulkan Configurator version
+    //&& Version::VKHEADER < this->online_sdk_version;  // The Vulkan Header version used to build Vulkan Configurator is older
+    // than the online version
 }
 
 bool Configurator::HasActiveSettings() const {
