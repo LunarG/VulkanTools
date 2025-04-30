@@ -813,8 +813,7 @@ void TabConfigurations::OnContextMenuResetOneClicked(ListItem *item) {
 }
 
 void TabConfigurations::OnContextMenuResetAllClicked(ListItem *item) {
-    assert(item);
-    assert(!item->key.empty());
+    (void)item;
 
     Configurator &configurator = Configurator::Get();
 
@@ -831,6 +830,7 @@ void TabConfigurations::OnContextMenuResetAllClicked(ListItem *item) {
     }
 
     configurator.configurations.ResetDefaultConfigurations(configurator.layers);
+    configurator.configurations.LoadDefaultConfigurations(configurator.layers);
     configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI(UPDATE_REBUILD_UI);
