@@ -334,6 +334,8 @@ bool ConfigurationManager::IsDefaultConfiguration(const std::string &configurati
 }
 
 void ConfigurationManager::ResetDefaultConfigurations(const LayerManager &layers) {
+    this->removed_built_in_configuration.clear();
+
     for (std::size_t i = 0, n = this->available_configurations.size(); i < n; ++i) {
         if (!this->available_configurations[i].IsDefault()) {
             continue;
