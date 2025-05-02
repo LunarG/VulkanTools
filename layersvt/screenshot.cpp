@@ -360,6 +360,37 @@ VkQueue getQueueForScreenshot(VkDevice device) {
     return queue;
 }
 
+static bool writeImageToFile(const char* filename, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch, const char* ptr) {
+    // Write the data to a PPM file.
+    ofstream file(filename, ios::binary);
+    if (!file.is_open()) {
+        return false;
+    }
+
+    file << "P6\n";
+    file << width << "\n";
+    file << height << "\n";
+    file << 255 << "\n";
+
+    if (3 == numChannels) {
+        for (uint32_t y = 0; y < height; y++) {
+            file.write(ptr, 3 * width);
+            ptr += rowPitch;
+        }
+    } else if (4 == numChannels) {
+        for (uint32_t y = 0; y < height; y++) {
+            const unsigned int *row = (const unsigned int *)ptr;
+            for (uint32_t x = 0; x < width; x++) {
+                file.write((char *)row, 3);
+                row++;
+            }
+            ptr += rowPitch;
+        }
+    }
+    return true;
+}
+
+
 static VkFormat determineOutputFormat(VkFormat format, colorSpaceFormat userColorSpaceFormat, uint32_t numChannels) {
     // Initial dest format is undefined as we will look for one
     VkFormat destformat = VK_FORMAT_UNDEFINED;
@@ -977,9 +1008,7 @@ static bool writePPM(const char *filename, VkImage image1) {
         data.mem3mapped = true;
     }
 
-    // Write the data to a PPM file.
-    ofstream file(filename, ios::binary);
-    if (!file.is_open()) {
+    if (!writeImageToFile(filename, width, height, numChannels, srLayout.rowPitch, ptr + srLayout.offset)) {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_DEBUG, "screenshot", "Failed to open output file: %s", filename);
 #else
@@ -987,30 +1016,6 @@ static bool writePPM(const char *filename, VkImage image1) {
 #endif
         return false;
     }
-
-    file << "P6\n";
-    file << width << "\n";
-    file << height << "\n";
-    file << 255 << "\n";
-
-    ptr += srLayout.offset;
-    if (3 == numChannels) {
-        for (uint32_t y = 0; y < height; y++) {
-            file.write(ptr, 3 * width);
-            ptr += srLayout.rowPitch;
-        }
-    } else if (4 == numChannels) {
-        for (uint32_t y = 0; y < height; y++) {
-            const unsigned int *row = (const unsigned int *)ptr;
-            for (uint32_t x = 0; x < width; x++) {
-                file.write((char *)row, 3);
-                row++;
-            }
-            ptr += srLayout.rowPitch;
-        }
-    }
-    file.close();
-
     // Clean up handled by ~WritePPMCleanupData()
 
     // writePPM succeeded
