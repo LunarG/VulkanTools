@@ -31,13 +31,14 @@
 bool IsDarkMode() { return false; }
 #else
 bool IsDarkMode() {
+/*
     if (VKC_PLATFORM == PLATFORM_LINUX) {
         std::string OS = QSysInfo::prettyProductName().toStdString();
         if (OS.find("Ubuntu") == std::string::npos) {
             return false;
         }
     }
-
+*/
     Qt::ColorScheme scheme = QGuiApplication::styleHints()->colorScheme();
     return scheme == Qt::ColorScheme::Dark;
 }
