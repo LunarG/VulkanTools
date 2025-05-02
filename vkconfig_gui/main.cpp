@@ -80,9 +80,9 @@ int main(int argc, char* argv[]) {
 
     QApplication app(argc, argv);
 
-    if (VKC_ENV == VKC_ENV_WIN32) {
-        app.setStyle("fusion");
-    }
+    //if (VKC_ENV == VKC_ENV_WIN32) {
+    //    app.setStyle("fusion");
+    //}
 
     // This has to go after the construction of QApplication in
     // order to use a QMessageBox and avoid some QThread warnings.

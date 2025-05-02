@@ -35,6 +35,8 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     this->ui->preferences_theme_mode->setToolTip(
         "Vulkan Configurator must be build with Qt 6.8 or newer to support UI appearance control.");
+#else
+    window.app.setStyle("fusion");
 #endif
 
     this->connect(this->ui->preferences_keep_running, SIGNAL(toggled(bool)), this, SLOT(on_keep_running_toggled(bool)));
