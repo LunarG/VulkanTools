@@ -22,13 +22,27 @@
 
 #include "../vkconfig_core/configurator.h"
 
+#include <QSysInfo>
 #include <QStyleHints>
 #include <QGuiApplication>
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
 bool IsDarkMode() { return false; }
+#elif VKC_PLATFORM == PLATFORM_LINUX
+bool IsDarkMode() {
+    std::string OS = QSysInfo::prettyProductName().toStdString();
+    if (OS.find("Ubuntu") == std::string::npos) {
+        return false;
+    }
+
+    Qt::ColorScheme scheme = QGuiApplication::styleHints()->colorScheme();
+    return scheme == Qt::ColorScheme::Dark;
+}
 #else
-bool IsDarkMode() { return QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark; }
+bool IsDarkMode() {
+    Qt::ColorScheme scheme = QGuiApplication::styleHints()->colorScheme();
+    return scheme == Qt::ColorScheme::Dark;
+}
 #endif  // QT_VERSION
 
 QIcon Get(Icon icon) {
