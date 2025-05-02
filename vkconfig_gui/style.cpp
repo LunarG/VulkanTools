@@ -31,6 +31,9 @@
 bool IsDarkMode() { return false; }
 #else
 bool IsDarkMode() {
+    if (VKC_PLATFORM == PLATFORM_LINUX) {
+        return false;
+    }
 /*
     if (VKC_PLATFORM == PLATFORM_LINUX) {
         std::string OS = QSysInfo::prettyProductName().toStdString();
