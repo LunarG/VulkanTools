@@ -659,7 +659,7 @@ std::string Configurator::Log() const {
     log += "\n";
 
     log += "System Information:\n";
-#if QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
+#if VKC_PLATFORM == PLATFORM_LINUX || QT_VERSION < QT_VERSION_CHECK(6, 1, 0)
     log += format(" - %s\n", QSysInfo::prettyProductName().toStdString().c_str());
 #else
     const QOperatingSystemVersion& current = QOperatingSystemVersion::current();

@@ -143,25 +143,24 @@ void TabPreferences::on_theme_mode_changed() {
 
     this->current_theme_mode = mew_theme_mode;
 
-    /*
+    this->window.update();
+/*
     #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-        switch (mode) {
-            case THEME_MODE_USE_DEVICE:
-                this->window.app.styleHints()->unsetColorScheme();
-                break;
+        switch (mew_theme_mode) {
+            default:
             case THEME_MODE_FORCE_LIGHT:
-                if (this->window.app.styleHints()->colorScheme() != Qt::ColorScheme::Light) {
+                //if (this->window.app.styleHints()->colorScheme() != Qt::ColorScheme::Light) {
                     this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
-                }
+                //}
                 break;
             case THEME_MODE_FORCE_DARK:
-                if (this->window.app.styleHints()->colorScheme() != Qt::ColorScheme::Dark) {
+                //if (this->window.app.styleHints()->colorScheme() != Qt::ColorScheme::Dark) {
                     this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
-                }
+                //}
                 break;
         }
     #endif
-    */
+*/
 }
 
 void TabPreferences::on_keep_running_toggled(bool checked) {
