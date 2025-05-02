@@ -32,9 +32,7 @@
 TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
     Configurator &configurator = Configurator::Get();
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    this->window.app.setStyle("Fusion");
-#else
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     this->ui->preferences_theme_mode->setToolTip(
         "Vulkan Configurator must be build with Qt 6.8 or newer to support UI appearance control.");
 #endif
