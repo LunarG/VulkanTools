@@ -360,96 +360,7 @@ VkQueue getQueueForScreenshot(VkDevice device) {
     return queue;
 }
 
-// Track allocated resources in writePPM()
-// and clean them up when they go out of scope.
-struct WritePPMCleanupData {
-    VkDevice device;
-    VkuDeviceDispatchTable *pTableDevice;
-    VkImage image2;
-    VkImage image3;
-    VkDeviceMemory mem2;
-    VkDeviceMemory mem3;
-    bool mem2mapped;
-    bool mem3mapped;
-    VkCommandBuffer commandBuffer;
-    VkCommandPool commandPool;
-    ~WritePPMCleanupData();
-};
-
-WritePPMCleanupData::~WritePPMCleanupData() {
-    if (mem2mapped) pTableDevice->UnmapMemory(device, mem2);
-    if (mem2) pTableDevice->FreeMemory(device, mem2, NULL);
-    if (image2) pTableDevice->DestroyImage(device, image2, NULL);
-
-    if (mem3mapped) pTableDevice->UnmapMemory(device, mem3);
-    if (mem3) pTableDevice->FreeMemory(device, mem3, NULL);
-    if (image3) pTableDevice->DestroyImage(device, image3, NULL);
-
-    if (commandBuffer) pTableDevice->FreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-    if (commandPool) pTableDevice->DestroyCommandPool(device, commandPool, NULL);
-}
-
-// Save an image to a PPM image file.
-//
-// This function issues commands to copy/convert the swapchain image
-// from whatever compatible format the swapchain image uses
-// to a single format (VK_FORMAT_R8G8B8A8_UNORM) so that the converted
-// result can be easily written to a PPM file.
-//
-// Error handling: If there is a problem, this function should silently
-// fail without affecting the Present operation going on in the caller.
-// The numerous debug asserts are to catch programming errors and are not
-// expected to assert.  Recovery and clean up are implemented for image memory
-// allocation failures.
-// (TODO) It would be nice to pass any failure info to DebugReport or something.
-//
-// Returns true if file is successfully written, false otherwise.
-//
-static bool writePPM(const char *filename, VkImage image1) {
-    VkResult err;
-    bool pass;
-
-    // Bail immediately if we can't find the image.
-    if (imageMap.empty() || imageMap.find(image1) == imageMap.end()) return false;
-
-    // Collect object info from maps.  This info is generally recorded
-    // by the other functions hooked in this layer.
-    VkDevice device = imageMap[image1]->device;
-    VkPhysicalDevice physicalDevice = deviceMap[device]->physicalDevice;
-    VkInstance instance = physDeviceMap[physicalDevice]->instance;
-    DispatchMapStruct *dispMap = get_dispatch_info(device);
-    if (NULL == dispMap) {
-        assert(0);
-        return false;
-    }
-    VkQueue queue = getQueueForScreenshot(device);
-    if (!queue) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - capable queue not found\n");
-#else
-        fprintf(stderr, "screenshot: Could not find a capable queue\n");
-#endif
-        return false;
-    }
-    VkuDeviceDispatchTable *pTableDevice = dispMap->device_dispatch_table;
-    VkuDeviceDispatchTable *pTableQueue =
-        get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
-    VkuInstanceDispatchTable *pInstanceTable;
-    pInstanceTable = instance_dispatch_table(instance);
-
-    // Gather incoming image info and check image format for compatibility with
-    // the target format.
-    // This function supports both 24-bit and 32-bit swapchain images.
-    uint32_t const width = imageMap[image1]->imageExtent.width;
-    uint32_t const height = imageMap[image1]->imageExtent.height;
-    VkFormat const format = imageMap[image1]->format;
-    uint32_t const numChannels = vkuFormatComponentCount(format);
-
-    if ((3 != numChannels) && (4 != numChannels)) {
-        assert(0);
-        return false;
-    }
-
+static VkFormat determineOutputFormat(VkFormat format, colorSpaceFormat userColorSpaceFormat, uint32_t numChannels) {
     // Initial dest format is undefined as we will look for one
     VkFormat destformat = VK_FORMAT_UNDEFINED;
 
@@ -621,6 +532,101 @@ static bool writePPM(const char *filename, VkImage image1) {
 #endif
         }
     }
+    return destformat;
+}
+
+// Track allocated resources in writePPM()
+// and clean them up when they go out of scope.
+struct WritePPMCleanupData {
+    VkDevice device;
+    VkuDeviceDispatchTable *pTableDevice;
+    VkImage image2;
+    VkImage image3;
+    VkDeviceMemory mem2;
+    VkDeviceMemory mem3;
+    bool mem2mapped;
+    bool mem3mapped;
+    VkCommandBuffer commandBuffer;
+    VkCommandPool commandPool;
+    ~WritePPMCleanupData();
+};
+
+WritePPMCleanupData::~WritePPMCleanupData() {
+    if (mem2mapped) pTableDevice->UnmapMemory(device, mem2);
+    if (mem2) pTableDevice->FreeMemory(device, mem2, NULL);
+    if (image2) pTableDevice->DestroyImage(device, image2, NULL);
+
+    if (mem3mapped) pTableDevice->UnmapMemory(device, mem3);
+    if (mem3) pTableDevice->FreeMemory(device, mem3, NULL);
+    if (image3) pTableDevice->DestroyImage(device, image3, NULL);
+
+    if (commandBuffer) pTableDevice->FreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    if (commandPool) pTableDevice->DestroyCommandPool(device, commandPool, NULL);
+}
+
+// Save an image to a PPM image file.
+//
+// This function issues commands to copy/convert the swapchain image
+// from whatever compatible format the swapchain image uses
+// to a single format (VK_FORMAT_R8G8B8A8_UNORM) so that the converted
+// result can be easily written to a PPM file.
+//
+// Error handling: If there is a problem, this function should silently
+// fail without affecting the Present operation going on in the caller.
+// The numerous debug asserts are to catch programming errors and are not
+// expected to assert.  Recovery and clean up are implemented for image memory
+// allocation failures.
+// (TODO) It would be nice to pass any failure info to DebugReport or something.
+//
+// Returns true if file is successfully written, false otherwise.
+//
+static bool writePPM(const char *filename, VkImage image1) {
+    VkResult err;
+    bool pass;
+
+    // Bail immediately if we can't find the image.
+    if (imageMap.empty() || imageMap.find(image1) == imageMap.end()) return false;
+
+    // Collect object info from maps.  This info is generally recorded
+    // by the other functions hooked in this layer.
+    VkDevice device = imageMap[image1]->device;
+    VkPhysicalDevice physicalDevice = deviceMap[device]->physicalDevice;
+    VkInstance instance = physDeviceMap[physicalDevice]->instance;
+    DispatchMapStruct *dispMap = get_dispatch_info(device);
+    if (NULL == dispMap) {
+        assert(0);
+        return false;
+    }
+    VkQueue queue = getQueueForScreenshot(device);
+    if (!queue) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - capable queue not found\n");
+#else
+        fprintf(stderr, "screenshot: Could not find a capable queue\n");
+#endif
+        return false;
+    }
+    VkuDeviceDispatchTable *pTableDevice = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pTableQueue =
+        get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
+    VkuInstanceDispatchTable *pInstanceTable;
+    pInstanceTable = instance_dispatch_table(instance);
+
+    // Gather incoming image info and check image format for compatibility with
+    // the target format.
+    // This function supports both 24-bit and 32-bit swapchain images.
+    uint32_t const width = imageMap[image1]->imageExtent.width;
+    uint32_t const height = imageMap[image1]->imageExtent.height;
+    VkFormat const format = imageMap[image1]->format;
+    uint32_t const numChannels = vkuFormatComponentCount(format);
+
+    if ((3 != numChannels) && (4 != numChannels)) {
+        assert(0);
+        return false;
+    }
+
+    // userColorSpaceFormat set by readScreenShotFormatENV func during init
+    VkFormat destformat = determineOutputFormat(format, userColorSpaceFormat, numChannels);
 
     if ((vkuFormatCompatibilityClass(destformat) != vkuFormatCompatibilityClass(format))) {
         assert(0);
