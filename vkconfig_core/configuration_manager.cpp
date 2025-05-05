@@ -343,9 +343,6 @@ void ConfigurationManager::ResetDefaultConfigurations(const LayerManager &layers
 
         this->available_configurations[i].Reset(layers);
     }
-
-    this->LoadDefaultConfigurations(layers);
-    this->SortConfigurations();
 }
 
 void ConfigurationManager::RenameConfiguration(const std::string &old_configuration_name,
