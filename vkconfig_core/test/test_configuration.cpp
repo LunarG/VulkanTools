@@ -283,8 +283,9 @@ TEST(test_configuration, gather_parameters_exist) {
     EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_06");
     EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_test_07");
     EXPECT_STREQ(configuration.parameters[12].key.c_str(), "VK_LAYER_LUNARG_test_08");
+    EXPECT_STREQ(configuration.parameters[13].key.c_str(), "VK_LAYER_LUNARG_test_09");
 
-    EXPECT_STREQ(configuration.parameters[13].key.c_str(), "VK_LAYER_LUNARG_version");
+    EXPECT_STREQ(configuration.parameters[14].key.c_str(), "VK_LAYER_LUNARG_version");
 
     std::string missing_layer;
     EXPECT_FALSE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));
@@ -316,8 +317,9 @@ TEST(test_configuration, gather_parameters_repeat) {
     EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_06");
     EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_test_07");
     EXPECT_STREQ(configuration.parameters[12].key.c_str(), "VK_LAYER_LUNARG_test_08");
+    EXPECT_STREQ(configuration.parameters[13].key.c_str(), "VK_LAYER_LUNARG_test_09");
 
-    EXPECT_STREQ(configuration.parameters[13].key.c_str(), "VK_LAYER_LUNARG_version");
+    EXPECT_STREQ(configuration.parameters[14].key.c_str(), "VK_LAYER_LUNARG_version");
 }
 
 TEST(test_configuration, gather_parameters_missing) {
@@ -348,8 +350,9 @@ TEST(test_configuration, gather_parameters_missing) {
     EXPECT_STREQ(configuration.parameters[10].key.c_str(), "VK_LAYER_LUNARG_test_06");
     EXPECT_STREQ(configuration.parameters[11].key.c_str(), "VK_LAYER_LUNARG_test_07");
     EXPECT_STREQ(configuration.parameters[12].key.c_str(), "VK_LAYER_LUNARG_test_08");
+    EXPECT_STREQ(configuration.parameters[13].key.c_str(), "VK_LAYER_LUNARG_test_09");
 
-    EXPECT_STREQ(configuration.parameters[13].key.c_str(), "VK_LAYER_LUNARG_version");
+    EXPECT_STREQ(configuration.parameters[14].key.c_str(), "VK_LAYER_LUNARG_version");
 
     std::string missing_layer;
     EXPECT_TRUE(HasMissingLayer(configuration.parameters, layer_manager, missing_layer));

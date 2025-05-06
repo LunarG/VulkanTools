@@ -639,23 +639,52 @@ void Layer::AddSettingsMessages(const QJsonValue& json_settings_value) {
                 const QJsonValue& json_conditions_value = json_message_object.value("conditions");
                 assert(json_conditions_value != QJsonValue::Undefined);
                 const QJsonArray& json_settings_array = json_conditions_value.toArray();
+
+                message.conditions.clear();
                 for (int j = 0, o = json_settings_array.size(); j < o; ++j) {
-                    this->AddSettingData(message.conditions, json_settings_array[j]);
+                    const QJsonObject& json_conditions_object = json_settings_array[j].toObject();
+                    Condition condition;
+
+                    SettingDataSet setting;
+                    this->AddSettingData(setting, json_conditions_object.value("setting"));
+                    condition.setting = setting[0];
+                    condition.op =
+                        GetConditionOperatorType(json_conditions_object.value("operator").toString().toStdString().c_str());
+
+                    message.conditions.push_back(condition);
                 }
 
                 const QJsonValue& json_actions_value = json_message_object.value("actions");
                 if (json_actions_value != QJsonValue::Undefined) {
-                    message.actions.clear();
                     const QJsonObject& json_actions_object = json_actions_value.toObject();
-                    const QStringList keys = json_actions_object.keys();
-                    for (std::size_t key_index = 0, key_count = keys.size(); key_index < key_count; ++key_index) {
-                        const QJsonValue& json_value = json_actions_object.value(keys[key_index]);
-                        const QJsonArray& json_settings_array = json_value.toArray();
-                        SettingDataSet actions;
+
+                    if (json_actions_object.value("default") != QJsonValue::Undefined) {
+                        message.default_action =
+                            GetActionType(json_actions_object.value("default").toString().toStdString().c_str());
+                    }
+
+                    if (json_actions_object.value("BUTTON0") != QJsonValue::Undefined) {
+                        const QJsonObject& json_button0_object = json_actions_object.value("BUTTON0").toObject();
+                        const QJsonValue& json_type_value = json_button0_object.value("type");
+
+                        message.actions[ACTION0].type = ::GetButtonType(json_type_value.toString().toStdString().c_str());
+
+                        const QJsonArray& json_settings_array = json_button0_object.value("settings").toArray();
                         for (int j = 0, o = json_settings_array.size(); j < o; ++j) {
-                            this->AddSettingData(actions, json_settings_array[j]);
+                            this->AddSettingData(message.actions[ACTION0].settings, json_settings_array[j]);
                         }
-                        message.actions.insert(std::make_pair(GetButtonType(keys[key_index].toStdString().c_str()), actions));
+                    }
+
+                    if (json_actions_object.value("BUTTON1") != QJsonValue::Undefined) {
+                        const QJsonObject& json_button1_object = json_actions_object.value("BUTTON1").toObject();
+                        const QJsonValue& json_type_value = json_button1_object.value("type");
+
+                        message.actions[ACTION1].type = ::GetButtonType(json_type_value.toString().toStdString().c_str());
+
+                        const QJsonArray& json_settings_array = json_button1_object.value("settings").toArray();
+                        for (int j = 0, o = json_settings_array.size(); j < o; ++j) {
+                            this->AddSettingData(message.actions[ACTION1].settings, json_settings_array[j]);
+                        }
                     }
                 }
 

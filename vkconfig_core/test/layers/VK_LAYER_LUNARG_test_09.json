@@ -1,0 +1,50 @@
+{
+    "file_format_version": "1.2.0",
+    "layer": {
+        "name": "VK_LAYER_LUNARG_test_09",
+        "library_path": ".\\VkLayer_test.dll",
+        "api_version": "1.2.170",
+        "implementation_version": "Build 76",
+        "description": "Missing setting",
+        "platforms": [ "WINDOWS", "LINUX" ],
+        "status": "BETA",
+        "features": {
+            "settings": [
+                {
+                    "key": "int_required_only",
+                    "type": "INT",
+                    "label": "Integer",
+                    "description": "Integer Description",
+                    "default": 75,
+                    "messages": [
+                        {
+                            "key": "int_required_only_msg1",
+                            "title": "The setting is not test to 76",
+                            "version": 1,
+                            "description": "???",
+                            "informative": "Are you sure you want to continue?",
+                            "severity": "WARNING",
+                            "conditions": [
+                                { "setting": { "key": "int_required_only", "value": 76 }, "operator": "NOT"}
+                            ],
+                            "actions": {
+                                "default": "BUTTON1",
+                                "BUTTON0": {
+                                    "type": "OK",
+                                    "settings": [
+                                    ]
+                                },
+                                "BUTTON1": {
+                                    "type": "CANCEL",
+                                    "settings": [
+                                        { "key": "int_required_only", "value": 76 }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

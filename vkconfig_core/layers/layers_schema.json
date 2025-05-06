@@ -51,6 +51,108 @@
                 }
             }
         },
+        "messages": {
+            "type": "array",
+            "items": {
+                "required": [
+                    "key",
+                    "version",
+                    "title",
+                    "description",
+                    "conditions"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "key": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "informative": {
+                        "type": "string"
+                    },
+                    "severity": {
+                        "type": "string",
+                        "enum": [ "INFORMATION", "WARNING", "CRITICAL", "QUESTION" ]
+                    },
+                    "platforms": {
+                        "$ref": "#/definitions/platforms"
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "setting"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "operator": {
+                                    "type": "string",
+                                    "enum": [ "NONE", "NOT" ]
+                                },
+                                "setting": {
+                                    "$ref": "#/definitions/setting_data"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "type": "object",
+                        "required": [
+                            "BUTTON0"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "default": {
+                                "type": "string",
+                                "enum": [ "BUTTON0", "BUTTON1" ]
+                            },
+                            "BUTTON0" : {
+                                "type": "object",
+                                "required": [
+                                    "type",
+                                    "settings"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [ "OK", "YES", "NO", "ABORT", "IGNORE", "CANCEL", "DISCARD" ]
+                                    },
+                                    "settings": {
+                                        "$ref": "#/definitions/settings_data"
+                                    }
+                                }
+                            },
+                            "BUTTON1" : {
+                                "type": "object",
+                                "required": [
+                                    "type",
+                                    "settings"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [ "OK", "YES", "NO", "ABORT", "IGNORE", "CANCEL", "DISCARD" ]
+                                    },
+                                    "settings": {
+                                        "$ref": "#/definitions/settings_data"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "int_range": {
             "description": "A range of integer values",
             "type": "object",
@@ -172,104 +274,106 @@
                 }
             }
         },
-        "settings_data": {
-            "description": "The different kind of settings stored in a preset",
-            "additionalProperties": false,
-            "type": "array",
-            "items": {
-                "oneOf": [
-                    {
-                        "description": "For preset STRING, FRAMES, ENUM, LOAD_FILE, SAVE_FILE, LOAD_FOLDER, SAVE_FOLDER setting type values",
-                        "type": "object",
-                        "required": [
-                            "key",
-                            "value"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "key": {
-                                "type": "string"
-                            },
-                            "value": {
-                                "type": "string"
-                            }
+        "setting_data": {
+            "oneOf": [
+                {
+                    "description": "For preset STRING, FRAMES, ENUM, LOAD_FILE, SAVE_FILE, LOAD_FOLDER, SAVE_FOLDER setting type values",
+                    "type": "object",
+                    "required": [
+                        "key",
+                        "value"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "key": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
                         }
-                    },
-                    {
-                        "description": "For preset BOOL setting type values",
-                        "type": "object",
-                        "required": [
-                            "key",
-                            "value"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "key": {
-                                "type": "string"
-                            },
-                            "value": {
-                                "type": "boolean"
-                            }
+                    }
+                },
+                {
+                    "description": "For preset BOOL setting type values",
+                    "type": "object",
+                    "required": [
+                        "key",
+                        "value"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "key": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "boolean"
                         }
-                    },
-                    {
-                        "description": "For preset INT setting type values",
-                        "type": "object",
-                        "required": [
-                            "key",
-                            "value"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "key": {
-                                "type": "string"
-                            },
-                            "value": {
-                                "type": "number"
-                            }
+                    }
+                },
+                {
+                    "description": "For preset INT setting type values",
+                    "type": "object",
+                    "required": [
+                        "key",
+                        "value"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "key": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "number"
                         }
-                    },
-                    {
-                        "description": "For preset FLAGS setting type values",
-                        "type": "object",
-                        "required": [
-                            "key",
-                            "value"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "key": {
+                    }
+                },
+                {
+                    "description": "For preset FLAGS setting type values",
+                    "type": "object",
+                    "required": [
+                        "key",
+                        "value"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "key": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "array",
+                            "contains": {
                                 "type": "string"
-                            },
-                            "value": {
-                                "type": "array",
-                                "contains": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "description": "For preset LIST setting type values",
-                        "type": "object",
-                        "required": [
-                            "key",
-                            "value"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "key": {
-                                "type": "string"
-                            },
-                            "value": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/enabled_number_or_string"
-                                }
                             }
                         }
                     }
-                ]
+                },
+                {
+                    "description": "For preset LIST setting type values",
+                    "type": "object",
+                    "required": [
+                        "key",
+                        "value"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "key": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/enabled_number_or_string"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "settings_data": {
+            "description": "The different kind of settings stored in a preset",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/setting_data"
             }
         },
         "settings_meta": {
@@ -326,6 +430,9 @@
                             },
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
+                            },
+                            "messages": {
+                                "$ref": "#/definitions/messages"
                             }
                         },
                         "examples": [
@@ -482,6 +589,9 @@
                             },
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
+                            },
+                            "messages": {
+                                "$ref": "#/definitions/messages"
                             }
                         },
                         "examples": [
@@ -572,6 +682,9 @@
                             },
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
+                            },
+                            "messages": {
+                                "$ref": "#/definitions/messages"
                             }
                         },
                         "examples": [
@@ -675,6 +788,9 @@
                             },
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
+                            },
+                            "messages": {
+                                "$ref": "#/definitions/messages"
                             }
                         },
                         "examples": [
@@ -775,6 +891,9 @@
                             },
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
+                            },
+                            "messages": {
+                                "$ref": "#/definitions/messages"
                             }
                         },
                         "examples": [
@@ -882,6 +1001,9 @@
                             },
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
+                            },
+                            "messages": {
+                                "$ref": "#/definitions/messages"
                             }
                         },
                         "examples": [
@@ -996,6 +1118,9 @@
                             },
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
+                            },
+                            "messages": {
+                                "$ref": "#/definitions/messages"
                             }
                         },
                         "examples": [
@@ -1086,6 +1211,9 @@
                             },
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
+                            },
+                            "messages": {
+                                "$ref": "#/definitions/messages"
                             }
                         },
                         "examples": [
@@ -1286,6 +1414,9 @@
                             },
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
+                            },
+                            "messages": {
+                                "$ref": "#/definitions/messages"
                             }
                         },
                         "examples": [
@@ -1403,6 +1534,9 @@
                             },
                             "settings": {
                                 "$ref": "#/definitions/settings_meta"
+                            },
+                            "messages": {
+                                "$ref": "#/definitions/messages"
                             }
                         },
                         "examples": [

@@ -393,7 +393,7 @@ void CheckMessage(IgnoredMessages& ignored_messages, const SettingMeta& meta, Se
         alert.setCheckBox(new QCheckBox("Do not show again."));
 
         alert.setStandardButtons(message.GetStandardButtons());
-        alert.setDefaultButton(::GetStandardButton(message.default_button));
+        alert.setDefaultButton(::GetStandardButton(message.actions[message.default_action].type));
         int button = alert.exec();
 
         message.Apply(data_set, static_cast<QMessageBox::StandardButtons>(button));
