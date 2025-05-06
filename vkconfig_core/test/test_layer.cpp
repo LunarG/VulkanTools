@@ -301,6 +301,31 @@ TEST(test_layer, load_env_variable) {
     qunsetenv("VK_LAYER_TEST08_ENABLE");
 }
 
+TEST(test_layer, load_setting_message) {
+    Layer layer;
+    const LayerLoadStatus load_loaded =
+        layer.Load(":/layers/VK_LAYER_LUNARG_test_09.json", LAYER_TYPE_IMPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
+    EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
+
+    EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.platforms);
+    EXPECT_EQ(STATUS_BETA, layer.status);
+    EXPECT_EQ(1, layer.settings.size());
+
+    SettingMeta* setting = ::FindSetting(layer.settings, "int_required_only");
+    const Message& message = setting->messages[0];
+    EXPECT_STREQ("int_required_only_msg1", message.key.c_str());
+    EXPECT_EQ(1, message.version);
+    EXPECT_STREQ("???", message.description.c_str());
+    EXPECT_EQ(SEVERITY_WARNING, message.severity);
+    EXPECT_EQ(1, message.conditions.size());
+    EXPECT_EQ(ACTION1, message.default_action);
+    EXPECT_EQ(BUTTON_OK, message.actions[ACTION0].type);
+    EXPECT_EQ(0, message.actions[ACTION0].settings.size());
+    EXPECT_EQ(BUTTON_CANCEL, message.actions[ACTION1].type);
+    EXPECT_EQ(1, message.actions[ACTION1].settings.size());
+}
+
 TEST(test_layer, load_1_1_0_header) {
     Layer layer;
     const LayerLoadStatus load_loaded =

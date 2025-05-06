@@ -362,7 +362,7 @@ TEST(test_path, collect_file_paths_success_set1) {
 TEST(test_path, collect_file_paths_success_set2) {
     const std::vector<Path>& paths = CollectFilePaths(":/layers/");
 
-    EXPECT_EQ(paths.size(), 16);
+    EXPECT_EQ(paths.size(), 17);
     EXPECT_STREQ(Path(":/layers/VK_LAYER_LUNARG_reference_1_1_0.json").AbsolutePath().c_str(), paths[0].AbsolutePath().c_str());
 }
 

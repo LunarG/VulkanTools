@@ -24,8 +24,8 @@
 QMessageBox::StandardButtons Message::GetStandardButtons() const {
     QMessageBox::StandardButtons buttons = QMessageBox::NoButton;
 
-    for (auto it = actions.begin(); it != actions.end(); ++it) {
-        buttons |= GetStandardButton(it->first);
+    for (std::size_t i = 0, n = this->actions.size(); i < n; ++i) {
+        buttons |= GetStandardButton(this->actions[i].type);
     }
 
     return buttons;
@@ -35,11 +35,17 @@ bool Message::Triggered(const SettingDataSet& data_set) const {
     bool result = true;
 
     for (std::size_t i = 0, n = this->conditions.size(); i < n; ++i) {
-        const SettingData* setting_condition = this->conditions[i];
+        const Condition& condition = this->conditions[i];
 
-        const SettingData* setting_data = ::FindSetting<SettingData>(data_set, setting_condition->key.c_str());
-        if (*setting_condition != *setting_data) {
-            result = false;
+        const SettingData* setting_data = ::FindSetting<SettingData>(data_set, condition.setting->key.c_str());
+        if (condition.op == CONDITION_OPERATOR_NOT) {
+            if (*condition.setting == *setting_data) {
+                result = false;
+            }
+        } else {
+            if (*condition.setting != *setting_data) {
+                result = false;
+            }
         }
     }
 
@@ -47,12 +53,12 @@ bool Message::Triggered(const SettingDataSet& data_set) const {
 }
 
 void Message::Apply(SettingDataSet& data_set, QMessageBox::StandardButtons button) const {
-    for (auto it = this->actions.begin(); it != this->actions.end(); ++it) {
-        if (GetStandardButton(it->first) != button) {
+    for (std::size_t i = 0, n = this->actions.size(); i < n; ++i) {
+        if (GetStandardButton(this->actions[i].type) != button) {
             continue;
         }
 
-        const SettingDataSet& settings = it->second;
+        const SettingDataSet& settings = this->actions[i].settings;
         for (std::size_t j = 0, o = settings.size(); j < o; ++j) {
             const SettingData* actions_setting = settings[j];
 
