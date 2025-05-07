@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <list>
 #include <vector>
 #include <mutex>
 #include <fstream>
@@ -571,6 +572,10 @@ static VkFormat determineOutputFormat(VkFormat format, colorSpaceFormat userColo
 struct WritePPMCleanupData {
     VkDevice device;
     VkuDeviceDispatchTable *pTableDevice;
+    std::string filename;
+    int dstWidth;
+    int dstHeight;
+    int dstNumChannels;
     VkImage image2;
     VkImage image3;
     VkDeviceMemory mem2;
@@ -580,6 +585,7 @@ struct WritePPMCleanupData {
     VkCommandBuffer commandBuffer;
     VkCommandPool commandPool;
     VkSemaphore semaphore;
+    VkFence fence;
     ~WritePPMCleanupData();
 };
 
@@ -595,10 +601,9 @@ WritePPMCleanupData::~WritePPMCleanupData() {
     if (commandBuffer) pTableDevice->FreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     if (commandPool) pTableDevice->DestroyCommandPool(device, commandPool, NULL);
     if (semaphore) pTableDevice->DestroySemaphore(device, semaphore, NULL);
+    if (fence) pTableDevice->DestroyFence(device, fence, NULL);
 }
 
-// Save an image to a PPM image file.
-//
 // This function issues commands to copy/convert the swapchain image
 // from whatever compatible format the swapchain image uses
 // to a single format (VK_FORMAT_R8G8B8A8_UNORM) so that the converted
@@ -611,9 +616,8 @@ WritePPMCleanupData::~WritePPMCleanupData() {
 // allocation failures.
 // (TODO) It would be nice to pass any failure info to DebugReport or something.
 //
-// Returns true if file is successfully written, false otherwise.
-//
-static bool writePPM(const char *filename, VkImage image1) {
+// Returns true if successfull, false otherwise.
+static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkImage image1, const VkPresentInfoKHR *presentInfo) {
     VkResult err;
     bool pass;
 
@@ -665,6 +669,13 @@ static bool writePPM(const char *filename, VkImage image1) {
         assert(0);
         return false;
     }
+
+    data.filename = filename;
+    data.dstWidth = width;
+    data.dstHeight = height;
+    data.dstNumChannels = numChannels;
+    data.device = device;
+    data.pTableDevice = pTableDevice;
 
     // General Approach
     //
@@ -725,12 +736,6 @@ static bool writePPM(const char *filename, VkImage image1) {
         }
         // Else bltLinear is available and only 1 step is needed.
     }
-
-    // Put resources that need to be cleaned up in a struct with a destructor
-    // so that things get cleaned up when this function is exited.
-    WritePPMCleanupData data = {};
-    data.device = device;
-    data.pTableDevice = pTableDevice;
 
     // Set up the image creation info for both the blit and copy images, in case
     // both are needed.
@@ -973,7 +978,7 @@ static bool writePPM(const char *filename, VkImage image1) {
     VkSemaphoreCreateInfo semaphoreInfo = {VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
     if (pTableDevice->CreateSemaphore(device, &semaphoreInfo, nullptr, &data.semaphore) != VK_SUCCESS) {
         return false;
-    }    
+    }
 
     VkFence nullFence = {VK_NULL_HANDLE};
     VkSubmitInfo submitInfo;
@@ -984,42 +989,52 @@ static bool writePPM(const char *filename, VkImage image1) {
     submitInfo.pWaitDstStageMask = NULL;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &data.commandBuffer;
+    VkPipelineStageFlags layerWaitStages[] = {VK_PIPELINE_STAGE_ALL_COMMANDS_BIT};
+    submitInfo.pWaitDstStageMask = layerWaitStages;
+    submitInfo.pWaitSemaphores = presentInfo->pWaitSemaphores;
+    submitInfo.waitSemaphoreCount = presentInfo->waitSemaphoreCount;
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &data.semaphore;
 
-    // Wait for operations on all queues to complete before performing the image copy.
-    err = pTableDevice->DeviceWaitIdle(device);
+    VkFenceCreateInfo fenceInfo = {};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
+    if (pTableDevice->CreateFence(device, &fenceInfo, nullptr, &data.fence) != VK_SUCCESS) {
+        return false;
+    }
+ 
+    err = pTableQueue->QueueSubmit(queue, 1, &submitInfo, data.fence);
     assert(!err);
 
-    err = pTableQueue->QueueSubmit(queue, 1, &submitInfo, nullFence);
-    assert(!err);
+    return true;
+}
 
-    err = pTableQueue->QueueWaitIdle(queue);
-    assert(!err);
-
+// Save an image to a PPM image file.
+// Returns true if file is successfully written, false otherwise.
+static bool writeScreenshot(WritePPMCleanupData& data) {
     // Map the final image so that the CPU can read it.
     const VkImageSubresource sr = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
     VkSubresourceLayout srLayout;
     const char *ptr;
-    if (!need2steps) {
-        pTableDevice->GetImageSubresourceLayout(device, data.image2, &sr, &srLayout);
-        err = pTableDevice->MapMemory(device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
+    if (data.image3 == VK_NULL_HANDLE) {
+        data.pTableDevice->GetImageSubresourceLayout(data.device, data.image2, &sr, &srLayout);
+        VkResult err = data.pTableDevice->MapMemory(data.device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
         assert(!err);
         if (VK_SUCCESS != err) return false;
         data.mem2mapped = true;
     } else {
-        pTableDevice->GetImageSubresourceLayout(device, data.image3, &sr, &srLayout);
-        err = pTableDevice->MapMemory(device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
+        data.pTableDevice->GetImageSubresourceLayout(data.device, data.image3, &sr, &srLayout);
+        VkResult err = data.pTableDevice->MapMemory(data.device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
         assert(!err);
         if (VK_SUCCESS != err) return false;
         data.mem3mapped = true;
     }
 
-    if (!writeImageToFile(filename, width, height, numChannels, srLayout.rowPitch, ptr + srLayout.offset)) {
+    if (!writeImageToFile(data.filename.c_str(), data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch, ptr + srLayout.offset)) {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_DEBUG, "screenshot", "Failed to open output file: %s", filename);
+        __android_log_print(ANDROID_LOG_DEBUG, "screenshot", "Failed to open output file: %s", data.filename.c_str());
 #else
-        fprintf(stderr, "screenshot: Failed to open output file: %s\n", filename);
+        fprintf(stderr, "screenshot: Failed to open output file: %s\n", data.filename);
 #endif
         return false;
     }
@@ -1027,6 +1042,14 @@ static bool writePPM(const char *filename, VkImage image1) {
 
     // writePPM succeeded
     return true;
+}
+
+static bool writePPM(const char *filename, VkImage image1, const VkPresentInfoKHR *presentInfo) {
+    WritePPMCleanupData data = {};
+    if(!queueScreenshot(data, filename, image1, presentInfo)) {
+        return false;
+    }
+    return writeScreenshot(data);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
@@ -1078,6 +1101,7 @@ static void createDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo
     pDisp->GetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)gpa(device, "vkGetSwapchainImagesKHR");
     pDisp->AcquireNextImageKHR = (PFN_vkAcquireNextImageKHR)gpa(device, "vkAcquireNextImageKHR");
     pDisp->QueuePresentKHR = (PFN_vkQueuePresentKHR)gpa(device, "vkQueuePresentKHR");
+    pDisp->GetFenceStatus = (PFN_vkGetFenceStatus)gpa(device, "vkGetFenceStatus");
     devMap->wsi_enabled = false;
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) devMap->wsi_enabled = true;
@@ -1298,12 +1322,29 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
     return result;
 }
 
+std::list<WritePPMCleanupData> screenshotsData;
 VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
-    static int frameNumber = 0;
     DispatchMapStruct *dispMap = get_dispatch_info((VkDevice)queue);
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    if (!screenshotsData.empty()) {
+        WritePPMCleanupData& data = screenshotsData.front();
+        if (pDisp->GetFenceStatus(data.device, data.fence) == VK_SUCCESS) {
+            if (writeScreenshot(data)) {
+#ifdef ANDROID
+                __android_log_print(ANDROID_LOG_INFO, "screenshot", "Saved file: %s", data.filename.c_str());
+#else
+                printf("screenshot: Saved file is: %s \n", data.filename.c_str());
+                fflush(stdout);
+#endif
+            }
+            screenshotsData.pop_front();
+        }
+    }
     assert(dispMap);
-    std::lock_guard<std::mutex> lg(globalLock);
-    {  // scope around the mutexed data
+    VkPresentInfoKHR presentInfo = *pPresentInfo;
+    {   // scope around the mutexed data
+        static int frameNumber = 0;
+        std::lock_guard<std::mutex> lg(globalLock);
         if (!screenshotFrames.empty() || screenShotFrameRange.valid) {
             set<int>::iterator it;
             bool inScreenShotFrames = false;
@@ -1328,13 +1369,20 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                 if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
                     swapchain = pPresentInfo->pSwapchains[0];
                     image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
-                    if (writePPM(fileName.c_str(), image)) {
+                    screenshotsData.push_back({});
+                    WritePPMCleanupData& data = screenshotsData.back();
+                    if (queueScreenshot(data, fileName.c_str(), image, &presentInfo)) {
+                        presentInfo.pWaitSemaphores = &data.semaphore;
+                        presentInfo.waitSemaphoreCount = 1;
 #ifdef ANDROID
-                        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen capture file is: %s", fileName.c_str());
+                        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen copy queued for file: %s", fileName.c_str());
 #else
-                        printf("screenshot: Capture file is: %s \n", fileName.c_str());
+                        printf("screenshot: Queued for file is: %s \n", fileName.c_str());
                         fflush(stdout);
 #endif
+                    } else {
+                        // cleanup unsuccessfull
+                        screenshotsData.pop_back();
                     }
                 } else {
 #ifdef ANDROID
@@ -1370,8 +1418,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
         }
         frameNumber++;
     }  // scope around the mutexed data
-    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
-    VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
+    VkResult result = pDisp->QueuePresentKHR(queue, &presentInfo);
     return result;
 }
 
