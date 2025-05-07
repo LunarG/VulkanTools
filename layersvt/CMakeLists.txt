@@ -130,7 +130,7 @@ foreach(layer ${TOOL_LAYERS})
     target_link_Libraries(${layer} PRIVATE Vulkan::Headers Vulkan::UtilityHeaders Vulkan::LayerSettings)
 
     if (ANDROID)
-        target_link_Libraries(${layer} PRIVATE log)
+        target_link_Libraries(${layer} PRIVATE log android)
     endif()
 
     target_include_directories(${layer} PRIVATE .)
