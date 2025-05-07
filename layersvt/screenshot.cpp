@@ -573,8 +573,8 @@ struct WritePPMCleanupData {
     VkDevice device;
     VkuDeviceDispatchTable *pTableDevice;
     std::string filename;
-    int dstWidth;
-    int dstHeight;
+    uint32_t dstWidth;
+    uint32_t dstHeight;
     int dstNumChannels;
     VkImage image2;
     VkImage image3;
@@ -671,8 +671,9 @@ static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkI
     }
 
     data.filename = filename;
-    data.dstWidth = width;
-    data.dstHeight = height;
+    // TODO - introduce screenshot scale parameter
+    data.dstWidth = width / 8;
+    data.dstHeight = height / 8;
     data.dstNumChannels = numChannels;
     data.device = device;
     data.pTableDevice = pTableDevice;
@@ -714,7 +715,7 @@ static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkI
     pInstanceTable->GetPhysicalDeviceFormatProperties(physicalDevice, destformat, &targetFormatProps);
     bool need2steps = false;
     bool copyOnly = false;
-    if (destformat == format) {
+    if (destformat == format && width == data.dstWidth && height == data.dstHeight) {
         copyOnly = true;
     } else {
         bool const bltLinear = targetFormatProps.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT;
@@ -745,7 +746,7 @@ static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkI
         0,
         VK_IMAGE_TYPE_2D,
         destformat,
-        {width, height, 1},
+        {data.dstWidth, data.dstHeight, 1},
         1,
         1,
         VK_SAMPLE_COUNT_1_BIT,
@@ -908,10 +909,9 @@ static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkI
     // destination.
     pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1, &destMemoryBarrier);
 
-    const VkImageCopy imageCopyRegion = {
-        {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {width, height, 1}};
-
     if (copyOnly) {
+        const VkImageCopy imageCopyRegion = {
+            {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {width, height, 1}};
         pTableCommandBuffer->CmdCopyImage(data.commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image2,
                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
     } else {
@@ -927,8 +927,8 @@ static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkI
         imageBlitRegion.dstSubresource.baseArrayLayer = 0;
         imageBlitRegion.dstSubresource.layerCount = 1;
         imageBlitRegion.dstSubresource.mipLevel = 0;
-        imageBlitRegion.dstOffsets[1].x = width;
-        imageBlitRegion.dstOffsets[1].y = height;
+        imageBlitRegion.dstOffsets[1].x = data.dstWidth;
+        imageBlitRegion.dstOffsets[1].y = data.dstHeight;
         imageBlitRegion.dstOffsets[1].z = 1;
 
         pTableCommandBuffer->CmdBlitImage(data.commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image2,
@@ -951,6 +951,8 @@ static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkI
                                                     &destMemoryBarrier);
 
             // This step essentially untiles the image.
+            const VkImageCopy imageCopyRegion = {
+                {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {data.dstWidth, data.dstHeight, 1}};
             pTableCommandBuffer->CmdCopyImage(data.commandBuffer, data.image2, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image3,
                                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
             generalMemoryBarrier.image = data.image3;
