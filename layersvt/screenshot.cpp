@@ -47,9 +47,23 @@ using namespace std;
 #include "screenshot_parsing.h"
 
 #ifdef ANDROID
-
+#include <android/trace.h>
 #include <android/log.h>
 #include <sys/system_properties.h>
+
+class ATrace {
+public:    
+    ATrace(const char* block) {
+        ATrace_beginSection(block);
+    }
+
+    ~ATrace() {
+        ATrace_endSection();
+    }
+};
+#define PROFILE(name) ATrace atrace_scope_##__LINE__(name);
+#else
+#define PROFILE(name)
 #endif
 
 const char *kSettingsKeyFrames = "frames";
@@ -590,6 +604,7 @@ struct WritePPMCleanupData {
 };
 
 WritePPMCleanupData::~WritePPMCleanupData() {
+    PROFILE("screenshot:~WritePPMCleanupData");
     if (mem2mapped) pTableDevice->UnmapMemory(device, mem2);
     if (mem2) pTableDevice->FreeMemory(device, mem2, NULL);
     if (image2) pTableDevice->DestroyImage(device, image2, NULL);
@@ -618,6 +633,7 @@ WritePPMCleanupData::~WritePPMCleanupData() {
 //
 // Returns true if successfull, false otherwise.
 static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkImage image1, const VkPresentInfoKHR *presentInfo) {
+    PROFILE("screenshot:queueScreenshot");
     VkResult err;
     bool pass;
 
@@ -1014,6 +1030,7 @@ static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkI
 // Save an image to a PPM image file.
 // Returns true if file is successfully written, false otherwise.
 static bool writeScreenshot(WritePPMCleanupData& data) {
+    PROFILE("screenshot:writeScreenshot");
     // Map the final image so that the CPU can read it.
     const VkImageSubresource sr = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
     VkSubresourceLayout srLayout;
@@ -1044,14 +1061,6 @@ static bool writeScreenshot(WritePPMCleanupData& data) {
 
     // writePPM succeeded
     return true;
-}
-
-static bool writePPM(const char *filename, VkImage image1, const VkPresentInfoKHR *presentInfo) {
-    WritePPMCleanupData data = {};
-    if(!queueScreenshot(data, filename, image1, presentInfo)) {
-        return false;
-    }
-    return writeScreenshot(data);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
