@@ -696,8 +696,9 @@ static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkI
 
     data.filename = filename;
     // TODO - introduce screenshot scale parameter
-    data.dstWidth = width / 8;
-    data.dstHeight = height / 8;
+    const float scale = 0.25;
+    data.dstWidth = static_cast<uint32_t>(width * scale);
+    data.dstHeight = static_cast<uint32_t>(height * scale);
     data.dstNumChannels = numChannels;
     data.device = device;
     data.pTableDevice = pTableDevice;
