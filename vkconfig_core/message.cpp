@@ -20,6 +20,7 @@
 
 #include "message.h"
 #include "setting.h"
+#include "setting_flags.h"
 
 QMessageBox::StandardButtons Message::GetStandardButtons() const {
     QMessageBox::StandardButtons buttons = QMessageBox::NoButton;
@@ -58,13 +59,27 @@ void Message::Apply(SettingDataSet& data_set, QMessageBox::StandardButtons butto
             continue;
         }
 
-        const SettingDataSet& settings = this->actions[i].settings;
-        for (std::size_t j = 0, o = settings.size(); j < o; ++j) {
-            const SettingData* actions_setting = settings[j];
+        const std::vector<Action>& actions = this->actions[i].actions;
+        for (std::size_t j = 0, o = actions.size(); j < o; ++j) {
+            const Action& action = actions[j];
 
-            SettingData* setting_data = ::FindSetting<SettingData>(data_set, actions_setting->key.c_str());
-            if (*actions_setting != *setting_data) {
-                setting_data->Copy(actions_setting);
+            SettingData* setting_data = ::FindSetting<SettingData>(data_set, action.setting->key.c_str());
+            const ActionOperatorType op = setting_data->type == SETTING_FLAGS ? action.op : ACTION_OPERATOR_SET;
+            switch (action.op) {
+                default:
+                case ACTION_OPERATOR_SET:
+                    if (*action.setting != *setting_data) {
+                        setting_data->Copy(action.setting);
+                    }
+                    break;
+                case ACTION_OPERATOR_APPEND: {
+                    SettingDataFlags* flags = static_cast<SettingDataFlags*>(setting_data);
+                    flags->Append(static_cast<SettingDataFlags*>(action.setting));
+                } break;
+                case ACTION_OPERATOR_REMOVE: {
+                    SettingDataFlags* flags = static_cast<SettingDataFlags*>(setting_data);
+                    flags->Remove(static_cast<SettingDataFlags*>(action.setting));
+                } break;
             }
         }
     }

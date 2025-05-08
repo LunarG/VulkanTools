@@ -669,9 +669,18 @@ void Layer::AddSettingsMessages(const QJsonValue& json_settings_value) {
 
                         message.actions[ACTION0].type = ::GetButtonType(json_type_value.toString().toStdString().c_str());
 
-                        const QJsonArray& json_settings_array = json_button0_object.value("settings").toArray();
-                        for (int j = 0, o = json_settings_array.size(); j < o; ++j) {
-                            this->AddSettingData(message.actions[ACTION0].settings, json_settings_array[j]);
+                        const QJsonArray& json_changes_array = json_button0_object.value("changes").toArray();
+                        for (int j = 0, o = json_changes_array.size(); j < o; ++j) {
+                            const QJsonObject& json_changes_object = json_changes_array[j].toObject();
+                            Action action;
+
+                            SettingDataSet setting;
+                            this->AddSettingData(setting, json_changes_object.value("setting"));
+                            action.setting = setting[0];
+                            action.op =
+                                GetActionOperatorType(json_changes_object.value("operator").toString().toStdString().c_str());
+
+                            message.actions[ACTION0].actions.push_back(action);
                         }
                     }
 
@@ -681,9 +690,18 @@ void Layer::AddSettingsMessages(const QJsonValue& json_settings_value) {
 
                         message.actions[ACTION1].type = ::GetButtonType(json_type_value.toString().toStdString().c_str());
 
-                        const QJsonArray& json_settings_array = json_button1_object.value("settings").toArray();
-                        for (int j = 0, o = json_settings_array.size(); j < o; ++j) {
-                            this->AddSettingData(message.actions[ACTION1].settings, json_settings_array[j]);
+                        const QJsonArray& json_changes_array = json_button1_object.value("changes").toArray();
+                        for (int j = 0, o = json_changes_array.size(); j < o; ++j) {
+                            const QJsonObject& json_changes_object = json_changes_array[j].toObject();
+                            Action action;
+
+                            SettingDataSet setting;
+                            this->AddSettingData(setting, json_changes_object.value("setting"));
+                            action.setting = setting[0];
+                            action.op =
+                                GetActionOperatorType(json_changes_object.value("operator").toString().toStdString().c_str());
+
+                            message.actions[ACTION1].actions.push_back(action);
                         }
                     }
                 }

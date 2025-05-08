@@ -321,9 +321,9 @@ TEST(test_layer, load_setting_message) {
     EXPECT_EQ(1, message.conditions.size());
     EXPECT_EQ(ACTION1, message.default_action);
     EXPECT_EQ(BUTTON_OK, message.actions[ACTION0].type);
-    EXPECT_EQ(0, message.actions[ACTION0].settings.size());
+    EXPECT_EQ(0, message.actions[ACTION0].actions.size());
     EXPECT_EQ(BUTTON_CANCEL, message.actions[ACTION1].type);
-    EXPECT_EQ(1, message.actions[ACTION1].settings.size());
+    EXPECT_EQ(1, message.actions[ACTION1].actions.size());
 }
 
 TEST(test_layer, load_1_1_0_header) {
