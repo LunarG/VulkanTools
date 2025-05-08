@@ -93,13 +93,13 @@
                             ],
                             "additionalProperties": false,
                             "properties": {
+                                "setting": {
+                                    "$ref": "#/definitions/setting_data"
+                                },
                                 "operator": {
                                     "type": "string",
                                     "enum": [ "NONE", "NOT" ]
                                 },
-                                "setting": {
-                                    "$ref": "#/definitions/setting_data"
-                                }
                             }
                         }
                     },
@@ -118,7 +118,7 @@
                                 "type": "object",
                                 "required": [
                                     "type",
-                                    "settings"
+                                    "changes"
                                 ],
                                 "additionalProperties": false,
                                 "properties": {
@@ -126,8 +126,23 @@
                                         "type": "string",
                                         "enum": [ "OK", "YES", "NO", "ABORT", "IGNORE", "CANCEL", "DISCARD" ]
                                     },
-                                    "settings": {
-                                        "$ref": "#/definitions/settings_data"
+                                    "changes": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "setting"
+                                            ],
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "setting": {
+                                                    "$ref": "#/definitions/setting_data"
+                                                },
+                                                "operator": {
+                                                    "type": "string",
+                                                    "enum": [ "SET", "APPEND", "REMOVE" ]
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             },
@@ -135,7 +150,7 @@
                                 "type": "object",
                                 "required": [
                                     "type",
-                                    "settings"
+                                    "changes"
                                 ],
                                 "additionalProperties": false,
                                 "properties": {
@@ -143,8 +158,23 @@
                                         "type": "string",
                                         "enum": [ "OK", "YES", "NO", "ABORT", "IGNORE", "CANCEL", "DISCARD" ]
                                     },
-                                    "settings": {
-                                        "$ref": "#/definitions/settings_data"
+                                    "changes": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "setting"
+                                            ],
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "setting": {
+                                                    "$ref": "#/definitions/setting_data"
+                                                },
+                                                "operator": {
+                                                    "type": "string",
+                                                    "enum": [ "SET", "APPEND", "REMOVE" ]
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
