@@ -99,6 +99,9 @@ struct SettingDataFlags : public SettingData {
     std::string Export(ExportMode export_mode) const override;
     void Reset() override;
 
+    void Append(const SettingDataFlags* data);
+    void Remove(const SettingDataFlags* data);
+
     std::vector<std::string> value;
     std::map<std::string, bool> expanded_flags;
 

@@ -31,13 +31,13 @@
                                 "default": "BUTTON1",
                                 "BUTTON0": {
                                     "type": "OK",
-                                    "settings": [
+                                    "changes": [
                                     ]
                                 },
                                 "BUTTON1": {
                                     "type": "CANCEL",
-                                    "settings": [
-                                        { "key": "int_required_only", "value": 76 }
+                                    "changes": [
+                                        { "setting": { "key": "int_required_only", "value": 76 }, "operator": "APPEND" }
                                     ]
                                 }
                             }

@@ -23,6 +23,7 @@
 #include "type_severity.h"
 #include "type_button.h"
 #include "type_action.h"
+#include "type_action_operator.h"
 #include "type_condition_operator.h"
 
 #include <string>
@@ -39,8 +40,13 @@ struct Condition {
 };
 
 struct Action {
+    ActionOperatorType op = ACTION_OPERATOR_SET;
+    SettingData* setting;
+};
+
+struct Actions {
     ButtonType type = BUTTON_OK;
-    SettingDataSet settings;
+    std::vector<Action> actions;
 };
 
 struct Message {
@@ -51,7 +57,7 @@ struct Message {
     std::string informative;
     SeverityType severity;
     std::vector<Condition> conditions;
-    std::array<Action, ACTION_COUNT> actions;
+    std::array<Actions, ACTION_COUNT> actions;
     ActionType default_action = ACTION0;
 
     QMessageBox::StandardButtons GetStandardButtons() const;

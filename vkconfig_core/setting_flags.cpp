@@ -184,6 +184,23 @@ void SettingDataFlags::Copy(const SettingData* data) {
     this->value = setting_data->value;
 }
 
+void SettingDataFlags::Append(const SettingDataFlags* data) {
+    for (std::size_t i = 0, n = data->value.size(); i < n; ++i) {
+        if (std::find(this->value.begin(), this->value.end(), data->value[i]) == this->value.end()) {
+            this->value.push_back(data->value[i]);
+        }
+    }
+}
+
+void SettingDataFlags::Remove(const SettingDataFlags* data) {
+    for (std::size_t i = 0, n = data->value.size(); i < n; ++i) {
+        auto it = std::find(this->value.begin(), this->value.end(), data->value[i]);
+        if (it != this->value.end()) {
+            this->value.erase(it);
+        }
+    }
+}
+
 bool SettingDataFlags::Load(const QJsonObject& json_setting) {
     this->value = ReadStringArray(json_setting, "value");
     if (json_setting.value("expanded") != QJsonValue::Undefined) {
