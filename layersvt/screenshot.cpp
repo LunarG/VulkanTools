@@ -375,8 +375,9 @@ VkQueue getQueueForScreenshot(VkDevice device) {
     return queue;
 }
 
+// Writes image to a PPM file.
 static bool writeImageToFile(const char* filename, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch, const char* ptr) {
-    // Write the data to a PPM file.
+    PROFILE("writeImageToFile");
     ofstream file(filename, ios::binary);
     if (!file.is_open()) {
         return false;
@@ -387,6 +388,9 @@ static bool writeImageToFile(const char* filename, uint32_t width, uint32_t heig
     file << height << "\n";
     file << 255 << "\n";
 
+    std::vector<unsigned char> tempRowBuffer;
+    tempRowBuffer.resize(3 * width + 1);
+
     if (3 == numChannels) {
         for (uint32_t y = 0; y < height; y++) {
             file.write(ptr, 3 * width);
@@ -394,11 +398,14 @@ static bool writeImageToFile(const char* filename, uint32_t width, uint32_t heig
         }
     } else if (4 == numChannels) {
         for (uint32_t y = 0; y < height; y++) {
-            const unsigned int *row = (const unsigned int *)ptr;
+            const uint32_t* srcRow = reinterpret_cast<const uint32_t*>(ptr);
+            unsigned char* destRow = tempRowBuffer.data();
+
             for (uint32_t x = 0; x < width; x++) {
-                file.write((char *)row, 3);
-                row++;
+                *reinterpret_cast<uint32_t*>(destRow) = *srcRow++;
+                destRow += 3;
             }
+            file.write(reinterpret_cast<const char*>(tempRowBuffer.data()), 3 * width);
             ptr += rowPitch;
         }
     }
