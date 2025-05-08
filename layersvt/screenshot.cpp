@@ -50,7 +50,11 @@ using namespace std;
 #include <android/trace.h>
 #include <android/log.h>
 #include <sys/system_properties.h>
+#endif
 
+namespace screenshot {
+
+#ifdef ANDROID
 class ATrace {
 public:    
     ATrace(const char* block) {
@@ -61,18 +65,15 @@ public:
         ATrace_endSection();
     }
 };
+
 #define PROFILE(name) ATrace atrace_scope_##__LINE__(name);
 #else
 #define PROFILE(name)
 #endif
-
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 const char *kSettingsKeyFrames = "frames";
 const char *kSettingKeyFormat = "format";
 const char *kSettingKeyDir = "dir";
-
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-
-namespace screenshot {
 
 std::mutex globalLock;
 
