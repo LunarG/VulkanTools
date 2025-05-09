@@ -33,6 +33,8 @@
 #include <vector>
 #include <mutex>
 #include <fstream>
+#include <thread>
+#include <condition_variable>
 
 #if defined(_WIN32) && !defined(NDEBUG)
 #include <crtdbg.h>
@@ -80,6 +82,13 @@ std::mutex globalLock;
 std::string vk_screenshot_dir;
 
 bool printFormatWarning = true;
+
+std::condition_variable screenshotQueuedCV;
+std::condition_variable screenshotSavedCV;
+std::thread screenshotWriterThread;
+bool shutdownScreenshotThread = false;
+bool screenshotThreadStarted = false;
+
 
 enum class colorSpaceFormat { UNDEFINED, UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB };
 
@@ -626,6 +635,8 @@ WritePPMCleanupData::~WritePPMCleanupData() {
     if (semaphore) pTableDevice->DestroySemaphore(device, semaphore, NULL);
     if (fence) pTableDevice->DestroyFence(device, fence, NULL);
 }
+
+std::list<std::shared_ptr<WritePPMCleanupData>> screenshotsData;
 
 // This function issues commands to copy/convert the swapchain image
 // from whatever compatible format the swapchain image uses
@@ -1342,24 +1353,82 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
     return result;
 }
 
-std::list<WritePPMCleanupData> screenshotsData;
-VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
-    DispatchMapStruct *dispMap = get_dispatch_info((VkDevice)queue);
-    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
-    if (!screenshotsData.empty()) {
-        WritePPMCleanupData& data = screenshotsData.front();
-        if (pDisp->GetFenceStatus(data.device, data.fence) == VK_SUCCESS) {
-            if (writeScreenshot(data)) {
-#ifdef ANDROID
-                __android_log_print(ANDROID_LOG_INFO, "screenshot", "Saved file: %s", data.filename.c_str());
-#else
-                printf("screenshot: Saved file is: %s \n", data.filename.c_str());
-                fflush(stdout);
-#endif
+void screenshotWriterThreadFunc();
+
+void startScreenshotThread() {
+    if (screenshotThreadStarted || shutdownScreenshotThread) return;
+    screenshotThreadStarted = true;
+    screenshotWriterThread = std::thread(screenshotWriterThreadFunc);
+}
+
+void stopScreenshotThread() {
+    shutdownScreenshotThread = true;
+    if (!screenshotThreadStarted) return;
+}
+
+void waitScreenshotThreadIsOver() {
+    if (!screenshotThreadStarted) return;
+    if (screenshotWriterThread.joinable()) {
+        screenshotWriterThread.join();
+    }
+}
+
+void screenshotWriterThreadFunc() {
+    while (true) {
+        std::shared_ptr<WritePPMCleanupData> dataToSave;
+        {
+            PROFILE("Waiting for CPU")
+            std::unique_lock<std::mutex> lock(globalLock);
+            if (screenshotsData.empty()) {
+                screenshotQueuedCV.wait(lock, [] { 
+                    return !screenshotsData.empty() || shutdownScreenshotThread; 
+                });
             }
+            if (shutdownScreenshotThread && screenshotsData.empty()) break;
+
+            if (screenshotsData.empty()) continue;
+            dataToSave = screenshotsData.front();
             screenshotsData.pop_front();
         }
+
+        while(true) {
+            VkResult fenceWaitResult;
+            {
+                PROFILE("Waiting for GPU")
+                fenceWaitResult = dataToSave->pTableDevice->WaitForFences(dataToSave->device, 1, &dataToSave->fence, VK_TRUE, UINT64_MAX);
+            }
+
+            if (fenceWaitResult == VK_SUCCESS) {
+                if (writeScreenshot(*dataToSave)) {
+#ifdef ANDROID
+                    __android_log_print(ANDROID_LOG_INFO, "screenshot", "Saved file: %s", dataToSave->filename.c_str());
+#else
+                    printf("screenshot: Saved file: %s \n", dataToSave->filename.c_str());
+                    fflush(stdout);
+#endif
+                }
+                std::lock_guard<std::mutex> lock(globalLock);
+                screenshotSavedCV.notify_one();
+            } else if (fenceWaitResult == VK_TIMEOUT) {
+                continue;
+            }
+            break;
+        }
     }
+    screenshotThreadStarted = false;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
+    while(true) {
+        std::unique_lock<std::mutex> lock(globalLock);
+        // TODO: introduce max queue size setting
+        const int maxScreenshotQueueSize = 10;
+        if (screenshotsData.size() < maxScreenshotQueueSize) break;
+        PROFILE("Waiting for screenshot");
+        screenshotSavedCV.wait(lock, [] { return screenshotsData.size() < maxScreenshotQueueSize; });
+    }
+    DispatchMapStruct *dispMap = get_dispatch_info((VkDevice)queue);
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     assert(dispMap);
     VkPresentInfoKHR presentInfo = *pPresentInfo;
     {   // scope around the mutexed data
@@ -1389,10 +1458,11 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                 if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
                     swapchain = pPresentInfo->pSwapchains[0];
                     image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
-                    screenshotsData.push_back({});
-                    WritePPMCleanupData& data = screenshotsData.back();
-                    if (queueScreenshot(data, fileName.c_str(), image, &presentInfo)) {
-                        presentInfo.pWaitSemaphores = &data.semaphore;
+                    std::shared_ptr<WritePPMCleanupData> data = std::make_shared<WritePPMCleanupData>();
+                    if (queueScreenshot(*data, fileName.c_str(), image, &presentInfo)) {
+                        screenshotsData.emplace_back(data);
+                        startScreenshotThread();
+                        presentInfo.pWaitSemaphores = &data->semaphore;
                         presentInfo.waitSemaphoreCount = 1;
 #ifdef ANDROID
                         __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen copy queued for file: %s", fileName.c_str());
@@ -1400,9 +1470,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                         printf("screenshot: Queued for file is: %s \n", fileName.c_str());
                         fflush(stdout);
 #endif
-                    } else {
-                        // cleanup unsuccessfull
-                        screenshotsData.pop_back();
+                        screenshotQueuedCV.notify_one();
                     }
                 } else {
 #ifdef ANDROID
@@ -1433,6 +1501,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                     imageMap.clear();
                     physDeviceMap.clear();
                     screenShotFrameRange.valid = false;
+                    stopScreenshotThread();
+                    screenshotQueuedCV.notify_one();
                 }
             }
         }
