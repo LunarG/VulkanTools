@@ -385,10 +385,40 @@ VkQueue getQueueForScreenshot(VkDevice device) {
     return queue;
 }
 
+// Writes image to a PAM file.
+bool writePAM(const char* filename, const char* pixels, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch) {
+    PROFILE("writePAM");
+    std::ofstream file(filename, ios::binary);
+    if (!file.is_open()) {
+        return false;
+    }
+
+    file << "P7\n";
+    file << "WIDTH " << width << "\n";
+    file << "HEIGHT " << height << "\n";
+    file << "DEPTH " << numChannels << "\n";
+    file << "MAXVAL " << 255 << "\n";
+    file << "TUPLTYPE " << (numChannels == 3 ? "RGB" : "RGB_ALPHA") << "\n";
+    file << "ENDHDR\n";
+
+    if (numChannels * width == rowPitch) {
+        file.write(pixels, height * rowPitch);
+    }
+    else { 
+        for (uint32_t y = 0; y < height; y++) {
+            file.write(pixels, numChannels * width);
+            pixels += rowPitch;
+        }
+    }
+    file.close();
+    return true;
+}
+
 // Writes image to a PPM file.
-static bool writeImageToFile(const char* filename, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch, const char* ptr) {
-    PROFILE("writeImageToFile");
-    ofstream file(filename, ios::binary);
+bool writePPM(const char* filename, const char* pixels, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch) {
+    PROFILE("writePPM");
+
+    std::ofstream file(filename, ios::binary);
     if (!file.is_open()) {
         return false;
     }
@@ -398,17 +428,16 @@ static bool writeImageToFile(const char* filename, uint32_t width, uint32_t heig
     file << height << "\n";
     file << 255 << "\n";
 
-    std::vector<unsigned char> tempRowBuffer;
-    tempRowBuffer.resize(3 * width + 1);
-
     if (3 == numChannels) {
         for (uint32_t y = 0; y < height; y++) {
-            file.write(ptr, 3 * width);
-            ptr += rowPitch;
+            file.write(pixels, 3 * width);
+            pixels += rowPitch;
         }
     } else if (4 == numChannels) {
+        std::vector<unsigned char> tempRowBuffer;
+        tempRowBuffer.resize(3 * width + 1);
         for (uint32_t y = 0; y < height; y++) {
-            const uint32_t* srcRow = reinterpret_cast<const uint32_t*>(ptr);
+            const uint32_t* srcRow = reinterpret_cast<const uint32_t*>(pixels);
             unsigned char* destRow = tempRowBuffer.data();
 
             for (uint32_t x = 0; x < width; x++) {
@@ -416,9 +445,10 @@ static bool writeImageToFile(const char* filename, uint32_t width, uint32_t heig
                 destRow += 3;
             }
             file.write(reinterpret_cast<const char*>(tempRowBuffer.data()), 3 * width);
-            ptr += rowPitch;
+            pixels += rowPitch;
         }
     }
+    file.close();
     return true;
 }
 
@@ -1054,32 +1084,36 @@ static bool writeScreenshot(WritePPMCleanupData& data) {
     // Map the final image so that the CPU can read it.
     const VkImageSubresource sr = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
     VkSubresourceLayout srLayout;
-    const char *ptr;
+    const char* pixels;
     if (data.image3 == VK_NULL_HANDLE) {
         data.pTableDevice->GetImageSubresourceLayout(data.device, data.image2, &sr, &srLayout);
-        VkResult err = data.pTableDevice->MapMemory(data.device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
-        assert(!err);
+        VkResult err = data.pTableDevice->MapMemory(data.device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&pixels);
         if (VK_SUCCESS != err) return false;
         data.mem2mapped = true;
     } else {
         data.pTableDevice->GetImageSubresourceLayout(data.device, data.image3, &sr, &srLayout);
-        VkResult err = data.pTableDevice->MapMemory(data.device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
-        assert(!err);
+        VkResult err = data.pTableDevice->MapMemory(data.device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&pixels);
         if (VK_SUCCESS != err) return false;
         data.mem3mapped = true;
     }
 
-    if (!writeImageToFile(data.filename.c_str(), data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch, ptr + srLayout.offset)) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_DEBUG, "screenshot", "Failed to open output file: %s", data.filename.c_str());
+    pixels += srLayout.offset;
+
+    bool result;
+#if 0
+    result = writePPM(data.filename.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
 #else
-        fprintf(stderr, "screenshot: Failed to open output file: %s\n", data.filename);
+    result = writePAM(data.filename.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
+#endif    
+
+    if (!result) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_DEBUG, "screenshot", "Failed to write image: %s", data.filename.c_str());
+#else
+        fprintf(stderr, "screenshot: Failed to write image: %s\n", data.filename);
 #endif
         return false;
     }
-    // Clean up handled by ~WritePPMCleanupData()
-
-    // writePPM succeeded
     return true;
 }
 
