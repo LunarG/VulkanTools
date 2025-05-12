@@ -338,6 +338,25 @@ static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAll
     vkuDestroyLayerSettingSet(layerSettingSet, pAllocator);
 }
 
+void screenshotWriterThreadFunc();
+
+void startScreenshotThread() {
+    if (screenshotThreadStarted || shutdownScreenshotThread) return;
+    screenshotThreadStarted = true;
+    screenshotWriterThread = std::thread(screenshotWriterThreadFunc);
+}
+
+void stopScreenshotThread() {
+    shutdownScreenshotThread = true;
+}
+
+void waitScreenshotThreadIsOver() {
+    if (!screenshotThreadStarted) return;
+    if (screenshotWriterThread.joinable()) {
+        screenshotWriterThread.join();
+    }
+}
+
 VkQueue getQueueForScreenshot(VkDevice device) {
     // Find a queue that we can use for taking a screenshot
     VkQueue queue = VK_NULL_HANDLE;
@@ -1345,6 +1364,24 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
     return result;
 }
 
+VKAPI_ATTR void DestroySwapchainKHR(
+        VkDevice                                    device,
+        VkSwapchainKHR                              swapchain,
+        const VkAllocationCallbacks*                pAllocator) {
+    PROFILE("screenshot::DestroySwapchainKHR");
+    stopScreenshotThread();
+    {
+        std::unique_lock<std::mutex> lock(globalLock);
+        screenshotQueuedCV.notify_one();
+    }
+    waitScreenshotThreadIsOver();
+
+    DispatchMapStruct *dispMap = get_dispatch_info(device);
+    assert(dispMap);
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    pDisp->DestroySwapchainKHR(device, swapchain, pAllocator);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t *pCount,
                                                      VkImage *pSwapchainImages) {
     DispatchMapStruct *dispMap = get_dispatch_info(device);
@@ -1385,26 +1422,6 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
         }
     }
     return result;
-}
-
-void screenshotWriterThreadFunc();
-
-void startScreenshotThread() {
-    if (screenshotThreadStarted || shutdownScreenshotThread) return;
-    screenshotThreadStarted = true;
-    screenshotWriterThread = std::thread(screenshotWriterThreadFunc);
-}
-
-void stopScreenshotThread() {
-    shutdownScreenshotThread = true;
-    if (!screenshotThreadStarted) return;
-}
-
-void waitScreenshotThreadIsOver() {
-    if (!screenshotThreadStarted) return;
-    if (screenshotWriterThread.joinable()) {
-        screenshotWriterThread.join();
-    }
 }
 
 void screenshotWriterThreadFunc() {
@@ -1494,14 +1511,14 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                     image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
                     std::shared_ptr<WritePPMCleanupData> data = std::make_shared<WritePPMCleanupData>();
                     if (queueScreenshot(*data, fileName.c_str(), image, &presentInfo)) {
-                        screenshotsData.emplace_back(data);
-                        startScreenshotThread();
                         presentInfo.pWaitSemaphores = &data->semaphore;
                         presentInfo.waitSemaphoreCount = 1;
+                        screenshotsData.emplace_back(data);
+                        startScreenshotThread();
 #ifdef ANDROID
-                        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen copy queued for file: %s", fileName.c_str());
+                        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Queued for file: %s", fileName.c_str());
 #else
-                        printf("screenshot: Queued for file is: %s \n", fileName.c_str());
+                        printf("screenshot: Queued for file: %s \n", fileName.c_str());
                         fflush(stdout);
 #endif
                         screenshotQueuedCV.notify_one();
@@ -1696,6 +1713,7 @@ static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name, VkDe
         PFN_vkVoidFunction proc;
     } khr_swapchain_commands[] = {
         {"vkCreateSwapchainKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateSwapchainKHR)},
+        {"vkDestroySwapchainKHR", reinterpret_cast<PFN_vkVoidFunction>(DestroySwapchainKHR)},
         {"vkGetSwapchainImagesKHR", reinterpret_cast<PFN_vkVoidFunction>(GetSwapchainImagesKHR)},
         {"vkQueuePresentKHR", reinterpret_cast<PFN_vkVoidFunction>(QueuePresentKHR)},
     };
