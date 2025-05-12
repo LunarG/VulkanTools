@@ -107,7 +107,6 @@ if(BUILD_SCREENSHOT)
     set_target_properties(VkLayer_screenshot PROPERTIES FOLDER "layers/screenshot")
     target_sources(VkLayer_screenshot PRIVATE
         screenshot.cpp
-        screenshot_parsing.h
         screenshot_parsing.cpp
         screenshot_parsing.h
         vk_layer_table.cpp
