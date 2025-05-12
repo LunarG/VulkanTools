@@ -651,9 +651,9 @@ static VkFormat determineOutputFormat(VkFormat format, colorSpaceFormat userColo
 // Track allocated resources in writePPM()
 // and clean them up when they go out of scope.
 struct WritePPMCleanupData {
+    uint32_t frameNumber;
     VkDevice device;
     VkuDeviceDispatchTable *pTableDevice;
-    std::string filename;
     uint32_t dstWidth;
     uint32_t dstHeight;
     int dstNumChannels;
@@ -701,7 +701,7 @@ std::list<std::shared_ptr<WritePPMCleanupData>> screenshotsData;
 // (TODO) It would be nice to pass any failure info to DebugReport or something.
 //
 // Returns true if successfull, false otherwise.
-static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkImage image1, const VkPresentInfoKHR *presentInfo) {
+static bool queueScreenshot(WritePPMCleanupData& data, VkImage image1, const VkPresentInfoKHR *presentInfo) {
     PROFILE("screenshot:queueScreenshot");
     VkResult err;
     bool pass;
@@ -755,7 +755,6 @@ static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkI
         return false;
     }
 
-    data.filename = filename;
     // TODO - introduce screenshot scale parameter
     const float scale = 0.25;
     data.dstWidth = static_cast<uint32_t>(width * scale);
@@ -1119,21 +1118,36 @@ static bool writeScreenshot(WritePPMCleanupData& data) {
 
     pixels += srLayout.offset;
 
-    bool result;
-#if 0
-    result = writePPM(data.filename.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
+    string fileName;
+    if (vk_screenshot_dir.empty()) {
+        fileName = to_string(data.frameNumber);
+    } else {
+        fileName = vk_screenshot_dir;
+        fileName += "/" + to_string(data.frameNumber);
+    }
+
+#if 10
+    fileName += ".ppm";
+    bool result = writePPM(fileName.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
 #else
-    result = writePAM(data.filename.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
+    fileName += ".pam";
+    bool result = writePAM(fileName.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
 #endif    
 
     if (!result) {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_DEBUG, "screenshot", "Failed to write image: %s", data.filename.c_str());
+        __android_log_print(ANDROID_LOG_DEBUG, "screenshot", "Failed to write image: %s", fileName.c_str());
 #else
-        fprintf(stderr, "screenshot: Failed to write image: %s\n", data.filename);
+        fprintf(stderr, "screenshot: Failed to write image: %s\n", fileName.c_str());
 #endif
         return false;
     }
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "screenshot", "Saved image: %s", fileName.c_str());
+#else
+    printf("screenshot: Saved image: %s \n", fileName.c_str());
+    fflush(stdout);
+#endif
     return true;
 }
 
@@ -1451,14 +1465,7 @@ void screenshotWriterThreadFunc() {
             }
 
             if (fenceWaitResult == VK_SUCCESS) {
-                if (writeScreenshot(*dataToSave)) {
-#ifdef ANDROID
-                    __android_log_print(ANDROID_LOG_INFO, "screenshot", "Saved file: %s", dataToSave->filename.c_str());
-#else
-                    printf("screenshot: Saved file: %s \n", dataToSave->filename.c_str());
-                    fflush(stdout);
-#endif
-                }
+                writeScreenshot(*dataToSave);
                 std::lock_guard<std::mutex> lock(globalLock);
                 screenshotSavedCV.notify_one();
             } else if (fenceWaitResult == VK_TIMEOUT) {
@@ -1473,11 +1480,12 @@ void screenshotWriterThreadFunc() {
 VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     // TODO: introduce max queue size setting
     const int maxScreenshotQueueSize = 10;
+    const bool allowToSkipFrames = false;
     {
         std::unique_lock<std::mutex> lock(globalLock);
         PROFILE_COUNTER("screenshotsQueueSize", screenshotsData.size());
     }
-    while(true) {
+    while(!allowToSkipFrames) {
         std::unique_lock<std::mutex> lock(globalLock);
         if (screenshotsData.size() < maxScreenshotQueueSize) break;
         PROFILE("Waiting for screenshot");
@@ -1498,35 +1506,31 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
             inScreenShotFrames = (it != screenshotFrames.end());
             isInScreenShotFrameRange(frameNumber, &screenShotFrameRange, &inScreenShotFrameRange);
             if ((inScreenShotFrames) || (inScreenShotFrameRange)) {
-                string fileName;
-
-                if (vk_screenshot_dir.empty()) {
-                    fileName = to_string(frameNumber) + ".ppm";
-                } else {
-                    fileName = vk_screenshot_dir;
-                    fileName += "/" + to_string(frameNumber) + ".ppm";
-                }
-
-                VkImage image;
-                VkSwapchainKHR swapchain;
-                // We'll dump only one image: the first
                 // If there are 0 swapchains, skip taking the snapshot
                 if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
-                    swapchain = pPresentInfo->pSwapchains[0];
-                    image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
+                    // We'll dump only one image: the first
+                    VkSwapchainKHR swapchain = pPresentInfo->pSwapchains[0];
+                    VkImage image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
                     std::shared_ptr<WritePPMCleanupData> data = std::make_shared<WritePPMCleanupData>();
-                    if (queueScreenshot(*data, fileName.c_str(), image, &presentInfo)) {
-                        presentInfo.pWaitSemaphores = &data->semaphore;
-                        presentInfo.waitSemaphoreCount = 1;
-                        screenshotsData.emplace_back(data);
-                        startScreenshotThread();
+                    if (allowToSkipFrames && screenshotsData.size() >= maxScreenshotQueueSize) {
+                        static int skippedFrames = 0;
+                        PROFILE_COUNTER("screenshotsSkippedFrames", ++skippedFrames);
+                    }
+                    else {
+                        if (queueScreenshot(*data, image, &presentInfo)) {
+                            presentInfo.pWaitSemaphores = &data->semaphore;
+                            presentInfo.waitSemaphoreCount = 1;
+                            data->frameNumber = frameNumber;
+                            screenshotsData.emplace_back(data);
+                            startScreenshotThread();
 #ifdef ANDROID
-                        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Queued for file: %s", fileName.c_str());
+                            __android_log_print(ANDROID_LOG_INFO, "screenshot", "Queued screeshot for frame: %d", frameNumber);
 #else
-                        printf("screenshot: Queued for file: %s \n", fileName.c_str());
-                        fflush(stdout);
+                            printf("screenshot: Queued screeshot for frame: %d\n", frameNumber);
+                            fflush(stdout);
 #endif
-                        screenshotQueuedCV.notify_one();
+                            screenshotQueuedCV.notify_one();
+                        }
                     }
                 } else {
 #ifdef ANDROID
