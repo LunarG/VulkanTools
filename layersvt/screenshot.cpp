@@ -69,8 +69,10 @@ public:
 };
 
 #define PROFILE(name) ATrace atrace_scope_##__LINE__(name);
+#define PROFILE_COUNTER(name, value) ATrace_setCounter(name, value);
 #else
 #define PROFILE(name)
+#define PROFILE_COUNTER(name, value)
 #endif
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 const char *kSettingsKeyFrames = "frames";
@@ -1469,10 +1471,14 @@ void screenshotWriterThreadFunc() {
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
+    // TODO: introduce max queue size setting
+    const int maxScreenshotQueueSize = 10;
+    {
+        std::unique_lock<std::mutex> lock(globalLock);
+        PROFILE_COUNTER("screenshotsQueueSize", screenshotsData.size());
+    }
     while(true) {
         std::unique_lock<std::mutex> lock(globalLock);
-        // TODO: introduce max queue size setting
-        const int maxScreenshotQueueSize = 10;
         if (screenshotsData.size() < maxScreenshotQueueSize) break;
         PROFILE("Waiting for screenshot");
         screenshotSavedCV.wait(lock, [] { return screenshotsData.size() < maxScreenshotQueueSize; });
