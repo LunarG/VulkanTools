@@ -471,7 +471,6 @@ bool writePPM(const char* filename, const char* pixels, uint32_t width, uint32_t
     return true;
 }
 
-
 static VkFormat determineOutputFormat(VkFormat format, colorSpaceFormat userColorSpaceFormat, uint32_t numChannels) {
     // Initial dest format is undefined as we will look for one
     VkFormat destformat = VK_FORMAT_UNDEFINED;
@@ -759,7 +758,7 @@ static bool queueScreenshot(WritePPMCleanupData& data, const char *filename, VkI
     const float scale = 0.25;
     data.dstWidth = static_cast<uint32_t>(width * scale);
     data.dstHeight = static_cast<uint32_t>(height * scale);
-    data.dstNumChannels = numChannels;
+    data.dstNumChannels = vkuFormatComponentCount(destformat);
     data.device = device;
     data.pTableDevice = pTableDevice;
 
