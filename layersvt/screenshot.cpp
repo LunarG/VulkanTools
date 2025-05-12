@@ -74,6 +74,7 @@ public:
 #define PROFILE(name)
 #define PROFILE_COUNTER(name, value)
 #endif
+
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 const char *kSettingsKeyFrames = "frames";
 const char *kSettingKeyFormat = "format";
@@ -82,8 +83,6 @@ const char *kSettingKeyDir = "dir";
 std::mutex globalLock;
 
 std::string vk_screenshot_dir;
-
-bool printFormatWarning = true;
 
 std::condition_variable screenshotQueuedCV;
 std::condition_variable screenshotSavedCV;
@@ -574,7 +573,8 @@ static VkFormat determineOutputFormat(VkFormat format, colorSpaceFormat userColo
 
     // Still could not find the right format then we use UNORM
     if (destformat == VK_FORMAT_UNDEFINED) {
-        if (printFormatWarning) {
+        static bool alreadyPrintFormatWarning = false;
+        if (!alreadyPrintFormatWarning) {
 #ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "screenshot",
                                 "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n");
@@ -583,7 +583,7 @@ static VkFormat determineOutputFormat(VkFormat format, colorSpaceFormat userColo
                     "screenshot: Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
                     "UNORM colorspace will be used instead\n");
 #endif
-            printFormatWarning = false;
+            alreadyPrintFormatWarning = true;
         }
         if (numChannels == 4)
             destformat = VK_FORMAT_R8G8B8A8_UNORM;
