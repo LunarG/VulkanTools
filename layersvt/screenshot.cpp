@@ -715,8 +715,6 @@ struct ScreenshotQueueData {
     VkImage image3;
     VkDeviceMemory mem2;
     VkDeviceMemory mem3;
-    bool mem2mapped;
-    bool mem3mapped;
     VkCommandBuffer commandBuffer;
     VkCommandPool commandPool;
     VkSemaphore semaphore;
@@ -726,11 +724,9 @@ struct ScreenshotQueueData {
 
 ScreenshotQueueData::~ScreenshotQueueData() {
     PROFILE("~ScreenshotQueueData");
-    if (mem2mapped) pTableDevice->UnmapMemory(device, mem2);
     if (mem2) pTableDevice->FreeMemory(device, mem2, NULL);
     if (image2) pTableDevice->DestroyImage(device, image2, NULL);
 
-    if (mem3mapped) pTableDevice->UnmapMemory(device, mem3);
     if (mem3) pTableDevice->FreeMemory(device, mem3, NULL);
     if (image3) pTableDevice->DestroyImage(device, image3, NULL);
 
@@ -1160,12 +1156,10 @@ static bool writeScreenshot(ScreenshotQueueData& data) {
         data.pTableDevice->GetImageSubresourceLayout(data.device, data.image2, &sr, &srLayout);
         VkResult err = data.pTableDevice->MapMemory(data.device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&pixels);
         if (VK_SUCCESS != err) return false;
-        data.mem2mapped = true;
     } else {
         data.pTableDevice->GetImageSubresourceLayout(data.device, data.image3, &sr, &srLayout);
         VkResult err = data.pTableDevice->MapMemory(data.device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&pixels);
         if (VK_SUCCESS != err) return false;
-        data.mem3mapped = true;
     }
 
     pixels += srLayout.offset;
@@ -1188,6 +1182,12 @@ static bool writeScreenshot(ScreenshotQueueData& data) {
         fileName += ".pam";
         writeResult = writePAM(fileName.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
         break;
+    }
+
+    if (data.image3 == VK_NULL_HANDLE) {
+        data.pTableDevice->UnmapMemory(data.device, data.mem2);
+    } else {
+        data.pTableDevice->UnmapMemory(data.device, data.mem3);
     }
 
     if (!writeResult) {
