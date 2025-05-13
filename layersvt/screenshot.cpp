@@ -705,6 +705,7 @@ static VkFormat determineOutputFormat(VkFormat format, ColorSpaceFormat userColo
 struct ScreenshotQueueData {
     uint32_t frameNumber;
     VkDevice device;
+    VkImage image1; // source image
     VkuDeviceDispatchTable *pTableDevice;
     uint32_t dstWidth;
     uint32_t dstHeight;
@@ -737,22 +738,10 @@ ScreenshotQueueData::~ScreenshotQueueData() {
 }
 
 std::list<std::shared_ptr<ScreenshotQueueData>> screenshotsData;
+std::unordered_map<VkImage, std::list<std::shared_ptr<ScreenshotQueueData>>> screenshotDataCache;
 
-// This function issues commands to copy/convert the swapchain image
-// from whatever compatible format the swapchain image uses
-// to a single format (VK_FORMAT_R8G8B8A8_UNORM) so that the converted
-// result can be easily written to a PPM file.
-//
-// Error handling: If there is a problem, this function should silently
-// fail without affecting the Present operation going on in the caller.
-// The numerous debug asserts are to catch programming errors and are not
-// expected to assert.  Recovery and clean up are implemented for image memory
-// allocation failures.
-// (TODO) It would be nice to pass any failure info to DebugReport or something.
-//
-// Returns true if successfull, false otherwise.
-static bool queueScreenshot(ScreenshotQueueData& data, VkImage image1, const VkPresentInfoKHR *presentInfo) {
-    PROFILE("screenshot.queueScreenshot");
+bool prepareScreenshotData(ScreenshotQueueData& data, VkImage image1) {
+    PROFILE("screenshot.prepare");
     VkResult err;
     bool pass;
 
@@ -805,6 +794,7 @@ static bool queueScreenshot(ScreenshotQueueData& data, VkImage image1, const VkP
         return false;
     }
 
+    data.image1 = image1;
     data.dstWidth = width * settings.scalePercent / 100;
     data.dstHeight = height * settings.scalePercent / 100;
     data.dstNumChannels = vkuFormatComponentCount(destformat);
@@ -1115,7 +1105,44 @@ static bool queueScreenshot(ScreenshotQueueData& data, VkImage image1, const VkP
         return false;
     }
 
-    VkFence nullFence = {VK_NULL_HANDLE};
+    VkFenceCreateInfo fenceInfo = {};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
+    if (pTableDevice->CreateFence(device, &fenceInfo, nullptr, &data.fence) != VK_SUCCESS) {
+        return false;
+    }
+
+    return true;
+}
+
+// This function issues commands to copy/convert the swapchain image
+// from whatever compatible format the swapchain image uses
+// to a single format (VK_FORMAT_R8G8B8A8_UNORM) so that the converted
+// result can be easily written to a PPM file.
+//
+// Error handling: If there is a problem, this function should silently
+// fail without affecting the Present operation going on in the caller.
+// The numerous debug asserts are to catch programming errors and are not
+// expected to assert.  Recovery and clean up are implemented for image memory
+// allocation failures.
+// (TODO) It would be nice to pass any failure info to DebugReport or something.
+//
+// Returns true if successfull, false otherwise.
+static bool queueScreenshot(ScreenshotQueueData& data, VkImage image1, const VkPresentInfoKHR *presentInfo) {
+    PROFILE("screenshot.queue");
+    if(data.image1 == VK_NULL_HANDLE) {
+        if (!prepareScreenshotData(data, image1)) {
+            assert(false);
+            return false;
+        }
+    }
+    else {
+        if (data.pTableDevice->ResetFences(data.device, 1, &data.fence) != VK_SUCCESS) {
+            assert(false);
+            return false;
+        }
+    }
+
     VkSubmitInfo submitInfo;
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.pNext = NULL;
@@ -1131,14 +1158,20 @@ static bool queueScreenshot(ScreenshotQueueData& data, VkImage image1, const VkP
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &data.semaphore;
 
-    VkFenceCreateInfo fenceInfo = {};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-
-    if (pTableDevice->CreateFence(device, &fenceInfo, nullptr, &data.fence) != VK_SUCCESS) {
+    VkQueue queue = getQueueForScreenshot(data.device);
+    if (!queue) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - capable queue not found\n");
+#else
+        fprintf(stderr, "screenshot: Could not find a capable queue\n");
+#endif
         return false;
     }
- 
-    err = pTableQueue->QueueSubmit(queue, 1, &submitInfo, data.fence);
+
+    VkuDeviceDispatchTable *pTableQueue =
+        get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
+
+    VkResult err = pTableQueue->QueueSubmit(queue, 1, &submitInfo, data.fence);
     assert(!err);
 
     return true;
@@ -1147,7 +1180,7 @@ static bool queueScreenshot(ScreenshotQueueData& data, VkImage image1, const VkP
 // Save an image to a PPM image file.
 // Returns true if file is successfully written, false otherwise.
 static bool writeScreenshot(ScreenshotQueueData& data) {
-    PROFILE("screenshot.writeScreenshot");
+    PROFILE("screenshot.write");
     // Map the final image so that the CPU can read it.
     const VkImageSubresource sr = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
     VkSubresourceLayout srLayout;
@@ -1440,7 +1473,7 @@ VKAPI_ATTR void DestroySwapchainKHR(
         VkSwapchainKHR                              swapchain,
         const VkAllocationCallbacks*                pAllocator) {
     {
-        PROFILE("screenshot.waitForScreenshotThread");
+        PROFILE("screenshot.wait");
         stopScreenshotThread();
         {
             std::unique_lock<std::mutex> lock(globalLock);
@@ -1461,6 +1494,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
     assert(dispMap);
     VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     VkResult result = pDisp->GetSwapchainImagesKHR(device, swapchain, pCount, pSwapchainImages);
+    if (result != VK_SUCCESS)
+        return result;
 
     // Save the swapchain images in a map if we are taking screenshots
     std::lock_guard<std::mutex> lg(globalLock);
@@ -1469,7 +1504,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
         return result;
     }
 
-    if (result == VK_SUCCESS && pSwapchainImages && !swapchainMap.empty() && swapchainMap.find(swapchain) != swapchainMap.end()) {
+    PROFILE("screenshot.init");
+    if (pSwapchainImages && !swapchainMap.empty() && swapchainMap.find(swapchain) != swapchainMap.end()) {
         unsigned i;
 
         for (i = 0; i < *pCount; i++) {
@@ -1482,6 +1518,11 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
             imageMap[pSwapchainImages[i]]->device = swapchainMap[swapchain]->device;
             imageMap[pSwapchainImages[i]]->imageExtent = swapchainMap[swapchain]->imageExtent;
             imageMap[pSwapchainImages[i]]->format = swapchainMap[swapchain]->format;
+            
+            std::shared_ptr<ScreenshotQueueData> data = std::make_shared<ScreenshotQueueData>();
+            if (prepareScreenshotData(*data, pSwapchainImages[i])) {
+                screenshotDataCache[pSwapchainImages[i]].push_back(data);
+            }
         }
 
         // Add list of images to swapchain to image map
@@ -1524,8 +1565,6 @@ void screenshotWriterThreadFunc() {
 
             if (fenceWaitResult == VK_SUCCESS) {
                 writeScreenshot(*dataToSave);
-                std::lock_guard<std::mutex> lock(globalLock);
-                screenshotSavedCV.notify_one();
             } else if (fenceWaitResult == VK_TIMEOUT) {
                 continue;
             }
@@ -1540,6 +1579,11 @@ void screenshotWriterThreadFunc() {
 #endif
             break;
         }
+        {
+            std::lock_guard<std::mutex> lock(globalLock);
+            screenshotDataCache[dataToSave->image1].emplace_back(dataToSave);
+            screenshotSavedCV.notify_one();
+        }
     }
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "screenshot", "Resources cleanup");
@@ -1547,22 +1591,26 @@ void screenshotWriterThreadFunc() {
     printf("screenshot: Resources cleanup\n");
     fflush(stdout);
 #endif
-    // Free all our maps since we are done with them.
-    for (auto swapchainIter = swapchainMap.begin(); swapchainIter != swapchainMap.end(); swapchainIter++) {
-        SwapchainMapStruct *swapchainMapElem = swapchainIter->second;
-        delete swapchainMapElem;
+    {
+        std::lock_guard<std::mutex> lock(globalLock);
+        // Free all our maps since we are done with them.
+        for (auto swapchainIter = swapchainMap.begin(); swapchainIter != swapchainMap.end(); swapchainIter++) {
+            SwapchainMapStruct *swapchainMapElem = swapchainIter->second;
+            delete swapchainMapElem;
+        }
+        for (auto imageIter = imageMap.begin(); imageIter != imageMap.end(); imageIter++) {
+            ImageMapStruct *imageMapElem = imageIter->second;
+            delete imageMapElem;
+        }
+        for (auto physDeviceIter = physDeviceMap.begin(); physDeviceIter != physDeviceMap.end(); physDeviceIter++) {
+            PhysDeviceMapStruct *physDeviceMapElem = physDeviceIter->second;
+            delete physDeviceMapElem;
+        }
+        swapchainMap.clear();
+        imageMap.clear();
+        physDeviceMap.clear();
+        screenshotDataCache.clear();
     }
-    for (auto imageIter = imageMap.begin(); imageIter != imageMap.end(); imageIter++) {
-        ImageMapStruct *imageMapElem = imageIter->second;
-        delete imageMapElem;
-    }
-    for (auto physDeviceIter = physDeviceMap.begin(); physDeviceIter != physDeviceMap.end(); physDeviceIter++) {
-        PhysDeviceMapStruct *physDeviceMapElem = physDeviceIter->second;
-        delete physDeviceMapElem;
-    }
-    swapchainMap.clear();
-    imageMap.clear();
-    physDeviceMap.clear();
 
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "screenshot", "Images thread is over");
@@ -1578,22 +1626,27 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
     if (settings.isFrameToCapture(frameNumber)) {
         // If there are 0 swapchains, skip taking the snapshot
         if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
+            std::unique_lock<std::mutex> lock(globalLock);
             while (!settings.allowToSkipFrames) {
-                std::unique_lock<std::mutex> lock(globalLock);
                 if (screenshotsData.size() < settings.maxScreenshotQueueSize) break;
-                PROFILE("Waiting for screenshot");
+                PROFILE("screenshot.wait");
                 screenshotSavedCV.wait(lock, [] { return screenshotsData.size() < settings.maxScreenshotQueueSize; });
             }
             // We'll dump only one image: the first
             VkSwapchainKHR swapchain = pPresentInfo->pSwapchains[0];
-            VkImage image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
-            std::shared_ptr<ScreenshotQueueData> data = std::make_shared<ScreenshotQueueData>();
-            std::lock_guard<std::mutex> lg(globalLock);
             if (settings.allowToSkipFrames && screenshotsData.size() >= settings.maxScreenshotQueueSize) {
                 static int skippedFrames = 0;
                 PROFILE_COUNTER("screenshot.SkippedFrames", ++skippedFrames);
             }
             else {
+                std::shared_ptr<ScreenshotQueueData> data;
+                VkImage image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
+                if(!screenshotDataCache[image].empty()) {
+                    data = screenshotDataCache[image].back();
+                    screenshotDataCache[image].pop_back();
+                } else {
+                    data = std::make_shared<ScreenshotQueueData>();
+                }
                 if (queueScreenshot(*data, image, &presentInfo)) {
                     presentInfo.pWaitSemaphores = &data->semaphore;
                     presentInfo.waitSemaphoreCount = 1;
