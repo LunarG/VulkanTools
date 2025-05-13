@@ -701,15 +701,16 @@ static VkFormat determineOutputFormat(VkFormat format, ColorSpaceFormat userColo
     return destformat;
 }
 
-// Track allocated resources in writePPM()
-// and clean them up when they go out of scope.
-struct WritePPMCleanupData {
+// Contains data required for frame's screenshot
+struct ScreenshotQueueData {
     uint32_t frameNumber;
     VkDevice device;
     VkuDeviceDispatchTable *pTableDevice;
     uint32_t dstWidth;
     uint32_t dstHeight;
     int dstNumChannels;
+
+    //Below is data to clean up in destructor
     VkImage image2;
     VkImage image3;
     VkDeviceMemory mem2;
@@ -720,11 +721,11 @@ struct WritePPMCleanupData {
     VkCommandPool commandPool;
     VkSemaphore semaphore;
     VkFence fence;
-    ~WritePPMCleanupData();
+    ~ScreenshotQueueData();
 };
 
-WritePPMCleanupData::~WritePPMCleanupData() {
-    PROFILE("~WritePPMCleanupData");
+ScreenshotQueueData::~ScreenshotQueueData() {
+    PROFILE("~ScreenshotQueueData");
     if (mem2mapped) pTableDevice->UnmapMemory(device, mem2);
     if (mem2) pTableDevice->FreeMemory(device, mem2, NULL);
     if (image2) pTableDevice->DestroyImage(device, image2, NULL);
@@ -739,7 +740,7 @@ WritePPMCleanupData::~WritePPMCleanupData() {
     if (fence) pTableDevice->DestroyFence(device, fence, NULL);
 }
 
-std::list<std::shared_ptr<WritePPMCleanupData>> screenshotsData;
+std::list<std::shared_ptr<ScreenshotQueueData>> screenshotsData;
 
 // This function issues commands to copy/convert the swapchain image
 // from whatever compatible format the swapchain image uses
@@ -754,7 +755,7 @@ std::list<std::shared_ptr<WritePPMCleanupData>> screenshotsData;
 // (TODO) It would be nice to pass any failure info to DebugReport or something.
 //
 // Returns true if successfull, false otherwise.
-static bool queueScreenshot(WritePPMCleanupData& data, VkImage image1, const VkPresentInfoKHR *presentInfo) {
+static bool queueScreenshot(ScreenshotQueueData& data, VkImage image1, const VkPresentInfoKHR *presentInfo) {
     PROFILE("screenshot.queueScreenshot");
     VkResult err;
     bool pass;
@@ -1149,7 +1150,7 @@ static bool queueScreenshot(WritePPMCleanupData& data, VkImage image1, const VkP
 
 // Save an image to a PPM image file.
 // Returns true if file is successfully written, false otherwise.
-static bool writeScreenshot(WritePPMCleanupData& data) {
+static bool writeScreenshot(ScreenshotQueueData& data) {
     PROFILE("screenshot.writeScreenshot");
     // Map the final image so that the CPU can read it.
     const VkImageSubresource sr = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
@@ -1498,7 +1499,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
 
 void screenshotWriterThreadFunc() {
     while (true) {
-        std::shared_ptr<WritePPMCleanupData> dataToSave;
+        std::shared_ptr<ScreenshotQueueData> dataToSave;
         {
             PROFILE("Waiting for CPU")
             std::unique_lock<std::mutex> lock(globalLock);
@@ -1586,7 +1587,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
             // We'll dump only one image: the first
             VkSwapchainKHR swapchain = pPresentInfo->pSwapchains[0];
             VkImage image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
-            std::shared_ptr<WritePPMCleanupData> data = std::make_shared<WritePPMCleanupData>();
+            std::shared_ptr<ScreenshotQueueData> data = std::make_shared<ScreenshotQueueData>();
             std::lock_guard<std::mutex> lg(globalLock);
             if (settings.allowToSkipFrames && screenshotsData.size() >= settings.maxScreenshotQueueSize) {
                 static int skippedFrames = 0;
