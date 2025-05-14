@@ -141,6 +141,13 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
 
             text += format("\t<p>%s</p>\n", setting->description.c_str());
 
+            if (setting->status == STATUS_DEPRECATED && !setting->deprecated_by_key.empty()) {
+                const SettingMeta* replaced_setting = FindSetting(layer.settings, setting->deprecated_by_key.c_str());
+
+                text += format("\t<p>This setting was deprecated and replaced by <a href=\"#%s-detailed\">%s</a> setting.</p>\n",
+                               replaced_setting->key.c_str(), replaced_setting->label.c_str());
+            }
+
             if (setting->type != SETTING_GROUP) {
                 text += "<table>\n";
                 text += format("<thead><tr><th><a href=\"%s\">Settings Methods</a></th><th>Settings Variables</th></tr></thead>\n",
@@ -285,8 +292,18 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
 
             text += setting->description + "\n";
 
-            if (setting->type != SETTING_GROUP) {
+            text += "\n";
+
+            if (setting->status == STATUS_DEPRECATED && !setting->deprecated_by_key.empty()) {
+                const SettingMeta* replaced_setting = FindSetting(layer.settings, setting->deprecated_by_key.c_str());
+
+                text += "This setting was deprecated and replaced by [" + replaced_setting->label + "](#" +
+                        ::BuildArchor(setting->label) + " setting).\n";
+
                 text += "\n";
+            }
+
+            if (setting->type != SETTING_GROUP) {
                 text += "|Setting Methods|Setting Variables|\n";
                 text += "|---|---|\n";
                 text += "| VK_EXT_layer_settings variable: | " + setting->key + " |\n";

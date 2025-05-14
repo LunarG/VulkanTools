@@ -59,6 +59,9 @@ void LoadMetaHeader(Header& header, const QJsonObject& json_object) {
     if (json_object.value("status") != QJsonValue::Undefined) {
         header.status = GetStatusType(ReadStringValue(json_object, "status").c_str());
     }
+    if (json_object.value("deprecated_by_key") != QJsonValue::Undefined) {
+        header.deprecated_by_key = ReadStringValue(json_object, "deprecated_by_key");
+    }
     if (json_object.value("view") != QJsonValue::Undefined) {
         header.view = GetSettingView(ReadStringValue(json_object, "view").c_str());
     }

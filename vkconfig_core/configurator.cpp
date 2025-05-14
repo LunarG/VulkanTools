@@ -414,7 +414,13 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                     stream << "# ";
                     stream << meta->label.c_str();
                     stream << "\n# =====================\n# <LayerIdentifier>.";
-                    stream << meta->key.c_str() << "\n";
+                    stream << meta->key.c_str();
+
+                    if (meta->status != STATUS_STABLE) {
+                        stream << format(" (%s)", GetToken(meta->status)).c_str();
+                    }
+
+                    stream << "\n";
 
                     // Break up description into smaller words
                     std::string description = meta->description;
@@ -442,6 +448,14 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                     // If feature has unmet dependency, output it but comment it out
                     if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
                         stream << "#";
+                    }
+
+                    if (meta->status == STATUS_DEPRECATED && !meta->deprecated_by_key.empty()) {
+                        const SettingMeta* replaced_setting = FindSetting(layer->settings, meta->deprecated_by_key.c_str());
+
+                        stream << format("# This setting was deprecated and replaced by '%s' (%s) setting.\n",
+                                         replaced_setting->label.c_str(), replaced_setting->key.c_str())
+                                      .c_str();
                     }
 
                     stream << lc_layer_name.c_str() << setting_data->key.c_str() << " = ";

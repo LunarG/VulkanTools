@@ -48,6 +48,7 @@ struct Header {
     std::string description;
     Path url;
     StatusType status;
+    std::string deprecated_by_key;
     SettingView view;
     int platform_flags;
     bool expanded;

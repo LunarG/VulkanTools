@@ -4,6 +4,10 @@
 ### Features:
 - Add support for layer-defined messages
 
+### Improvements:
+- Add optional information about which setting replaced a deprecated setting
+  - Display deprecated setting information in generated layer documentation
+
 ## Vulkan Configurator 3.2.0 - May 2025
 [Vulkan SDK 1.4.313.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.313)
 

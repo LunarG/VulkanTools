@@ -30,10 +30,10 @@ WidgetSettingBool::WidgetSettingBool(QTreeWidget* tree, QTreeWidgetItem* item, c
     : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new QCheckBox(this)) {
     this->field->setText(GetLabel(this->meta).c_str());
     this->field->setFont(this->tree->font());
-    this->field->setToolTip(this->meta.description.c_str());
     this->field->show();
     this->connect(this->field, SIGNAL(clicked()), this, SLOT(OnClicked()));
 
+    this->item->setToolTip(0, this->meta.description.c_str());
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->tree->setItemWidget(this->item, 0, this);
 

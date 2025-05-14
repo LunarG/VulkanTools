@@ -291,6 +291,10 @@
                     "status": {
                         "$ref": "#/definitions/status"
                     },
+                    "deprecated_by_key": {
+                        "description": "Connect this deprecated setting to it's replacement using its key.",
+                        "type": "string"
+                    },
                     "view": {
                         "$ref": "#/definitions/view"
                     },
@@ -447,6 +451,10 @@
                             },
                             "status": {
                                 "$ref": "#/definitions/status"
+                            },
+                            "deprecated_by_key": {
+                                "description": "Connect this deprecated setting to it's replacement using its key.",
+                                "type": "string"
                             },
                             "view": {
                                 "$ref": "#/definitions/view"
@@ -607,6 +615,10 @@
                             "status": {
                                 "$ref": "#/definitions/status"
                             },
+                            "deprecated_by_key": {
+                                "description": "Connect this deprecated setting to it's replacement using its key.",
+                                "type": "string"
+                            },
                             "view": {
                                 "$ref": "#/definitions/view"
                             },
@@ -699,6 +711,10 @@
                             },
                             "status": {
                                 "$ref": "#/definitions/status"
+                            },
+                            "deprecated_by_key": {
+                                "description": "Connect this deprecated setting to it's replacement using its key.",
+                                "type": "string"
                             },
                             "view": {
                                 "$ref": "#/definitions/view"
@@ -806,6 +822,10 @@
                             "status": {
                                 "$ref": "#/definitions/status"
                             },
+                            "deprecated_by_key": {
+                                "description": "Connect this deprecated setting to it's replacement using its key.",
+                                "type": "string"
+                            },
                             "view": {
                                 "$ref": "#/definitions/view"
                             },
@@ -909,6 +929,10 @@
                             "status": {
                                 "$ref": "#/definitions/status"
                             },
+                            "deprecated_by_key": {
+                                "description": "Connect this deprecated setting to it's replacement using its key.",
+                                "type": "string"
+                            },
                             "view": {
                                 "$ref": "#/definitions/view"
                             },
@@ -1008,6 +1032,10 @@
                             },
                             "status": {
                                 "$ref": "#/definitions/status"
+                            },
+                            "deprecated_by_key": {
+                                "description": "Connect this deprecated setting to it's replacement using its key.",
+                                "type": "string"
                             },
                             "view": {
                                 "$ref": "#/definitions/view"
@@ -1126,6 +1154,10 @@
                             "status": {
                                 "$ref": "#/definitions/status"
                             },
+                            "deprecated_by_key": {
+                                "description": "Connect this deprecated setting to it's replacement using its key.",
+                                "type": "string"
+                            },
                             "view": {
                                 "$ref": "#/definitions/view"
                             },
@@ -1222,6 +1254,10 @@
                             },
                             "status": {
                                 "$ref": "#/definitions/status"
+                            },
+                            "deprecated_by_key": {
+                                "description": "Connect this deprecated setting to it's replacement using its key.",
+                                "type": "string"
                             },
                             "view": {
                                 "$ref": "#/definitions/view"
@@ -1422,6 +1458,10 @@
                             "status": {
                                 "$ref": "#/definitions/status"
                             },
+                            "deprecated_by_key": {
+                                "description": "Connect this deprecated setting to it's replacement using its key.",
+                                "type": "string"
+                            },
                             "view": {
                                 "$ref": "#/definitions/view"
                             },
@@ -1540,6 +1580,10 @@
                             },
                             "status": {
                                 "$ref": "#/definitions/status"
+                            },
+                            "deprecated_by_key": {
+                                "description": "Connect this deprecated setting to it's replacement using its key.",
+                                "type": "string"
                             },
                             "view": {
                                 "$ref": "#/definitions/view"
