@@ -76,7 +76,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux|BSD")
     option(BUILD_MONITOR "Build monitor layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
 
-    option(BUILD_VIA "Build via" ON)
+    option(BUILD_VIA "Build via" OFF)
     option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
 
 elseif(ANDROID)
@@ -98,7 +98,7 @@ elseif (APPLE)
     set(BUILD_MONITOR OFF)
 
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        option(BUILD_VIA "Build via" ON)
+        option(BUILD_VIA "Build via" OFF)
         option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
     endif()
 
