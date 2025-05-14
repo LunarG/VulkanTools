@@ -545,7 +545,10 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             ListItem *item = static_cast<ListItem *>(ui->configurations_layers_list->itemAt(right_click->pos()));
 
             if (item != nullptr) {
-                const Layer *layer = configurator.layers.Find(item->key, Version::LATEST);
+                const Configuration *configuration = configurator.GetActiveConfiguration();
+                const Parameter *parameter = configuration->Find(item->key);
+
+                const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
 
                 QMenu menu(ui->configurations_layers_list);
 
