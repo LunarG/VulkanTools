@@ -53,7 +53,6 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
 
     this->item->setText(0, GetLabel(this->meta).c_str());
     this->item->setFont(0, this->tree->font());
-    this->item->setToolTip(0, this->meta.description.c_str());
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->tree->setItemWidget(this->item, 0, this);
 
@@ -211,7 +210,12 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
 
         const std::size_t value_index = enum_indexes[static_cast<std::size_t>(index)];
         this->data().SetValue(this->meta.enum_values[value_index].key.c_str());
-        this->setToolTip(this->meta.enum_values[value_index].description.c_str());
+
+        std::string tooltip = this->meta.enum_values[value_index].description;
+        if (this->meta.enum_values[value_index].status != STATUS_STABLE) {
+            tooltip = format("(%s) %s", GetToken(this->meta.enum_values[value_index].status), tooltip.c_str());
+        }
+        this->setToolTip(tooltip.c_str());
     }
 
     emit itemChanged();

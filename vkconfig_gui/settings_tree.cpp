@@ -335,8 +335,15 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
                 if (!IsPlatformSupported(value.platform_flags)) {
                     continue;
                 }
-                if (value.view == SETTING_VIEW_HIDDEN) {
-                    continue;
+
+                if (configurator.GetUseLayerDevMode()) {
+                    if (value.view == SETTING_VIEW_HIDDEN) {
+                        return;
+                    }
+                } else {
+                    if (value.view != SETTING_VIEW_STANDARD) {
+                        return;
+                    }
                 }
 
                 for (std::size_t i = 0, n = value.settings.size(); i < n; ++i) {
@@ -357,8 +364,15 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
                 if (!IsPlatformSupported(value.platform_flags)) {
                     continue;
                 }
-                if (value.view == SETTING_VIEW_HIDDEN) {
-                    continue;
+
+                if (configurator.GetUseLayerDevMode()) {
+                    if (value.view == SETTING_VIEW_HIDDEN) {
+                        return;
+                    }
+                } else {
+                    if (value.view != SETTING_VIEW_STANDARD) {
+                        return;
+                    }
                 }
 
                 QTreeWidgetItem *child = new TreeItem(meta.key, value.key);
@@ -368,6 +382,16 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
                 WidgetSettingFlag *widget =
                     new WidgetSettingFlag(this->ui->configurations_settings, child, meta, parameter->settings, value.key);
                 this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+
+                if (value.status == STATUS_DEPRECATED && !value.deprecated_by_key.empty()) {
+                    const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
+                    const SettingMeta *setting_meta = ::FindSetting(layer->settings, value.deprecated_by_key.c_str());
+                    child->setToolTip(
+                        0,
+                        format("Replaced by \"%s\" (%s) setting.", setting_meta->label.c_str(), setting_meta->key.c_str()).c_str());
+                } else {
+                    child->setToolTip(0, value.description.c_str());
+                }
 
                 for (std::size_t j = 0, o = value.settings.size(); j < o; ++j) {
                     this->BuildTreeItem(child, *value.settings[j]);
@@ -394,6 +418,18 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
             item->setText(0, "Unknown setting");
             assert(0);  // Unknown setting
         } break;
+    }
+
+    if (meta_object.status == STATUS_DEPRECATED) {
+        if (meta_object.deprecated_by_key.empty()) {
+            item->setToolTip(0, format("(%s) %s", GetToken(meta_object.status), meta_object.description.c_str()).c_str());
+        } else {
+            const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
+            const SettingMeta *setting_meta = ::FindSetting(layer->settings, meta_object.deprecated_by_key.c_str());
+
+            item->setToolTip(
+                0, format("Replaced by \"%s\" (%s) setting.", setting_meta->label.c_str(), setting_meta->key.c_str()).c_str());
+        }
     }
 
     for (std::size_t i = 0, n = meta_object.children.size(); i < n; ++i) {
