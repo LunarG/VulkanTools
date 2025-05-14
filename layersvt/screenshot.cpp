@@ -1146,13 +1146,10 @@ static bool queueScreenshot(ScreenshotQueueData& data, VkImage image1, const VkP
     VkSubmitInfo submitInfo;
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.pNext = NULL;
-    submitInfo.waitSemaphoreCount = 0;
-    submitInfo.pWaitSemaphores = NULL;
-    submitInfo.pWaitDstStageMask = NULL;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &data.commandBuffer;
-    VkPipelineStageFlags layerWaitStages[] = {VK_PIPELINE_STAGE_ALL_COMMANDS_BIT};
-    submitInfo.pWaitDstStageMask = layerWaitStages;
+    VkPipelineStageFlags layerWaitStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    submitInfo.pWaitDstStageMask = &layerWaitStage;
     submitInfo.pWaitSemaphores = presentInfo->pWaitSemaphores;
     submitInfo.waitSemaphoreCount = presentInfo->waitSemaphoreCount;
     submitInfo.signalSemaphoreCount = 1;
