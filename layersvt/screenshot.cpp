@@ -113,13 +113,13 @@ typedef struct {
 static unordered_map<VkPhysicalDevice, PhysDeviceMapStruct *> physDeviceMap;
 
 class Settings {
-public:    
+   public:
     ColorSpaceFormat userColorSpaceFormat = ColorSpaceFormat::UNDEFINED;
-    
+
     // Where to write screenshots
     std::string targetFolder;
 
-    // Screenshot file extension. Supported PPM and PAM. 
+    // Screenshot file extension. Supported PPM and PAM.
     enum class ScreenshotExtension { PPM, PAM };
     ScreenshotExtension screenshotExtension = ScreenshotExtension::PPM;
 
@@ -144,11 +144,11 @@ public:
     // Init settings
     void init(VkuLayerSettingSet layerSettingSet);
 
-private:
+   private:
     // Parse comma-separated frame list string into the set
     void populate_frame_list(const char *vk_screenshot_frames);
 
-private:
+   private:
     // Screenshots will be generated from screenShotFrameRange's startFrame to startFrame+count-1 with skipped Interval in between.
     FrameRange screenShotFrameRange = {false, 0, SCREEN_SHOT_FRAMES_UNLIMITED, SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT};
 
@@ -164,7 +164,7 @@ void Settings::init(VkuLayerSettingSet layerSettingSet) {
     const char *kSettingQueueSize = "queue";
     const char *kSettingAllowSkip = "skip";
     const char *kSettingProfile = "profile";
-    const char *kSettingScreenshotExtension = "extension";   
+    const char *kSettingScreenshotExtension = "extension";
 
     if (vkuHasLayerSetting(layerSettingSet, kSettingScale)) {
         vkuGetLayerSettingValue(layerSettingSet, kSettingScale, scalePercent);
@@ -183,7 +183,7 @@ void Settings::init(VkuLayerSettingSet layerSettingSet) {
     if (vkuHasLayerSetting(layerSettingSet, kSettingProfile)) {
         vkuGetLayerSettingValue(layerSettingSet, kSettingProfile, isProfilingEnabled);
     }
-   
+
     if (vkuHasLayerSetting(layerSettingSet, kSettingScreenshotExtension)) {
         std::string value;
         vkuGetLayerSettingValue(layerSettingSet, kSettingScreenshotExtension, value);
@@ -270,13 +270,10 @@ int getEndFrameOfRange(const FrameRange *pFrameRange) {
 
 bool Settings::isFrameToCapture(int frame) const {
     if (screenShotFrameRange.valid) {
-        if (frame < screenShotFrameRange.startFrame) 
-            return false;
-        if ((frame - screenShotFrameRange.startFrame) % screenShotFrameRange.interval > 0)
-            return false;
+        if (frame < screenShotFrameRange.startFrame) return false;
+        if ((frame - screenShotFrameRange.startFrame) % screenShotFrameRange.interval > 0) return false;
         int rangeLastFrame = getEndFrameOfRange(&screenShotFrameRange);
-        if (rangeLastFrame != SCREEN_SHOT_FRAMES_UNLIMITED && frame > rangeLastFrame)
-            return false;
+        if (rangeLastFrame != SCREEN_SHOT_FRAMES_UNLIMITED && frame > rangeLastFrame) return false;
         return true;
     }
     return screenshotFrames.find(frame) != screenshotFrames.end();
@@ -285,8 +282,7 @@ bool Settings::isFrameToCapture(int frame) const {
 bool Settings::isFrameAfterEndOfCaptureRange(int frame) const {
     if (screenShotFrameRange.valid) {
         int rangeLastFrame = getEndFrameOfRange(&screenShotFrameRange);
-        if (rangeLastFrame == SCREEN_SHOT_FRAMES_UNLIMITED)
-            return false;
+        if (rangeLastFrame == SCREEN_SHOT_FRAMES_UNLIMITED) return false;
         return frame > rangeLastFrame;
     }
     return screenshotFrames.empty() || frame > *std::prev(screenshotFrames.end());
@@ -330,20 +326,19 @@ Settings settings;
 
 #ifdef ANDROID
 class ATrace {
-public:    
-    ATrace(const char* block) {
-        if (settings.isProfilingEnabled)
-            ATrace_beginSection(block);
+   public:
+    ATrace(const char *block) {
+        if (settings.isProfilingEnabled) ATrace_beginSection(block);
     }
 
     ~ATrace() {
-        if (settings.isProfilingEnabled)
-            ATrace_endSection();
+        if (settings.isProfilingEnabled) ATrace_endSection();
     }
 };
 
 #define PROFILE(name) ATrace atrace_scope_##__LINE__(name);
-#define PROFILE_COUNTER(name, value) if (settings.isProfilingEnabled) ATrace_setCounter(name, value);
+#define PROFILE_COUNTER(name, value) \
+    if (settings.isProfilingEnabled) ATrace_setCounter(name, value);
 #else
 #define PROFILE(name)
 #define PROFILE_COUNTER(name, value)
@@ -400,9 +395,7 @@ void startScreenshotThread() {
     screenshotWriterThread = std::thread(screenshotWriterThreadFunc);
 }
 
-void stopScreenshotThread() {
-    shutdownScreenshotThread = true;
-}
+void stopScreenshotThread() { shutdownScreenshotThread = true; }
 
 void waitScreenshotThreadIsOver() {
     if (!screenshotThreadStarted) return;
@@ -459,7 +452,7 @@ VkQueue getQueueForScreenshot(VkDevice device) {
 }
 
 // Writes image to a PAM file.
-bool writePAM(const char* filename, const char* pixels, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch) {
+bool writePAM(const char *filename, const char *pixels, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch) {
     PROFILE("writePAM");
     std::ofstream file(filename, ios::binary);
     if (!file.is_open()) {
@@ -476,8 +469,7 @@ bool writePAM(const char* filename, const char* pixels, uint32_t width, uint32_t
 
     if (numChannels * width == rowPitch) {
         file.write(pixels, height * rowPitch);
-    }
-    else { 
+    } else {
         for (uint32_t y = 0; y < height; y++) {
             file.write(pixels, numChannels * width);
             pixels += rowPitch;
@@ -488,7 +480,7 @@ bool writePAM(const char* filename, const char* pixels, uint32_t width, uint32_t
 }
 
 // Writes image to a PPM file.
-bool writePPM(const char* filename, const char* pixels, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch) {
+bool writePPM(const char *filename, const char *pixels, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch) {
     PROFILE("writePPM");
 
     std::ofstream file(filename, ios::binary);
@@ -510,14 +502,14 @@ bool writePPM(const char* filename, const char* pixels, uint32_t width, uint32_t
         std::vector<unsigned char> tempRowBuffer;
         tempRowBuffer.resize(3 * width + 1);
         for (uint32_t y = 0; y < height; y++) {
-            const uint32_t* srcRow = reinterpret_cast<const uint32_t*>(pixels);
-            unsigned char* destRow = tempRowBuffer.data();
+            const uint32_t *srcRow = reinterpret_cast<const uint32_t *>(pixels);
+            unsigned char *destRow = tempRowBuffer.data();
 
             for (uint32_t x = 0; x < width; x++) {
-                *reinterpret_cast<uint32_t*>(destRow) = *srcRow++;
+                *reinterpret_cast<uint32_t *>(destRow) = *srcRow++;
                 destRow += 3;
             }
-            file.write(reinterpret_cast<const char*>(tempRowBuffer.data()), 3 * width);
+            file.write(reinterpret_cast<const char *>(tempRowBuffer.data()), 3 * width);
             pixels += rowPitch;
         }
     }
@@ -705,13 +697,13 @@ static VkFormat determineOutputFormat(VkFormat format, ColorSpaceFormat userColo
 struct ScreenshotQueueData {
     uint32_t frameNumber;
     VkDevice device;
-    VkImage image1; // source image
+    VkImage image1;  // source image
     VkuDeviceDispatchTable *pTableDevice;
     uint32_t dstWidth;
     uint32_t dstHeight;
     int dstNumChannels;
 
-    //Below is data to clean up in destructor
+    // Below is data to clean up in destructor
     VkImage image2;
     VkImage image3;
     VkDeviceMemory mem2;
@@ -740,7 +732,7 @@ ScreenshotQueueData::~ScreenshotQueueData() {
 std::list<std::shared_ptr<ScreenshotQueueData>> screenshotsData;
 std::unordered_map<VkImage, std::list<std::shared_ptr<ScreenshotQueueData>>> screenshotDataCache;
 
-bool prepareScreenshotData(ScreenshotQueueData& data, VkImage image1) {
+bool prepareScreenshotData(ScreenshotQueueData &data, VkImage image1) {
     PROFILE("screenshot.prepare");
     VkResult err;
     bool pass;
@@ -1074,8 +1066,11 @@ bool prepareScreenshotData(ScreenshotQueueData& data, VkImage image1) {
                                                     &destMemoryBarrier);
 
             // This step essentially untiles the image.
-            const VkImageCopy imageCopyRegion = {
-                {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {data.dstWidth, data.dstHeight, 1}};
+            const VkImageCopy imageCopyRegion = {{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
+                                                 {0, 0, 0},
+                                                 {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
+                                                 {0, 0, 0},
+                                                 {data.dstWidth, data.dstHeight, 1}};
             pTableCommandBuffer->CmdCopyImage(data.commandBuffer, data.image2, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image3,
                                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
             generalMemoryBarrier.image = data.image3;
@@ -1128,15 +1123,14 @@ bool prepareScreenshotData(ScreenshotQueueData& data, VkImage image1) {
 // (TODO) It would be nice to pass any failure info to DebugReport or something.
 //
 // Returns true if successfull, false otherwise.
-static bool queueScreenshot(ScreenshotQueueData& data, VkImage image1, const VkPresentInfoKHR *presentInfo) {
+static bool queueScreenshot(ScreenshotQueueData &data, VkImage image1, const VkPresentInfoKHR *presentInfo) {
     PROFILE("screenshot.queue");
-    if(data.image1 == VK_NULL_HANDLE) {
+    if (data.image1 == VK_NULL_HANDLE) {
         if (!prepareScreenshotData(data, image1)) {
             assert(false);
             return false;
         }
-    }
-    else {
+    } else {
         if (data.pTableDevice->ResetFences(data.device, 1, &data.fence) != VK_SUCCESS) {
             assert(false);
             return false;
@@ -1176,12 +1170,12 @@ static bool queueScreenshot(ScreenshotQueueData& data, VkImage image1, const VkP
 
 // Save an image to a PPM image file.
 // Returns true if file is successfully written, false otherwise.
-static bool writeScreenshot(ScreenshotQueueData& data) {
+static bool writeScreenshot(ScreenshotQueueData &data) {
     PROFILE("screenshot.write");
     // Map the final image so that the CPU can read it.
     const VkImageSubresource sr = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
     VkSubresourceLayout srLayout;
-    const char* pixels;
+    const char *pixels;
     if (data.image3 == VK_NULL_HANDLE) {
         data.pTableDevice->GetImageSubresourceLayout(data.device, data.image2, &sr, &srLayout);
         VkResult err = data.pTableDevice->MapMemory(data.device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&pixels);
@@ -1205,13 +1199,13 @@ static bool writeScreenshot(ScreenshotQueueData& data) {
     bool writeResult;
     switch (settings.screenshotExtension) {
         case Settings::ScreenshotExtension::PPM:
-        fileName += ".ppm";
-        writeResult = writePPM(fileName.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
-        break;
+            fileName += ".ppm";
+            writeResult = writePPM(fileName.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
+            break;
         case Settings::ScreenshotExtension::PAM:
-        fileName += ".pam";
-        writeResult = writePAM(fileName.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
-        break;
+            fileName += ".pam";
+            writeResult = writePAM(fileName.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
+            break;
     }
 
     if (data.image3 == VK_NULL_HANDLE) {
@@ -1286,7 +1280,6 @@ static void createDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo
     pDisp->GetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)gpa(device, "vkGetSwapchainImagesKHR");
     pDisp->AcquireNextImageKHR = (PFN_vkAcquireNextImageKHR)gpa(device, "vkAcquireNextImageKHR");
     pDisp->QueuePresentKHR = (PFN_vkQueuePresentKHR)gpa(device, "vkQueuePresentKHR");
-    pDisp->GetFenceStatus = (PFN_vkGetFenceStatus)gpa(device, "vkGetFenceStatus");
     devMap->wsi_enabled = false;
     for (i = 0; i < pCreateInfo->enabledExtensionCount; i++) {
         if (strcmp(pCreateInfo->ppEnabledExtensionNames[i], VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) devMap->wsi_enabled = true;
@@ -1465,10 +1458,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
     return result;
 }
 
-VKAPI_ATTR void DestroySwapchainKHR(
-        VkDevice                                    device,
-        VkSwapchainKHR                              swapchain,
-        const VkAllocationCallbacks*                pAllocator) {
+VKAPI_ATTR void DestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks *pAllocator) {
     {
         PROFILE("screenshot.wait");
         stopScreenshotThread();
@@ -1491,8 +1481,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
     assert(dispMap);
     VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     VkResult result = pDisp->GetSwapchainImagesKHR(device, swapchain, pCount, pSwapchainImages);
-    if (result != VK_SUCCESS)
-        return result;
+    if (result != VK_SUCCESS) return result;
 
     // Save the swapchain images in a map if we are taking screenshots
     std::lock_guard<std::mutex> lg(globalLock);
@@ -1515,7 +1504,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
             imageMap[pSwapchainImages[i]]->device = swapchainMap[swapchain]->device;
             imageMap[pSwapchainImages[i]]->imageExtent = swapchainMap[swapchain]->imageExtent;
             imageMap[pSwapchainImages[i]]->format = swapchainMap[swapchain]->format;
-            
+
             std::shared_ptr<ScreenshotQueueData> data = std::make_shared<ScreenshotQueueData>();
             if (prepareScreenshotData(*data, pSwapchainImages[i])) {
                 screenshotDataCache[pSwapchainImages[i]].push_back(data);
@@ -1542,9 +1531,7 @@ void screenshotWriterThreadFunc() {
             PROFILE("Waiting for CPU")
             std::unique_lock<std::mutex> lock(globalLock);
             if (screenshotsData.empty()) {
-                screenshotQueuedCV.wait(lock, [] { 
-                    return !screenshotsData.empty() || shutdownScreenshotThread; 
-                });
+                screenshotQueuedCV.wait(lock, [] { return !screenshotsData.empty() || shutdownScreenshotThread; });
             }
             if (shutdownScreenshotThread && screenshotsData.empty()) break;
             if (screenshotsData.empty()) continue;
@@ -1553,11 +1540,12 @@ void screenshotWriterThreadFunc() {
             PROFILE_COUNTER("screenshot.QueueSize", screenshotsData.size());
         }
 
-        while(true) {
+        while (true) {
             VkResult fenceWaitResult;
             {
                 PROFILE("Waiting for GPU")
-                fenceWaitResult = dataToSave->pTableDevice->WaitForFences(dataToSave->device, 1, &dataToSave->fence, VK_TRUE, UINT64_MAX);
+                fenceWaitResult =
+                    dataToSave->pTableDevice->WaitForFences(dataToSave->device, 1, &dataToSave->fence, VK_TRUE, UINT64_MAX);
             }
 
             if (fenceWaitResult == VK_SUCCESS) {
@@ -1634,11 +1622,10 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
             if (settings.allowToSkipFrames && screenshotsData.size() >= settings.maxScreenshotQueueSize) {
                 static int skippedFrames = 0;
                 PROFILE_COUNTER("screenshot.SkippedFrames", ++skippedFrames);
-            }
-            else {
+            } else {
                 std::shared_ptr<ScreenshotQueueData> data;
                 VkImage image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
-                if(!screenshotDataCache[image].empty()) {
+                if (!screenshotDataCache[image].empty()) {
                     data = screenshotDataCache[image].back();
                     screenshotDataCache[image].pop_back();
                 } else {
