@@ -15072,7 +15072,7 @@ void dump_html_VkApplicationInfo(const VkApplicationInfo& object, const ApiDumpS
     dump_html_value<const uint32_t>(object.applicationVersion, settings, "uint32_t", "applicationVersion", indents + 1, dump_html_uint32_t);
     dump_html_value<const char*>(object.pEngineName, settings, "const char*", "pEngineName", indents + 1, dump_html_cstring);
     dump_html_value<const uint32_t>(object.engineVersion, settings, "uint32_t", "engineVersion", indents + 1, dump_html_uint32_t);
-    dump_html_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, OutputApiVersionHTML);
 }
 void dump_html_VkFormatProperties(const VkFormatProperties& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15357,7 +15357,7 @@ void dump_html_VkPhysicalDeviceProperties(const VkPhysicalDeviceProperties& obje
     else
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
-    dump_html_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, OutputApiVersionHTML);
     dump_html_value<const uint32_t>(object.driverVersion, settings, "uint32_t", "driverVersion", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.vendorID, settings, "uint32_t", "vendorID", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.deviceID, settings, "uint32_t", "deviceID", indents + 1, dump_html_uint32_t);
@@ -29721,7 +29721,7 @@ void dump_html_VkDeviceFaultVendorBinaryHeaderVersionOneEXT(const VkDeviceFaultV
     dump_html_value<const uint32_t>(object.applicationVersion, settings, "uint32_t", "applicationVersion", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.engineNameOffset, settings, "uint32_t", "engineNameOffset", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.engineVersion, settings, "uint32_t", "engineVersion", indents + 1, dump_html_uint32_t);
-    dump_html_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, OutputApiVersionHTML);
 }
 void dump_html_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT(const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {

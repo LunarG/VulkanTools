@@ -766,7 +766,12 @@ void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
         @end if
         @if({memPtrLevel} == 0)
             @if('{memName}' != 'pNext')
+                @if('{memName}' == 'apiVersion')
+    dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, OutputApiVersionTEXT);  // AET
+                @end if
+                @if('{memName}' != 'apiVersion')
     dump_text_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_text_{memTypeID});  // AET
+                @end if
             @end if
             @if('{memName}' == 'pNext')
     dump_text_pNext_struct_name(object.{memName}, settings, indents + 1, "{memType}");
@@ -1290,7 +1295,12 @@ void dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
         @end if
         @if({memPtrLevel} == 0)
             @if('{memName}' != 'pNext')
+                @if('{memName}' == 'apiVersion')
+    dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, OutputApiVersionHTML);
+                @end if
+                @if('{memName}' != 'apiVersion')
     dump_html_value<const {memBaseType}>(object.{memName}, settings, "{memType}", "{memName}", indents + 1, dump_html_{memTypeID});
+                @end if
             @end if
             @if('{memName}' == 'pNext')
     if(object.pNext != nullptr){{
@@ -1770,7 +1780,12 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
         @end if
         @if({memPtrLevel} == 0)
             @if('{memName}' != 'pNext')
+                @if('{memName}' == 'apiVersion')
+    dump_json_value<const {memBaseType}>(object.{memName}, NULL, settings, "{memType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, OutputApiVersionJSON);
+                @end if
+                @if('{memName}' != 'apiVersion')
     dump_json_value<const {memBaseType}>(object.{memName}, NULL, settings, "{memType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID});
+                @end if
             @end if
             @if('{memName}' == 'pNext')
     if(object.pNext != nullptr){{

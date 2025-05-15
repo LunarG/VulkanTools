@@ -14433,7 +14433,7 @@ void dump_text_VkApplicationInfo(const VkApplicationInfo& object, const ApiDumpS
     dump_text_value<const uint32_t>(object.applicationVersion, settings, "uint32_t", "applicationVersion", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const char*>(object.pEngineName, settings, "const char*", "pEngineName", indents + 1, dump_text_cstring);  // AET
     dump_text_value<const uint32_t>(object.engineVersion, settings, "uint32_t", "engineVersion", indents + 1, dump_text_uint32_t);  // AET
-    dump_text_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, dump_text_uint32_t);  // AET
+    dump_text_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, OutputApiVersionTEXT);  // AET
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
@@ -14700,7 +14700,7 @@ void dump_text_VkPhysicalDeviceProperties(const VkPhysicalDeviceProperties& obje
         settings.stream() << &object << ":\n";
     else
         settings.stream() << "address:\n";
-    dump_text_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, dump_text_uint32_t);  // AET
+    dump_text_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, OutputApiVersionTEXT);  // AET
     dump_text_value<const uint32_t>(object.driverVersion, settings, "uint32_t", "driverVersion", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.vendorID, settings, "uint32_t", "vendorID", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.deviceID, settings, "uint32_t", "deviceID", indents + 1, dump_text_uint32_t);  // AET
@@ -26779,7 +26779,7 @@ void dump_text_VkDeviceFaultVendorBinaryHeaderVersionOneEXT(const VkDeviceFaultV
     dump_text_value<const uint32_t>(object.applicationVersion, settings, "uint32_t", "applicationVersion", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.engineNameOffset, settings, "uint32_t", "engineNameOffset", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.engineVersion, settings, "uint32_t", "engineVersion", indents + 1, dump_text_uint32_t);  // AET
-    dump_text_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, dump_text_uint32_t);  // AET
+    dump_text_value<const uint32_t>(object.apiVersion, settings, "uint32_t", "apiVersion", indents + 1, OutputApiVersionTEXT);  // AET
 }
 void dump_text_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT(const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
