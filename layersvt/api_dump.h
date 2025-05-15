@@ -1053,6 +1053,23 @@ inline void OutputAddressJSON(const ApiDumpSettings &settings, const void *addr)
     settings.stream() << "\"";
 }
 
+inline void OutputApiVersionTEXT(uint32_t version, const ApiDumpSettings &settings, int indents) {
+    settings.stream() << version << " (" << VK_API_VERSION_MAJOR(version) << "." << VK_API_VERSION_MINOR(version) << "."
+                      << VK_API_VERSION_PATCH(version) << ")";
+}
+
+inline void OutputApiVersionHTML(uint32_t version, const ApiDumpSettings &settings, int indents) {
+    settings.stream() << "<div class='val'>";
+    settings.stream() << version << " (" << VK_API_VERSION_MAJOR(version) << "." << VK_API_VERSION_MINOR(version) << "."
+                      << VK_API_VERSION_PATCH(version) << ")";
+    settings.stream() << "</div>";
+}
+
+inline void OutputApiVersionJSON(uint32_t version, const ApiDumpSettings &settings, int indents) {
+    settings.stream() << "\"" << version << " (" << VK_API_VERSION_MAJOR(version) << "." << VK_API_VERSION_MINOR(version) << "."
+                      << VK_API_VERSION_PATCH(version) << ")\"";
+}
+
 //==================================== Text Backend Helpers ======================================//
 
 inline void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,

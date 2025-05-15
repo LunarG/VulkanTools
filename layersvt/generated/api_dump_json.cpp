@@ -14161,7 +14161,7 @@ void dump_json_VkApplicationInfo(const VkApplicationInfo& object, const ApiDumpS
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.engineVersion, NULL, settings, "uint32_t", "engineVersion", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.apiVersion, NULL, settings, "uint32_t", "apiVersion", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_value<const uint32_t>(object.apiVersion, NULL, settings, "uint32_t", "apiVersion", false, false, indents + 1, OutputApiVersionJSON);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkFormatProperties(const VkFormatProperties& object, const ApiDumpSettings& settings, int indents)
@@ -14587,7 +14587,7 @@ void dump_json_VkPhysicalDeviceSparseProperties(const VkPhysicalDeviceSparseProp
 void dump_json_VkPhysicalDeviceProperties(const VkPhysicalDeviceProperties& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.apiVersion, NULL, settings, "uint32_t", "apiVersion", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_value<const uint32_t>(object.apiVersion, NULL, settings, "uint32_t", "apiVersion", false, false, indents + 1, OutputApiVersionJSON);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.driverVersion, NULL, settings, "uint32_t", "driverVersion", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -29242,7 +29242,7 @@ void dump_json_VkDeviceFaultVendorBinaryHeaderVersionOneEXT(const VkDeviceFaultV
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.engineVersion, NULL, settings, "uint32_t", "engineVersion", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.apiVersion, NULL, settings, "uint32_t", "apiVersion", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_value<const uint32_t>(object.apiVersion, NULL, settings, "uint32_t", "apiVersion", false, false, indents + 1, OutputApiVersionJSON);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT(const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
