@@ -218,7 +218,7 @@ See https://developer.android.com/ndk/guides/cmake#command-line for CMake NDK do
 # Build release binary for arm64-v8a
 cmake -S . -B build \
   -D CMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
-  -D ANDROID_PLATFORM=26 \
+  -D ANDROID_PLATFORM=29 \
   -D CMAKE_ANDROID_ARCH_ABI=arm64-v8a \
   -D CMAKE_ANDROID_STL_TYPE=c++_static \
   -D ANDROID_USE_LEGACY_TOOLCHAIN_FILE=NO \
