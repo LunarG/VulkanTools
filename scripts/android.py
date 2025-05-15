@@ -114,7 +114,7 @@ def main():
         cmake_cmd += f' -D BUILD_TESTS={build_tests}'
         cmake_cmd += f' -D CMAKE_ANDROID_STL_TYPE=c++_static'
 
-        cmake_cmd += ' -D ANDROID_PLATFORM=26'
+        cmake_cmd += ' -D ANDROID_PLATFORM=29'
         cmake_cmd += ' -D ANDROID_USE_LEGACY_TOOLCHAIN_FILE=NO'
 
         RunShellCmd(cmake_cmd)

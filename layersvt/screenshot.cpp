@@ -29,9 +29,12 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <list>
 #include <vector>
 #include <mutex>
 #include <fstream>
+#include <thread>
+#include <condition_variable>
 
 using namespace std;
 
@@ -42,28 +45,24 @@ using namespace std;
 #include "screenshot_parsing.h"
 
 #ifdef ANDROID
-
+#include <android/trace.h>
 #include <android/log.h>
 #include <sys/system_properties.h>
 #endif
 
-const char *kSettingsKeyFrames = "frames";
-const char *kSettingKeyFormat = "format";
-const char *kSettingKeyDir = "dir";
+namespace screenshot {
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
-namespace screenshot {
-
 std::mutex globalLock;
 
-std::string vk_screenshot_dir;
+std::condition_variable screenshotQueuedCV;
+std::condition_variable screenshotSavedCV;
+std::thread screenshotWriterThread;
+bool shutdownScreenshotThread = false;
+bool screenshotThreadStarted = false;
 
-bool printFormatWarning = true;
-
-enum class colorSpaceFormat { UNDEFINED, UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB };
-
-colorSpaceFormat userColorSpaceFormat = colorSpaceFormat::UNDEFINED;
+enum class ColorSpaceFormat { UNDEFINED, UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB };
 
 // unordered map: associates Vulkan dispatchable objects to a dispatch table
 typedef struct {
@@ -109,21 +108,155 @@ typedef struct {
 } PhysDeviceMapStruct;
 static unordered_map<VkPhysicalDevice, PhysDeviceMapStruct *> physDeviceMap;
 
-// set: list of frames to take screenshots without duplication.
-static set<int> screenshotFrames;
+class Settings {
+   public:
+    ColorSpaceFormat userColorSpaceFormat = ColorSpaceFormat::UNDEFINED;
 
-// Flag indicating we have received the frame list
-static bool screenshotFramesReceived = false;
+    // Where to write screenshots
+    std::string targetFolder;
 
-// Screenshots will be generated from screenShotFrameRange's startFrame to startFrame+count-1 with skipped Interval in between.
-static FrameRange screenShotFrameRange = {false, 0, SCREEN_SHOT_FRAMES_UNLIMITED, SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT};
+    // Screenshot file extension. Supported PPM and PAM.
+    enum class ScreenshotExtension { PPM, PAM };
+    ScreenshotExtension screenshotExtension = ScreenshotExtension::PPM;
+
+    // Result screenshot scale. ScreenshotSize = scalePercent * FrameBufferSize / 100;
+    int scalePercent = 100;
+
+    // How many screenshots can be buffered.
+    int maxScreenshotQueueSize = 10;
+
+    // If true and screenshots queue is full skips new screenshots.
+    // If false and screenshots queue is full delays next frame present.
+    bool allowToSkipFrames = false;
+
+    // Is profiling enabled
+    bool isProfilingEnabled = true;
+
+    // Checks if frame needs to be captured
+    bool isFrameToCapture(int frame) const;
+    // Checks if frame is after end of capture range
+    bool isFrameAfterEndOfCaptureRange(int frame) const;
+
+    // Init settings
+    void init(VkuLayerSettingSet layerSettingSet);
+
+   private:
+    // Parse comma-separated frame list string into the set
+    void populate_frame_list(const char *vk_screenshot_frames);
+
+   private:
+    // Screenshots will be generated from screenShotFrameRange's startFrame to startFrame+count-1 with skipped Interval in between.
+    FrameRange screenShotFrameRange = {false, 0, SCREEN_SHOT_FRAMES_UNLIMITED, SCREEN_SHOT_FRAMES_INTERVAL_DEFAULT};
+
+    // set: list of frames to take screenshots without duplication.
+    set<int> screenshotFrames;
+};
+
+void Settings::init(VkuLayerSettingSet layerSettingSet) {
+    const char *kSettingsKeyFrames = "frames";
+    const char *kSettingKeyFormat = "format";
+    const char *kSettingKeyDir = "dir";
+    const char *kSettingScale = "scale";
+    const char *kSettingQueueSize = "queue";
+    const char *kSettingAllowSkip = "skip";
+    const char *kSettingProfile = "profile";
+    const char *kSettingScreenshotExtension = "extension";
+
+    if (vkuHasLayerSetting(layerSettingSet, kSettingScale)) {
+        vkuGetLayerSettingValue(layerSettingSet, kSettingScale, scalePercent);
+        assert(scalePercent > 0);
+    }
+
+    if (vkuHasLayerSetting(layerSettingSet, kSettingQueueSize)) {
+        vkuGetLayerSettingValue(layerSettingSet, kSettingQueueSize, maxScreenshotQueueSize);
+        assert(maxScreenshotQueueSize > 0);
+    }
+
+    if (vkuHasLayerSetting(layerSettingSet, kSettingAllowSkip)) {
+        vkuGetLayerSettingValue(layerSettingSet, kSettingAllowSkip, allowToSkipFrames);
+    }
+
+    if (vkuHasLayerSetting(layerSettingSet, kSettingProfile)) {
+        vkuGetLayerSettingValue(layerSettingSet, kSettingProfile, isProfilingEnabled);
+    }
+
+    if (vkuHasLayerSetting(layerSettingSet, kSettingScreenshotExtension)) {
+        std::string value;
+        vkuGetLayerSettingValue(layerSettingSet, kSettingScreenshotExtension, value);
+        std::transform(value.begin(), value.end(), value.begin(), [](char c) { return std::toupper(c); });
+        screenshotExtension = ScreenshotExtension::PPM;
+        if (value == "PAM") {
+            screenshotExtension = ScreenshotExtension::PAM;
+        } else if (value != "PPM") {
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_ERROR, "screenshot",
+                                "Selected screenshot extension:%s\nIs NOT in the list:\nPAM, PPM"
+                                "\nPPM will be used instead",
+                                value.c_str());
+#else
+            fprintf(stderr,
+                    "screenshot: Selected screenshot extension:%s\nIs NOT in the list:\nPAM, PPM"
+                    "\nPPM will be used instead",
+                    value.c_str());
+#endif
+        }
+    }
+
+    if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyFrames)) {
+        std::string value;
+        vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFrames, value);
+        populate_frame_list(value.c_str());
+    }
+
+    if (vkuHasLayerSetting(layerSettingSet, kSettingKeyFormat)) {
+        std::string value;
+        vkuGetLayerSettingValue(layerSettingSet, kSettingKeyFormat, value);
+
+        if (value == "UNORM") {
+            userColorSpaceFormat = ColorSpaceFormat::UNORM;
+        } else if (value == "SRGB") {
+            userColorSpaceFormat = ColorSpaceFormat::SRGB;
+        } else if (value == "SNORM") {
+            userColorSpaceFormat = ColorSpaceFormat::SNORM;
+        } else if (value == "USCALED") {
+            userColorSpaceFormat = ColorSpaceFormat::USCALED;
+        } else if (value == "SSCALED") {
+            userColorSpaceFormat = ColorSpaceFormat::SSCALED;
+        } else if (value == "UINT") {
+            userColorSpaceFormat = ColorSpaceFormat::UINT;
+        } else if (value == "SINT") {
+            userColorSpaceFormat = ColorSpaceFormat::SINT;
+        } else if (value != "USE_SWAPCHAIN_COLORSPACE") {
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_ERROR, "screenshot",
+                                "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, "
+                                "SRGB\nSwapchain Colorspace will be used instead\n",
+                                value.c_str());
+#else
+            fprintf(stderr,
+                    "screenshot: Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
+                    "Swapchain Colorspace will be used instead\n",
+                    value.c_str());
+#endif
+        }
+    }
+
+    if (vkuHasLayerSetting(layerSettingSet, kSettingKeyDir)) {
+        vkuGetLayerSettingValue(layerSettingSet, kSettingKeyDir, targetFolder);
+    }
+#ifdef ANDROID
+    if (targetFolder.empty()) {
+        targetFolder = "/sdcard/Android";
+    }
+#endif
+}
 
 // Get maximum frame number of the frame range
 // FrameRange* pFrameRange, the specified frame rang
 // return:
 //  maximum frame number of the frame range,
 //  if it's unlimited range, the return will be SCREEN_SHOT_FRAMES_UNLIMITED
-static int getEndFrameOfRange(FrameRange *pFrameRange) {
+int getEndFrameOfRange(const FrameRange *pFrameRange) {
     int endFrameOfRange = SCREEN_SHOT_FRAMES_UNLIMITED;
     if (pFrameRange->count != SCREEN_SHOT_FRAMES_UNLIMITED) {
         endFrameOfRange = pFrameRange->startFrame + (pFrameRange->count - 1) * pFrameRange->interval;
@@ -131,60 +264,27 @@ static int getEndFrameOfRange(FrameRange *pFrameRange) {
     return endFrameOfRange;
 }
 
-// detect if frameNumber is in the range of pFrameRange, also detect if frameNumber is a frame on which a screenshot should be
-// generated.
-// int frameNumber, the frame number.
-// FrameRange* pFrameRange, the specified frame range.
-// bool *pScreenShotFrame, if pScreenShotFrame is not nullptr, indicate(return) if frameNumber is a frame on which a screenshot
-// should be generated.
-// return:
-//  if frameNumber is in the range of pFrameRange.
-static bool isInScreenShotFrameRange(int frameNumber, FrameRange *pFrameRange, bool *pScreenShotFrame) {
-    bool inRange = false, screenShotFrame = false;
-    if (pFrameRange->valid) {
-        if (pFrameRange->count != SCREEN_SHOT_FRAMES_UNLIMITED) {
-            int endFrame = getEndFrameOfRange(pFrameRange);
-            if ((frameNumber >= pFrameRange->startFrame) &&
-                ((frameNumber <= endFrame) || (endFrame == SCREEN_SHOT_FRAMES_UNLIMITED))) {
-                inRange = true;
-            }
-        } else {
-            inRange = true;
-        }
-        if (inRange) {
-            screenShotFrame = (((frameNumber - pFrameRange->startFrame) % pFrameRange->interval) == 0);
-        }
+bool Settings::isFrameToCapture(int frame) const {
+    if (screenShotFrameRange.valid) {
+        if (frame < screenShotFrameRange.startFrame) return false;
+        if ((frame - screenShotFrameRange.startFrame) % screenShotFrameRange.interval > 0) return false;
+        int rangeLastFrame = getEndFrameOfRange(&screenShotFrameRange);
+        if (rangeLastFrame != SCREEN_SHOT_FRAMES_UNLIMITED && frame > rangeLastFrame) return false;
+        return true;
     }
-    if (pScreenShotFrame != nullptr) {
-        *pScreenShotFrame = screenShotFrame;
-    }
-    return inRange;
+    return screenshotFrames.find(frame) != screenshotFrames.end();
 }
 
-// detect if frameNumber reach or beyond the right edge for screenshot in the range.
-// return:
-//       if frameNumber is already the last screenshot frame of the range(mean no another screenshot frame number >frameNumber and
-//       just in the range)
-//       if the range is invalid, return true.
-static bool isEndOfScreenShotFrameRange(int frameNumber, FrameRange *pFrameRange) {
-    bool endOfScreenShotFrameRange = false, screenShotFrame = false;
-    if (!pFrameRange->valid) {
-        endOfScreenShotFrameRange = true;
-    } else {
-        int endFrame = getEndFrameOfRange(pFrameRange);
-        if (endFrame != SCREEN_SHOT_FRAMES_UNLIMITED) {
-            if (isInScreenShotFrameRange(frameNumber, pFrameRange, &screenShotFrame)) {
-                if ((frameNumber >= endFrame) && screenShotFrame) {
-                    endOfScreenShotFrameRange = true;
-                }
-            }
-        }
+bool Settings::isFrameAfterEndOfCaptureRange(int frame) const {
+    if (screenShotFrameRange.valid) {
+        int rangeLastFrame = getEndFrameOfRange(&screenShotFrameRange);
+        if (rangeLastFrame == SCREEN_SHOT_FRAMES_UNLIMITED) return false;
+        return frame > rangeLastFrame;
     }
-    return endOfScreenShotFrameRange;
+    return screenshotFrames.empty() || frame > *std::prev(screenshotFrames.end());
 }
 
-// Parse comma-separated frame list string into the set
-static void populate_frame_list(const char *vk_screenshot_frames) {
+void Settings::populate_frame_list(const char *vk_screenshot_frames) {
     string spec(vk_screenshot_frames), word;
     size_t start = 0, comma = 0;
 
@@ -216,9 +316,29 @@ static void populate_frame_list(const char *vk_screenshot_frames) {
 #endif
         }
     }
-
-    screenshotFramesReceived = true;
 }
+
+Settings settings;
+
+#ifdef ANDROID
+class ATrace {
+   public:
+    ATrace(const char *block) {
+        if (settings.isProfilingEnabled) ATrace_beginSection(block);
+    }
+
+    ~ATrace() {
+        if (settings.isProfilingEnabled) ATrace_endSection();
+    }
+};
+
+#define PROFILE(name) ATrace atrace_scope_##__LINE__(name);
+#define PROFILE_COUNTER(name, value) \
+    if (settings.isProfilingEnabled) ATrace_setCounter(name, value);
+#else
+#define PROFILE(name)
+#define PROFILE_COUNTER(name, value)
+#endif
 
 static bool memory_type_from_properties(VkPhysicalDeviceMemoryProperties *memory_properties, uint32_t typeBits,
                                         VkFlags requirements_mask, uint32_t *typeIndex) {
@@ -258,55 +378,26 @@ static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAll
     vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", vkuFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
                              &layerSettingSet);
 
-    if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyFrames)) {
-        std::string value;
-        vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFrames, value);
-        populate_frame_list(value.c_str());
-    }
-
-    if (vkuHasLayerSetting(layerSettingSet, kSettingKeyFormat)) {
-        std::string value;
-        vkuGetLayerSettingValue(layerSettingSet, kSettingKeyFormat, value);
-
-        if (value == "UNORM") {
-            userColorSpaceFormat = colorSpaceFormat::UNORM;
-        } else if (value == "SRGB") {
-            userColorSpaceFormat = colorSpaceFormat::SRGB;
-        } else if (value == "SNORM") {
-            userColorSpaceFormat = colorSpaceFormat::SNORM;
-        } else if (value == "USCALED") {
-            userColorSpaceFormat = colorSpaceFormat::USCALED;
-        } else if (value == "SSCALED") {
-            userColorSpaceFormat = colorSpaceFormat::SSCALED;
-        } else if (value == "UINT") {
-            userColorSpaceFormat = colorSpaceFormat::UINT;
-        } else if (value == "SINT") {
-            userColorSpaceFormat = colorSpaceFormat::SINT;
-        } else if (value != "USE_SWAPCHAIN_COLORSPACE") {
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "screenshot",
-                                "Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, "
-                                "SRGB\nSwapchain Colorspace will be used instead\n",
-                                value.c_str());
-#else
-            fprintf(stderr,
-                    "screenshot: Selected format:%s\nIs NOT in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
-                    "Swapchain Colorspace will be used instead\n",
-                    value.c_str());
-#endif
-        }
-    }
-
-    if (vkuHasLayerSetting(layerSettingSet, kSettingKeyDir)) {
-        vkuGetLayerSettingValue(layerSettingSet, kSettingKeyDir, vk_screenshot_dir);
-    }
-#ifdef ANDROID
-    if (vk_screenshot_dir.empty()) {
-        vk_screenshot_dir = "/sdcard/Android";
-    }
-#endif
+    settings.init(layerSettingSet);
 
     vkuDestroyLayerSettingSet(layerSettingSet, pAllocator);
+}
+
+void screenshotWriterThreadFunc();
+
+void startScreenshotThread() {
+    if (screenshotThreadStarted || shutdownScreenshotThread) return;
+    screenshotThreadStarted = true;
+    screenshotWriterThread = std::thread(screenshotWriterThreadFunc);
+}
+
+void stopScreenshotThread() { shutdownScreenshotThread = true; }
+
+void waitScreenshotThreadIsOver() {
+    if (!screenshotThreadStarted) return;
+    if (screenshotWriterThread.joinable()) {
+        screenshotWriterThread.join();
+    }
 }
 
 VkQueue getQueueForScreenshot(VkDevice device) {
@@ -356,139 +447,116 @@ VkQueue getQueueForScreenshot(VkDevice device) {
     return queue;
 }
 
-// Track allocated resources in writePPM()
-// and clean them up when they go out of scope.
-struct WritePPMCleanupData {
-    VkDevice device;
-    VkuDeviceDispatchTable *pTableDevice;
-    VkImage image2;
-    VkImage image3;
-    VkDeviceMemory mem2;
-    VkDeviceMemory mem3;
-    bool mem2mapped;
-    bool mem3mapped;
-    VkCommandBuffer commandBuffer;
-    VkCommandPool commandPool;
-    ~WritePPMCleanupData();
-};
+// Writes image to a PAM file.
+bool writePAM(const char *filename, const char *pixels, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch) {
+    PROFILE("writePAM");
+    std::ofstream file(filename, ios::binary);
+    if (!file.is_open()) {
+        return false;
+    }
 
-WritePPMCleanupData::~WritePPMCleanupData() {
-    if (mem2mapped) pTableDevice->UnmapMemory(device, mem2);
-    if (mem2) pTableDevice->FreeMemory(device, mem2, NULL);
-    if (image2) pTableDevice->DestroyImage(device, image2, NULL);
+    file << "P7\n";
+    file << "WIDTH " << width << "\n";
+    file << "HEIGHT " << height << "\n";
+    file << "DEPTH " << numChannels << "\n";
+    file << "MAXVAL " << 255 << "\n";
+    file << "TUPLTYPE " << (numChannels == 3 ? "RGB" : "RGB_ALPHA") << "\n";
+    file << "ENDHDR\n";
 
-    if (mem3mapped) pTableDevice->UnmapMemory(device, mem3);
-    if (mem3) pTableDevice->FreeMemory(device, mem3, NULL);
-    if (image3) pTableDevice->DestroyImage(device, image3, NULL);
-
-    if (commandBuffer) pTableDevice->FreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-    if (commandPool) pTableDevice->DestroyCommandPool(device, commandPool, NULL);
+    if (numChannels * width == rowPitch) {
+        file.write(pixels, height * rowPitch);
+    } else {
+        for (uint32_t y = 0; y < height; y++) {
+            file.write(pixels, numChannels * width);
+            pixels += rowPitch;
+        }
+    }
+    file.close();
+    return true;
 }
 
-// Save an image to a PPM image file.
-//
-// This function issues commands to copy/convert the swapchain image
-// from whatever compatible format the swapchain image uses
-// to a single format (VK_FORMAT_R8G8B8A8_UNORM) so that the converted
-// result can be easily written to a PPM file.
-//
-// Error handling: If there is a problem, this function should silently
-// fail without affecting the Present operation going on in the caller.
-// The numerous debug asserts are to catch programming errors and are not
-// expected to assert.  Recovery and clean up are implemented for image memory
-// allocation failures.
-// (TODO) It would be nice to pass any failure info to DebugReport or something.
-//
-// Returns true if file is successfully written, false otherwise.
-//
-static bool writePPM(const char *filename, VkImage image1) {
-    VkResult err;
-    bool pass;
+// Writes image to a PPM file.
+bool writePPM(const char *filename, const char *pixels, uint32_t width, uint32_t height, uint32_t numChannels, uint32_t rowPitch) {
+    PROFILE("writePPM");
 
-    // Bail immediately if we can't find the image.
-    if (imageMap.empty() || imageMap.find(image1) == imageMap.end()) return false;
-
-    // Collect object info from maps.  This info is generally recorded
-    // by the other functions hooked in this layer.
-    VkDevice device = imageMap[image1]->device;
-    VkPhysicalDevice physicalDevice = deviceMap[device]->physicalDevice;
-    VkInstance instance = physDeviceMap[physicalDevice]->instance;
-    DispatchMapStruct *dispMap = get_dispatch_info(device);
-    if (NULL == dispMap) {
-        assert(0);
-        return false;
-    }
-    VkQueue queue = getQueueForScreenshot(device);
-    if (!queue) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - capable queue not found\n");
-#else
-        fprintf(stderr, "screenshot: Could not find a capable queue\n");
-#endif
-        return false;
-    }
-    VkuDeviceDispatchTable *pTableDevice = dispMap->device_dispatch_table;
-    VkuDeviceDispatchTable *pTableQueue =
-        get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
-    VkuInstanceDispatchTable *pInstanceTable;
-    pInstanceTable = instance_dispatch_table(instance);
-
-    // Gather incoming image info and check image format for compatibility with
-    // the target format.
-    // This function supports both 24-bit and 32-bit swapchain images.
-    uint32_t const width = imageMap[image1]->imageExtent.width;
-    uint32_t const height = imageMap[image1]->imageExtent.height;
-    VkFormat const format = imageMap[image1]->format;
-    uint32_t const numChannels = vkuFormatComponentCount(format);
-
-    if ((3 != numChannels) && (4 != numChannels)) {
-        assert(0);
+    std::ofstream file(filename, ios::binary);
+    if (!file.is_open()) {
         return false;
     }
 
+    file << "P6\n";
+    file << width << "\n";
+    file << height << "\n";
+    file << 255 << "\n";
+
+    if (3 == numChannels) {
+        for (uint32_t y = 0; y < height; y++) {
+            file.write(pixels, 3 * width);
+            pixels += rowPitch;
+        }
+    } else if (4 == numChannels) {
+        std::vector<unsigned char> tempRowBuffer;
+        tempRowBuffer.resize(3 * width + 1);
+        for (uint32_t y = 0; y < height; y++) {
+            const uint32_t *srcRow = reinterpret_cast<const uint32_t *>(pixels);
+            unsigned char *destRow = tempRowBuffer.data();
+
+            for (uint32_t x = 0; x < width; x++) {
+                *reinterpret_cast<uint32_t *>(destRow) = *srcRow++;
+                destRow += 3;
+            }
+            file.write(reinterpret_cast<const char *>(tempRowBuffer.data()), 3 * width);
+            pixels += rowPitch;
+        }
+    }
+    file.close();
+    return true;
+}
+
+static VkFormat determineOutputFormat(VkFormat format, ColorSpaceFormat userColorSpaceFormat, uint32_t numChannels) {
     // Initial dest format is undefined as we will look for one
     VkFormat destformat = VK_FORMAT_UNDEFINED;
 
     // This variable set by readScreenShotFormatENV func during init
-    if (userColorSpaceFormat != colorSpaceFormat::UNDEFINED) {
+    if (userColorSpaceFormat != ColorSpaceFormat::UNDEFINED) {
         switch (userColorSpaceFormat) {
-            case colorSpaceFormat::UNORM:
+            case ColorSpaceFormat::UNORM:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_UNORM;
                 else
                     destformat = VK_FORMAT_R8G8B8_UNORM;
                 break;
-            case colorSpaceFormat::SRGB:
+            case ColorSpaceFormat::SRGB:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_SRGB;
                 else
                     destformat = VK_FORMAT_R8G8B8_SRGB;
                 break;
-            case colorSpaceFormat::SNORM:
+            case ColorSpaceFormat::SNORM:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_SNORM;
                 else
                     destformat = VK_FORMAT_R8G8B8_SNORM;
                 break;
-            case colorSpaceFormat::USCALED:
+            case ColorSpaceFormat::USCALED:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_USCALED;
                 else
                     destformat = VK_FORMAT_R8G8B8_USCALED;
                 break;
-            case colorSpaceFormat::SSCALED:
+            case ColorSpaceFormat::SSCALED:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_SSCALED;
                 else
                     destformat = VK_FORMAT_R8G8B8_SSCALED;
                 break;
-            case colorSpaceFormat::UINT:
+            case ColorSpaceFormat::UINT:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_UINT;
                 else
                     destformat = VK_FORMAT_R8G8B8_UINT;
                 break;
-            case colorSpaceFormat::SINT:
+            case ColorSpaceFormat::SINT:
                 if (numChannels == 4)
                     destformat = VK_FORMAT_R8G8B8A8_SINT;
                 else
@@ -546,7 +614,8 @@ static bool writePPM(const char *filename, VkImage image1) {
 
     // Still could not find the right format then we use UNORM
     if (destformat == VK_FORMAT_UNDEFINED) {
-        if (printFormatWarning) {
+        static bool alreadyPrintFormatWarning = false;
+        if (!alreadyPrintFormatWarning) {
 #ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "screenshot",
                                 "Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n");
@@ -555,7 +624,7 @@ static bool writePPM(const char *filename, VkImage image1) {
                     "screenshot: Swapchain format is not in the list:\nUNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB\n"
                     "UNORM colorspace will be used instead\n");
 #endif
-            printFormatWarning = false;
+            alreadyPrintFormatWarning = true;
         }
         if (numChannels == 4)
             destformat = VK_FORMAT_R8G8B8A8_UNORM;
@@ -617,11 +686,108 @@ static bool writePPM(const char *filename, VkImage image1) {
 #endif
         }
     }
+    return destformat;
+}
+
+// Contains data required for frame's screenshot
+struct ScreenshotQueueData {
+    uint32_t frameNumber;
+    VkDevice device;
+    VkImage image1;  // source image
+    VkuDeviceDispatchTable *pTableDevice;
+    uint32_t dstWidth;
+    uint32_t dstHeight;
+    int dstNumChannels;
+
+    // Below is data to clean up in destructor
+    VkImage image2;
+    VkImage image3;
+    VkDeviceMemory mem2;
+    VkDeviceMemory mem3;
+    VkCommandBuffer commandBuffer;
+    VkCommandPool commandPool;
+    VkSemaphore semaphore;
+    VkFence fence;
+    ~ScreenshotQueueData();
+};
+
+ScreenshotQueueData::~ScreenshotQueueData() {
+    PROFILE("~ScreenshotQueueData");
+    if (mem2) pTableDevice->FreeMemory(device, mem2, NULL);
+    if (image2) pTableDevice->DestroyImage(device, image2, NULL);
+
+    if (mem3) pTableDevice->FreeMemory(device, mem3, NULL);
+    if (image3) pTableDevice->DestroyImage(device, image3, NULL);
+
+    if (commandBuffer) pTableDevice->FreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    if (commandPool) pTableDevice->DestroyCommandPool(device, commandPool, NULL);
+    if (semaphore) pTableDevice->DestroySemaphore(device, semaphore, NULL);
+    if (fence) pTableDevice->DestroyFence(device, fence, NULL);
+}
+
+std::list<std::shared_ptr<ScreenshotQueueData>> screenshotsData;
+std::unordered_map<VkImage, std::list<std::shared_ptr<ScreenshotQueueData>>> screenshotDataCache;
+
+bool prepareScreenshotData(ScreenshotQueueData &data, VkImage image1) {
+    PROFILE("screenshot.prepare");
+    VkResult err;
+    bool pass;
+
+    // Bail immediately if we can't find the image.
+    if (imageMap.empty() || imageMap.find(image1) == imageMap.end()) return false;
+
+    // Collect object info from maps.  This info is generally recorded
+    // by the other functions hooked in this layer.
+    VkDevice device = imageMap[image1]->device;
+    VkPhysicalDevice physicalDevice = deviceMap[device]->physicalDevice;
+    VkInstance instance = physDeviceMap[physicalDevice]->instance;
+    DispatchMapStruct *dispMap = get_dispatch_info(device);
+    if (NULL == dispMap) {
+        assert(0);
+        return false;
+    }
+    VkQueue queue = getQueueForScreenshot(device);
+    if (!queue) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - capable queue not found\n");
+#else
+        fprintf(stderr, "screenshot: Could not find a capable queue\n");
+#endif
+        return false;
+    }
+    VkuDeviceDispatchTable *pTableDevice = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pTableQueue =
+        get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
+    VkuInstanceDispatchTable *pInstanceTable;
+    pInstanceTable = instance_dispatch_table(instance);
+
+    // Gather incoming image info and check image format for compatibility with
+    // the target format.
+    // This function supports both 24-bit and 32-bit swapchain images.
+    uint32_t const width = imageMap[image1]->imageExtent.width;
+    uint32_t const height = imageMap[image1]->imageExtent.height;
+    VkFormat const format = imageMap[image1]->format;
+    uint32_t const numChannels = vkuFormatComponentCount(format);
+
+    if ((3 != numChannels) && (4 != numChannels)) {
+        assert(0);
+        return false;
+    }
+
+    // userColorSpaceFormat set by readScreenShotFormatENV func during init
+    VkFormat destformat = determineOutputFormat(format, settings.userColorSpaceFormat, numChannels);
 
     if ((vkuFormatCompatibilityClass(destformat) != vkuFormatCompatibilityClass(format))) {
         assert(0);
         return false;
     }
+
+    data.image1 = image1;
+    data.dstWidth = width * settings.scalePercent / 100;
+    data.dstHeight = height * settings.scalePercent / 100;
+    data.dstNumChannels = vkuFormatComponentCount(destformat);
+    data.device = device;
+    data.pTableDevice = pTableDevice;
 
     // General Approach
     //
@@ -660,7 +826,7 @@ static bool writePPM(const char *filename, VkImage image1) {
     pInstanceTable->GetPhysicalDeviceFormatProperties(physicalDevice, destformat, &targetFormatProps);
     bool need2steps = false;
     bool copyOnly = false;
-    if (destformat == format) {
+    if (destformat == format && width == data.dstWidth && height == data.dstHeight) {
         copyOnly = true;
     } else {
         bool const bltLinear = targetFormatProps.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT;
@@ -683,12 +849,6 @@ static bool writePPM(const char *filename, VkImage image1) {
         // Else bltLinear is available and only 1 step is needed.
     }
 
-    // Put resources that need to be cleaned up in a struct with a destructor
-    // so that things get cleaned up when this function is exited.
-    WritePPMCleanupData data = {};
-    data.device = device;
-    data.pTableDevice = pTableDevice;
-
     // Set up the image creation info for both the blit and copy images, in case
     // both are needed.
     VkImageCreateInfo imgCreateInfo2 = {
@@ -697,7 +857,7 @@ static bool writePPM(const char *filename, VkImage image1) {
         0,
         VK_IMAGE_TYPE_2D,
         destformat,
-        {width, height, 1},
+        {data.dstWidth, data.dstHeight, 1},
         1,
         1,
         VK_SAMPLE_COUNT_1_BIT,
@@ -860,10 +1020,9 @@ static bool writePPM(const char *filename, VkImage image1) {
     // destination.
     pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1, &destMemoryBarrier);
 
-    const VkImageCopy imageCopyRegion = {
-        {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {width, height, 1}};
-
     if (copyOnly) {
+        const VkImageCopy imageCopyRegion = {
+            {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1}, {0, 0, 0}, {width, height, 1}};
         pTableCommandBuffer->CmdCopyImage(data.commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image2,
                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
     } else {
@@ -879,8 +1038,8 @@ static bool writePPM(const char *filename, VkImage image1) {
         imageBlitRegion.dstSubresource.baseArrayLayer = 0;
         imageBlitRegion.dstSubresource.layerCount = 1;
         imageBlitRegion.dstSubresource.mipLevel = 0;
-        imageBlitRegion.dstOffsets[1].x = width;
-        imageBlitRegion.dstOffsets[1].y = height;
+        imageBlitRegion.dstOffsets[1].x = data.dstWidth;
+        imageBlitRegion.dstOffsets[1].y = data.dstHeight;
         imageBlitRegion.dstOffsets[1].z = 1;
 
         pTableCommandBuffer->CmdBlitImage(data.commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image2,
@@ -903,6 +1062,11 @@ static bool writePPM(const char *filename, VkImage image1) {
                                                     &destMemoryBarrier);
 
             // This step essentially untiles the image.
+            const VkImageCopy imageCopyRegion = {{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
+                                                 {0, 0, 0},
+                                                 {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
+                                                 {0, 0, 0},
+                                                 {data.dstWidth, data.dstHeight, 1}};
             pTableCommandBuffer->CmdCopyImage(data.commandBuffer, data.image2, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image3,
                                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
             generalMemoryBarrier.image = data.image3;
@@ -927,83 +1091,139 @@ static bool writePPM(const char *filename, VkImage image1) {
     err = pTableCommandBuffer->EndCommandBuffer(data.commandBuffer);
     assert(!err);
 
-    VkFence nullFence = {VK_NULL_HANDLE};
+    VkSemaphoreCreateInfo semaphoreInfo = {VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
+    if (pTableDevice->CreateSemaphore(device, &semaphoreInfo, nullptr, &data.semaphore) != VK_SUCCESS) {
+        return false;
+    }
+
+    VkFenceCreateInfo fenceInfo = {};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
+    if (pTableDevice->CreateFence(device, &fenceInfo, nullptr, &data.fence) != VK_SUCCESS) {
+        return false;
+    }
+
+    return true;
+}
+
+// This function issues commands to copy/convert the swapchain image
+// from whatever compatible format the swapchain image uses
+// to a single format (VK_FORMAT_R8G8B8A8_UNORM) so that the converted
+// result can be easily written to a PPM file.
+//
+// Error handling: If there is a problem, this function should silently
+// fail without affecting the Present operation going on in the caller.
+// The numerous debug asserts are to catch programming errors and are not
+// expected to assert.  Recovery and clean up are implemented for image memory
+// allocation failures.
+// (TODO) It would be nice to pass any failure info to DebugReport or something.
+//
+// Returns true if successfull, false otherwise.
+static bool queueScreenshot(ScreenshotQueueData &data, VkImage image1, const VkPresentInfoKHR *presentInfo) {
+    PROFILE("screenshot.queue");
+    if (data.image1 == VK_NULL_HANDLE) {
+        if (!prepareScreenshotData(data, image1)) {
+            assert(false);
+            return false;
+        }
+    } else {
+        if (data.pTableDevice->ResetFences(data.device, 1, &data.fence) != VK_SUCCESS) {
+            assert(false);
+            return false;
+        }
+    }
+
     VkSubmitInfo submitInfo;
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.pNext = NULL;
-    submitInfo.waitSemaphoreCount = 0;
-    submitInfo.pWaitSemaphores = NULL;
-    submitInfo.pWaitDstStageMask = NULL;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &data.commandBuffer;
-    submitInfo.signalSemaphoreCount = 0;
-    submitInfo.pSignalSemaphores = NULL;
+    VkPipelineStageFlags layerWaitStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    submitInfo.pWaitDstStageMask = &layerWaitStage;
+    submitInfo.pWaitSemaphores = presentInfo->pWaitSemaphores;
+    submitInfo.waitSemaphoreCount = presentInfo->waitSemaphoreCount;
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &data.semaphore;
 
-    // Wait for operations on all queues to complete before performing the image copy.
-    err = pTableDevice->DeviceWaitIdle(device);
-    assert(!err);
-
-    err = pTableQueue->QueueSubmit(queue, 1, &submitInfo, nullFence);
-    assert(!err);
-
-    err = pTableQueue->QueueWaitIdle(queue);
-    assert(!err);
-
-    // Map the final image so that the CPU can read it.
-    const VkImageSubresource sr = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
-    VkSubresourceLayout srLayout;
-    const char *ptr;
-    if (!need2steps) {
-        pTableDevice->GetImageSubresourceLayout(device, data.image2, &sr, &srLayout);
-        err = pTableDevice->MapMemory(device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
-        assert(!err);
-        if (VK_SUCCESS != err) return false;
-        data.mem2mapped = true;
-    } else {
-        pTableDevice->GetImageSubresourceLayout(device, data.image3, &sr, &srLayout);
-        err = pTableDevice->MapMemory(device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
-        assert(!err);
-        if (VK_SUCCESS != err) return false;
-        data.mem3mapped = true;
-    }
-
-    // Write the data to a PPM file.
-    ofstream file(filename, ios::binary);
-    if (!file.is_open()) {
+    VkQueue queue = getQueueForScreenshot(data.device);
+    if (!queue) {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_DEBUG, "screenshot", "Failed to open output file: %s", filename);
+        __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - capable queue not found\n");
 #else
-        fprintf(stderr, "screenshot: Failed to open output file: %s\n", filename);
+        fprintf(stderr, "screenshot: Could not find a capable queue\n");
 #endif
         return false;
     }
 
-    file << "P6\n";
-    file << width << "\n";
-    file << height << "\n";
-    file << 255 << "\n";
+    VkuDeviceDispatchTable *pTableQueue =
+        get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
 
-    ptr += srLayout.offset;
-    if (3 == numChannels) {
-        for (uint32_t y = 0; y < height; y++) {
-            file.write(ptr, 3 * width);
-            ptr += srLayout.rowPitch;
-        }
-    } else if (4 == numChannels) {
-        for (uint32_t y = 0; y < height; y++) {
-            const unsigned int *row = (const unsigned int *)ptr;
-            for (uint32_t x = 0; x < width; x++) {
-                file.write((char *)row, 3);
-                row++;
-            }
-            ptr += srLayout.rowPitch;
-        }
+    VkResult err = pTableQueue->QueueSubmit(queue, 1, &submitInfo, data.fence);
+    assert(!err);
+
+    return true;
+}
+
+// Save an image to a PPM image file.
+// Returns true if file is successfully written, false otherwise.
+static bool writeScreenshot(ScreenshotQueueData &data) {
+    PROFILE("screenshot.write");
+    // Map the final image so that the CPU can read it.
+    const VkImageSubresource sr = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
+    VkSubresourceLayout srLayout;
+    const char *pixels;
+    if (data.image3 == VK_NULL_HANDLE) {
+        data.pTableDevice->GetImageSubresourceLayout(data.device, data.image2, &sr, &srLayout);
+        VkResult err = data.pTableDevice->MapMemory(data.device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&pixels);
+        if (VK_SUCCESS != err) return false;
+    } else {
+        data.pTableDevice->GetImageSubresourceLayout(data.device, data.image3, &sr, &srLayout);
+        VkResult err = data.pTableDevice->MapMemory(data.device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&pixels);
+        if (VK_SUCCESS != err) return false;
     }
-    file.close();
 
-    // Clean up handled by ~WritePPMCleanupData()
+    pixels += srLayout.offset;
 
-    // writePPM succeeded
+    string fileName;
+    if (settings.targetFolder.empty()) {
+        fileName = to_string(data.frameNumber);
+    } else {
+        fileName = settings.targetFolder;
+        fileName += "/" + to_string(data.frameNumber);
+    }
+
+    bool writeResult;
+    switch (settings.screenshotExtension) {
+        case Settings::ScreenshotExtension::PPM:
+            fileName += ".ppm";
+            writeResult = writePPM(fileName.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
+            break;
+        case Settings::ScreenshotExtension::PAM:
+            fileName += ".pam";
+            writeResult = writePAM(fileName.c_str(), pixels, data.dstWidth, data.dstHeight, data.dstNumChannels, srLayout.rowPitch);
+            break;
+    }
+
+    if (data.image3 == VK_NULL_HANDLE) {
+        data.pTableDevice->UnmapMemory(data.device, data.mem2);
+    } else {
+        data.pTableDevice->UnmapMemory(data.device, data.mem3);
+    }
+
+    if (!writeResult) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failed to write image: %s", fileName.c_str());
+#else
+        fprintf(stderr, "screenshot: Failed to write image: %s\n", fileName.c_str());
+#endif
+        return false;
+    }
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "screenshot", "Saved image: %s", fileName.c_str());
+#else
+    printf("screenshot: Saved image: %s \n", fileName.c_str());
+    fflush(stdout);
+#endif
     return true;
 }
 
@@ -1195,7 +1415,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
 
     // Save the swapchain in a map of we are taking screenshots.
     std::lock_guard<std::mutex> lg(globalLock);
-    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
+    if (settings.isFrameAfterEndOfCaptureRange(0)) {
         // No screenshots in the list to take
         return result;
     }
@@ -1222,21 +1442,40 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
     return result;
 }
 
+VKAPI_ATTR void DestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks *pAllocator) {
+    {
+        PROFILE("screenshot.wait");
+        stopScreenshotThread();
+        {
+            std::unique_lock<std::mutex> lock(globalLock);
+            screenshotQueuedCV.notify_one();
+        }
+        waitScreenshotThreadIsOver();
+    }
+
+    DispatchMapStruct *dispMap = get_dispatch_info(device);
+    assert(dispMap);
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    pDisp->DestroySwapchainKHR(device, swapchain, pAllocator);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchainKHR swapchain, uint32_t *pCount,
                                                      VkImage *pSwapchainImages) {
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     assert(dispMap);
     VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
     VkResult result = pDisp->GetSwapchainImagesKHR(device, swapchain, pCount, pSwapchainImages);
+    if (result != VK_SUCCESS) return result;
 
     // Save the swapchain images in a map if we are taking screenshots
     std::lock_guard<std::mutex> lg(globalLock);
-    if (screenshotFramesReceived && screenshotFrames.empty() && !screenShotFrameRange.valid) {
+    if (settings.isFrameAfterEndOfCaptureRange(0)) {
         // No screenshots in the list to take
         return result;
     }
 
-    if (result == VK_SUCCESS && pSwapchainImages && !swapchainMap.empty() && swapchainMap.find(swapchain) != swapchainMap.end()) {
+    PROFILE("screenshot.init");
+    if (pSwapchainImages && !swapchainMap.empty() && swapchainMap.find(swapchain) != swapchainMap.end()) {
         unsigned i;
 
         for (i = 0; i < *pCount; i++) {
@@ -1249,6 +1488,11 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
             imageMap[pSwapchainImages[i]]->device = swapchainMap[swapchain]->device;
             imageMap[pSwapchainImages[i]]->imageExtent = swapchainMap[swapchain]->imageExtent;
             imageMap[pSwapchainImages[i]]->format = swapchainMap[swapchain]->format;
+
+            std::shared_ptr<ScreenshotQueueData> data = std::make_shared<ScreenshotQueueData>();
+            if (prepareScreenshotData(*data, pSwapchainImages[i])) {
+                screenshotDataCache[pSwapchainImages[i]].push_back(data);
+            }
         }
 
         // Add list of images to swapchain to image map
@@ -1264,80 +1508,142 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
     return result;
 }
 
+void screenshotWriterThreadFunc() {
+    while (true) {
+        std::shared_ptr<ScreenshotQueueData> dataToSave;
+        {
+            PROFILE("Waiting for CPU")
+            std::unique_lock<std::mutex> lock(globalLock);
+            if (screenshotsData.empty()) {
+                screenshotQueuedCV.wait(lock, [] { return !screenshotsData.empty() || shutdownScreenshotThread; });
+            }
+            if (shutdownScreenshotThread && screenshotsData.empty()) break;
+            if (screenshotsData.empty()) continue;
+            dataToSave = screenshotsData.front();
+            screenshotsData.pop_front();
+            PROFILE_COUNTER("screenshot.QueueSize", screenshotsData.size());
+        }
+
+        while (true) {
+            VkResult fenceWaitResult;
+            {
+                PROFILE("Waiting for GPU")
+                fenceWaitResult =
+                    dataToSave->pTableDevice->WaitForFences(dataToSave->device, 1, &dataToSave->fence, VK_TRUE, UINT64_MAX);
+            }
+
+            if (fenceWaitResult == VK_SUCCESS) {
+                writeScreenshot(*dataToSave);
+            } else if (fenceWaitResult == VK_TIMEOUT) {
+                continue;
+            }
+            break;
+        }
+        if (settings.isFrameAfterEndOfCaptureRange(dataToSave->frameNumber + 1)) {
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "screenshot", "No more frames to capture");
+#else
+            printf("screenshot: No more frames to capture\n");
+            fflush(stdout);
+#endif
+            break;
+        }
+        {
+            std::lock_guard<std::mutex> lock(globalLock);
+            screenshotDataCache[dataToSave->image1].emplace_back(dataToSave);
+            screenshotSavedCV.notify_one();
+        }
+    }
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "screenshot", "Resources cleanup");
+#else
+    printf("screenshot: Resources cleanup\n");
+    fflush(stdout);
+#endif
+    {
+        std::lock_guard<std::mutex> lock(globalLock);
+        // Free all our maps since we are done with them.
+        for (auto swapchainIter = swapchainMap.begin(); swapchainIter != swapchainMap.end(); swapchainIter++) {
+            SwapchainMapStruct *swapchainMapElem = swapchainIter->second;
+            delete swapchainMapElem;
+        }
+        for (auto imageIter = imageMap.begin(); imageIter != imageMap.end(); imageIter++) {
+            ImageMapStruct *imageMapElem = imageIter->second;
+            delete imageMapElem;
+        }
+        for (auto physDeviceIter = physDeviceMap.begin(); physDeviceIter != physDeviceMap.end(); physDeviceIter++) {
+            PhysDeviceMapStruct *physDeviceMapElem = physDeviceIter->second;
+            delete physDeviceMapElem;
+        }
+        swapchainMap.clear();
+        imageMap.clear();
+        physDeviceMap.clear();
+        screenshotDataCache.clear();
+    }
+
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "screenshot", "Images thread is over");
+#else
+    printf("screenshot: Images thread is over\n");
+    fflush(stdout);
+#endif
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
+    VkPresentInfoKHR presentInfo = *pPresentInfo;
     static int frameNumber = 0;
-    DispatchMapStruct *dispMap = get_dispatch_info((VkDevice)queue);
-    assert(dispMap);
-    std::lock_guard<std::mutex> lg(globalLock);
-    {  // scope around the mutexed data
-        if (!screenshotFrames.empty() || screenShotFrameRange.valid) {
-            set<int>::iterator it;
-            bool inScreenShotFrames = false;
-            bool inScreenShotFrameRange = false;
-            it = screenshotFrames.find(frameNumber);
-            inScreenShotFrames = (it != screenshotFrames.end());
-            isInScreenShotFrameRange(frameNumber, &screenShotFrameRange, &inScreenShotFrameRange);
-            if ((inScreenShotFrames) || (inScreenShotFrameRange)) {
-                string fileName;
-
-                if (vk_screenshot_dir.empty()) {
-                    fileName = to_string(frameNumber) + ".ppm";
+    if (settings.isFrameToCapture(frameNumber)) {
+        // If there are 0 swapchains, skip taking the snapshot
+        if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
+            std::unique_lock<std::mutex> lock(globalLock);
+            while (!settings.allowToSkipFrames) {
+                if (screenshotsData.size() < settings.maxScreenshotQueueSize) break;
+                PROFILE("screenshot.wait");
+                screenshotSavedCV.wait(lock, [] { return screenshotsData.size() < settings.maxScreenshotQueueSize; });
+            }
+            // We'll dump only one image: the first
+            VkSwapchainKHR swapchain = pPresentInfo->pSwapchains[0];
+            if (settings.allowToSkipFrames && screenshotsData.size() >= settings.maxScreenshotQueueSize) {
+                static int skippedFrames = 0;
+                PROFILE_COUNTER("screenshot.SkippedFrames", ++skippedFrames);
+            } else {
+                std::shared_ptr<ScreenshotQueueData> data;
+                VkImage image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
+                if (!screenshotDataCache[image].empty()) {
+                    data = screenshotDataCache[image].back();
+                    screenshotDataCache[image].pop_back();
                 } else {
-                    fileName = vk_screenshot_dir;
-                    fileName += "/" + to_string(frameNumber) + ".ppm";
+                    data = std::make_shared<ScreenshotQueueData>();
                 }
-
-                VkImage image;
-                VkSwapchainKHR swapchain;
-                // We'll dump only one image: the first
-                // If there are 0 swapchains, skip taking the snapshot
-                if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
-                    swapchain = pPresentInfo->pSwapchains[0];
-                    image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
-                    if (writePPM(fileName.c_str(), image)) {
+                if (queueScreenshot(*data, image, &presentInfo)) {
+                    presentInfo.pWaitSemaphores = &data->semaphore;
+                    presentInfo.waitSemaphoreCount = 1;
+                    data->frameNumber = frameNumber;
+                    screenshotsData.emplace_back(data);
+                    PROFILE_COUNTER("screenshot.QueueSize", screenshotsData.size());
+                    startScreenshotThread();
 #ifdef ANDROID
-                        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Screen capture file is: %s", fileName.c_str());
+                    __android_log_print(ANDROID_LOG_INFO, "screenshot", "Queued screeshot for frame: %d", frameNumber);
 #else
-                        printf("screenshot: Capture file is: %s \n", fileName.c_str());
-                        fflush(stdout);
+                    printf("screenshot: Queued screeshot for frame: %d\n", frameNumber);
+                    fflush(stdout);
 #endif
-                    }
-                } else {
-#ifdef ANDROID
-                    __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - no swapchain specified\n");
-#else
-                    fprintf(stderr, "screenshot: Failure - no swapchain specified\n");
-#endif
-                }
-                if (inScreenShotFrames) {
-                    screenshotFrames.erase(it);
-                }
-
-                if (screenshotFrames.empty() && isEndOfScreenShotFrameRange(frameNumber, &screenShotFrameRange)) {
-                    // Free all our maps since we are done with them.
-                    for (auto swapchainIter = swapchainMap.begin(); swapchainIter != swapchainMap.end(); swapchainIter++) {
-                        SwapchainMapStruct *swapchainMapElem = swapchainIter->second;
-                        delete swapchainMapElem;
-                    }
-                    for (auto imageIter = imageMap.begin(); imageIter != imageMap.end(); imageIter++) {
-                        ImageMapStruct *imageMapElem = imageIter->second;
-                        delete imageMapElem;
-                    }
-                    for (auto physDeviceIter = physDeviceMap.begin(); physDeviceIter != physDeviceMap.end(); physDeviceIter++) {
-                        PhysDeviceMapStruct *physDeviceMapElem = physDeviceIter->second;
-                        delete physDeviceMapElem;
-                    }
-                    swapchainMap.clear();
-                    imageMap.clear();
-                    physDeviceMap.clear();
-                    screenShotFrameRange.valid = false;
+                    screenshotQueuedCV.notify_one();
                 }
             }
+        } else {
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - no swapchain specified\n");
+#else
+            fprintf(stderr, "screenshot: Failure - no swapchain specified\n");
+#endif
         }
-        frameNumber++;
-    }  // scope around the mutexed data
+    }
+    frameNumber++;
+    DispatchMapStruct *dispMap = get_dispatch_info((VkDevice)queue);
     VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
-    VkResult result = pDisp->QueuePresentKHR(queue, pPresentInfo);
+    assert(dispMap);
+    VkResult result = pDisp->QueuePresentKHR(queue, &presentInfo);
     return result;
 }
 
@@ -1491,6 +1797,7 @@ static PFN_vkVoidFunction intercept_khr_swapchain_command(const char *name, VkDe
         PFN_vkVoidFunction proc;
     } khr_swapchain_commands[] = {
         {"vkCreateSwapchainKHR", reinterpret_cast<PFN_vkVoidFunction>(CreateSwapchainKHR)},
+        {"vkDestroySwapchainKHR", reinterpret_cast<PFN_vkVoidFunction>(DestroySwapchainKHR)},
         {"vkGetSwapchainImagesKHR", reinterpret_cast<PFN_vkVoidFunction>(GetSwapchainImagesKHR)},
         {"vkQueuePresentKHR", reinterpret_cast<PFN_vkVoidFunction>(QueuePresentKHR)},
     };
