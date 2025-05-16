@@ -75,8 +75,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux|BSD")
     option(BUILD_APIDUMP "Build api_dump layer" ON)
     option(BUILD_MONITOR "Build monitor layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
-
-    option(BUILD_VIA "Build via" OFF)
     option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
 
 elseif(ANDROID)
@@ -87,8 +85,6 @@ elseif(ANDROID)
     option(BUILD_APIDUMP "Build api_dump layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
     set(BUILD_MONITOR OFF)
-
-    set(BUILD_VIA OFF)
     set(BUILD_LAYERMGR OFF)
 
 elseif (APPLE)
@@ -98,7 +94,6 @@ elseif (APPLE)
     set(BUILD_MONITOR OFF)
 
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        option(BUILD_VIA "Build via" OFF)
         option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
     endif()
 
@@ -106,10 +101,6 @@ endif()
 
 if(BUILD_TESTS)
     add_subdirectory(tests)
-endif()
-
-if(BUILD_VIA)
-    add_subdirectory(via)
 endif()
 
 if(BUILD_APIDUMP OR BUILD_MONITOR OR BUILD_SCREENSHOT)
