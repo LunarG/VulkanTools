@@ -39,21 +39,12 @@ function(vkConfigTest NAME)
 
     add_executable(${TEST_NAME} ${TEST_FILE} ${FILES_JSON} ${FILES_TEXT} resources.qrc)
     set_target_properties(${TEST_NAME} PROPERTIES FOLDER "vkconfig/tests")
-if(Qt6_FOUND)
-    target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest GTest::gtest_main Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
-elseif(Qt5_FOUND)
-    target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest GTest::gtest_main Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
-endif()
-
-    if(WIN32)
-	# Use the static runtime library?
-	if(USE_STATIC_CRT_VKFG)
- 	    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-	    message(STATUS "vkconfig tests will link against static runtime")
-	endif()
-
-        target_link_libraries(${TEST_NAME} Cfgmgr32)
+    if(Qt6_FOUND)
+      target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest GTest::gtest_main Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
+    elseif(Qt5_FOUND)
+      target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest GTest::gtest_main Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
     endif()
+
     if (RUN_ON_GITHUB)
         target_compile_definitions(${TEST_NAME} PRIVATE RUN_ON_GITHUB)
     endif()
