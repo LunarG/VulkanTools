@@ -1460,7 +1460,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
 
 VKAPI_ATTR void DestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks *pAllocator) {
     {
-        PROFILE("screenshot.wait");
+        PROFILE("screenshot.finish");
         stopScreenshotThread();
         {
             std::unique_lock<std::mutex> lock(globalLock);
