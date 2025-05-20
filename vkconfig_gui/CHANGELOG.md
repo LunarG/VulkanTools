@@ -11,6 +11,9 @@
   - Add display of deprecated setting information in generated layer documentation
   - Add optional information about which setting replaced a deprecated setting
 
+### Fixes:
+  - Fix crashes when `QT_QPA_PLATFORM` is set
+
 ## Vulkan Configurator 3.2.0 - May 2025
 [Vulkan SDK 1.4.313.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.313)
 
