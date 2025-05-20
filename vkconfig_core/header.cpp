@@ -53,6 +53,9 @@ const char* GetToken(SettingView state) {
 void LoadMetaHeader(Header& header, const QJsonObject& json_object) {
     header.label = ReadStringValue(json_object, "label");
     header.description = ReadStringValue(json_object, "description");
+    if (json_object.value("detailed") != QJsonValue::Undefined) {
+        header.detailed = ReadStringValue(json_object, "detailed");
+    }
     if (json_object.value("url") != QJsonValue::Undefined) {
         header.url = Path(ReadStringValue(json_object, "url"), false);
     }
