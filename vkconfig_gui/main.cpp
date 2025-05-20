@@ -75,6 +75,7 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
     qputenv("QT_QPA_PLATFORMTHEME", "");
+    qputenv("QT_QPA_PLATFORM", "");  // SDK build using static Qt which doesn't include plugins
 
     qInstallMessageHandler(log_handler);
 
