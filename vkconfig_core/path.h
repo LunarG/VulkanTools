@@ -83,6 +83,7 @@ class Path {
 std::string AbsolutePath(Path::Builtin path, bool native_separator = true);
 std::string RelativePath(Path::Builtin path);
 
+std::string ConvertStandardSeparators(const std::string& path);
 std::string ConvertNativeSeparators(const std::string& path);
 std::string TrimEndSeparator(const std::string& path);
 

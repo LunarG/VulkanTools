@@ -79,6 +79,17 @@ const char* Path::Separator() {
     return native_separator;
 }
 
+std::string ConvertStandardSeparators(const std::string& path) {
+    if (VKC_ENV == VKC_ENV_WIN32) {
+        const char* std_separator = "/";
+        const char* alien_separator = VKC_ENV == VKC_ENV_WIN32 ? "\\" : "/";
+
+        return ConvertSeparators(path, std_separator, alien_separator);
+    } else {
+        return path;
+    }
+}
+
 std::string ConvertNativeSeparators(const std::string& path) {
     const char* native_separator = Path::Separator();
     const char* alien_separator = VKC_ENV != VKC_ENV_WIN32 ? "\\" : "/";

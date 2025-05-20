@@ -141,6 +141,10 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
 
             text += format("\t<p>%s</p>\n", setting->description.c_str());
 
+            if (!setting->detailed.empty()) {
+                text += format("\t<p>%s</p>\n", setting->detailed.c_str());
+            }
+
             if (setting->status == STATUS_DEPRECATED && !setting->deprecated_by_key.empty()) {
                 const SettingMeta* replaced_setting = FindSetting(layer.settings, setting->deprecated_by_key.c_str());
 
@@ -218,8 +222,11 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
                         text += format("\t<td>%s</td>\n", value.label.c_str());
                         if (value.description.empty()) {
                             text += "\t<td>N/A</td>\n";
-                        } else {
+                        } else if (value.detailed.empty()) {
                             text += format("\t<td class=\"desc\">%s</td>\n", value.description.c_str());
+                        } else {
+                            text += format("\t<td class=\"desc\"><p>%s</p><p>%s</p></td>\n", value.description.c_str(),
+                                           value.detailed.c_str());
                         }
                         text += format("\t<td>%s</td>\n", BuildPlatformsHtml(value.platform_flags).c_str());
                         text += "</tr>\n";
@@ -291,8 +298,12 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
             text += "\n";
 
             text += setting->description + "\n";
-
             text += "\n";
+
+            if (!setting->detailed.empty()) {
+                text += setting->detailed;
+                text += "\n";
+            }
 
             if (setting->status == STATUS_DEPRECATED && !setting->deprecated_by_key.empty()) {
                 const SettingMeta* replaced_setting = FindSetting(layer.settings, setting->deprecated_by_key.c_str());
@@ -360,8 +371,10 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
                         text += "|" + value.key + "|" + value.label + "|";
                         if (value.description.empty()) {
                             text += "N/A|";
-                        } else {
+                        } else if (value.detailed.empty()) {
                             text += value.description + "|";
+                        } else {
+                            text += value.description + value.detailed + "|";
                         }
                         text += BuildPlatformsMarkdown(value.platform_flags) + "|\n";
                     }

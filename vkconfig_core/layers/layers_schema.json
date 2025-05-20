@@ -280,6 +280,11 @@
                         "type": "string"
                     },
                     "description": {
+                        "description": "The brief description of the setting",
+                        "type": "string"
+                    },
+                    "detailed": {
+                        "description": "The detailed description of the setting",
                         "type": "string"
                     },
                     "url": {
@@ -439,7 +444,11 @@
                                 "type": "string"
                             },
                             "description": {
-                                "description": "The description of the setting",
+                                "description": "The brief description of the setting",
+                                "type": "string"
+                            },
+                            "detailed": {
+                                "description": "The detailed description of the setting",
                                 "type": "string"
                             },
                             "url": {
@@ -602,7 +611,11 @@
                                 "type": "string"
                             },
                             "description": {
-                                "description": "The description of the setting",
+                                "description": "The brief description of the setting",
+                                "type": "string"
+                            },
+                            "detailed": {
+                                "description": "The detailed description of the setting",
                                 "type": "string"
                             },
                             "url": {
@@ -699,7 +712,11 @@
                                 "type": "string"
                             },
                             "description": {
-                                "description": "The description of the setting",
+                                "description": "The brief description of the setting",
+                                "type": "string"
+                            },
+                            "detailed": {
+                                "description": "The detailed description of the setting",
                                 "type": "string"
                             },
                             "url": {
@@ -809,7 +826,11 @@
                                 "type": "string"
                             },
                             "description": {
-                                "description": "The description of the setting",
+                                "description": "The brief description of the setting",
+                                "type": "string"
+                            },
+                            "detailed": {
+                                "description": "The detailed description of the setting",
                                 "type": "string"
                             },
                             "url": {
@@ -916,7 +937,11 @@
                                 "type": "string"
                             },
                             "description": {
-                                "description": "The description of the setting",
+                                "description": "The brief description of the setting",
+                                "type": "string"
+                            },
+                            "detailed": {
+                                "description": "The detailed description of the setting",
                                 "type": "string"
                             },
                             "url": {
@@ -1020,7 +1045,11 @@
                                 "type": "string"
                             },
                             "description": {
-                                "description": "The description of the setting",
+                                "description": "The brief description of the setting",
+                                "type": "string"
+                            },
+                            "detailed": {
+                                "description": "The detailed description of the setting",
                                 "type": "string"
                             },
                             "url": {
@@ -1141,7 +1170,11 @@
                                 "type": "string"
                             },
                             "description": {
-                                "description": "The description of the setting",
+                                "description": "The brief description of the setting",
+                                "type": "string"
+                            },
+                            "detailed": {
+                                "description": "The detailed description of the setting",
                                 "type": "string"
                             },
                             "url": {
@@ -1242,7 +1275,11 @@
                                 "type": "string"
                             },
                             "description": {
-                                "description": "The description of the setting",
+                                "description": "The brief description of the setting",
+                                "type": "string"
+                            },
+                            "detailed": {
+                                "description": "The detailed description of the setting",
                                 "type": "string"
                             },
                             "url": {
@@ -1445,7 +1482,11 @@
                                 "type": "string"
                             },
                             "description": {
-                                "description": "The description of the setting",
+                                "description": "The brief description of the setting",
+                                "type": "string"
+                            },
+                            "detailed": {
+                                "description": "The detailed description of the setting",
                                 "type": "string"
                             },
                             "url": {
@@ -1568,7 +1609,11 @@
                                 "type": "string"
                             },
                             "description": {
-                                "description": "The description of the setting",
+                                "description": "The brief description of the setting",
+                                "type": "string"
+                            },
+                            "detailed": {
+                                "description": "The detailed description of the setting",
                                 "type": "string"
                             },
                             "url": {

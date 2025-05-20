@@ -23,6 +23,7 @@
 #include "mainwindow.h"
 #include "widget_resize_button.h"
 #include "style.h"
+#include "item_tree.h"
 
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/doc.h"
@@ -34,25 +35,33 @@
 #include <QDesktopServices>
 #include <QMessageBox>
 
+static std::string BuildPlatformsLog(int platforms) {
+    std::string log;
+
+    if (platforms != 0) {
+        log += "Platforms: ";
+
+        const std::vector<std::string> &list = GetPlatformTokens(platforms);
+        for (std::size_t i = 0, n = list.size(); i < n; ++i) {
+            log += list[i];
+            if (i < n - 1) {
+                log += ", ";
+            }
+        }
+
+        log += "\n";
+    }
+
+    return log;
+}
+
 static std::string BuildPropertiesLog(const Layer &layer) {
     std::string description;
     if (!layer.description.empty()) {
         description += layer.description + "\n";
     }
     description += "API Version: " + layer.api_version.str() + " - Implementation Version: " + layer.implementation_version + "\n";
-    if (layer.platforms != 0) {
-        description += "Supported Platforms: ";
-
-        const std::vector<std::string> &platforms = GetPlatformTokens(layer.platforms);
-        for (std::size_t i = 0, n = platforms.size(); i < n; ++i) {
-            description += platforms[i];
-            if (i < n - 1) {
-                description += ", ";
-            }
-        }
-
-        description += "\n";
-    }
+    description += ::BuildPlatformsLog(layer.platforms);
 
     description += "\n";
     description += layer.manifest_path.AbsolutePath() + "\n";
@@ -430,7 +439,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 
     Configurator &configurator = Configurator::Get();
 
-    if (event_type == QEvent::ChildRemoved) {
+    if (target == this->ui->configurations_layers_list && event_type == QEvent::ChildRemoved) {
         // Layers were reordered, we need to update the configuration
 
         std::vector<std::string> layer_names;
@@ -457,10 +466,10 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 
     if (configurator.GetExecutableScope() == EXECUTABLE_NONE || !ui->configurations_list->isEnabled()) {
         return true;
-    } else if (target == ui->configurations_list) {
+    } else if (target == this->ui->configurations_list) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
         if (right_click) {
-            ListItem *item = static_cast<ListItem *>(ui->configurations_list->itemAt(right_click->pos()));
+            ListItem *item = static_cast<ListItem *>(this->ui->configurations_list->itemAt(right_click->pos()));
 
             std::string name;
 
@@ -539,10 +548,10 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 this->OnContextMenuExportSettingsClicked(item);
             }
         }
-    } else if (target == ui->configurations_layers_list) {
+    } else if (target == this->ui->configurations_layers_list) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
         if (right_click) {
-            ListItem *item = static_cast<ListItem *>(ui->configurations_layers_list->itemAt(right_click->pos()));
+            ListItem *item = static_cast<ListItem *>(this->ui->configurations_layers_list->itemAt(right_click->pos()));
 
             if (item != nullptr) {
                 const Configuration *configuration = configurator.GetActiveConfiguration();
@@ -550,7 +559,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 
                 const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
 
-                QMenu menu(ui->configurations_layers_list);
+                QMenu menu(this->ui->configurations_layers_list);
 
                 QAction *action_description = new QAction("Open the Layer Description...", nullptr);
                 action_description->setEnabled(layer != nullptr);
@@ -597,11 +606,107 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 } else if (action == export_html_action) {
                     const std::string path = format("%s/%s.html", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
                     ExportHtmlDoc(*layer, path);
-                    QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
+                    std::string url = "file:///" + path;
+                    QDesktopServices::openUrl(QUrl(url.c_str()));
                 } else if (action == export_markdown_action) {
                     const std::string path = format("%s/%s.md", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
                     ExportMarkdownDoc(*layer, path);
                     QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
+                }
+            }
+        }
+    } else if (target == this->ui->configurations_settings) {
+        QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
+        if (right_click) {
+            TreeItem *item = static_cast<TreeItem *>(this->ui->configurations_settings->itemAt(right_click->pos()));
+
+            const Configuration *configuration = configurator.GetActiveConfiguration();
+            const Parameter *parameter = configuration->GetActiveParameter();
+
+            const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
+
+            if (item != nullptr) {
+                QMenu menu(this->ui->configurations_settings);
+
+                QAction *action_description = new QAction("Open the brief Setting Description...", nullptr);
+                action_description->setEnabled(layer != nullptr);
+                menu.addAction(action_description);
+
+                QAction *export_html_action = new QAction("Open the detailed Setting HTML Documentation...", nullptr);
+                export_html_action->setEnabled(layer != nullptr);
+                menu.addAction(export_html_action);
+
+                QPoint point(right_click->globalX(), right_click->globalY());
+                QAction *action = menu.exec(point);
+
+                if (action == action_description) {
+                    const SettingMeta *setting = ::FindSetting(layer->settings, item->key.c_str());
+                    assert(layer != nullptr);
+
+                    std::string title = format("%s (%s)", setting->label.c_str(), setting->key.c_str());
+                    if (setting->status != STATUS_STABLE) {
+                        title += format(" (%s)", ::GetToken(setting->status));
+                    }
+
+                    std::string text = setting->description;
+                    text += "\n\n";
+                    if (!setting->detailed.empty()) {
+                        text += setting->detailed;
+                        text += "\n\n";
+                    }
+
+                    if (setting->type != SETTING_GROUP) {
+                        text += "VK_EXT_layer_settings name:\n";
+                        text += format("    %s\n", setting->key.c_str());
+                        text += "vk_layer_settings.txt variable:\n";
+                        text += format("    %s\n", (GetLayerSettingPrefix(layer->key) + setting->key).c_str());
+                        text += "Environment variables:\n";
+                        std::vector<std::string> envs = BuildEnvVariablesList(layer->key.c_str(), setting->key.c_str());
+                        if (!setting->env.empty()) {
+                            envs.push_back(setting->env);
+                        }
+                        for (std::size_t i = 0, n = envs.size(); i < n; ++i) {
+                            text += format("    %s\n", envs[i].c_str());
+                        }
+                        text += "\n";
+
+                        text += format("Type: %s\n", ::GetToken(setting->type));
+                        text += format("Default Value: %s\n", setting->Export(EXPORT_MODE_DOC).c_str());
+                        if (setting->type == SETTING_ENUM || setting->type == SETTING_FLAGS) {
+                            text += "Possible Values:\n";
+                            const SettingMetaEnumeration *setting_enum = static_cast<const SettingMetaEnumeration *>(setting);
+                            for (std::size_t i = 0, n = setting_enum->enum_values.size(); i < n; ++i) {
+                                if (configurator.GetUseLayerDevMode()) {
+                                    if (setting_enum->enum_values[i].view == SETTING_VIEW_HIDDEN) {
+                                        continue;
+                                    }
+                                } else {
+                                    if (setting_enum->enum_values[i].view != SETTING_VIEW_STANDARD) {
+                                        continue;
+                                    }
+                                }
+
+                                text += format("- %s\n", setting_enum->enum_values[i].key.c_str());
+                            }
+                            text += "\n";
+                        }
+                    }
+
+                    text += ::BuildPlatformsLog(setting->platform_flags);
+
+                    QMessageBox alert;
+                    alert.setWindowTitle(title.c_str());
+                    alert.setText(text.c_str());
+                    alert.setStandardButtons(QMessageBox::Ok);
+                    alert.setDefaultButton(QMessageBox::Ok);
+                    alert.setIcon(QMessageBox::Information);
+                    alert.exec();
+                } else if (action == export_html_action) {
+                    const std::string path = format("%s/%s.html", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
+                    ExportHtmlDoc(*layer, path);
+
+                    std::string url = ConvertStandardSeparators(format("file:///%s#%s-detailed", path.c_str(), item->key.c_str()));
+                    QDesktopServices::openUrl(QUrl(url.c_str()));
                 }
             }
         }
