@@ -126,6 +126,14 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
         this->default_control = ::GetLayerControl(ReadString(json_configuration_object, "default_layer_control").c_str());
     }
 
+    if (json_configuration_object.value("override_settings") != QJsonValue::Undefined) {
+        this->override_settings = ReadBoolValue(json_configuration_object, "override_settings");
+    }
+
+    if (json_configuration_object.value("override_settings_path") != QJsonValue::Undefined) {
+        this->override_settings_path = ReadString(json_configuration_object, "override_settings_path");
+    }
+
     if (json_configuration_object.value("override_layers") != QJsonValue::Undefined) {
         this->override_layers = ReadBoolValue(json_configuration_object, "override_layers");
     }
@@ -300,6 +308,8 @@ bool Configuration::Save(const Path& full_path, bool export_mode) const {
     json_configuration.insert("version", this->version);
     SaveStringArray(json_configuration, "platforms", GetPlatformTokens(this->platform_flags));
     json_configuration.insert("default_layer_control", ::GetToken(this->default_control));
+    json_configuration.insert("override_settings", this->override_settings);
+    json_configuration.insert("override_settings_path", this->override_settings_path.RelativePath().c_str());
     json_configuration.insert("override_layers", this->override_layers);
     json_configuration.insert("override_loader", this->override_loader);
     SaveStringArray(json_configuration, "loader_message_types", GetLogTokens(this->loader_log_messages_flags));

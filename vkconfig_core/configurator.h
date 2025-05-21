@@ -115,8 +115,9 @@ class Configurator {
     bool GetUseNotifyReleases() const;
     void SetUseNotifyReleases(bool enabled);
 
-    bool GetShowDiagnosticSearch() const;
-    void SetShowDiagnosticSearch(bool enabled);
+    bool GetShowExternalLayersSettings() const;
+    void SetShowExternalLayersSettings(bool enabled);
+    bool IsExternalLayersSettingsUsed(bool icon_mode = false) const;
 
     bool ShouldNotify() const;
 
@@ -164,7 +165,7 @@ class Configurator {
     bool use_system_tray = false;
     bool use_layer_dev_mode = false;
     bool use_notify_releases = true;
-    bool show_diagnostic_search = false;
+    bool show_external_layers_settings = true;
     ExecutableScope executable_scope = EXECUTABLE_ANY;
     std::string selected_global_configuration = "Validation";
 };

@@ -44,6 +44,7 @@ class TabPreferences : public Tab {
     void on_vk_download_browse_pressed();
     void on_reset_hard_pressed();
     void on_layer_dev_mode_toggled(bool checked);
+    void on_show_override_settings_toggled(bool checked);
     void on_open_page_pressed();
     void on_download_pressed();
     void on_release_downloaded(QNetworkReply *pReply);

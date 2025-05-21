@@ -346,121 +346,139 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
             QFile file(layers_settings.settings_path.AbsolutePath().c_str());
             result_settings_file = result_settings_file && file.open(QIODevice::WriteOnly | QIODevice::Text);
             if (!result_settings_file) {
-                fprintf(stderr, "vkconfig: [ERROR] Cannot open file %s\n", layers_settings.settings_path.AbsolutePath().c_str());
+                fprintf(stderr, "vkconfig: [ERROR] Cannot open file:\t%s\n", layers_settings.settings_path.AbsolutePath().c_str());
                 continue;
             }
             QTextStream stream(&file);
 
-            // Loop through all the layers
-            for (std::size_t j = 0, n = configuration->parameters.size(); j < n; ++j) {
-                const Parameter& parameter = configuration->parameters[j];
-                if (!parameter.override_settings) {
+            if (configuration->override_settings) {
+                QFile original_file(configuration->override_settings_path.AbsolutePath().c_str());
+                bool result_original_file = original_file.open(QIODevice::ReadOnly);
+                if (!result_settings_file) {
+                    fprintf(stderr, "vkconfig: [ERROR] Cannot open override settings file:\t%s\n",
+                            configuration->override_settings_path.AbsolutePath().c_str());
                     continue;
                 }
 
-                if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
-                    continue;
+                QTextStream instream(&original_file);
+                while (!instream.atEnd()) {
+                    QString line = instream.readLine();
+                    stream << line << '\n';
                 }
+            } else {
+                // Loop through all the layers
+                for (std::size_t j = 0, n = configuration->parameters.size(); j < n; ++j) {
+                    const Parameter& parameter = configuration->parameters[j];
+                    if (!parameter.override_settings) {
+                        continue;
+                    }
 
-                if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
-                    continue;
-                }
+                    if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
+                        continue;
+                    }
 
-                if (parameter.control == LAYER_CONTROL_DISCARD || parameter.control == LAYER_CONTROL_OFF) {
-                    continue;
-                }
+                    if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
+                        continue;
+                    }
 
-                const Layer* layer = this->layers.Find(parameter.key.c_str(), parameter.api_version);
-                if (layer == nullptr) {
-                    if (parameter.control == LAYER_CONTROL_ON) {
-                        has_missing_layers = true;
-                        fprintf(stderr,
+                    if (parameter.control == LAYER_CONTROL_DISCARD || parameter.control == LAYER_CONTROL_OFF) {
+                        continue;
+                    }
+
+                    const Layer* layer = this->layers.Find(parameter.key.c_str(), parameter.api_version);
+                    if (layer == nullptr) {
+                        if (parameter.control == LAYER_CONTROL_ON) {
+                            has_missing_layers = true;
+                            fprintf(
+                                stderr,
                                 "vkconfig: [ERROR] `%s` layer is set to `%s` in `%s` loader configuration but missing and being "
                                 "ignored\n",
                                 parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str());
-                    } else {
-                        fprintf(stderr,
+                        } else {
+                            fprintf(
+                                stderr,
                                 "vkconfig: [WARNING] `%s` layer is set to `%s` in `%s` loader configuration but missing and being "
                                 "ignored\n",
                                 parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str());
-                    }
-                    continue;
-                }
-
-                stream << "\n";
-                stream << "# " << layer->key.c_str() << "\n\n";
-
-                std::string lc_layer_name = GetLayerSettingPrefix(layer->key);
-
-                for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
-                    const SettingData* setting_data = parameter.settings[i];
-
-                    // Skip groups - they aren't settings, so not relevant in this output
-                    if (setting_data->type == SETTING_GROUP) {
-                        continue;
-                    }
-
-                    // Skip missing settings
-                    const SettingMeta* meta = FindSetting(layer->settings, setting_data->key.c_str());
-                    if (meta == nullptr) {
-                        continue;
-                    }
-
-                    // Skip overriden settings
-                    if (::CheckSettingOverridden(*meta)) {
-                        continue;
-                    }
-
-                    stream << "# ";
-                    stream << meta->label.c_str();
-                    stream << "\n# =====================\n# <LayerIdentifier>.";
-                    stream << meta->key.c_str();
-
-                    if (meta->status != STATUS_STABLE) {
-                        stream << format(" (%s)", GetToken(meta->status)).c_str();
-                    }
-
-                    stream << "\n";
-
-                    // Break up description into smaller words
-                    std::string description = meta->description;
-                    std::vector<std::string> words;
-                    std::size_t pos;
-                    while ((pos = description.find(" ")) != std::string::npos) {
-                        words.push_back(description.substr(0, pos));
-                        description.erase(0, pos + 1);
-                    }
-                    if (description.size() > 0) words.push_back(description);
-                    if (words.size() > 0) {
-                        stream << "#";
-                        std::size_t nchars = 2;
-                        for (auto word : words) {
-                            if (word.size() + nchars > 80) {
-                                stream << "\n#";
-                                nchars = 2;
-                            }
-                            stream << " " << word.c_str();
-                            nchars += (word.size() + 1);
                         }
+                        continue;
                     }
+
                     stream << "\n";
+                    stream << "# " << layer->key.c_str() << "\n\n";
 
-                    // If feature has unmet dependency, output it but comment it out
-                    if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
-                        stream << "#";
+                    std::string lc_layer_name = GetLayerSettingPrefix(layer->key);
+
+                    for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
+                        const SettingData* setting_data = parameter.settings[i];
+
+                        // Skip groups - they aren't settings, so not relevant in this output
+                        if (setting_data->type == SETTING_GROUP) {
+                            continue;
+                        }
+
+                        // Skip missing settings
+                        const SettingMeta* meta = FindSetting(layer->settings, setting_data->key.c_str());
+                        if (meta == nullptr) {
+                            continue;
+                        }
+
+                        // Skip overriden settings
+                        if (::CheckSettingOverridden(*meta)) {
+                            continue;
+                        }
+
+                        stream << "# ";
+                        stream << meta->label.c_str();
+                        stream << "\n# =====================\n# <LayerIdentifier>.";
+                        stream << meta->key.c_str();
+
+                        if (meta->status != STATUS_STABLE) {
+                            stream << format(" (%s)", GetToken(meta->status)).c_str();
+                        }
+
+                        stream << "\n";
+
+                        // Break up description into smaller words
+                        std::string description = meta->description;
+                        std::vector<std::string> words;
+                        std::size_t pos;
+                        while ((pos = description.find(" ")) != std::string::npos) {
+                            words.push_back(description.substr(0, pos));
+                            description.erase(0, pos + 1);
+                        }
+                        if (description.size() > 0) words.push_back(description);
+                        if (words.size() > 0) {
+                            stream << "#";
+                            std::size_t nchars = 2;
+                            for (auto word : words) {
+                                if (word.size() + nchars > 80) {
+                                    stream << "\n#";
+                                    nchars = 2;
+                                }
+                                stream << " " << word.c_str();
+                                nchars += (word.size() + 1);
+                            }
+                        }
+                        stream << "\n";
+
+                        // If feature has unmet dependency, output it but comment it out
+                        if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
+                            stream << "#";
+                        }
+
+                        if (meta->status == STATUS_DEPRECATED && !meta->deprecated_by_key.empty()) {
+                            const SettingMeta* replaced_setting = FindSetting(layer->settings, meta->deprecated_by_key.c_str());
+
+                            stream << format("# This setting was deprecated and replaced by '%s' (%s) setting.\n",
+                                             replaced_setting->label.c_str(), replaced_setting->key.c_str())
+                                          .c_str();
+                        }
+
+                        stream << lc_layer_name.c_str() << setting_data->key.c_str() << " = ";
+                        stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
+                        stream << "\n\n";
                     }
-
-                    if (meta->status == STATUS_DEPRECATED && !meta->deprecated_by_key.empty()) {
-                        const SettingMeta* replaced_setting = FindSetting(layer->settings, meta->deprecated_by_key.c_str());
-
-                        stream << format("# This setting was deprecated and replaced by '%s' (%s) setting.\n",
-                                         replaced_setting->label.c_str(), replaced_setting->key.c_str())
-                                      .c_str();
-                    }
-
-                    stream << lc_layer_name.c_str() << setting_data->key.c_str() << " = ";
-                    stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
-                    stream << "\n\n";
                 }
             }
             file.close();
@@ -973,8 +991,8 @@ bool Configurator::Load() {
                 this->use_system_tray = json_object.value("use_system_tray").toBool();
             }
 
-            if (json_object.value("show_diagnostic_search") != QJsonValue::Undefined) {
-                this->show_diagnostic_search = json_object.value("show_diagnostic_search").toBool();
+            if (json_object.value("show_external_layers_settings") != QJsonValue::Undefined) {
+                this->show_external_layers_settings = json_object.value("show_external_layers_settings").toBool();
             }
 
             if (json_object.value("VULKAN_HOME") != QJsonValue::Undefined) {
@@ -1039,7 +1057,7 @@ bool Configurator::Save() const {
         json_object.insert("use_notify_releases", this->use_notify_releases);
         json_object.insert("latest_sdk_version", this->latest_sdk_version.str().c_str());
         json_object.insert("last_vkconfig_version", Version::VKCONFIG.str().c_str());
-        json_object.insert("show_diagnostic_search", this->show_diagnostic_search);
+        json_object.insert("show_external_layers_settings", this->show_external_layers_settings);
         json_object.insert("VULKAN_HOME", ::Path(Path::HOME).RelativePath().c_str());
         json_object.insert("VULKAN_DOWNLOAD", ::Path(Path::DOWNLOAD).RelativePath().c_str());
         json_interface_object.insert(GetToken(TAB_PREFERENCES), json_object);
@@ -1112,9 +1130,24 @@ bool Configurator::GetUseNotifyReleases() const { return this->use_notify_releas
 
 void Configurator::SetUseNotifyReleases(bool enabled) { this->use_notify_releases = enabled; }
 
-bool Configurator::GetShowDiagnosticSearch() const { return show_diagnostic_search; }
+bool Configurator::GetShowExternalLayersSettings() const { return this->show_external_layers_settings; }
 
-void Configurator::SetShowDiagnosticSearch(bool enabled) { this->show_diagnostic_search = enabled; }
+void Configurator::SetShowExternalLayersSettings(bool enabled) { this->show_external_layers_settings = enabled; }
+
+bool Configurator::IsExternalLayersSettingsUsed(bool icon_mode) const {
+    const Configuration* configuration = this->GetActiveConfiguration();
+    if (configuration == nullptr) {
+        return this->GetShowExternalLayersSettings();
+    }
+
+    const bool in_use = configuration->override_settings || !configuration->override_settings_path.Empty();
+
+    if (icon_mode) {
+        return in_use;
+    } else {
+        return in_use || this->GetShowExternalLayersSettings();
+    }
+}
 
 bool Configurator::ShouldNotify() const {
     // Notify if
