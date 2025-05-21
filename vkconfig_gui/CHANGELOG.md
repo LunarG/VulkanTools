@@ -3,6 +3,7 @@
 
 ### Features:
 - Add support for layer-defined messages
+- Add support for external `vk_layer_settings.txt` files
 
 ### Improvements:
 - Improved layer settings documentation

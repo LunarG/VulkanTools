@@ -60,6 +60,8 @@ class Configuration {
     int version = 1;
     int platform_flags = PLATFORM_DESKTOP_BIT;
     LayerControl default_control = LAYER_CONTROL_AUTO;
+    bool override_settings = false;
+    Path override_settings_path;
     bool override_layers = true;
     bool override_loader = true;
     int loader_log_messages_flags = GetBit(LOG_ERROR);

@@ -545,7 +545,7 @@ void TabDiagnostics::on_context_menu(const QPoint &pos) {
 
     QAction *action_search = new QAction("Search...", nullptr);
     action_search->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
-    action_search->setEnabled(!configurator.GetShowDiagnosticSearch());
+    action_search->setEnabled(true);
     menu->addAction(action_search);
 
     QAction *action = menu->exec(this->ui->diagnostic_status_text->mapToGlobal(pos));

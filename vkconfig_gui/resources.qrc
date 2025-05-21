@@ -14,6 +14,8 @@
         <file>resourcefiles/dark/prev.png</file>
         <file>resourcefiles/dark/down.png</file>
         <file>resourcefiles/dark/exit.png</file>
+        <file>resourcefiles/dark/hide.png</file>
+        <file>resourcefiles/dark/show.png</file>
 
         <file>resourcefiles/dark/search_case.png</file>
         <file>resourcefiles/dark/search_whole.png</file>
@@ -51,6 +53,8 @@
         <file>resourcefiles/light/prev.png</file>
         <file>resourcefiles/light/down.png</file>
         <file>resourcefiles/light/exit.png</file>
+        <file>resourcefiles/light/hide.png</file>
+        <file>resourcefiles/light/show.png</file>
 
         <file>resourcefiles/light/search_case.png</file>
         <file>resourcefiles/light/search_whole.png</file>

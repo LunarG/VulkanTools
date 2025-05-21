@@ -34,14 +34,14 @@ bool IsDarkMode() {
     if (VKC_PLATFORM == PLATFORM_LINUX) {
         return false;
     }
-/*
-    if (VKC_PLATFORM == PLATFORM_LINUX) {
-        std::string OS = QSysInfo::prettyProductName().toStdString();
-        if (OS.find("Ubuntu") == std::string::npos) {
-            return false;
+    /*
+        if (VKC_PLATFORM == PLATFORM_LINUX) {
+            std::string OS = QSysInfo::prettyProductName().toStdString();
+            if (OS.find("Ubuntu") == std::string::npos) {
+                return false;
+            }
         }
-    }
-*/
+    */
     Qt::ColorScheme scheme = QGuiApplication::styleHints()->colorScheme();
     return scheme == Qt::ColorScheme::Dark;
 }
@@ -55,6 +55,8 @@ QIcon Get(Icon icon) {
         "prev.png",               // ICON_PREV
         "down.png",               // ICON_MODE
         "exit.png",               // ICON_EXIT
+        "show.png",               // ICON_SHOW
+        "hide.png",               // ICON_HIDE
         "search_case.png",        // ICON_SEARCH_CASE
         "search_whole.png",       // ICON_SEARCH_WHOLE
         "search_regex.png",       // ICON_SEARCH_REGEX
