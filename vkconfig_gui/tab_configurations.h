@@ -93,6 +93,8 @@ class TabConfigurations : public Tab {
     void OnContextMenuResetOneClicked(ListItem *item);
     void OnContextMenuResetAllClicked(ListItem *item);
     void OnContextMenuExportConfigsClicked(ListItem *item);
+    void OnContextMenuExportEnvVariablesBashClicked(ListItem *item);
+    void OnContextMenuExportEnvVariablesCMDClicked(ListItem *item);
     void OnContextMenuExportSettingsClicked(ListItem *item);
 
     void UpdatePerExecutableConfigurations();
