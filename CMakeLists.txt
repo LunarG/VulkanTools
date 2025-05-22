@@ -130,5 +130,14 @@ if(BUILD_LAYERMGR)
         add_subdirectory(vkconfig_core)
         add_subdirectory(vkconfig_cmd)
         add_subdirectory(vkconfig_gui)
+
+        if(WIN32)
+          # Use the static runtime library? This is for special builds of Vulkan Configurator only
+          if(USE_STATIC_RT_VKCONFIG)
+            set_property(TARGET vkconfig-gui vkconfig-cmd vkconfig-core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+              message(STATUS "vkconfig-core will link against static runtime")
+          endif()
+        endif()
+
     endif()
 endif()
