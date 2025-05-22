@@ -2604,6 +2604,9 @@ void dump_text_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceIn
 //======================== pNext Chain Implementation =======================//
 
 
+//========================== Function Helpers ===============================//
+
+
 //========================= Function Implementations ========================//
 
 
