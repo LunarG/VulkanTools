@@ -562,6 +562,14 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             action_export_settings->setEnabled(item != nullptr);
             menu.addAction(action_export_settings);
 
+            QAction *action_export_env_variables_bash_script = new QAction("Export the Bash script...", nullptr);
+            action_export_env_variables_bash_script->setEnabled(item != nullptr);
+            menu.addAction(action_export_env_variables_bash_script);
+            /* TODO
+                        QAction *action_export_env_variables_cmd_script = new QAction("Export the Command Prompt script...",
+               nullptr); action_export_env_variables_cmd_script->setEnabled(item != nullptr);
+                        menu.addAction(action_export_env_variables_cmd_script);
+            */
             menu.addSeparator();
 
             QAction *action_external_settings = new QAction("Use External Layers Settings file...", nullptr);
@@ -587,6 +595,12 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 this->OnContextMenuResetAllClicked(item);
             } else if (action == action_export_config) {
                 this->OnContextMenuExportConfigsClicked(item);
+            } else if (action == action_export_env_variables_bash_script) {
+                this->OnContextMenuExportEnvVariablesBashClicked(item);
+                /* TODO
+                            } else if (action == action_export_env_variables_cmd_script) {
+                                this->OnContextMenuExportEnvVariablesCMDClicked(item);
+                */
             } else if (action == action_export_settings) {
                 this->OnContextMenuExportSettingsClicked(item);
             } else if (action == action_external_settings) {
@@ -1013,6 +1027,50 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
         msg.exec();
     } else {
         QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path.c_str()));
+    }
+}
+
+void TabConfigurations::OnContextMenuExportEnvVariablesBashClicked(ListItem *item) {
+    assert(item);
+    Configurator &configurator = Configurator::Get();
+
+    const Path path_export = configurator.configurations.last_path_export_config.RelativePath() + "/" + item->key + ".sh";
+    const QString &selected_path = QFileDialog::getSaveFileName(&this->window, "Export Environment Variables bash script",
+                                                                path_export.AbsolutePath().c_str(), "Shell Script(*.sh)");
+
+    const bool result = configurator.Export(selected_path.toStdString());
+
+    if (!result) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle("Exporting of a file failed...");
+        msg.setText(format("Couldn't be create '%s' file.", selected_path.toStdString().c_str()).c_str());
+        msg.exec();
+    } else {
+        Path path(selected_path.toStdString());
+        QDesktopServices::openUrl(QUrl::fromLocalFile(path.AbsoluteDir().c_str()));
+    }
+}
+
+void TabConfigurations::OnContextMenuExportEnvVariablesCMDClicked(ListItem *item) {
+    assert(item);
+    Configurator &configurator = Configurator::Get();
+
+    const Path path_export = configurator.configurations.last_path_export_config.RelativePath() + "/" + item->key + ".bat";
+    const QString &selected_path = QFileDialog::getSaveFileName(&this->window, "Export Environment Variables command prompt script",
+                                                                path_export.AbsolutePath().c_str(), "Shell Script(*.sh)");
+
+    const bool result = configurator.Export(selected_path.toStdString());
+
+    if (!result) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle("Exporting of a file failed...");
+        msg.setText(format("Couldn't be create '%s' file.", selected_path.toStdString().c_str()).c_str());
+        msg.exec();
+    } else {
+        Path path(selected_path.toStdString());
+        QDesktopServices::openUrl(QUrl::fromLocalFile(path.AbsoluteDir().c_str()));
     }
 }
 

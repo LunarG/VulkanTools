@@ -4,6 +4,7 @@
 ### Features:
 - Add support for layer-defined messages
 - Add support for external `vk_layer_settings.txt` files
+- Add environment variables export of loader configurations
 
 ### Improvements:
 - Improved layer settings documentation

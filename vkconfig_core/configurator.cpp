@@ -276,6 +276,169 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
     }
 }
 
+bool Configurator::Export(const Path& export_path) const {
+    QFile file(export_path.AbsolutePath().c_str());
+
+    const bool result_layers_file = file.open(QIODevice::WriteOnly | QIODevice::Text);
+    if (!result_layers_file) {
+        return false;
+    }
+
+    bool has_missing_layers = false;
+    const Configuration* configuration = this->GetActiveConfiguration();
+
+    QTextStream stream(&file);
+
+    stream << "#! Loader Settings:\n";
+
+    const std::vector<std::string>& stderr_log = GetLogTokens(configuration->loader_log_messages_flags);
+    const std::string stderr_logs = Merge(stderr_log, ",");
+
+    if (configuration->override_loader) {
+        stream << "export VK_LOADER_DEBUG=" << stderr_logs.c_str() << "\n";
+    }
+    if (configuration->override_layers) {
+        stream << "#! For now, the Vulkan Loader doesn't fully support the same behavior with environment variables than what's "
+                  "supported with Vulkan Configurator...\n";
+        stream << "#! The Vulkan Loader doesn't support fully ordering layers with environment variables.\n";
+        stream << "export VK_LOADER_LAYERS_ENABLE=";
+
+        std::vector<std::string> layer_list;
+        for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
+            const Parameter& parameter = configuration->parameters[i];
+            if (parameter.control != LAYER_CONTROL_ON) {
+                continue;
+            }
+            layer_list.push_back(parameter.key);
+        }
+        stream << Merge(layer_list, ",").c_str();
+        stream << "\n";
+    }
+
+    stream << "\n";
+
+    stream << "#! Layers Settings:\n";
+
+    // Loop through all the layers
+    for (std::size_t j = 0, n = configuration->parameters.size(); j < n; ++j) {
+        const Parameter& parameter = configuration->parameters[j];
+        if (!parameter.override_settings) {
+            continue;
+        }
+
+        if (!(parameter.platform_flags & (1 << VKC_PLATFORM))) {
+            continue;
+        }
+
+        if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
+            continue;
+        }
+
+        if (parameter.control == LAYER_CONTROL_DISCARD || parameter.control == LAYER_CONTROL_OFF) {
+            continue;
+        }
+
+        const Layer* layer = this->layers.Find(parameter.key.c_str(), parameter.api_version);
+        if (layer == nullptr) {
+            if (parameter.control == LAYER_CONTROL_ON) {
+                has_missing_layers = true;
+                fprintf(stderr,
+                        "vkconfig: [ERROR] `%s` layer is set to `%s` in `%s` loader configuration but missing and being "
+                        "ignored\n",
+                        parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str());
+            } else {
+                fprintf(stderr,
+                        "vkconfig: [WARNING] `%s` layer is set to `%s` in `%s` loader configuration but missing and being "
+                        "ignored\n",
+                        parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str());
+            }
+            continue;
+        }
+
+        stream << "\n";
+        stream << "#! " << layer->key.c_str() << " " << layer->api_version.str().c_str() << "\n\n";
+
+        std::string lc_layer_name = GetLayerSettingPrefix(layer->key);
+
+        for (std::size_t i = 0, m = parameter.settings.size(); i < m; ++i) {
+            const SettingData* setting_data = parameter.settings[i];
+
+            // Skip groups - they aren't settings, so not relevant in this output
+            if (setting_data->type == SETTING_GROUP) {
+                continue;
+            }
+
+            // Skip missing settings
+            const SettingMeta* meta = FindSetting(layer->settings, setting_data->key.c_str());
+            if (meta == nullptr) {
+                continue;
+            }
+
+            // Skip overriden settings
+            if (::CheckSettingOverridden(*meta)) {
+                continue;
+            }
+
+            stream << "#! ";
+            stream << meta->label.c_str();
+            stream << "\n#! =====================\n";
+            stream << "#! " << meta->key.c_str();
+
+            if (meta->status != STATUS_STABLE) {
+                stream << format(" (%s)", GetToken(meta->status)).c_str();
+            }
+
+            stream << "\n";
+
+            // Break up description into smaller words
+            std::string description = meta->description;
+            std::vector<std::string> words;
+            std::size_t pos;
+            while ((pos = description.find(" ")) != std::string::npos) {
+                words.push_back(description.substr(0, pos));
+                description.erase(0, pos + 1);
+            }
+            if (description.size() > 0) words.push_back(description);
+            if (words.size() > 0) {
+                stream << "#!";
+                std::size_t nchars = 2;
+                for (auto word : words) {
+                    if (word.size() + nchars > 80) {
+                        stream << "\n#!";
+                        nchars = 3;
+                    }
+                    stream << " " << word.c_str();
+                    nchars += (word.size() + 1);
+                }
+            }
+            stream << "\n";
+
+            // If feature has unmet dependency, output it but comment it out
+            if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
+                stream << "#!";
+            }
+
+            if (meta->status == STATUS_DEPRECATED && !meta->deprecated_by_key.empty()) {
+                const SettingMeta* replaced_setting = FindSetting(layer->settings, meta->deprecated_by_key.c_str());
+
+                stream << format("#! This setting was deprecated and replaced by '%s' (%s) setting.\n",
+                                 replaced_setting->label.c_str(), replaced_setting->key.c_str())
+                              .c_str();
+            }
+
+            std::vector<std::string> data = ::BuildEnvVariablesList(layer->key.c_str(), setting_data->key.c_str(), false);
+
+            stream << "export " << data[0].c_str() << "=";
+            stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
+            stream << "\n\n";
+        }
+    }
+
+    file.close();
+
+    return true;
+}
+
 // Create and write vk_layer_settings.txt file
 bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path) {
     if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
