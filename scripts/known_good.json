@@ -106,7 +106,6 @@
             "install_dir": "googletest/build/install",
             "cmake_options": [
                 "-DBUILD_GMOCK=OFF",
-                "-Dgtest_force_shared_crt=ON",
                 "-DBUILD_SHARED_LIBS=OFF"
             ],
             "commit": "v1.14.0",
