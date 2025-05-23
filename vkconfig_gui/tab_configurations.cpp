@@ -565,11 +565,11 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             QAction *action_export_env_variables_bash_script = new QAction("Export the Bash script...", nullptr);
             action_export_env_variables_bash_script->setEnabled(item != nullptr);
             menu.addAction(action_export_env_variables_bash_script);
-            /* TODO
-                        QAction *action_export_env_variables_cmd_script = new QAction("Export the Command Prompt script...",
-               nullptr); action_export_env_variables_cmd_script->setEnabled(item != nullptr);
-                        menu.addAction(action_export_env_variables_cmd_script);
-            */
+
+            QAction *action_export_env_variables_cmd_script = new QAction("Export the Command Prompt script...", nullptr);
+            action_export_env_variables_cmd_script->setEnabled(item != nullptr);
+            menu.addAction(action_export_env_variables_cmd_script);
+
             menu.addSeparator();
 
             QAction *action_external_settings = new QAction("Use External Layers Settings file...", nullptr);
@@ -597,10 +597,8 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 this->OnContextMenuExportConfigsClicked(item);
             } else if (action == action_export_env_variables_bash_script) {
                 this->OnContextMenuExportEnvVariablesBashClicked(item);
-                /* TODO
-                            } else if (action == action_export_env_variables_cmd_script) {
-                                this->OnContextMenuExportEnvVariablesCMDClicked(item);
-                */
+            } else if (action == action_export_env_variables_cmd_script) {
+                this->OnContextMenuExportEnvVariablesCMDClicked(item);
             } else if (action == action_export_settings) {
                 this->OnContextMenuExportSettingsClicked(item);
             } else if (action == action_external_settings) {
@@ -1038,7 +1036,7 @@ void TabConfigurations::OnContextMenuExportEnvVariablesBashClicked(ListItem *ite
     const QString &selected_path = QFileDialog::getSaveFileName(&this->window, "Export Environment Variables bash script",
                                                                 path_export.AbsolutePath().c_str(), "Shell Script(*.sh)");
 
-    const bool result = configurator.Export(selected_path.toStdString());
+    const bool result = configurator.Export(EXPORT_ENV_BASH, selected_path.toStdString());
 
     if (!result) {
         QMessageBox msg;
@@ -1058,9 +1056,9 @@ void TabConfigurations::OnContextMenuExportEnvVariablesCMDClicked(ListItem *item
 
     const Path path_export = configurator.configurations.last_path_export_config.RelativePath() + "/" + item->key + ".bat";
     const QString &selected_path = QFileDialog::getSaveFileName(&this->window, "Export Environment Variables command prompt script",
-                                                                path_export.AbsolutePath().c_str(), "Shell Script(*.sh)");
+                                                                path_export.AbsolutePath().c_str(), "Command Prompt Script(*.bat)");
 
-    const bool result = configurator.Export(selected_path.toStdString());
+    const bool result = configurator.Export(EXPORT_ENV_CMD, selected_path.toStdString());
 
     if (!result) {
         QMessageBox msg;

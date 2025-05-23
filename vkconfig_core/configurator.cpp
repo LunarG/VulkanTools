@@ -276,7 +276,10 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
     }
 }
 
-bool Configurator::Export(const Path& export_path) const {
+bool Configurator::Export(ExportEnvMode mode, const Path& export_path) const {
+    const char* COMMENT = mode == EXPORT_ENV_BASH ? "#! " : ":: ";
+    const char* EXPORT = mode == EXPORT_ENV_BASH ? "export " : "set ";
+
     QFile file(export_path.AbsolutePath().c_str());
 
     const bool result_layers_file = file.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -289,19 +292,21 @@ bool Configurator::Export(const Path& export_path) const {
 
     QTextStream stream(&file);
 
-    stream << "#! Loader Settings:\n";
+    stream << COMMENT << "Loader Settings:\n";
 
     const std::vector<std::string>& stderr_log = GetLogTokens(configuration->loader_log_messages_flags);
     const std::string stderr_logs = Merge(stderr_log, ",");
 
     if (configuration->override_loader) {
-        stream << "export VK_LOADER_DEBUG=" << stderr_logs.c_str() << "\n";
+        stream << EXPORT << "VK_LOADER_DEBUG=" << stderr_logs.c_str() << "\n";
     }
     if (configuration->override_layers) {
-        stream << "#! For now, the Vulkan Loader doesn't fully support the same behavior with environment variables than what's "
+        stream << COMMENT;
+        stream << "For now, the Vulkan Loader doesn't fully support the same behavior with environment variables than what's "
                   "supported with Vulkan Configurator...\n";
-        stream << "#! The Vulkan Loader doesn't support fully ordering layers with environment variables.\n";
-        stream << "export VK_LOADER_LAYERS_ENABLE=";
+        stream << COMMENT;
+        stream << "The Vulkan Loader doesn't support fully ordering layers with environment variables.\n";
+        stream << EXPORT << "VK_LOADER_LAYERS_ENABLE=";
 
         std::vector<std::string> layer_list;
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
@@ -317,7 +322,7 @@ bool Configurator::Export(const Path& export_path) const {
 
     stream << "\n";
 
-    stream << "#! Layers Settings:\n";
+    stream << COMMENT << "Layers Settings:\n";
 
     // Loop through all the layers
     for (std::size_t j = 0, n = configuration->parameters.size(); j < n; ++j) {
@@ -356,7 +361,7 @@ bool Configurator::Export(const Path& export_path) const {
         }
 
         stream << "\n";
-        stream << "#! " << layer->key.c_str() << " " << layer->api_version.str().c_str() << "\n\n";
+        stream << COMMENT << layer->key.c_str() << " " << layer->api_version.str().c_str() << "\n\n";
 
         std::string lc_layer_name = GetLayerSettingPrefix(layer->key);
 
@@ -379,10 +384,9 @@ bool Configurator::Export(const Path& export_path) const {
                 continue;
             }
 
-            stream << "#! ";
-            stream << meta->label.c_str();
-            stream << "\n#! =====================\n";
-            stream << "#! " << meta->key.c_str();
+            stream << COMMENT << meta->label.c_str() << "\n";
+            stream << COMMENT << "=====================\n";
+            stream << COMMENT << meta->key.c_str();
 
             if (meta->status != STATUS_STABLE) {
                 stream << format(" (%s)", GetToken(meta->status)).c_str();
@@ -400,12 +404,13 @@ bool Configurator::Export(const Path& export_path) const {
             }
             if (description.size() > 0) words.push_back(description);
             if (words.size() > 0) {
-                stream << "#!";
-                std::size_t nchars = 2;
+                stream << COMMENT;
+                std::size_t nchars = std::strlen(COMMENT);
                 for (auto word : words) {
                     if (word.size() + nchars > 80) {
-                        stream << "\n#!";
-                        nchars = 3;
+                        stream << "\n";
+                        stream << COMMENT;
+                        nchars = std::strlen(COMMENT);
                     }
                     stream << " " << word.c_str();
                     nchars += (word.size() + 1);
@@ -415,21 +420,33 @@ bool Configurator::Export(const Path& export_path) const {
 
             // If feature has unmet dependency, output it but comment it out
             if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
-                stream << "#!";
+                stream << COMMENT;
             }
 
             if (meta->status == STATUS_DEPRECATED && !meta->deprecated_by_key.empty()) {
                 const SettingMeta* replaced_setting = FindSetting(layer->settings, meta->deprecated_by_key.c_str());
 
-                stream << format("#! This setting was deprecated and replaced by '%s' (%s) setting.\n",
+                stream << COMMENT;
+                stream << format("This setting was deprecated and replaced by '%s' (%s) setting.\n",
                                  replaced_setting->label.c_str(), replaced_setting->key.c_str())
                               .c_str();
             }
 
             std::vector<std::string> data = ::BuildEnvVariablesList(layer->key.c_str(), setting_data->key.c_str(), false);
+            const bool need_wordaround = mode == EXPORT_ENV_BASH && setting_data->key == "force_device_name";
 
-            stream << "export " << data[0].c_str() << "=";
+            stream << EXPORT << data[0].c_str() << "=";
+
+            if (need_wordaround) {
+                stream << "\"";
+            }
+
             stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
+
+            if (need_wordaround) {
+                stream << "\"";
+            }
+
             stream << "\n\n";
         }
     }

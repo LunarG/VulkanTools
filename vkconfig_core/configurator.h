@@ -43,6 +43,8 @@ enum EnabledUI {
     ENABLE_UI_SETTINGS,
 };
 
+enum ExportEnvMode { EXPORT_ENV_BASH = 0, EXPORT_ENV_CMD };
+
 class Configurator {
    public:
     struct LayersSettings {
@@ -99,7 +101,7 @@ class Configurator {
 
     bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
     bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
-    bool Export(const Path& export_path) const;
+    bool Export(ExportEnvMode mode, const Path& export_path) const;
 
     void Set(HideMessageType type);
     bool Get(HideMessageType type) const;
