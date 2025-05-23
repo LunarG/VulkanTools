@@ -85,6 +85,7 @@
 #define kSettingsKeyDetailedOutput "detailed"
 #define kSettingsKeyNoAddr "no_addr"
 #define kSettingsKeyFlush "flush"
+#define kSettingsKeyPreDump "pre_dump"
 #define kSettingsKeyOutputRange "output_range"
 #define kSettingsKeyTimestamp "timestamp"
 #define kSettingsKeyIndentSize "indent_size"
@@ -480,6 +481,8 @@ class ApiDumpSettings {
 
     bool shouldFlush() const { return should_flush; }
 
+    bool shouldPreDump() const { return should_pre_dump; }
+
     bool showAddress() const { return show_address; }
 
     bool showParams() const { return show_params; }
@@ -586,6 +589,11 @@ class ApiDumpSettings {
         should_flush = true;
         if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyFlush)) {
             vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyFlush, should_flush);
+        }
+
+        should_pre_dump = false;
+        if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyPreDump)) {
+            vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyPreDump, should_pre_dump);
         }
 
         show_timestamp = false;
@@ -787,6 +795,7 @@ class ApiDumpSettings {
     bool show_params;
     bool show_address;
     bool should_flush;
+    bool should_pre_dump;
     bool show_timestamp;
 
     bool show_type;
@@ -1092,6 +1101,33 @@ inline void dump_text_function_head(ApiDumpInstance &dump_inst, const char *func
     settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
 }
 
+inline void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams) {
+    const ApiDumpSettings &settings(dump_inst.settings());
+    if (settings.showThreadAndFrame()) {
+        settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
+    }
+    if (settings.showTimestamp() && settings.showThreadAndFrame()) {
+        settings.stream() << ", ";
+    }
+    if (settings.showTimestamp()) {
+        settings.stream() << "Time " << dump_inst.current_time_since_start().count() << " us";
+    }
+    if (settings.showTimestamp() || settings.showThreadAndFrame()) {
+        settings.stream() << ":\n";
+    }
+    settings.stream() << funcName << "(" << funcNamedParams << ")";
+
+    settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}
+
+inline void dump_text_return_preamble(ApiDumpInstance& dump_inst, const char* funcReturn) {
+    const ApiDumpSettings &settings(dump_inst.settings());
+    
+    settings.stream() << "returns " << funcReturn;
+
+    settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}
+
 template <typename T>
 void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
                      const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
@@ -1218,6 +1254,26 @@ inline void dump_html_function_head(ApiDumpInstance &dump_inst, const char *func
         settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
     settings.stream() << "<details class='fn'><summary>";
     settings.stream() << "<div class='var'>" << funcName << "(" << funcNamedParams << ")</div>";
+    if (settings.showType()) {
+        settings.stream() << "<div class='type'>" << funcReturn << "</div>";
+    }
+    settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}
+
+inline void dump_html_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams) {
+    const ApiDumpSettings &settings(dump_inst.settings());
+    if (settings.showThreadAndFrame()) {
+        settings.stream() << "<div class='thd'>Thread: " << dump_inst.threadID() << "</div>";
+    }
+    if (settings.showTimestamp())
+        settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
+    settings.stream() << "<details class='fn'><summary>";
+    settings.stream() << "<div class='var'>" << funcName << "(" << funcNamedParams << ")</div>";
+    settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}
+
+inline void dump_html_return_preamble(ApiDumpInstance& dump_inst, const char* funcReturn) {
+    const ApiDumpSettings &settings(dump_inst.settings());
     if (settings.showType()) {
         settings.stream() << "<div class='type'>" << funcReturn << "</div>";
     }
@@ -1377,6 +1433,41 @@ inline void dump_json_function_head(ApiDumpInstance &dump_inst, const char *func
     }
 
     // Display return value
+    settings.stream() << settings.indentation(3) << "\"returnType\" : \"" << funcReturn << "\"";
+    // Add a trailing comma if the return type isn't void or detailed mode is false - JSON doesn't allow trailing commas in object
+    if (strcmp("void", funcReturn) != 0 || settings.showParams()) {
+        settings.stream() << ",";
+    }
+    settings.stream() << "\n";
+
+    settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}
+
+inline void dump_json_function_head(ApiDumpInstance &dump_inst, const char *funcName) {
+    const ApiDumpSettings &settings(dump_inst.settings());
+
+    if (!dump_inst.firstFunctionCallOnFrame()) settings.stream() << ",\n";
+
+    // Display api call name
+    settings.stream() << settings.indentation(2) << "{\n";
+    settings.stream() << settings.indentation(3) << "\"name\" : \"" << funcName << "\",\n";
+
+    // Display thread info
+    if (settings.showThreadAndFrame()) {
+        settings.stream() << settings.indentation(3) << "\"thread\" : \"Thread " << dump_inst.threadID() << "\",\n";
+    }
+
+    // Display elapsed time
+    if (settings.showTimestamp()) {
+        settings.stream() << settings.indentation(3) << "\"time\" : \"" << dump_inst.current_time_since_start().count()
+                          << " us\",\n";
+    }
+
+    settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
+}
+
+inline void dump_json_return_preamble(ApiDumpInstance& dump_inst, const char* funcReturn) {
+    const ApiDumpSettings &settings(dump_inst.settings());
     settings.stream() << settings.indentation(3) << "\"returnType\" : \"" << funcReturn << "\"";
     // Add a trailing comma if the return type isn't void or detailed mode is false - JSON doesn't allow trailing commas in object
     if (strcmp("void", funcReturn) != 0 || settings.showParams()) {
@@ -1629,6 +1720,38 @@ inline void dump_function_head(ApiDumpInstance &dump_inst, const char *funcName,
                 break;
             case ApiDumpFormat::Json:
                 dump_json_function_head(dump_inst, funcName, funcReturn);
+                break;
+        }
+    }
+}
+
+inline void dump_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams) {
+    if (dump_inst.shouldDumpOutput()) {
+        switch (dump_inst.settings().format()) {
+            case ApiDumpFormat::Text:
+                dump_text_function_head(dump_inst, funcName, funcNamedParams);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_function_head(dump_inst, funcName, funcNamedParams);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_function_head(dump_inst, funcName);
+                break;
+        }
+    }
+}
+
+inline void dump_return_preamble(ApiDumpInstance& dump_inst, const char* funcReturn) {
+    if (dump_inst.shouldDumpOutput()) {
+        switch (dump_inst.settings().format()) {
+            case ApiDumpFormat::Text:
+                dump_text_return_preamble(dump_inst, funcReturn);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_return_preamble(dump_inst, funcReturn);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_return_preamble(dump_inst, funcReturn);
                 break;
         }
     }

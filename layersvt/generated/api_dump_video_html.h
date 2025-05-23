@@ -2824,6 +2824,9 @@ void dump_html_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceIn
 //======================== pNext Chain Implementation =======================//
 
 
+//========================= Function Helpers ================================//
+
+
 //========================= Function Implementations ========================//
 
 
