@@ -157,7 +157,7 @@ void SettingsTreeManager::CreateGUI() {
                 if (!IsPlatformSupported(layer_preset.platform_flags)) {
                     continue;
                 }
-                if (configurator.GetUseLayerDevMode()) {
+                if (configurator.GetUseLayerDebugMode()) {
                     if (layer_preset.view == SETTING_VIEW_HIDDEN) {
                         continue;
                     }
@@ -250,7 +250,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
     }
 
     Configurator &configurator = Configurator::Get();
-    if (configurator.GetUseLayerDevMode()) {
+    if (configurator.GetUseLayerDebugMode()) {
         if (meta_object.view == SETTING_VIEW_HIDDEN) {
             return;
         }
@@ -338,7 +338,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
                     continue;
                 }
 
-                if (configurator.GetUseLayerDevMode()) {
+                if (configurator.GetUseLayerDebugMode()) {
                     if (value.view == SETTING_VIEW_HIDDEN) {
                         return;
                     }
@@ -367,7 +367,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
                     continue;
                 }
 
-                if (configurator.GetUseLayerDevMode()) {
+                if (configurator.GetUseLayerDebugMode()) {
                     if (value.view == SETTING_VIEW_HIDDEN) {
                         return;
                     }

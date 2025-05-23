@@ -88,7 +88,7 @@ void TabPreferences::UpdateUI(UpdateUIMode mode) {
     this->ui->preferences_vk_home_text->blockSignals(false);
 
     this->ui->preferences_show_debug_settings->blockSignals(true);
-    this->ui->preferences_show_debug_settings->setChecked(configurator.GetUseLayerDevMode());
+    this->ui->preferences_show_debug_settings->setChecked(configurator.GetUseLayerDebugMode());
     this->ui->preferences_show_debug_settings->blockSignals(false);
 
     this->ui->preferences_show_override_settings->blockSignals(true);
@@ -254,7 +254,7 @@ void TabPreferences::on_notify_releases_toggled(bool checked) {
 
 void TabPreferences::on_layer_dev_mode_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
-    configurator.SetUseLayerDevMode(checked);
+    configurator.SetUseLayerDebugMode(checked);
 }
 
 void TabPreferences::on_show_override_settings_toggled(bool checked) {

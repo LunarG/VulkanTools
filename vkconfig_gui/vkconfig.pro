@@ -77,6 +77,7 @@ SOURCES += \
     ../vkconfig_core/type_action.cpp \
     ../vkconfig_core/type_action_operator.cpp \
     ../vkconfig_core/type_condition_operator.cpp \
+    ../vkconfig_core/type_view.cpp \
     ../vkconfig_core/util.cpp \
     ../vkconfig_core/ui.cpp \
     ../vkconfig_core/version.cpp \
@@ -164,6 +165,7 @@ HEADERS += \
     ../vkconfig_core/type_action.h \
     ../vkconfig_core/type_action_operator.h \
     ../vkconfig_core/type_condition_operator.h \
+    ../vkconfig_core/type_view.h \
     ../vkconfig_core/util.h \
     ../vkconfig_core/ui.h \
     ../vkconfig_core/version.h \

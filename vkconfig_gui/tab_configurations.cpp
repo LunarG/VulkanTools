@@ -721,7 +721,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                             text += "Possible Values:\n";
                             const SettingMetaEnumeration *setting_enum = static_cast<const SettingMetaEnumeration *>(setting);
                             for (std::size_t i = 0, n = setting_enum->enum_values.size(); i < n; ++i) {
-                                if (configurator.GetUseLayerDevMode()) {
+                                if (configurator.GetUseLayerDebugMode()) {
                                     if (setting_enum->enum_values[i].view == SETTING_VIEW_HIDDEN) {
                                         continue;
                                     }

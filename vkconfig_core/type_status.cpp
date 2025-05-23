@@ -28,7 +28,7 @@ const char* GetToken(StatusType value) {
         "STABLE",     // STATUS_STABLE
         "BETA",       // STATUS_BETA
         "ALPHA",      // STATUS_ALPHA
-        "DEPRECATED"  // STATUS_ALPHA
+        "DEPRECATED"  // STATUS_DEPRECATED
     };
     static_assert(std::size(TOKENS) == STATUS_COUNT, "The tranlation table size doesn't match the enum number of elements");
 
@@ -47,5 +47,5 @@ StatusType GetStatusType(const char* token) {
         }
     }
 
-    return STATUS_INVALID;
+    return STATUS_STABLE;
 }
