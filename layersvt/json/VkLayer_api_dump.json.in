@@ -165,7 +165,26 @@
                             "description": "Json"
                         }
                     ],
-                    "default": "text"
+                    "default": "text",
+                    "settings": [
+                        {
+                            "key": "pre_dump",
+                            "env": "VK_APIDUMP_PRE_DUMP",
+                            "label": "Pre-dump the parameters.",
+                            "description": "Setting this to true causes parameters to calls be logged before the function as well as after the function.",
+                            "type": "BOOL",
+                            "default": false,
+                            "dependence": {
+                                "mode": "ALL",
+                                "settings": [
+                                    {
+                                        "key": "output_format",
+                                        "value": "text"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
                 },
                 {
                     "key": "file",
@@ -201,14 +220,6 @@
                     "description": "Setting this to true causes IO to be flushed after each API call that is written",
                     "type": "BOOL",
                     "default": true
-                },
-                {
-                    "key": "pre_dump",
-                    "env": "VK_APIDUMP_PRE_DUMP",
-                    "label": "Pre-dump the parameters in text mode.",
-                    "description": "Setting this to true causes parameters to calls be logged before the function as well as after the function, if the output is in TEXT format.",
-                    "type": "BOOL",
-                    "default": false
                 },
                 {
                     "key": "name_size",
