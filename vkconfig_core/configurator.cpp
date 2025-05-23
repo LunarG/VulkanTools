@@ -745,7 +745,7 @@ std::string Configurator::Log() const {
     }
 
     log += format(" - Use system tray: %s\n", this->use_system_tray ? "true" : "false");
-    log += format(" - Use layer developer mode: %s\n", this->use_layer_dev_mode ? "true" : "false");
+    log += format(" - Use layer developer mode: %s\n", this->use_layer_debug_mode ? "true" : "false");
     log += format(" - ${VULKAN_BIN}: %s\n", ::Path(Path::BIN).AbsolutePath().c_str());
     log += format(" - ${VULKAN_PROFILES}: %s\n", ::Path(Path::PROFILES).AbsolutePath().c_str());
     log += format(" - ${VULKAN_HOME}: %s\n", ::Path(Path::HOME).AbsolutePath().c_str());
@@ -971,8 +971,8 @@ bool Configurator::Load() {
         if (json_interface_object.value(GetToken(TAB_PREFERENCES)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_PREFERENCES)).toObject();
 
-            if (json_object.value("use_layer_dev_mode") != QJsonValue::Undefined) {
-                this->use_layer_dev_mode = json_object.value("use_layer_dev_mode").toBool();
+            if (json_object.value("use_layer_debug_mode") != QJsonValue::Undefined) {
+                this->use_layer_debug_mode = json_object.value("use_layer_debug_mode").toBool();
             }
 
             if (json_object.value("use_notify_releases") != QJsonValue::Undefined) {
@@ -1053,7 +1053,7 @@ bool Configurator::Save() const {
     {
         QJsonObject json_object;
         json_object.insert("use_system_tray", this->use_system_tray);
-        json_object.insert("use_layer_dev_mode", this->use_layer_dev_mode);
+        json_object.insert("use_layer_debug_mode", this->use_layer_debug_mode);
         json_object.insert("use_notify_releases", this->use_notify_releases);
         json_object.insert("latest_sdk_version", this->latest_sdk_version.str().c_str());
         json_object.insert("last_vkconfig_version", Version::VKCONFIG.str().c_str());
@@ -1122,9 +1122,9 @@ bool Configurator::GetUseSystemTray() const { return this->use_system_tray; }
 
 void Configurator::SetUseSystemTray(bool enabled) { this->use_system_tray = enabled; }
 
-bool Configurator::GetUseLayerDevMode() const { return this->use_layer_dev_mode; }
+bool Configurator::GetUseLayerDebugMode() const { return this->use_layer_debug_mode; }
 
-void Configurator::SetUseLayerDevMode(bool enabled) { this->use_layer_dev_mode = enabled; }
+void Configurator::SetUseLayerDebugMode(bool enabled) { this->use_layer_debug_mode = enabled; }
 
 bool Configurator::GetUseNotifyReleases() const { return this->use_notify_releases; }
 

@@ -22,24 +22,11 @@
 
 #include "type_platform.h"
 #include "type_status.h"
+#include "type_view.h"
 #include "json.h"
 #include "path.h"
 
 #include <string>
-
-enum SettingView {
-    SETTING_VIEW_STANDARD = 0,
-    SETTING_VIEW_ADVANCED,
-    SETTING_VIEW_HIDDEN,
-
-    SETTING_VIEW_FIRST = SETTING_VIEW_STANDARD,
-    SETTING_VIEW_LAST = SETTING_VIEW_HIDDEN
-};
-
-enum { SETTING_VIEW_COUNT = SETTING_VIEW_LAST - SETTING_VIEW_FIRST + 1 };
-
-SettingView GetSettingView(const char* token);
-const char* GetToken(SettingView state);
 
 struct Header {
     Header() : status(STATUS_STABLE), view(SETTING_VIEW_STANDARD), platform_flags(PLATFORM_DESKTOP_BIT), expanded(true) {}

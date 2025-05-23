@@ -109,8 +109,8 @@ class Configurator {
     bool GetUseSystemTray() const;
     void SetUseSystemTray(bool enabled);
 
-    bool GetUseLayerDevMode() const;
-    void SetUseLayerDevMode(bool enabled);
+    bool GetUseLayerDebugMode() const;
+    void SetUseLayerDebugMode(bool enabled);
 
     bool GetUseNotifyReleases() const;
     void SetUseNotifyReleases(bool enabled);
@@ -163,7 +163,7 @@ class Configurator {
    private:
     int hide_message_boxes_flags = 0;
     bool use_system_tray = false;
-    bool use_layer_dev_mode = false;
+    bool use_layer_debug_mode = false;
     bool use_notify_releases = true;
     bool show_external_layers_settings = true;
     ExecutableScope executable_scope = EXECUTABLE_ANY;

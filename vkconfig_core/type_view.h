@@ -18,23 +18,19 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "../header.h"
+#pragma once
 
-#include <gtest/gtest.h>
+enum SettingView {
+    SETTING_VIEW_STANDARD = 0,
+    SETTING_VIEW_ADVANCED,  // Deprecated in favor of SETTING_VIEW_DEBUG
+    SETTING_VIEW_DEBUG,
+    SETTING_VIEW_HIDDEN,
 
-TEST(test_header, get_setting_state_hidden) {
-    EXPECT_EQ(SETTING_VIEW_HIDDEN, GetSettingView("HIDDEN"));
-    EXPECT_STREQ("HIDDEN", GetToken(SETTING_VIEW_HIDDEN));
-}
+    SETTING_VIEW_FIRST = SETTING_VIEW_STANDARD,
+    SETTING_VIEW_LAST = SETTING_VIEW_HIDDEN
+};
 
-TEST(test_header, get_setting_state_standard) {
-    EXPECT_EQ(SETTING_VIEW_STANDARD, GetSettingView("STANDARD"));
-    EXPECT_STREQ("STANDARD", GetToken(SETTING_VIEW_STANDARD));
-}
+enum { SETTING_VIEW_COUNT = SETTING_VIEW_LAST - SETTING_VIEW_FIRST + 1 };
 
-TEST(test_header, get_setting_state_advanced) {
-    EXPECT_EQ(SETTING_VIEW_ADVANCED, GetSettingView("ADVANCED"));
-    EXPECT_STREQ("ADVANCED", GetToken(SETTING_VIEW_ADVANCED));
-}
-
-TEST(test_header, get_setting_state_unknown) { EXPECT_EQ(SETTING_VIEW_STANDARD, GetSettingView("UNKNOWN")); }
+SettingView GetSettingView(const char* token);
+const char* GetToken(SettingView state);

@@ -22,7 +22,7 @@
         "view": {
             "description": "The level of visibility of the setting ('STANDARD' by default). This property is inherited by child nodes.",
             "type": "string",
-            "enum": [ "STANDARD", "ADVANCED", "HIDDEN" ]
+            "enum": [ "STANDARD", "ADVANCED", "DEBUG", "HIDDEN" ]
         },
         "platforms": {
             "description": "The platforms where the setting is available. When missing, this property is inherited from parent nodes. If no parent node defines it, the default value is all platforms.",
