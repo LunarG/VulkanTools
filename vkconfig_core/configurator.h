@@ -68,6 +68,8 @@ class Configurator {
         LogFlags stderr_log_flags = LOG_ERROR;
         bool override_layers = true;
         bool override_loader = true;
+        bool override_driver = false;
+        std::string override_driver_name;
     };
 
     static Configurator& Get();
