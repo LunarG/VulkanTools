@@ -878,8 +878,16 @@ std::string Configurator::Log() const {
     log += format(" - %s %s\n", current.name().toStdString().c_str(), current.version().toString().toStdString().c_str());
 #endif
 
+    if (qEnvironmentVariableIsSet("XDG_SESSION_TYPE")) {
+        log += format(" - ${XDG_SESSION_TYPE}: %s\n", qgetenv("XDG_SESSION_TYPE").toStdString().c_str());
+    }
+    if (qEnvironmentVariableIsSet("XDG_CURRENT_DESKTOP")) {
+        log += format(" - ${XDG_CURRENT_DESKTOP}: %s\n", qgetenv("XDG_CURRENT_DESKTOP").toStdString().c_str());
+    }
+
     log += format(" - CPU architechture: %s\n", QSysInfo::currentCpuArchitecture().toStdString().c_str());
     log += format(" - Logical CPU core count: %d\n", std::thread::hardware_concurrency());
+
     log += "\n";
 
     log += format("%s Settings:\n", VKCONFIG_NAME);
