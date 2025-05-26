@@ -92,6 +92,10 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->connect(this->ui->configurations_group_box_list, SIGNAL(toggled(bool)), this, SLOT(on_configurations_list_toggled(bool)));
     this->connect(this->ui->configurations_group_box_layers, SIGNAL(toggled(bool)), this,
                   SLOT(on_configurations_layers_ordering_toggled(bool)));
+    this->connect(this->ui->configurations_group_box_driver, SIGNAL(toggled(bool)), this,
+                  SLOT(on_configurations_driver_toggled(bool)));
+    this->connect(this->ui->configuration_driver_name, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_configurations_driver_name_currentIndexChanged(int)));
     this->connect(this->ui->configurations_group_box_loader, SIGNAL(toggled(bool)), this,
                   SLOT(on_configurations_loader_messages_toggled(bool)));
     this->connect(this->ui->configurations_group_box_settings, SIGNAL(toggled(bool)), this,
@@ -151,6 +155,12 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     ExecutableScope current_scope = configurator.GetExecutableScope();
     this->ui->configurations_executable_scope->setCurrentIndex(current_scope);
     this->ui->configurations_executable_scope->blockSignals(false);
+
+    if (configurator.vulkan_system_info.loaderVersion < Version(1, 4, 323)) {
+        this->ui->configurations_group_box_driver->setEnabled(false);
+        this->ui->configurations_group_box_driver->setToolTip(
+            "Forced Vulkan Physical Device requires Vulkan Loader 1.4.323 or newer");
+    }
 
     this->advanced_mode = new ResizeButton(this->ui->configurations_group_box_layers, 0);
     this->advanced_mode->setMinimumSize(24, 24);
@@ -285,6 +295,22 @@ void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
     this->ui->configurations_executable_list->blockSignals(false);
 }
 
+void TabConfigurations::UpdateUI_Drivers(UpdateUIMode ui_update_mode) {
+    const Configurator &configurator = Configurator::Get();
+
+    const Configuration *configuration = configurator.GetActiveConfiguration();
+
+    this->ui->configurations_group_box_driver->setChecked(configuration->override_driver);
+
+    this->ui->configuration_driver_name->blockSignals(true);
+    this->ui->configuration_driver_name->clear();
+    for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
+        this->ui->configuration_driver_name->addItem(configurator.vulkan_system_info.physicalDevices[i].deviceName.c_str());
+    }
+    this->ui->configuration_driver_name->setCurrentIndex(configurator.GetActiveDeviceIndex());
+    this->ui->configuration_driver_name->blockSignals(false);
+}
+
 void TabConfigurations::UpdateUI_LoaderMessages() {
     const Configurator &configurator = Configurator::Get();
 
@@ -405,6 +431,7 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
 void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     this->UpdateUI_Configurations(ui_update_mode);
     this->UpdateUI_Applications(ui_update_mode);
+    this->UpdateUI_Drivers(ui_update_mode);
     this->UpdateUI_LoaderMessages();
     this->UpdateUI_Layers(ui_update_mode);
     this->UpdateUI_Settings(ui_update_mode);
@@ -1254,6 +1281,28 @@ void TabConfigurations::on_configurations_layers_ordering_toggled(bool checked) 
     }
 
     this->UpdateUI(UPDATE_REFRESH_UI);
+}
+
+void TabConfigurations::on_configurations_driver_toggled(bool checked) {
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    if (configuration != nullptr) {
+        configuration->override_driver = checked;
+
+        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+    }
+}
+
+void TabConfigurations::on_configurations_driver_name_currentIndexChanged(int index) {
+    Configurator &configurator = Configurator::Get();
+
+    Configuration *configuration = configurator.GetActiveConfiguration();
+    if (configuration != nullptr) {
+        configuration->override_driver_name = this->ui->configuration_driver_name->itemText(index).toStdString();
+
+        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+    }
 }
 
 void TabConfigurations::on_configurations_loader_messages_toggled(bool checked) {

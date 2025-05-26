@@ -68,6 +68,8 @@ class Configurator {
         LogFlags stderr_log_flags = LOG_ERROR;
         bool override_layers = true;
         bool override_loader = true;
+        bool override_driver = false;
+        std::string override_driver_name;
     };
 
     static Configurator& Get();
@@ -89,6 +91,7 @@ class Configurator {
     void SetActiveConfigurationName(const std::string& configuration_name);
 
     void UpdateConfigurations();
+    void UpdateVulkanSystemInfo();
 
     Configuration* GetActiveConfiguration();
     const Configuration* GetActiveConfiguration() const;
@@ -99,6 +102,8 @@ class Configurator {
 
     Executable* GetActiveExecutable();
     const Executable* GetActiveExecutable() const;
+
+    int GetActiveDeviceIndex() const;
 
     bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
     bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
@@ -147,6 +152,7 @@ class Configurator {
     LayerManager layers;
     ConfigurationManager configurations;
     ExecutableManager executables;
+    VulkanSystemInfo vulkan_system_info_hardware;
     VulkanSystemInfo vulkan_system_info;
     IgnoredMessages ignored_messages;
 
@@ -158,9 +164,12 @@ class Configurator {
     TabType active_tab = TAB_CONFIGURATIONS;
     bool advanced = true;
     Path last_path_status = Path(Path::HOME).AbsolutePath() + "/diagnostics";
+    Path last_driver_path = Path(Path::HOME).AbsolutePath();
     Version online_sdk_version = Version::NONE;
     Version latest_sdk_version = Version::NONE;
     Version current_sdk_version = Version::VKHEADER;
+
+    std::map<Path, bool> driver_paths;
 
     QByteArray window_geometry;
     QByteArray window_state;

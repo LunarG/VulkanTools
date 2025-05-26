@@ -104,9 +104,7 @@ int main(int argc, char* argv[]) {
     }
 
     Configurator& configurator = Configurator::Get();
-    configurator.Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-
-    configurator.vulkan_system_info = BuildVulkanSystemInfo();
+    configurator.UpdateVulkanSystemInfo();
 
     if (configurator.vulkan_system_info.loaderVersion == Version::NONE) {
         QMessageBox alert;

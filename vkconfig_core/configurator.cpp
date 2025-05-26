@@ -27,6 +27,7 @@
 #if VKC_ENV == VKC_ENV_WIN32
 #include "registry.h"
 #endif
+#include "vulkan_util.h"
 
 #include <QDir>
 #include <QTextStream>
@@ -126,10 +127,39 @@ bool Configurator::Init(ConfiguratorMode configurator_mode) {
     this->has_crashed = true;  // This is set to `false` when saving on exit.
     this->Save();
 
+    this->UpdateVulkanSystemInfo();
+
     return true;
 }
 
-static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& loader_settings) {
+static QJsonObject CreateDeviceConfigurations(const VulkanPhysicalDeviceInfo& info) {
+    QJsonObject json_device;
+    json_device.insert("deviceName", info.deviceName.c_str());
+
+    QJsonArray json_uuid;
+    for (std::size_t i = 0, n = std::size(info.deviceUUID); i < n; ++i) {
+        json_uuid.append(info.deviceUUID[i]);
+    }
+    json_device.insert("deviceUUID", json_uuid);
+
+    return json_device;
+}
+
+static const VulkanPhysicalDeviceInfo* Find(const VulkanSystemInfo& vulkan_system_info, const std::string& driver_name) {
+    for (std::size_t i = 0, n = vulkan_system_info.physicalDevices.size(); i < n; ++i) {
+        const VulkanPhysicalDeviceInfo* info = &vulkan_system_info.physicalDevices[i];
+        if (info->deviceName == driver_name) {
+            return info;
+        }
+    }
+
+    return nullptr;
+}
+
+static QJsonObject CreateJsonSettingObject(const std::map<Path, bool>& driver_paths,
+                                           const Configurator::LoaderSettings& loader_settings,
+                                           const VulkanSystemInfo& vulkan_system_info_hardware,
+                                           const VulkanSystemInfo& vulkan_system_info_additional) {
     QJsonArray json_layers;
     for (std::size_t j = 0, o = loader_settings.layers.size(); j < o; ++j) {
         const Configurator::LoaderLayerSettings& layer = loader_settings.layers[j];
@@ -167,6 +197,53 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
     if (loader_settings.override_loader) {
         json_settings.insert("stderr_log", json_stderr_log);
     }
+    if (loader_settings.override_driver) {
+        bool found = false;
+
+        QJsonArray json_devices;
+        const VulkanPhysicalDeviceInfo* info = ::Find(vulkan_system_info_additional, loader_settings.override_driver_name);
+        if (info != nullptr) {
+            json_devices.append(::CreateDeviceConfigurations(*info));
+            json_settings.insert("device_configurations", json_devices);
+            json_settings.insert("additional_drivers_use_exclusively",
+                                 ::Find(vulkan_system_info_hardware, loader_settings.override_driver_name) == nullptr);
+        }
+    }
+
+    QJsonArray json_drivers_paths;
+
+    for (auto it = driver_paths.begin(); it != driver_paths.end(); ++it) {
+        if (!it->second) {
+            continue;
+        }
+
+        QJsonObject json_drivers_path;
+        json_drivers_path.insert("path", it->first.AbsolutePath().c_str());
+        json_drivers_paths.append(json_drivers_path);
+    }
+    json_settings.insert("additional_drivers", json_drivers_paths);
+
+    return json_settings;
+}
+
+static QJsonObject CreateJsonDriverObject(const std::map<Path, bool>& driver_paths) {
+    QJsonObject json_settings;
+
+    json_settings.insert("additional_drivers_use_exclusively", false);
+
+    QJsonArray json_drivers_paths;
+
+    for (auto it = driver_paths.begin(); it != driver_paths.end(); ++it) {
+        if (!it->second) {
+            continue;
+        }
+
+        QJsonObject json_drivers_path;
+        json_drivers_path.insert("path", it->first.AbsolutePath().c_str());
+        json_drivers_paths.append(json_drivers_path);
+    }
+    json_settings.insert("additional_drivers", json_drivers_paths);
+
     return json_settings;
 }
 
@@ -186,6 +263,8 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
     result.override_loader = configuration->override_loader;
     result.override_layers = configuration->override_layers;
     result.stderr_log_flags = full_loader_log ? ~0 : configuration->loader_log_messages_flags;
+    result.override_driver = configuration->override_driver;
+    result.override_driver_name = configuration->override_driver_name;
 
     for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
         LoaderLayerSettings loader_layer_settings;
@@ -228,7 +307,7 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
 bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path) {
     assert(!loader_settings_path.Empty());
 
-    if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT) {
+    if (override_area & OVERRIDE_AREA_LOADER_SETTINGS_BIT || override_area == OVERRIDE_DRIVER) {
         std::vector<LoaderSettings> loader_settings_array;
 
         std::string configuration = this->selected_global_configuration;
@@ -262,14 +341,18 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
         if (this->executable_scope != EXECUTABLE_NONE) {
             QJsonObject root;
             root.insert("file_format_version", "1.0.0");
-            if (::EnabledExecutables(this->executable_scope)) {
+            if (override_area == OVERRIDE_DRIVER) {
+                root.insert("settings", CreateJsonDriverObject(this->driver_paths));
+            } else if (::EnabledExecutables(this->executable_scope)) {
                 QJsonArray json_settings_array;
                 for (std::size_t i = 0, n = loader_settings_array.size(); i < n; ++i) {
-                    json_settings_array.append(CreateJsonSettingObject(loader_settings_array[i]));
+                    json_settings_array.append(CreateJsonSettingObject(
+                        this->driver_paths, loader_settings_array[i], this->vulkan_system_info_hardware, this->vulkan_system_info));
                 }
                 root.insert("settings_array", json_settings_array);
             } else if (!loader_settings_array.empty()) {
-                root.insert("settings", CreateJsonSettingObject(loader_settings_array[0]));
+                root.insert("settings", CreateJsonSettingObject(this->driver_paths, loader_settings_array[0],
+                                                                this->vulkan_system_info_hardware, this->vulkan_system_info));
             }
             QJsonDocument doc(root);
 
@@ -796,6 +879,37 @@ void Configurator::SetActiveConfigurationName(const std::string& configuration_n
     }
 }
 
+int Configurator::GetActiveDeviceIndex() const {
+    const Configuration* active_configuration = this->GetActiveConfiguration();
+    if (active_configuration == nullptr) {
+        return -1;
+    }
+
+    const auto& devices = this->vulkan_system_info.physicalDevices;
+    for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
+        if (devices[i].deviceName != active_configuration->override_driver_name) {
+            continue;
+        }
+
+        return static_cast<int>(i);
+    }
+
+    return active_configuration->override_driver_name == DEFAULT_PHYSICAL_DEVICE ? 0 : -1;
+}
+
+void Configurator::UpdateVulkanSystemInfo() {
+    if (this->vulkan_system_info_hardware.physicalDevices.empty()) {
+        this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+        this->vulkan_system_info_hardware = ::BuildVulkanSystemInfo();
+    }
+
+    this->Override(OVERRIDE_DRIVER);  // Allow loading additional drivers
+
+    this->vulkan_system_info = ::BuildVulkanSystemInfo();
+
+    this->Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+}
+
 void Configurator::UpdateConfigurations() {
     this->configurations.UpdateConfigurations(this->layers);
     return;
@@ -1013,7 +1127,7 @@ std::string Configurator::Log() const {
         } else {
             log += format("   * Driver: %s %s\n", GetLabel(info.vendorID).c_str(), Version(info.driverVersion).str().c_str());
         }
-        log += format("   * deviceUUID: %s\n", info.deviceUUID.c_str());
+        log += format("   * deviceUUID: %s\n", ::GetUUIDString(info.deviceUUID).c_str());
         log += format("   * driverUUID: %s\n", info.driverUUID.c_str());
         log += format("   * deviceLUID: %s\n", info.deviceLUID.c_str());
     }
@@ -1180,6 +1294,23 @@ bool Configurator::Load() {
             this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
         }
 
+        // TAB_DRIVERS
+        if (json_interface_object.value(GetToken(TAB_DRIVERS)) != QJsonValue::Undefined) {
+            const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_DRIVERS)).toObject();
+            if (json_object.value("last_driver_path") != QJsonValue::Undefined) {
+                this->last_driver_path = json_object.value("last_driver_path").toString().toStdString();
+            }
+            if (json_object.value("driver_paths") != QJsonValue::Undefined) {
+                const QJsonObject& json_object_paths = json_object.value("driver_paths").toObject();
+                const QStringList& keys = json_object_paths.keys();
+                for (int i = 0, n = keys.size(); i < n; ++i) {
+                    const std::string& key = keys[i].toStdString();
+                    const QJsonObject& json_object_path = json_object_paths.value(key.c_str()).toObject();
+                    this->driver_paths.insert(std::make_pair(key, json_object_path.value("enabled").toBool()));
+                }
+            }
+        }
+
         // TAB_LAYERS
         if (json_interface_object.value(GetToken(TAB_LAYERS)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_LAYERS)).toObject();
@@ -1280,6 +1411,23 @@ bool Configurator::Save() const {
         json_object.insert("executable_scope", ::GetToken(this->executable_scope));
         json_object.insert("selected_global_configuration", this->selected_global_configuration.c_str());
         json_interface_object.insert(::GetToken(TAB_CONFIGURATIONS), json_object);
+    }
+
+    // TAB_DRIVER
+    {
+        QJsonObject json_object;
+        {
+            QJsonObject json_object_paths;
+            for (auto it = driver_paths.begin(); it != driver_paths.end(); ++it) {
+                QJsonObject json_object_path;
+                json_object_path.insert("enabled", it->second);
+                json_object_paths.insert(it->first.RelativePath().c_str(), json_object_path);
+            }
+
+            json_object.insert("driver_paths", json_object_paths);
+        }
+        { json_object.insert("last_driver_path", this->last_driver_path.RelativePath().c_str()); }
+        json_interface_object.insert(::GetToken(TAB_DRIVERS), json_object);
     }
 
     // TAB_LAYERS

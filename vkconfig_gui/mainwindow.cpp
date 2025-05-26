@@ -59,6 +59,7 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent)
     this->tabs[TAB_LAYERS].reset(new TabLayers(*this, ui));
     this->tabs[TAB_CONFIGURATIONS].reset(new TabConfigurations(*this, ui));
     this->tabs[TAB_DOCUMENTATION].reset(new TabDocumentation(*this, ui));
+    this->tabs[TAB_DRIVERS].reset(new TabDrivers(*this, ui));
     this->tabs[TAB_PREFERENCES].reset(new TabPreferences(*this, ui));
     this->tabs[TAB_ABOUT].reset(new TabAbout(*this, ui));
 
@@ -68,7 +69,7 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent)
         this->ui->tab_widget->setTabText(i, GetLabel(static_cast<TabType>(i)));
     }
 
-    const Configurator &configurator = Configurator::Get();
+    Configurator &configurator = Configurator::Get();
 
     if (!configurator.window_geometry.isEmpty()) {
         this->restoreGeometry(configurator.window_geometry);
@@ -79,6 +80,8 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent)
 
     this->InitTray();
     this->UpdateUI(UPDATE_REBUILD_UI);
+
+    configurator.Override(OVERRIDE_AREA_ALL);
 }
 
 MainWindow::~MainWindow() {}
@@ -136,7 +139,9 @@ void MainWindow::UpdateUI_Status() {
     this->setWindowTitle(GetMainWindowTitle().c_str());
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         for (int i = 0, n = EXECUTABLE_SCOPE_COUNT; i < n; ++i) {
+            this->_tray_layers[i]->blockSignals(true);
             this->_tray_layers[i]->setChecked(configurator.GetExecutableScope() == i);
+            this->_tray_layers[i]->blockSignals(false);
         }
     }
 

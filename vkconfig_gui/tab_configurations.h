@@ -45,6 +45,7 @@ class TabConfigurations : public Tab {
     void UpdateUI_Configurations(UpdateUIMode ui_update_mode);
     void UpdateUI_Applications(UpdateUIMode ui_update_mode);
     void UpdateUI_LoaderMessages();
+    void UpdateUI_Drivers(UpdateUIMode ui_update_mode);
     void UpdateUI_Layers(UpdateUIMode ui_update_mode);
     void UpdateUI_Settings(UpdateUIMode ui_update_mode);
 
@@ -58,6 +59,8 @@ class TabConfigurations : public Tab {
 
     void on_configurations_list_toggled(bool checked);
     void on_configurations_layers_ordering_toggled(bool checked);
+    void on_configurations_driver_toggled(bool checked);
+    void on_configurations_driver_name_currentIndexChanged(int index);
     void on_configurations_loader_messages_toggled(bool checked);
     void on_configurations_layers_settings_toggled(bool checked);
 

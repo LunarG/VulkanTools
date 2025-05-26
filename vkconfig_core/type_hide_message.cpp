@@ -45,6 +45,7 @@ const char* GetToken(HideMessageType value) {
                                 "HIDE_MESSAGE_WARN_DARK_THEME_LINUX",
                                 "HIDE_MESSAGE_WARN_DARK_THEME_ICON",
                                 "HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH",
+                                "HIDE_MESSAGE_QUESTION_REMOVING_DRIVER_PATH",
                                 "HIDE_MESSAGE_ERROR_32BIT"};
     static_assert(std::size(TOKENS) == HIDE_MESSAGE_COUNT);
 
