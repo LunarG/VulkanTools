@@ -86,6 +86,7 @@ SOURCES += \
     widget_layer_version.cpp \
     widget_tab_configurations_layer.cpp \
     widget_tab_layers_path.cpp \
+    widget_tab_driver_path.cpp \
     widget_setting.cpp \
     widget_setting_group.cpp \
     widget_setting_bool.cpp \
@@ -108,6 +109,7 @@ SOURCES += \
     tab_configurations.cpp \
     tab_diagnostics.cpp \
     tab_documentation.cpp \
+    tab_drivers.cpp \
     tab_preferences.cpp \
     tab_layers.cpp \
     settings_tree.cpp \
@@ -174,6 +176,7 @@ HEADERS += \
     widget_layer_version.h \
     widget_tab_configurations_layer.h \
     widget_tab_layers_path.h \
+    widget_tab_driver_path.h \
     widget_setting.h \
     widget_setting_group.h \
     widget_setting_bool.h \
@@ -195,6 +198,7 @@ HEADERS += \
     tab_configurations.h \
     tab_diagnostics.h \
     tab_documentation.h \
+    tab_drivers.h \
     tab_preferences.h \
     tab_layers.h \
     settings_tree.h \

@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    const VulkanSystemInfo& vulkan_info = BuildVulkanSystemInfo();
+    const VulkanSystemInfo& vulkan_info = ::BuildVulkanSystemInfo();
 
     if (vulkan_info.loaderVersion == Version::NONE) {
         fprintf(stderr, "%s: [ERROR] Could not find a Vulkan Loader.", VKCONFIG_SHORT_NAME);

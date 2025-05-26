@@ -20,11 +20,25 @@
 
 #pragma once
 
-enum OverrideArea {
-    OVERRIDE_AREA_NONE = 0,
-    OVERRIDE_AREA_LOADER_SETTINGS_BIT = (1 << 0),
-    OVERRIDE_AREA_LAYERS_SETTINGS_BIT = (1 << 1),
-    OVERRIDE_AREA_ALL = OVERRIDE_AREA_LOADER_SETTINGS_BIT | OVERRIDE_AREA_LAYERS_SETTINGS_BIT,
+#include "tab.h"
 
-    OVERRIDE_DRIVER = (1 << 31)
+class TabDrivers : public Tab {
+    Q_OBJECT
+
+   public:
+    TabDrivers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui);
+    virtual ~TabDrivers();
+
+    virtual void UpdateUI(UpdateUIMode mode) override;
+    virtual void CleanUI() override;
+    virtual bool EventFilter(QObject *target, QEvent *event) override;
+
+   public Q_SLOTS:
+    void on_paths_changed();
+    void on_paths_toggled();
+    void on_driver_append_pressed();
+    void on_driver_browse_pressed();
+
+   private:
+    std::string new_path;
 };

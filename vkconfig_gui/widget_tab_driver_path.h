@@ -20,11 +20,31 @@
 
 #pragma once
 
-enum OverrideArea {
-    OVERRIDE_AREA_NONE = 0,
-    OVERRIDE_AREA_LOADER_SETTINGS_BIT = (1 << 0),
-    OVERRIDE_AREA_LAYERS_SETTINGS_BIT = (1 << 1),
-    OVERRIDE_AREA_ALL = OVERRIDE_AREA_LOADER_SETTINGS_BIT | OVERRIDE_AREA_LAYERS_SETTINGS_BIT,
+#include "../vkconfig_core/path.h"
 
-    OVERRIDE_DRIVER = (1 << 31)
+#include <QCheckBox>
+#include <QPushButton>
+#include <QResizeEvent>
+
+class DriverPathWidget : public QCheckBox {
+    Q_OBJECT
+
+   public:
+    DriverPathWidget(const Path &path, bool enabled);
+
+   protected:
+    void resizeEvent(QResizeEvent *event) override;
+
+   public Q_SLOTS:
+    void on_buttom_remove_clicked(bool checked = false);
+    void on_toggled(bool checked);
+
+   Q_SIGNALS:
+    void itemChanged();
+    void itemToggled();
+
+   public:
+    Path path;
+    bool enabled;
+    QPushButton *buttom_remove = nullptr;
 };

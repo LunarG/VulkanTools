@@ -1,5 +1,9 @@
-## Vulkan Configurator 3.4.0 - September 2025
+## Vulkan Configurator 3.4.0 - October 2025
 [Vulkan SDK main](https://github.com/LunarG/VulkanTools/tree/main)
+
+### Features:
+- Add additional driver paths tab
+- Add force physical device to loader configuration
 
 ### Deprecation:
 - Deprecate the synchronization configuration
