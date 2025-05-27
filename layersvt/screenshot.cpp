@@ -66,6 +66,12 @@ std::thread screenshotWriterThread;
 bool shutdownScreenshotThread = false;
 bool screenshotThreadStarted = false;
 
+VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
+
+// If true, do not capture screenshots. Allows to control the layer at runtime.
+bool pauseCapture = false;
+const char *kSettingPauseCapture = "pause";
+
 enum class ColorSpaceFormat { UNDEFINED, UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB };
 
 // unordered map: associates Vulkan dispatchable objects to a dispatch table
@@ -142,7 +148,7 @@ class Settings {
     bool isFrameAfterEndOfCaptureRange(int frame) const;
 
     // Init settings
-    void init(VkuLayerSettingSet layerSettingSet);
+    void init();
 
    private:
     // Parse comma-separated frame list string into the set
@@ -156,7 +162,7 @@ class Settings {
     set<int> screenshotFrames;
 };
 
-void Settings::init(VkuLayerSettingSet layerSettingSet) {
+void Settings::init() {
     const char *kSettingsKeyFrames = "frames";
     const char *kSettingKeyFormat = "format";
     const char *kSettingKeyDir = "dir";
@@ -269,6 +275,12 @@ int getEndFrameOfRange(const FrameRange *pFrameRange) {
 }
 
 bool Settings::isFrameToCapture(int frame) const {
+
+    if (vkuHasLayerSetting(layerSettingSet, kSettingPauseCapture)) {
+        vkuGetLayerSettingValue(layerSettingSet, kSettingPauseCapture, pauseCapture);
+        if (pauseCapture) return false;
+    }
+
     if (screenShotFrameRange.valid) {
         if (frame < screenShotFrameRange.startFrame) return false;
         if ((frame - screenShotFrameRange.startFrame) % screenShotFrameRange.interval > 0) return false;
@@ -378,13 +390,10 @@ static DeviceMapStruct *get_device_info(VkDevice dev) {
 }
 
 static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
-    VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
     vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", vkuFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
                              &layerSettingSet);
 
-    settings.init(layerSettingSet);
-
-    vkuDestroyLayerSettingSet(layerSettingSet, pAllocator);
+    settings.init();
 }
 
 void screenshotWriterThreadFunc();
