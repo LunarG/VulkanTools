@@ -309,6 +309,9 @@
                     },
                     "settings": {
                         "$ref": "#/definitions/settings_meta"
+                    },
+                    "messages": {
+                        "$ref": "#/definitions/messages"
                     }
                 }
             }
