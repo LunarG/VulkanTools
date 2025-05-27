@@ -191,6 +191,23 @@
                                     }
                                 ]
                             }
+                        },
+                        {
+                            "key": "append_pid",
+                            "env": "VK_APIDUMP_APPEND_LOG_FILENAME_WITH_PID",
+                            "label": "Append log filename with pid.",
+                            "description": "If set, appends the log filename with pid.",
+                            "type": "BOOL",
+                            "default": "false",
+                            "dependence": {
+                                "mode": "ALL",
+                                "settings": [
+                                    {
+                                        "key": "file",
+                                        "value": true
+                                    }
+                                ]
+                            }
                         }
                     ]
                 },

@@ -81,6 +81,7 @@
 // Defines for utilized environment variables.
 #define kSettingsKeyFile "file"
 #define kSettingsKeyLogFilename "log_filename"
+#define kSettingsKeyAppendPid "append_pid"
 #define kSettingsKeyOutputFormat "output_format"
 #define kSettingsKeyDetailedOutput "detailed"
 #define kSettingsKeyNoAddr "no_addr"
@@ -549,18 +550,36 @@ class ApiDumpSettings {
             size_t html_pos = filename_string.find(".html", filename_string.size() - 5);
             size_t json_pos = filename_string.find(".json", filename_string.size() - 5);
 
+            bool append_pid = false;
+
+            // Check if pid should be appended to the filename.
+            if (vkuHasLayerSetting(layerSettingSet, kSettingsKeyAppendPid)) {
+                vkuGetLayerSettingValue(layerSettingSet, kSettingsKeyAppendPid, append_pid);
+            }
+
+            std::string pid_string;
+
+            if (append_pid) {
+                pid_string = getCurrentPidString();
+            }
+
+            // Filter the filename itself.
+            if (json_pos != std::string::npos) filename_string.erase(json_pos);
+            if (txt_pos != std::string::npos) filename_string.erase(txt_pos);
+            if (html_pos != std::string::npos) filename_string.erase(html_pos);
+
+            if (append_pid) {
+                // Append with pid if needed.
+                filename_string.append("_").append(pid_string);
+            }
+
+            // Restore the file extension.
             if (output_format == ApiDumpFormat::Html) {
-                if (json_pos != std::string::npos) filename_string.erase(json_pos);
-                if (txt_pos != std::string::npos) filename_string.erase(txt_pos);
-                if (html_pos == std::string::npos) filename_string.append(".html");
+                filename_string.append(".html");
             } else if (output_format == ApiDumpFormat::Json) {
-                if (html_pos != std::string::npos) filename_string.erase(html_pos);
-                if (txt_pos != std::string::npos) filename_string.erase(txt_pos);
-                if (json_pos == std::string::npos) filename_string.append(".json");
+                filename_string.append(".json");
             } else {
-                if (html_pos != std::string::npos) filename_string.erase(html_pos);
-                if (json_pos != std::string::npos) filename_string.erase(json_pos);
-                if (txt_pos == std::string::npos) filename_string.append(".txt");
+                filename_string.append(".txt");
             }
         }
 
@@ -774,6 +793,24 @@ class ApiDumpSettings {
         std::string lower_value = value;
         std::transform(lower_value.begin(), lower_value.end(), lower_value.begin(), ::tolower);
         return lower_value;
+    }
+
+    std::string getCurrentPidString() {
+        std::stringstream ss;
+#ifdef _WIN32
+#include <processthreadsapi.h>
+        DWORD pid = GetCurrentProcessId();
+        ss << pid;
+#elif defined(__linux__) || defined(__APPLE__) || defined(__Fuchsia__) || defined(__QNX__) || defined(__FreeBSD__) || \
+    defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__GNU__) || defined(__ANDROID__)
+#include <unistd.h>
+        pid_t pid = getpid();
+        ss << pid;
+#else
+        // Should never reach here due to the #error above
+        throw std::runtime_error("Unsupported operating system");
+#endif
+        return ss.str();
     }
 
     // The mutable is necessary because everyone who 'writes' to the stream necessarily must be able to modify it.
