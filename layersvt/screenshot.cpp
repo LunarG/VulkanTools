@@ -25,6 +25,7 @@
 #include <string.h>
 #include <assert.h>
 #include <atomic>
+#include <string>
 #include <unordered_map>
 #include <iostream>
 #include <algorithm>
@@ -71,6 +72,7 @@ VkuLayerSettingSet globalLayerSettingSet = VK_NULL_HANDLE;
 
 // If true, do not capture screenshots. Allows to control the layer at runtime.
 std::atomic_bool pauseCapture(false);
+bool pauseFileRecorded = false;
 
 enum class ColorSpaceFormat { UNDEFINED, UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB };
 
@@ -392,6 +394,14 @@ static DeviceMapStruct *get_device_info(VkDevice dev) {
         return it->second;
 }
 
+string pauseFileName() {
+    string fileName = "paused";
+    if (settings.targetFolder.empty()) {
+        return fileName;
+    }
+    return settings.targetFolder + "/" + fileName;
+}
+
 static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
     vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", vkuFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
                              &globalLayerSettingSet);
@@ -399,6 +409,9 @@ static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAll
     settings.init(globalLayerSettingSet);
 
     updatePauseCapture(globalLayerSettingSet);
+    if(!std::atomic_load(&pauseCapture)) {
+        std::remove(pauseFileName().c_str());
+    }
 }
 
 void screenshotWriterThreadFunc();
@@ -1543,15 +1556,24 @@ void screenshotWriterThreadFunc() {
         updatePauseCapture(globalLayerSettingSet);
         std::shared_ptr<ScreenshotQueueData> dataToSave;
         {
-            PROFILE(std::atomic_load(&pauseCapture) ? "paused" : "Waiting for CPU")
+            bool paused = std::atomic_load(&pauseCapture);
+            PROFILE(paused ? "paused" : "Waiting for CPU")
             std::unique_lock<std::mutex> lock(globalLock);
             if (screenshotsData.empty()) {
+                if (paused && !pauseFileRecorded) {
+                    std::ofstream pauseFile(pauseFileName().c_str());
+                    pauseFileRecorded = true;
+                }
                 screenshotQueuedCV.wait(lock);
             }
             if (shutdownScreenshotThread && screenshotsData.empty()) break;
             if (screenshotsData.empty()) continue;
             dataToSave = screenshotsData.front();
             screenshotsData.pop_front();
+            if (pauseFileRecorded) {
+                std::remove(pauseFileName().c_str());  // delete file
+                pauseFileRecorded = false;
+            }
             PROFILE_COUNTER("screenshot.QueueSize", screenshotsData.size());
         }
 
