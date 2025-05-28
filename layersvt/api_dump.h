@@ -76,6 +76,13 @@
 #pragma warning(disable : 4554)
 #endif
 
+#ifdef _WIN32
+#include <processthreadsapi.h>
+#elif defined(__linux__) || defined(__APPLE__) || defined(__Fuchsia__) || defined(__QNX__) || defined(__FreeBSD__) || \
+    defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__GNU__) || defined(__ANDROID__)
+#include <unistd.h>
+#endif
+
 #define MAX_STRING_LENGTH 1024
 
 // Defines for utilized environment variables.
@@ -798,12 +805,10 @@ class ApiDumpSettings {
     std::string getCurrentPidString() {
         std::stringstream ss;
 #ifdef _WIN32
-#include <processthreadsapi.h>
         DWORD pid = GetCurrentProcessId();
         ss << pid;
 #elif defined(__linux__) || defined(__APPLE__) || defined(__Fuchsia__) || defined(__QNX__) || defined(__FreeBSD__) || \
     defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__GNU__) || defined(__ANDROID__)
-#include <unistd.h>
         pid_t pid = getpid();
         ss << pid;
 #else
