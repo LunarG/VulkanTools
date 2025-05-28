@@ -66,7 +66,7 @@ std::thread screenshotWriterThread;
 bool shutdownScreenshotThread = false;
 bool screenshotThreadStarted = false;
 
-VkuLayerSettingSet layerSettingSet = VK_NULL_HANDLE;
+VkuLayerSettingSet globalLayerSettingSet = VK_NULL_HANDLE;
 
 // If true, do not capture screenshots. Allows to control the layer at runtime.
 bool pauseCapture = false;
@@ -148,7 +148,7 @@ class Settings {
     bool isFrameAfterEndOfCaptureRange(int frame) const;
 
     // Init settings
-    void init();
+    void init(VkuLayerSettingSet layerSettingSet);
 
    private:
     // Parse comma-separated frame list string into the set
@@ -162,7 +162,7 @@ class Settings {
     set<int> screenshotFrames;
 };
 
-void Settings::init() {
+void Settings::init(VkuLayerSettingSet layerSettingSet) {
     const char *kSettingsKeyFrames = "frames";
     const char *kSettingKeyFormat = "format";
     const char *kSettingKeyDir = "dir";
@@ -275,12 +275,6 @@ int getEndFrameOfRange(const FrameRange *pFrameRange) {
 }
 
 bool Settings::isFrameToCapture(int frame) const {
-
-    if (vkuHasLayerSetting(layerSettingSet, kSettingPauseCapture)) {
-        vkuGetLayerSettingValue(layerSettingSet, kSettingPauseCapture, pauseCapture);
-        if (pauseCapture) return false;
-    }
-
     if (screenShotFrameRange.valid) {
         if (frame < screenShotFrameRange.startFrame) return false;
         if ((frame - screenShotFrameRange.startFrame) % screenShotFrameRange.interval > 0) return false;
@@ -391,9 +385,9 @@ static DeviceMapStruct *get_device_info(VkDevice dev) {
 
 static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
     vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", vkuFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
-                             &layerSettingSet);
+                             &globalLayerSettingSet);
 
-    settings.init();
+    settings.init(globalLayerSettingSet);
 }
 
 void screenshotWriterThreadFunc();
@@ -1617,7 +1611,10 @@ void screenshotWriterThreadFunc() {
 VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     VkPresentInfoKHR presentInfo = *pPresentInfo;
     static int frameNumber = 0;
-    if (settings.isFrameToCapture(frameNumber)) {
+    if (vkuHasLayerSetting(globalLayerSettingSet, kSettingPauseCapture)) {
+        vkuGetLayerSettingValue(globalLayerSettingSet, kSettingPauseCapture, pauseCapture);
+    }
+    if (!pauseCapture && settings.isFrameToCapture(frameNumber)) {
         // If there are 0 swapchains, skip taking the snapshot
         if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
             std::unique_lock<std::mutex> lock(globalLock);
