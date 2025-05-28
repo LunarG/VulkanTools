@@ -163,11 +163,11 @@ class Settings {
     set<int> screenshotFrames;
 };
 
-void updateLayerPausedSetting() {
+void updatePauseCapture() {
     if (vkuHasLayerSetting(globalLayerSettingSet, kSettingPauseCapture)) {
-        bool shouldPauseCapture = false;
-        vkuGetLayerSettingValue(globalLayerSettingSet, kSettingPauseCapture, shouldPauseCapture);
-        std::atomic_store(&pauseCapture, shouldPauseCapture);
+        bool newPauseCapture = false;
+        vkuGetLayerSettingValue(globalLayerSettingSet, kSettingPauseCapture, newPauseCapture);
+        std::atomic_store(&pauseCapture, newPauseCapture);
     }
 }
 
@@ -181,7 +181,7 @@ void Settings::init(VkuLayerSettingSet layerSettingSet) {
     const char *kSettingProfile = "profile";
     const char *kSettingScreenshotExtension = "extension";
 
-    updateLayerPausedSetting();
+    updatePauseCapture();
 
     if (vkuHasLayerSetting(layerSettingSet, kSettingScale)) {
         vkuGetLayerSettingValue(layerSettingSet, kSettingScale, scalePercent);
@@ -1540,14 +1540,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
 
 void screenshotWriterThreadFunc() {
     while (true) {
-        updateLayerPausedSetting();
+        updatePauseCapture();
         std::shared_ptr<ScreenshotQueueData> dataToSave;
         {
-            PROFILE("Waiting for CPU")
+            PROFILE(std::atomic_load(&pauseCapture) ? "Screenshots paused" : "Waiting for CPU")
             std::unique_lock<std::mutex> lock(globalLock);
             if (screenshotsData.empty()) {
-                screenshotQueuedCV.wait(
-                    lock, [] { return !screenshotsData.empty() || shutdownScreenshotThread || std::atomic_load(&pauseCapture); });
+                screenshotQueuedCV.wait(lock);
             }
             if (shutdownScreenshotThread && screenshotsData.empty()) break;
             if (screenshotsData.empty()) continue;
@@ -1624,12 +1623,12 @@ void screenshotWriterThreadFunc() {
 VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     VkPresentInfoKHR presentInfo = *pPresentInfo;
     static int frameNumber = 0;
-    if (std::atomic_load(&pauseCapture)) {
-        // Wake up screenshot thread to check whether we should unpause screenshot recording
-        screenshotQueuedCV.notify_one();
-    } else if (settings.isFrameToCapture(frameNumber)) {
-        // If there are 0 swapchains, skip taking the snapshot
-        if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
+    if (settings.isFrameToCapture(frameNumber)) {
+        if (std::atomic_load(&pauseCapture)) {
+            // Wake up screenshot thread to check whether we should unpause screenshot recording
+            screenshotQueuedCV.notify_one();
+        } else if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
+            // If there are 0 swapchains, skip taking the snapshot
             std::unique_lock<std::mutex> lock(globalLock);
             while (!settings.allowToSkipFrames) {
                 if (screenshotsData.size() < settings.maxScreenshotQueueSize) break;
