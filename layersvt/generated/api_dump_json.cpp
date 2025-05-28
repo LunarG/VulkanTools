@@ -14563,11 +14563,11 @@ void dump_json_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProp
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const uint32_t>(object.memoryTypeCount, NULL, settings, "uint32_t", "memoryTypeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", true, false, indents + 1, dump_json_VkMemoryType); // JQA
+    dump_json_array<const VkMemoryType>(object.memoryTypes, std::min(object.memoryTypeCount, VK_MAX_MEMORY_TYPES), settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", true, false, indents + 1, dump_json_VkMemoryType); // JQA
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.memoryHeapCount, NULL, settings, "uint32_t", "memoryHeapCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", true, false, indents + 1, dump_json_VkMemoryHeap); // JQA
+    dump_json_array<const VkMemoryHeap>(object.memoryHeaps, std::min(object.memoryHeapCount, VK_MAX_MEMORY_HEAPS), settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", true, false, indents + 1, dump_json_VkMemoryHeap); // JQA
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceSparseProperties(const VkPhysicalDeviceSparseProperties& object, const ApiDumpSettings& settings, int indents)

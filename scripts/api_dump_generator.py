@@ -832,7 +832,12 @@ void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     dump_text_array<const {memBaseType}>(object.{memName}, (object.{memLength} + 31) / 32, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}); // BQB
                 @end if
                 @if('{memLength}' != 'rasterizationSamples')
+                    @if('{memMaxLength}' != 'None')
+    dump_text_array<const {memBaseType}>(object.{memName}, std::min(object.{memLength}, {memMaxLength}), settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}); // BQB
+                    @end if
+                    @if('{memMaxLength}' == 'None')
     dump_text_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_text_{memTypeID}); // BQB
+                    @end if
                 @end if
             @end if
         @end if
@@ -1383,7 +1388,12 @@ void dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     dump_html_array<const {memBaseType}>(object.{memName}, (object.{memLength} + 31) / 32, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}); // ZRT
                 @end if
                 @if('{memLength}' != 'rasterizationSamples')
+                    @if('{memMaxLength}' != 'None')
+    dump_html_array<const {memBaseType}>(object.{memName}, std::min(object.{memLength}, {memMaxLength}), settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}); // BQB
+                    @end if
+                    @if('{memMaxLength}' == 'None')
     dump_html_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", indents + 1, dump_html_{memTypeID}); // ZRT
+                    @end if
                 @end if
             @end if
         @end if
@@ -1884,7 +1894,12 @@ void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& setting
     dump_json_array<const {memBaseType}>(object.{memName}, (object.{memLength} + 31) / 32, settings, "{memType}", "{memChildType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID}); // JQA
                 @end if
                 @if('{memLength}' != 'rasterizationSamples')
+                    @if('{memMaxLength}' != 'None')
+    dump_json_array<const {memBaseType}>(object.{memName}, std::min(object.{memLength}, {memMaxLength}), settings, "{memType}", "{memChildType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID}); // JQA
+                    @end if
+                    @if('{memMaxLength}' == 'None')
     dump_json_array<const {memBaseType}>(object.{memName}, object.{memLength}, settings, "{memType}", "{memChildType}", "{memName}", {memIsStruct}, {memIsUnion}, indents + 1, dump_json_{memTypeID}); // JQA
+                    @end if
                 @end if
             @end if
         @end if
@@ -2607,6 +2622,7 @@ class VulkanVariable:
         self.baseType = self.typeID                 # Type, dereferenced to the non-pointer type
         self.childType = None                       # Type, dereferenced to the non-pointer type (None if it isn't a pointer)
         self.arrayLength = None                     # Length of the array, or None if it isn't an array
+        self.maxArrayLength = None                  # Max length of the array, if defined by spec (for sized arrays, None if array is unsized)
 
         # Get the text of the variable type and name, but not the comment
         self.text = ''
@@ -3010,6 +3026,7 @@ class VulkanStruct:
                 'memChildType': self.childType,
                 'memPtrLevel': self.pointerLevels,
                 'memLength': self.arrayLength,
+                'memMaxLength': self.maxArrayLength,
                 'memLengthIsMember': self.lengthMember,
                 'memCondition': self.condition,
                 'memParameterStorage': self.parameterStorage,
@@ -3044,9 +3061,11 @@ class VulkanStruct:
                 if member.name == 'memoryTypes':
                     member.lengthMember = True
                     member.arrayLength = 'memoryTypeCount'
+                    member.maxArrayLength = 'VK_MAX_MEMORY_TYPES'
                 if member.name == 'memoryHeaps':
                     member.lengthMember = True
                     member.arrayLength = 'memoryHeapCount'
+                    member.maxArrayLength = 'VK_MAX_MEMORY_HEAPS'
                 if member.name == 'physicalDevices':
                     member.lengthMember = True
                     member.arrayLength = 'physicalDeviceCount'
