@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <atomic>
 #include <unordered_map>
 #include <iostream>
 #include <algorithm>
@@ -69,7 +70,7 @@ bool screenshotThreadStarted = false;
 VkuLayerSettingSet globalLayerSettingSet = VK_NULL_HANDLE;
 
 // If true, do not capture screenshots. Allows to control the layer at runtime.
-bool pauseCapture = false;
+std::atomic_bool pauseCapture(false);
 const char *kSettingPauseCapture = "pause";
 
 enum class ColorSpaceFormat { UNDEFINED, UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB };
@@ -171,6 +172,8 @@ void Settings::init(VkuLayerSettingSet layerSettingSet) {
     const char *kSettingAllowSkip = "skip";
     const char *kSettingProfile = "profile";
     const char *kSettingScreenshotExtension = "extension";
+
+    updateLayerPausedSetting();
 
     if (vkuHasLayerSetting(layerSettingSet, kSettingScale)) {
         vkuGetLayerSettingValue(layerSettingSet, kSettingScale, scalePercent);
@@ -1527,8 +1530,18 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
     return result;
 }
 
+void updateLayerPausedSetting() {
+    PROFILE("Update layer.pause setting")
+    if (vkuHasLayerSetting(globalLayerSettingSet, kSettingPauseCapture)) {
+        bool shouldPauseCapture = false;
+        vkuGetLayerSettingValue(globalLayerSettingSet, kSettingPauseCapture, shouldPauseCapture);
+        std::atomic_store(&pauseCapture, shouldPauseCapture);
+    }
+}
+
 void screenshotWriterThreadFunc() {
     while (true) {
+        updateLayerPausedSetting();
         std::shared_ptr<ScreenshotQueueData> dataToSave;
         {
             PROFILE("Waiting for CPU")
@@ -1611,10 +1624,7 @@ void screenshotWriterThreadFunc() {
 VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR *pPresentInfo) {
     VkPresentInfoKHR presentInfo = *pPresentInfo;
     static int frameNumber = 0;
-    if (vkuHasLayerSetting(globalLayerSettingSet, kSettingPauseCapture)) {
-        vkuGetLayerSettingValue(globalLayerSettingSet, kSettingPauseCapture, pauseCapture);
-    }
-    if (!pauseCapture && settings.isFrameToCapture(frameNumber)) {
+    if (!std::atomic_load(&pauseCapture) && settings.isFrameToCapture(frameNumber)) {
         // If there are 0 swapchains, skip taking the snapshot
         if (pPresentInfo && pPresentInfo->swapchainCount > 0) {
             std::unique_lock<std::mutex> lock(globalLock);
