@@ -1543,7 +1543,7 @@ void screenshotWriterThreadFunc() {
         updatePauseCapture();
         std::shared_ptr<ScreenshotQueueData> dataToSave;
         {
-            PROFILE(std::atomic_load(&pauseCapture) ? "Screenshots paused" : "Waiting for CPU")
+            PROFILE(std::atomic_load(&pauseCapture) ? "paused" : "Waiting for CPU")
             std::unique_lock<std::mutex> lock(globalLock);
             if (screenshotsData.empty()) {
                 screenshotQueuedCV.wait(lock);
