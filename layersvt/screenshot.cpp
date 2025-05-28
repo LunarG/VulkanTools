@@ -72,7 +72,6 @@ VkuLayerSettingSet globalLayerSettingSet = VK_NULL_HANDLE;
 
 // If true, do not capture screenshots. Allows to control the layer at runtime.
 std::atomic_bool pauseCapture(false);
-bool pauseFileRecorded = false;
 
 enum class ColorSpaceFormat { UNDEFINED, UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB };
 
@@ -143,6 +142,9 @@ class Settings {
 
     // Is profiling enabled
     bool isProfilingEnabled = true;
+
+    // File that signals to host that screenshot recording is paused and write complete.
+    string pauseFileName;
 
     // Checks if frame needs to be captured
     bool isFrameToCapture(int frame) const;
@@ -270,6 +272,8 @@ void Settings::init(VkuLayerSettingSet layerSettingSet) {
         targetFolder = "/sdcard/Android";
     }
 #endif
+
+    pauseFileName = targetFolder.empty() ? "paused" : targetFolder + "/paused";
 }
 
 // Get maximum frame number of the frame range
@@ -394,12 +398,12 @@ static DeviceMapStruct *get_device_info(VkDevice dev) {
         return it->second;
 }
 
-string pauseFileName() {
-    string fileName = "paused";
-    if (settings.targetFolder.empty()) {
-        return fileName;
-    }
-    return settings.targetFolder + "/" + fileName;
+void screenshotWriterThreadFunc();
+
+void startScreenshotThread() {
+    if (screenshotThreadStarted || shutdownScreenshotThread) return;
+    screenshotThreadStarted = true;
+    screenshotWriterThread = std::thread(screenshotWriterThreadFunc);
 }
 
 static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
@@ -409,17 +413,8 @@ static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAll
     settings.init(globalLayerSettingSet);
 
     updatePauseCapture(globalLayerSettingSet);
-    if(!std::atomic_load(&pauseCapture)) {
-        std::remove(pauseFileName().c_str());
-    }
-}
 
-void screenshotWriterThreadFunc();
-
-void startScreenshotThread() {
-    if (screenshotThreadStarted || shutdownScreenshotThread) return;
-    screenshotThreadStarted = true;
-    screenshotWriterThread = std::thread(screenshotWriterThreadFunc);
+    startScreenshotThread();
 }
 
 void stopScreenshotThread() { shutdownScreenshotThread = true; }
@@ -1552,16 +1547,25 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
 }
 
 void screenshotWriterThreadFunc() {
+    static bool pauseFileRecorded = false;
+    if (!std::atomic_load(&pauseCapture)) {
+        std::remove(settings.pauseFileName.c_str());
+    }
     while (true) {
         updatePauseCapture(globalLayerSettingSet);
+        bool paused = std::atomic_load(&pauseCapture);
+        if (!paused && pauseFileRecorded) {
+            std::remove(settings.pauseFileName.c_str());  // delete file
+            pauseFileRecorded = false;
+        }
+
         std::shared_ptr<ScreenshotQueueData> dataToSave;
         {
-            bool paused = std::atomic_load(&pauseCapture);
             PROFILE(paused ? "paused" : "Waiting for CPU")
             std::unique_lock<std::mutex> lock(globalLock);
             if (screenshotsData.empty()) {
                 if (paused && !pauseFileRecorded) {
-                    std::ofstream pauseFile(pauseFileName().c_str());
+                    std::ofstream pauseFile(settings.pauseFileName.c_str());
                     pauseFileRecorded = true;
                 }
                 screenshotQueuedCV.wait(lock);
@@ -1570,10 +1574,6 @@ void screenshotWriterThreadFunc() {
             if (screenshotsData.empty()) continue;
             dataToSave = screenshotsData.front();
             screenshotsData.pop_front();
-            if (pauseFileRecorded) {
-                std::remove(pauseFileName().c_str());  // delete file
-                pauseFileRecorded = false;
-            }
             PROFILE_COUNTER("screenshot.QueueSize", screenshotsData.size());
         }
 
@@ -1677,7 +1677,6 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                     data->frameNumber = frameNumber;
                     screenshotsData.emplace_back(data);
                     PROFILE_COUNTER("screenshot.QueueSize", screenshotsData.size());
-                    startScreenshotThread();
 #ifdef ANDROID
                     __android_log_print(ANDROID_LOG_INFO, "screenshot", "Queued screeshot for frame: %d", frameNumber);
 #else
