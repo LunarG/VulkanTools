@@ -60,6 +60,11 @@ if (UPDATE_DEPS)
         list(APPEND update_dep_command "--skip-existing-install")
     endif()
 
+    if(WIN32 AND BUILD_TESTS AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
+        list(APPEND update_dep_command "--gtest-shared-libs=OFF")
+        list(APPEND update_dep_command "--gtest-force-shared-crt=OFF")
+    endif()
+
     list(APPEND cmake_vars "CMAKE_TOOLCHAIN_FILE")
     list(APPEND cmake_vars "CMAKE_SYSTEM_PROCESSOR")
 
