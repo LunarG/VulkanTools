@@ -14678,9 +14678,9 @@ void dump_text_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProp
     else
         settings.stream() << "address:\n";
     dump_text_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_text_uint32_t);  // AET
-    dump_text_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_text_VkMemoryType); // BQB
+    dump_text_array<const VkMemoryType>(object.memoryTypes, std::min(object.memoryTypeCount, VK_MAX_MEMORY_TYPES), settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_text_VkMemoryType); // BQB
     dump_text_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_text_uint32_t);  // AET
-    dump_text_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_text_VkMemoryHeap); // BQB
+    dump_text_array<const VkMemoryHeap>(object.memoryHeaps, std::min(object.memoryHeapCount, VK_MAX_MEMORY_HEAPS), settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_text_VkMemoryHeap); // BQB
 }
 void dump_text_VkPhysicalDeviceSparseProperties(const VkPhysicalDeviceSparseProperties& object, const ApiDumpSettings& settings, int indents)
 {

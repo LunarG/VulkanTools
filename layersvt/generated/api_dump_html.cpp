@@ -15331,9 +15331,9 @@ void dump_html_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProp
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMemoryType>(object.memoryTypes, object.memoryTypeCount, settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_html_VkMemoryType); // ZRT
+    dump_html_array<const VkMemoryType>(object.memoryTypes, std::min(object.memoryTypeCount, VK_MAX_MEMORY_TYPES), settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_html_VkMemoryType); // BQB
     dump_html_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMemoryHeap>(object.memoryHeaps, object.memoryHeapCount, settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_html_VkMemoryHeap); // ZRT
+    dump_html_array<const VkMemoryHeap>(object.memoryHeaps, std::min(object.memoryHeapCount, VK_MAX_MEMORY_HEAPS), settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_html_VkMemoryHeap); // BQB
 }
 void dump_html_VkPhysicalDeviceSparseProperties(const VkPhysicalDeviceSparseProperties& object, const ApiDumpSettings& settings, int indents)
 {
