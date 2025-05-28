@@ -63,9 +63,11 @@ class Configuration {
     bool override_settings = false;
     Path override_settings_path;
     bool override_layers = true;
+    std::string selected_layer_name;
+    bool override_driver = false;
+    std::string override_driver_name = "Default Physical Device";
     bool override_loader = true;
     int loader_log_messages_flags = GetBit(LOG_ERROR);
-    std::string selected_layer_name;
 
     std::vector<Parameter> parameters;
 

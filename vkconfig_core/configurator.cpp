@@ -117,7 +117,8 @@ bool Configurator::Init(ConfiguratorMode configurator_mode) {
     return true;
 }
 
-static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& loader_settings) {
+static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& loader_settings,
+                                           const VulkanSystemInfo& vulkan_system_info) {
     QJsonArray json_layers;
     for (std::size_t j = 0, o = loader_settings.layers.size(); j < o; ++j) {
         const Configurator::LoaderLayerSettings& layer = loader_settings.layers[j];
@@ -155,6 +156,21 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
     if (loader_settings.override_loader) {
         json_settings.insert("stderr_log", json_stderr_log);
     }
+    if (loader_settings.override_driver) {
+        bool found = false;
+        for (std::size_t i = 0, n = vulkan_system_info.physicalDevices.size(); i < n; ++i) {
+            const VulkanPhysicalDeviceInfo& info = vulkan_system_info.physicalDevices[i];
+            if (info.deviceName == loader_settings.override_driver_name) {
+                json_settings.insert("driver", info.deviceLUID.c_str());
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            json_settings.insert("driver", vulkan_system_info.physicalDevices[0].deviceLUID.c_str());
+        }
+    }
     return json_settings;
 }
 
@@ -174,6 +190,8 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
     result.override_loader = configuration->override_loader;
     result.override_layers = configuration->override_layers;
     result.stderr_log_flags = full_loader_log ? ~0 : configuration->loader_log_messages_flags;
+    result.override_driver = configuration->override_driver;
+    result.override_driver_name = configuration->override_driver_name;
 
     for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
         LoaderLayerSettings loader_layer_settings;
@@ -253,11 +271,11 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
             if (::EnabledExecutables(this->executable_scope)) {
                 QJsonArray json_settings_array;
                 for (std::size_t i = 0, n = loader_settings_array.size(); i < n; ++i) {
-                    json_settings_array.append(CreateJsonSettingObject(loader_settings_array[i]));
+                    json_settings_array.append(CreateJsonSettingObject(loader_settings_array[i], this->vulkan_system_info));
                 }
                 root.insert("settings_array", json_settings_array);
             } else if (!loader_settings_array.empty()) {
-                root.insert("settings", CreateJsonSettingObject(loader_settings_array[0]));
+                root.insert("settings", CreateJsonSettingObject(loader_settings_array[0], this->vulkan_system_info));
             }
             QJsonDocument doc(root);
 

@@ -59,6 +59,7 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent)
     this->tabs[TAB_LAYERS].reset(new TabLayers(*this, ui));
     this->tabs[TAB_CONFIGURATIONS].reset(new TabConfigurations(*this, ui));
     this->tabs[TAB_DOCUMENTATION].reset(new TabDocumentation(*this, ui));
+    this->tabs[TAB_DRIVERS].reset(new TabDrivers(*this, ui));
     this->tabs[TAB_PREFERENCES].reset(new TabPreferences(*this, ui));
     this->tabs[TAB_ABOUT].reset(new TabAbout(*this, ui));
 

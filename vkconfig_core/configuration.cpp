@@ -138,6 +138,14 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
         this->override_layers = ReadBoolValue(json_configuration_object, "override_layers");
     }
 
+    if (json_configuration_object.value("override_driver") != QJsonValue::Undefined) {
+        this->override_driver = ReadBoolValue(json_configuration_object, "override_driver");
+    }
+
+    if (json_configuration_object.value("override_driver_name") != QJsonValue::Undefined) {
+        this->override_driver_name = ReadString(json_configuration_object, "override_driver_name");
+    }
+
     if (json_configuration_object.value("override_loader") != QJsonValue::Undefined) {
         this->override_loader = ReadBoolValue(json_configuration_object, "override_loader");
     }
@@ -311,6 +319,8 @@ bool Configuration::Save(const Path& full_path, bool export_mode) const {
     json_configuration.insert("override_settings", this->override_settings);
     json_configuration.insert("override_settings_path", this->override_settings_path.RelativePath().c_str());
     json_configuration.insert("override_layers", this->override_layers);
+    json_configuration.insert("override_driver", this->override_driver);
+    json_configuration.insert("override_driver_name", this->override_driver_name.c_str());
     json_configuration.insert("override_loader", this->override_loader);
     SaveStringArray(json_configuration, "loader_message_types", GetLogTokens(this->loader_log_messages_flags));
     json_configuration.insert("selected_layer_name", this->selected_layer_name.c_str());
