@@ -22,9 +22,9 @@
 #include <vulkan/utility/vk_format_utils.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <assert.h>
 #include <atomic>
+#include <string>
 #include <unordered_map>
 #include <iostream>
 #include <algorithm>
@@ -137,6 +137,9 @@ class Settings {
 
     // Is profiling enabled
     bool isProfilingEnabled = true;
+
+    // File that signals to host that screenshot recording is paused and write complete.
+    std::string pauseFileName;
 
     // Checks if frame needs to be captured
     bool isFrameToCapture(int frame) const;
@@ -264,6 +267,8 @@ void Settings::init(VkuLayerSettingSet layerSettingSet) {
         targetFolder = "/sdcard/Android";
     }
 #endif
+
+    pauseFileName = targetFolder.empty() ? "paused" : targetFolder + "/paused";
 }
 
 // Get maximum frame number of the frame range
@@ -388,6 +393,14 @@ static DeviceMapStruct *get_device_info(VkDevice dev) {
         return it->second;
 }
 
+void screenshotWriterThreadFunc();
+
+void startScreenshotThread() {
+    if (screenshotThreadStarted || shutdownScreenshotThread) return;
+    screenshotThreadStarted = true;
+    screenshotWriterThread = std::thread(screenshotWriterThreadFunc);
+}
+
 static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
     vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", vkuFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
                              &globalLayerSettingSet);
@@ -395,14 +408,8 @@ static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAll
     settings.init(globalLayerSettingSet);
 
     updatePauseCapture(globalLayerSettingSet);
-}
 
-void screenshotWriterThreadFunc();
-
-void startScreenshotThread() {
-    if (screenshotThreadStarted || shutdownScreenshotThread) return;
-    screenshotThreadStarted = true;
-    screenshotWriterThread = std::thread(screenshotWriterThreadFunc);
+    startScreenshotThread();
 }
 
 void stopScreenshotThread() { shutdownScreenshotThread = true; }
@@ -1523,13 +1530,27 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
 }
 
 void screenshotWriterThreadFunc() {
+    bool pauseFileRecorded = false;
+    if (!std::atomic_load(&pauseCapture)) {
+        std::remove(settings.pauseFileName.c_str());
+    }
     while (true) {
         updatePauseCapture(globalLayerSettingSet);
+        bool paused = std::atomic_load(&pauseCapture);
+        if (!paused && pauseFileRecorded) {
+            std::remove(settings.pauseFileName.c_str());  // delete file
+            pauseFileRecorded = false;
+        }
+
         std::shared_ptr<ScreenshotQueueData> dataToSave;
         {
-            PROFILE(std::atomic_load(&pauseCapture) ? "paused" : "Waiting for CPU")
+            PROFILE(paused ? "paused" : "Waiting for CPU")
             std::unique_lock<std::mutex> lock(globalLock);
             if (screenshotsData.empty()) {
+                if (paused && !pauseFileRecorded) {
+                    std::ofstream pauseFile(settings.pauseFileName.c_str());
+                    pauseFileRecorded = true;
+                }
                 screenshotQueuedCV.wait(lock);
             }
             if (shutdownScreenshotThread && screenshotsData.empty()) break;
@@ -1639,7 +1660,6 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                     data->frameNumber = frameNumber;
                     screenshotsData.emplace_back(data);
                     PROFILE_COUNTER("screenshot.QueueSize", screenshotsData.size());
-                    startScreenshotThread();
 #ifdef ANDROID
                     __android_log_print(ANDROID_LOG_INFO, "screenshot", "Queued screeshot for frame: %d", frameNumber);
 #else
