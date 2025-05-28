@@ -2906,8 +2906,8 @@ class VulkanFunction:
             self.parameters.append(VulkanFunction.Parameter(node, aliases, self.name, index))
             index = index + 1
 
-        self.namedParams = ', '.join(p.name for p in self.parameters)
-        self.typedParams = ', '.join(p.text for p in self.parameters)
+        self.namedParams = re.sub(' +', ' ', ', '.join(p.name for p in self.parameters))
+        self.typedParams = re.sub(' +', ' ', ', '.join(p.text for p in self.parameters))
 
         if self.name in GLOBAL_FUNCTION_NAMES:
             self.dispatchType = 'global'
