@@ -1071,7 +1071,7 @@ inline void OutputApiVersionHTML(uint32_t version, const ApiDumpSettings &settin
     settings.stream() << "<div class='val'>";
     settings.stream() << version << " (" << VK_API_VERSION_MAJOR(version) << "." << VK_API_VERSION_MINOR(version) << "."
                       << VK_API_VERSION_PATCH(version) << ")";
-    settings.stream() << "</div>";
+    settings.stream() << "</div></summary>";
 }
 
 inline void OutputApiVersionJSON(uint32_t version, const ApiDumpSettings &settings, int indents) {
