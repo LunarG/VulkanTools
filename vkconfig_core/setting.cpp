@@ -372,39 +372,45 @@ void CheckMessage(IgnoredMessages& ignored_messages, const SettingMeta& meta, Se
     for (std::size_t i = 0, n = meta.messages.size(); i < n; ++i) {
         const Message& message = meta.messages[i];
 
-        auto it = ignored_messages.find(message.key);
-        if (it != ignored_messages.end()) {
-            if (it->second >= message.version) {
-                continue;
-            }
-        }
-
         if (!message.Triggered(data_set)) {
             continue;
         }
 
-        QMessageBox alert;
-        alert.setWindowTitle(message.title.c_str());
-        alert.setText(message.description.c_str());
-        if (!message.informative.empty()) {
-            alert.setInformativeText(message.informative.c_str());
+        bool show_message_box = false;
+        auto it = ignored_messages.find(message.key);
+        if (it != ignored_messages.end()) {
+            if (it->second < message.version) {
+                show_message_box = true;
+            }
+        } else {
+            show_message_box = true;
         }
-        alert.setIcon(::GetIcon(message.severity));
-        alert.setCheckBox(new QCheckBox("Do not show again."));
 
-        alert.setStandardButtons(message.GetStandardButtons());
-        alert.setDefaultButton(::GetStandardButton(message.actions[message.default_action].type));
-        int button = alert.exec();
+        QMessageBox::StandardButton button = ::GetStandardButton(message.actions[message.default_action].type);
+        if (show_message_box) {
+            QMessageBox alert;
+            alert.setWindowTitle(message.title.c_str());
+            alert.setText(message.description.c_str());
+            if (!message.informative.empty()) {
+                alert.setInformativeText(message.informative.c_str());
+            }
+            alert.setIcon(::GetIcon(message.severity));
+            alert.setCheckBox(new QCheckBox("Do not show again."));
 
-        message.Apply(data_set, static_cast<QMessageBox::StandardButtons>(button));
+            alert.setStandardButtons(message.GetStandardButtons());
+            alert.setDefaultButton(button);
+            button = static_cast<QMessageBox::StandardButton>(alert.exec());
 
-        if (alert.checkBox()->isChecked()) {
-            if (it != ignored_messages.end()) {
-                ignored_messages[message.key] = message.version;
-            } else {
-                ignored_messages.insert(std::make_pair(message.key, message.version));
+            if (alert.checkBox()->isChecked()) {
+                if (it != ignored_messages.end()) {
+                    ignored_messages[message.key] = message.version;
+                } else {
+                    ignored_messages.insert(std::make_pair(message.key, message.version));
+                }
             }
         }
+
+        message.Apply(data_set, button);
 
         break;
     }
