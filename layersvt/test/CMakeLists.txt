@@ -41,10 +41,6 @@ function(LayerTest NAME)
     )
 
     set_target_properties(${TEST_NAME} PROPERTIES FOLDER "VkLayer_${NAME}/Test")
-
-    if(WIN32 AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
-      set_property(TARGET ${TEST_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    endif()
 endfunction()
 
 set(LAYER_TEST_FILES api_dump monitor screenshot)

@@ -32,6 +32,14 @@ set(FILES_RESOURCES
 
 set(FILES_ALL ${FILES_SOURCE} ${FILES_HEADER} ${FILES_RESOURCES})
 
+if(WIN32)
+    # Use the static runtime library? This is for special builds of Vulkan Configurator only
+    if(USE_STATIC_RT_VKCONFIG)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        message(STATUS "vkconfig-core will link against static runtime")
+    endif()    
+endif()
+
 add_library(vkconfig-core STATIC ${FILES_ALL})
 target_compile_options(vkconfig-core PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/MP>)
 target_compile_definitions(vkconfig-core PRIVATE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)
