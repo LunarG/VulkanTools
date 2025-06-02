@@ -16811,7 +16811,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCudaLaunchKernelNV(VkCommandBuffer commandBuffer
     }
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
-VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(VkCommandBuffer commandBuffer)
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(VkCommandBuffer commandBuffer, const VkDispatchTileInfoQCOM* pDispatchTileInfo)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
@@ -16824,7 +16824,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(VkCommandBuffer commandBuffer)
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchTileQCOM", "commandBuffer", "void");
     }
-    device_dispatch_table(commandBuffer)->CmdDispatchTileQCOM(commandBuffer);
+    device_dispatch_table(commandBuffer)->CmdDispatchTileQCOM(commandBuffer, pDispatchTileInfo);
     
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         switch(ApiDumpInstance::current().settings().format())
