@@ -693,12 +693,16 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 export_html_action->setEnabled(layer != nullptr);
                 menu.addAction(export_html_action);
 
+                QAction *export_url_action = new QAction("Open the feature Documentation...", nullptr);
+                export_url_action->setEnabled(layer != nullptr);
+                menu.addAction(export_url_action);
+
                 QPoint point(right_click->globalX(), right_click->globalY());
                 QAction *action = menu.exec(point);
 
                 if (action == action_description) {
                     const SettingMeta *setting = ::FindSetting(layer->settings, item->key.c_str());
-                    assert(layer != nullptr);
+                    assert(setting != nullptr);
 
                     std::string title = format("%s (%s)", setting->label.c_str(), setting->key.c_str());
                     if (setting->status != STATUS_STABLE) {
@@ -763,6 +767,11 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                     ExportHtmlDoc(*layer, path);
 
                     std::string url = ConvertStandardSeparators(format("file:///%s#%s-detailed", path.c_str(), item->key.c_str()));
+                    QDesktopServices::openUrl(QUrl(url.c_str()));
+                } else if (action == export_url_action) {
+                    const SettingMeta *setting = ::FindSetting(layer->settings, item->key.c_str());
+
+                    const std::string url = ConvertStandardSeparators(setting->url.AbsolutePath());
                     QDesktopServices::openUrl(QUrl(url.c_str()));
                 }
             }

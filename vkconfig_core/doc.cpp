@@ -145,6 +145,11 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
                 text += format("\t<p>%s</p>\n", setting->detailed.c_str());
             }
 
+            if (!setting->url.Empty()) {
+                const std::string url = ConvertStandardSeparators(setting->url.AbsolutePath());
+                text += format("\t<p>Learn more about <a href=\"%s\">\"%s\"</a>.</p>\n", url.c_str(), setting->label.c_str());
+            }
+
             if (setting->status == STATUS_DEPRECATED && !setting->deprecated_by_key.empty()) {
                 const SettingMeta* replaced_setting = FindSetting(layer.settings, setting->deprecated_by_key.c_str());
 
@@ -301,7 +306,13 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
             text += "\n";
 
             if (!setting->detailed.empty()) {
-                text += setting->detailed;
+                text += setting->detailed + "\n";
+                text += "\n";
+            }
+
+            if (!setting->url.Empty()) {
+                const std::string url = ConvertStandardSeparators(setting->url.AbsolutePath());
+                text += format("Learn more about [%s](%s).\n", setting->label.c_str(), url.c_str());
                 text += "\n";
             }
 
