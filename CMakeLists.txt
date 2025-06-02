@@ -18,20 +18,7 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(VULKAN_TOOLS LANGUAGES CXX)
 
-find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
-find_package(Qt5 COMPONENTS Core Gui Widgets Network QUIET)
-if(Qt6_FOUND)
-  get_target_property(QT_TARGET_TYPE Qt6::Core TYPE)
-elseif(Qt5_FOUND)
-  get_target_property(QT_TARGET_TYPE Qt5::Core TYPE)
-endif()
-
 add_subdirectory(scripts)
-
-find_package(VulkanHeaders REQUIRED CONFIG)
-find_package(VulkanLoader CONFIG)
-find_package(VulkanUtilityLibraries REQUIRED CONFIG)
-find_package(valijson REQUIRED CONFIG)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -49,8 +36,16 @@ if (BUILD_WERROR)
     add_compile_options("$<IF:$<CXX_COMPILER_ID:MSVC>,/WX,-Werror>")
 endif()
 
+find_package(VulkanHeaders REQUIRED CONFIG)
+find_package(VulkanLoader CONFIG)
+find_package(VulkanUtilityLibraries REQUIRED CONFIG)
+find_package(valijson REQUIRED CONFIG)
+find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
+find_package(Qt5 COMPONENTS Core Gui Widgets Network QUIET)
+
 option(BUILD_TESTS "Build tests")
 option(RUN_ON_GITHUB "Build only tests that can run on Github" OFF)
+option(USE_STATIC_RT_VKCONFIG "Use static C runtime for VkConfig when linking against static Qt libraires")
 
 if(BUILD_TESTS)
     enable_testing()
@@ -135,11 +130,5 @@ if(BUILD_LAYERMGR)
         add_subdirectory(vkconfig_core)
         add_subdirectory(vkconfig_cmd)
         add_subdirectory(vkconfig_gui)
-
-        if(WIN32 AND BUILD_TESTS AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
-            set_property(TARGET vkconfig-gui vkconfig-cmd vkconfig-core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-            message(STATUS "INFO: vkconfig will link against static runtime")
-        endif()
-
     endif()
 endif()
