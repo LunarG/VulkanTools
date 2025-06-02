@@ -482,14 +482,6 @@ class GoodRepo(object):
                     var_name=d['var_name'],
                     install_dir=dep_commit[0].install_dir))
 
-        if self.name == "googletest" and (self._args.gtest_shared_libs or self._args.gtest_force_shared_crt):
-            for index,option in enumerate(self.cmake_options):
-                if self._args.gtest_shared_libs and 'build_shared_libs' in option.lower():
-                    self.cmake_options[index] = f"-DBUILD_SHARED_LIBS={str(self._args.gtest_shared_libs)}"
-                    print(f'INFO: Setting googletest option: -DBUILD_SHARED_LIBS={str(self._args.gtest_shared_libs)}')
-                if self._args.gtest_force_shared_crt and 'gtest_force_shared_crt' in option.lower():
-                    self.cmake_options[index] = f"-Dgtest_force_shared_crt={str(self._args.gtest_force_shared_crt)}"
-                    print(f'INFO: Setting googletest option: -Dgtest_force_shared_crt={str(self._args.gtest_force_shared_crt)}')
         # Add any CMake options
         for option in self.cmake_options:
             cmake_cmd.append(escape(option.format(**self.__dict__)))
@@ -721,18 +713,6 @@ def main():
         metavar='VAR[=VALUE]',
         help="Add CMake command line option -D'VAR'='VALUE' to the CMake generation command line; may be used multiple times",
         default=[])
-    parser.add_argument(
-        '--gtest-shared-libs',
-        dest='gtest_shared_libs',
-        type=str.upper,
-        choices=['ON','OFF','YES','NO','TRUE','FALSE'],
-        help="Set googletest's BUILD_SHARED_LIBS option (overrides known-good.json values)")
-    parser.add_argument(
-        '--gtest-force-shared-crt',
-        dest='gtest_force_shared_crt',
-        type=str.upper,
-        choices=['ON','OFF','YES','NO','TRUE','FALSE'],
-        help="Set googletest's gtest_force_shared_crt option (overrides known-good.json values)")
 
     args = parser.parse_args()
     save_cwd = os.getcwd()
