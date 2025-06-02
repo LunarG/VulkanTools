@@ -39,13 +39,56 @@ bool Message::Triggered(const SettingDataSet& data_set) const {
         const Condition& condition = this->conditions[i];
 
         const SettingData* setting_data = ::FindSetting<SettingData>(data_set, condition.setting->key.c_str());
-        if (condition.op == CONDITION_OPERATOR_NOT) {
-            if (*condition.setting == *setting_data) {
-                result = false;
+        if (setting_data->type == SETTING_FLAGS && condition.setting->type == SETTING_FLAGS) {
+            const SettingDataFlags* settings_flags = static_cast<const SettingDataFlags*>(setting_data);
+            const SettingDataFlags* condition_flags = static_cast<const SettingDataFlags*>(condition.setting);
+
+            if (condition.op == CONDITION_OPERATOR_NOT) {
+                bool all_not_found = true;
+
+                for (std::size_t i = 0, n = condition_flags->value.size(); i < n; ++i) {
+                    bool found = std::find(settings_flags->value.begin(), settings_flags->value.end(), condition_flags->value[i]) !=
+                                 settings_flags->value.end();
+
+                    if (found) {
+                        all_not_found = false;
+                        break;
+                    }
+                }
+
+                if (!all_not_found) {
+                    result = false;
+                    break;
+                }
+            } else {
+                bool all_found = true;
+
+                for (std::size_t i = 0, n = condition_flags->value.size(); i < n; ++i) {
+                    bool found = std::find(settings_flags->value.begin(), settings_flags->value.end(), condition_flags->value[i]) !=
+                                 settings_flags->value.end();
+
+                    if (!found) {
+                        all_found = false;
+                        break;
+                    }
+                }
+
+                if (!all_found) {
+                    result = false;
+                    break;
+                }
             }
         } else {
-            if (*condition.setting != *setting_data) {
-                result = false;
+            if (condition.op == CONDITION_OPERATOR_NOT) {
+                if (*condition.setting == *setting_data) {
+                    result = false;
+                    break;
+                }
+            } else {
+                if (*condition.setting != *setting_data) {
+                    result = false;
+                    break;
+                }
             }
         }
     }
