@@ -532,7 +532,7 @@ if __name__ == '__main__':
     from cgenerator import CGeneratorOptions, COutputGenerator
 
     # VulkanTools generator additions
-    from api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN_HEADER, TEXT_CODEGEN_IMPLEMENTATION, HTML_CODEGEN_HEADER, HTML_CODEGEN_IMPLEMENTATION, JSON_CODEGEN_HEADER, JSON_CODEGEN_IMPLEMENTATION
+    from generators.api_dump_generator import ApiDumpGeneratorOptions, ApiDumpOutputGenerator, COMMON_CODEGEN, TEXT_CODEGEN_HEADER, TEXT_CODEGEN_IMPLEMENTATION, HTML_CODEGEN_HEADER, HTML_CODEGEN_IMPLEMENTATION, JSON_CODEGEN_HEADER, JSON_CODEGEN_IMPLEMENTATION
     from vkconventions import VulkanConventions
 
     # This splits arguments which are space-separated lists

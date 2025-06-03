@@ -70,7 +70,7 @@ if(BUILD_APIDUMP)
         vk_layer_table.h
         api_dump_layer.md
         json/VkLayer_api_dump.json.in
-        ../scripts/api_dump_generator.py
+        ../scripts/generators/api_dump_generator.py
     )
 
     target_include_directories(VkLayer_api_dump PRIVATE
