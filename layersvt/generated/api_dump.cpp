@@ -16811,32 +16811,32 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCudaLaunchKernelNV(VkCommandBuffer commandBuffer
     }
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
-VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(VkCommandBuffer commandBuffer)
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(VkCommandBuffer commandBuffer, const VkDispatchTileInfoQCOM* pDispatchTileInfo)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
-        dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchTileQCOM", "commandBuffer");
+        dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchTileQCOM", "commandBuffer, pDispatchTileInfo");
         if (ApiDumpInstance::current().shouldDumpOutput()) {
-            dump_text_params_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer);
+            dump_text_params_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer, pDispatchTileInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
         
     } else {
-        dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchTileQCOM", "commandBuffer", "void");
+        dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchTileQCOM", "commandBuffer, pDispatchTileInfo", "void");
     }
-    device_dispatch_table(commandBuffer)->CmdDispatchTileQCOM(commandBuffer);
+    device_dispatch_table(commandBuffer)->CmdDispatchTileQCOM(commandBuffer, pDispatchTileInfo);
     
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         switch(ApiDumpInstance::current().settings().format())
         {
             case ApiDumpFormat::Text:
-                dump_text_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer);
+                dump_text_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer, pDispatchTileInfo);
                 break;
             case ApiDumpFormat::Html:
-                dump_html_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer);
+                dump_html_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer, pDispatchTileInfo);
                 break;
             case ApiDumpFormat::Json:
-                dump_json_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer);
+                dump_json_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer, pDispatchTileInfo);
                 break;
         }
     }

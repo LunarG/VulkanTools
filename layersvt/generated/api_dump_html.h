@@ -1613,8 +1613,8 @@ void dump_html_VkDepthBiasRepresentationInfoEXT(const VkDepthBiasRepresentationI
 void dump_html_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT(const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_html_VkDeviceMemoryReportCallbackDataEXT(const VkDeviceMemoryReportCallbackDataEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_html_VkDeviceDeviceMemoryReportCreateInfoEXT(const VkDeviceDeviceMemoryReportCreateInfoEXT& object, const ApiDumpSettings& settings, int indents);
-void dump_html_VkPhysicalDeviceRobustness2FeaturesEXT(const VkPhysicalDeviceRobustness2FeaturesEXT& object, const ApiDumpSettings& settings, int indents);
-void dump_html_VkPhysicalDeviceRobustness2PropertiesEXT(const VkPhysicalDeviceRobustness2PropertiesEXT& object, const ApiDumpSettings& settings, int indents);
+void dump_html_VkPhysicalDeviceRobustness2FeaturesKHR(const VkPhysicalDeviceRobustness2FeaturesKHR& object, const ApiDumpSettings& settings, int indents);
+void dump_html_VkPhysicalDeviceRobustness2PropertiesKHR(const VkPhysicalDeviceRobustness2PropertiesKHR& object, const ApiDumpSettings& settings, int indents);
 void dump_html_VkSamplerCustomBorderColorCreateInfoEXT(const VkSamplerCustomBorderColorCreateInfoEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_html_VkPhysicalDeviceCustomBorderColorPropertiesEXT(const VkPhysicalDeviceCustomBorderColorPropertiesEXT& object, const ApiDumpSettings& settings, int indents);
 void dump_html_VkPhysicalDeviceCustomBorderColorFeaturesEXT(const VkPhysicalDeviceCustomBorderColorFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
@@ -2157,6 +2157,7 @@ void dump_html_VkMemoryMetalHandlePropertiesEXT(const VkMemoryMetalHandlePropert
 void dump_html_VkMemoryGetMetalHandleInfoEXT(const VkMemoryGetMetalHandleInfoEXT& object, const ApiDumpSettings& settings, int indents);
 #endif // VK_USE_PLATFORM_METAL_EXT
 void dump_html_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT(const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
+void dump_html_VkPhysicalDeviceFormatPackFeaturesARM(const VkPhysicalDeviceFormatPackFeaturesARM& object, const ApiDumpSettings& settings, int indents);
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_html_VkSetPresentConfigNV(const VkSetPresentConfigNV& object, const ApiDumpSettings& settings, int indents);
 #endif // VK_ENABLE_BETA_EXTENSIONS
@@ -2164,6 +2165,7 @@ void dump_html_VkSetPresentConfigNV(const VkSetPresentConfigNV& object, const Ap
 void dump_html_VkPhysicalDevicePresentMeteringFeaturesNV(const VkPhysicalDevicePresentMeteringFeaturesNV& object, const ApiDumpSettings& settings, int indents);
 #endif // VK_ENABLE_BETA_EXTENSIONS
 void dump_html_VkRenderingEndInfoEXT(const VkRenderingEndInfoEXT& object, const ApiDumpSettings& settings, int indents);
+void dump_html_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT(const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT& object, const ApiDumpSettings& settings, int indents);
 
 //========================== Union Implementations ==========================//
 
@@ -2816,7 +2818,7 @@ void dump_html_params_vkDestroyCudaFunctionNV(ApiDumpInstance& dump_inst, VkDevi
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_html_params_vkCmdCudaLaunchKernelNV(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkCudaLaunchInfoNV* pLaunchInfo);
 #endif // VK_ENABLE_BETA_EXTENSIONS
-void dump_html_params_vkCmdDispatchTileQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer);
+void dump_html_params_vkCmdDispatchTileQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkDispatchTileInfoQCOM* pDispatchTileInfo);
 void dump_html_params_vkCmdBeginPerTileExecutionQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkPerTileBeginInfoQCOM* pPerTileBeginInfo);
 void dump_html_params_vkCmdEndPerTileExecutionQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkPerTileEndInfoQCOM* pPerTileEndInfo);
 #if defined(VK_USE_PLATFORM_METAL_EXT)
@@ -3674,7 +3676,7 @@ void dump_html_vkDestroyCudaFunctionNV(ApiDumpInstance& dump_inst, VkDevice devi
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_html_vkCmdCudaLaunchKernelNV(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkCudaLaunchInfoNV* pLaunchInfo);
 #endif // VK_ENABLE_BETA_EXTENSIONS
-void dump_html_vkCmdDispatchTileQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer);
+void dump_html_vkCmdDispatchTileQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkDispatchTileInfoQCOM* pDispatchTileInfo);
 void dump_html_vkCmdBeginPerTileExecutionQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkPerTileBeginInfoQCOM* pPerTileBeginInfo);
 void dump_html_vkCmdEndPerTileExecutionQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkPerTileEndInfoQCOM* pPerTileEndInfo);
 #if defined(VK_USE_PLATFORM_METAL_EXT)
