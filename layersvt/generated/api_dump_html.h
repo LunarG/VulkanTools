@@ -91,21 +91,15 @@ void dump_html_OHNativeWindow(OHNativeWindow object, const ApiDumpSettings& sett
 
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
 void dump_html_ANativeWindow(const ANativeWindow* object, const ApiDumpSettings& settings, int indents);
-#endif
 #endif // VK_USE_PLATFORM_ANDROID_KHR
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 void dump_html_AHardwareBuffer(const AHardwareBuffer* object, const ApiDumpSettings& settings, int indents);
-#endif
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 
 
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-#if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_html_CAMetalLayer(CAMetalLayer object, const ApiDumpSettings& settings, int indents);
-#endif
 #endif // VK_USE_PLATFORM_METAL_EXT
 
 //======================= System Type Implementations =======================//

@@ -502,14 +502,10 @@ void dump_text_{etyName}({etyName} object, const ApiDumpSettings& settings, int 
 void dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
 @end basetype
 @foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
 void dump_text_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents);
-#endif
 @end basetype
 @foreach basetype where('{baseName}' in ['CAMetalLayer'])
-#if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
-#endif
 @end basetype
 
 //======================= System Type Implementations =======================//
@@ -652,20 +648,16 @@ void dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, in
 }}
 @end basetype
 @foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
 void dump_text_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << object;
 }}
-#endif
 @end basetype
 @foreach basetype where('{baseName}' in ['CAMetalLayer'])
-#if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << object;
 }}
-#endif
 @end basetype
 
 //======================= System Type Implementations =======================//
@@ -1055,14 +1047,10 @@ void dump_html_{etyName}({etyName} object, const ApiDumpSettings& settings, int 
 void dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
 @end basetype
 @foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
 void dump_html_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents);
-#endif
 @end basetype
 @foreach basetype where('{baseName}' in ['CAMetalLayer'])
-#if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
-#endif
 @end basetype
 
 //======================= System Type Implementations =======================//
@@ -1201,20 +1189,16 @@ void dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, in
 }}
 @end basetype
 @foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
 void dump_html_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }}
-#endif
 @end basetype
 @foreach basetype where('{baseName}' in ['CAMetalLayer'])
-#if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }}
-#endif
 @end basetype
 
 //======================= System Type Implementations =======================//
@@ -1578,14 +1562,10 @@ void dump_json_{etyName}({etyName} object, const ApiDumpSettings& settings, int 
 void dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
 @end basetype
 @foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
 void dump_json_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents);
-#endif
 @end basetype
 @foreach basetype where('{baseName}' in ['CAMetalLayer'])
-#if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
-#endif
 @end basetype
 
 //======================= System Type Implementations =======================//
@@ -1723,20 +1703,16 @@ void dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, in
 }}
 @end basetype
 @foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
 void dump_json_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "\\"" << object << "\\"";
 }}
-#endif
 @end basetype
 @foreach basetype where('{baseName}' in ['CAMetalLayer'])
-#if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents)
 {{
     settings.stream() << "\\"" << object << "\\"";
 }}
-#endif
 @end basetype
 
 //======================= System Type Implementations =======================//
