@@ -608,16 +608,12 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                             continue;
                         }
 
-                        stream << "# ";
-                        stream << meta->label.c_str();
-                        stream << "\n# =====================\n# <LayerIdentifier>.";
-                        stream << meta->key.c_str();
-
+                        stream << "# " << meta->label.c_str() << " - " << meta->key.c_str();
                         if (meta->status != STATUS_STABLE) {
                             stream << format(" (%s)", GetToken(meta->status)).c_str();
                         }
-
                         stream << "\n";
+                        stream << "# ==========================================\n";
 
                         // Break up description into smaller words
                         std::string description = meta->description;
@@ -642,11 +638,6 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                         }
                         stream << "\n";
 
-                        // If feature has unmet dependency, output it but comment it out
-                        if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
-                            stream << "#";
-                        }
-
                         if (meta->status == STATUS_DEPRECATED && !meta->deprecated_by_key.empty()) {
                             const SettingMeta* replaced_setting = FindSetting(layer->settings, meta->deprecated_by_key.c_str());
 
@@ -655,6 +646,20 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                                           .c_str();
                         }
 
+                        if (!meta->dependence.empty()) {
+                            stream << "# This setting requires " << ::GetToken(meta->dependence_mode)
+                                   << " of the following values:\n";
+                            for (std::size_t i = 0, n = meta->dependence.size(); i < n; ++i) {
+                                const SettingData* data = meta->dependence[i];
+                                stream << "# - " << lc_layer_name.c_str() << data->key.c_str() << " = "
+                                       << data->Export(EXPORT_MODE_OVERRIDE).c_str() << "\n";
+                            }
+                        }
+
+                        // If feature has unmet dependency, output it but comment it out
+                        if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
+                            stream << "# ";
+                        }
                         stream << lc_layer_name.c_str() << setting_data->key.c_str() << " = ";
                         stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
                         stream << "\n\n";

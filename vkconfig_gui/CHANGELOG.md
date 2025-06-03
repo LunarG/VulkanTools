@@ -12,6 +12,7 @@
   - Add detailed description layer setting field
   - Add display of deprecated setting information in generated layer documentation
   - Add optional information about which setting replaced a deprecated setting
+  - Add layer setting dependences to generated vk_layer_settings.txt
 - Add theme mode control in preference tab
 
 ### Fixes:
