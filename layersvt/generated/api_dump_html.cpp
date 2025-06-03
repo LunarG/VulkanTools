@@ -3218,12 +3218,6 @@ void dump_html_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000284002:
         settings.stream() << "VK_STRUCTURE_TYPE_DEVICE_MEMORY_REPORT_CALLBACK_DATA_EXT (";
         break;
-    case 1000286000:
-        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT (";
-        break;
-    case 1000286001:
-        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_EXT (";
-        break;
     case 1000287000:
         settings.stream() << "VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT (";
         break;
@@ -4457,6 +4451,15 @@ void dump_html_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     case 1000608000:
         settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT (";
         break;
+    case 1000609000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FORMAT_PACK_FEATURES_ARM (";
+        break;
+    case 1000286000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR (";
+        break;
+    case 1000286001:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR (";
+        break;
     case 1000613000:
         settings.stream() << "VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV (";
         break;
@@ -4474,6 +4477,9 @@ void dump_html_VkStructureType(VkStructureType object, const ApiDumpSettings& se
         break;
     case 1000619003:
         settings.stream() << "VK_STRUCTURE_TYPE_RENDERING_END_INFO_EXT (";
+        break;
+    case 1000620000:
+        settings.stream() << "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT (";
         break;
     default:
         settings.stream() << "UNKNOWN (";
@@ -4587,6 +4593,9 @@ void dump_html_VkImageLayout(VkImageLayout object, const ApiDumpSettings& settin
         break;
     case 1000553000:
         settings.stream() << "VK_IMAGE_LAYOUT_VIDEO_ENCODE_QUANTIZATION_MAP_KHR (";
+        break;
+    case 1000620000:
+        settings.stream() << "VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT (";
         break;
     default:
         settings.stream() << "UNKNOWN (";
@@ -5687,6 +5696,48 @@ void dump_html_VkFormat(VkFormat object, const ApiDumpSettings& settings, int in
         break;
     case 1000464000:
         settings.stream() << "VK_FORMAT_R16G16_SFIXED5_NV (";
+        break;
+    case 1000609000:
+        settings.stream() << "VK_FORMAT_R10X6_UINT_PACK16_ARM (";
+        break;
+    case 1000609001:
+        settings.stream() << "VK_FORMAT_R10X6G10X6_UINT_2PACK16_ARM (";
+        break;
+    case 1000609002:
+        settings.stream() << "VK_FORMAT_R10X6G10X6B10X6A10X6_UINT_4PACK16_ARM (";
+        break;
+    case 1000609003:
+        settings.stream() << "VK_FORMAT_R12X4_UINT_PACK16_ARM (";
+        break;
+    case 1000609004:
+        settings.stream() << "VK_FORMAT_R12X4G12X4_UINT_2PACK16_ARM (";
+        break;
+    case 1000609005:
+        settings.stream() << "VK_FORMAT_R12X4G12X4B12X4A12X4_UINT_4PACK16_ARM (";
+        break;
+    case 1000609006:
+        settings.stream() << "VK_FORMAT_R14X2_UINT_PACK16_ARM (";
+        break;
+    case 1000609007:
+        settings.stream() << "VK_FORMAT_R14X2G14X2_UINT_2PACK16_ARM (";
+        break;
+    case 1000609008:
+        settings.stream() << "VK_FORMAT_R14X2G14X2B14X2A14X2_UINT_4PACK16_ARM (";
+        break;
+    case 1000609009:
+        settings.stream() << "VK_FORMAT_R14X2_UNORM_PACK16_ARM (";
+        break;
+    case 1000609010:
+        settings.stream() << "VK_FORMAT_R14X2G14X2_UNORM_2PACK16_ARM (";
+        break;
+    case 1000609011:
+        settings.stream() << "VK_FORMAT_R14X2G14X2B14X2A14X2_UNORM_4PACK16_ARM (";
+        break;
+    case 1000609012:
+        settings.stream() << "VK_FORMAT_G14X2_B14X2R14X2_2PLANE_420_UNORM_3PACK16_ARM (";
+        break;
+    case 1000609013:
+        settings.stream() << "VK_FORMAT_G14X2_B14X2R14X2_2PLANE_422_UNORM_3PACK16_ARM (";
         break;
     default:
         settings.stream() << "UNKNOWN (";
@@ -9807,7 +9858,7 @@ void dump_html_VkImageUsageFlagBits(VkImageUsageFlagBits object, const ApiDumpSe
         settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_RESERVED_23_BIT_EXT"; is_first = false;
     }
     if(object & 134217728) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_TILE_MEMORY_QCOM"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_TILE_MEMORY_BIT_QCOM"; is_first = false;
     }
     if(object & 33554432) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR"; is_first = false;
@@ -10296,7 +10347,7 @@ void dump_html_VkBufferUsageFlagBits(VkBufferUsageFlagBits object, const ApiDump
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT"; is_first = false;
     }
     if(object & 134217728) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_TILE_MEMORY_QCOM"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_TILE_MEMORY_BIT_QCOM"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -10965,7 +11016,7 @@ void dump_html_VkMemoryAllocateFlagBits(VkMemoryAllocateFlagBits object, const A
         settings.stream() << (is_first ? " (" : " | ") << "VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT"; is_first = false;
     }
     if(object & 8) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_MEMORY_ALLOCATE_EXTENSION_621_BIT_EXT"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_MEMORY_ALLOCATE_ZERO_INITIALIZE_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -11194,6 +11245,9 @@ void dump_html_VkResolveModeFlagBits(VkResolveModeFlagBits object, const ApiDump
     }
     if(object & 16) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_ANDROID"; is_first = false;
+    }
+    if(object & 32) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_RESOLVE_MODE_RESERVED_5_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -11648,6 +11702,12 @@ void dump_html_VkRenderingFlagBits(VkRenderingFlagBits object, const ApiDumpSett
     if(object & 32) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_RESERVED_5_BIT_VALVE"; is_first = false;
     }
+    if(object & 64) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_RESERVED_6_BIT_EXT"; is_first = false;
+    }
+    if(object & 128) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_RENDERING_RESERVED_7_BIT_EXT"; is_first = false;
+    }
     if(!is_first)
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
@@ -11966,6 +12026,9 @@ void dump_html_VkPipelineCreateFlagBits2(VkPipelineCreateFlagBits2 object, const
     if(object & 4398046511104) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_42_BIT_KHR"; is_first = false;
     }
+    if(object & 8796093022208) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RESERVED_43_BIT_EXT"; is_first = false;
+    }
     if(!is_first)
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
@@ -12057,7 +12120,7 @@ void dump_html_VkBufferUsageFlagBits2(VkBufferUsageFlagBits2 object, const ApiDu
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT"; is_first = false;
     }
     if(object & 134217728) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_TILE_MEMORY_QCOM"; is_first = false;
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_TILE_MEMORY_BIT_QCOM"; is_first = false;
     }
     if(object & 4294967296) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_RESERVED_32_BIT_NV"; is_first = false;
@@ -12160,6 +12223,9 @@ void dump_html_VkSwapchainCreateFlagBitsKHR(VkSwapchainCreateFlagBitsKHR object,
     }
     if(object & 16) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SWAPCHAIN_CREATE_RESERVED_4_BIT_EXT"; is_first = false;
+    }
+    if(object & 32) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SWAPCHAIN_CREATE_RESERVED_5_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -13616,6 +13682,9 @@ void dump_html_VkShaderCreateFlagBitsEXT(VkShaderCreateFlagBitsEXT object, const
     }
     if(object & 16384) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_RESERVED_14_BIT_EXT"; is_first = false;
+    }
+    if(object & 32768) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_RESERVED_15_BIT_EXT"; is_first = false;
     }
     if(!is_first)
         settings.stream() << ")";
@@ -28008,7 +28077,7 @@ void dump_html_VkDeviceDeviceMemoryReportCreateInfoEXT(const VkDeviceDeviceMemor
     dump_html_value<const PFN_vkDeviceMemoryReportCallbackEXT>(object.pfnUserCallback, settings, "PFN_vkDeviceMemoryReportCallbackEXT", "pfnUserCallback", indents + 1, dump_html_PFN_vkDeviceMemoryReportCallbackEXT);
     dump_html_value<const void*>(object.pUserData, settings, "void*", "pUserData", indents + 1, dump_html_void);
 }
-void dump_html_VkPhysicalDeviceRobustness2FeaturesEXT(const VkPhysicalDeviceRobustness2FeaturesEXT& object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPhysicalDeviceRobustness2FeaturesKHR(const VkPhysicalDeviceRobustness2FeaturesKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -28026,7 +28095,7 @@ void dump_html_VkPhysicalDeviceRobustness2FeaturesEXT(const VkPhysicalDeviceRobu
     dump_html_value<const VkBool32>(object.robustImageAccess2, settings, "VkBool32", "robustImageAccess2", indents + 1, dump_html_VkBool32);
     dump_html_value<const VkBool32>(object.nullDescriptor, settings, "VkBool32", "nullDescriptor", indents + 1, dump_html_VkBool32);
 }
-void dump_html_VkPhysicalDeviceRobustness2PropertiesEXT(const VkPhysicalDeviceRobustness2PropertiesEXT& object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPhysicalDeviceRobustness2PropertiesKHR(const VkPhysicalDeviceRobustness2PropertiesKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -35862,6 +35931,22 @@ void dump_html_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT(const VkPhys
     }
     dump_html_value<const VkBool32>(object.vertexAttributeRobustness, settings, "VkBool32", "vertexAttributeRobustness", indents + 1, dump_html_VkBool32);
 }
+void dump_html_VkPhysicalDeviceFormatPackFeaturesARM(const VkPhysicalDeviceFormatPackFeaturesARM& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkBool32>(object.formatPack, settings, "VkBool32", "formatPack", indents + 1, dump_html_VkBool32);
+}
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 void dump_html_VkSetPresentConfigNV(const VkSetPresentConfigNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -35913,6 +35998,22 @@ void dump_html_VkRenderingEndInfoEXT(const VkRenderingEndInfoEXT& object, const 
     } else {
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
+}
+void dump_html_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT(const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_html_VkStructureType);
+    if(object.pNext != nullptr){
+        dump_html_pNext_trampoline(object.pNext, settings, indents + 1);
+    } else {
+        dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
+    }
+    dump_html_value<const VkBool32>(object.zeroInitializeDeviceMemory, settings, "VkBool32", "zeroInitializeDeviceMemory", indents + 1, dump_html_VkBool32);
 }
 
 //========================== Union Implementations ==========================//
@@ -38056,10 +38157,10 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         dump_html_pNext<const VkDeviceDeviceMemoryReportCreateInfoEXT>(static_cast<const VkDeviceDeviceMemoryReportCreateInfoEXT*>(object), settings, "VkDeviceDeviceMemoryReportCreateInfoEXT", indents, dump_html_VkDeviceDeviceMemoryReportCreateInfoEXT);
         break;
     case 1000286000:
-        dump_html_pNext<const VkPhysicalDeviceRobustness2FeaturesEXT>(static_cast<const VkPhysicalDeviceRobustness2FeaturesEXT*>(object), settings, "VkPhysicalDeviceRobustness2FeaturesEXT", indents, dump_html_VkPhysicalDeviceRobustness2FeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceRobustness2FeaturesKHR>(static_cast<const VkPhysicalDeviceRobustness2FeaturesKHR*>(object), settings, "VkPhysicalDeviceRobustness2FeaturesKHR", indents, dump_html_VkPhysicalDeviceRobustness2FeaturesKHR);
         break;
     case 1000286001:
-        dump_html_pNext<const VkPhysicalDeviceRobustness2PropertiesEXT>(static_cast<const VkPhysicalDeviceRobustness2PropertiesEXT*>(object), settings, "VkPhysicalDeviceRobustness2PropertiesEXT", indents, dump_html_VkPhysicalDeviceRobustness2PropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceRobustness2PropertiesKHR>(static_cast<const VkPhysicalDeviceRobustness2PropertiesKHR*>(object), settings, "VkPhysicalDeviceRobustness2PropertiesKHR", indents, dump_html_VkPhysicalDeviceRobustness2PropertiesKHR);
         break;
     case 1000287000:
         dump_html_pNext<const VkSamplerCustomBorderColorCreateInfoEXT>(static_cast<const VkSamplerCustomBorderColorCreateInfoEXT*>(object), settings, "VkSamplerCustomBorderColorCreateInfoEXT", indents, dump_html_VkSamplerCustomBorderColorCreateInfoEXT);
@@ -39351,6 +39452,9 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     case 1000608000:
         dump_html_pNext<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT>(static_cast<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT*>(object), settings, "VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT", indents, dump_html_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT);
         break;
+    case 1000609000:
+        dump_html_pNext<const VkPhysicalDeviceFormatPackFeaturesARM>(static_cast<const VkPhysicalDeviceFormatPackFeaturesARM*>(object), settings, "VkPhysicalDeviceFormatPackFeaturesARM", indents, dump_html_VkPhysicalDeviceFormatPackFeaturesARM);
+        break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case 1000613000:
         dump_html_pNext<const VkSetPresentConfigNV>(static_cast<const VkSetPresentConfigNV*>(object), settings, "VkSetPresentConfigNV", indents, dump_html_VkSetPresentConfigNV);
@@ -39363,6 +39467,9 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
 #endif // VK_ENABLE_BETA_EXTENSIONS
     case 1000619003:
         dump_html_pNext<const VkRenderingEndInfoEXT>(static_cast<const VkRenderingEndInfoEXT*>(object), settings, "VkRenderingEndInfoEXT", indents, dump_html_VkRenderingEndInfoEXT);
+        break;
+    case 1000620000:
+        dump_html_pNext<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT>(static_cast<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT*>(object), settings, "VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT", indents, dump_html_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
     case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
@@ -46198,13 +46305,14 @@ void dump_html_params_vkCmdCudaLaunchKernelNV(ApiDumpInstance& dump_inst, VkComm
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
-void dump_html_params_vkCmdDispatchTileQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer)
+void dump_html_params_vkCmdDispatchTileQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkDispatchTileInfoQCOM* pDispatchTileInfo)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
 
     if(settings.showParams())
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
+        dump_html_pointer<const VkDispatchTileInfoQCOM>(pDispatchTileInfo, settings, "const VkDispatchTileInfoQCOM*", "pDispatchTileInfo", 1, dump_html_VkDispatchTileInfoQCOM);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -52670,10 +52778,10 @@ void dump_html_vkCmdCudaLaunchKernelNV(ApiDumpInstance& dump_inst, VkCommandBuff
     settings.stream() << "</details>";
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
-void dump_html_vkCmdDispatchTileQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer)
+void dump_html_vkCmdDispatchTileQCOM(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, const VkDispatchTileInfoQCOM* pDispatchTileInfo)
 {
     const ApiDumpSettings& settings(dump_inst.settings());
-    dump_html_params_vkCmdDispatchTileQCOM(dump_inst, commandBuffer);
+    dump_html_params_vkCmdDispatchTileQCOM(dump_inst, commandBuffer, pDispatchTileInfo);
 
     settings.stream() << "</details>";
 }
