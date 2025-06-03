@@ -22,6 +22,8 @@
 
 #include <QIcon>
 
+#include "../vkconfig_core/type_theme_mode.h"
+
 enum Icon {
     ICON_CLEAR = 0,
     ICON_DRAG,
@@ -59,6 +61,4 @@ enum Icon {
 
 enum { ICON_COUNT = ICON_LAST - ICON_FIRST + 1 };
 
-QIcon Get(Icon icon);
-
-bool IsDarkMode();
+QIcon Get(ThemeMode mode, Icon icon);

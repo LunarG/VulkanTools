@@ -25,7 +25,7 @@
 
 const char* GetToken(ThemeMode mode) {
     static const char* TOKENS[] = {
-        "None",   // THEME_MODE_USE_DEVICE
+        "Auto",   // THEME_MODE_USE_DEVICE
         "Light",  // THEME_MODE_FORCE_LIGHT
         "Dark",   // THEME_MODE_FORCE_DARK
     };
@@ -42,5 +42,5 @@ ThemeMode GetThemeMode(const char* token) {
         }
     }
 
-    return THEME_MODE_NONE;
+    return THEME_MODE_AUTO;
 }

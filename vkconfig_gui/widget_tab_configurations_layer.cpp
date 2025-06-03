@@ -39,7 +39,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     this->layer_remove->setMaximumWidth(32);
     this->layer_remove->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->layer_remove->adjustSize();
-    this->layer_remove->setIcon(::Get(::ICON_EXIT));
+    this->layer_remove->setIcon(::Get(configurator.current_theme_mode, ::ICON_EXIT));
     this->layer_remove->setToolTip("Remove the missing layer");
     this->connect(this->layer_remove, SIGNAL(clicked()), this, SLOT(on_layer_remove_pressed()));
 

@@ -32,10 +32,7 @@
 TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
     Configurator &configurator = Configurator::Get();
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-    this->ui->preferences_theme_mode->setToolTip(
-        "Vulkan Configurator must be build with Qt 6.8 or newer to support UI appearance control.");
-#else
+#if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
     window.app.setStyle("fusion");
 #endif
 
@@ -52,16 +49,15 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->preferences_download, SIGNAL(clicked()), this, SLOT(on_download_pressed()));
     this->connect(this->ui->preferences_theme_mode, SIGNAL(currentIndexChanged(int)), this, SLOT(on_theme_mode_changed(int)));
 
+    // this->ui->preferences_theme_mode->setToolTip("Control of the theme mode requires Vulkan Configurator to be build against
+    // Qt 6.8.0 or newer"); this->ui->preferences_theme_mode->setEnabled(QT_VERSION >= QT_VERSION_CHECK(6, 8, 0));
+    this->ui->preferences_theme_mode->blockSignals(true);
+    this->ui->preferences_theme_mode->setCurrentIndex(configurator.current_theme_mode);
+    this->ui->preferences_theme_mode->blockSignals(false);
+    this->on_theme_mode_changed(configurator.current_theme_mode);
+
     this->ui->preferences_progress->setVisible(false);
     this->ui->preferences_notify_releases->setChecked(configurator.GetUseNotifyReleases());
-    this->ui->preferences_theme_mode->blockSignals(true);
-    this->ui->preferences_theme_mode->setCurrentIndex(this->current_theme_mode);
-    this->ui->preferences_theme_mode->blockSignals(false);
-    this->ui->preferences_theme_mode->setEnabled(QT_VERSION >= QT_VERSION_CHECK(6, 8, 0));
-
-    this->ui->preferences_appearance->setVisible(false);
-
-    this->on_theme_mode_changed();
 
     QUrl url(GetLatestReleaseSDK(VKC_PLATFORM));
     QNetworkRequest request(url);
@@ -110,75 +106,90 @@ bool TabPreferences::EventFilter(QObject *target, QEvent *event) {
     return false;
 }
 
-void TabPreferences::on_theme_mode_changed() {
+void TabPreferences::on_theme_mode_changed(int index) {
     Configurator &configurator = Configurator::Get();
 
-    const ThemeMode mew_theme_mode = ::IsDarkMode() ? THEME_MODE_FORCE_DARK : THEME_MODE_FORCE_LIGHT;
-    if (this->current_theme_mode == mew_theme_mode) {
-        // return;
-    }
+    ThemeMode new_theme_mode = static_cast<ThemeMode>(index);
 
     // Configurations
-    this->ui->configurations_executable_append->setIcon(::Get(::ICON_FILE_SEARCH));
-    this->ui->configurations_executable_remove->setIcon(::Get(::ICON_FILE_REMOVE));
-    this->ui->configuration_settings_file_search->setIcon(::Get(::ICON_FILE_SEARCH));
+    this->ui->configurations_executable_append->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
+    this->ui->configurations_executable_remove->setIcon(::Get(new_theme_mode, ::ICON_FILE_REMOVE));
+    this->ui->configuration_settings_file_search->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
     const bool override_setting_is_visible = configurator.IsExternalLayersSettingsUsed(true);
-    this->ui->configuration_settings_file_remove->setIcon(::Get(override_setting_is_visible ? ::ICON_FILE_REMOVE : ::ICON_HIDE));
+    this->ui->configuration_settings_file_remove->setIcon(
+        ::Get(new_theme_mode, override_setting_is_visible ? ::ICON_FILE_REMOVE : ::ICON_HIDE));
     this->ui->configuration_settings_file_remove->setToolTip(
         override_setting_is_visible
             ? "Disable external layers settings file, use Vulkan Configurator generated layers settings file"
             : "Hide 'Use Layers Settings file' bar by default");
 
     // Layers
-    this->ui->layers_browse_button->setIcon(::Get(::ICON_FOLDER_SEARCH));
-    this->ui->layers_reload_button->setIcon(::Get(::ICON_FOLDER_RELOAD));
+    this->ui->layers_browse_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
+    this->ui->layers_reload_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_RELOAD));
 
     // Applications
-    this->ui->launch_executable_search->setIcon(::Get(::ICON_FILE_SEARCH));
-    this->ui->launch_executable_append->setIcon(::Get(::ICON_FILE_APPEND));
-    this->ui->launch_executable_remove->setIcon(::Get(::ICON_FILE_REMOVE));
-    this->ui->launch_options_append->setIcon(::Get(::ICON_OPTIONS_COPY));
-    this->ui->launch_options_remove->setIcon(::Get(::ICON_OPTIONS_REMOVE));
-    this->ui->launch_options_dir_button->setIcon(::Get(::ICON_FOLDER_SEARCH));
-    this->ui->launch_options_log_button->setIcon(::Get(::ICON_FILE_SEARCH));
-    this->ui->launch_options_log_open->setIcon(::Get(::ICON_FILE_EXPORT));
+    this->ui->launch_executable_search->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
+    this->ui->launch_executable_append->setIcon(::Get(new_theme_mode, ::ICON_FILE_APPEND));
+    this->ui->launch_executable_remove->setIcon(::Get(new_theme_mode, ::ICON_FILE_REMOVE));
+    this->ui->launch_options_append->setIcon(::Get(new_theme_mode, ::ICON_OPTIONS_COPY));
+    this->ui->launch_options_remove->setIcon(::Get(new_theme_mode, ::ICON_OPTIONS_REMOVE));
+    this->ui->launch_options_dir_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
+    this->ui->launch_options_log_button->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
+    this->ui->launch_options_log_open->setIcon(::Get(new_theme_mode, ::ICON_FILE_EXPORT));
 
     // Diagnostics
-    this->ui->diagnostic_export_folder->setIcon(::Get(::ICON_FOLDER_EXPORT));
-    this->ui->diagnostic_export_file->setIcon(::Get(::ICON_FILE_EXPORT));
-    this->ui->diagnostic_search_clear->setIcon(::Get(::ICON_EXIT));
-    this->ui->diagnostic_search_next->setIcon(::Get(::ICON_NEXT));
-    this->ui->diagnostic_search_prev->setIcon(::Get(::ICON_PREV));
-    this->ui->diagnostic_search_case->setIcon(::Get(::ICON_SEARCH_CASE));
-    this->ui->diagnostic_search_whole->setIcon(::Get(::ICON_SEARCH_WHOLE));
-    this->ui->diagnostic_search_regex->setIcon(::Get(::ICON_SEARCH_REGEX));
+    this->ui->diagnostic_export_folder->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_EXPORT));
+    this->ui->diagnostic_export_file->setIcon(::Get(new_theme_mode, ::ICON_FILE_EXPORT));
+    this->ui->diagnostic_search_clear->setIcon(::Get(new_theme_mode, ::ICON_EXIT));
+    this->ui->diagnostic_search_next->setIcon(::Get(new_theme_mode, ::ICON_NEXT));
+    this->ui->diagnostic_search_prev->setIcon(::Get(new_theme_mode, ::ICON_PREV));
+    this->ui->diagnostic_search_case->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_CASE));
+    this->ui->diagnostic_search_whole->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_WHOLE));
+    this->ui->diagnostic_search_regex->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_REGEX));
 
     // Preferences
-    this->ui->preferences_reset->setIcon(::Get(::ICON_RESET));
-    this->ui->preferences_vk_home_browse->setIcon(::Get(::ICON_FOLDER_SEARCH));
-    this->ui->preferences_vk_download_browse->setIcon(::Get(::ICON_FOLDER_SEARCH));
+    this->ui->preferences_reset->setIcon(::Get(new_theme_mode, ::ICON_RESET));
+    this->ui->preferences_vk_home_browse->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
+    this->ui->preferences_vk_download_browse->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
 
-    this->current_theme_mode = mew_theme_mode;
+    if (configurator.current_theme_mode == new_theme_mode) {
+        return;  // Prevent Qt 6.8 crash
+    }
 
-    // this->window.update();
-    // this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
-    /*
-        #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-            switch (mew_theme_mode) {
-                default:
-                case THEME_MODE_FORCE_LIGHT:
-                    //if (this->window.app.styleHints()->colorScheme() != Qt::ColorScheme::Light) {
-                        this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
-                    //}
-                    break;
-                case THEME_MODE_FORCE_DARK:
-                    //if (this->window.app.styleHints()->colorScheme() != Qt::ColorScheme::Dark) {
-                        this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
-                    //}
-                    break;
+    configurator.current_theme_mode = new_theme_mode;
+
+    if (VKC_PLATFORM == PLATFORM_LINUX) {
+        if (!(configurator.Get(HIDE_MESSAGE_WARN_DARK_THEME_LINUX))) {
+            QMessageBox alert;
+            alert.setWindowTitle("Dark Mode on Linux system");
+            alert.setText(
+                "The support of Dark Mode depends on the Linux desktop support so this option may have limited effects...");
+            alert.setInformativeText("Only Vulkan Configurator icons may change color when dark mode is not supported.");
+            alert.setStandardButtons(QMessageBox::Ok);
+            alert.setDefaultButton(QMessageBox::Ok);
+            alert.setIcon(QMessageBox::Warning);
+            alert.setCheckBox(new QCheckBox("Do not show again."));
+            alert.exec();
+            if (alert.checkBox()->isChecked()) {
+                configurator.Set(HIDE_MESSAGE_WARN_DARK_THEME_LINUX);
             }
-        #endif
-    */
+        }
+    }
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 8, 0))
+    switch (new_theme_mode) {
+        default:
+        case THEME_MODE_AUTO:
+            this->window.app.styleHints()->unsetColorScheme();
+            break;
+        case THEME_MODE_FORCE_LIGHT:
+            this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
+            break;
+        case THEME_MODE_FORCE_DARK:
+            this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+            break;
+    }
+#endif
 }
 
 void TabPreferences::on_keep_running_toggled(bool checked) {
