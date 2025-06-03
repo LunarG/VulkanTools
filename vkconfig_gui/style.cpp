@@ -27,27 +27,7 @@
 #include <QStyleHints>
 #include <QGuiApplication>
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-bool IsDarkMode() { return false; }
-#else
-bool IsDarkMode() {
-    if (VKC_PLATFORM == PLATFORM_LINUX) {
-        return false;
-    }
-    /*
-        if (VKC_PLATFORM == PLATFORM_LINUX) {
-            std::string OS = QSysInfo::prettyProductName().toStdString();
-            if (OS.find("Ubuntu") == std::string::npos) {
-                return false;
-            }
-        }
-    */
-    Qt::ColorScheme scheme = QGuiApplication::styleHints()->colorScheme();
-    return scheme == Qt::ColorScheme::Dark;
-}
-#endif  // QT_VERSION
-
-QIcon Get(Icon icon) {
+QIcon Get(ThemeMode mode, Icon icon) {
     static const char* ICONS[] = {
         "clear.png",              // ICON_CLEAR
         "drag.png",               // ICON_DRAG
@@ -81,9 +61,31 @@ QIcon Get(Icon icon) {
     };
     static_assert(std::size(ICONS) == ICON_COUNT);
 
-    if (::IsDarkMode()) {
-        return QIcon((std::string(":/resourcefiles/dark/") + ICONS[icon]).c_str());
-    } else {
-        return QIcon((std::string(":/resourcefiles/light/") + ICONS[icon]).c_str());
+    if (mode == THEME_MODE_AUTO) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+        if (QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+            mode = THEME_MODE_FORCE_DARK;
+        } else
+#endif  // QT_VERSION
+        {
+            mode = THEME_MODE_FORCE_LIGHT;
+        }
     }
+
+    std::string path;
+    switch (mode) {
+        default:
+            assert(0);
+            break;
+        case THEME_MODE_FORCE_LIGHT:
+            path = ":/resourcefiles/light/";
+            break;
+        case THEME_MODE_FORCE_DARK:
+            path = ":/resourcefiles/dark/";
+            break;
+    }
+
+    assert(!path.empty());
+
+    return QIcon((path + ICONS[icon]).c_str());
 }

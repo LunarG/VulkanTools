@@ -298,7 +298,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
 void MainWindow::changeEvent(QEvent *event) {
     if (event->type() == QEvent::ThemeChange) {
-        static_cast<TabPreferences *>(this->tabs[TAB_PREFERENCES].get())->on_theme_mode_changed();
+        Configurator &configurator = Configurator::Get();
+
+        static_cast<TabPreferences *>(this->tabs[TAB_PREFERENCES].get())->on_theme_mode_changed(configurator.current_theme_mode);
     }
 }
 

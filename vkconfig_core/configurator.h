@@ -34,6 +34,7 @@
 #include "type_executable_mode.h"
 #include "type_configurator_mode.h"
 #include "type_diagnostic_mode.h"
+#include "type_theme_mode.h"
 #include "serialization.h"
 
 enum EnabledUI {
@@ -162,6 +163,7 @@ class Configurator {
     Version last_vkconfig_version = Version::NONE;
     QByteArray window_geometry;
     QByteArray window_state;
+    ThemeMode current_theme_mode = THEME_MODE_AUTO;
 
    private:
     int hide_message_boxes_flags = 0;

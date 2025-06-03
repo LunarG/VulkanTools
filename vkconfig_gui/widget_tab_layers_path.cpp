@@ -30,8 +30,10 @@ LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths 
     : layers_path(layers_path), path_info(path_info) {
     this->setChecked(this->path_info.enabled);
 
+    const Configurator& configurator = Configurator::Get();
+
     this->buttom_remove = new QPushButton(this);
-    this->buttom_remove->setIcon(::Get(::ICON_FOLDER_REMOVE));
+    this->buttom_remove->setIcon(::Get(configurator.current_theme_mode, ::ICON_FOLDER_REMOVE));
     this->buttom_remove->setToolTip("Only layer paths manually added with Vulkan Configurator can be removed.");
     this->buttom_remove->setFixedSize(24, 24);
     this->buttom_remove->setEnabled(layers_path == LAYERS_PATHS_GUI);

@@ -7,11 +7,12 @@
 - Add environment variables export of loader configurations
 
 ### Improvements:
-- Improved layer settings documentation
+- Improve layer settings documentation
   - Add layer setting context menu to access setting documentation
   - Add detailed description layer setting field
   - Add display of deprecated setting information in generated layer documentation
   - Add optional information about which setting replaced a deprecated setting
+- Add theme mode control in preference tab
 
 ### Fixes:
   - Fix crashes when `QT_QPA_PLATFORM` is set

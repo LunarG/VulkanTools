@@ -199,7 +199,7 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         item->setText(configuration.key.c_str());
         if (configurator.GetActiveConfiguration() == &configuration) {
-            item->setIcon(::Get(::ICON_SYSTEM_ON));
+            item->setIcon(::Get(configurator.current_theme_mode, ::ICON_SYSTEM_ON));
             item->setToolTip(format("Using the '%s' configuration with Vulkan executables", configuration.key.c_str()).c_str());
             ui->configurations_group_box_layers->blockSignals(true);
             ui->configurations_group_box_layers->setChecked(configuration.override_layers);
@@ -219,11 +219,11 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
             ui->configurations_group_box_loader->blockSignals(false);
             current_row = static_cast<int>(i);
         } else if (has_missing_layer) {
-            item->setIcon(::Get(::ICON_SYSTEM_INVALID));
+            item->setIcon(::Get(configurator.current_theme_mode, ::ICON_SYSTEM_INVALID));
             item->setToolTip(
                 format("The '%s' configuration has missing layers. These layers are ignored.", configuration.key.c_str()).c_str());
         } else {
-            item->setIcon(::Get(::ICON_SYSTEM_OFF));
+            item->setIcon(::Get(configurator.current_theme_mode, ::ICON_SYSTEM_OFF));
             item->setToolTip(
                 format("Select the '%s' configuration to use it with Vulkan executables", configuration.key.c_str()).c_str());
         }
@@ -239,7 +239,7 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
     const Configuration *configuration = configurator.GetActiveConfiguration();
 
     this->ui->configuration_settings_file_remove->setIcon(
-        ::Get(configurator.IsExternalLayersSettingsUsed(true) ? ::ICON_FILE_REMOVE : ::ICON_HIDE));
+        ::Get(configurator.current_theme_mode, configurator.IsExternalLayersSettingsUsed(true) ? ::ICON_FILE_REMOVE : ::ICON_HIDE));
 
     const bool override_setting_is_visible = configurator.IsExternalLayersSettingsUsed();
 
@@ -353,7 +353,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
             item->setFlags(item->flags() | Qt::ItemIsSelectable);
             item->setSizeHint(QSize(0, ITEM_HEIGHT));
             if (has_multiple_parameter) {
-                item->setIcon(::Get(ICON_DRAG));
+                item->setIcon(::Get(configurator.current_theme_mode, ICON_DRAG));
             }
             ui->configurations_layers_list->addItem(item);
 
@@ -439,10 +439,10 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
 
     assert(this->advanced_mode != nullptr);
     if (configurator.advanced) {
-        this->advanced_mode->setIcon(::Get(::ICON_BASIC));
+        this->advanced_mode->setIcon(::Get(configurator.current_theme_mode, ::ICON_BASIC));
         this->advanced_mode->setToolTip("Click to switch to basic Layers Configuration mode");
     } else {
-        this->advanced_mode->setIcon(::Get(::ICON_ADVANCED));
+        this->advanced_mode->setIcon(::Get(configurator.current_theme_mode, ::ICON_ADVANCED));
         this->advanced_mode->setToolTip("Click to switch to advanced Layers Configuration mode");
     }
 
