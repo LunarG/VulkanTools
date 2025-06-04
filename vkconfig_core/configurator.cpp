@@ -384,15 +384,12 @@ bool Configurator::Export(ExportEnvMode mode, const Path& export_path) const {
                 continue;
             }
 
-            stream << COMMENT << meta->label.c_str() << "\n";
-            stream << COMMENT << "=====================\n";
-            stream << COMMENT << meta->key.c_str();
-
+            stream << COMMENT << meta->label.c_str() << " - " << meta->key.c_str();
             if (meta->status != STATUS_STABLE) {
                 stream << format(" (%s)", GetToken(meta->status)).c_str();
             }
-
             stream << "\n";
+            stream << COMMENT << "==========================================\n";
 
             // Break up description into smaller words
             std::string description = meta->description;
@@ -418,18 +415,29 @@ bool Configurator::Export(ExportEnvMode mode, const Path& export_path) const {
             }
             stream << "\n";
 
-            // If feature has unmet dependency, output it but comment it out
-            if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
-                stream << COMMENT;
-            }
-
             if (meta->status == STATUS_DEPRECATED && !meta->deprecated_by_key.empty()) {
                 const SettingMeta* replaced_setting = FindSetting(layer->settings, meta->deprecated_by_key.c_str());
-
-                stream << COMMENT;
-                stream << format("This setting was deprecated and replaced by '%s' (%s) setting.\n",
+                stream << COMMENT
+                       << format("This setting was deprecated and replaced by '%s' (%s) setting.\n",
                                  replaced_setting->label.c_str(), replaced_setting->key.c_str())
                               .c_str();
+            }
+
+            if (!meta->dependence.empty()) {
+                stream << COMMENT << "This setting requires " << ::GetToken(meta->dependence_mode) << " of the following values:\n";
+                for (std::size_t i = 0, n = meta->dependence.size(); i < n; ++i) {
+                    const SettingData* setting_data = meta->dependence[i];
+                    std::vector<std::string> data = ::BuildEnvVariablesList(layer->key.c_str(), setting_data->key.c_str(), false);
+                    stream << COMMENT << "- " << EXPORT << data[0].c_str() << "=";
+                    stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str() << "\n";
+                }
+            }
+
+            // If feature has unmet dependency, output it but comment it out
+            bool dependence_not_satisfied = false;
+            if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
+                dependence_not_satisfied = true;
+                stream << COMMENT;
             }
 
             std::vector<std::string> data = ::BuildEnvVariablesList(layer->key.c_str(), setting_data->key.c_str(), false);
@@ -445,6 +453,10 @@ bool Configurator::Export(ExportEnvMode mode, const Path& export_path) const {
 
             if (need_wordaround) {
                 stream << "\"";
+            }
+
+            if (dependence_not_satisfied) {
+                stream << " (Commented out as the set of dependences is not satisfied)";
             }
 
             stream << "\n\n";
@@ -657,11 +669,16 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                         }
 
                         // If feature has unmet dependency, output it but comment it out
+                        bool dependence_not_satisfied = false;
                         if (::CheckDependence(*meta, parameter.settings) != SETTING_DEPENDENCE_ENABLE) {
+                            dependence_not_satisfied = true;
                             stream << "# ";
                         }
                         stream << lc_layer_name.c_str() << setting_data->key.c_str() << " = ";
                         stream << setting_data->Export(EXPORT_MODE_OVERRIDE).c_str();
+                        if (dependence_not_satisfied) {
+                            stream << " (Commented out as the set of dependences is not satisfied)";
+                        }
                         stream << "\n\n";
                     }
                 }
