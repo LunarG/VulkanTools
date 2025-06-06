@@ -58,6 +58,8 @@ class TabConfigurations : public Tab {
 
     void on_configurations_list_toggled(bool checked);
     void on_configurations_layers_ordering_toggled(bool checked);
+    void on_configurations_driver_toggled(bool checked);
+    void on_configurations_driver_name_currentIndexChanged(int index);
     void on_configurations_loader_messages_toggled(bool checked);
     void on_configurations_layers_settings_toggled(bool checked);
 

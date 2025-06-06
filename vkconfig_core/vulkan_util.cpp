@@ -30,7 +30,7 @@
 #include <sstream>
 #include <iostream>
 
-static std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
+std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
     std::string result;
 
     for (std::size_t i = 0, n = VK_UUID_SIZE; i < n; ++i) {
@@ -248,7 +248,7 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
         device_info.vendorID = static_cast<VendorID>(properties2.properties.vendorID);
         device_info.deviceID = properties2.properties.deviceID;
         device_info.deviceType = properties2.properties.deviceType;
-        device_info.deviceUUID = GetUUIDString(properties_deviceid.deviceUUID);
+        memcpy(device_info.deviceUUID, properties_deviceid.deviceUUID, sizeof(device_info.deviceUUID));
         device_info.driverUUID = GetUUIDString(properties_deviceid.driverUUID);
         device_info.deviceLUID = GetLUIDString(properties_deviceid.deviceLUID);
     }
