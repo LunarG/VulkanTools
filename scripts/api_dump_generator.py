@@ -907,8 +907,8 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
     settings.formatNameType(indents, "pNext", pnext_type);
     switch(reinterpret_cast<const VkBaseInStructure*>(object)->sType) {{
     @foreach struct
-        @if({sctStructureTypeIndex} != -1)
-        case {sctStructureTypeIndex}:
+        @if('{sctSType}' != '')
+        case {sctSType}:
             settings.stream() << "{sctName}\\n";
             break;
         @end if
@@ -926,8 +926,8 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     const auto* base_struct = reinterpret_cast<const VkBaseInStructure*>(object);
     switch(base_struct->sType) {{
     @foreach struct
-        @if({sctStructureTypeIndex} != -1)
-    case {sctStructureTypeIndex}:
+        @if('{sctSType}' != '')
+    case {sctSType}:
         dump_text_pNext<const {sctName}>(reinterpret_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_text_{sctName});
         break;
         @end if
@@ -1449,8 +1449,8 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
 {{
     switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
     @foreach struct
-        @if({sctStructureTypeIndex} != -1)
-    case {sctStructureTypeIndex}:
+        @if('{sctSType}' != '')
+    case {sctSType}:
         dump_html_pNext<const {sctName}>(static_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_html_{sctName});
         break;
         @end if
@@ -1955,8 +1955,8 @@ void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& setti
 {{
     switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {{
     @foreach struct
-        @if({sctStructureTypeIndex} != -1)
-    case {sctStructureTypeIndex}:
+        @if('{sctSType}' != '')
+    case {sctSType}:
         dump_json_pNext<const {sctName}>(static_cast<const {sctName}*>(object), settings, "{sctName}", indents, dump_json_{sctName});
         break;
         @end if
@@ -3031,13 +3031,13 @@ class VulkanStruct:
             self.members.append(VulkanStruct.Member(node, self.name, index))
             index = index + 1
 
-        self.structureIndex = -1
+        self.sType = ''
 
         for member in self.members:
             if(member.structValues is not None):
                 for opt in enums['VkStructureType'].options:
                     if(member.structValues  == opt.name):
-                        self.structureIndex = opt.value
+                        self.sType = opt.name
                         break
 
         # The xml doesn't contain the relevant information here since the struct contains 'fixed' length arrays.
@@ -3069,7 +3069,7 @@ class VulkanStruct:
     def values(self):
         return {
             'sctName': self.name,
-            'sctStructureTypeIndex': self.structureIndex,
+            'sctSType': self.sType,
         }
 
 class VulkanSystemType:

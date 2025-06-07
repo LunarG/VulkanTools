@@ -33188,1757 +33188,1757 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
 
     settings.formatNameType(indents, "pNext", pnext_type);
     switch(reinterpret_cast<const VkBaseInStructure*>(object)->sType) {
-        case 44:
+        case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
             settings.stream() << "VkBufferMemoryBarrier\n";
             break;
-        case 45:
+        case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER:
             settings.stream() << "VkImageMemoryBarrier\n";
             break;
-        case 46:
+        case VK_STRUCTURE_TYPE_MEMORY_BARRIER:
             settings.stream() << "VkMemoryBarrier\n";
             break;
-        case 0:
+        case VK_STRUCTURE_TYPE_APPLICATION_INFO:
             settings.stream() << "VkApplicationInfo\n";
             break;
-        case 1:
+        case VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO:
             settings.stream() << "VkInstanceCreateInfo\n";
             break;
-        case 2:
+        case VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO:
             settings.stream() << "VkDeviceQueueCreateInfo\n";
             break;
-        case 3:
+        case VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO:
             settings.stream() << "VkDeviceCreateInfo\n";
             break;
-        case 4:
+        case VK_STRUCTURE_TYPE_SUBMIT_INFO:
             settings.stream() << "VkSubmitInfo\n";
             break;
-        case 6:
+        case VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE:
             settings.stream() << "VkMappedMemoryRange\n";
             break;
-        case 5:
+        case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO:
             settings.stream() << "VkMemoryAllocateInfo\n";
             break;
-        case 7:
+        case VK_STRUCTURE_TYPE_BIND_SPARSE_INFO:
             settings.stream() << "VkBindSparseInfo\n";
             break;
-        case 8:
+        case VK_STRUCTURE_TYPE_FENCE_CREATE_INFO:
             settings.stream() << "VkFenceCreateInfo\n";
             break;
-        case 9:
+        case VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO:
             settings.stream() << "VkSemaphoreCreateInfo\n";
             break;
-        case 10:
+        case VK_STRUCTURE_TYPE_EVENT_CREATE_INFO:
             settings.stream() << "VkEventCreateInfo\n";
             break;
-        case 11:
+        case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO:
             settings.stream() << "VkQueryPoolCreateInfo\n";
             break;
-        case 12:
+        case VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO:
             settings.stream() << "VkBufferCreateInfo\n";
             break;
-        case 13:
+        case VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO:
             settings.stream() << "VkBufferViewCreateInfo\n";
             break;
-        case 14:
+        case VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO:
             settings.stream() << "VkImageCreateInfo\n";
             break;
-        case 15:
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO:
             settings.stream() << "VkImageViewCreateInfo\n";
             break;
-        case 16:
+        case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
             settings.stream() << "VkShaderModuleCreateInfo\n";
             break;
-        case 17:
+        case VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO:
             settings.stream() << "VkPipelineCacheCreateInfo\n";
             break;
-        case 18:
+        case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO:
             settings.stream() << "VkPipelineShaderStageCreateInfo\n";
             break;
-        case 29:
+        case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
             settings.stream() << "VkComputePipelineCreateInfo\n";
             break;
-        case 19:
+        case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineVertexInputStateCreateInfo\n";
             break;
-        case 20:
+        case VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineInputAssemblyStateCreateInfo\n";
             break;
-        case 21:
+        case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineTessellationStateCreateInfo\n";
             break;
-        case 22:
+        case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineViewportStateCreateInfo\n";
             break;
-        case 23:
+        case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineRasterizationStateCreateInfo\n";
             break;
-        case 24:
+        case VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineMultisampleStateCreateInfo\n";
             break;
-        case 25:
+        case VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineDepthStencilStateCreateInfo\n";
             break;
-        case 26:
+        case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineColorBlendStateCreateInfo\n";
             break;
-        case 27:
+        case VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineDynamicStateCreateInfo\n";
             break;
-        case 28:
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
             settings.stream() << "VkGraphicsPipelineCreateInfo\n";
             break;
-        case 30:
+        case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
             settings.stream() << "VkPipelineLayoutCreateInfo\n";
             break;
-        case 31:
+        case VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO:
             settings.stream() << "VkSamplerCreateInfo\n";
             break;
-        case 36:
+        case VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET:
             settings.stream() << "VkCopyDescriptorSet\n";
             break;
-        case 33:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO:
             settings.stream() << "VkDescriptorPoolCreateInfo\n";
             break;
-        case 34:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO:
             settings.stream() << "VkDescriptorSetAllocateInfo\n";
             break;
-        case 32:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO:
             settings.stream() << "VkDescriptorSetLayoutCreateInfo\n";
             break;
-        case 35:
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET:
             settings.stream() << "VkWriteDescriptorSet\n";
             break;
-        case 37:
+        case VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO:
             settings.stream() << "VkFramebufferCreateInfo\n";
             break;
-        case 38:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO:
             settings.stream() << "VkRenderPassCreateInfo\n";
             break;
-        case 39:
+        case VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO:
             settings.stream() << "VkCommandPoolCreateInfo\n";
             break;
-        case 40:
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO:
             settings.stream() << "VkCommandBufferAllocateInfo\n";
             break;
-        case 41:
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO:
             settings.stream() << "VkCommandBufferInheritanceInfo\n";
             break;
-        case 42:
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO:
             settings.stream() << "VkCommandBufferBeginInfo\n";
             break;
-        case 43:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO:
             settings.stream() << "VkRenderPassBeginInfo\n";
             break;
-        case 1000094000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceSubgroupProperties\n";
             break;
-        case 1000157000:
+        case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO:
             settings.stream() << "VkBindBufferMemoryInfo\n";
             break;
-        case 1000157001:
+        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO:
             settings.stream() << "VkBindImageMemoryInfo\n";
             break;
-        case 1000083000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES:
             settings.stream() << "VkPhysicalDevice16BitStorageFeatures\n";
             break;
-        case 1000127000:
+        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS:
             settings.stream() << "VkMemoryDedicatedRequirements\n";
             break;
-        case 1000127001:
+        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
             settings.stream() << "VkMemoryDedicatedAllocateInfo\n";
             break;
-        case 1000060000:
+        case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO:
             settings.stream() << "VkMemoryAllocateFlagsInfo\n";
             break;
-        case 1000060003:
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
             settings.stream() << "VkDeviceGroupRenderPassBeginInfo\n";
             break;
-        case 1000060004:
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO:
             settings.stream() << "VkDeviceGroupCommandBufferBeginInfo\n";
             break;
-        case 1000060005:
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO:
             settings.stream() << "VkDeviceGroupSubmitInfo\n";
             break;
-        case 1000060006:
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO:
             settings.stream() << "VkDeviceGroupBindSparseInfo\n";
             break;
-        case 1000060013:
+        case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO:
             settings.stream() << "VkBindBufferMemoryDeviceGroupInfo\n";
             break;
-        case 1000060014:
+        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
             settings.stream() << "VkBindImageMemoryDeviceGroupInfo\n";
             break;
-        case 1000070000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceGroupProperties\n";
             break;
-        case 1000070001:
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
             settings.stream() << "VkDeviceGroupDeviceCreateInfo\n";
             break;
-        case 1000146000:
+        case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2:
             settings.stream() << "VkBufferMemoryRequirementsInfo2\n";
             break;
-        case 1000146001:
+        case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2:
             settings.stream() << "VkImageMemoryRequirementsInfo2\n";
             break;
-        case 1000146002:
+        case VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2:
             settings.stream() << "VkImageSparseMemoryRequirementsInfo2\n";
             break;
-        case 1000146003:
+        case VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2:
             settings.stream() << "VkMemoryRequirements2\n";
             break;
-        case 1000146004:
+        case VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2:
             settings.stream() << "VkSparseImageMemoryRequirements2\n";
             break;
-        case 1000059000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2:
             settings.stream() << "VkPhysicalDeviceFeatures2\n";
             break;
-        case 1000059001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2:
             settings.stream() << "VkPhysicalDeviceProperties2\n";
             break;
-        case 1000059002:
+        case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2:
             settings.stream() << "VkFormatProperties2\n";
             break;
-        case 1000059003:
+        case VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2:
             settings.stream() << "VkImageFormatProperties2\n";
             break;
-        case 1000059004:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2:
             settings.stream() << "VkPhysicalDeviceImageFormatInfo2\n";
             break;
-        case 1000059005:
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2:
             settings.stream() << "VkQueueFamilyProperties2\n";
             break;
-        case 1000059006:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2:
             settings.stream() << "VkPhysicalDeviceMemoryProperties2\n";
             break;
-        case 1000059007:
+        case VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2:
             settings.stream() << "VkSparseImageFormatProperties2\n";
             break;
-        case 1000059008:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2:
             settings.stream() << "VkPhysicalDeviceSparseImageFormatInfo2\n";
             break;
-        case 1000117000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES:
             settings.stream() << "VkPhysicalDevicePointClippingProperties\n";
             break;
-        case 1000117001:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO:
             settings.stream() << "VkRenderPassInputAttachmentAspectCreateInfo\n";
             break;
-        case 1000117002:
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO:
             settings.stream() << "VkImageViewUsageCreateInfo\n";
             break;
-        case 1000117003:
+        case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineTessellationDomainOriginStateCreateInfo\n";
             break;
-        case 1000053000:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO:
             settings.stream() << "VkRenderPassMultiviewCreateInfo\n";
             break;
-        case 1000053001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES:
             settings.stream() << "VkPhysicalDeviceMultiviewFeatures\n";
             break;
-        case 1000053002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceMultiviewProperties\n";
             break;
-        case 1000120000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES:
             settings.stream() << "VkPhysicalDeviceVariablePointersFeatures\n";
             break;
-        case 1000145001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES:
             settings.stream() << "VkPhysicalDeviceProtectedMemoryFeatures\n";
             break;
-        case 1000145002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceProtectedMemoryProperties\n";
             break;
-        case 1000145003:
+        case VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2:
             settings.stream() << "VkDeviceQueueInfo2\n";
             break;
-        case 1000145000:
+        case VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO:
             settings.stream() << "VkProtectedSubmitInfo\n";
             break;
-        case 1000156000:
+        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO:
             settings.stream() << "VkSamplerYcbcrConversionCreateInfo\n";
             break;
-        case 1000156001:
+        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
             settings.stream() << "VkSamplerYcbcrConversionInfo\n";
             break;
-        case 1000156002:
+        case VK_STRUCTURE_TYPE_BIND_IMAGE_PLANE_MEMORY_INFO:
             settings.stream() << "VkBindImagePlaneMemoryInfo\n";
             break;
-        case 1000156003:
+        case VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO:
             settings.stream() << "VkImagePlaneMemoryRequirementsInfo\n";
             break;
-        case 1000156004:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES:
             settings.stream() << "VkPhysicalDeviceSamplerYcbcrConversionFeatures\n";
             break;
-        case 1000156005:
+        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES:
             settings.stream() << "VkSamplerYcbcrConversionImageFormatProperties\n";
             break;
-        case 1000085000:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO:
             settings.stream() << "VkDescriptorUpdateTemplateCreateInfo\n";
             break;
-        case 1000071000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO:
             settings.stream() << "VkPhysicalDeviceExternalImageFormatInfo\n";
             break;
-        case 1000071001:
+        case VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES:
             settings.stream() << "VkExternalImageFormatProperties\n";
             break;
-        case 1000071002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO:
             settings.stream() << "VkPhysicalDeviceExternalBufferInfo\n";
             break;
-        case 1000071003:
+        case VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES:
             settings.stream() << "VkExternalBufferProperties\n";
             break;
-        case 1000071004:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceIDProperties\n";
             break;
-        case 1000072001:
+        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO:
             settings.stream() << "VkExternalMemoryImageCreateInfo\n";
             break;
-        case 1000072000:
+        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO:
             settings.stream() << "VkExternalMemoryBufferCreateInfo\n";
             break;
-        case 1000072002:
+        case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO:
             settings.stream() << "VkExportMemoryAllocateInfo\n";
             break;
-        case 1000112000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO:
             settings.stream() << "VkPhysicalDeviceExternalFenceInfo\n";
             break;
-        case 1000112001:
+        case VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES:
             settings.stream() << "VkExternalFenceProperties\n";
             break;
-        case 1000113000:
+        case VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO:
             settings.stream() << "VkExportFenceCreateInfo\n";
             break;
-        case 1000077000:
+        case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO:
             settings.stream() << "VkExportSemaphoreCreateInfo\n";
             break;
-        case 1000076000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO:
             settings.stream() << "VkPhysicalDeviceExternalSemaphoreInfo\n";
             break;
-        case 1000076001:
+        case VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES:
             settings.stream() << "VkExternalSemaphoreProperties\n";
             break;
-        case 1000168000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceMaintenance3Properties\n";
             break;
-        case 1000168001:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_SUPPORT:
             settings.stream() << "VkDescriptorSetLayoutSupport\n";
             break;
-        case 1000063000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES:
             settings.stream() << "VkPhysicalDeviceShaderDrawParametersFeatures\n";
             break;
-        case 49:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:
             settings.stream() << "VkPhysicalDeviceVulkan11Features\n";
             break;
-        case 50:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceVulkan11Properties\n";
             break;
-        case 51:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:
             settings.stream() << "VkPhysicalDeviceVulkan12Features\n";
             break;
-        case 52:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceVulkan12Properties\n";
             break;
-        case 1000147000:
+        case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO:
             settings.stream() << "VkImageFormatListCreateInfo\n";
             break;
-        case 1000109000:
+        case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2:
             settings.stream() << "VkAttachmentDescription2\n";
             break;
-        case 1000109001:
+        case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2:
             settings.stream() << "VkAttachmentReference2\n";
             break;
-        case 1000109002:
+        case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2:
             settings.stream() << "VkSubpassDescription2\n";
             break;
-        case 1000109003:
+        case VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2:
             settings.stream() << "VkSubpassDependency2\n";
             break;
-        case 1000109004:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2:
             settings.stream() << "VkRenderPassCreateInfo2\n";
             break;
-        case 1000109005:
+        case VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO:
             settings.stream() << "VkSubpassBeginInfo\n";
             break;
-        case 1000109006:
+        case VK_STRUCTURE_TYPE_SUBPASS_END_INFO:
             settings.stream() << "VkSubpassEndInfo\n";
             break;
-        case 1000177000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES:
             settings.stream() << "VkPhysicalDevice8BitStorageFeatures\n";
             break;
-        case 1000196000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceDriverProperties\n";
             break;
-        case 1000180000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES:
             settings.stream() << "VkPhysicalDeviceShaderAtomicInt64Features\n";
             break;
-        case 1000082000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES:
             settings.stream() << "VkPhysicalDeviceShaderFloat16Int8Features\n";
             break;
-        case 1000197000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceFloatControlsProperties\n";
             break;
-        case 1000161000:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO:
             settings.stream() << "VkDescriptorSetLayoutBindingFlagsCreateInfo\n";
             break;
-        case 1000161001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES:
             settings.stream() << "VkPhysicalDeviceDescriptorIndexingFeatures\n";
             break;
-        case 1000161002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceDescriptorIndexingProperties\n";
             break;
-        case 1000161003:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO:
             settings.stream() << "VkDescriptorSetVariableDescriptorCountAllocateInfo\n";
             break;
-        case 1000161004:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT:
             settings.stream() << "VkDescriptorSetVariableDescriptorCountLayoutSupport\n";
             break;
-        case 1000199001:
+        case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE:
             settings.stream() << "VkSubpassDescriptionDepthStencilResolve\n";
             break;
-        case 1000199000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceDepthStencilResolveProperties\n";
             break;
-        case 1000221000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES:
             settings.stream() << "VkPhysicalDeviceScalarBlockLayoutFeatures\n";
             break;
-        case 1000246000:
+        case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO:
             settings.stream() << "VkImageStencilUsageCreateInfo\n";
             break;
-        case 1000130001:
+        case VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO:
             settings.stream() << "VkSamplerReductionModeCreateInfo\n";
             break;
-        case 1000130000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceSamplerFilterMinmaxProperties\n";
             break;
-        case 1000211000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES:
             settings.stream() << "VkPhysicalDeviceVulkanMemoryModelFeatures\n";
             break;
-        case 1000108000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES:
             settings.stream() << "VkPhysicalDeviceImagelessFramebufferFeatures\n";
             break;
-        case 1000108002:
+        case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENT_IMAGE_INFO:
             settings.stream() << "VkFramebufferAttachmentImageInfo\n";
             break;
-        case 1000108001:
+        case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO:
             settings.stream() << "VkFramebufferAttachmentsCreateInfo\n";
             break;
-        case 1000108003:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
             settings.stream() << "VkRenderPassAttachmentBeginInfo\n";
             break;
-        case 1000253000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFORM_BUFFER_STANDARD_LAYOUT_FEATURES:
             settings.stream() << "VkPhysicalDeviceUniformBufferStandardLayoutFeatures\n";
             break;
-        case 1000175000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES:
             settings.stream() << "VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures\n";
             break;
-        case 1000241000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES:
             settings.stream() << "VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures\n";
             break;
-        case 1000241001:
+        case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT:
             settings.stream() << "VkAttachmentReferenceStencilLayout\n";
             break;
-        case 1000241002:
+        case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_STENCIL_LAYOUT:
             settings.stream() << "VkAttachmentDescriptionStencilLayout\n";
             break;
-        case 1000261000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES:
             settings.stream() << "VkPhysicalDeviceHostQueryResetFeatures\n";
             break;
-        case 1000207000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES:
             settings.stream() << "VkPhysicalDeviceTimelineSemaphoreFeatures\n";
             break;
-        case 1000207001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceTimelineSemaphoreProperties\n";
             break;
-        case 1000207002:
+        case VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO:
             settings.stream() << "VkSemaphoreTypeCreateInfo\n";
             break;
-        case 1000207003:
+        case VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO:
             settings.stream() << "VkTimelineSemaphoreSubmitInfo\n";
             break;
-        case 1000207004:
+        case VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO:
             settings.stream() << "VkSemaphoreWaitInfo\n";
             break;
-        case 1000207005:
+        case VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO:
             settings.stream() << "VkSemaphoreSignalInfo\n";
             break;
-        case 1000257000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
             settings.stream() << "VkPhysicalDeviceBufferDeviceAddressFeatures\n";
             break;
-        case 1000244001:
+        case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO:
             settings.stream() << "VkBufferDeviceAddressInfo\n";
             break;
-        case 1000257002:
+        case VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO:
             settings.stream() << "VkBufferOpaqueCaptureAddressCreateInfo\n";
             break;
-        case 1000257003:
+        case VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO:
             settings.stream() << "VkMemoryOpaqueCaptureAddressAllocateInfo\n";
             break;
-        case 1000257004:
+        case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO:
             settings.stream() << "VkDeviceMemoryOpaqueCaptureAddressInfo\n";
             break;
-        case 53:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES:
             settings.stream() << "VkPhysicalDeviceVulkan13Features\n";
             break;
-        case 54:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceVulkan13Properties\n";
             break;
-        case 1000192000:
+        case VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO:
             settings.stream() << "VkPipelineCreationFeedbackCreateInfo\n";
             break;
-        case 1000215000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES:
             settings.stream() << "VkPhysicalDeviceShaderTerminateInvocationFeatures\n";
             break;
-        case 1000245000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceToolProperties\n";
             break;
-        case 1000276000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES:
             settings.stream() << "VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures\n";
             break;
-        case 1000295000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES:
             settings.stream() << "VkPhysicalDevicePrivateDataFeatures\n";
             break;
-        case 1000295001:
+        case VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO:
             settings.stream() << "VkDevicePrivateDataCreateInfo\n";
             break;
-        case 1000295002:
+        case VK_STRUCTURE_TYPE_PRIVATE_DATA_SLOT_CREATE_INFO:
             settings.stream() << "VkPrivateDataSlotCreateInfo\n";
             break;
-        case 1000297000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES:
             settings.stream() << "VkPhysicalDevicePipelineCreationCacheControlFeatures\n";
             break;
-        case 1000314000:
+        case VK_STRUCTURE_TYPE_MEMORY_BARRIER_2:
             settings.stream() << "VkMemoryBarrier2\n";
             break;
-        case 1000314001:
+        case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2:
             settings.stream() << "VkBufferMemoryBarrier2\n";
             break;
-        case 1000314002:
+        case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2:
             settings.stream() << "VkImageMemoryBarrier2\n";
             break;
-        case 1000314003:
+        case VK_STRUCTURE_TYPE_DEPENDENCY_INFO:
             settings.stream() << "VkDependencyInfo\n";
             break;
-        case 1000314005:
+        case VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO:
             settings.stream() << "VkSemaphoreSubmitInfo\n";
             break;
-        case 1000314006:
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO:
             settings.stream() << "VkCommandBufferSubmitInfo\n";
             break;
-        case 1000314004:
+        case VK_STRUCTURE_TYPE_SUBMIT_INFO_2:
             settings.stream() << "VkSubmitInfo2\n";
             break;
-        case 1000314007:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES:
             settings.stream() << "VkPhysicalDeviceSynchronization2Features\n";
             break;
-        case 1000325000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES:
             settings.stream() << "VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures\n";
             break;
-        case 1000335000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES:
             settings.stream() << "VkPhysicalDeviceImageRobustnessFeatures\n";
             break;
-        case 1000337006:
+        case VK_STRUCTURE_TYPE_BUFFER_COPY_2:
             settings.stream() << "VkBufferCopy2\n";
             break;
-        case 1000337000:
+        case VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2:
             settings.stream() << "VkCopyBufferInfo2\n";
             break;
-        case 1000337007:
+        case VK_STRUCTURE_TYPE_IMAGE_COPY_2:
             settings.stream() << "VkImageCopy2\n";
             break;
-        case 1000337001:
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2:
             settings.stream() << "VkCopyImageInfo2\n";
             break;
-        case 1000337009:
+        case VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2:
             settings.stream() << "VkBufferImageCopy2\n";
             break;
-        case 1000337002:
+        case VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2:
             settings.stream() << "VkCopyBufferToImageInfo2\n";
             break;
-        case 1000337003:
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2:
             settings.stream() << "VkCopyImageToBufferInfo2\n";
             break;
-        case 1000337008:
+        case VK_STRUCTURE_TYPE_IMAGE_BLIT_2:
             settings.stream() << "VkImageBlit2\n";
             break;
-        case 1000337004:
+        case VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2:
             settings.stream() << "VkBlitImageInfo2\n";
             break;
-        case 1000337010:
+        case VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2:
             settings.stream() << "VkImageResolve2\n";
             break;
-        case 1000337005:
+        case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2:
             settings.stream() << "VkResolveImageInfo2\n";
             break;
-        case 1000225002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES:
             settings.stream() << "VkPhysicalDeviceSubgroupSizeControlFeatures\n";
             break;
-        case 1000225000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceSubgroupSizeControlProperties\n";
             break;
-        case 1000225001:
+        case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO:
             settings.stream() << "VkPipelineShaderStageRequiredSubgroupSizeCreateInfo\n";
             break;
-        case 1000138000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES:
             settings.stream() << "VkPhysicalDeviceInlineUniformBlockFeatures\n";
             break;
-        case 1000138001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceInlineUniformBlockProperties\n";
             break;
-        case 1000138002:
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK:
             settings.stream() << "VkWriteDescriptorSetInlineUniformBlock\n";
             break;
-        case 1000138003:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO:
             settings.stream() << "VkDescriptorPoolInlineUniformBlockCreateInfo\n";
             break;
-        case 1000066000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES:
             settings.stream() << "VkPhysicalDeviceTextureCompressionASTCHDRFeatures\n";
             break;
-        case 1000044001:
+        case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO:
             settings.stream() << "VkRenderingAttachmentInfo\n";
             break;
-        case 1000044000:
+        case VK_STRUCTURE_TYPE_RENDERING_INFO:
             settings.stream() << "VkRenderingInfo\n";
             break;
-        case 1000044002:
+        case VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO:
             settings.stream() << "VkPipelineRenderingCreateInfo\n";
             break;
-        case 1000044003:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES:
             settings.stream() << "VkPhysicalDeviceDynamicRenderingFeatures\n";
             break;
-        case 1000044004:
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO:
             settings.stream() << "VkCommandBufferInheritanceRenderingInfo\n";
             break;
-        case 1000280000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_FEATURES:
             settings.stream() << "VkPhysicalDeviceShaderIntegerDotProductFeatures\n";
             break;
-        case 1000280001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceShaderIntegerDotProductProperties\n";
             break;
-        case 1000281001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceTexelBufferAlignmentProperties\n";
             break;
-        case 1000360000:
+        case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3:
             settings.stream() << "VkFormatProperties3\n";
             break;
-        case 1000413000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES:
             settings.stream() << "VkPhysicalDeviceMaintenance4Features\n";
             break;
-        case 1000413001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceMaintenance4Properties\n";
             break;
-        case 1000413002:
+        case VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS:
             settings.stream() << "VkDeviceBufferMemoryRequirements\n";
             break;
-        case 1000413003:
+        case VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS:
             settings.stream() << "VkDeviceImageMemoryRequirements\n";
             break;
-        case 55:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES:
             settings.stream() << "VkPhysicalDeviceVulkan14Features\n";
             break;
-        case 56:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceVulkan14Properties\n";
             break;
-        case 1000174000:
+        case VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO:
             settings.stream() << "VkDeviceQueueGlobalPriorityCreateInfo\n";
             break;
-        case 1000388000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES:
             settings.stream() << "VkPhysicalDeviceGlobalPriorityQueryFeatures\n";
             break;
-        case 1000388001:
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES:
             settings.stream() << "VkQueueFamilyGlobalPriorityProperties\n";
             break;
-        case 1000416000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES:
             settings.stream() << "VkPhysicalDeviceShaderSubgroupRotateFeatures\n";
             break;
-        case 1000528000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES:
             settings.stream() << "VkPhysicalDeviceShaderFloatControls2Features\n";
             break;
-        case 1000544000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES:
             settings.stream() << "VkPhysicalDeviceShaderExpectAssumeFeatures\n";
             break;
-        case 1000259000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES:
             settings.stream() << "VkPhysicalDeviceLineRasterizationFeatures\n";
             break;
-        case 1000259002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceLineRasterizationProperties\n";
             break;
-        case 1000259001:
+        case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineRasterizationLineStateCreateInfo\n";
             break;
-        case 1000525000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceVertexAttributeDivisorProperties\n";
             break;
-        case 1000190001:
+        case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO:
             settings.stream() << "VkPipelineVertexInputDivisorStateCreateInfo\n";
             break;
-        case 1000190002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES:
             settings.stream() << "VkPhysicalDeviceVertexAttributeDivisorFeatures\n";
             break;
-        case 1000265000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES:
             settings.stream() << "VkPhysicalDeviceIndexTypeUint8Features\n";
             break;
-        case 1000271000:
+        case VK_STRUCTURE_TYPE_MEMORY_MAP_INFO:
             settings.stream() << "VkMemoryMapInfo\n";
             break;
-        case 1000271001:
+        case VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO:
             settings.stream() << "VkMemoryUnmapInfo\n";
             break;
-        case 1000470000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES:
             settings.stream() << "VkPhysicalDeviceMaintenance5Features\n";
             break;
-        case 1000470001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceMaintenance5Properties\n";
             break;
-        case 1000470003:
+        case VK_STRUCTURE_TYPE_RENDERING_AREA_INFO:
             settings.stream() << "VkRenderingAreaInfo\n";
             break;
-        case 1000338003:
+        case VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2:
             settings.stream() << "VkImageSubresource2\n";
             break;
-        case 1000470004:
+        case VK_STRUCTURE_TYPE_DEVICE_IMAGE_SUBRESOURCE_INFO:
             settings.stream() << "VkDeviceImageSubresourceInfo\n";
             break;
-        case 1000338002:
+        case VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2:
             settings.stream() << "VkSubresourceLayout2\n";
             break;
-        case 1000470005:
+        case VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO:
             settings.stream() << "VkPipelineCreateFlags2CreateInfo\n";
             break;
-        case 1000470006:
+        case VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO:
             settings.stream() << "VkBufferUsageFlags2CreateInfo\n";
             break;
-        case 1000080000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES:
             settings.stream() << "VkPhysicalDevicePushDescriptorProperties\n";
             break;
-        case 1000232000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES:
             settings.stream() << "VkPhysicalDeviceDynamicRenderingLocalReadFeatures\n";
             break;
-        case 1000232001:
+        case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_LOCATION_INFO:
             settings.stream() << "VkRenderingAttachmentLocationInfo\n";
             break;
-        case 1000232002:
+        case VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO:
             settings.stream() << "VkRenderingInputAttachmentIndexInfo\n";
             break;
-        case 1000545000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES:
             settings.stream() << "VkPhysicalDeviceMaintenance6Features\n";
             break;
-        case 1000545001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceMaintenance6Properties\n";
             break;
-        case 1000545002:
+        case VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS:
             settings.stream() << "VkBindMemoryStatus\n";
             break;
-        case 1000545003:
+        case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO:
             settings.stream() << "VkBindDescriptorSetsInfo\n";
             break;
-        case 1000545004:
+        case VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO:
             settings.stream() << "VkPushConstantsInfo\n";
             break;
-        case 1000545005:
+        case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO:
             settings.stream() << "VkPushDescriptorSetInfo\n";
             break;
-        case 1000545006:
+        case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO:
             settings.stream() << "VkPushDescriptorSetWithTemplateInfo\n";
             break;
-        case 1000466000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES:
             settings.stream() << "VkPhysicalDevicePipelineProtectedAccessFeatures\n";
             break;
-        case 1000068001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES:
             settings.stream() << "VkPhysicalDevicePipelineRobustnessFeatures\n";
             break;
-        case 1000068002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_PROPERTIES:
             settings.stream() << "VkPhysicalDevicePipelineRobustnessProperties\n";
             break;
-        case 1000068000:
+        case VK_STRUCTURE_TYPE_PIPELINE_ROBUSTNESS_CREATE_INFO:
             settings.stream() << "VkPipelineRobustnessCreateInfo\n";
             break;
-        case 1000270000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES:
             settings.stream() << "VkPhysicalDeviceHostImageCopyFeatures\n";
             break;
-        case 1000270001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES:
             settings.stream() << "VkPhysicalDeviceHostImageCopyProperties\n";
             break;
-        case 1000270002:
+        case VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY:
             settings.stream() << "VkMemoryToImageCopy\n";
             break;
-        case 1000270003:
+        case VK_STRUCTURE_TYPE_IMAGE_TO_MEMORY_COPY:
             settings.stream() << "VkImageToMemoryCopy\n";
             break;
-        case 1000270005:
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO:
             settings.stream() << "VkCopyMemoryToImageInfo\n";
             break;
-        case 1000270004:
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_MEMORY_INFO:
             settings.stream() << "VkCopyImageToMemoryInfo\n";
             break;
-        case 1000270007:
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_IMAGE_INFO:
             settings.stream() << "VkCopyImageToImageInfo\n";
             break;
-        case 1000270006:
+        case VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO:
             settings.stream() << "VkHostImageLayoutTransitionInfo\n";
             break;
-        case 1000270008:
+        case VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE:
             settings.stream() << "VkSubresourceHostMemcpySize\n";
             break;
-        case 1000270009:
+        case VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY:
             settings.stream() << "VkHostImageCopyDevicePerformanceQuery\n";
             break;
-        case 1000001000:
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR:
             settings.stream() << "VkSwapchainCreateInfoKHR\n";
             break;
-        case 1000001001:
+        case VK_STRUCTURE_TYPE_PRESENT_INFO_KHR:
             settings.stream() << "VkPresentInfoKHR\n";
             break;
-        case 1000060008:
+        case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
             settings.stream() << "VkImageSwapchainCreateInfoKHR\n";
             break;
-        case 1000060009:
+        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
             settings.stream() << "VkBindImageMemorySwapchainInfoKHR\n";
             break;
-        case 1000060010:
+        case VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR:
             settings.stream() << "VkAcquireNextImageInfoKHR\n";
             break;
-        case 1000060007:
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_CAPABILITIES_KHR:
             settings.stream() << "VkDeviceGroupPresentCapabilitiesKHR\n";
             break;
-        case 1000060011:
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR:
             settings.stream() << "VkDeviceGroupPresentInfoKHR\n";
             break;
-        case 1000060012:
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR:
             settings.stream() << "VkDeviceGroupSwapchainCreateInfoKHR\n";
             break;
-        case 1000002000:
+        case VK_STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR:
             settings.stream() << "VkDisplayModeCreateInfoKHR\n";
             break;
-        case 1000002001:
+        case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR:
             settings.stream() << "VkDisplaySurfaceCreateInfoKHR\n";
             break;
-        case 1000003000:
+        case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
             settings.stream() << "VkDisplayPresentInfoKHR\n";
             break;
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-        case 1000004000:
+        case VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR:
             settings.stream() << "VkXlibSurfaceCreateInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-        case 1000005000:
+        case VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR:
             settings.stream() << "VkXcbSurfaceCreateInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-        case 1000006000:
+        case VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR:
             settings.stream() << "VkWaylandSurfaceCreateInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000008000:
+        case VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR:
             settings.stream() << "VkAndroidSurfaceCreateInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000009000:
+        case VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR:
             settings.stream() << "VkWin32SurfaceCreateInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-        case 1000023016:
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_KHR:
             settings.stream() << "VkQueueFamilyQueryResultStatusPropertiesKHR\n";
             break;
-        case 1000023012:
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_VIDEO_PROPERTIES_KHR:
             settings.stream() << "VkQueueFamilyVideoPropertiesKHR\n";
             break;
-        case 1000023000:
+        case VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR:
             settings.stream() << "VkVideoProfileInfoKHR\n";
             break;
-        case 1000023013:
+        case VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR:
             settings.stream() << "VkVideoProfileListInfoKHR\n";
             break;
-        case 1000023001:
+        case VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR:
             settings.stream() << "VkVideoCapabilitiesKHR\n";
             break;
-        case 1000023014:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_FORMAT_INFO_KHR:
             settings.stream() << "VkPhysicalDeviceVideoFormatInfoKHR\n";
             break;
-        case 1000023015:
+        case VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR:
             settings.stream() << "VkVideoFormatPropertiesKHR\n";
             break;
-        case 1000023002:
+        case VK_STRUCTURE_TYPE_VIDEO_PICTURE_RESOURCE_INFO_KHR:
             settings.stream() << "VkVideoPictureResourceInfoKHR\n";
             break;
-        case 1000023011:
+        case VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR:
             settings.stream() << "VkVideoReferenceSlotInfoKHR\n";
             break;
-        case 1000023003:
+        case VK_STRUCTURE_TYPE_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR:
             settings.stream() << "VkVideoSessionMemoryRequirementsKHR\n";
             break;
-        case 1000023004:
+        case VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR:
             settings.stream() << "VkBindVideoSessionMemoryInfoKHR\n";
             break;
-        case 1000023005:
+        case VK_STRUCTURE_TYPE_VIDEO_SESSION_CREATE_INFO_KHR:
             settings.stream() << "VkVideoSessionCreateInfoKHR\n";
             break;
-        case 1000023006:
+        case VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR:
             settings.stream() << "VkVideoSessionParametersCreateInfoKHR\n";
             break;
-        case 1000023007:
+        case VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_UPDATE_INFO_KHR:
             settings.stream() << "VkVideoSessionParametersUpdateInfoKHR\n";
             break;
-        case 1000023008:
+        case VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR:
             settings.stream() << "VkVideoBeginCodingInfoKHR\n";
             break;
-        case 1000023009:
+        case VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR:
             settings.stream() << "VkVideoEndCodingInfoKHR\n";
             break;
-        case 1000023010:
+        case VK_STRUCTURE_TYPE_VIDEO_CODING_CONTROL_INFO_KHR:
             settings.stream() << "VkVideoCodingControlInfoKHR\n";
             break;
-        case 1000024001:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR:
             settings.stream() << "VkVideoDecodeCapabilitiesKHR\n";
             break;
-        case 1000024002:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR:
             settings.stream() << "VkVideoDecodeUsageInfoKHR\n";
             break;
-        case 1000024000:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR:
             settings.stream() << "VkVideoDecodeInfoKHR\n";
             break;
-        case 1000038000:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_KHR:
             settings.stream() << "VkVideoEncodeH264CapabilitiesKHR\n";
             break;
-        case 1000038011:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUALITY_LEVEL_PROPERTIES_KHR:
             settings.stream() << "VkVideoEncodeH264QualityLevelPropertiesKHR\n";
             break;
-        case 1000038010:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_CREATE_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264SessionCreateInfoKHR\n";
             break;
-        case 1000038002:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264SessionParametersAddInfoKHR\n";
             break;
-        case 1000038001:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264SessionParametersCreateInfoKHR\n";
             break;
-        case 1000038012:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_GET_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264SessionParametersGetInfoKHR\n";
             break;
-        case 1000038013:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264SessionParametersFeedbackInfoKHR\n";
             break;
-        case 1000038005:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_NALU_SLICE_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264NaluSliceInfoKHR\n";
             break;
-        case 1000038003:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264PictureInfoKHR\n";
             break;
-        case 1000038004:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264DpbSlotInfoKHR\n";
             break;
-        case 1000038007:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264ProfileInfoKHR\n";
             break;
-        case 1000038008:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264RateControlInfoKHR\n";
             break;
-        case 1000038009:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264RateControlLayerInfoKHR\n";
             break;
-        case 1000038006:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_GOP_REMAINING_FRAME_INFO_KHR:
             settings.stream() << "VkVideoEncodeH264GopRemainingFrameInfoKHR\n";
             break;
-        case 1000039000:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_KHR:
             settings.stream() << "VkVideoEncodeH265CapabilitiesKHR\n";
             break;
-        case 1000039011:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265SessionCreateInfoKHR\n";
             break;
-        case 1000039012:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_KHR:
             settings.stream() << "VkVideoEncodeH265QualityLevelPropertiesKHR\n";
             break;
-        case 1000039002:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265SessionParametersAddInfoKHR\n";
             break;
-        case 1000039001:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265SessionParametersCreateInfoKHR\n";
             break;
-        case 1000039013:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265SessionParametersGetInfoKHR\n";
             break;
-        case 1000039014:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265SessionParametersFeedbackInfoKHR\n";
             break;
-        case 1000039005:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_NALU_SLICE_SEGMENT_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265NaluSliceSegmentInfoKHR\n";
             break;
-        case 1000039003:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265PictureInfoKHR\n";
             break;
-        case 1000039004:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265DpbSlotInfoKHR\n";
             break;
-        case 1000039007:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265ProfileInfoKHR\n";
             break;
-        case 1000039009:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265RateControlInfoKHR\n";
             break;
-        case 1000039010:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265RateControlLayerInfoKHR\n";
             break;
-        case 1000039006:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_KHR:
             settings.stream() << "VkVideoEncodeH265GopRemainingFrameInfoKHR\n";
             break;
-        case 1000040003:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR:
             settings.stream() << "VkVideoDecodeH264ProfileInfoKHR\n";
             break;
-        case 1000040000:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR:
             settings.stream() << "VkVideoDecodeH264CapabilitiesKHR\n";
             break;
-        case 1000040005:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR:
             settings.stream() << "VkVideoDecodeH264SessionParametersAddInfoKHR\n";
             break;
-        case 1000040004:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
             settings.stream() << "VkVideoDecodeH264SessionParametersCreateInfoKHR\n";
             break;
-        case 1000040001:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR:
             settings.stream() << "VkVideoDecodeH264PictureInfoKHR\n";
             break;
-        case 1000040006:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_KHR:
             settings.stream() << "VkVideoDecodeH264DpbSlotInfoKHR\n";
             break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000073000:
+        case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
             settings.stream() << "VkImportMemoryWin32HandleInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000073001:
+        case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
             settings.stream() << "VkExportMemoryWin32HandleInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000073002:
+        case VK_STRUCTURE_TYPE_MEMORY_WIN32_HANDLE_PROPERTIES_KHR:
             settings.stream() << "VkMemoryWin32HandlePropertiesKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000073003:
+        case VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR:
             settings.stream() << "VkMemoryGetWin32HandleInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-        case 1000074000:
+        case VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR:
             settings.stream() << "VkImportMemoryFdInfoKHR\n";
             break;
-        case 1000074001:
+        case VK_STRUCTURE_TYPE_MEMORY_FD_PROPERTIES_KHR:
             settings.stream() << "VkMemoryFdPropertiesKHR\n";
             break;
-        case 1000074002:
+        case VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR:
             settings.stream() << "VkMemoryGetFdInfoKHR\n";
             break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000075000:
+        case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
             settings.stream() << "VkWin32KeyedMutexAcquireReleaseInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000078000:
+        case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
             settings.stream() << "VkImportSemaphoreWin32HandleInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000078001:
+        case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
             settings.stream() << "VkExportSemaphoreWin32HandleInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000078002:
+        case VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR:
             settings.stream() << "VkD3D12FenceSubmitInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000078003:
+        case VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR:
             settings.stream() << "VkSemaphoreGetWin32HandleInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-        case 1000079000:
+        case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR:
             settings.stream() << "VkImportSemaphoreFdInfoKHR\n";
             break;
-        case 1000079001:
+        case VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR:
             settings.stream() << "VkSemaphoreGetFdInfoKHR\n";
             break;
-        case 1000084000:
+        case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
             settings.stream() << "VkPresentRegionsKHR\n";
             break;
-        case 1000111000:
+        case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
             settings.stream() << "VkSharedPresentSurfaceCapabilitiesKHR\n";
             break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000114000:
+        case VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR:
             settings.stream() << "VkImportFenceWin32HandleInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000114001:
+        case VK_STRUCTURE_TYPE_EXPORT_FENCE_WIN32_HANDLE_INFO_KHR:
             settings.stream() << "VkExportFenceWin32HandleInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000114002:
+        case VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR:
             settings.stream() << "VkFenceGetWin32HandleInfoKHR\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-        case 1000115000:
+        case VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR:
             settings.stream() << "VkImportFenceFdInfoKHR\n";
             break;
-        case 1000115001:
+        case VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR:
             settings.stream() << "VkFenceGetFdInfoKHR\n";
             break;
-        case 1000116000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_FEATURES_KHR:
             settings.stream() << "VkPhysicalDevicePerformanceQueryFeaturesKHR\n";
             break;
-        case 1000116001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDevicePerformanceQueryPropertiesKHR\n";
             break;
-        case 1000116005:
+        case VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_KHR:
             settings.stream() << "VkPerformanceCounterKHR\n";
             break;
-        case 1000116006:
+        case VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_DESCRIPTION_KHR:
             settings.stream() << "VkPerformanceCounterDescriptionKHR\n";
             break;
-        case 1000116002:
+        case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_CREATE_INFO_KHR:
             settings.stream() << "VkQueryPoolPerformanceCreateInfoKHR\n";
             break;
-        case 1000116004:
+        case VK_STRUCTURE_TYPE_ACQUIRE_PROFILING_LOCK_INFO_KHR:
             settings.stream() << "VkAcquireProfilingLockInfoKHR\n";
             break;
-        case 1000116003:
+        case VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_SUBMIT_INFO_KHR:
             settings.stream() << "VkPerformanceQuerySubmitInfoKHR\n";
             break;
-        case 1000119000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR:
             settings.stream() << "VkPhysicalDeviceSurfaceInfo2KHR\n";
             break;
-        case 1000119001:
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR:
             settings.stream() << "VkSurfaceCapabilities2KHR\n";
             break;
-        case 1000119002:
+        case VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR:
             settings.stream() << "VkSurfaceFormat2KHR\n";
             break;
-        case 1000121000:
+        case VK_STRUCTURE_TYPE_DISPLAY_PROPERTIES_2_KHR:
             settings.stream() << "VkDisplayProperties2KHR\n";
             break;
-        case 1000121001:
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_PROPERTIES_2_KHR:
             settings.stream() << "VkDisplayPlaneProperties2KHR\n";
             break;
-        case 1000121002:
+        case VK_STRUCTURE_TYPE_DISPLAY_MODE_PROPERTIES_2_KHR:
             settings.stream() << "VkDisplayModeProperties2KHR\n";
             break;
-        case 1000121003:
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR:
             settings.stream() << "VkDisplayPlaneInfo2KHR\n";
             break;
-        case 1000121004:
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_CAPABILITIES_2_KHR:
             settings.stream() << "VkDisplayPlaneCapabilities2KHR\n";
             break;
-        case 1000141000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_BFLOAT16_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceShaderBfloat16FeaturesKHR\n";
             break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000163000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR:
             settings.stream() << "VkPhysicalDevicePortabilitySubsetFeaturesKHR\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000163001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDevicePortabilitySubsetPropertiesKHR\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
-        case 1000181000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceShaderClockFeaturesKHR\n";
             break;
-        case 1000187003:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR:
             settings.stream() << "VkVideoDecodeH265ProfileInfoKHR\n";
             break;
-        case 1000187000:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR:
             settings.stream() << "VkVideoDecodeH265CapabilitiesKHR\n";
             break;
-        case 1000187002:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
             settings.stream() << "VkVideoDecodeH265SessionParametersAddInfoKHR\n";
             break;
-        case 1000187001:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
             settings.stream() << "VkVideoDecodeH265SessionParametersCreateInfoKHR\n";
             break;
-        case 1000187004:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
             settings.stream() << "VkVideoDecodeH265PictureInfoKHR\n";
             break;
-        case 1000187005:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR:
             settings.stream() << "VkVideoDecodeH265DpbSlotInfoKHR\n";
             break;
-        case 1000226000:
+        case VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
             settings.stream() << "VkFragmentShadingRateAttachmentInfoKHR\n";
             break;
-        case 1000226001:
+        case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_STATE_CREATE_INFO_KHR:
             settings.stream() << "VkPipelineFragmentShadingRateStateCreateInfoKHR\n";
             break;
-        case 1000226003:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceFragmentShadingRateFeaturesKHR\n";
             break;
-        case 1000226002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceFragmentShadingRatePropertiesKHR\n";
             break;
-        case 1000226004:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_KHR:
             settings.stream() << "VkPhysicalDeviceFragmentShadingRateKHR\n";
             break;
-        case 1000044006:
+        case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
             settings.stream() << "VkRenderingFragmentShadingRateAttachmentInfoKHR\n";
             break;
-        case 1000235000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_QUAD_CONTROL_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceShaderQuadControlFeaturesKHR\n";
             break;
-        case 1000239000:
+        case VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR:
             settings.stream() << "VkSurfaceProtectedCapabilitiesKHR\n";
             break;
-        case 1000248000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR:
             settings.stream() << "VkPhysicalDevicePresentWaitFeaturesKHR\n";
             break;
-        case 1000269000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR:
             settings.stream() << "VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR\n";
             break;
-        case 1000269001:
+        case VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR:
             settings.stream() << "VkPipelineInfoKHR\n";
             break;
-        case 1000269002:
+        case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_PROPERTIES_KHR:
             settings.stream() << "VkPipelineExecutablePropertiesKHR\n";
             break;
-        case 1000269003:
+        case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INFO_KHR:
             settings.stream() << "VkPipelineExecutableInfoKHR\n";
             break;
-        case 1000269004:
+        case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_STATISTIC_KHR:
             settings.stream() << "VkPipelineExecutableStatisticKHR\n";
             break;
-        case 1000269005:
+        case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR:
             settings.stream() << "VkPipelineExecutableInternalRepresentationKHR\n";
             break;
-        case 1000290000:
+        case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
             settings.stream() << "VkPipelineLibraryCreateInfoKHR\n";
             break;
-        case 1000294000:
+        case VK_STRUCTURE_TYPE_PRESENT_ID_KHR:
             settings.stream() << "VkPresentIdKHR\n";
             break;
-        case 1000294001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR:
             settings.stream() << "VkPhysicalDevicePresentIdFeaturesKHR\n";
             break;
-        case 1000299000:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INFO_KHR:
             settings.stream() << "VkVideoEncodeInfoKHR\n";
             break;
-        case 1000299003:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR:
             settings.stream() << "VkVideoEncodeCapabilitiesKHR\n";
             break;
-        case 1000299005:
+        case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_FEEDBACK_CREATE_INFO_KHR:
             settings.stream() << "VkQueryPoolVideoEncodeFeedbackCreateInfoKHR\n";
             break;
-        case 1000299004:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
             settings.stream() << "VkVideoEncodeUsageInfoKHR\n";
             break;
-        case 1000299002:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_LAYER_INFO_KHR:
             settings.stream() << "VkVideoEncodeRateControlLayerInfoKHR\n";
             break;
-        case 1000299001:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR:
             settings.stream() << "VkVideoEncodeRateControlInfoKHR\n";
             break;
-        case 1000299006:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
             settings.stream() << "VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR\n";
             break;
-        case 1000299007:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_PROPERTIES_KHR:
             settings.stream() << "VkVideoEncodeQualityLevelPropertiesKHR\n";
             break;
-        case 1000299008:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
             settings.stream() << "VkVideoEncodeQualityLevelInfoKHR\n";
             break;
-        case 1000299009:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_PARAMETERS_GET_INFO_KHR:
             settings.stream() << "VkVideoEncodeSessionParametersGetInfoKHR\n";
             break;
-        case 1000299010:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
             settings.stream() << "VkVideoEncodeSessionParametersFeedbackInfoKHR\n";
             break;
-        case 1000203000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR\n";
             break;
-        case 1000322000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR\n";
             break;
-        case 1000323000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR\n";
             break;
-        case 1000336000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_WORKGROUP_MEMORY_EXPLICIT_LAYOUT_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR\n";
             break;
-        case 1000386000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR\n";
             break;
-        case 1000434000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR\n";
             break;
-        case 1000479000:
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_ID_2_KHR:
             settings.stream() << "VkSurfaceCapabilitiesPresentId2KHR\n";
             break;
-        case 1000479001:
+        case VK_STRUCTURE_TYPE_PRESENT_ID_2_KHR:
             settings.stream() << "VkPresentId2KHR\n";
             break;
-        case 1000479002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR:
             settings.stream() << "VkPhysicalDevicePresentId2FeaturesKHR\n";
             break;
-        case 1000480000:
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_WAIT_2_KHR:
             settings.stream() << "VkSurfaceCapabilitiesPresentWait2KHR\n";
             break;
-        case 1000480001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_2_FEATURES_KHR:
             settings.stream() << "VkPhysicalDevicePresentWait2FeaturesKHR\n";
             break;
-        case 1000480002:
+        case VK_STRUCTURE_TYPE_PRESENT_WAIT_2_INFO_KHR:
             settings.stream() << "VkPresentWait2InfoKHR\n";
             break;
-        case 1000481000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR\n";
             break;
-        case 1000483000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_FEATURES_KHR:
             settings.stream() << "VkPhysicalDevicePipelineBinaryFeaturesKHR\n";
             break;
-        case 1000483004:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDevicePipelineBinaryPropertiesKHR\n";
             break;
-        case 1000483008:
+        case VK_STRUCTURE_TYPE_DEVICE_PIPELINE_BINARY_INTERNAL_CACHE_CONTROL_KHR:
             settings.stream() << "VkDevicePipelineBinaryInternalCacheControlKHR\n";
             break;
-        case 1000483003:
+        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_KEY_KHR:
             settings.stream() << "VkPipelineBinaryKeyKHR\n";
             break;
-        case 1000483007:
+        case VK_STRUCTURE_TYPE_PIPELINE_CREATE_INFO_KHR:
             settings.stream() << "VkPipelineCreateInfoKHR\n";
             break;
-        case 1000483001:
+        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_CREATE_INFO_KHR:
             settings.stream() << "VkPipelineBinaryCreateInfoKHR\n";
             break;
-        case 1000483002:
+        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
             settings.stream() << "VkPipelineBinaryInfoKHR\n";
             break;
-        case 1000483005:
+        case VK_STRUCTURE_TYPE_RELEASE_CAPTURED_PIPELINE_DATA_INFO_KHR:
             settings.stream() << "VkReleaseCapturedPipelineDataInfoKHR\n";
             break;
-        case 1000483006:
+        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_DATA_INFO_KHR:
             settings.stream() << "VkPipelineBinaryDataInfoKHR\n";
             break;
-        case 1000483009:
+        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_HANDLES_INFO_KHR:
             settings.stream() << "VkPipelineBinaryHandlesInfoKHR\n";
             break;
-        case 1000506001:
+        case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
             settings.stream() << "VkCooperativeMatrixPropertiesKHR\n";
             break;
-        case 1000506000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceCooperativeMatrixFeaturesKHR\n";
             break;
-        case 1000506002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceCooperativeMatrixPropertiesKHR\n";
             break;
-        case 1000201000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR\n";
             break;
-        case 1000511000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR\n";
             break;
-        case 1000512003:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PROFILE_INFO_KHR:
             settings.stream() << "VkVideoDecodeAV1ProfileInfoKHR\n";
             break;
-        case 1000512000:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_CAPABILITIES_KHR:
             settings.stream() << "VkVideoDecodeAV1CapabilitiesKHR\n";
             break;
-        case 1000512004:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
             settings.stream() << "VkVideoDecodeAV1SessionParametersCreateInfoKHR\n";
             break;
-        case 1000512001:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR:
             settings.stream() << "VkVideoDecodeAV1PictureInfoKHR\n";
             break;
-        case 1000512005:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_DPB_SLOT_INFO_KHR:
             settings.stream() << "VkVideoDecodeAV1DpbSlotInfoKHR\n";
             break;
-        case 1000513004:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_AV1_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceVideoEncodeAV1FeaturesKHR\n";
             break;
-        case 1000513000:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_CAPABILITIES_KHR:
             settings.stream() << "VkVideoEncodeAV1CapabilitiesKHR\n";
             break;
-        case 1000513008:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_QUALITY_LEVEL_PROPERTIES_KHR:
             settings.stream() << "VkVideoEncodeAV1QualityLevelPropertiesKHR\n";
             break;
-        case 1000513009:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_SESSION_CREATE_INFO_KHR:
             settings.stream() << "VkVideoEncodeAV1SessionCreateInfoKHR\n";
             break;
-        case 1000513001:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
             settings.stream() << "VkVideoEncodeAV1SessionParametersCreateInfoKHR\n";
             break;
-        case 1000513002:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PICTURE_INFO_KHR:
             settings.stream() << "VkVideoEncodeAV1PictureInfoKHR\n";
             break;
-        case 1000513003:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_DPB_SLOT_INFO_KHR:
             settings.stream() << "VkVideoEncodeAV1DpbSlotInfoKHR\n";
             break;
-        case 1000513005:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PROFILE_INFO_KHR:
             settings.stream() << "VkVideoEncodeAV1ProfileInfoKHR\n";
             break;
-        case 1000513010:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_GOP_REMAINING_FRAME_INFO_KHR:
             settings.stream() << "VkVideoEncodeAV1GopRemainingFrameInfoKHR\n";
             break;
-        case 1000513006:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_RATE_CONTROL_INFO_KHR:
             settings.stream() << "VkVideoEncodeAV1RateControlInfoKHR\n";
             break;
-        case 1000513007:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_RATE_CONTROL_LAYER_INFO_KHR:
             settings.stream() << "VkVideoEncodeAV1RateControlLayerInfoKHR\n";
             break;
-        case 1000514000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_DECODE_VP9_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceVideoDecodeVP9FeaturesKHR\n";
             break;
-        case 1000514003:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PROFILE_INFO_KHR:
             settings.stream() << "VkVideoDecodeVP9ProfileInfoKHR\n";
             break;
-        case 1000514001:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_CAPABILITIES_KHR:
             settings.stream() << "VkVideoDecodeVP9CapabilitiesKHR\n";
             break;
-        case 1000514002:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PICTURE_INFO_KHR:
             settings.stream() << "VkVideoDecodeVP9PictureInfoKHR\n";
             break;
-        case 1000515000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceVideoMaintenance1FeaturesKHR\n";
             break;
-        case 1000515001:
+        case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
             settings.stream() << "VkVideoInlineQueryInfoKHR\n";
             break;
-        case 1000527000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFIED_IMAGE_LAYOUTS_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR\n";
             break;
-        case 1000527001:
+        case VK_STRUCTURE_TYPE_ATTACHMENT_FEEDBACK_LOOP_INFO_EXT:
             settings.stream() << "VkAttachmentFeedbackLoopInfoEXT\n";
             break;
-        case 1000184000:
+        case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR:
             settings.stream() << "VkCalibratedTimestampInfoKHR\n";
             break;
-        case 1000545007:
+        case VK_STRUCTURE_TYPE_SET_DESCRIPTOR_BUFFER_OFFSETS_INFO_EXT:
             settings.stream() << "VkSetDescriptorBufferOffsetsInfoEXT\n";
             break;
-        case 1000545008:
+        case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS_INFO_EXT:
             settings.stream() << "VkBindDescriptorBufferEmbeddedSamplersInfoEXT\n";
             break;
-        case 1000553000:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_CAPABILITIES_KHR:
             settings.stream() << "VkVideoEncodeQuantizationMapCapabilitiesKHR\n";
             break;
-        case 1000553001:
+        case VK_STRUCTURE_TYPE_VIDEO_FORMAT_QUANTIZATION_MAP_PROPERTIES_KHR:
             settings.stream() << "VkVideoFormatQuantizationMapPropertiesKHR\n";
             break;
-        case 1000553002:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_INFO_KHR:
             settings.stream() << "VkVideoEncodeQuantizationMapInfoKHR\n";
             break;
-        case 1000553005:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_SESSION_PARAMETERS_CREATE_INFO_KHR:
             settings.stream() << "VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR\n";
             break;
-        case 1000553009:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR\n";
             break;
-        case 1000553003:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUANTIZATION_MAP_CAPABILITIES_KHR:
             settings.stream() << "VkVideoEncodeH264QuantizationMapCapabilitiesKHR\n";
             break;
-        case 1000553004:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUANTIZATION_MAP_CAPABILITIES_KHR:
             settings.stream() << "VkVideoEncodeH265QuantizationMapCapabilitiesKHR\n";
             break;
-        case 1000553006:
+        case VK_STRUCTURE_TYPE_VIDEO_FORMAT_H265_QUANTIZATION_MAP_PROPERTIES_KHR:
             settings.stream() << "VkVideoFormatH265QuantizationMapPropertiesKHR\n";
             break;
-        case 1000553007:
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_QUANTIZATION_MAP_CAPABILITIES_KHR:
             settings.stream() << "VkVideoEncodeAV1QuantizationMapCapabilitiesKHR\n";
             break;
-        case 1000553008:
+        case VK_STRUCTURE_TYPE_VIDEO_FORMAT_AV1_QUANTIZATION_MAP_PROPERTIES_KHR:
             settings.stream() << "VkVideoFormatAV1QuantizationMapPropertiesKHR\n";
             break;
-        case 1000558000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_RELAXED_EXTENDED_INSTRUCTION_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR\n";
             break;
-        case 1000562000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceMaintenance7FeaturesKHR\n";
             break;
-        case 1000562001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceMaintenance7PropertiesKHR\n";
             break;
-        case 1000562003:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceLayeredApiPropertiesKHR\n";
             break;
-        case 1000562002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_LIST_KHR:
             settings.stream() << "VkPhysicalDeviceLayeredApiPropertiesListKHR\n";
             break;
-        case 1000562004:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_VULKAN_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceLayeredApiVulkanPropertiesKHR\n";
             break;
-        case 1000574000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_8_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceMaintenance8FeaturesKHR\n";
             break;
-        case 1000574002:
+        case VK_STRUCTURE_TYPE_MEMORY_BARRIER_ACCESS_FLAGS_3_KHR:
             settings.stream() << "VkMemoryBarrierAccessFlags3KHR\n";
             break;
-        case 1000584000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceMaintenance9FeaturesKHR\n";
             break;
-        case 1000584001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceMaintenance9PropertiesKHR\n";
             break;
-        case 1000584002:
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR:
             settings.stream() << "VkQueueFamilyOwnershipTransferPropertiesKHR\n";
             break;
-        case 1000586000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceVideoMaintenance2FeaturesKHR\n";
             break;
-        case 1000586001:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_INLINE_SESSION_PARAMETERS_INFO_KHR:
             settings.stream() << "VkVideoDecodeH264InlineSessionParametersInfoKHR\n";
             break;
-        case 1000586002:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_INLINE_SESSION_PARAMETERS_INFO_KHR:
             settings.stream() << "VkVideoDecodeH265InlineSessionParametersInfoKHR\n";
             break;
-        case 1000586003:
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_INLINE_SESSION_PARAMETERS_INFO_KHR:
             settings.stream() << "VkVideoDecodeAV1InlineSessionParametersInfoKHR\n";
             break;
-        case 1000421000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceDepthClampZeroOneFeaturesKHR\n";
             break;
-        case 1000286000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceRobustness2FeaturesKHR\n";
             break;
-        case 1000286001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceRobustness2PropertiesKHR\n";
             break;
-        case 1000011000:
+        case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
             settings.stream() << "VkDebugReportCallbackCreateInfoEXT\n";
             break;
-        case 1000018000:
+        case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD:
             settings.stream() << "VkPipelineRasterizationStateRasterizationOrderAMD\n";
             break;
-        case 1000022000:
+        case VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT:
             settings.stream() << "VkDebugMarkerObjectNameInfoEXT\n";
             break;
-        case 1000022001:
+        case VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT:
             settings.stream() << "VkDebugMarkerObjectTagInfoEXT\n";
             break;
-        case 1000022002:
+        case VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT:
             settings.stream() << "VkDebugMarkerMarkerInfoEXT\n";
             break;
-        case 1000026000:
+        case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV:
             settings.stream() << "VkDedicatedAllocationImageCreateInfoNV\n";
             break;
-        case 1000026001:
+        case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV:
             settings.stream() << "VkDedicatedAllocationBufferCreateInfoNV\n";
             break;
-        case 1000026002:
+        case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
             settings.stream() << "VkDedicatedAllocationMemoryAllocateInfoNV\n";
             break;
-        case 1000028000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceTransformFeedbackFeaturesEXT\n";
             break;
-        case 1000028001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceTransformFeedbackPropertiesEXT\n";
             break;
-        case 1000028002:
+        case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineRasterizationStateStreamCreateInfoEXT\n";
             break;
-        case 1000029000:
+        case VK_STRUCTURE_TYPE_CU_MODULE_CREATE_INFO_NVX:
             settings.stream() << "VkCuModuleCreateInfoNVX\n";
             break;
-        case 1000029004:
+        case VK_STRUCTURE_TYPE_CU_MODULE_TEXTURING_MODE_CREATE_INFO_NVX:
             settings.stream() << "VkCuModuleTexturingModeCreateInfoNVX\n";
             break;
-        case 1000029001:
+        case VK_STRUCTURE_TYPE_CU_FUNCTION_CREATE_INFO_NVX:
             settings.stream() << "VkCuFunctionCreateInfoNVX\n";
             break;
-        case 1000029002:
+        case VK_STRUCTURE_TYPE_CU_LAUNCH_INFO_NVX:
             settings.stream() << "VkCuLaunchInfoNVX\n";
             break;
-        case 1000030000:
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_HANDLE_INFO_NVX:
             settings.stream() << "VkImageViewHandleInfoNVX\n";
             break;
-        case 1000030001:
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_ADDRESS_PROPERTIES_NVX:
             settings.stream() << "VkImageViewAddressPropertiesNVX\n";
             break;
-        case 1000041000:
+        case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             settings.stream() << "VkTextureLODGatherFormatPropertiesAMD\n";
             break;
 #if defined(VK_USE_PLATFORM_GGP)
-        case 1000049000:
+        case VK_STRUCTURE_TYPE_STREAM_DESCRIPTOR_SURFACE_CREATE_INFO_GGP:
             settings.stream() << "VkStreamDescriptorSurfaceCreateInfoGGP\n";
             break;
 #endif // VK_USE_PLATFORM_GGP
-        case 1000050000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CORNER_SAMPLED_IMAGE_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceCornerSampledImageFeaturesNV\n";
             break;
-        case 1000056000:
+        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
             settings.stream() << "VkExternalMemoryImageCreateInfoNV\n";
             break;
-        case 1000056001:
+        case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV:
             settings.stream() << "VkExportMemoryAllocateInfoNV\n";
             break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000057000:
+        case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV:
             settings.stream() << "VkImportMemoryWin32HandleInfoNV\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000057001:
+        case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV:
             settings.stream() << "VkExportMemoryWin32HandleInfoNV\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000058000:
+        case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
             settings.stream() << "VkWin32KeyedMutexAcquireReleaseInfoNV\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-        case 1000061000:
+        case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
             settings.stream() << "VkValidationFlagsEXT\n";
             break;
 #if defined(VK_USE_PLATFORM_VI_NN)
-        case 1000062000:
+        case VK_STRUCTURE_TYPE_VI_SURFACE_CREATE_INFO_NN:
             settings.stream() << "VkViSurfaceCreateInfoNN\n";
             break;
 #endif // VK_USE_PLATFORM_VI_NN
-        case 1000067000:
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_ASTC_DECODE_MODE_EXT:
             settings.stream() << "VkImageViewASTCDecodeModeEXT\n";
             break;
-        case 1000067001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ASTC_DECODE_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceASTCDecodeFeaturesEXT\n";
             break;
-        case 1000081002:
+        case VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT:
             settings.stream() << "VkConditionalRenderingBeginInfoEXT\n";
             break;
-        case 1000081001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceConditionalRenderingFeaturesEXT\n";
             break;
-        case 1000081000:
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT:
             settings.stream() << "VkCommandBufferInheritanceConditionalRenderingInfoEXT\n";
             break;
-        case 1000087000:
+        case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_W_SCALING_STATE_CREATE_INFO_NV:
             settings.stream() << "VkPipelineViewportWScalingStateCreateInfoNV\n";
             break;
-        case 1000090000:
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT:
             settings.stream() << "VkSurfaceCapabilities2EXT\n";
             break;
-        case 1000091000:
+        case VK_STRUCTURE_TYPE_DISPLAY_POWER_INFO_EXT:
             settings.stream() << "VkDisplayPowerInfoEXT\n";
             break;
-        case 1000091001:
+        case VK_STRUCTURE_TYPE_DEVICE_EVENT_INFO_EXT:
             settings.stream() << "VkDeviceEventInfoEXT\n";
             break;
-        case 1000091002:
+        case VK_STRUCTURE_TYPE_DISPLAY_EVENT_INFO_EXT:
             settings.stream() << "VkDisplayEventInfoEXT\n";
             break;
-        case 1000091003:
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_COUNTER_CREATE_INFO_EXT:
             settings.stream() << "VkSwapchainCounterCreateInfoEXT\n";
             break;
-        case 1000092000:
+        case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
             settings.stream() << "VkPresentTimesInfoGOOGLE\n";
             break;
-        case 1000097000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_ATTRIBUTES_PROPERTIES_NVX:
             settings.stream() << "VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX\n";
             break;
-        case 1000044009:
+        case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX:
             settings.stream() << "VkMultiviewPerViewAttributesInfoNVX\n";
             break;
-        case 1000098000:
+        case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SWIZZLE_STATE_CREATE_INFO_NV:
             settings.stream() << "VkPipelineViewportSwizzleStateCreateInfoNV\n";
             break;
-        case 1000099000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISCARD_RECTANGLE_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceDiscardRectanglePropertiesEXT\n";
             break;
-        case 1000099001:
+        case VK_STRUCTURE_TYPE_PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineDiscardRectangleStateCreateInfoEXT\n";
             break;
-        case 1000101000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONSERVATIVE_RASTERIZATION_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceConservativeRasterizationPropertiesEXT\n";
             break;
-        case 1000101001:
+        case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineRasterizationConservativeStateCreateInfoEXT\n";
             break;
-        case 1000102000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceDepthClipEnableFeaturesEXT\n";
             break;
-        case 1000102001:
+        case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineRasterizationDepthClipStateCreateInfoEXT\n";
             break;
-        case 1000105000:
+        case VK_STRUCTURE_TYPE_HDR_METADATA_EXT:
             settings.stream() << "VkHdrMetadataEXT\n";
             break;
-        case 1000110000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG:
             settings.stream() << "VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG\n";
             break;
 #if defined(VK_USE_PLATFORM_IOS_MVK)
-        case 1000122000:
+        case VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK:
             settings.stream() << "VkIOSSurfaceCreateInfoMVK\n";
             break;
 #endif // VK_USE_PLATFORM_IOS_MVK
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
-        case 1000123000:
+        case VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK:
             settings.stream() << "VkMacOSSurfaceCreateInfoMVK\n";
             break;
 #endif // VK_USE_PLATFORM_MACOS_MVK
-        case 1000128002:
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT:
             settings.stream() << "VkDebugUtilsLabelEXT\n";
             break;
-        case 1000128000:
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
             settings.stream() << "VkDebugUtilsObjectNameInfoEXT\n";
             break;
-        case 1000128003:
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT:
             settings.stream() << "VkDebugUtilsMessengerCallbackDataEXT\n";
             break;
-        case 1000128004:
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
             settings.stream() << "VkDebugUtilsMessengerCreateInfoEXT\n";
             break;
-        case 1000128001:
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT:
             settings.stream() << "VkDebugUtilsObjectTagInfoEXT\n";
             break;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000129000:
+        case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID:
             settings.stream() << "VkAndroidHardwareBufferUsageANDROID\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000129001:
+        case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID:
             settings.stream() << "VkAndroidHardwareBufferPropertiesANDROID\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000129002:
+        case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID:
             settings.stream() << "VkAndroidHardwareBufferFormatPropertiesANDROID\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000129003:
+        case VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
             settings.stream() << "VkImportAndroidHardwareBufferInfoANDROID\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000129004:
+        case VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
             settings.stream() << "VkMemoryGetAndroidHardwareBufferInfoANDROID\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000129005:
+        case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID:
             settings.stream() << "VkExternalFormatANDROID\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000129006:
+        case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID:
             settings.stream() << "VkAndroidHardwareBufferFormatProperties2ANDROID\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000134000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX:
             settings.stream() << "VkPhysicalDeviceShaderEnqueueFeaturesAMDX\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000134001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_PROPERTIES_AMDX:
             settings.stream() << "VkPhysicalDeviceShaderEnqueuePropertiesAMDX\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000134002:
+        case VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_SCRATCH_SIZE_AMDX:
             settings.stream() << "VkExecutionGraphPipelineScratchSizeAMDX\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000134003:
+        case VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_CREATE_INFO_AMDX:
             settings.stream() << "VkExecutionGraphPipelineCreateInfoAMDX\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
@@ -34947,1631 +34947,1631 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000134004:
+        case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_NODE_CREATE_INFO_AMDX:
             settings.stream() << "VkPipelineShaderStageNodeCreateInfoAMDX\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
-        case 1000044008:
+        case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
             settings.stream() << "VkAttachmentSampleCountInfoAMD\n";
             break;
-        case 1000143000:
+        case VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT:
             settings.stream() << "VkSampleLocationsInfoEXT\n";
             break;
-        case 1000143001:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
             settings.stream() << "VkRenderPassSampleLocationsBeginInfoEXT\n";
             break;
-        case 1000143002:
+        case VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineSampleLocationsStateCreateInfoEXT\n";
             break;
-        case 1000143003:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceSampleLocationsPropertiesEXT\n";
             break;
-        case 1000143004:
+        case VK_STRUCTURE_TYPE_MULTISAMPLE_PROPERTIES_EXT:
             settings.stream() << "VkMultisamplePropertiesEXT\n";
             break;
-        case 1000148000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT\n";
             break;
-        case 1000148001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT\n";
             break;
-        case 1000148002:
+        case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineColorBlendAdvancedStateCreateInfoEXT\n";
             break;
-        case 1000149000:
+        case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_TO_COLOR_STATE_CREATE_INFO_NV:
             settings.stream() << "VkPipelineCoverageToColorStateCreateInfoNV\n";
             break;
-        case 1000152000:
+        case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV:
             settings.stream() << "VkPipelineCoverageModulationStateCreateInfoNV\n";
             break;
-        case 1000154001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceShaderSMBuiltinsPropertiesNV\n";
             break;
-        case 1000154000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceShaderSMBuiltinsFeaturesNV\n";
             break;
-        case 1000158000:
+        case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT:
             settings.stream() << "VkDrmFormatModifierPropertiesListEXT\n";
             break;
-        case 1000158002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT:
             settings.stream() << "VkPhysicalDeviceImageDrmFormatModifierInfoEXT\n";
             break;
-        case 1000158003:
+        case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT:
             settings.stream() << "VkImageDrmFormatModifierListCreateInfoEXT\n";
             break;
-        case 1000158004:
+        case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT:
             settings.stream() << "VkImageDrmFormatModifierExplicitCreateInfoEXT\n";
             break;
-        case 1000158005:
+        case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT:
             settings.stream() << "VkImageDrmFormatModifierPropertiesEXT\n";
             break;
-        case 1000158006:
+        case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_2_EXT:
             settings.stream() << "VkDrmFormatModifierPropertiesList2EXT\n";
             break;
-        case 1000160000:
+        case VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT:
             settings.stream() << "VkValidationCacheCreateInfoEXT\n";
             break;
-        case 1000160001:
+        case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
             settings.stream() << "VkShaderModuleValidationCacheCreateInfoEXT\n";
             break;
-        case 1000164000:
+        case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SHADING_RATE_IMAGE_STATE_CREATE_INFO_NV:
             settings.stream() << "VkPipelineViewportShadingRateImageStateCreateInfoNV\n";
             break;
-        case 1000164001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceShadingRateImageFeaturesNV\n";
             break;
-        case 1000164002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceShadingRateImagePropertiesNV\n";
             break;
-        case 1000164005:
+        case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_COARSE_SAMPLE_ORDER_STATE_CREATE_INFO_NV:
             settings.stream() << "VkPipelineViewportCoarseSampleOrderStateCreateInfoNV\n";
             break;
-        case 1000165011:
+        case VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV:
             settings.stream() << "VkRayTracingShaderGroupCreateInfoNV\n";
             break;
-        case 1000165000:
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV:
             settings.stream() << "VkRayTracingPipelineCreateInfoNV\n";
             break;
-        case 1000165004:
+        case VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV:
             settings.stream() << "VkGeometryTrianglesNV\n";
             break;
-        case 1000165005:
+        case VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV:
             settings.stream() << "VkGeometryAABBNV\n";
             break;
-        case 1000165003:
+        case VK_STRUCTURE_TYPE_GEOMETRY_NV:
             settings.stream() << "VkGeometryNV\n";
             break;
-        case 1000165012:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV:
             settings.stream() << "VkAccelerationStructureInfoNV\n";
             break;
-        case 1000165001:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV:
             settings.stream() << "VkAccelerationStructureCreateInfoNV\n";
             break;
-        case 1000165006:
+        case VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_NV:
             settings.stream() << "VkBindAccelerationStructureMemoryInfoNV\n";
             break;
-        case 1000165007:
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
             settings.stream() << "VkWriteDescriptorSetAccelerationStructureNV\n";
             break;
-        case 1000165008:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV:
             settings.stream() << "VkAccelerationStructureMemoryRequirementsInfoNV\n";
             break;
-        case 1000165009:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceRayTracingPropertiesNV\n";
             break;
-        case 1000166000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_REPRESENTATIVE_FRAGMENT_TEST_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV\n";
             break;
-        case 1000166001:
+        case VK_STRUCTURE_TYPE_PIPELINE_REPRESENTATIVE_FRAGMENT_TEST_STATE_CREATE_INFO_NV:
             settings.stream() << "VkPipelineRepresentativeFragmentTestStateCreateInfoNV\n";
             break;
-        case 1000170000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_IMAGE_FORMAT_INFO_EXT:
             settings.stream() << "VkPhysicalDeviceImageViewImageFormatInfoEXT\n";
             break;
-        case 1000170001:
+        case VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT:
             settings.stream() << "VkFilterCubicImageViewImageFormatPropertiesEXT\n";
             break;
-        case 1000178000:
+        case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
             settings.stream() << "VkImportMemoryHostPointerInfoEXT\n";
             break;
-        case 1000178001:
+        case VK_STRUCTURE_TYPE_MEMORY_HOST_POINTER_PROPERTIES_EXT:
             settings.stream() << "VkMemoryHostPointerPropertiesEXT\n";
             break;
-        case 1000178002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceExternalMemoryHostPropertiesEXT\n";
             break;
-        case 1000183000:
+        case VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD:
             settings.stream() << "VkPipelineCompilerControlCreateInfoAMD\n";
             break;
-        case 1000185000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD:
             settings.stream() << "VkPhysicalDeviceShaderCorePropertiesAMD\n";
             break;
-        case 1000189000:
+        case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD:
             settings.stream() << "VkDeviceMemoryOverallocationCreateInfoAMD\n";
             break;
-        case 1000190000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT\n";
             break;
 #if defined(VK_USE_PLATFORM_GGP)
-        case 1000191000:
+        case VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP:
             settings.stream() << "VkPresentFrameTokenGGP\n";
             break;
 #endif // VK_USE_PLATFORM_GGP
-        case 1000202000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceMeshShaderFeaturesNV\n";
             break;
-        case 1000202001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceMeshShaderPropertiesNV\n";
             break;
-        case 1000204000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_FOOTPRINT_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceShaderImageFootprintFeaturesNV\n";
             break;
-        case 1000205000:
+        case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_EXCLUSIVE_SCISSOR_STATE_CREATE_INFO_NV:
             settings.stream() << "VkPipelineViewportExclusiveScissorStateCreateInfoNV\n";
             break;
-        case 1000205002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXCLUSIVE_SCISSOR_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceExclusiveScissorFeaturesNV\n";
             break;
-        case 1000206001:
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV:
             settings.stream() << "VkQueueFamilyCheckpointPropertiesNV\n";
             break;
-        case 1000206000:
+        case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV:
             settings.stream() << "VkCheckpointDataNV\n";
             break;
-        case 1000314008:
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV:
             settings.stream() << "VkQueueFamilyCheckpointProperties2NV\n";
             break;
-        case 1000314009:
+        case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV:
             settings.stream() << "VkCheckpointData2NV\n";
             break;
-        case 1000209000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL:
             settings.stream() << "VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL\n";
             break;
-        case 1000210001:
+        case VK_STRUCTURE_TYPE_INITIALIZE_PERFORMANCE_API_INFO_INTEL:
             settings.stream() << "VkInitializePerformanceApiInfoINTEL\n";
             break;
-        case 1000210000:
+        case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL:
             settings.stream() << "VkQueryPoolPerformanceQueryCreateInfoINTEL\n";
             break;
-        case 1000210002:
+        case VK_STRUCTURE_TYPE_PERFORMANCE_MARKER_INFO_INTEL:
             settings.stream() << "VkPerformanceMarkerInfoINTEL\n";
             break;
-        case 1000210003:
+        case VK_STRUCTURE_TYPE_PERFORMANCE_STREAM_MARKER_INFO_INTEL:
             settings.stream() << "VkPerformanceStreamMarkerInfoINTEL\n";
             break;
-        case 1000210004:
+        case VK_STRUCTURE_TYPE_PERFORMANCE_OVERRIDE_INFO_INTEL:
             settings.stream() << "VkPerformanceOverrideInfoINTEL\n";
             break;
-        case 1000210005:
+        case VK_STRUCTURE_TYPE_PERFORMANCE_CONFIGURATION_ACQUIRE_INFO_INTEL:
             settings.stream() << "VkPerformanceConfigurationAcquireInfoINTEL\n";
             break;
-        case 1000212000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDevicePCIBusInfoPropertiesEXT\n";
             break;
-        case 1000213000:
+        case VK_STRUCTURE_TYPE_DISPLAY_NATIVE_HDR_SURFACE_CAPABILITIES_AMD:
             settings.stream() << "VkDisplayNativeHdrSurfaceCapabilitiesAMD\n";
             break;
-        case 1000213001:
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_DISPLAY_NATIVE_HDR_CREATE_INFO_AMD:
             settings.stream() << "VkSwapchainDisplayNativeHdrCreateInfoAMD\n";
             break;
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000214000:
+        case VK_STRUCTURE_TYPE_IMAGEPIPE_SURFACE_CREATE_INFO_FUCHSIA:
             settings.stream() << "VkImagePipeSurfaceCreateInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000217000:
+        case VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT:
             settings.stream() << "VkMetalSurfaceCreateInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
-        case 1000218000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceFragmentDensityMapFeaturesEXT\n";
             break;
-        case 1000218001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceFragmentDensityMapPropertiesEXT\n";
             break;
-        case 1000218002:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_CREATE_INFO_EXT:
             settings.stream() << "VkRenderPassFragmentDensityMapCreateInfoEXT\n";
             break;
-        case 1000044007:
+        case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
             settings.stream() << "VkRenderingFragmentDensityMapAttachmentInfoEXT\n";
             break;
-        case 1000227000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_2_AMD:
             settings.stream() << "VkPhysicalDeviceShaderCoreProperties2AMD\n";
             break;
-        case 1000229000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COHERENT_MEMORY_FEATURES_AMD:
             settings.stream() << "VkPhysicalDeviceCoherentMemoryFeaturesAMD\n";
             break;
-        case 1000234000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT\n";
             break;
-        case 1000237000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceMemoryBudgetPropertiesEXT\n";
             break;
-        case 1000238000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceMemoryPriorityFeaturesEXT\n";
             break;
-        case 1000238001:
+        case VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT:
             settings.stream() << "VkMemoryPriorityAllocateInfoEXT\n";
             break;
-        case 1000240000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEDICATED_ALLOCATION_IMAGE_ALIASING_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV\n";
             break;
-        case 1000244000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceBufferDeviceAddressFeaturesEXT\n";
             break;
-        case 1000244002:
+        case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT:
             settings.stream() << "VkBufferDeviceAddressCreateInfoEXT\n";
             break;
-        case 1000247000:
+        case VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT:
             settings.stream() << "VkValidationFeaturesEXT\n";
             break;
-        case 1000249001:
+        case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_NV:
             settings.stream() << "VkCooperativeMatrixPropertiesNV\n";
             break;
-        case 1000249000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceCooperativeMatrixFeaturesNV\n";
             break;
-        case 1000249002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceCooperativeMatrixPropertiesNV\n";
             break;
-        case 1000250000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COVERAGE_REDUCTION_MODE_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceCoverageReductionModeFeaturesNV\n";
             break;
-        case 1000250001:
+        case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_REDUCTION_STATE_CREATE_INFO_NV:
             settings.stream() << "VkPipelineCoverageReductionStateCreateInfoNV\n";
             break;
-        case 1000250002:
+        case VK_STRUCTURE_TYPE_FRAMEBUFFER_MIXED_SAMPLES_COMBINATION_NV:
             settings.stream() << "VkFramebufferMixedSamplesCombinationNV\n";
             break;
-        case 1000251000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT\n";
             break;
-        case 1000252000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_IMAGE_ARRAYS_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceYcbcrImageArraysFeaturesEXT\n";
             break;
-        case 1000254000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceProvokingVertexFeaturesEXT\n";
             break;
-        case 1000254002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceProvokingVertexPropertiesEXT\n";
             break;
-        case 1000254001:
+        case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineRasterizationProvokingVertexStateCreateInfoEXT\n";
             break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000255000:
+        case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT:
             settings.stream() << "VkSurfaceFullScreenExclusiveInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000255002:
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:
             settings.stream() << "VkSurfaceCapabilitiesFullScreenExclusiveEXT\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-        case 1000255001:
+        case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT:
             settings.stream() << "VkSurfaceFullScreenExclusiveWin32InfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-        case 1000256000:
+        case VK_STRUCTURE_TYPE_HEADLESS_SURFACE_CREATE_INFO_EXT:
             settings.stream() << "VkHeadlessSurfaceCreateInfoEXT\n";
             break;
-        case 1000260000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderAtomicFloatFeaturesEXT\n";
             break;
-        case 1000267000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceExtendedDynamicStateFeaturesEXT\n";
             break;
-        case 1000272000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceMapMemoryPlacedFeaturesEXT\n";
             break;
-        case 1000272001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceMapMemoryPlacedPropertiesEXT\n";
             break;
-        case 1000272002:
+        case VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT:
             settings.stream() << "VkMemoryMapPlacedInfoEXT\n";
             break;
-        case 1000273000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT\n";
             break;
-        case 1000274000:
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT:
             settings.stream() << "VkSurfacePresentModeEXT\n";
             break;
-        case 1000274001:
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT:
             settings.stream() << "VkSurfacePresentScalingCapabilitiesEXT\n";
             break;
-        case 1000274002:
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT:
             settings.stream() << "VkSurfacePresentModeCompatibilityEXT\n";
             break;
-        case 1000275000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT\n";
             break;
-        case 1000275001:
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
             settings.stream() << "VkSwapchainPresentFenceInfoEXT\n";
             break;
-        case 1000275002:
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT:
             settings.stream() << "VkSwapchainPresentModesCreateInfoEXT\n";
             break;
-        case 1000275003:
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT:
             settings.stream() << "VkSwapchainPresentModeInfoEXT\n";
             break;
-        case 1000275004:
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT:
             settings.stream() << "VkSwapchainPresentScalingCreateInfoEXT\n";
             break;
-        case 1000275005:
+        case VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_EXT:
             settings.stream() << "VkReleaseSwapchainImagesInfoEXT\n";
             break;
-        case 1000277000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV\n";
             break;
-        case 1000277007:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV\n";
             break;
-        case 1000277001:
+        case VK_STRUCTURE_TYPE_GRAPHICS_SHADER_GROUP_CREATE_INFO_NV:
             settings.stream() << "VkGraphicsShaderGroupCreateInfoNV\n";
             break;
-        case 1000277002:
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
             settings.stream() << "VkGraphicsPipelineShaderGroupsCreateInfoNV\n";
             break;
-        case 1000277003:
+        case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV:
             settings.stream() << "VkIndirectCommandsLayoutTokenNV\n";
             break;
-        case 1000277004:
+        case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NV:
             settings.stream() << "VkIndirectCommandsLayoutCreateInfoNV\n";
             break;
-        case 1000277005:
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_NV:
             settings.stream() << "VkGeneratedCommandsInfoNV\n";
             break;
-        case 1000277006:
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_NV:
             settings.stream() << "VkGeneratedCommandsMemoryRequirementsInfoNV\n";
             break;
-        case 1000278000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceInheritedViewportScissorFeaturesNV\n";
             break;
-        case 1000278001:
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_VIEWPORT_SCISSOR_INFO_NV:
             settings.stream() << "VkCommandBufferInheritanceViewportScissorInfoNV\n";
             break;
-        case 1000281000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT\n";
             break;
-        case 1000282001:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
             settings.stream() << "VkRenderPassTransformBeginInfoQCOM\n";
             break;
-        case 1000282000:
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM:
             settings.stream() << "VkCommandBufferInheritanceRenderPassTransformInfoQCOM\n";
             break;
-        case 1000283000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_BIAS_CONTROL_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceDepthBiasControlFeaturesEXT\n";
             break;
-        case 1000283001:
+        case VK_STRUCTURE_TYPE_DEPTH_BIAS_INFO_EXT:
             settings.stream() << "VkDepthBiasInfoEXT\n";
             break;
-        case 1000283002:
+        case VK_STRUCTURE_TYPE_DEPTH_BIAS_REPRESENTATION_INFO_EXT:
             settings.stream() << "VkDepthBiasRepresentationInfoEXT\n";
             break;
-        case 1000284000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_MEMORY_REPORT_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceDeviceMemoryReportFeaturesEXT\n";
             break;
-        case 1000284002:
+        case VK_STRUCTURE_TYPE_DEVICE_MEMORY_REPORT_CALLBACK_DATA_EXT:
             settings.stream() << "VkDeviceMemoryReportCallbackDataEXT\n";
             break;
-        case 1000284001:
+        case VK_STRUCTURE_TYPE_DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT:
             settings.stream() << "VkDeviceDeviceMemoryReportCreateInfoEXT\n";
             break;
-        case 1000287000:
+        case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
             settings.stream() << "VkSamplerCustomBorderColorCreateInfoEXT\n";
             break;
-        case 1000287001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceCustomBorderColorPropertiesEXT\n";
             break;
-        case 1000287002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceCustomBorderColorFeaturesEXT\n";
             break;
-        case 1000292000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV:
             settings.stream() << "VkPhysicalDevicePresentBarrierFeaturesNV\n";
             break;
-        case 1000292001:
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_BARRIER_NV:
             settings.stream() << "VkSurfaceCapabilitiesPresentBarrierNV\n";
             break;
-        case 1000292002:
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV:
             settings.stream() << "VkSwapchainPresentBarrierCreateInfoNV\n";
             break;
-        case 1000300000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceDiagnosticsConfigFeaturesNV\n";
             break;
-        case 1000300001:
+        case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
             settings.stream() << "VkDeviceDiagnosticsConfigCreateInfoNV\n";
             break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000307000:
+        case VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV:
             settings.stream() << "VkCudaModuleCreateInfoNV\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000307001:
+        case VK_STRUCTURE_TYPE_CUDA_FUNCTION_CREATE_INFO_NV:
             settings.stream() << "VkCudaFunctionCreateInfoNV\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000307002:
+        case VK_STRUCTURE_TYPE_CUDA_LAUNCH_INFO_NV:
             settings.stream() << "VkCudaLaunchInfoNV\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000307003:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceCudaKernelLaunchFeaturesNV\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000307004:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceCudaKernelLaunchPropertiesNV\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
-        case 1000309000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM:
             settings.stream() << "VkPhysicalDeviceTileShadingFeaturesQCOM\n";
             break;
-        case 1000309001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_PROPERTIES_QCOM:
             settings.stream() << "VkPhysicalDeviceTileShadingPropertiesQCOM\n";
             break;
-        case 1000309002:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_TILE_SHADING_CREATE_INFO_QCOM:
             settings.stream() << "VkRenderPassTileShadingCreateInfoQCOM\n";
             break;
-        case 1000309003:
+        case VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM:
             settings.stream() << "VkPerTileBeginInfoQCOM\n";
             break;
-        case 1000309004:
+        case VK_STRUCTURE_TYPE_PER_TILE_END_INFO_QCOM:
             settings.stream() << "VkPerTileEndInfoQCOM\n";
             break;
-        case 1000309005:
+        case VK_STRUCTURE_TYPE_DISPATCH_TILE_INFO_QCOM:
             settings.stream() << "VkDispatchTileInfoQCOM\n";
             break;
-        case 1000310000:
+        case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
             settings.stream() << "VkQueryLowLatencySupportNV\n";
             break;
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311000:
+        case VK_STRUCTURE_TYPE_EXPORT_METAL_OBJECT_CREATE_INFO_EXT:
             settings.stream() << "VkExportMetalObjectCreateInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311001:
+        case VK_STRUCTURE_TYPE_EXPORT_METAL_OBJECTS_INFO_EXT:
             settings.stream() << "VkExportMetalObjectsInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311002:
+        case VK_STRUCTURE_TYPE_EXPORT_METAL_DEVICE_INFO_EXT:
             settings.stream() << "VkExportMetalDeviceInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311003:
+        case VK_STRUCTURE_TYPE_EXPORT_METAL_COMMAND_QUEUE_INFO_EXT:
             settings.stream() << "VkExportMetalCommandQueueInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311004:
+        case VK_STRUCTURE_TYPE_EXPORT_METAL_BUFFER_INFO_EXT:
             settings.stream() << "VkExportMetalBufferInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311005:
+        case VK_STRUCTURE_TYPE_IMPORT_METAL_BUFFER_INFO_EXT:
             settings.stream() << "VkImportMetalBufferInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311006:
+        case VK_STRUCTURE_TYPE_EXPORT_METAL_TEXTURE_INFO_EXT:
             settings.stream() << "VkExportMetalTextureInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311007:
+        case VK_STRUCTURE_TYPE_IMPORT_METAL_TEXTURE_INFO_EXT:
             settings.stream() << "VkImportMetalTextureInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311008:
+        case VK_STRUCTURE_TYPE_EXPORT_METAL_IO_SURFACE_INFO_EXT:
             settings.stream() << "VkExportMetalIOSurfaceInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311009:
+        case VK_STRUCTURE_TYPE_IMPORT_METAL_IO_SURFACE_INFO_EXT:
             settings.stream() << "VkImportMetalIOSurfaceInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311010:
+        case VK_STRUCTURE_TYPE_EXPORT_METAL_SHARED_EVENT_INFO_EXT:
             settings.stream() << "VkExportMetalSharedEventInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000311011:
+        case VK_STRUCTURE_TYPE_IMPORT_METAL_SHARED_EVENT_INFO_EXT:
             settings.stream() << "VkImportMetalSharedEventInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
-        case 1000316000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceDescriptorBufferPropertiesEXT\n";
             break;
-        case 1000316001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_DENSITY_MAP_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT\n";
             break;
-        case 1000316002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceDescriptorBufferFeaturesEXT\n";
             break;
-        case 1000316003:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_ADDRESS_INFO_EXT:
             settings.stream() << "VkDescriptorAddressInfoEXT\n";
             break;
-        case 1000316011:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT:
             settings.stream() << "VkDescriptorBufferBindingInfoEXT\n";
             break;
-        case 1000316012:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
             settings.stream() << "VkDescriptorBufferBindingPushDescriptorBufferHandleEXT\n";
             break;
-        case 1000316004:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT:
             settings.stream() << "VkDescriptorGetInfoEXT\n";
             break;
-        case 1000316005:
+        case VK_STRUCTURE_TYPE_BUFFER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
             settings.stream() << "VkBufferCaptureDescriptorDataInfoEXT\n";
             break;
-        case 1000316006:
+        case VK_STRUCTURE_TYPE_IMAGE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
             settings.stream() << "VkImageCaptureDescriptorDataInfoEXT\n";
             break;
-        case 1000316007:
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
             settings.stream() << "VkImageViewCaptureDescriptorDataInfoEXT\n";
             break;
-        case 1000316008:
+        case VK_STRUCTURE_TYPE_SAMPLER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
             settings.stream() << "VkSamplerCaptureDescriptorDataInfoEXT\n";
             break;
-        case 1000316010:
+        case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT:
             settings.stream() << "VkOpaqueCaptureDescriptorDataCreateInfoEXT\n";
             break;
-        case 1000316009:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
             settings.stream() << "VkAccelerationStructureCaptureDescriptorDataInfoEXT\n";
             break;
-        case 1000320000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT\n";
             break;
-        case 1000320001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT\n";
             break;
-        case 1000320002:
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT:
             settings.stream() << "VkGraphicsPipelineLibraryCreateInfoEXT\n";
             break;
-        case 1000321000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD:
             settings.stream() << "VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD\n";
             break;
-        case 1000326001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV\n";
             break;
-        case 1000326000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV\n";
             break;
-        case 1000326002:
+        case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_ENUM_STATE_CREATE_INFO_NV:
             settings.stream() << "VkPipelineFragmentShadingRateEnumStateCreateInfoNV\n";
             break;
-        case 1000327000:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MOTION_TRIANGLES_DATA_NV:
             settings.stream() << "VkAccelerationStructureGeometryMotionTrianglesDataNV\n";
             break;
-        case 1000327002:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MOTION_INFO_NV:
             settings.stream() << "VkAccelerationStructureMotionInfoNV\n";
             break;
-        case 1000327001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MOTION_BLUR_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceRayTracingMotionBlurFeaturesNV\n";
             break;
-        case 1000330000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_2_PLANE_444_FORMATS_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT\n";
             break;
-        case 1000332000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceFragmentDensityMap2FeaturesEXT\n";
             break;
-        case 1000332001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceFragmentDensityMap2PropertiesEXT\n";
             break;
-        case 1000333000:
+        case VK_STRUCTURE_TYPE_COPY_COMMAND_TRANSFORM_INFO_QCOM:
             settings.stream() << "VkCopyCommandTransformInfoQCOM\n";
             break;
-        case 1000338000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceImageCompressionControlFeaturesEXT\n";
             break;
-        case 1000338001:
+        case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT:
             settings.stream() << "VkImageCompressionControlEXT\n";
             break;
-        case 1000338004:
+        case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT:
             settings.stream() << "VkImageCompressionPropertiesEXT\n";
             break;
-        case 1000339000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT\n";
             break;
-        case 1000340000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
             settings.stream() << "VkPhysicalDevice4444FormatsFeaturesEXT\n";
             break;
-        case 1000341000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceFaultFeaturesEXT\n";
             break;
-        case 1000341001:
+        case VK_STRUCTURE_TYPE_DEVICE_FAULT_COUNTS_EXT:
             settings.stream() << "VkDeviceFaultCountsEXT\n";
             break;
-        case 1000341002:
+        case VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT:
             settings.stream() << "VkDeviceFaultInfoEXT\n";
             break;
-        case 1000342000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT\n";
             break;
-        case 1000344000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT\n";
             break;
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-        case 1000346000:
+        case VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT:
             settings.stream() << "VkDirectFBSurfaceCreateInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_DIRECTFB_EXT
-        case 1000351000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT\n";
             break;
-        case 1000351002:
+        case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
             settings.stream() << "VkMutableDescriptorTypeCreateInfoEXT\n";
             break;
-        case 1000352000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT\n";
             break;
-        case 1000352001:
+        case VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT:
             settings.stream() << "VkVertexInputBindingDescription2EXT\n";
             break;
-        case 1000352002:
+        case VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT:
             settings.stream() << "VkVertexInputAttributeDescription2EXT\n";
             break;
-        case 1000353000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceDrmPropertiesEXT\n";
             break;
-        case 1000354000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceAddressBindingReportFeaturesEXT\n";
             break;
-        case 1000354001:
+        case VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT:
             settings.stream() << "VkDeviceAddressBindingCallbackDataEXT\n";
             break;
-        case 1000355000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceDepthClipControlFeaturesEXT\n";
             break;
-        case 1000355001:
+        case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineViewportDepthClipControlCreateInfoEXT\n";
             break;
-        case 1000356000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT:
             settings.stream() << "VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT\n";
             break;
-        case 1000361000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT:
             settings.stream() << "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT\n";
             break;
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000364000:
+        case VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA:
             settings.stream() << "VkImportMemoryZirconHandleInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000364001:
+        case VK_STRUCTURE_TYPE_MEMORY_ZIRCON_HANDLE_PROPERTIES_FUCHSIA:
             settings.stream() << "VkMemoryZirconHandlePropertiesFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000364002:
+        case VK_STRUCTURE_TYPE_MEMORY_GET_ZIRCON_HANDLE_INFO_FUCHSIA:
             settings.stream() << "VkMemoryGetZirconHandleInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000365000:
+        case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_ZIRCON_HANDLE_INFO_FUCHSIA:
             settings.stream() << "VkImportSemaphoreZirconHandleInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000365001:
+        case VK_STRUCTURE_TYPE_SEMAPHORE_GET_ZIRCON_HANDLE_INFO_FUCHSIA:
             settings.stream() << "VkSemaphoreGetZirconHandleInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000366000:
+        case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_CREATE_INFO_FUCHSIA:
             settings.stream() << "VkBufferCollectionCreateInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000366001:
+        case VK_STRUCTURE_TYPE_IMPORT_MEMORY_BUFFER_COLLECTION_FUCHSIA:
             settings.stream() << "VkImportMemoryBufferCollectionFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000366002:
+        case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_IMAGE_CREATE_INFO_FUCHSIA:
             settings.stream() << "VkBufferCollectionImageCreateInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000366009:
+        case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_CONSTRAINTS_INFO_FUCHSIA:
             settings.stream() << "VkBufferCollectionConstraintsInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000366004:
+        case VK_STRUCTURE_TYPE_BUFFER_CONSTRAINTS_INFO_FUCHSIA:
             settings.stream() << "VkBufferConstraintsInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000366005:
+        case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_BUFFER_CREATE_INFO_FUCHSIA:
             settings.stream() << "VkBufferCollectionBufferCreateInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000366008:
+        case VK_STRUCTURE_TYPE_SYSMEM_COLOR_SPACE_FUCHSIA:
             settings.stream() << "VkSysmemColorSpaceFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000366003:
+        case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_PROPERTIES_FUCHSIA:
             settings.stream() << "VkBufferCollectionPropertiesFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000366007:
+        case VK_STRUCTURE_TYPE_IMAGE_FORMAT_CONSTRAINTS_INFO_FUCHSIA:
             settings.stream() << "VkImageFormatConstraintsInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-        case 1000366006:
+        case VK_STRUCTURE_TYPE_IMAGE_CONSTRAINTS_INFO_FUCHSIA:
             settings.stream() << "VkImageConstraintsInfoFUCHSIA\n";
             break;
 #endif // VK_USE_PLATFORM_FUCHSIA
-        case 1000369000:
+        case VK_STRUCTURE_TYPE_SUBPASS_SHADING_PIPELINE_CREATE_INFO_HUAWEI:
             settings.stream() << "VkSubpassShadingPipelineCreateInfoHUAWEI\n";
             break;
-        case 1000369001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_FEATURES_HUAWEI:
             settings.stream() << "VkPhysicalDeviceSubpassShadingFeaturesHUAWEI\n";
             break;
-        case 1000369002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_PROPERTIES_HUAWEI:
             settings.stream() << "VkPhysicalDeviceSubpassShadingPropertiesHUAWEI\n";
             break;
-        case 1000370000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI:
             settings.stream() << "VkPhysicalDeviceInvocationMaskFeaturesHUAWEI\n";
             break;
-        case 1000371000:
+        case VK_STRUCTURE_TYPE_MEMORY_GET_REMOTE_ADDRESS_INFO_NV:
             settings.stream() << "VkMemoryGetRemoteAddressInfoNV\n";
             break;
-        case 1000371001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceExternalMemoryRDMAFeaturesNV\n";
             break;
-        case 1000372000:
+        case VK_STRUCTURE_TYPE_PIPELINE_PROPERTIES_IDENTIFIER_EXT:
             settings.stream() << "VkPipelinePropertiesIdentifierEXT\n";
             break;
-        case 1000372001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROPERTIES_FEATURES_EXT:
             settings.stream() << "VkPhysicalDevicePipelinePropertiesFeaturesEXT\n";
             break;
-        case 1000375000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceFrameBoundaryFeaturesEXT\n";
             break;
-        case 1000375001:
+        case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
             settings.stream() << "VkFrameBoundaryEXT\n";
             break;
-        case 1000376000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT\n";
             break;
-        case 1000376001:
+        case VK_STRUCTURE_TYPE_SUBPASS_RESOLVE_PERFORMANCE_QUERY_EXT:
             settings.stream() << "VkSubpassResolvePerformanceQueryEXT\n";
             break;
-        case 1000376002:
+        case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
             settings.stream() << "VkMultisampledRenderToSingleSampledInfoEXT\n";
             break;
-        case 1000377000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceExtendedDynamicState2FeaturesEXT\n";
             break;
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-        case 1000378000:
+        case VK_STRUCTURE_TYPE_SCREEN_SURFACE_CREATE_INFO_QNX:
             settings.stream() << "VkScreenSurfaceCreateInfoQNX\n";
             break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
-        case 1000381000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceColorWriteEnableFeaturesEXT\n";
             break;
-        case 1000381001:
+        case VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineColorWriteCreateInfoEXT\n";
             break;
-        case 1000382000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT:
             settings.stream() << "VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT\n";
             break;
-        case 1000391000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceImageViewMinLodFeaturesEXT\n";
             break;
-        case 1000391001:
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT:
             settings.stream() << "VkImageViewMinLodCreateInfoEXT\n";
             break;
-        case 1000392000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceMultiDrawFeaturesEXT\n";
             break;
-        case 1000392001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceMultiDrawPropertiesEXT\n";
             break;
-        case 1000393000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceImage2DViewOf3DFeaturesEXT\n";
             break;
-        case 1000395000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderTileImageFeaturesEXT\n";
             break;
-        case 1000395001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderTileImagePropertiesEXT\n";
             break;
-        case 1000396000:
+        case VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT:
             settings.stream() << "VkMicromapBuildInfoEXT\n";
             break;
-        case 1000396007:
+        case VK_STRUCTURE_TYPE_MICROMAP_CREATE_INFO_EXT:
             settings.stream() << "VkMicromapCreateInfoEXT\n";
             break;
-        case 1000396005:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceOpacityMicromapFeaturesEXT\n";
             break;
-        case 1000396006:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceOpacityMicromapPropertiesEXT\n";
             break;
-        case 1000396001:
+        case VK_STRUCTURE_TYPE_MICROMAP_VERSION_INFO_EXT:
             settings.stream() << "VkMicromapVersionInfoEXT\n";
             break;
-        case 1000396003:
+        case VK_STRUCTURE_TYPE_COPY_MICROMAP_TO_MEMORY_INFO_EXT:
             settings.stream() << "VkCopyMicromapToMemoryInfoEXT\n";
             break;
-        case 1000396004:
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_MICROMAP_INFO_EXT:
             settings.stream() << "VkCopyMemoryToMicromapInfoEXT\n";
             break;
-        case 1000396002:
+        case VK_STRUCTURE_TYPE_COPY_MICROMAP_INFO_EXT:
             settings.stream() << "VkCopyMicromapInfoEXT\n";
             break;
-        case 1000396008:
+        case VK_STRUCTURE_TYPE_MICROMAP_BUILD_SIZES_INFO_EXT:
             settings.stream() << "VkMicromapBuildSizesInfoEXT\n";
             break;
-        case 1000396009:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
             settings.stream() << "VkAccelerationStructureTrianglesOpacityMicromapEXT\n";
             break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000397000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceDisplacementMicromapFeaturesNV\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000397001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceDisplacementMicromapPropertiesNV\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000397002:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
             settings.stream() << "VkAccelerationStructureTrianglesDisplacementMicromapNV\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
-        case 1000404000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI:
             settings.stream() << "VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI\n";
             break;
-        case 1000404001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI:
             settings.stream() << "VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI\n";
             break;
-        case 1000404002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI:
             settings.stream() << "VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI\n";
             break;
-        case 1000411000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceBorderColorSwizzleFeaturesEXT\n";
             break;
-        case 1000411001:
+        case VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT:
             settings.stream() << "VkSamplerBorderColorComponentMappingCreateInfoEXT\n";
             break;
-        case 1000412000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT:
             settings.stream() << "VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT\n";
             break;
-        case 1000415000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM:
             settings.stream() << "VkPhysicalDeviceShaderCorePropertiesARM\n";
             break;
-        case 1000417000:
+        case VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM:
             settings.stream() << "VkDeviceQueueShaderCoreControlCreateInfoARM\n";
             break;
-        case 1000417001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM:
             settings.stream() << "VkPhysicalDeviceSchedulingControlsFeaturesARM\n";
             break;
-        case 1000417002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM:
             settings.stream() << "VkPhysicalDeviceSchedulingControlsPropertiesARM\n";
             break;
-        case 1000418000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT\n";
             break;
-        case 1000418001:
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_SLICED_CREATE_INFO_EXT:
             settings.stream() << "VkImageViewSlicedCreateInfoEXT\n";
             break;
-        case 1000420000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE:
             settings.stream() << "VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE\n";
             break;
-        case 1000420001:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE:
             settings.stream() << "VkDescriptorSetBindingReferenceVALVE\n";
             break;
-        case 1000420002:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE:
             settings.stream() << "VkDescriptorSetLayoutHostMappingInfoVALVE\n";
             break;
-        case 1000422000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT\n";
             break;
-        case 1000424000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM:
             settings.stream() << "VkPhysicalDeviceRenderPassStripedFeaturesARM\n";
             break;
-        case 1000424001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM:
             settings.stream() << "VkPhysicalDeviceRenderPassStripedPropertiesARM\n";
             break;
-        case 1000424003:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_INFO_ARM:
             settings.stream() << "VkRenderPassStripeInfoARM\n";
             break;
-        case 1000424002:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
             settings.stream() << "VkRenderPassStripeBeginInfoARM\n";
             break;
-        case 1000424004:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
             settings.stream() << "VkRenderPassStripeSubmitInfoARM\n";
             break;
-        case 1000425000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT\n";
             break;
-        case 1000425001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT\n";
             break;
-        case 1000425002:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT:
             settings.stream() << "VkRenderPassFragmentDensityMapOffsetEndInfoEXT\n";
             break;
-        case 1000426000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceCopyMemoryIndirectFeaturesNV\n";
             break;
-        case 1000426001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceCopyMemoryIndirectPropertiesNV\n";
             break;
-        case 1000427000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceMemoryDecompressionFeaturesNV\n";
             break;
-        case 1000427001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceMemoryDecompressionPropertiesNV\n";
             break;
-        case 1000428000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_COMPUTE_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV\n";
             break;
-        case 1000428001:
+        case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_INDIRECT_BUFFER_INFO_NV:
             settings.stream() << "VkComputePipelineIndirectBufferInfoNV\n";
             break;
-        case 1000428002:
+        case VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV:
             settings.stream() << "VkPipelineIndirectDeviceAddressInfoNV\n";
             break;
-        case 1000429008:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_LINEAR_SWEPT_SPHERES_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV\n";
             break;
-        case 1000429009:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_LINEAR_SWEPT_SPHERES_DATA_NV:
             settings.stream() << "VkAccelerationStructureGeometryLinearSweptSpheresDataNV\n";
             break;
-        case 1000429010:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_SPHERES_DATA_NV:
             settings.stream() << "VkAccelerationStructureGeometrySpheresDataNV\n";
             break;
-        case 1000430000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceLinearColorAttachmentFeaturesNV\n";
             break;
-        case 1000437000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT\n";
             break;
-        case 1000440002:
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM:
             settings.stream() << "VkImageViewSampleWeightCreateInfoQCOM\n";
             break;
-        case 1000440000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_FEATURES_QCOM:
             settings.stream() << "VkPhysicalDeviceImageProcessingFeaturesQCOM\n";
             break;
-        case 1000440001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM:
             settings.stream() << "VkPhysicalDeviceImageProcessingPropertiesQCOM\n";
             break;
-        case 1000451000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceNestedCommandBufferFeaturesEXT\n";
             break;
-        case 1000451001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceNestedCommandBufferPropertiesEXT\n";
             break;
-        case 1000453000:
+        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT:
             settings.stream() << "VkExternalMemoryAcquireUnmodifiedEXT\n";
             break;
-        case 1000455000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceExtendedDynamicState3FeaturesEXT\n";
             break;
-        case 1000455001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceExtendedDynamicState3PropertiesEXT\n";
             break;
-        case 1000458000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT\n";
             break;
-        case 1000458001:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT:
             settings.stream() << "VkRenderPassCreationControlEXT\n";
             break;
-        case 1000458002:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_CREATE_INFO_EXT:
             settings.stream() << "VkRenderPassCreationFeedbackCreateInfoEXT\n";
             break;
-        case 1000458003:
+        case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT:
             settings.stream() << "VkRenderPassSubpassFeedbackCreateInfoEXT\n";
             break;
-        case 1000459000:
+        case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_INFO_LUNARG:
             settings.stream() << "VkDirectDriverLoadingInfoLUNARG\n";
             break;
-        case 1000459001:
+        case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG:
             settings.stream() << "VkDirectDriverLoadingListLUNARG\n";
             break;
-        case 1000460006:
+        case VK_STRUCTURE_TYPE_TENSOR_DESCRIPTION_ARM:
             settings.stream() << "VkTensorDescriptionARM\n";
             break;
-        case 1000460000:
+        case VK_STRUCTURE_TYPE_TENSOR_CREATE_INFO_ARM:
             settings.stream() << "VkTensorCreateInfoARM\n";
             break;
-        case 1000460001:
+        case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
             settings.stream() << "VkTensorViewCreateInfoARM\n";
             break;
-        case 1000460007:
+        case VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM:
             settings.stream() << "VkTensorMemoryRequirementsInfoARM\n";
             break;
-        case 1000460002:
+        case VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM:
             settings.stream() << "VkBindTensorMemoryInfoARM\n";
             break;
-        case 1000460003:
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_TENSOR_ARM:
             settings.stream() << "VkWriteDescriptorSetTensorARM\n";
             break;
-        case 1000460005:
+        case VK_STRUCTURE_TYPE_TENSOR_FORMAT_PROPERTIES_ARM:
             settings.stream() << "VkTensorFormatPropertiesARM\n";
             break;
-        case 1000460004:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_PROPERTIES_ARM:
             settings.stream() << "VkPhysicalDeviceTensorPropertiesARM\n";
             break;
-        case 1000460008:
+        case VK_STRUCTURE_TYPE_TENSOR_MEMORY_BARRIER_ARM:
             settings.stream() << "VkTensorMemoryBarrierARM\n";
             break;
-        case 1000460013:
+        case VK_STRUCTURE_TYPE_TENSOR_DEPENDENCY_INFO_ARM:
             settings.stream() << "VkTensorDependencyInfoARM\n";
             break;
-        case 1000460009:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_FEATURES_ARM:
             settings.stream() << "VkPhysicalDeviceTensorFeaturesARM\n";
             break;
-        case 1000460010:
+        case VK_STRUCTURE_TYPE_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM:
             settings.stream() << "VkDeviceTensorMemoryRequirementsARM\n";
             break;
-        case 1000460012:
+        case VK_STRUCTURE_TYPE_TENSOR_COPY_ARM:
             settings.stream() << "VkTensorCopyARM\n";
             break;
-        case 1000460011:
+        case VK_STRUCTURE_TYPE_COPY_TENSOR_INFO_ARM:
             settings.stream() << "VkCopyTensorInfoARM\n";
             break;
-        case 1000460014:
+        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_TENSOR_ARM:
             settings.stream() << "VkMemoryDedicatedAllocateInfoTensorARM\n";
             break;
-        case 1000460015:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_TENSOR_INFO_ARM:
             settings.stream() << "VkPhysicalDeviceExternalTensorInfoARM\n";
             break;
-        case 1000460016:
+        case VK_STRUCTURE_TYPE_EXTERNAL_TENSOR_PROPERTIES_ARM:
             settings.stream() << "VkExternalTensorPropertiesARM\n";
             break;
-        case 1000460017:
+        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_TENSOR_CREATE_INFO_ARM:
             settings.stream() << "VkExternalMemoryTensorCreateInfoARM\n";
             break;
-        case 1000460018:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM:
             settings.stream() << "VkPhysicalDeviceDescriptorBufferTensorFeaturesARM\n";
             break;
-        case 1000460019:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_PROPERTIES_ARM:
             settings.stream() << "VkPhysicalDeviceDescriptorBufferTensorPropertiesARM\n";
             break;
-        case 1000460020:
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_TENSOR_INFO_ARM:
             settings.stream() << "VkDescriptorGetTensorInfoARM\n";
             break;
-        case 1000460021:
+        case VK_STRUCTURE_TYPE_TENSOR_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
             settings.stream() << "VkTensorCaptureDescriptorDataInfoARM\n";
             break;
-        case 1000460022:
+        case VK_STRUCTURE_TYPE_TENSOR_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
             settings.stream() << "VkTensorViewCaptureDescriptorDataInfoARM\n";
             break;
-        case 1000460023:
+        case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_TENSORS_ARM:
             settings.stream() << "VkFrameBoundaryTensorsARM\n";
             break;
-        case 1000462000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT\n";
             break;
-        case 1000462001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT\n";
             break;
-        case 1000462002:
+        case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineShaderStageModuleIdentifierCreateInfoEXT\n";
             break;
-        case 1000462003:
+        case VK_STRUCTURE_TYPE_SHADER_MODULE_IDENTIFIER_EXT:
             settings.stream() << "VkShaderModuleIdentifierEXT\n";
             break;
-        case 1000464000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceOpticalFlowFeaturesNV\n";
             break;
-        case 1000464001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceOpticalFlowPropertiesNV\n";
             break;
-        case 1000464002:
+        case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:
             settings.stream() << "VkOpticalFlowImageFormatInfoNV\n";
             break;
-        case 1000464003:
+        case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_NV:
             settings.stream() << "VkOpticalFlowImageFormatPropertiesNV\n";
             break;
-        case 1000464004:
+        case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_INFO_NV:
             settings.stream() << "VkOpticalFlowSessionCreateInfoNV\n";
             break;
-        case 1000464010:
+        case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_PRIVATE_DATA_INFO_NV:
             settings.stream() << "VkOpticalFlowSessionCreatePrivateDataInfoNV\n";
             break;
-        case 1000464005:
+        case VK_STRUCTURE_TYPE_OPTICAL_FLOW_EXECUTE_INFO_NV:
             settings.stream() << "VkOpticalFlowExecuteInfoNV\n";
             break;
-        case 1000465000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceLegacyDitheringFeaturesEXT\n";
             break;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000468000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID:
             settings.stream() << "VkPhysicalDeviceExternalFormatResolveFeaturesANDROID\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000468001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_PROPERTIES_ANDROID:
             settings.stream() << "VkPhysicalDeviceExternalFormatResolvePropertiesANDROID\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        case 1000468002:
+        case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_RESOLVE_PROPERTIES_ANDROID:
             settings.stream() << "VkAndroidHardwareBufferFormatResolvePropertiesANDROID\n";
             break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
-        case 1000476000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ANTI_LAG_FEATURES_AMD:
             settings.stream() << "VkPhysicalDeviceAntiLagFeaturesAMD\n";
             break;
-        case 1000476002:
+        case VK_STRUCTURE_TYPE_ANTI_LAG_PRESENTATION_INFO_AMD:
             settings.stream() << "VkAntiLagPresentationInfoAMD\n";
             break;
-        case 1000476001:
+        case VK_STRUCTURE_TYPE_ANTI_LAG_DATA_AMD:
             settings.stream() << "VkAntiLagDataAMD\n";
             break;
-        case 1000482000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderObjectFeaturesEXT\n";
             break;
-        case 1000482001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderObjectPropertiesEXT\n";
             break;
-        case 1000482002:
+        case VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT:
             settings.stream() << "VkShaderCreateInfoEXT\n";
             break;
-        case 1000484000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
             settings.stream() << "VkPhysicalDeviceTilePropertiesFeaturesQCOM\n";
             break;
-        case 1000484001:
+        case VK_STRUCTURE_TYPE_TILE_PROPERTIES_QCOM:
             settings.stream() << "VkTilePropertiesQCOM\n";
             break;
-        case 1000485000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC:
             settings.stream() << "VkPhysicalDeviceAmigoProfilingFeaturesSEC\n";
             break;
-        case 1000485001:
+        case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
             settings.stream() << "VkAmigoProfilingSubmitInfoSEC\n";
             break;
-        case 1000488000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM:
             settings.stream() << "VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM\n";
             break;
-        case 1000490001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV\n";
             break;
-        case 1000490000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV\n";
             break;
-        case 1000491001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceCooperativeVectorPropertiesNV\n";
             break;
-        case 1000491000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceCooperativeVectorFeaturesNV\n";
             break;
-        case 1000491002:
+        case VK_STRUCTURE_TYPE_COOPERATIVE_VECTOR_PROPERTIES_NV:
             settings.stream() << "VkCooperativeVectorPropertiesNV\n";
             break;
-        case 1000491004:
+        case VK_STRUCTURE_TYPE_CONVERT_COOPERATIVE_VECTOR_MATRIX_INFO_NV:
             settings.stream() << "VkConvertCooperativeVectorMatrixInfoNV\n";
             break;
-        case 1000492000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV\n";
             break;
-        case 1000492001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV\n";
             break;
-        case 1000495000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT\n";
             break;
-        case 1000495001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT\n";
             break;
-        case 1000496000:
+        case VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT:
             settings.stream() << "VkLayerSettingsCreateInfoEXT\n";
             break;
-        case 1000497000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
             settings.stream() << "VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM\n";
             break;
-        case 1000497001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM:
             settings.stream() << "VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM\n";
             break;
-        case 1000498000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
             settings.stream() << "VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT\n";
             break;
-        case 1000499000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT\n";
             break;
-        case 1000505000:
+        case VK_STRUCTURE_TYPE_LATENCY_SLEEP_MODE_INFO_NV:
             settings.stream() << "VkLatencySleepModeInfoNV\n";
             break;
-        case 1000505001:
+        case VK_STRUCTURE_TYPE_LATENCY_SLEEP_INFO_NV:
             settings.stream() << "VkLatencySleepInfoNV\n";
             break;
-        case 1000505002:
+        case VK_STRUCTURE_TYPE_SET_LATENCY_MARKER_INFO_NV:
             settings.stream() << "VkSetLatencyMarkerInfoNV\n";
             break;
-        case 1000505004:
+        case VK_STRUCTURE_TYPE_LATENCY_TIMINGS_FRAME_REPORT_NV:
             settings.stream() << "VkLatencyTimingsFrameReportNV\n";
             break;
-        case 1000505003:
+        case VK_STRUCTURE_TYPE_GET_LATENCY_MARKER_INFO_NV:
             settings.stream() << "VkGetLatencyMarkerInfoNV\n";
             break;
-        case 1000505005:
+        case VK_STRUCTURE_TYPE_LATENCY_SUBMISSION_PRESENT_ID_NV:
             settings.stream() << "VkLatencySubmissionPresentIdNV\n";
             break;
-        case 1000505007:
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_LATENCY_CREATE_INFO_NV:
             settings.stream() << "VkSwapchainLatencyCreateInfoNV\n";
             break;
-        case 1000505006:
+        case VK_STRUCTURE_TYPE_OUT_OF_BAND_QUEUE_TYPE_INFO_NV:
             settings.stream() << "VkOutOfBandQueueTypeInfoNV\n";
             break;
-        case 1000505008:
+        case VK_STRUCTURE_TYPE_LATENCY_SURFACE_CAPABILITIES_NV:
             settings.stream() << "VkLatencySurfaceCapabilitiesNV\n";
             break;
-        case 1000510000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM:
             settings.stream() << "VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM\n";
             break;
-        case 1000510001:
+        case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
             settings.stream() << "VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM\n";
             break;
-        case 1000516000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PER_STAGE_DESCRIPTOR_SET_FEATURES_NV:
             settings.stream() << "VkPhysicalDevicePerStageDescriptorSetFeaturesNV\n";
             break;
-        case 1000518000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM:
             settings.stream() << "VkPhysicalDeviceImageProcessing2FeaturesQCOM\n";
             break;
-        case 1000518001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM:
             settings.stream() << "VkPhysicalDeviceImageProcessing2PropertiesQCOM\n";
             break;
-        case 1000518002:
+        case VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM:
             settings.stream() << "VkSamplerBlockMatchWindowCreateInfoQCOM\n";
             break;
-        case 1000519001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM:
             settings.stream() << "VkPhysicalDeviceCubicWeightsFeaturesQCOM\n";
             break;
-        case 1000519000:
+        case VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM:
             settings.stream() << "VkSamplerCubicWeightsCreateInfoQCOM\n";
             break;
-        case 1000519002:
+        case VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM:
             settings.stream() << "VkBlitImageCubicWeightsInfoQCOM\n";
             break;
-        case 1000520000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM:
             settings.stream() << "VkPhysicalDeviceYcbcrDegammaFeaturesQCOM\n";
             break;
-        case 1000520001:
+        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM:
             settings.stream() << "VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM\n";
             break;
-        case 1000521000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM:
             settings.stream() << "VkPhysicalDeviceCubicClampFeaturesQCOM\n";
             break;
-        case 1000524000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT\n";
             break;
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-        case 1000529000:
+        case VK_STRUCTURE_TYPE_SCREEN_BUFFER_PROPERTIES_QNX:
             settings.stream() << "VkScreenBufferPropertiesQNX\n";
             break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-        case 1000529001:
+        case VK_STRUCTURE_TYPE_SCREEN_BUFFER_FORMAT_PROPERTIES_QNX:
             settings.stream() << "VkScreenBufferFormatPropertiesQNX\n";
             break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-        case 1000529002:
+        case VK_STRUCTURE_TYPE_IMPORT_SCREEN_BUFFER_INFO_QNX:
             settings.stream() << "VkImportScreenBufferInfoQNX\n";
             break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-        case 1000529003:
+        case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_QNX:
             settings.stream() << "VkExternalFormatQNX\n";
             break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-        case 1000529004:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_SCREEN_BUFFER_FEATURES_QNX:
             settings.stream() << "VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX\n";
             break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
-        case 1000530000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT:
             settings.stream() << "VkPhysicalDeviceLayeredDriverPropertiesMSFT\n";
             break;
-        case 1000546000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV\n";
             break;
-        case 1000547000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM:
             settings.stream() << "VkPhysicalDeviceTileMemoryHeapFeaturesQCOM\n";
             break;
-        case 1000547001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_PROPERTIES_QCOM:
             settings.stream() << "VkPhysicalDeviceTileMemoryHeapPropertiesQCOM\n";
             break;
-        case 1000547002:
+        case VK_STRUCTURE_TYPE_TILE_MEMORY_REQUIREMENTS_QCOM:
             settings.stream() << "VkTileMemoryRequirementsQCOM\n";
             break;
-        case 1000547003:
+        case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
             settings.stream() << "VkTileMemoryBindInfoQCOM\n";
             break;
-        case 1000547004:
+        case VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM:
             settings.stream() << "VkTileMemorySizeInfoQCOM\n";
             break;
-        case 1000551000:
+        case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_STEREO_CREATE_INFO_NV:
             settings.stream() << "VkDisplaySurfaceStereoCreateInfoNV\n";
             break;
-        case 1000551001:
+        case VK_STRUCTURE_TYPE_DISPLAY_MODE_STEREO_PROPERTIES_NV:
             settings.stream() << "VkDisplayModeStereoPropertiesNV\n";
             break;
-        case 1000555000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceRawAccessChainsFeaturesNV\n";
             break;
-        case 1000556000:
+        case VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_DEVICE_CREATE_INFO_NV:
             settings.stream() << "VkExternalComputeQueueDeviceCreateInfoNV\n";
             break;
-        case 1000556001:
+        case VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_CREATE_INFO_NV:
             settings.stream() << "VkExternalComputeQueueCreateInfoNV\n";
             break;
-        case 1000556002:
+        case VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_DATA_PARAMS_NV:
             settings.stream() << "VkExternalComputeQueueDataParamsNV\n";
             break;
-        case 1000556003:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_COMPUTE_QUEUE_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceExternalComputeQueuePropertiesNV\n";
             break;
-        case 1000559000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMMAND_BUFFER_INHERITANCE_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceCommandBufferInheritanceFeaturesNV\n";
             break;
-        case 1000563000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV\n";
             break;
-        case 1000564000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT\n";
             break;
-        case 1000567000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceShaderFloat8FeaturesEXT\n";
             break;
-        case 1000568000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceRayTracingValidationFeaturesNV\n";
             break;
-        case 1000569000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_ACCELERATION_STRUCTURE_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceClusterAccelerationStructureFeaturesNV\n";
             break;
-        case 1000569001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_ACCELERATION_STRUCTURE_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceClusterAccelerationStructurePropertiesNV\n";
             break;
-        case 1000569002:
+        case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_CLUSTERS_BOTTOM_LEVEL_INPUT_NV:
             settings.stream() << "VkClusterAccelerationStructureClustersBottomLevelInputNV\n";
             break;
-        case 1000569003:
+        case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_TRIANGLE_CLUSTER_INPUT_NV:
             settings.stream() << "VkClusterAccelerationStructureTriangleClusterInputNV\n";
             break;
-        case 1000569004:
+        case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_MOVE_OBJECTS_INPUT_NV:
             settings.stream() << "VkClusterAccelerationStructureMoveObjectsInputNV\n";
             break;
-        case 1000569005:
+        case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_INPUT_INFO_NV:
             settings.stream() << "VkClusterAccelerationStructureInputInfoNV\n";
             break;
-        case 1000569006:
+        case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_COMMANDS_INFO_NV:
             settings.stream() << "VkClusterAccelerationStructureCommandsInfoNV\n";
             break;
-        case 1000150020:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR:
             settings.stream() << "VkAccelerationStructureBuildSizesInfoKHR\n";
             break;
-        case 1000569007:
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CLUSTER_ACCELERATION_STRUCTURE_CREATE_INFO_NV:
             settings.stream() << "VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV\n";
             break;
-        case 1000570000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PARTITIONED_ACCELERATION_STRUCTURE_FEATURES_NV:
             settings.stream() << "VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV\n";
             break;
-        case 1000570001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PARTITIONED_ACCELERATION_STRUCTURE_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV\n";
             break;
-        case 1000570005:
+        case VK_STRUCTURE_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_FLAGS_NV:
             settings.stream() << "VkPartitionedAccelerationStructureFlagsNV\n";
             break;
-        case 1000570002:
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_PARTITIONED_ACCELERATION_STRUCTURE_NV:
             settings.stream() << "VkWriteDescriptorSetPartitionedAccelerationStructureNV\n";
             break;
-        case 1000570003:
+        case VK_STRUCTURE_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCES_INPUT_NV:
             settings.stream() << "VkPartitionedAccelerationStructureInstancesInputNV\n";
             break;
-        case 1000570004:
+        case VK_STRUCTURE_TYPE_BUILD_PARTITIONED_ACCELERATION_STRUCTURE_INFO_NV:
             settings.stream() << "VkBuildPartitionedAccelerationStructureInfoNV\n";
             break;
-        case 1000572000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT\n";
             break;
-        case 1000572001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT\n";
             break;
-        case 1000572002:
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_EXT:
             settings.stream() << "VkGeneratedCommandsMemoryRequirementsInfoEXT\n";
             break;
-        case 1000572010:
+        case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT:
             settings.stream() << "VkIndirectExecutionSetPipelineInfoEXT\n";
             break;
-        case 1000572012:
+        case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_LAYOUT_INFO_EXT:
             settings.stream() << "VkIndirectExecutionSetShaderLayoutInfoEXT\n";
             break;
-        case 1000572011:
+        case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_INFO_EXT:
             settings.stream() << "VkIndirectExecutionSetShaderInfoEXT\n";
             break;
-        case 1000572003:
+        case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_CREATE_INFO_EXT:
             settings.stream() << "VkIndirectExecutionSetCreateInfoEXT\n";
             break;
-        case 1000572004:
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_EXT:
             settings.stream() << "VkGeneratedCommandsInfoEXT\n";
             break;
-        case 1000572008:
+        case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_PIPELINE_EXT:
             settings.stream() << "VkWriteIndirectExecutionSetPipelineEXT\n";
             break;
-        case 1000572007:
+        case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT:
             settings.stream() << "VkIndirectCommandsLayoutTokenEXT\n";
             break;
-        case 1000572006:
+        case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_EXT:
             settings.stream() << "VkIndirectCommandsLayoutCreateInfoEXT\n";
             break;
-        case 1000572013:
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
             settings.stream() << "VkGeneratedCommandsPipelineInfoEXT\n";
             break;
-        case 1000572014:
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
             settings.stream() << "VkGeneratedCommandsShaderInfoEXT\n";
             break;
-        case 1000572009:
+        case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_SHADER_EXT:
             settings.stream() << "VkWriteIndirectExecutionSetShaderEXT\n";
             break;
-        case 1000575000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA:
             settings.stream() << "VkPhysicalDeviceImageAlignmentControlFeaturesMESA\n";
             break;
-        case 1000575001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA:
             settings.stream() << "VkPhysicalDeviceImageAlignmentControlPropertiesMESA\n";
             break;
-        case 1000575002:
+        case VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA:
             settings.stream() << "VkImageAlignmentControlCreateInfoMESA\n";
             break;
-        case 1000582000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceDepthClampControlFeaturesEXT\n";
             break;
-        case 1000582001:
+        case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT:
             settings.stream() << "VkPipelineViewportDepthClampControlCreateInfoEXT\n";
             break;
 #if defined(VK_USE_PLATFORM_OHOS)
-        case 1000587000:
+        case VK_STRUCTURE_TYPE_OH_SURFACE_CREATE_INFO_OHOS:
             settings.stream() << "VkOHSurfaceCreateInfoOHOS\n";
             break;
 #endif // VK_USE_PLATFORM_OHOS
-        case 1000590000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
             settings.stream() << "VkPhysicalDeviceHdrVividFeaturesHUAWEI\n";
             break;
-        case 1000590001:
+        case VK_STRUCTURE_TYPE_HDR_VIVID_DYNAMIC_METADATA_HUAWEI:
             settings.stream() << "VkHdrVividDynamicMetadataHUAWEI\n";
             break;
-        case 1000593001:
+        case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_FLEXIBLE_DIMENSIONS_PROPERTIES_NV:
             settings.stream() << "VkCooperativeMatrixFlexibleDimensionsPropertiesNV\n";
             break;
-        case 1000593000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_FEATURES_NV:
             settings.stream() << "VkPhysicalDeviceCooperativeMatrix2FeaturesNV\n";
             break;
-        case 1000593002:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_PROPERTIES_NV:
             settings.stream() << "VkPhysicalDeviceCooperativeMatrix2PropertiesNV\n";
             break;
-        case 1000596000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_OPACITY_MICROMAP_FEATURES_ARM:
             settings.stream() << "VkPhysicalDevicePipelineOpacityMicromapFeaturesARM\n";
             break;
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000602000:
+        case VK_STRUCTURE_TYPE_IMPORT_MEMORY_METAL_HANDLE_INFO_EXT:
             settings.stream() << "VkImportMemoryMetalHandleInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000602001:
+        case VK_STRUCTURE_TYPE_MEMORY_METAL_HANDLE_PROPERTIES_EXT:
             settings.stream() << "VkMemoryMetalHandlePropertiesEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-        case 1000602002:
+        case VK_STRUCTURE_TYPE_MEMORY_GET_METAL_HANDLE_INFO_EXT:
             settings.stream() << "VkMemoryGetMetalHandleInfoEXT\n";
             break;
 #endif // VK_USE_PLATFORM_METAL_EXT
-        case 1000608000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT\n";
             break;
-        case 1000609000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FORMAT_PACK_FEATURES_ARM:
             settings.stream() << "VkPhysicalDeviceFormatPackFeaturesARM\n";
             break;
-        case 1000611000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_FEATURES_VALVE:
             settings.stream() << "VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE\n";
             break;
-        case 1000611001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_PROPERTIES_VALVE:
             settings.stream() << "VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE\n";
             break;
-        case 1000611002:
+        case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_DENSITY_MAP_LAYERED_CREATE_INFO_VALVE:
             settings.stream() << "VkPipelineFragmentDensityMapLayeredCreateInfoVALVE\n";
             break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000613000:
+        case VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV:
             settings.stream() << "VkSetPresentConfigNV\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-        case 1000613001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_METERING_FEATURES_NV:
             settings.stream() << "VkPhysicalDevicePresentMeteringFeaturesNV\n";
             break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
-        case 1000619003:
+        case VK_STRUCTURE_TYPE_RENDERING_END_INFO_EXT:
             settings.stream() << "VkRenderingEndInfoEXT\n";
             break;
-        case 1000620000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT\n";
             break;
-        case 1000150005:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
             settings.stream() << "VkAccelerationStructureGeometryTrianglesDataKHR\n";
             break;
-        case 1000150003:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR:
             settings.stream() << "VkAccelerationStructureGeometryAabbsDataKHR\n";
             break;
-        case 1000150004:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR:
             settings.stream() << "VkAccelerationStructureGeometryInstancesDataKHR\n";
             break;
-        case 1000150006:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR:
             settings.stream() << "VkAccelerationStructureGeometryKHR\n";
             break;
-        case 1000150000:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR:
             settings.stream() << "VkAccelerationStructureBuildGeometryInfoKHR\n";
             break;
-        case 1000150017:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR:
             settings.stream() << "VkAccelerationStructureCreateInfoKHR\n";
             break;
-        case 1000150007:
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             settings.stream() << "VkWriteDescriptorSetAccelerationStructureKHR\n";
             break;
-        case 1000150013:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceAccelerationStructureFeaturesKHR\n";
             break;
-        case 1000150014:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceAccelerationStructurePropertiesKHR\n";
             break;
-        case 1000150002:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR:
             settings.stream() << "VkAccelerationStructureDeviceAddressInfoKHR\n";
             break;
-        case 1000150009:
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_VERSION_INFO_KHR:
             settings.stream() << "VkAccelerationStructureVersionInfoKHR\n";
             break;
-        case 1000150011:
+        case VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_INFO_KHR:
             settings.stream() << "VkCopyAccelerationStructureToMemoryInfoKHR\n";
             break;
-        case 1000150012:
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_INFO_KHR:
             settings.stream() << "VkCopyMemoryToAccelerationStructureInfoKHR\n";
             break;
-        case 1000150010:
+        case VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR:
             settings.stream() << "VkCopyAccelerationStructureInfoKHR\n";
             break;
-        case 1000150016:
+        case VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR:
             settings.stream() << "VkRayTracingShaderGroupCreateInfoKHR\n";
             break;
-        case 1000150018:
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_INTERFACE_CREATE_INFO_KHR:
             settings.stream() << "VkRayTracingPipelineInterfaceCreateInfoKHR\n";
             break;
-        case 1000150015:
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
             settings.stream() << "VkRayTracingPipelineCreateInfoKHR\n";
             break;
-        case 1000347000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceRayTracingPipelineFeaturesKHR\n";
             break;
-        case 1000347001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR:
             settings.stream() << "VkPhysicalDeviceRayTracingPipelinePropertiesKHR\n";
             break;
-        case 1000348013:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR:
             settings.stream() << "VkPhysicalDeviceRayQueryFeaturesKHR\n";
             break;
-        case 1000328000:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT:
             settings.stream() << "VkPhysicalDeviceMeshShaderFeaturesEXT\n";
             break;
-        case 1000328001:
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT:
             settings.stream() << "VkPhysicalDeviceMeshShaderPropertiesEXT\n";
             break;
         case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
@@ -36586,1757 +36586,1757 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
 {
     const auto* base_struct = reinterpret_cast<const VkBaseInStructure*>(object);
     switch(base_struct->sType) {
-    case 44:
+    case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
         dump_text_pNext<const VkBufferMemoryBarrier>(reinterpret_cast<const VkBufferMemoryBarrier*>(object), settings, "VkBufferMemoryBarrier", indents, dump_text_VkBufferMemoryBarrier);
         break;
-    case 45:
+    case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER:
         dump_text_pNext<const VkImageMemoryBarrier>(reinterpret_cast<const VkImageMemoryBarrier*>(object), settings, "VkImageMemoryBarrier", indents, dump_text_VkImageMemoryBarrier);
         break;
-    case 46:
+    case VK_STRUCTURE_TYPE_MEMORY_BARRIER:
         dump_text_pNext<const VkMemoryBarrier>(reinterpret_cast<const VkMemoryBarrier*>(object), settings, "VkMemoryBarrier", indents, dump_text_VkMemoryBarrier);
         break;
-    case 0:
+    case VK_STRUCTURE_TYPE_APPLICATION_INFO:
         dump_text_pNext<const VkApplicationInfo>(reinterpret_cast<const VkApplicationInfo*>(object), settings, "VkApplicationInfo", indents, dump_text_VkApplicationInfo);
         break;
-    case 1:
+    case VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO:
         dump_text_pNext<const VkInstanceCreateInfo>(reinterpret_cast<const VkInstanceCreateInfo*>(object), settings, "VkInstanceCreateInfo", indents, dump_text_VkInstanceCreateInfo);
         break;
-    case 2:
+    case VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO:
         dump_text_pNext<const VkDeviceQueueCreateInfo>(reinterpret_cast<const VkDeviceQueueCreateInfo*>(object), settings, "VkDeviceQueueCreateInfo", indents, dump_text_VkDeviceQueueCreateInfo);
         break;
-    case 3:
+    case VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO:
         dump_text_pNext<const VkDeviceCreateInfo>(reinterpret_cast<const VkDeviceCreateInfo*>(object), settings, "VkDeviceCreateInfo", indents, dump_text_VkDeviceCreateInfo);
         break;
-    case 4:
+    case VK_STRUCTURE_TYPE_SUBMIT_INFO:
         dump_text_pNext<const VkSubmitInfo>(reinterpret_cast<const VkSubmitInfo*>(object), settings, "VkSubmitInfo", indents, dump_text_VkSubmitInfo);
         break;
-    case 6:
+    case VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE:
         dump_text_pNext<const VkMappedMemoryRange>(reinterpret_cast<const VkMappedMemoryRange*>(object), settings, "VkMappedMemoryRange", indents, dump_text_VkMappedMemoryRange);
         break;
-    case 5:
+    case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO:
         dump_text_pNext<const VkMemoryAllocateInfo>(reinterpret_cast<const VkMemoryAllocateInfo*>(object), settings, "VkMemoryAllocateInfo", indents, dump_text_VkMemoryAllocateInfo);
         break;
-    case 7:
+    case VK_STRUCTURE_TYPE_BIND_SPARSE_INFO:
         dump_text_pNext<const VkBindSparseInfo>(reinterpret_cast<const VkBindSparseInfo*>(object), settings, "VkBindSparseInfo", indents, dump_text_VkBindSparseInfo);
         break;
-    case 8:
+    case VK_STRUCTURE_TYPE_FENCE_CREATE_INFO:
         dump_text_pNext<const VkFenceCreateInfo>(reinterpret_cast<const VkFenceCreateInfo*>(object), settings, "VkFenceCreateInfo", indents, dump_text_VkFenceCreateInfo);
         break;
-    case 9:
+    case VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO:
         dump_text_pNext<const VkSemaphoreCreateInfo>(reinterpret_cast<const VkSemaphoreCreateInfo*>(object), settings, "VkSemaphoreCreateInfo", indents, dump_text_VkSemaphoreCreateInfo);
         break;
-    case 10:
+    case VK_STRUCTURE_TYPE_EVENT_CREATE_INFO:
         dump_text_pNext<const VkEventCreateInfo>(reinterpret_cast<const VkEventCreateInfo*>(object), settings, "VkEventCreateInfo", indents, dump_text_VkEventCreateInfo);
         break;
-    case 11:
+    case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO:
         dump_text_pNext<const VkQueryPoolCreateInfo>(reinterpret_cast<const VkQueryPoolCreateInfo*>(object), settings, "VkQueryPoolCreateInfo", indents, dump_text_VkQueryPoolCreateInfo);
         break;
-    case 12:
+    case VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO:
         dump_text_pNext<const VkBufferCreateInfo>(reinterpret_cast<const VkBufferCreateInfo*>(object), settings, "VkBufferCreateInfo", indents, dump_text_VkBufferCreateInfo);
         break;
-    case 13:
+    case VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO:
         dump_text_pNext<const VkBufferViewCreateInfo>(reinterpret_cast<const VkBufferViewCreateInfo*>(object), settings, "VkBufferViewCreateInfo", indents, dump_text_VkBufferViewCreateInfo);
         break;
-    case 14:
+    case VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO:
         dump_text_pNext<const VkImageCreateInfo>(reinterpret_cast<const VkImageCreateInfo*>(object), settings, "VkImageCreateInfo", indents, dump_text_VkImageCreateInfo);
         break;
-    case 15:
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO:
         dump_text_pNext<const VkImageViewCreateInfo>(reinterpret_cast<const VkImageViewCreateInfo*>(object), settings, "VkImageViewCreateInfo", indents, dump_text_VkImageViewCreateInfo);
         break;
-    case 16:
+    case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
         dump_text_pNext<const VkShaderModuleCreateInfo>(reinterpret_cast<const VkShaderModuleCreateInfo*>(object), settings, "VkShaderModuleCreateInfo", indents, dump_text_VkShaderModuleCreateInfo);
         break;
-    case 17:
+    case VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO:
         dump_text_pNext<const VkPipelineCacheCreateInfo>(reinterpret_cast<const VkPipelineCacheCreateInfo*>(object), settings, "VkPipelineCacheCreateInfo", indents, dump_text_VkPipelineCacheCreateInfo);
         break;
-    case 18:
+    case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO:
         dump_text_pNext<const VkPipelineShaderStageCreateInfo>(reinterpret_cast<const VkPipelineShaderStageCreateInfo*>(object), settings, "VkPipelineShaderStageCreateInfo", indents, dump_text_VkPipelineShaderStageCreateInfo);
         break;
-    case 29:
+    case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
         dump_text_pNext<const VkComputePipelineCreateInfo>(reinterpret_cast<const VkComputePipelineCreateInfo*>(object), settings, "VkComputePipelineCreateInfo", indents, dump_text_VkComputePipelineCreateInfo);
         break;
-    case 19:
+    case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineVertexInputStateCreateInfo>(reinterpret_cast<const VkPipelineVertexInputStateCreateInfo*>(object), settings, "VkPipelineVertexInputStateCreateInfo", indents, dump_text_VkPipelineVertexInputStateCreateInfo);
         break;
-    case 20:
+    case VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineInputAssemblyStateCreateInfo>(reinterpret_cast<const VkPipelineInputAssemblyStateCreateInfo*>(object), settings, "VkPipelineInputAssemblyStateCreateInfo", indents, dump_text_VkPipelineInputAssemblyStateCreateInfo);
         break;
-    case 21:
+    case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineTessellationStateCreateInfo>(reinterpret_cast<const VkPipelineTessellationStateCreateInfo*>(object), settings, "VkPipelineTessellationStateCreateInfo", indents, dump_text_VkPipelineTessellationStateCreateInfo);
         break;
-    case 22:
+    case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineViewportStateCreateInfo>(reinterpret_cast<const VkPipelineViewportStateCreateInfo*>(object), settings, "VkPipelineViewportStateCreateInfo", indents, dump_text_VkPipelineViewportStateCreateInfo);
         break;
-    case 23:
+    case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineRasterizationStateCreateInfo>(reinterpret_cast<const VkPipelineRasterizationStateCreateInfo*>(object), settings, "VkPipelineRasterizationStateCreateInfo", indents, dump_text_VkPipelineRasterizationStateCreateInfo);
         break;
-    case 24:
+    case VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineMultisampleStateCreateInfo>(reinterpret_cast<const VkPipelineMultisampleStateCreateInfo*>(object), settings, "VkPipelineMultisampleStateCreateInfo", indents, dump_text_VkPipelineMultisampleStateCreateInfo);
         break;
-    case 25:
+    case VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineDepthStencilStateCreateInfo>(reinterpret_cast<const VkPipelineDepthStencilStateCreateInfo*>(object), settings, "VkPipelineDepthStencilStateCreateInfo", indents, dump_text_VkPipelineDepthStencilStateCreateInfo);
         break;
-    case 26:
+    case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineColorBlendStateCreateInfo>(reinterpret_cast<const VkPipelineColorBlendStateCreateInfo*>(object), settings, "VkPipelineColorBlendStateCreateInfo", indents, dump_text_VkPipelineColorBlendStateCreateInfo);
         break;
-    case 27:
+    case VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineDynamicStateCreateInfo>(reinterpret_cast<const VkPipelineDynamicStateCreateInfo*>(object), settings, "VkPipelineDynamicStateCreateInfo", indents, dump_text_VkPipelineDynamicStateCreateInfo);
         break;
-    case 28:
+    case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
         dump_text_pNext<const VkGraphicsPipelineCreateInfo>(reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(object), settings, "VkGraphicsPipelineCreateInfo", indents, dump_text_VkGraphicsPipelineCreateInfo);
         break;
-    case 30:
+    case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
         dump_text_pNext<const VkPipelineLayoutCreateInfo>(reinterpret_cast<const VkPipelineLayoutCreateInfo*>(object), settings, "VkPipelineLayoutCreateInfo", indents, dump_text_VkPipelineLayoutCreateInfo);
         break;
-    case 31:
+    case VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO:
         dump_text_pNext<const VkSamplerCreateInfo>(reinterpret_cast<const VkSamplerCreateInfo*>(object), settings, "VkSamplerCreateInfo", indents, dump_text_VkSamplerCreateInfo);
         break;
-    case 36:
+    case VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET:
         dump_text_pNext<const VkCopyDescriptorSet>(reinterpret_cast<const VkCopyDescriptorSet*>(object), settings, "VkCopyDescriptorSet", indents, dump_text_VkCopyDescriptorSet);
         break;
-    case 33:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO:
         dump_text_pNext<const VkDescriptorPoolCreateInfo>(reinterpret_cast<const VkDescriptorPoolCreateInfo*>(object), settings, "VkDescriptorPoolCreateInfo", indents, dump_text_VkDescriptorPoolCreateInfo);
         break;
-    case 34:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO:
         dump_text_pNext<const VkDescriptorSetAllocateInfo>(reinterpret_cast<const VkDescriptorSetAllocateInfo*>(object), settings, "VkDescriptorSetAllocateInfo", indents, dump_text_VkDescriptorSetAllocateInfo);
         break;
-    case 32:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO:
         dump_text_pNext<const VkDescriptorSetLayoutCreateInfo>(reinterpret_cast<const VkDescriptorSetLayoutCreateInfo*>(object), settings, "VkDescriptorSetLayoutCreateInfo", indents, dump_text_VkDescriptorSetLayoutCreateInfo);
         break;
-    case 35:
+    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET:
         dump_text_pNext<const VkWriteDescriptorSet>(reinterpret_cast<const VkWriteDescriptorSet*>(object), settings, "VkWriteDescriptorSet", indents, dump_text_VkWriteDescriptorSet);
         break;
-    case 37:
+    case VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO:
         dump_text_pNext<const VkFramebufferCreateInfo>(reinterpret_cast<const VkFramebufferCreateInfo*>(object), settings, "VkFramebufferCreateInfo", indents, dump_text_VkFramebufferCreateInfo);
         break;
-    case 38:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO:
         dump_text_pNext<const VkRenderPassCreateInfo>(reinterpret_cast<const VkRenderPassCreateInfo*>(object), settings, "VkRenderPassCreateInfo", indents, dump_text_VkRenderPassCreateInfo);
         break;
-    case 39:
+    case VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO:
         dump_text_pNext<const VkCommandPoolCreateInfo>(reinterpret_cast<const VkCommandPoolCreateInfo*>(object), settings, "VkCommandPoolCreateInfo", indents, dump_text_VkCommandPoolCreateInfo);
         break;
-    case 40:
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO:
         dump_text_pNext<const VkCommandBufferAllocateInfo>(reinterpret_cast<const VkCommandBufferAllocateInfo*>(object), settings, "VkCommandBufferAllocateInfo", indents, dump_text_VkCommandBufferAllocateInfo);
         break;
-    case 41:
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO:
         dump_text_pNext<const VkCommandBufferInheritanceInfo>(reinterpret_cast<const VkCommandBufferInheritanceInfo*>(object), settings, "VkCommandBufferInheritanceInfo", indents, dump_text_VkCommandBufferInheritanceInfo);
         break;
-    case 42:
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO:
         dump_text_pNext<const VkCommandBufferBeginInfo>(reinterpret_cast<const VkCommandBufferBeginInfo*>(object), settings, "VkCommandBufferBeginInfo", indents, dump_text_VkCommandBufferBeginInfo);
         break;
-    case 43:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO:
         dump_text_pNext<const VkRenderPassBeginInfo>(reinterpret_cast<const VkRenderPassBeginInfo*>(object), settings, "VkRenderPassBeginInfo", indents, dump_text_VkRenderPassBeginInfo);
         break;
-    case 1000094000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceSubgroupProperties>(reinterpret_cast<const VkPhysicalDeviceSubgroupProperties*>(object), settings, "VkPhysicalDeviceSubgroupProperties", indents, dump_text_VkPhysicalDeviceSubgroupProperties);
         break;
-    case 1000157000:
+    case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO:
         dump_text_pNext<const VkBindBufferMemoryInfo>(reinterpret_cast<const VkBindBufferMemoryInfo*>(object), settings, "VkBindBufferMemoryInfo", indents, dump_text_VkBindBufferMemoryInfo);
         break;
-    case 1000157001:
+    case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO:
         dump_text_pNext<const VkBindImageMemoryInfo>(reinterpret_cast<const VkBindImageMemoryInfo*>(object), settings, "VkBindImageMemoryInfo", indents, dump_text_VkBindImageMemoryInfo);
         break;
-    case 1000083000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES:
         dump_text_pNext<const VkPhysicalDevice16BitStorageFeatures>(reinterpret_cast<const VkPhysicalDevice16BitStorageFeatures*>(object), settings, "VkPhysicalDevice16BitStorageFeatures", indents, dump_text_VkPhysicalDevice16BitStorageFeatures);
         break;
-    case 1000127000:
+    case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS:
         dump_text_pNext<const VkMemoryDedicatedRequirements>(reinterpret_cast<const VkMemoryDedicatedRequirements*>(object), settings, "VkMemoryDedicatedRequirements", indents, dump_text_VkMemoryDedicatedRequirements);
         break;
-    case 1000127001:
+    case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
         dump_text_pNext<const VkMemoryDedicatedAllocateInfo>(reinterpret_cast<const VkMemoryDedicatedAllocateInfo*>(object), settings, "VkMemoryDedicatedAllocateInfo", indents, dump_text_VkMemoryDedicatedAllocateInfo);
         break;
-    case 1000060000:
+    case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO:
         dump_text_pNext<const VkMemoryAllocateFlagsInfo>(reinterpret_cast<const VkMemoryAllocateFlagsInfo*>(object), settings, "VkMemoryAllocateFlagsInfo", indents, dump_text_VkMemoryAllocateFlagsInfo);
         break;
-    case 1000060003:
+    case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
         dump_text_pNext<const VkDeviceGroupRenderPassBeginInfo>(reinterpret_cast<const VkDeviceGroupRenderPassBeginInfo*>(object), settings, "VkDeviceGroupRenderPassBeginInfo", indents, dump_text_VkDeviceGroupRenderPassBeginInfo);
         break;
-    case 1000060004:
+    case VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO:
         dump_text_pNext<const VkDeviceGroupCommandBufferBeginInfo>(reinterpret_cast<const VkDeviceGroupCommandBufferBeginInfo*>(object), settings, "VkDeviceGroupCommandBufferBeginInfo", indents, dump_text_VkDeviceGroupCommandBufferBeginInfo);
         break;
-    case 1000060005:
+    case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO:
         dump_text_pNext<const VkDeviceGroupSubmitInfo>(reinterpret_cast<const VkDeviceGroupSubmitInfo*>(object), settings, "VkDeviceGroupSubmitInfo", indents, dump_text_VkDeviceGroupSubmitInfo);
         break;
-    case 1000060006:
+    case VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO:
         dump_text_pNext<const VkDeviceGroupBindSparseInfo>(reinterpret_cast<const VkDeviceGroupBindSparseInfo*>(object), settings, "VkDeviceGroupBindSparseInfo", indents, dump_text_VkDeviceGroupBindSparseInfo);
         break;
-    case 1000060013:
+    case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO:
         dump_text_pNext<const VkBindBufferMemoryDeviceGroupInfo>(reinterpret_cast<const VkBindBufferMemoryDeviceGroupInfo*>(object), settings, "VkBindBufferMemoryDeviceGroupInfo", indents, dump_text_VkBindBufferMemoryDeviceGroupInfo);
         break;
-    case 1000060014:
+    case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
         dump_text_pNext<const VkBindImageMemoryDeviceGroupInfo>(reinterpret_cast<const VkBindImageMemoryDeviceGroupInfo*>(object), settings, "VkBindImageMemoryDeviceGroupInfo", indents, dump_text_VkBindImageMemoryDeviceGroupInfo);
         break;
-    case 1000070000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceGroupProperties>(reinterpret_cast<const VkPhysicalDeviceGroupProperties*>(object), settings, "VkPhysicalDeviceGroupProperties", indents, dump_text_VkPhysicalDeviceGroupProperties);
         break;
-    case 1000070001:
+    case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
         dump_text_pNext<const VkDeviceGroupDeviceCreateInfo>(reinterpret_cast<const VkDeviceGroupDeviceCreateInfo*>(object), settings, "VkDeviceGroupDeviceCreateInfo", indents, dump_text_VkDeviceGroupDeviceCreateInfo);
         break;
-    case 1000146000:
+    case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2:
         dump_text_pNext<const VkBufferMemoryRequirementsInfo2>(reinterpret_cast<const VkBufferMemoryRequirementsInfo2*>(object), settings, "VkBufferMemoryRequirementsInfo2", indents, dump_text_VkBufferMemoryRequirementsInfo2);
         break;
-    case 1000146001:
+    case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2:
         dump_text_pNext<const VkImageMemoryRequirementsInfo2>(reinterpret_cast<const VkImageMemoryRequirementsInfo2*>(object), settings, "VkImageMemoryRequirementsInfo2", indents, dump_text_VkImageMemoryRequirementsInfo2);
         break;
-    case 1000146002:
+    case VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2:
         dump_text_pNext<const VkImageSparseMemoryRequirementsInfo2>(reinterpret_cast<const VkImageSparseMemoryRequirementsInfo2*>(object), settings, "VkImageSparseMemoryRequirementsInfo2", indents, dump_text_VkImageSparseMemoryRequirementsInfo2);
         break;
-    case 1000146003:
+    case VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2:
         dump_text_pNext<const VkMemoryRequirements2>(reinterpret_cast<const VkMemoryRequirements2*>(object), settings, "VkMemoryRequirements2", indents, dump_text_VkMemoryRequirements2);
         break;
-    case 1000146004:
+    case VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2:
         dump_text_pNext<const VkSparseImageMemoryRequirements2>(reinterpret_cast<const VkSparseImageMemoryRequirements2*>(object), settings, "VkSparseImageMemoryRequirements2", indents, dump_text_VkSparseImageMemoryRequirements2);
         break;
-    case 1000059000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2:
         dump_text_pNext<const VkPhysicalDeviceFeatures2>(reinterpret_cast<const VkPhysicalDeviceFeatures2*>(object), settings, "VkPhysicalDeviceFeatures2", indents, dump_text_VkPhysicalDeviceFeatures2);
         break;
-    case 1000059001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2:
         dump_text_pNext<const VkPhysicalDeviceProperties2>(reinterpret_cast<const VkPhysicalDeviceProperties2*>(object), settings, "VkPhysicalDeviceProperties2", indents, dump_text_VkPhysicalDeviceProperties2);
         break;
-    case 1000059002:
+    case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2:
         dump_text_pNext<const VkFormatProperties2>(reinterpret_cast<const VkFormatProperties2*>(object), settings, "VkFormatProperties2", indents, dump_text_VkFormatProperties2);
         break;
-    case 1000059003:
+    case VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2:
         dump_text_pNext<const VkImageFormatProperties2>(reinterpret_cast<const VkImageFormatProperties2*>(object), settings, "VkImageFormatProperties2", indents, dump_text_VkImageFormatProperties2);
         break;
-    case 1000059004:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2:
         dump_text_pNext<const VkPhysicalDeviceImageFormatInfo2>(reinterpret_cast<const VkPhysicalDeviceImageFormatInfo2*>(object), settings, "VkPhysicalDeviceImageFormatInfo2", indents, dump_text_VkPhysicalDeviceImageFormatInfo2);
         break;
-    case 1000059005:
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2:
         dump_text_pNext<const VkQueueFamilyProperties2>(reinterpret_cast<const VkQueueFamilyProperties2*>(object), settings, "VkQueueFamilyProperties2", indents, dump_text_VkQueueFamilyProperties2);
         break;
-    case 1000059006:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2:
         dump_text_pNext<const VkPhysicalDeviceMemoryProperties2>(reinterpret_cast<const VkPhysicalDeviceMemoryProperties2*>(object), settings, "VkPhysicalDeviceMemoryProperties2", indents, dump_text_VkPhysicalDeviceMemoryProperties2);
         break;
-    case 1000059007:
+    case VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2:
         dump_text_pNext<const VkSparseImageFormatProperties2>(reinterpret_cast<const VkSparseImageFormatProperties2*>(object), settings, "VkSparseImageFormatProperties2", indents, dump_text_VkSparseImageFormatProperties2);
         break;
-    case 1000059008:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2:
         dump_text_pNext<const VkPhysicalDeviceSparseImageFormatInfo2>(reinterpret_cast<const VkPhysicalDeviceSparseImageFormatInfo2*>(object), settings, "VkPhysicalDeviceSparseImageFormatInfo2", indents, dump_text_VkPhysicalDeviceSparseImageFormatInfo2);
         break;
-    case 1000117000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES:
         dump_text_pNext<const VkPhysicalDevicePointClippingProperties>(reinterpret_cast<const VkPhysicalDevicePointClippingProperties*>(object), settings, "VkPhysicalDevicePointClippingProperties", indents, dump_text_VkPhysicalDevicePointClippingProperties);
         break;
-    case 1000117001:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO:
         dump_text_pNext<const VkRenderPassInputAttachmentAspectCreateInfo>(reinterpret_cast<const VkRenderPassInputAttachmentAspectCreateInfo*>(object), settings, "VkRenderPassInputAttachmentAspectCreateInfo", indents, dump_text_VkRenderPassInputAttachmentAspectCreateInfo);
         break;
-    case 1000117002:
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO:
         dump_text_pNext<const VkImageViewUsageCreateInfo>(reinterpret_cast<const VkImageViewUsageCreateInfo*>(object), settings, "VkImageViewUsageCreateInfo", indents, dump_text_VkImageViewUsageCreateInfo);
         break;
-    case 1000117003:
+    case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineTessellationDomainOriginStateCreateInfo>(reinterpret_cast<const VkPipelineTessellationDomainOriginStateCreateInfo*>(object), settings, "VkPipelineTessellationDomainOriginStateCreateInfo", indents, dump_text_VkPipelineTessellationDomainOriginStateCreateInfo);
         break;
-    case 1000053000:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO:
         dump_text_pNext<const VkRenderPassMultiviewCreateInfo>(reinterpret_cast<const VkRenderPassMultiviewCreateInfo*>(object), settings, "VkRenderPassMultiviewCreateInfo", indents, dump_text_VkRenderPassMultiviewCreateInfo);
         break;
-    case 1000053001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceMultiviewFeatures>(reinterpret_cast<const VkPhysicalDeviceMultiviewFeatures*>(object), settings, "VkPhysicalDeviceMultiviewFeatures", indents, dump_text_VkPhysicalDeviceMultiviewFeatures);
         break;
-    case 1000053002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceMultiviewProperties>(reinterpret_cast<const VkPhysicalDeviceMultiviewProperties*>(object), settings, "VkPhysicalDeviceMultiviewProperties", indents, dump_text_VkPhysicalDeviceMultiviewProperties);
         break;
-    case 1000120000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceVariablePointersFeatures>(reinterpret_cast<const VkPhysicalDeviceVariablePointersFeatures*>(object), settings, "VkPhysicalDeviceVariablePointersFeatures", indents, dump_text_VkPhysicalDeviceVariablePointersFeatures);
         break;
-    case 1000145001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceProtectedMemoryFeatures>(reinterpret_cast<const VkPhysicalDeviceProtectedMemoryFeatures*>(object), settings, "VkPhysicalDeviceProtectedMemoryFeatures", indents, dump_text_VkPhysicalDeviceProtectedMemoryFeatures);
         break;
-    case 1000145002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceProtectedMemoryProperties>(reinterpret_cast<const VkPhysicalDeviceProtectedMemoryProperties*>(object), settings, "VkPhysicalDeviceProtectedMemoryProperties", indents, dump_text_VkPhysicalDeviceProtectedMemoryProperties);
         break;
-    case 1000145003:
+    case VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2:
         dump_text_pNext<const VkDeviceQueueInfo2>(reinterpret_cast<const VkDeviceQueueInfo2*>(object), settings, "VkDeviceQueueInfo2", indents, dump_text_VkDeviceQueueInfo2);
         break;
-    case 1000145000:
+    case VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO:
         dump_text_pNext<const VkProtectedSubmitInfo>(reinterpret_cast<const VkProtectedSubmitInfo*>(object), settings, "VkProtectedSubmitInfo", indents, dump_text_VkProtectedSubmitInfo);
         break;
-    case 1000156000:
+    case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO:
         dump_text_pNext<const VkSamplerYcbcrConversionCreateInfo>(reinterpret_cast<const VkSamplerYcbcrConversionCreateInfo*>(object), settings, "VkSamplerYcbcrConversionCreateInfo", indents, dump_text_VkSamplerYcbcrConversionCreateInfo);
         break;
-    case 1000156001:
+    case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
         dump_text_pNext<const VkSamplerYcbcrConversionInfo>(reinterpret_cast<const VkSamplerYcbcrConversionInfo*>(object), settings, "VkSamplerYcbcrConversionInfo", indents, dump_text_VkSamplerYcbcrConversionInfo);
         break;
-    case 1000156002:
+    case VK_STRUCTURE_TYPE_BIND_IMAGE_PLANE_MEMORY_INFO:
         dump_text_pNext<const VkBindImagePlaneMemoryInfo>(reinterpret_cast<const VkBindImagePlaneMemoryInfo*>(object), settings, "VkBindImagePlaneMemoryInfo", indents, dump_text_VkBindImagePlaneMemoryInfo);
         break;
-    case 1000156003:
+    case VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO:
         dump_text_pNext<const VkImagePlaneMemoryRequirementsInfo>(reinterpret_cast<const VkImagePlaneMemoryRequirementsInfo*>(object), settings, "VkImagePlaneMemoryRequirementsInfo", indents, dump_text_VkImagePlaneMemoryRequirementsInfo);
         break;
-    case 1000156004:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceSamplerYcbcrConversionFeatures>(reinterpret_cast<const VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(object), settings, "VkPhysicalDeviceSamplerYcbcrConversionFeatures", indents, dump_text_VkPhysicalDeviceSamplerYcbcrConversionFeatures);
         break;
-    case 1000156005:
+    case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES:
         dump_text_pNext<const VkSamplerYcbcrConversionImageFormatProperties>(reinterpret_cast<const VkSamplerYcbcrConversionImageFormatProperties*>(object), settings, "VkSamplerYcbcrConversionImageFormatProperties", indents, dump_text_VkSamplerYcbcrConversionImageFormatProperties);
         break;
-    case 1000085000:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO:
         dump_text_pNext<const VkDescriptorUpdateTemplateCreateInfo>(reinterpret_cast<const VkDescriptorUpdateTemplateCreateInfo*>(object), settings, "VkDescriptorUpdateTemplateCreateInfo", indents, dump_text_VkDescriptorUpdateTemplateCreateInfo);
         break;
-    case 1000071000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO:
         dump_text_pNext<const VkPhysicalDeviceExternalImageFormatInfo>(reinterpret_cast<const VkPhysicalDeviceExternalImageFormatInfo*>(object), settings, "VkPhysicalDeviceExternalImageFormatInfo", indents, dump_text_VkPhysicalDeviceExternalImageFormatInfo);
         break;
-    case 1000071001:
+    case VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES:
         dump_text_pNext<const VkExternalImageFormatProperties>(reinterpret_cast<const VkExternalImageFormatProperties*>(object), settings, "VkExternalImageFormatProperties", indents, dump_text_VkExternalImageFormatProperties);
         break;
-    case 1000071002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO:
         dump_text_pNext<const VkPhysicalDeviceExternalBufferInfo>(reinterpret_cast<const VkPhysicalDeviceExternalBufferInfo*>(object), settings, "VkPhysicalDeviceExternalBufferInfo", indents, dump_text_VkPhysicalDeviceExternalBufferInfo);
         break;
-    case 1000071003:
+    case VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES:
         dump_text_pNext<const VkExternalBufferProperties>(reinterpret_cast<const VkExternalBufferProperties*>(object), settings, "VkExternalBufferProperties", indents, dump_text_VkExternalBufferProperties);
         break;
-    case 1000071004:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceIDProperties>(reinterpret_cast<const VkPhysicalDeviceIDProperties*>(object), settings, "VkPhysicalDeviceIDProperties", indents, dump_text_VkPhysicalDeviceIDProperties);
         break;
-    case 1000072001:
+    case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO:
         dump_text_pNext<const VkExternalMemoryImageCreateInfo>(reinterpret_cast<const VkExternalMemoryImageCreateInfo*>(object), settings, "VkExternalMemoryImageCreateInfo", indents, dump_text_VkExternalMemoryImageCreateInfo);
         break;
-    case 1000072000:
+    case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO:
         dump_text_pNext<const VkExternalMemoryBufferCreateInfo>(reinterpret_cast<const VkExternalMemoryBufferCreateInfo*>(object), settings, "VkExternalMemoryBufferCreateInfo", indents, dump_text_VkExternalMemoryBufferCreateInfo);
         break;
-    case 1000072002:
+    case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO:
         dump_text_pNext<const VkExportMemoryAllocateInfo>(reinterpret_cast<const VkExportMemoryAllocateInfo*>(object), settings, "VkExportMemoryAllocateInfo", indents, dump_text_VkExportMemoryAllocateInfo);
         break;
-    case 1000112000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO:
         dump_text_pNext<const VkPhysicalDeviceExternalFenceInfo>(reinterpret_cast<const VkPhysicalDeviceExternalFenceInfo*>(object), settings, "VkPhysicalDeviceExternalFenceInfo", indents, dump_text_VkPhysicalDeviceExternalFenceInfo);
         break;
-    case 1000112001:
+    case VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES:
         dump_text_pNext<const VkExternalFenceProperties>(reinterpret_cast<const VkExternalFenceProperties*>(object), settings, "VkExternalFenceProperties", indents, dump_text_VkExternalFenceProperties);
         break;
-    case 1000113000:
+    case VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO:
         dump_text_pNext<const VkExportFenceCreateInfo>(reinterpret_cast<const VkExportFenceCreateInfo*>(object), settings, "VkExportFenceCreateInfo", indents, dump_text_VkExportFenceCreateInfo);
         break;
-    case 1000077000:
+    case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO:
         dump_text_pNext<const VkExportSemaphoreCreateInfo>(reinterpret_cast<const VkExportSemaphoreCreateInfo*>(object), settings, "VkExportSemaphoreCreateInfo", indents, dump_text_VkExportSemaphoreCreateInfo);
         break;
-    case 1000076000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO:
         dump_text_pNext<const VkPhysicalDeviceExternalSemaphoreInfo>(reinterpret_cast<const VkPhysicalDeviceExternalSemaphoreInfo*>(object), settings, "VkPhysicalDeviceExternalSemaphoreInfo", indents, dump_text_VkPhysicalDeviceExternalSemaphoreInfo);
         break;
-    case 1000076001:
+    case VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES:
         dump_text_pNext<const VkExternalSemaphoreProperties>(reinterpret_cast<const VkExternalSemaphoreProperties*>(object), settings, "VkExternalSemaphoreProperties", indents, dump_text_VkExternalSemaphoreProperties);
         break;
-    case 1000168000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceMaintenance3Properties>(reinterpret_cast<const VkPhysicalDeviceMaintenance3Properties*>(object), settings, "VkPhysicalDeviceMaintenance3Properties", indents, dump_text_VkPhysicalDeviceMaintenance3Properties);
         break;
-    case 1000168001:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_SUPPORT:
         dump_text_pNext<const VkDescriptorSetLayoutSupport>(reinterpret_cast<const VkDescriptorSetLayoutSupport*>(object), settings, "VkDescriptorSetLayoutSupport", indents, dump_text_VkDescriptorSetLayoutSupport);
         break;
-    case 1000063000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceShaderDrawParametersFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderDrawParametersFeatures*>(object), settings, "VkPhysicalDeviceShaderDrawParametersFeatures", indents, dump_text_VkPhysicalDeviceShaderDrawParametersFeatures);
         break;
-    case 49:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceVulkan11Features>(reinterpret_cast<const VkPhysicalDeviceVulkan11Features*>(object), settings, "VkPhysicalDeviceVulkan11Features", indents, dump_text_VkPhysicalDeviceVulkan11Features);
         break;
-    case 50:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceVulkan11Properties>(reinterpret_cast<const VkPhysicalDeviceVulkan11Properties*>(object), settings, "VkPhysicalDeviceVulkan11Properties", indents, dump_text_VkPhysicalDeviceVulkan11Properties);
         break;
-    case 51:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceVulkan12Features>(reinterpret_cast<const VkPhysicalDeviceVulkan12Features*>(object), settings, "VkPhysicalDeviceVulkan12Features", indents, dump_text_VkPhysicalDeviceVulkan12Features);
         break;
-    case 52:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceVulkan12Properties>(reinterpret_cast<const VkPhysicalDeviceVulkan12Properties*>(object), settings, "VkPhysicalDeviceVulkan12Properties", indents, dump_text_VkPhysicalDeviceVulkan12Properties);
         break;
-    case 1000147000:
+    case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO:
         dump_text_pNext<const VkImageFormatListCreateInfo>(reinterpret_cast<const VkImageFormatListCreateInfo*>(object), settings, "VkImageFormatListCreateInfo", indents, dump_text_VkImageFormatListCreateInfo);
         break;
-    case 1000109000:
+    case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2:
         dump_text_pNext<const VkAttachmentDescription2>(reinterpret_cast<const VkAttachmentDescription2*>(object), settings, "VkAttachmentDescription2", indents, dump_text_VkAttachmentDescription2);
         break;
-    case 1000109001:
+    case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2:
         dump_text_pNext<const VkAttachmentReference2>(reinterpret_cast<const VkAttachmentReference2*>(object), settings, "VkAttachmentReference2", indents, dump_text_VkAttachmentReference2);
         break;
-    case 1000109002:
+    case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2:
         dump_text_pNext<const VkSubpassDescription2>(reinterpret_cast<const VkSubpassDescription2*>(object), settings, "VkSubpassDescription2", indents, dump_text_VkSubpassDescription2);
         break;
-    case 1000109003:
+    case VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2:
         dump_text_pNext<const VkSubpassDependency2>(reinterpret_cast<const VkSubpassDependency2*>(object), settings, "VkSubpassDependency2", indents, dump_text_VkSubpassDependency2);
         break;
-    case 1000109004:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2:
         dump_text_pNext<const VkRenderPassCreateInfo2>(reinterpret_cast<const VkRenderPassCreateInfo2*>(object), settings, "VkRenderPassCreateInfo2", indents, dump_text_VkRenderPassCreateInfo2);
         break;
-    case 1000109005:
+    case VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO:
         dump_text_pNext<const VkSubpassBeginInfo>(reinterpret_cast<const VkSubpassBeginInfo*>(object), settings, "VkSubpassBeginInfo", indents, dump_text_VkSubpassBeginInfo);
         break;
-    case 1000109006:
+    case VK_STRUCTURE_TYPE_SUBPASS_END_INFO:
         dump_text_pNext<const VkSubpassEndInfo>(reinterpret_cast<const VkSubpassEndInfo*>(object), settings, "VkSubpassEndInfo", indents, dump_text_VkSubpassEndInfo);
         break;
-    case 1000177000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES:
         dump_text_pNext<const VkPhysicalDevice8BitStorageFeatures>(reinterpret_cast<const VkPhysicalDevice8BitStorageFeatures*>(object), settings, "VkPhysicalDevice8BitStorageFeatures", indents, dump_text_VkPhysicalDevice8BitStorageFeatures);
         break;
-    case 1000196000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceDriverProperties>(reinterpret_cast<const VkPhysicalDeviceDriverProperties*>(object), settings, "VkPhysicalDeviceDriverProperties", indents, dump_text_VkPhysicalDeviceDriverProperties);
         break;
-    case 1000180000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceShaderAtomicInt64Features>(reinterpret_cast<const VkPhysicalDeviceShaderAtomicInt64Features*>(object), settings, "VkPhysicalDeviceShaderAtomicInt64Features", indents, dump_text_VkPhysicalDeviceShaderAtomicInt64Features);
         break;
-    case 1000082000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceShaderFloat16Int8Features>(reinterpret_cast<const VkPhysicalDeviceShaderFloat16Int8Features*>(object), settings, "VkPhysicalDeviceShaderFloat16Int8Features", indents, dump_text_VkPhysicalDeviceShaderFloat16Int8Features);
         break;
-    case 1000197000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceFloatControlsProperties>(reinterpret_cast<const VkPhysicalDeviceFloatControlsProperties*>(object), settings, "VkPhysicalDeviceFloatControlsProperties", indents, dump_text_VkPhysicalDeviceFloatControlsProperties);
         break;
-    case 1000161000:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO:
         dump_text_pNext<const VkDescriptorSetLayoutBindingFlagsCreateInfo>(reinterpret_cast<const VkDescriptorSetLayoutBindingFlagsCreateInfo*>(object), settings, "VkDescriptorSetLayoutBindingFlagsCreateInfo", indents, dump_text_VkDescriptorSetLayoutBindingFlagsCreateInfo);
         break;
-    case 1000161001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceDescriptorIndexingFeatures>(reinterpret_cast<const VkPhysicalDeviceDescriptorIndexingFeatures*>(object), settings, "VkPhysicalDeviceDescriptorIndexingFeatures", indents, dump_text_VkPhysicalDeviceDescriptorIndexingFeatures);
         break;
-    case 1000161002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceDescriptorIndexingProperties>(reinterpret_cast<const VkPhysicalDeviceDescriptorIndexingProperties*>(object), settings, "VkPhysicalDeviceDescriptorIndexingProperties", indents, dump_text_VkPhysicalDeviceDescriptorIndexingProperties);
         break;
-    case 1000161003:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO:
         dump_text_pNext<const VkDescriptorSetVariableDescriptorCountAllocateInfo>(reinterpret_cast<const VkDescriptorSetVariableDescriptorCountAllocateInfo*>(object), settings, "VkDescriptorSetVariableDescriptorCountAllocateInfo", indents, dump_text_VkDescriptorSetVariableDescriptorCountAllocateInfo);
         break;
-    case 1000161004:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT:
         dump_text_pNext<const VkDescriptorSetVariableDescriptorCountLayoutSupport>(reinterpret_cast<const VkDescriptorSetVariableDescriptorCountLayoutSupport*>(object), settings, "VkDescriptorSetVariableDescriptorCountLayoutSupport", indents, dump_text_VkDescriptorSetVariableDescriptorCountLayoutSupport);
         break;
-    case 1000199001:
+    case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE:
         dump_text_pNext<const VkSubpassDescriptionDepthStencilResolve>(reinterpret_cast<const VkSubpassDescriptionDepthStencilResolve*>(object), settings, "VkSubpassDescriptionDepthStencilResolve", indents, dump_text_VkSubpassDescriptionDepthStencilResolve);
         break;
-    case 1000199000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceDepthStencilResolveProperties>(reinterpret_cast<const VkPhysicalDeviceDepthStencilResolveProperties*>(object), settings, "VkPhysicalDeviceDepthStencilResolveProperties", indents, dump_text_VkPhysicalDeviceDepthStencilResolveProperties);
         break;
-    case 1000221000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceScalarBlockLayoutFeatures>(reinterpret_cast<const VkPhysicalDeviceScalarBlockLayoutFeatures*>(object), settings, "VkPhysicalDeviceScalarBlockLayoutFeatures", indents, dump_text_VkPhysicalDeviceScalarBlockLayoutFeatures);
         break;
-    case 1000246000:
+    case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO:
         dump_text_pNext<const VkImageStencilUsageCreateInfo>(reinterpret_cast<const VkImageStencilUsageCreateInfo*>(object), settings, "VkImageStencilUsageCreateInfo", indents, dump_text_VkImageStencilUsageCreateInfo);
         break;
-    case 1000130001:
+    case VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO:
         dump_text_pNext<const VkSamplerReductionModeCreateInfo>(reinterpret_cast<const VkSamplerReductionModeCreateInfo*>(object), settings, "VkSamplerReductionModeCreateInfo", indents, dump_text_VkSamplerReductionModeCreateInfo);
         break;
-    case 1000130000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceSamplerFilterMinmaxProperties>(reinterpret_cast<const VkPhysicalDeviceSamplerFilterMinmaxProperties*>(object), settings, "VkPhysicalDeviceSamplerFilterMinmaxProperties", indents, dump_text_VkPhysicalDeviceSamplerFilterMinmaxProperties);
         break;
-    case 1000211000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceVulkanMemoryModelFeatures>(reinterpret_cast<const VkPhysicalDeviceVulkanMemoryModelFeatures*>(object), settings, "VkPhysicalDeviceVulkanMemoryModelFeatures", indents, dump_text_VkPhysicalDeviceVulkanMemoryModelFeatures);
         break;
-    case 1000108000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceImagelessFramebufferFeatures>(reinterpret_cast<const VkPhysicalDeviceImagelessFramebufferFeatures*>(object), settings, "VkPhysicalDeviceImagelessFramebufferFeatures", indents, dump_text_VkPhysicalDeviceImagelessFramebufferFeatures);
         break;
-    case 1000108002:
+    case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENT_IMAGE_INFO:
         dump_text_pNext<const VkFramebufferAttachmentImageInfo>(reinterpret_cast<const VkFramebufferAttachmentImageInfo*>(object), settings, "VkFramebufferAttachmentImageInfo", indents, dump_text_VkFramebufferAttachmentImageInfo);
         break;
-    case 1000108001:
+    case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO:
         dump_text_pNext<const VkFramebufferAttachmentsCreateInfo>(reinterpret_cast<const VkFramebufferAttachmentsCreateInfo*>(object), settings, "VkFramebufferAttachmentsCreateInfo", indents, dump_text_VkFramebufferAttachmentsCreateInfo);
         break;
-    case 1000108003:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
         dump_text_pNext<const VkRenderPassAttachmentBeginInfo>(reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(object), settings, "VkRenderPassAttachmentBeginInfo", indents, dump_text_VkRenderPassAttachmentBeginInfo);
         break;
-    case 1000253000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFORM_BUFFER_STANDARD_LAYOUT_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceUniformBufferStandardLayoutFeatures>(reinterpret_cast<const VkPhysicalDeviceUniformBufferStandardLayoutFeatures*>(object), settings, "VkPhysicalDeviceUniformBufferStandardLayoutFeatures", indents, dump_text_VkPhysicalDeviceUniformBufferStandardLayoutFeatures);
         break;
-    case 1000175000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures*>(object), settings, "VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures", indents, dump_text_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures);
         break;
-    case 1000241000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures>(reinterpret_cast<const VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures*>(object), settings, "VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures", indents, dump_text_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures);
         break;
-    case 1000241001:
+    case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT:
         dump_text_pNext<const VkAttachmentReferenceStencilLayout>(reinterpret_cast<const VkAttachmentReferenceStencilLayout*>(object), settings, "VkAttachmentReferenceStencilLayout", indents, dump_text_VkAttachmentReferenceStencilLayout);
         break;
-    case 1000241002:
+    case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_STENCIL_LAYOUT:
         dump_text_pNext<const VkAttachmentDescriptionStencilLayout>(reinterpret_cast<const VkAttachmentDescriptionStencilLayout*>(object), settings, "VkAttachmentDescriptionStencilLayout", indents, dump_text_VkAttachmentDescriptionStencilLayout);
         break;
-    case 1000261000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceHostQueryResetFeatures>(reinterpret_cast<const VkPhysicalDeviceHostQueryResetFeatures*>(object), settings, "VkPhysicalDeviceHostQueryResetFeatures", indents, dump_text_VkPhysicalDeviceHostQueryResetFeatures);
         break;
-    case 1000207000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceTimelineSemaphoreFeatures>(reinterpret_cast<const VkPhysicalDeviceTimelineSemaphoreFeatures*>(object), settings, "VkPhysicalDeviceTimelineSemaphoreFeatures", indents, dump_text_VkPhysicalDeviceTimelineSemaphoreFeatures);
         break;
-    case 1000207001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceTimelineSemaphoreProperties>(reinterpret_cast<const VkPhysicalDeviceTimelineSemaphoreProperties*>(object), settings, "VkPhysicalDeviceTimelineSemaphoreProperties", indents, dump_text_VkPhysicalDeviceTimelineSemaphoreProperties);
         break;
-    case 1000207002:
+    case VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO:
         dump_text_pNext<const VkSemaphoreTypeCreateInfo>(reinterpret_cast<const VkSemaphoreTypeCreateInfo*>(object), settings, "VkSemaphoreTypeCreateInfo", indents, dump_text_VkSemaphoreTypeCreateInfo);
         break;
-    case 1000207003:
+    case VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO:
         dump_text_pNext<const VkTimelineSemaphoreSubmitInfo>(reinterpret_cast<const VkTimelineSemaphoreSubmitInfo*>(object), settings, "VkTimelineSemaphoreSubmitInfo", indents, dump_text_VkTimelineSemaphoreSubmitInfo);
         break;
-    case 1000207004:
+    case VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO:
         dump_text_pNext<const VkSemaphoreWaitInfo>(reinterpret_cast<const VkSemaphoreWaitInfo*>(object), settings, "VkSemaphoreWaitInfo", indents, dump_text_VkSemaphoreWaitInfo);
         break;
-    case 1000207005:
+    case VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO:
         dump_text_pNext<const VkSemaphoreSignalInfo>(reinterpret_cast<const VkSemaphoreSignalInfo*>(object), settings, "VkSemaphoreSignalInfo", indents, dump_text_VkSemaphoreSignalInfo);
         break;
-    case 1000257000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceBufferDeviceAddressFeatures>(reinterpret_cast<const VkPhysicalDeviceBufferDeviceAddressFeatures*>(object), settings, "VkPhysicalDeviceBufferDeviceAddressFeatures", indents, dump_text_VkPhysicalDeviceBufferDeviceAddressFeatures);
         break;
-    case 1000244001:
+    case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO:
         dump_text_pNext<const VkBufferDeviceAddressInfo>(reinterpret_cast<const VkBufferDeviceAddressInfo*>(object), settings, "VkBufferDeviceAddressInfo", indents, dump_text_VkBufferDeviceAddressInfo);
         break;
-    case 1000257002:
+    case VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO:
         dump_text_pNext<const VkBufferOpaqueCaptureAddressCreateInfo>(reinterpret_cast<const VkBufferOpaqueCaptureAddressCreateInfo*>(object), settings, "VkBufferOpaqueCaptureAddressCreateInfo", indents, dump_text_VkBufferOpaqueCaptureAddressCreateInfo);
         break;
-    case 1000257003:
+    case VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO:
         dump_text_pNext<const VkMemoryOpaqueCaptureAddressAllocateInfo>(reinterpret_cast<const VkMemoryOpaqueCaptureAddressAllocateInfo*>(object), settings, "VkMemoryOpaqueCaptureAddressAllocateInfo", indents, dump_text_VkMemoryOpaqueCaptureAddressAllocateInfo);
         break;
-    case 1000257004:
+    case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO:
         dump_text_pNext<const VkDeviceMemoryOpaqueCaptureAddressInfo>(reinterpret_cast<const VkDeviceMemoryOpaqueCaptureAddressInfo*>(object), settings, "VkDeviceMemoryOpaqueCaptureAddressInfo", indents, dump_text_VkDeviceMemoryOpaqueCaptureAddressInfo);
         break;
-    case 53:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceVulkan13Features>(reinterpret_cast<const VkPhysicalDeviceVulkan13Features*>(object), settings, "VkPhysicalDeviceVulkan13Features", indents, dump_text_VkPhysicalDeviceVulkan13Features);
         break;
-    case 54:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceVulkan13Properties>(reinterpret_cast<const VkPhysicalDeviceVulkan13Properties*>(object), settings, "VkPhysicalDeviceVulkan13Properties", indents, dump_text_VkPhysicalDeviceVulkan13Properties);
         break;
-    case 1000192000:
+    case VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO:
         dump_text_pNext<const VkPipelineCreationFeedbackCreateInfo>(reinterpret_cast<const VkPipelineCreationFeedbackCreateInfo*>(object), settings, "VkPipelineCreationFeedbackCreateInfo", indents, dump_text_VkPipelineCreationFeedbackCreateInfo);
         break;
-    case 1000215000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceShaderTerminateInvocationFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderTerminateInvocationFeatures*>(object), settings, "VkPhysicalDeviceShaderTerminateInvocationFeatures", indents, dump_text_VkPhysicalDeviceShaderTerminateInvocationFeatures);
         break;
-    case 1000245000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceToolProperties>(reinterpret_cast<const VkPhysicalDeviceToolProperties*>(object), settings, "VkPhysicalDeviceToolProperties", indents, dump_text_VkPhysicalDeviceToolProperties);
         break;
-    case 1000276000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures*>(object), settings, "VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures", indents, dump_text_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures);
         break;
-    case 1000295000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES:
         dump_text_pNext<const VkPhysicalDevicePrivateDataFeatures>(reinterpret_cast<const VkPhysicalDevicePrivateDataFeatures*>(object), settings, "VkPhysicalDevicePrivateDataFeatures", indents, dump_text_VkPhysicalDevicePrivateDataFeatures);
         break;
-    case 1000295001:
+    case VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO:
         dump_text_pNext<const VkDevicePrivateDataCreateInfo>(reinterpret_cast<const VkDevicePrivateDataCreateInfo*>(object), settings, "VkDevicePrivateDataCreateInfo", indents, dump_text_VkDevicePrivateDataCreateInfo);
         break;
-    case 1000295002:
+    case VK_STRUCTURE_TYPE_PRIVATE_DATA_SLOT_CREATE_INFO:
         dump_text_pNext<const VkPrivateDataSlotCreateInfo>(reinterpret_cast<const VkPrivateDataSlotCreateInfo*>(object), settings, "VkPrivateDataSlotCreateInfo", indents, dump_text_VkPrivateDataSlotCreateInfo);
         break;
-    case 1000297000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES:
         dump_text_pNext<const VkPhysicalDevicePipelineCreationCacheControlFeatures>(reinterpret_cast<const VkPhysicalDevicePipelineCreationCacheControlFeatures*>(object), settings, "VkPhysicalDevicePipelineCreationCacheControlFeatures", indents, dump_text_VkPhysicalDevicePipelineCreationCacheControlFeatures);
         break;
-    case 1000314000:
+    case VK_STRUCTURE_TYPE_MEMORY_BARRIER_2:
         dump_text_pNext<const VkMemoryBarrier2>(reinterpret_cast<const VkMemoryBarrier2*>(object), settings, "VkMemoryBarrier2", indents, dump_text_VkMemoryBarrier2);
         break;
-    case 1000314001:
+    case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2:
         dump_text_pNext<const VkBufferMemoryBarrier2>(reinterpret_cast<const VkBufferMemoryBarrier2*>(object), settings, "VkBufferMemoryBarrier2", indents, dump_text_VkBufferMemoryBarrier2);
         break;
-    case 1000314002:
+    case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2:
         dump_text_pNext<const VkImageMemoryBarrier2>(reinterpret_cast<const VkImageMemoryBarrier2*>(object), settings, "VkImageMemoryBarrier2", indents, dump_text_VkImageMemoryBarrier2);
         break;
-    case 1000314003:
+    case VK_STRUCTURE_TYPE_DEPENDENCY_INFO:
         dump_text_pNext<const VkDependencyInfo>(reinterpret_cast<const VkDependencyInfo*>(object), settings, "VkDependencyInfo", indents, dump_text_VkDependencyInfo);
         break;
-    case 1000314005:
+    case VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO:
         dump_text_pNext<const VkSemaphoreSubmitInfo>(reinterpret_cast<const VkSemaphoreSubmitInfo*>(object), settings, "VkSemaphoreSubmitInfo", indents, dump_text_VkSemaphoreSubmitInfo);
         break;
-    case 1000314006:
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO:
         dump_text_pNext<const VkCommandBufferSubmitInfo>(reinterpret_cast<const VkCommandBufferSubmitInfo*>(object), settings, "VkCommandBufferSubmitInfo", indents, dump_text_VkCommandBufferSubmitInfo);
         break;
-    case 1000314004:
+    case VK_STRUCTURE_TYPE_SUBMIT_INFO_2:
         dump_text_pNext<const VkSubmitInfo2>(reinterpret_cast<const VkSubmitInfo2*>(object), settings, "VkSubmitInfo2", indents, dump_text_VkSubmitInfo2);
         break;
-    case 1000314007:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceSynchronization2Features>(reinterpret_cast<const VkPhysicalDeviceSynchronization2Features*>(object), settings, "VkPhysicalDeviceSynchronization2Features", indents, dump_text_VkPhysicalDeviceSynchronization2Features);
         break;
-    case 1000325000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures>(reinterpret_cast<const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures*>(object), settings, "VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures", indents, dump_text_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures);
         break;
-    case 1000335000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceImageRobustnessFeatures>(reinterpret_cast<const VkPhysicalDeviceImageRobustnessFeatures*>(object), settings, "VkPhysicalDeviceImageRobustnessFeatures", indents, dump_text_VkPhysicalDeviceImageRobustnessFeatures);
         break;
-    case 1000337006:
+    case VK_STRUCTURE_TYPE_BUFFER_COPY_2:
         dump_text_pNext<const VkBufferCopy2>(reinterpret_cast<const VkBufferCopy2*>(object), settings, "VkBufferCopy2", indents, dump_text_VkBufferCopy2);
         break;
-    case 1000337000:
+    case VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2:
         dump_text_pNext<const VkCopyBufferInfo2>(reinterpret_cast<const VkCopyBufferInfo2*>(object), settings, "VkCopyBufferInfo2", indents, dump_text_VkCopyBufferInfo2);
         break;
-    case 1000337007:
+    case VK_STRUCTURE_TYPE_IMAGE_COPY_2:
         dump_text_pNext<const VkImageCopy2>(reinterpret_cast<const VkImageCopy2*>(object), settings, "VkImageCopy2", indents, dump_text_VkImageCopy2);
         break;
-    case 1000337001:
+    case VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2:
         dump_text_pNext<const VkCopyImageInfo2>(reinterpret_cast<const VkCopyImageInfo2*>(object), settings, "VkCopyImageInfo2", indents, dump_text_VkCopyImageInfo2);
         break;
-    case 1000337009:
+    case VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2:
         dump_text_pNext<const VkBufferImageCopy2>(reinterpret_cast<const VkBufferImageCopy2*>(object), settings, "VkBufferImageCopy2", indents, dump_text_VkBufferImageCopy2);
         break;
-    case 1000337002:
+    case VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2:
         dump_text_pNext<const VkCopyBufferToImageInfo2>(reinterpret_cast<const VkCopyBufferToImageInfo2*>(object), settings, "VkCopyBufferToImageInfo2", indents, dump_text_VkCopyBufferToImageInfo2);
         break;
-    case 1000337003:
+    case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2:
         dump_text_pNext<const VkCopyImageToBufferInfo2>(reinterpret_cast<const VkCopyImageToBufferInfo2*>(object), settings, "VkCopyImageToBufferInfo2", indents, dump_text_VkCopyImageToBufferInfo2);
         break;
-    case 1000337008:
+    case VK_STRUCTURE_TYPE_IMAGE_BLIT_2:
         dump_text_pNext<const VkImageBlit2>(reinterpret_cast<const VkImageBlit2*>(object), settings, "VkImageBlit2", indents, dump_text_VkImageBlit2);
         break;
-    case 1000337004:
+    case VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2:
         dump_text_pNext<const VkBlitImageInfo2>(reinterpret_cast<const VkBlitImageInfo2*>(object), settings, "VkBlitImageInfo2", indents, dump_text_VkBlitImageInfo2);
         break;
-    case 1000337010:
+    case VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2:
         dump_text_pNext<const VkImageResolve2>(reinterpret_cast<const VkImageResolve2*>(object), settings, "VkImageResolve2", indents, dump_text_VkImageResolve2);
         break;
-    case 1000337005:
+    case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2:
         dump_text_pNext<const VkResolveImageInfo2>(reinterpret_cast<const VkResolveImageInfo2*>(object), settings, "VkResolveImageInfo2", indents, dump_text_VkResolveImageInfo2);
         break;
-    case 1000225002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceSubgroupSizeControlFeatures>(reinterpret_cast<const VkPhysicalDeviceSubgroupSizeControlFeatures*>(object), settings, "VkPhysicalDeviceSubgroupSizeControlFeatures", indents, dump_text_VkPhysicalDeviceSubgroupSizeControlFeatures);
         break;
-    case 1000225000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceSubgroupSizeControlProperties>(reinterpret_cast<const VkPhysicalDeviceSubgroupSizeControlProperties*>(object), settings, "VkPhysicalDeviceSubgroupSizeControlProperties", indents, dump_text_VkPhysicalDeviceSubgroupSizeControlProperties);
         break;
-    case 1000225001:
+    case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO:
         dump_text_pNext<const VkPipelineShaderStageRequiredSubgroupSizeCreateInfo>(reinterpret_cast<const VkPipelineShaderStageRequiredSubgroupSizeCreateInfo*>(object), settings, "VkPipelineShaderStageRequiredSubgroupSizeCreateInfo", indents, dump_text_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo);
         break;
-    case 1000138000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceInlineUniformBlockFeatures>(reinterpret_cast<const VkPhysicalDeviceInlineUniformBlockFeatures*>(object), settings, "VkPhysicalDeviceInlineUniformBlockFeatures", indents, dump_text_VkPhysicalDeviceInlineUniformBlockFeatures);
         break;
-    case 1000138001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceInlineUniformBlockProperties>(reinterpret_cast<const VkPhysicalDeviceInlineUniformBlockProperties*>(object), settings, "VkPhysicalDeviceInlineUniformBlockProperties", indents, dump_text_VkPhysicalDeviceInlineUniformBlockProperties);
         break;
-    case 1000138002:
+    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK:
         dump_text_pNext<const VkWriteDescriptorSetInlineUniformBlock>(reinterpret_cast<const VkWriteDescriptorSetInlineUniformBlock*>(object), settings, "VkWriteDescriptorSetInlineUniformBlock", indents, dump_text_VkWriteDescriptorSetInlineUniformBlock);
         break;
-    case 1000138003:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO:
         dump_text_pNext<const VkDescriptorPoolInlineUniformBlockCreateInfo>(reinterpret_cast<const VkDescriptorPoolInlineUniformBlockCreateInfo*>(object), settings, "VkDescriptorPoolInlineUniformBlockCreateInfo", indents, dump_text_VkDescriptorPoolInlineUniformBlockCreateInfo);
         break;
-    case 1000066000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceTextureCompressionASTCHDRFeatures>(reinterpret_cast<const VkPhysicalDeviceTextureCompressionASTCHDRFeatures*>(object), settings, "VkPhysicalDeviceTextureCompressionASTCHDRFeatures", indents, dump_text_VkPhysicalDeviceTextureCompressionASTCHDRFeatures);
         break;
-    case 1000044001:
+    case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO:
         dump_text_pNext<const VkRenderingAttachmentInfo>(reinterpret_cast<const VkRenderingAttachmentInfo*>(object), settings, "VkRenderingAttachmentInfo", indents, dump_text_VkRenderingAttachmentInfo);
         break;
-    case 1000044000:
+    case VK_STRUCTURE_TYPE_RENDERING_INFO:
         dump_text_pNext<const VkRenderingInfo>(reinterpret_cast<const VkRenderingInfo*>(object), settings, "VkRenderingInfo", indents, dump_text_VkRenderingInfo);
         break;
-    case 1000044002:
+    case VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO:
         dump_text_pNext<const VkPipelineRenderingCreateInfo>(reinterpret_cast<const VkPipelineRenderingCreateInfo*>(object), settings, "VkPipelineRenderingCreateInfo", indents, dump_text_VkPipelineRenderingCreateInfo);
         break;
-    case 1000044003:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceDynamicRenderingFeatures>(reinterpret_cast<const VkPhysicalDeviceDynamicRenderingFeatures*>(object), settings, "VkPhysicalDeviceDynamicRenderingFeatures", indents, dump_text_VkPhysicalDeviceDynamicRenderingFeatures);
         break;
-    case 1000044004:
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO:
         dump_text_pNext<const VkCommandBufferInheritanceRenderingInfo>(reinterpret_cast<const VkCommandBufferInheritanceRenderingInfo*>(object), settings, "VkCommandBufferInheritanceRenderingInfo", indents, dump_text_VkCommandBufferInheritanceRenderingInfo);
         break;
-    case 1000280000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceShaderIntegerDotProductFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderIntegerDotProductFeatures*>(object), settings, "VkPhysicalDeviceShaderIntegerDotProductFeatures", indents, dump_text_VkPhysicalDeviceShaderIntegerDotProductFeatures);
         break;
-    case 1000280001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceShaderIntegerDotProductProperties>(reinterpret_cast<const VkPhysicalDeviceShaderIntegerDotProductProperties*>(object), settings, "VkPhysicalDeviceShaderIntegerDotProductProperties", indents, dump_text_VkPhysicalDeviceShaderIntegerDotProductProperties);
         break;
-    case 1000281001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceTexelBufferAlignmentProperties>(reinterpret_cast<const VkPhysicalDeviceTexelBufferAlignmentProperties*>(object), settings, "VkPhysicalDeviceTexelBufferAlignmentProperties", indents, dump_text_VkPhysicalDeviceTexelBufferAlignmentProperties);
         break;
-    case 1000360000:
+    case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3:
         dump_text_pNext<const VkFormatProperties3>(reinterpret_cast<const VkFormatProperties3*>(object), settings, "VkFormatProperties3", indents, dump_text_VkFormatProperties3);
         break;
-    case 1000413000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceMaintenance4Features>(reinterpret_cast<const VkPhysicalDeviceMaintenance4Features*>(object), settings, "VkPhysicalDeviceMaintenance4Features", indents, dump_text_VkPhysicalDeviceMaintenance4Features);
         break;
-    case 1000413001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceMaintenance4Properties>(reinterpret_cast<const VkPhysicalDeviceMaintenance4Properties*>(object), settings, "VkPhysicalDeviceMaintenance4Properties", indents, dump_text_VkPhysicalDeviceMaintenance4Properties);
         break;
-    case 1000413002:
+    case VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS:
         dump_text_pNext<const VkDeviceBufferMemoryRequirements>(reinterpret_cast<const VkDeviceBufferMemoryRequirements*>(object), settings, "VkDeviceBufferMemoryRequirements", indents, dump_text_VkDeviceBufferMemoryRequirements);
         break;
-    case 1000413003:
+    case VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS:
         dump_text_pNext<const VkDeviceImageMemoryRequirements>(reinterpret_cast<const VkDeviceImageMemoryRequirements*>(object), settings, "VkDeviceImageMemoryRequirements", indents, dump_text_VkDeviceImageMemoryRequirements);
         break;
-    case 55:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceVulkan14Features>(reinterpret_cast<const VkPhysicalDeviceVulkan14Features*>(object), settings, "VkPhysicalDeviceVulkan14Features", indents, dump_text_VkPhysicalDeviceVulkan14Features);
         break;
-    case 56:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceVulkan14Properties>(reinterpret_cast<const VkPhysicalDeviceVulkan14Properties*>(object), settings, "VkPhysicalDeviceVulkan14Properties", indents, dump_text_VkPhysicalDeviceVulkan14Properties);
         break;
-    case 1000174000:
+    case VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO:
         dump_text_pNext<const VkDeviceQueueGlobalPriorityCreateInfo>(reinterpret_cast<const VkDeviceQueueGlobalPriorityCreateInfo*>(object), settings, "VkDeviceQueueGlobalPriorityCreateInfo", indents, dump_text_VkDeviceQueueGlobalPriorityCreateInfo);
         break;
-    case 1000388000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceGlobalPriorityQueryFeatures>(reinterpret_cast<const VkPhysicalDeviceGlobalPriorityQueryFeatures*>(object), settings, "VkPhysicalDeviceGlobalPriorityQueryFeatures", indents, dump_text_VkPhysicalDeviceGlobalPriorityQueryFeatures);
         break;
-    case 1000388001:
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES:
         dump_text_pNext<const VkQueueFamilyGlobalPriorityProperties>(reinterpret_cast<const VkQueueFamilyGlobalPriorityProperties*>(object), settings, "VkQueueFamilyGlobalPriorityProperties", indents, dump_text_VkQueueFamilyGlobalPriorityProperties);
         break;
-    case 1000416000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceShaderSubgroupRotateFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderSubgroupRotateFeatures*>(object), settings, "VkPhysicalDeviceShaderSubgroupRotateFeatures", indents, dump_text_VkPhysicalDeviceShaderSubgroupRotateFeatures);
         break;
-    case 1000528000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceShaderFloatControls2Features>(reinterpret_cast<const VkPhysicalDeviceShaderFloatControls2Features*>(object), settings, "VkPhysicalDeviceShaderFloatControls2Features", indents, dump_text_VkPhysicalDeviceShaderFloatControls2Features);
         break;
-    case 1000544000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceShaderExpectAssumeFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderExpectAssumeFeatures*>(object), settings, "VkPhysicalDeviceShaderExpectAssumeFeatures", indents, dump_text_VkPhysicalDeviceShaderExpectAssumeFeatures);
         break;
-    case 1000259000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceLineRasterizationFeatures>(reinterpret_cast<const VkPhysicalDeviceLineRasterizationFeatures*>(object), settings, "VkPhysicalDeviceLineRasterizationFeatures", indents, dump_text_VkPhysicalDeviceLineRasterizationFeatures);
         break;
-    case 1000259002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceLineRasterizationProperties>(reinterpret_cast<const VkPhysicalDeviceLineRasterizationProperties*>(object), settings, "VkPhysicalDeviceLineRasterizationProperties", indents, dump_text_VkPhysicalDeviceLineRasterizationProperties);
         break;
-    case 1000259001:
+    case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineRasterizationLineStateCreateInfo>(reinterpret_cast<const VkPipelineRasterizationLineStateCreateInfo*>(object), settings, "VkPipelineRasterizationLineStateCreateInfo", indents, dump_text_VkPipelineRasterizationLineStateCreateInfo);
         break;
-    case 1000525000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceVertexAttributeDivisorProperties>(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorProperties*>(object), settings, "VkPhysicalDeviceVertexAttributeDivisorProperties", indents, dump_text_VkPhysicalDeviceVertexAttributeDivisorProperties);
         break;
-    case 1000190001:
+    case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO:
         dump_text_pNext<const VkPipelineVertexInputDivisorStateCreateInfo>(reinterpret_cast<const VkPipelineVertexInputDivisorStateCreateInfo*>(object), settings, "VkPipelineVertexInputDivisorStateCreateInfo", indents, dump_text_VkPipelineVertexInputDivisorStateCreateInfo);
         break;
-    case 1000190002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceVertexAttributeDivisorFeatures>(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorFeatures*>(object), settings, "VkPhysicalDeviceVertexAttributeDivisorFeatures", indents, dump_text_VkPhysicalDeviceVertexAttributeDivisorFeatures);
         break;
-    case 1000265000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceIndexTypeUint8Features>(reinterpret_cast<const VkPhysicalDeviceIndexTypeUint8Features*>(object), settings, "VkPhysicalDeviceIndexTypeUint8Features", indents, dump_text_VkPhysicalDeviceIndexTypeUint8Features);
         break;
-    case 1000271000:
+    case VK_STRUCTURE_TYPE_MEMORY_MAP_INFO:
         dump_text_pNext<const VkMemoryMapInfo>(reinterpret_cast<const VkMemoryMapInfo*>(object), settings, "VkMemoryMapInfo", indents, dump_text_VkMemoryMapInfo);
         break;
-    case 1000271001:
+    case VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO:
         dump_text_pNext<const VkMemoryUnmapInfo>(reinterpret_cast<const VkMemoryUnmapInfo*>(object), settings, "VkMemoryUnmapInfo", indents, dump_text_VkMemoryUnmapInfo);
         break;
-    case 1000470000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceMaintenance5Features>(reinterpret_cast<const VkPhysicalDeviceMaintenance5Features*>(object), settings, "VkPhysicalDeviceMaintenance5Features", indents, dump_text_VkPhysicalDeviceMaintenance5Features);
         break;
-    case 1000470001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceMaintenance5Properties>(reinterpret_cast<const VkPhysicalDeviceMaintenance5Properties*>(object), settings, "VkPhysicalDeviceMaintenance5Properties", indents, dump_text_VkPhysicalDeviceMaintenance5Properties);
         break;
-    case 1000470003:
+    case VK_STRUCTURE_TYPE_RENDERING_AREA_INFO:
         dump_text_pNext<const VkRenderingAreaInfo>(reinterpret_cast<const VkRenderingAreaInfo*>(object), settings, "VkRenderingAreaInfo", indents, dump_text_VkRenderingAreaInfo);
         break;
-    case 1000338003:
+    case VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2:
         dump_text_pNext<const VkImageSubresource2>(reinterpret_cast<const VkImageSubresource2*>(object), settings, "VkImageSubresource2", indents, dump_text_VkImageSubresource2);
         break;
-    case 1000470004:
+    case VK_STRUCTURE_TYPE_DEVICE_IMAGE_SUBRESOURCE_INFO:
         dump_text_pNext<const VkDeviceImageSubresourceInfo>(reinterpret_cast<const VkDeviceImageSubresourceInfo*>(object), settings, "VkDeviceImageSubresourceInfo", indents, dump_text_VkDeviceImageSubresourceInfo);
         break;
-    case 1000338002:
+    case VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2:
         dump_text_pNext<const VkSubresourceLayout2>(reinterpret_cast<const VkSubresourceLayout2*>(object), settings, "VkSubresourceLayout2", indents, dump_text_VkSubresourceLayout2);
         break;
-    case 1000470005:
+    case VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO:
         dump_text_pNext<const VkPipelineCreateFlags2CreateInfo>(reinterpret_cast<const VkPipelineCreateFlags2CreateInfo*>(object), settings, "VkPipelineCreateFlags2CreateInfo", indents, dump_text_VkPipelineCreateFlags2CreateInfo);
         break;
-    case 1000470006:
+    case VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO:
         dump_text_pNext<const VkBufferUsageFlags2CreateInfo>(reinterpret_cast<const VkBufferUsageFlags2CreateInfo*>(object), settings, "VkBufferUsageFlags2CreateInfo", indents, dump_text_VkBufferUsageFlags2CreateInfo);
         break;
-    case 1000080000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES:
         dump_text_pNext<const VkPhysicalDevicePushDescriptorProperties>(reinterpret_cast<const VkPhysicalDevicePushDescriptorProperties*>(object), settings, "VkPhysicalDevicePushDescriptorProperties", indents, dump_text_VkPhysicalDevicePushDescriptorProperties);
         break;
-    case 1000232000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceDynamicRenderingLocalReadFeatures>(reinterpret_cast<const VkPhysicalDeviceDynamicRenderingLocalReadFeatures*>(object), settings, "VkPhysicalDeviceDynamicRenderingLocalReadFeatures", indents, dump_text_VkPhysicalDeviceDynamicRenderingLocalReadFeatures);
         break;
-    case 1000232001:
+    case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_LOCATION_INFO:
         dump_text_pNext<const VkRenderingAttachmentLocationInfo>(reinterpret_cast<const VkRenderingAttachmentLocationInfo*>(object), settings, "VkRenderingAttachmentLocationInfo", indents, dump_text_VkRenderingAttachmentLocationInfo);
         break;
-    case 1000232002:
+    case VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO:
         dump_text_pNext<const VkRenderingInputAttachmentIndexInfo>(reinterpret_cast<const VkRenderingInputAttachmentIndexInfo*>(object), settings, "VkRenderingInputAttachmentIndexInfo", indents, dump_text_VkRenderingInputAttachmentIndexInfo);
         break;
-    case 1000545000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceMaintenance6Features>(reinterpret_cast<const VkPhysicalDeviceMaintenance6Features*>(object), settings, "VkPhysicalDeviceMaintenance6Features", indents, dump_text_VkPhysicalDeviceMaintenance6Features);
         break;
-    case 1000545001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceMaintenance6Properties>(reinterpret_cast<const VkPhysicalDeviceMaintenance6Properties*>(object), settings, "VkPhysicalDeviceMaintenance6Properties", indents, dump_text_VkPhysicalDeviceMaintenance6Properties);
         break;
-    case 1000545002:
+    case VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS:
         dump_text_pNext<const VkBindMemoryStatus>(reinterpret_cast<const VkBindMemoryStatus*>(object), settings, "VkBindMemoryStatus", indents, dump_text_VkBindMemoryStatus);
         break;
-    case 1000545003:
+    case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO:
         dump_text_pNext<const VkBindDescriptorSetsInfo>(reinterpret_cast<const VkBindDescriptorSetsInfo*>(object), settings, "VkBindDescriptorSetsInfo", indents, dump_text_VkBindDescriptorSetsInfo);
         break;
-    case 1000545004:
+    case VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO:
         dump_text_pNext<const VkPushConstantsInfo>(reinterpret_cast<const VkPushConstantsInfo*>(object), settings, "VkPushConstantsInfo", indents, dump_text_VkPushConstantsInfo);
         break;
-    case 1000545005:
+    case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO:
         dump_text_pNext<const VkPushDescriptorSetInfo>(reinterpret_cast<const VkPushDescriptorSetInfo*>(object), settings, "VkPushDescriptorSetInfo", indents, dump_text_VkPushDescriptorSetInfo);
         break;
-    case 1000545006:
+    case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO:
         dump_text_pNext<const VkPushDescriptorSetWithTemplateInfo>(reinterpret_cast<const VkPushDescriptorSetWithTemplateInfo*>(object), settings, "VkPushDescriptorSetWithTemplateInfo", indents, dump_text_VkPushDescriptorSetWithTemplateInfo);
         break;
-    case 1000466000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES:
         dump_text_pNext<const VkPhysicalDevicePipelineProtectedAccessFeatures>(reinterpret_cast<const VkPhysicalDevicePipelineProtectedAccessFeatures*>(object), settings, "VkPhysicalDevicePipelineProtectedAccessFeatures", indents, dump_text_VkPhysicalDevicePipelineProtectedAccessFeatures);
         break;
-    case 1000068001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES:
         dump_text_pNext<const VkPhysicalDevicePipelineRobustnessFeatures>(reinterpret_cast<const VkPhysicalDevicePipelineRobustnessFeatures*>(object), settings, "VkPhysicalDevicePipelineRobustnessFeatures", indents, dump_text_VkPhysicalDevicePipelineRobustnessFeatures);
         break;
-    case 1000068002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_PROPERTIES:
         dump_text_pNext<const VkPhysicalDevicePipelineRobustnessProperties>(reinterpret_cast<const VkPhysicalDevicePipelineRobustnessProperties*>(object), settings, "VkPhysicalDevicePipelineRobustnessProperties", indents, dump_text_VkPhysicalDevicePipelineRobustnessProperties);
         break;
-    case 1000068000:
+    case VK_STRUCTURE_TYPE_PIPELINE_ROBUSTNESS_CREATE_INFO:
         dump_text_pNext<const VkPipelineRobustnessCreateInfo>(reinterpret_cast<const VkPipelineRobustnessCreateInfo*>(object), settings, "VkPipelineRobustnessCreateInfo", indents, dump_text_VkPipelineRobustnessCreateInfo);
         break;
-    case 1000270000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES:
         dump_text_pNext<const VkPhysicalDeviceHostImageCopyFeatures>(reinterpret_cast<const VkPhysicalDeviceHostImageCopyFeatures*>(object), settings, "VkPhysicalDeviceHostImageCopyFeatures", indents, dump_text_VkPhysicalDeviceHostImageCopyFeatures);
         break;
-    case 1000270001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES:
         dump_text_pNext<const VkPhysicalDeviceHostImageCopyProperties>(reinterpret_cast<const VkPhysicalDeviceHostImageCopyProperties*>(object), settings, "VkPhysicalDeviceHostImageCopyProperties", indents, dump_text_VkPhysicalDeviceHostImageCopyProperties);
         break;
-    case 1000270002:
+    case VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY:
         dump_text_pNext<const VkMemoryToImageCopy>(reinterpret_cast<const VkMemoryToImageCopy*>(object), settings, "VkMemoryToImageCopy", indents, dump_text_VkMemoryToImageCopy);
         break;
-    case 1000270003:
+    case VK_STRUCTURE_TYPE_IMAGE_TO_MEMORY_COPY:
         dump_text_pNext<const VkImageToMemoryCopy>(reinterpret_cast<const VkImageToMemoryCopy*>(object), settings, "VkImageToMemoryCopy", indents, dump_text_VkImageToMemoryCopy);
         break;
-    case 1000270005:
+    case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO:
         dump_text_pNext<const VkCopyMemoryToImageInfo>(reinterpret_cast<const VkCopyMemoryToImageInfo*>(object), settings, "VkCopyMemoryToImageInfo", indents, dump_text_VkCopyMemoryToImageInfo);
         break;
-    case 1000270004:
+    case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_MEMORY_INFO:
         dump_text_pNext<const VkCopyImageToMemoryInfo>(reinterpret_cast<const VkCopyImageToMemoryInfo*>(object), settings, "VkCopyImageToMemoryInfo", indents, dump_text_VkCopyImageToMemoryInfo);
         break;
-    case 1000270007:
+    case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_IMAGE_INFO:
         dump_text_pNext<const VkCopyImageToImageInfo>(reinterpret_cast<const VkCopyImageToImageInfo*>(object), settings, "VkCopyImageToImageInfo", indents, dump_text_VkCopyImageToImageInfo);
         break;
-    case 1000270006:
+    case VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO:
         dump_text_pNext<const VkHostImageLayoutTransitionInfo>(reinterpret_cast<const VkHostImageLayoutTransitionInfo*>(object), settings, "VkHostImageLayoutTransitionInfo", indents, dump_text_VkHostImageLayoutTransitionInfo);
         break;
-    case 1000270008:
+    case VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE:
         dump_text_pNext<const VkSubresourceHostMemcpySize>(reinterpret_cast<const VkSubresourceHostMemcpySize*>(object), settings, "VkSubresourceHostMemcpySize", indents, dump_text_VkSubresourceHostMemcpySize);
         break;
-    case 1000270009:
+    case VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY:
         dump_text_pNext<const VkHostImageCopyDevicePerformanceQuery>(reinterpret_cast<const VkHostImageCopyDevicePerformanceQuery*>(object), settings, "VkHostImageCopyDevicePerformanceQuery", indents, dump_text_VkHostImageCopyDevicePerformanceQuery);
         break;
-    case 1000001000:
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR:
         dump_text_pNext<const VkSwapchainCreateInfoKHR>(reinterpret_cast<const VkSwapchainCreateInfoKHR*>(object), settings, "VkSwapchainCreateInfoKHR", indents, dump_text_VkSwapchainCreateInfoKHR);
         break;
-    case 1000001001:
+    case VK_STRUCTURE_TYPE_PRESENT_INFO_KHR:
         dump_text_pNext<const VkPresentInfoKHR>(reinterpret_cast<const VkPresentInfoKHR*>(object), settings, "VkPresentInfoKHR", indents, dump_text_VkPresentInfoKHR);
         break;
-    case 1000060008:
+    case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
         dump_text_pNext<const VkImageSwapchainCreateInfoKHR>(reinterpret_cast<const VkImageSwapchainCreateInfoKHR*>(object), settings, "VkImageSwapchainCreateInfoKHR", indents, dump_text_VkImageSwapchainCreateInfoKHR);
         break;
-    case 1000060009:
+    case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
         dump_text_pNext<const VkBindImageMemorySwapchainInfoKHR>(reinterpret_cast<const VkBindImageMemorySwapchainInfoKHR*>(object), settings, "VkBindImageMemorySwapchainInfoKHR", indents, dump_text_VkBindImageMemorySwapchainInfoKHR);
         break;
-    case 1000060010:
+    case VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR:
         dump_text_pNext<const VkAcquireNextImageInfoKHR>(reinterpret_cast<const VkAcquireNextImageInfoKHR*>(object), settings, "VkAcquireNextImageInfoKHR", indents, dump_text_VkAcquireNextImageInfoKHR);
         break;
-    case 1000060007:
+    case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_CAPABILITIES_KHR:
         dump_text_pNext<const VkDeviceGroupPresentCapabilitiesKHR>(reinterpret_cast<const VkDeviceGroupPresentCapabilitiesKHR*>(object), settings, "VkDeviceGroupPresentCapabilitiesKHR", indents, dump_text_VkDeviceGroupPresentCapabilitiesKHR);
         break;
-    case 1000060011:
+    case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR:
         dump_text_pNext<const VkDeviceGroupPresentInfoKHR>(reinterpret_cast<const VkDeviceGroupPresentInfoKHR*>(object), settings, "VkDeviceGroupPresentInfoKHR", indents, dump_text_VkDeviceGroupPresentInfoKHR);
         break;
-    case 1000060012:
+    case VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR:
         dump_text_pNext<const VkDeviceGroupSwapchainCreateInfoKHR>(reinterpret_cast<const VkDeviceGroupSwapchainCreateInfoKHR*>(object), settings, "VkDeviceGroupSwapchainCreateInfoKHR", indents, dump_text_VkDeviceGroupSwapchainCreateInfoKHR);
         break;
-    case 1000002000:
+    case VK_STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR:
         dump_text_pNext<const VkDisplayModeCreateInfoKHR>(reinterpret_cast<const VkDisplayModeCreateInfoKHR*>(object), settings, "VkDisplayModeCreateInfoKHR", indents, dump_text_VkDisplayModeCreateInfoKHR);
         break;
-    case 1000002001:
+    case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR:
         dump_text_pNext<const VkDisplaySurfaceCreateInfoKHR>(reinterpret_cast<const VkDisplaySurfaceCreateInfoKHR*>(object), settings, "VkDisplaySurfaceCreateInfoKHR", indents, dump_text_VkDisplaySurfaceCreateInfoKHR);
         break;
-    case 1000003000:
+    case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
         dump_text_pNext<const VkDisplayPresentInfoKHR>(reinterpret_cast<const VkDisplayPresentInfoKHR*>(object), settings, "VkDisplayPresentInfoKHR", indents, dump_text_VkDisplayPresentInfoKHR);
         break;
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-    case 1000004000:
+    case VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR:
         dump_text_pNext<const VkXlibSurfaceCreateInfoKHR>(reinterpret_cast<const VkXlibSurfaceCreateInfoKHR*>(object), settings, "VkXlibSurfaceCreateInfoKHR", indents, dump_text_VkXlibSurfaceCreateInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-    case 1000005000:
+    case VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR:
         dump_text_pNext<const VkXcbSurfaceCreateInfoKHR>(reinterpret_cast<const VkXcbSurfaceCreateInfoKHR*>(object), settings, "VkXcbSurfaceCreateInfoKHR", indents, dump_text_VkXcbSurfaceCreateInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-    case 1000006000:
+    case VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR:
         dump_text_pNext<const VkWaylandSurfaceCreateInfoKHR>(reinterpret_cast<const VkWaylandSurfaceCreateInfoKHR*>(object), settings, "VkWaylandSurfaceCreateInfoKHR", indents, dump_text_VkWaylandSurfaceCreateInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000008000:
+    case VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR:
         dump_text_pNext<const VkAndroidSurfaceCreateInfoKHR>(reinterpret_cast<const VkAndroidSurfaceCreateInfoKHR*>(object), settings, "VkAndroidSurfaceCreateInfoKHR", indents, dump_text_VkAndroidSurfaceCreateInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000009000:
+    case VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR:
         dump_text_pNext<const VkWin32SurfaceCreateInfoKHR>(reinterpret_cast<const VkWin32SurfaceCreateInfoKHR*>(object), settings, "VkWin32SurfaceCreateInfoKHR", indents, dump_text_VkWin32SurfaceCreateInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-    case 1000023016:
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_KHR:
         dump_text_pNext<const VkQueueFamilyQueryResultStatusPropertiesKHR>(reinterpret_cast<const VkQueueFamilyQueryResultStatusPropertiesKHR*>(object), settings, "VkQueueFamilyQueryResultStatusPropertiesKHR", indents, dump_text_VkQueueFamilyQueryResultStatusPropertiesKHR);
         break;
-    case 1000023012:
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_VIDEO_PROPERTIES_KHR:
         dump_text_pNext<const VkQueueFamilyVideoPropertiesKHR>(reinterpret_cast<const VkQueueFamilyVideoPropertiesKHR*>(object), settings, "VkQueueFamilyVideoPropertiesKHR", indents, dump_text_VkQueueFamilyVideoPropertiesKHR);
         break;
-    case 1000023000:
+    case VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR:
         dump_text_pNext<const VkVideoProfileInfoKHR>(reinterpret_cast<const VkVideoProfileInfoKHR*>(object), settings, "VkVideoProfileInfoKHR", indents, dump_text_VkVideoProfileInfoKHR);
         break;
-    case 1000023013:
+    case VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR:
         dump_text_pNext<const VkVideoProfileListInfoKHR>(reinterpret_cast<const VkVideoProfileListInfoKHR*>(object), settings, "VkVideoProfileListInfoKHR", indents, dump_text_VkVideoProfileListInfoKHR);
         break;
-    case 1000023001:
+    case VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoCapabilitiesKHR>(reinterpret_cast<const VkVideoCapabilitiesKHR*>(object), settings, "VkVideoCapabilitiesKHR", indents, dump_text_VkVideoCapabilitiesKHR);
         break;
-    case 1000023014:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_FORMAT_INFO_KHR:
         dump_text_pNext<const VkPhysicalDeviceVideoFormatInfoKHR>(reinterpret_cast<const VkPhysicalDeviceVideoFormatInfoKHR*>(object), settings, "VkPhysicalDeviceVideoFormatInfoKHR", indents, dump_text_VkPhysicalDeviceVideoFormatInfoKHR);
         break;
-    case 1000023015:
+    case VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR:
         dump_text_pNext<const VkVideoFormatPropertiesKHR>(reinterpret_cast<const VkVideoFormatPropertiesKHR*>(object), settings, "VkVideoFormatPropertiesKHR", indents, dump_text_VkVideoFormatPropertiesKHR);
         break;
-    case 1000023002:
+    case VK_STRUCTURE_TYPE_VIDEO_PICTURE_RESOURCE_INFO_KHR:
         dump_text_pNext<const VkVideoPictureResourceInfoKHR>(reinterpret_cast<const VkVideoPictureResourceInfoKHR*>(object), settings, "VkVideoPictureResourceInfoKHR", indents, dump_text_VkVideoPictureResourceInfoKHR);
         break;
-    case 1000023011:
+    case VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR:
         dump_text_pNext<const VkVideoReferenceSlotInfoKHR>(reinterpret_cast<const VkVideoReferenceSlotInfoKHR*>(object), settings, "VkVideoReferenceSlotInfoKHR", indents, dump_text_VkVideoReferenceSlotInfoKHR);
         break;
-    case 1000023003:
+    case VK_STRUCTURE_TYPE_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR:
         dump_text_pNext<const VkVideoSessionMemoryRequirementsKHR>(reinterpret_cast<const VkVideoSessionMemoryRequirementsKHR*>(object), settings, "VkVideoSessionMemoryRequirementsKHR", indents, dump_text_VkVideoSessionMemoryRequirementsKHR);
         break;
-    case 1000023004:
+    case VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR:
         dump_text_pNext<const VkBindVideoSessionMemoryInfoKHR>(reinterpret_cast<const VkBindVideoSessionMemoryInfoKHR*>(object), settings, "VkBindVideoSessionMemoryInfoKHR", indents, dump_text_VkBindVideoSessionMemoryInfoKHR);
         break;
-    case 1000023005:
+    case VK_STRUCTURE_TYPE_VIDEO_SESSION_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoSessionCreateInfoKHR>(reinterpret_cast<const VkVideoSessionCreateInfoKHR*>(object), settings, "VkVideoSessionCreateInfoKHR", indents, dump_text_VkVideoSessionCreateInfoKHR);
         break;
-    case 1000023006:
+    case VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoSessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoSessionParametersCreateInfoKHR*>(object), settings, "VkVideoSessionParametersCreateInfoKHR", indents, dump_text_VkVideoSessionParametersCreateInfoKHR);
         break;
-    case 1000023007:
+    case VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_UPDATE_INFO_KHR:
         dump_text_pNext<const VkVideoSessionParametersUpdateInfoKHR>(reinterpret_cast<const VkVideoSessionParametersUpdateInfoKHR*>(object), settings, "VkVideoSessionParametersUpdateInfoKHR", indents, dump_text_VkVideoSessionParametersUpdateInfoKHR);
         break;
-    case 1000023008:
+    case VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR:
         dump_text_pNext<const VkVideoBeginCodingInfoKHR>(reinterpret_cast<const VkVideoBeginCodingInfoKHR*>(object), settings, "VkVideoBeginCodingInfoKHR", indents, dump_text_VkVideoBeginCodingInfoKHR);
         break;
-    case 1000023009:
+    case VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR:
         dump_text_pNext<const VkVideoEndCodingInfoKHR>(reinterpret_cast<const VkVideoEndCodingInfoKHR*>(object), settings, "VkVideoEndCodingInfoKHR", indents, dump_text_VkVideoEndCodingInfoKHR);
         break;
-    case 1000023010:
+    case VK_STRUCTURE_TYPE_VIDEO_CODING_CONTROL_INFO_KHR:
         dump_text_pNext<const VkVideoCodingControlInfoKHR>(reinterpret_cast<const VkVideoCodingControlInfoKHR*>(object), settings, "VkVideoCodingControlInfoKHR", indents, dump_text_VkVideoCodingControlInfoKHR);
         break;
-    case 1000024001:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoDecodeCapabilitiesKHR>(reinterpret_cast<const VkVideoDecodeCapabilitiesKHR*>(object), settings, "VkVideoDecodeCapabilitiesKHR", indents, dump_text_VkVideoDecodeCapabilitiesKHR);
         break;
-    case 1000024002:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeUsageInfoKHR>(reinterpret_cast<const VkVideoDecodeUsageInfoKHR*>(object), settings, "VkVideoDecodeUsageInfoKHR", indents, dump_text_VkVideoDecodeUsageInfoKHR);
         break;
-    case 1000024000:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeInfoKHR>(reinterpret_cast<const VkVideoDecodeInfoKHR*>(object), settings, "VkVideoDecodeInfoKHR", indents, dump_text_VkVideoDecodeInfoKHR);
         break;
-    case 1000038000:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoEncodeH264CapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeH264CapabilitiesKHR*>(object), settings, "VkVideoEncodeH264CapabilitiesKHR", indents, dump_text_VkVideoEncodeH264CapabilitiesKHR);
         break;
-    case 1000038011:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUALITY_LEVEL_PROPERTIES_KHR:
         dump_text_pNext<const VkVideoEncodeH264QualityLevelPropertiesKHR>(reinterpret_cast<const VkVideoEncodeH264QualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeH264QualityLevelPropertiesKHR", indents, dump_text_VkVideoEncodeH264QualityLevelPropertiesKHR);
         break;
-    case 1000038010:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264SessionCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeH264SessionCreateInfoKHR*>(object), settings, "VkVideoEncodeH264SessionCreateInfoKHR", indents, dump_text_VkVideoEncodeH264SessionCreateInfoKHR);
         break;
-    case 1000038002:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264SessionParametersAddInfoKHR>(reinterpret_cast<const VkVideoEncodeH264SessionParametersAddInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersAddInfoKHR", indents, dump_text_VkVideoEncodeH264SessionParametersAddInfoKHR);
         break;
-    case 1000038001:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeH264SessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersCreateInfoKHR", indents, dump_text_VkVideoEncodeH264SessionParametersCreateInfoKHR);
         break;
-    case 1000038012:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_GET_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264SessionParametersGetInfoKHR>(reinterpret_cast<const VkVideoEncodeH264SessionParametersGetInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersGetInfoKHR", indents, dump_text_VkVideoEncodeH264SessionParametersGetInfoKHR);
         break;
-    case 1000038013:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264SessionParametersFeedbackInfoKHR>(reinterpret_cast<const VkVideoEncodeH264SessionParametersFeedbackInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersFeedbackInfoKHR", indents, dump_text_VkVideoEncodeH264SessionParametersFeedbackInfoKHR);
         break;
-    case 1000038005:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_NALU_SLICE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264NaluSliceInfoKHR>(reinterpret_cast<const VkVideoEncodeH264NaluSliceInfoKHR*>(object), settings, "VkVideoEncodeH264NaluSliceInfoKHR", indents, dump_text_VkVideoEncodeH264NaluSliceInfoKHR);
         break;
-    case 1000038003:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264PictureInfoKHR>(reinterpret_cast<const VkVideoEncodeH264PictureInfoKHR*>(object), settings, "VkVideoEncodeH264PictureInfoKHR", indents, dump_text_VkVideoEncodeH264PictureInfoKHR);
         break;
-    case 1000038004:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264DpbSlotInfoKHR>(reinterpret_cast<const VkVideoEncodeH264DpbSlotInfoKHR*>(object), settings, "VkVideoEncodeH264DpbSlotInfoKHR", indents, dump_text_VkVideoEncodeH264DpbSlotInfoKHR);
         break;
-    case 1000038007:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264ProfileInfoKHR>(reinterpret_cast<const VkVideoEncodeH264ProfileInfoKHR*>(object), settings, "VkVideoEncodeH264ProfileInfoKHR", indents, dump_text_VkVideoEncodeH264ProfileInfoKHR);
         break;
-    case 1000038008:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264RateControlInfoKHR>(reinterpret_cast<const VkVideoEncodeH264RateControlInfoKHR*>(object), settings, "VkVideoEncodeH264RateControlInfoKHR", indents, dump_text_VkVideoEncodeH264RateControlInfoKHR);
         break;
-    case 1000038009:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264RateControlLayerInfoKHR>(reinterpret_cast<const VkVideoEncodeH264RateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeH264RateControlLayerInfoKHR", indents, dump_text_VkVideoEncodeH264RateControlLayerInfoKHR);
         break;
-    case 1000038006:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_GOP_REMAINING_FRAME_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH264GopRemainingFrameInfoKHR>(reinterpret_cast<const VkVideoEncodeH264GopRemainingFrameInfoKHR*>(object), settings, "VkVideoEncodeH264GopRemainingFrameInfoKHR", indents, dump_text_VkVideoEncodeH264GopRemainingFrameInfoKHR);
         break;
-    case 1000039000:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoEncodeH265CapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeH265CapabilitiesKHR*>(object), settings, "VkVideoEncodeH265CapabilitiesKHR", indents, dump_text_VkVideoEncodeH265CapabilitiesKHR);
         break;
-    case 1000039011:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265SessionCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeH265SessionCreateInfoKHR*>(object), settings, "VkVideoEncodeH265SessionCreateInfoKHR", indents, dump_text_VkVideoEncodeH265SessionCreateInfoKHR);
         break;
-    case 1000039012:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_KHR:
         dump_text_pNext<const VkVideoEncodeH265QualityLevelPropertiesKHR>(reinterpret_cast<const VkVideoEncodeH265QualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeH265QualityLevelPropertiesKHR", indents, dump_text_VkVideoEncodeH265QualityLevelPropertiesKHR);
         break;
-    case 1000039002:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265SessionParametersAddInfoKHR>(reinterpret_cast<const VkVideoEncodeH265SessionParametersAddInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersAddInfoKHR", indents, dump_text_VkVideoEncodeH265SessionParametersAddInfoKHR);
         break;
-    case 1000039001:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeH265SessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersCreateInfoKHR", indents, dump_text_VkVideoEncodeH265SessionParametersCreateInfoKHR);
         break;
-    case 1000039013:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265SessionParametersGetInfoKHR>(reinterpret_cast<const VkVideoEncodeH265SessionParametersGetInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersGetInfoKHR", indents, dump_text_VkVideoEncodeH265SessionParametersGetInfoKHR);
         break;
-    case 1000039014:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265SessionParametersFeedbackInfoKHR>(reinterpret_cast<const VkVideoEncodeH265SessionParametersFeedbackInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersFeedbackInfoKHR", indents, dump_text_VkVideoEncodeH265SessionParametersFeedbackInfoKHR);
         break;
-    case 1000039005:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_NALU_SLICE_SEGMENT_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265NaluSliceSegmentInfoKHR>(reinterpret_cast<const VkVideoEncodeH265NaluSliceSegmentInfoKHR*>(object), settings, "VkVideoEncodeH265NaluSliceSegmentInfoKHR", indents, dump_text_VkVideoEncodeH265NaluSliceSegmentInfoKHR);
         break;
-    case 1000039003:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265PictureInfoKHR>(reinterpret_cast<const VkVideoEncodeH265PictureInfoKHR*>(object), settings, "VkVideoEncodeH265PictureInfoKHR", indents, dump_text_VkVideoEncodeH265PictureInfoKHR);
         break;
-    case 1000039004:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265DpbSlotInfoKHR>(reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoKHR*>(object), settings, "VkVideoEncodeH265DpbSlotInfoKHR", indents, dump_text_VkVideoEncodeH265DpbSlotInfoKHR);
         break;
-    case 1000039007:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265ProfileInfoKHR>(reinterpret_cast<const VkVideoEncodeH265ProfileInfoKHR*>(object), settings, "VkVideoEncodeH265ProfileInfoKHR", indents, dump_text_VkVideoEncodeH265ProfileInfoKHR);
         break;
-    case 1000039009:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265RateControlInfoKHR>(reinterpret_cast<const VkVideoEncodeH265RateControlInfoKHR*>(object), settings, "VkVideoEncodeH265RateControlInfoKHR", indents, dump_text_VkVideoEncodeH265RateControlInfoKHR);
         break;
-    case 1000039010:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265RateControlLayerInfoKHR>(reinterpret_cast<const VkVideoEncodeH265RateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeH265RateControlLayerInfoKHR", indents, dump_text_VkVideoEncodeH265RateControlLayerInfoKHR);
         break;
-    case 1000039006:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeH265GopRemainingFrameInfoKHR>(reinterpret_cast<const VkVideoEncodeH265GopRemainingFrameInfoKHR*>(object), settings, "VkVideoEncodeH265GopRemainingFrameInfoKHR", indents, dump_text_VkVideoEncodeH265GopRemainingFrameInfoKHR);
         break;
-    case 1000040003:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH264ProfileInfoKHR>(reinterpret_cast<const VkVideoDecodeH264ProfileInfoKHR*>(object), settings, "VkVideoDecodeH264ProfileInfoKHR", indents, dump_text_VkVideoDecodeH264ProfileInfoKHR);
         break;
-    case 1000040000:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoDecodeH264CapabilitiesKHR>(reinterpret_cast<const VkVideoDecodeH264CapabilitiesKHR*>(object), settings, "VkVideoDecodeH264CapabilitiesKHR", indents, dump_text_VkVideoDecodeH264CapabilitiesKHR);
         break;
-    case 1000040005:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH264SessionParametersAddInfoKHR>(reinterpret_cast<const VkVideoDecodeH264SessionParametersAddInfoKHR*>(object), settings, "VkVideoDecodeH264SessionParametersAddInfoKHR", indents, dump_text_VkVideoDecodeH264SessionParametersAddInfoKHR);
         break;
-    case 1000040004:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH264SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoDecodeH264SessionParametersCreateInfoKHR*>(object), settings, "VkVideoDecodeH264SessionParametersCreateInfoKHR", indents, dump_text_VkVideoDecodeH264SessionParametersCreateInfoKHR);
         break;
-    case 1000040001:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH264PictureInfoKHR>(reinterpret_cast<const VkVideoDecodeH264PictureInfoKHR*>(object), settings, "VkVideoDecodeH264PictureInfoKHR", indents, dump_text_VkVideoDecodeH264PictureInfoKHR);
         break;
-    case 1000040006:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH264DpbSlotInfoKHR>(reinterpret_cast<const VkVideoDecodeH264DpbSlotInfoKHR*>(object), settings, "VkVideoDecodeH264DpbSlotInfoKHR", indents, dump_text_VkVideoDecodeH264DpbSlotInfoKHR);
         break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000073000:
+    case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
         dump_text_pNext<const VkImportMemoryWin32HandleInfoKHR>(reinterpret_cast<const VkImportMemoryWin32HandleInfoKHR*>(object), settings, "VkImportMemoryWin32HandleInfoKHR", indents, dump_text_VkImportMemoryWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000073001:
+    case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
         dump_text_pNext<const VkExportMemoryWin32HandleInfoKHR>(reinterpret_cast<const VkExportMemoryWin32HandleInfoKHR*>(object), settings, "VkExportMemoryWin32HandleInfoKHR", indents, dump_text_VkExportMemoryWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000073002:
+    case VK_STRUCTURE_TYPE_MEMORY_WIN32_HANDLE_PROPERTIES_KHR:
         dump_text_pNext<const VkMemoryWin32HandlePropertiesKHR>(reinterpret_cast<const VkMemoryWin32HandlePropertiesKHR*>(object), settings, "VkMemoryWin32HandlePropertiesKHR", indents, dump_text_VkMemoryWin32HandlePropertiesKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000073003:
+    case VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR:
         dump_text_pNext<const VkMemoryGetWin32HandleInfoKHR>(reinterpret_cast<const VkMemoryGetWin32HandleInfoKHR*>(object), settings, "VkMemoryGetWin32HandleInfoKHR", indents, dump_text_VkMemoryGetWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-    case 1000074000:
+    case VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR:
         dump_text_pNext<const VkImportMemoryFdInfoKHR>(reinterpret_cast<const VkImportMemoryFdInfoKHR*>(object), settings, "VkImportMemoryFdInfoKHR", indents, dump_text_VkImportMemoryFdInfoKHR);
         break;
-    case 1000074001:
+    case VK_STRUCTURE_TYPE_MEMORY_FD_PROPERTIES_KHR:
         dump_text_pNext<const VkMemoryFdPropertiesKHR>(reinterpret_cast<const VkMemoryFdPropertiesKHR*>(object), settings, "VkMemoryFdPropertiesKHR", indents, dump_text_VkMemoryFdPropertiesKHR);
         break;
-    case 1000074002:
+    case VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR:
         dump_text_pNext<const VkMemoryGetFdInfoKHR>(reinterpret_cast<const VkMemoryGetFdInfoKHR*>(object), settings, "VkMemoryGetFdInfoKHR", indents, dump_text_VkMemoryGetFdInfoKHR);
         break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000075000:
+    case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
         dump_text_pNext<const VkWin32KeyedMutexAcquireReleaseInfoKHR>(reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoKHR*>(object), settings, "VkWin32KeyedMutexAcquireReleaseInfoKHR", indents, dump_text_VkWin32KeyedMutexAcquireReleaseInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000078000:
+    case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
         dump_text_pNext<const VkImportSemaphoreWin32HandleInfoKHR>(reinterpret_cast<const VkImportSemaphoreWin32HandleInfoKHR*>(object), settings, "VkImportSemaphoreWin32HandleInfoKHR", indents, dump_text_VkImportSemaphoreWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000078001:
+    case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
         dump_text_pNext<const VkExportSemaphoreWin32HandleInfoKHR>(reinterpret_cast<const VkExportSemaphoreWin32HandleInfoKHR*>(object), settings, "VkExportSemaphoreWin32HandleInfoKHR", indents, dump_text_VkExportSemaphoreWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000078002:
+    case VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR:
         dump_text_pNext<const VkD3D12FenceSubmitInfoKHR>(reinterpret_cast<const VkD3D12FenceSubmitInfoKHR*>(object), settings, "VkD3D12FenceSubmitInfoKHR", indents, dump_text_VkD3D12FenceSubmitInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000078003:
+    case VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR:
         dump_text_pNext<const VkSemaphoreGetWin32HandleInfoKHR>(reinterpret_cast<const VkSemaphoreGetWin32HandleInfoKHR*>(object), settings, "VkSemaphoreGetWin32HandleInfoKHR", indents, dump_text_VkSemaphoreGetWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-    case 1000079000:
+    case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR:
         dump_text_pNext<const VkImportSemaphoreFdInfoKHR>(reinterpret_cast<const VkImportSemaphoreFdInfoKHR*>(object), settings, "VkImportSemaphoreFdInfoKHR", indents, dump_text_VkImportSemaphoreFdInfoKHR);
         break;
-    case 1000079001:
+    case VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR:
         dump_text_pNext<const VkSemaphoreGetFdInfoKHR>(reinterpret_cast<const VkSemaphoreGetFdInfoKHR*>(object), settings, "VkSemaphoreGetFdInfoKHR", indents, dump_text_VkSemaphoreGetFdInfoKHR);
         break;
-    case 1000084000:
+    case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
         dump_text_pNext<const VkPresentRegionsKHR>(reinterpret_cast<const VkPresentRegionsKHR*>(object), settings, "VkPresentRegionsKHR", indents, dump_text_VkPresentRegionsKHR);
         break;
-    case 1000111000:
+    case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
         dump_text_pNext<const VkSharedPresentSurfaceCapabilitiesKHR>(reinterpret_cast<const VkSharedPresentSurfaceCapabilitiesKHR*>(object), settings, "VkSharedPresentSurfaceCapabilitiesKHR", indents, dump_text_VkSharedPresentSurfaceCapabilitiesKHR);
         break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000114000:
+    case VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR:
         dump_text_pNext<const VkImportFenceWin32HandleInfoKHR>(reinterpret_cast<const VkImportFenceWin32HandleInfoKHR*>(object), settings, "VkImportFenceWin32HandleInfoKHR", indents, dump_text_VkImportFenceWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000114001:
+    case VK_STRUCTURE_TYPE_EXPORT_FENCE_WIN32_HANDLE_INFO_KHR:
         dump_text_pNext<const VkExportFenceWin32HandleInfoKHR>(reinterpret_cast<const VkExportFenceWin32HandleInfoKHR*>(object), settings, "VkExportFenceWin32HandleInfoKHR", indents, dump_text_VkExportFenceWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000114002:
+    case VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR:
         dump_text_pNext<const VkFenceGetWin32HandleInfoKHR>(reinterpret_cast<const VkFenceGetWin32HandleInfoKHR*>(object), settings, "VkFenceGetWin32HandleInfoKHR", indents, dump_text_VkFenceGetWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-    case 1000115000:
+    case VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR:
         dump_text_pNext<const VkImportFenceFdInfoKHR>(reinterpret_cast<const VkImportFenceFdInfoKHR*>(object), settings, "VkImportFenceFdInfoKHR", indents, dump_text_VkImportFenceFdInfoKHR);
         break;
-    case 1000115001:
+    case VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR:
         dump_text_pNext<const VkFenceGetFdInfoKHR>(reinterpret_cast<const VkFenceGetFdInfoKHR*>(object), settings, "VkFenceGetFdInfoKHR", indents, dump_text_VkFenceGetFdInfoKHR);
         break;
-    case 1000116000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDevicePerformanceQueryFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePerformanceQueryFeaturesKHR*>(object), settings, "VkPhysicalDevicePerformanceQueryFeaturesKHR", indents, dump_text_VkPhysicalDevicePerformanceQueryFeaturesKHR);
         break;
-    case 1000116001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDevicePerformanceQueryPropertiesKHR>(reinterpret_cast<const VkPhysicalDevicePerformanceQueryPropertiesKHR*>(object), settings, "VkPhysicalDevicePerformanceQueryPropertiesKHR", indents, dump_text_VkPhysicalDevicePerformanceQueryPropertiesKHR);
         break;
-    case 1000116005:
+    case VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_KHR:
         dump_text_pNext<const VkPerformanceCounterKHR>(reinterpret_cast<const VkPerformanceCounterKHR*>(object), settings, "VkPerformanceCounterKHR", indents, dump_text_VkPerformanceCounterKHR);
         break;
-    case 1000116006:
+    case VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_DESCRIPTION_KHR:
         dump_text_pNext<const VkPerformanceCounterDescriptionKHR>(reinterpret_cast<const VkPerformanceCounterDescriptionKHR*>(object), settings, "VkPerformanceCounterDescriptionKHR", indents, dump_text_VkPerformanceCounterDescriptionKHR);
         break;
-    case 1000116002:
+    case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_CREATE_INFO_KHR:
         dump_text_pNext<const VkQueryPoolPerformanceCreateInfoKHR>(reinterpret_cast<const VkQueryPoolPerformanceCreateInfoKHR*>(object), settings, "VkQueryPoolPerformanceCreateInfoKHR", indents, dump_text_VkQueryPoolPerformanceCreateInfoKHR);
         break;
-    case 1000116004:
+    case VK_STRUCTURE_TYPE_ACQUIRE_PROFILING_LOCK_INFO_KHR:
         dump_text_pNext<const VkAcquireProfilingLockInfoKHR>(reinterpret_cast<const VkAcquireProfilingLockInfoKHR*>(object), settings, "VkAcquireProfilingLockInfoKHR", indents, dump_text_VkAcquireProfilingLockInfoKHR);
         break;
-    case 1000116003:
+    case VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_SUBMIT_INFO_KHR:
         dump_text_pNext<const VkPerformanceQuerySubmitInfoKHR>(reinterpret_cast<const VkPerformanceQuerySubmitInfoKHR*>(object), settings, "VkPerformanceQuerySubmitInfoKHR", indents, dump_text_VkPerformanceQuerySubmitInfoKHR);
         break;
-    case 1000119000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR:
         dump_text_pNext<const VkPhysicalDeviceSurfaceInfo2KHR>(reinterpret_cast<const VkPhysicalDeviceSurfaceInfo2KHR*>(object), settings, "VkPhysicalDeviceSurfaceInfo2KHR", indents, dump_text_VkPhysicalDeviceSurfaceInfo2KHR);
         break;
-    case 1000119001:
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR:
         dump_text_pNext<const VkSurfaceCapabilities2KHR>(reinterpret_cast<const VkSurfaceCapabilities2KHR*>(object), settings, "VkSurfaceCapabilities2KHR", indents, dump_text_VkSurfaceCapabilities2KHR);
         break;
-    case 1000119002:
+    case VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR:
         dump_text_pNext<const VkSurfaceFormat2KHR>(reinterpret_cast<const VkSurfaceFormat2KHR*>(object), settings, "VkSurfaceFormat2KHR", indents, dump_text_VkSurfaceFormat2KHR);
         break;
-    case 1000121000:
+    case VK_STRUCTURE_TYPE_DISPLAY_PROPERTIES_2_KHR:
         dump_text_pNext<const VkDisplayProperties2KHR>(reinterpret_cast<const VkDisplayProperties2KHR*>(object), settings, "VkDisplayProperties2KHR", indents, dump_text_VkDisplayProperties2KHR);
         break;
-    case 1000121001:
+    case VK_STRUCTURE_TYPE_DISPLAY_PLANE_PROPERTIES_2_KHR:
         dump_text_pNext<const VkDisplayPlaneProperties2KHR>(reinterpret_cast<const VkDisplayPlaneProperties2KHR*>(object), settings, "VkDisplayPlaneProperties2KHR", indents, dump_text_VkDisplayPlaneProperties2KHR);
         break;
-    case 1000121002:
+    case VK_STRUCTURE_TYPE_DISPLAY_MODE_PROPERTIES_2_KHR:
         dump_text_pNext<const VkDisplayModeProperties2KHR>(reinterpret_cast<const VkDisplayModeProperties2KHR*>(object), settings, "VkDisplayModeProperties2KHR", indents, dump_text_VkDisplayModeProperties2KHR);
         break;
-    case 1000121003:
+    case VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR:
         dump_text_pNext<const VkDisplayPlaneInfo2KHR>(reinterpret_cast<const VkDisplayPlaneInfo2KHR*>(object), settings, "VkDisplayPlaneInfo2KHR", indents, dump_text_VkDisplayPlaneInfo2KHR);
         break;
-    case 1000121004:
+    case VK_STRUCTURE_TYPE_DISPLAY_PLANE_CAPABILITIES_2_KHR:
         dump_text_pNext<const VkDisplayPlaneCapabilities2KHR>(reinterpret_cast<const VkDisplayPlaneCapabilities2KHR*>(object), settings, "VkDisplayPlaneCapabilities2KHR", indents, dump_text_VkDisplayPlaneCapabilities2KHR);
         break;
-    case 1000141000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_BFLOAT16_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceShaderBfloat16FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderBfloat16FeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderBfloat16FeaturesKHR", indents, dump_text_VkPhysicalDeviceShaderBfloat16FeaturesKHR);
         break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000163000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDevicePortabilitySubsetFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePortabilitySubsetFeaturesKHR*>(object), settings, "VkPhysicalDevicePortabilitySubsetFeaturesKHR", indents, dump_text_VkPhysicalDevicePortabilitySubsetFeaturesKHR);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000163001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDevicePortabilitySubsetPropertiesKHR>(reinterpret_cast<const VkPhysicalDevicePortabilitySubsetPropertiesKHR*>(object), settings, "VkPhysicalDevicePortabilitySubsetPropertiesKHR", indents, dump_text_VkPhysicalDevicePortabilitySubsetPropertiesKHR);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
-    case 1000181000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceShaderClockFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderClockFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderClockFeaturesKHR", indents, dump_text_VkPhysicalDeviceShaderClockFeaturesKHR);
         break;
-    case 1000187003:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH265ProfileInfoKHR>(reinterpret_cast<const VkVideoDecodeH265ProfileInfoKHR*>(object), settings, "VkVideoDecodeH265ProfileInfoKHR", indents, dump_text_VkVideoDecodeH265ProfileInfoKHR);
         break;
-    case 1000187000:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoDecodeH265CapabilitiesKHR>(reinterpret_cast<const VkVideoDecodeH265CapabilitiesKHR*>(object), settings, "VkVideoDecodeH265CapabilitiesKHR", indents, dump_text_VkVideoDecodeH265CapabilitiesKHR);
         break;
-    case 1000187002:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH265SessionParametersAddInfoKHR>(reinterpret_cast<const VkVideoDecodeH265SessionParametersAddInfoKHR*>(object), settings, "VkVideoDecodeH265SessionParametersAddInfoKHR", indents, dump_text_VkVideoDecodeH265SessionParametersAddInfoKHR);
         break;
-    case 1000187001:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH265SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoDecodeH265SessionParametersCreateInfoKHR*>(object), settings, "VkVideoDecodeH265SessionParametersCreateInfoKHR", indents, dump_text_VkVideoDecodeH265SessionParametersCreateInfoKHR);
         break;
-    case 1000187004:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH265PictureInfoKHR>(reinterpret_cast<const VkVideoDecodeH265PictureInfoKHR*>(object), settings, "VkVideoDecodeH265PictureInfoKHR", indents, dump_text_VkVideoDecodeH265PictureInfoKHR);
         break;
-    case 1000187005:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH265DpbSlotInfoKHR>(reinterpret_cast<const VkVideoDecodeH265DpbSlotInfoKHR*>(object), settings, "VkVideoDecodeH265DpbSlotInfoKHR", indents, dump_text_VkVideoDecodeH265DpbSlotInfoKHR);
         break;
-    case 1000226000:
+    case VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
         dump_text_pNext<const VkFragmentShadingRateAttachmentInfoKHR>(reinterpret_cast<const VkFragmentShadingRateAttachmentInfoKHR*>(object), settings, "VkFragmentShadingRateAttachmentInfoKHR", indents, dump_text_VkFragmentShadingRateAttachmentInfoKHR);
         break;
-    case 1000226001:
+    case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_STATE_CREATE_INFO_KHR:
         dump_text_pNext<const VkPipelineFragmentShadingRateStateCreateInfoKHR>(reinterpret_cast<const VkPipelineFragmentShadingRateStateCreateInfoKHR*>(object), settings, "VkPipelineFragmentShadingRateStateCreateInfoKHR", indents, dump_text_VkPipelineFragmentShadingRateStateCreateInfoKHR);
         break;
-    case 1000226003:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceFragmentShadingRateFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateFeaturesKHR*>(object), settings, "VkPhysicalDeviceFragmentShadingRateFeaturesKHR", indents, dump_text_VkPhysicalDeviceFragmentShadingRateFeaturesKHR);
         break;
-    case 1000226002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceFragmentShadingRatePropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRatePropertiesKHR*>(object), settings, "VkPhysicalDeviceFragmentShadingRatePropertiesKHR", indents, dump_text_VkPhysicalDeviceFragmentShadingRatePropertiesKHR);
         break;
-    case 1000226004:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_KHR:
         dump_text_pNext<const VkPhysicalDeviceFragmentShadingRateKHR>(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateKHR*>(object), settings, "VkPhysicalDeviceFragmentShadingRateKHR", indents, dump_text_VkPhysicalDeviceFragmentShadingRateKHR);
         break;
-    case 1000044006:
+    case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
         dump_text_pNext<const VkRenderingFragmentShadingRateAttachmentInfoKHR>(reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(object), settings, "VkRenderingFragmentShadingRateAttachmentInfoKHR", indents, dump_text_VkRenderingFragmentShadingRateAttachmentInfoKHR);
         break;
-    case 1000235000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_QUAD_CONTROL_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceShaderQuadControlFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderQuadControlFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderQuadControlFeaturesKHR", indents, dump_text_VkPhysicalDeviceShaderQuadControlFeaturesKHR);
         break;
-    case 1000239000:
+    case VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR:
         dump_text_pNext<const VkSurfaceProtectedCapabilitiesKHR>(reinterpret_cast<const VkSurfaceProtectedCapabilitiesKHR*>(object), settings, "VkSurfaceProtectedCapabilitiesKHR", indents, dump_text_VkSurfaceProtectedCapabilitiesKHR);
         break;
-    case 1000248000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDevicePresentWaitFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePresentWaitFeaturesKHR*>(object), settings, "VkPhysicalDevicePresentWaitFeaturesKHR", indents, dump_text_VkPhysicalDevicePresentWaitFeaturesKHR);
         break;
-    case 1000269000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR*>(object), settings, "VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR", indents, dump_text_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR);
         break;
-    case 1000269001:
+    case VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR:
         dump_text_pNext<const VkPipelineInfoKHR>(reinterpret_cast<const VkPipelineInfoKHR*>(object), settings, "VkPipelineInfoKHR", indents, dump_text_VkPipelineInfoKHR);
         break;
-    case 1000269002:
+    case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_PROPERTIES_KHR:
         dump_text_pNext<const VkPipelineExecutablePropertiesKHR>(reinterpret_cast<const VkPipelineExecutablePropertiesKHR*>(object), settings, "VkPipelineExecutablePropertiesKHR", indents, dump_text_VkPipelineExecutablePropertiesKHR);
         break;
-    case 1000269003:
+    case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INFO_KHR:
         dump_text_pNext<const VkPipelineExecutableInfoKHR>(reinterpret_cast<const VkPipelineExecutableInfoKHR*>(object), settings, "VkPipelineExecutableInfoKHR", indents, dump_text_VkPipelineExecutableInfoKHR);
         break;
-    case 1000269004:
+    case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_STATISTIC_KHR:
         dump_text_pNext<const VkPipelineExecutableStatisticKHR>(reinterpret_cast<const VkPipelineExecutableStatisticKHR*>(object), settings, "VkPipelineExecutableStatisticKHR", indents, dump_text_VkPipelineExecutableStatisticKHR);
         break;
-    case 1000269005:
+    case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR:
         dump_text_pNext<const VkPipelineExecutableInternalRepresentationKHR>(reinterpret_cast<const VkPipelineExecutableInternalRepresentationKHR*>(object), settings, "VkPipelineExecutableInternalRepresentationKHR", indents, dump_text_VkPipelineExecutableInternalRepresentationKHR);
         break;
-    case 1000290000:
+    case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
         dump_text_pNext<const VkPipelineLibraryCreateInfoKHR>(reinterpret_cast<const VkPipelineLibraryCreateInfoKHR*>(object), settings, "VkPipelineLibraryCreateInfoKHR", indents, dump_text_VkPipelineLibraryCreateInfoKHR);
         break;
-    case 1000294000:
+    case VK_STRUCTURE_TYPE_PRESENT_ID_KHR:
         dump_text_pNext<const VkPresentIdKHR>(reinterpret_cast<const VkPresentIdKHR*>(object), settings, "VkPresentIdKHR", indents, dump_text_VkPresentIdKHR);
         break;
-    case 1000294001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDevicePresentIdFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePresentIdFeaturesKHR*>(object), settings, "VkPhysicalDevicePresentIdFeaturesKHR", indents, dump_text_VkPhysicalDevicePresentIdFeaturesKHR);
         break;
-    case 1000299000:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeInfoKHR>(reinterpret_cast<const VkVideoEncodeInfoKHR*>(object), settings, "VkVideoEncodeInfoKHR", indents, dump_text_VkVideoEncodeInfoKHR);
         break;
-    case 1000299003:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoEncodeCapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeCapabilitiesKHR*>(object), settings, "VkVideoEncodeCapabilitiesKHR", indents, dump_text_VkVideoEncodeCapabilitiesKHR);
         break;
-    case 1000299005:
+    case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_FEEDBACK_CREATE_INFO_KHR:
         dump_text_pNext<const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR>(reinterpret_cast<const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR*>(object), settings, "VkQueryPoolVideoEncodeFeedbackCreateInfoKHR", indents, dump_text_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR);
         break;
-    case 1000299004:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeUsageInfoKHR>(reinterpret_cast<const VkVideoEncodeUsageInfoKHR*>(object), settings, "VkVideoEncodeUsageInfoKHR", indents, dump_text_VkVideoEncodeUsageInfoKHR);
         break;
-    case 1000299002:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_LAYER_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeRateControlLayerInfoKHR>(reinterpret_cast<const VkVideoEncodeRateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeRateControlLayerInfoKHR", indents, dump_text_VkVideoEncodeRateControlLayerInfoKHR);
         break;
-    case 1000299001:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeRateControlInfoKHR>(reinterpret_cast<const VkVideoEncodeRateControlInfoKHR*>(object), settings, "VkVideoEncodeRateControlInfoKHR", indents, dump_text_VkVideoEncodeRateControlInfoKHR);
         break;
-    case 1000299006:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
         dump_text_pNext<const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR>(reinterpret_cast<const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR*>(object), settings, "VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR", indents, dump_text_VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR);
         break;
-    case 1000299007:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_PROPERTIES_KHR:
         dump_text_pNext<const VkVideoEncodeQualityLevelPropertiesKHR>(reinterpret_cast<const VkVideoEncodeQualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeQualityLevelPropertiesKHR", indents, dump_text_VkVideoEncodeQualityLevelPropertiesKHR);
         break;
-    case 1000299008:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeQualityLevelInfoKHR>(reinterpret_cast<const VkVideoEncodeQualityLevelInfoKHR*>(object), settings, "VkVideoEncodeQualityLevelInfoKHR", indents, dump_text_VkVideoEncodeQualityLevelInfoKHR);
         break;
-    case 1000299009:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_PARAMETERS_GET_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeSessionParametersGetInfoKHR>(reinterpret_cast<const VkVideoEncodeSessionParametersGetInfoKHR*>(object), settings, "VkVideoEncodeSessionParametersGetInfoKHR", indents, dump_text_VkVideoEncodeSessionParametersGetInfoKHR);
         break;
-    case 1000299010:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeSessionParametersFeedbackInfoKHR>(reinterpret_cast<const VkVideoEncodeSessionParametersFeedbackInfoKHR*>(object), settings, "VkVideoEncodeSessionParametersFeedbackInfoKHR", indents, dump_text_VkVideoEncodeSessionParametersFeedbackInfoKHR);
         break;
-    case 1000203000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR*>(object), settings, "VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR", indents, dump_text_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR);
         break;
-    case 1000322000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR*>(object), settings, "VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR", indents, dump_text_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR);
         break;
-    case 1000323000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR", indents, dump_text_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR);
         break;
-    case 1000336000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_WORKGROUP_MEMORY_EXPLICIT_LAYOUT_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR*>(object), settings, "VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR", indents, dump_text_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR);
         break;
-    case 1000386000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR", indents, dump_text_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR);
         break;
-    case 1000434000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR", indents, dump_text_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR);
         break;
-    case 1000479000:
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_ID_2_KHR:
         dump_text_pNext<const VkSurfaceCapabilitiesPresentId2KHR>(reinterpret_cast<const VkSurfaceCapabilitiesPresentId2KHR*>(object), settings, "VkSurfaceCapabilitiesPresentId2KHR", indents, dump_text_VkSurfaceCapabilitiesPresentId2KHR);
         break;
-    case 1000479001:
+    case VK_STRUCTURE_TYPE_PRESENT_ID_2_KHR:
         dump_text_pNext<const VkPresentId2KHR>(reinterpret_cast<const VkPresentId2KHR*>(object), settings, "VkPresentId2KHR", indents, dump_text_VkPresentId2KHR);
         break;
-    case 1000479002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDevicePresentId2FeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePresentId2FeaturesKHR*>(object), settings, "VkPhysicalDevicePresentId2FeaturesKHR", indents, dump_text_VkPhysicalDevicePresentId2FeaturesKHR);
         break;
-    case 1000480000:
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_WAIT_2_KHR:
         dump_text_pNext<const VkSurfaceCapabilitiesPresentWait2KHR>(reinterpret_cast<const VkSurfaceCapabilitiesPresentWait2KHR*>(object), settings, "VkSurfaceCapabilitiesPresentWait2KHR", indents, dump_text_VkSurfaceCapabilitiesPresentWait2KHR);
         break;
-    case 1000480001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_2_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDevicePresentWait2FeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePresentWait2FeaturesKHR*>(object), settings, "VkPhysicalDevicePresentWait2FeaturesKHR", indents, dump_text_VkPhysicalDevicePresentWait2FeaturesKHR);
         break;
-    case 1000480002:
+    case VK_STRUCTURE_TYPE_PRESENT_WAIT_2_INFO_KHR:
         dump_text_pNext<const VkPresentWait2InfoKHR>(reinterpret_cast<const VkPresentWait2InfoKHR*>(object), settings, "VkPresentWait2InfoKHR", indents, dump_text_VkPresentWait2InfoKHR);
         break;
-    case 1000481000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR", indents, dump_text_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR);
         break;
-    case 1000483000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDevicePipelineBinaryFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePipelineBinaryFeaturesKHR*>(object), settings, "VkPhysicalDevicePipelineBinaryFeaturesKHR", indents, dump_text_VkPhysicalDevicePipelineBinaryFeaturesKHR);
         break;
-    case 1000483004:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDevicePipelineBinaryPropertiesKHR>(reinterpret_cast<const VkPhysicalDevicePipelineBinaryPropertiesKHR*>(object), settings, "VkPhysicalDevicePipelineBinaryPropertiesKHR", indents, dump_text_VkPhysicalDevicePipelineBinaryPropertiesKHR);
         break;
-    case 1000483008:
+    case VK_STRUCTURE_TYPE_DEVICE_PIPELINE_BINARY_INTERNAL_CACHE_CONTROL_KHR:
         dump_text_pNext<const VkDevicePipelineBinaryInternalCacheControlKHR>(reinterpret_cast<const VkDevicePipelineBinaryInternalCacheControlKHR*>(object), settings, "VkDevicePipelineBinaryInternalCacheControlKHR", indents, dump_text_VkDevicePipelineBinaryInternalCacheControlKHR);
         break;
-    case 1000483003:
+    case VK_STRUCTURE_TYPE_PIPELINE_BINARY_KEY_KHR:
         dump_text_pNext<const VkPipelineBinaryKeyKHR>(reinterpret_cast<const VkPipelineBinaryKeyKHR*>(object), settings, "VkPipelineBinaryKeyKHR", indents, dump_text_VkPipelineBinaryKeyKHR);
         break;
-    case 1000483007:
+    case VK_STRUCTURE_TYPE_PIPELINE_CREATE_INFO_KHR:
         dump_text_pNext<const VkPipelineCreateInfoKHR>(reinterpret_cast<const VkPipelineCreateInfoKHR*>(object), settings, "VkPipelineCreateInfoKHR", indents, dump_text_VkPipelineCreateInfoKHR);
         break;
-    case 1000483001:
+    case VK_STRUCTURE_TYPE_PIPELINE_BINARY_CREATE_INFO_KHR:
         dump_text_pNext<const VkPipelineBinaryCreateInfoKHR>(reinterpret_cast<const VkPipelineBinaryCreateInfoKHR*>(object), settings, "VkPipelineBinaryCreateInfoKHR", indents, dump_text_VkPipelineBinaryCreateInfoKHR);
         break;
-    case 1000483002:
+    case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
         dump_text_pNext<const VkPipelineBinaryInfoKHR>(reinterpret_cast<const VkPipelineBinaryInfoKHR*>(object), settings, "VkPipelineBinaryInfoKHR", indents, dump_text_VkPipelineBinaryInfoKHR);
         break;
-    case 1000483005:
+    case VK_STRUCTURE_TYPE_RELEASE_CAPTURED_PIPELINE_DATA_INFO_KHR:
         dump_text_pNext<const VkReleaseCapturedPipelineDataInfoKHR>(reinterpret_cast<const VkReleaseCapturedPipelineDataInfoKHR*>(object), settings, "VkReleaseCapturedPipelineDataInfoKHR", indents, dump_text_VkReleaseCapturedPipelineDataInfoKHR);
         break;
-    case 1000483006:
+    case VK_STRUCTURE_TYPE_PIPELINE_BINARY_DATA_INFO_KHR:
         dump_text_pNext<const VkPipelineBinaryDataInfoKHR>(reinterpret_cast<const VkPipelineBinaryDataInfoKHR*>(object), settings, "VkPipelineBinaryDataInfoKHR", indents, dump_text_VkPipelineBinaryDataInfoKHR);
         break;
-    case 1000483009:
+    case VK_STRUCTURE_TYPE_PIPELINE_BINARY_HANDLES_INFO_KHR:
         dump_text_pNext<const VkPipelineBinaryHandlesInfoKHR>(reinterpret_cast<const VkPipelineBinaryHandlesInfoKHR*>(object), settings, "VkPipelineBinaryHandlesInfoKHR", indents, dump_text_VkPipelineBinaryHandlesInfoKHR);
         break;
-    case 1000506001:
+    case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
         dump_text_pNext<const VkCooperativeMatrixPropertiesKHR>(reinterpret_cast<const VkCooperativeMatrixPropertiesKHR*>(object), settings, "VkCooperativeMatrixPropertiesKHR", indents, dump_text_VkCooperativeMatrixPropertiesKHR);
         break;
-    case 1000506000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(object), settings, "VkPhysicalDeviceCooperativeMatrixFeaturesKHR", indents, dump_text_VkPhysicalDeviceCooperativeMatrixFeaturesKHR);
         break;
-    case 1000506002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceCooperativeMatrixPropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixPropertiesKHR*>(object), settings, "VkPhysicalDeviceCooperativeMatrixPropertiesKHR", indents, dump_text_VkPhysicalDeviceCooperativeMatrixPropertiesKHR);
         break;
-    case 1000201000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR*>(object), settings, "VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR", indents, dump_text_VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR);
         break;
-    case 1000511000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR*>(object), settings, "VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR", indents, dump_text_VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR);
         break;
-    case 1000512003:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PROFILE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeAV1ProfileInfoKHR>(reinterpret_cast<const VkVideoDecodeAV1ProfileInfoKHR*>(object), settings, "VkVideoDecodeAV1ProfileInfoKHR", indents, dump_text_VkVideoDecodeAV1ProfileInfoKHR);
         break;
-    case 1000512000:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoDecodeAV1CapabilitiesKHR>(reinterpret_cast<const VkVideoDecodeAV1CapabilitiesKHR*>(object), settings, "VkVideoDecodeAV1CapabilitiesKHR", indents, dump_text_VkVideoDecodeAV1CapabilitiesKHR);
         break;
-    case 1000512004:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeAV1SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoDecodeAV1SessionParametersCreateInfoKHR*>(object), settings, "VkVideoDecodeAV1SessionParametersCreateInfoKHR", indents, dump_text_VkVideoDecodeAV1SessionParametersCreateInfoKHR);
         break;
-    case 1000512001:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeAV1PictureInfoKHR>(reinterpret_cast<const VkVideoDecodeAV1PictureInfoKHR*>(object), settings, "VkVideoDecodeAV1PictureInfoKHR", indents, dump_text_VkVideoDecodeAV1PictureInfoKHR);
         break;
-    case 1000512005:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_DPB_SLOT_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeAV1DpbSlotInfoKHR>(reinterpret_cast<const VkVideoDecodeAV1DpbSlotInfoKHR*>(object), settings, "VkVideoDecodeAV1DpbSlotInfoKHR", indents, dump_text_VkVideoDecodeAV1DpbSlotInfoKHR);
         break;
-    case 1000513004:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_AV1_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceVideoEncodeAV1FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceVideoEncodeAV1FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoEncodeAV1FeaturesKHR", indents, dump_text_VkPhysicalDeviceVideoEncodeAV1FeaturesKHR);
         break;
-    case 1000513000:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoEncodeAV1CapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeAV1CapabilitiesKHR*>(object), settings, "VkVideoEncodeAV1CapabilitiesKHR", indents, dump_text_VkVideoEncodeAV1CapabilitiesKHR);
         break;
-    case 1000513008:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_QUALITY_LEVEL_PROPERTIES_KHR:
         dump_text_pNext<const VkVideoEncodeAV1QualityLevelPropertiesKHR>(reinterpret_cast<const VkVideoEncodeAV1QualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeAV1QualityLevelPropertiesKHR", indents, dump_text_VkVideoEncodeAV1QualityLevelPropertiesKHR);
         break;
-    case 1000513009:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_SESSION_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeAV1SessionCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1SessionCreateInfoKHR*>(object), settings, "VkVideoEncodeAV1SessionCreateInfoKHR", indents, dump_text_VkVideoEncodeAV1SessionCreateInfoKHR);
         break;
-    case 1000513001:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeAV1SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1SessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeAV1SessionParametersCreateInfoKHR", indents, dump_text_VkVideoEncodeAV1SessionParametersCreateInfoKHR);
         break;
-    case 1000513002:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PICTURE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeAV1PictureInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1PictureInfoKHR*>(object), settings, "VkVideoEncodeAV1PictureInfoKHR", indents, dump_text_VkVideoEncodeAV1PictureInfoKHR);
         break;
-    case 1000513003:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_DPB_SLOT_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeAV1DpbSlotInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1DpbSlotInfoKHR*>(object), settings, "VkVideoEncodeAV1DpbSlotInfoKHR", indents, dump_text_VkVideoEncodeAV1DpbSlotInfoKHR);
         break;
-    case 1000513005:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PROFILE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeAV1ProfileInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1ProfileInfoKHR*>(object), settings, "VkVideoEncodeAV1ProfileInfoKHR", indents, dump_text_VkVideoEncodeAV1ProfileInfoKHR);
         break;
-    case 1000513010:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_GOP_REMAINING_FRAME_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeAV1GopRemainingFrameInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1GopRemainingFrameInfoKHR*>(object), settings, "VkVideoEncodeAV1GopRemainingFrameInfoKHR", indents, dump_text_VkVideoEncodeAV1GopRemainingFrameInfoKHR);
         break;
-    case 1000513006:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_RATE_CONTROL_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeAV1RateControlInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1RateControlInfoKHR*>(object), settings, "VkVideoEncodeAV1RateControlInfoKHR", indents, dump_text_VkVideoEncodeAV1RateControlInfoKHR);
         break;
-    case 1000513007:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_RATE_CONTROL_LAYER_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeAV1RateControlLayerInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1RateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeAV1RateControlLayerInfoKHR", indents, dump_text_VkVideoEncodeAV1RateControlLayerInfoKHR);
         break;
-    case 1000514000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_DECODE_VP9_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceVideoDecodeVP9FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceVideoDecodeVP9FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoDecodeVP9FeaturesKHR", indents, dump_text_VkPhysicalDeviceVideoDecodeVP9FeaturesKHR);
         break;
-    case 1000514003:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PROFILE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeVP9ProfileInfoKHR>(reinterpret_cast<const VkVideoDecodeVP9ProfileInfoKHR*>(object), settings, "VkVideoDecodeVP9ProfileInfoKHR", indents, dump_text_VkVideoDecodeVP9ProfileInfoKHR);
         break;
-    case 1000514001:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoDecodeVP9CapabilitiesKHR>(reinterpret_cast<const VkVideoDecodeVP9CapabilitiesKHR*>(object), settings, "VkVideoDecodeVP9CapabilitiesKHR", indents, dump_text_VkVideoDecodeVP9CapabilitiesKHR);
         break;
-    case 1000514002:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PICTURE_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeVP9PictureInfoKHR>(reinterpret_cast<const VkVideoDecodeVP9PictureInfoKHR*>(object), settings, "VkVideoDecodeVP9PictureInfoKHR", indents, dump_text_VkVideoDecodeVP9PictureInfoKHR);
         break;
-    case 1000515000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoMaintenance1FeaturesKHR", indents, dump_text_VkPhysicalDeviceVideoMaintenance1FeaturesKHR);
         break;
-    case 1000515001:
+    case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
         dump_text_pNext<const VkVideoInlineQueryInfoKHR>(reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(object), settings, "VkVideoInlineQueryInfoKHR", indents, dump_text_VkVideoInlineQueryInfoKHR);
         break;
-    case 1000527000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFIED_IMAGE_LAYOUTS_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR*>(object), settings, "VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR", indents, dump_text_VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR);
         break;
-    case 1000527001:
+    case VK_STRUCTURE_TYPE_ATTACHMENT_FEEDBACK_LOOP_INFO_EXT:
         dump_text_pNext<const VkAttachmentFeedbackLoopInfoEXT>(reinterpret_cast<const VkAttachmentFeedbackLoopInfoEXT*>(object), settings, "VkAttachmentFeedbackLoopInfoEXT", indents, dump_text_VkAttachmentFeedbackLoopInfoEXT);
         break;
-    case 1000184000:
+    case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR:
         dump_text_pNext<const VkCalibratedTimestampInfoKHR>(reinterpret_cast<const VkCalibratedTimestampInfoKHR*>(object), settings, "VkCalibratedTimestampInfoKHR", indents, dump_text_VkCalibratedTimestampInfoKHR);
         break;
-    case 1000545007:
+    case VK_STRUCTURE_TYPE_SET_DESCRIPTOR_BUFFER_OFFSETS_INFO_EXT:
         dump_text_pNext<const VkSetDescriptorBufferOffsetsInfoEXT>(reinterpret_cast<const VkSetDescriptorBufferOffsetsInfoEXT*>(object), settings, "VkSetDescriptorBufferOffsetsInfoEXT", indents, dump_text_VkSetDescriptorBufferOffsetsInfoEXT);
         break;
-    case 1000545008:
+    case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS_INFO_EXT:
         dump_text_pNext<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT>(reinterpret_cast<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*>(object), settings, "VkBindDescriptorBufferEmbeddedSamplersInfoEXT", indents, dump_text_VkBindDescriptorBufferEmbeddedSamplersInfoEXT);
         break;
-    case 1000553000:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoEncodeQuantizationMapCapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeQuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeQuantizationMapCapabilitiesKHR", indents, dump_text_VkVideoEncodeQuantizationMapCapabilitiesKHR);
         break;
-    case 1000553001:
+    case VK_STRUCTURE_TYPE_VIDEO_FORMAT_QUANTIZATION_MAP_PROPERTIES_KHR:
         dump_text_pNext<const VkVideoFormatQuantizationMapPropertiesKHR>(reinterpret_cast<const VkVideoFormatQuantizationMapPropertiesKHR*>(object), settings, "VkVideoFormatQuantizationMapPropertiesKHR", indents, dump_text_VkVideoFormatQuantizationMapPropertiesKHR);
         break;
-    case 1000553002:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeQuantizationMapInfoKHR>(reinterpret_cast<const VkVideoEncodeQuantizationMapInfoKHR*>(object), settings, "VkVideoEncodeQuantizationMapInfoKHR", indents, dump_text_VkVideoEncodeQuantizationMapInfoKHR);
         break;
-    case 1000553005:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_SESSION_PARAMETERS_CREATE_INFO_KHR:
         dump_text_pNext<const VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR", indents, dump_text_VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR);
         break;
-    case 1000553009:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR", indents, dump_text_VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR);
         break;
-    case 1000553003:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUANTIZATION_MAP_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoEncodeH264QuantizationMapCapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeH264QuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeH264QuantizationMapCapabilitiesKHR", indents, dump_text_VkVideoEncodeH264QuantizationMapCapabilitiesKHR);
         break;
-    case 1000553004:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUANTIZATION_MAP_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoEncodeH265QuantizationMapCapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeH265QuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeH265QuantizationMapCapabilitiesKHR", indents, dump_text_VkVideoEncodeH265QuantizationMapCapabilitiesKHR);
         break;
-    case 1000553006:
+    case VK_STRUCTURE_TYPE_VIDEO_FORMAT_H265_QUANTIZATION_MAP_PROPERTIES_KHR:
         dump_text_pNext<const VkVideoFormatH265QuantizationMapPropertiesKHR>(reinterpret_cast<const VkVideoFormatH265QuantizationMapPropertiesKHR*>(object), settings, "VkVideoFormatH265QuantizationMapPropertiesKHR", indents, dump_text_VkVideoFormatH265QuantizationMapPropertiesKHR);
         break;
-    case 1000553007:
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_QUANTIZATION_MAP_CAPABILITIES_KHR:
         dump_text_pNext<const VkVideoEncodeAV1QuantizationMapCapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeAV1QuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeAV1QuantizationMapCapabilitiesKHR", indents, dump_text_VkVideoEncodeAV1QuantizationMapCapabilitiesKHR);
         break;
-    case 1000553008:
+    case VK_STRUCTURE_TYPE_VIDEO_FORMAT_AV1_QUANTIZATION_MAP_PROPERTIES_KHR:
         dump_text_pNext<const VkVideoFormatAV1QuantizationMapPropertiesKHR>(reinterpret_cast<const VkVideoFormatAV1QuantizationMapPropertiesKHR*>(object), settings, "VkVideoFormatAV1QuantizationMapPropertiesKHR", indents, dump_text_VkVideoFormatAV1QuantizationMapPropertiesKHR);
         break;
-    case 1000558000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_RELAXED_EXTENDED_INSTRUCTION_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR", indents, dump_text_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR);
         break;
-    case 1000562000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceMaintenance7FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceMaintenance7FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance7FeaturesKHR", indents, dump_text_VkPhysicalDeviceMaintenance7FeaturesKHR);
         break;
-    case 1000562001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceMaintenance7PropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceMaintenance7PropertiesKHR*>(object), settings, "VkPhysicalDeviceMaintenance7PropertiesKHR", indents, dump_text_VkPhysicalDeviceMaintenance7PropertiesKHR);
         break;
-    case 1000562003:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceLayeredApiPropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceLayeredApiPropertiesKHR*>(object), settings, "VkPhysicalDeviceLayeredApiPropertiesKHR", indents, dump_text_VkPhysicalDeviceLayeredApiPropertiesKHR);
         break;
-    case 1000562002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_LIST_KHR:
         dump_text_pNext<const VkPhysicalDeviceLayeredApiPropertiesListKHR>(reinterpret_cast<const VkPhysicalDeviceLayeredApiPropertiesListKHR*>(object), settings, "VkPhysicalDeviceLayeredApiPropertiesListKHR", indents, dump_text_VkPhysicalDeviceLayeredApiPropertiesListKHR);
         break;
-    case 1000562004:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_VULKAN_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR*>(object), settings, "VkPhysicalDeviceLayeredApiVulkanPropertiesKHR", indents, dump_text_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR);
         break;
-    case 1000574000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_8_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceMaintenance8FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceMaintenance8FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance8FeaturesKHR", indents, dump_text_VkPhysicalDeviceMaintenance8FeaturesKHR);
         break;
-    case 1000574002:
+    case VK_STRUCTURE_TYPE_MEMORY_BARRIER_ACCESS_FLAGS_3_KHR:
         dump_text_pNext<const VkMemoryBarrierAccessFlags3KHR>(reinterpret_cast<const VkMemoryBarrierAccessFlags3KHR*>(object), settings, "VkMemoryBarrierAccessFlags3KHR", indents, dump_text_VkMemoryBarrierAccessFlags3KHR);
         break;
-    case 1000584000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceMaintenance9FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceMaintenance9FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance9FeaturesKHR", indents, dump_text_VkPhysicalDeviceMaintenance9FeaturesKHR);
         break;
-    case 1000584001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceMaintenance9PropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceMaintenance9PropertiesKHR*>(object), settings, "VkPhysicalDeviceMaintenance9PropertiesKHR", indents, dump_text_VkPhysicalDeviceMaintenance9PropertiesKHR);
         break;
-    case 1000584002:
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR:
         dump_text_pNext<const VkQueueFamilyOwnershipTransferPropertiesKHR>(reinterpret_cast<const VkQueueFamilyOwnershipTransferPropertiesKHR*>(object), settings, "VkQueueFamilyOwnershipTransferPropertiesKHR", indents, dump_text_VkQueueFamilyOwnershipTransferPropertiesKHR);
         break;
-    case 1000586000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceVideoMaintenance2FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceVideoMaintenance2FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoMaintenance2FeaturesKHR", indents, dump_text_VkPhysicalDeviceVideoMaintenance2FeaturesKHR);
         break;
-    case 1000586001:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_INLINE_SESSION_PARAMETERS_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH264InlineSessionParametersInfoKHR>(reinterpret_cast<const VkVideoDecodeH264InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeH264InlineSessionParametersInfoKHR", indents, dump_text_VkVideoDecodeH264InlineSessionParametersInfoKHR);
         break;
-    case 1000586002:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_INLINE_SESSION_PARAMETERS_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeH265InlineSessionParametersInfoKHR>(reinterpret_cast<const VkVideoDecodeH265InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeH265InlineSessionParametersInfoKHR", indents, dump_text_VkVideoDecodeH265InlineSessionParametersInfoKHR);
         break;
-    case 1000586003:
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_INLINE_SESSION_PARAMETERS_INFO_KHR:
         dump_text_pNext<const VkVideoDecodeAV1InlineSessionParametersInfoKHR>(reinterpret_cast<const VkVideoDecodeAV1InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeAV1InlineSessionParametersInfoKHR", indents, dump_text_VkVideoDecodeAV1InlineSessionParametersInfoKHR);
         break;
-    case 1000421000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR*>(object), settings, "VkPhysicalDeviceDepthClampZeroOneFeaturesKHR", indents, dump_text_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR);
         break;
-    case 1000286000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceRobustness2FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceRobustness2FeaturesKHR*>(object), settings, "VkPhysicalDeviceRobustness2FeaturesKHR", indents, dump_text_VkPhysicalDeviceRobustness2FeaturesKHR);
         break;
-    case 1000286001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceRobustness2PropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceRobustness2PropertiesKHR*>(object), settings, "VkPhysicalDeviceRobustness2PropertiesKHR", indents, dump_text_VkPhysicalDeviceRobustness2PropertiesKHR);
         break;
-    case 1000011000:
+    case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
         dump_text_pNext<const VkDebugReportCallbackCreateInfoEXT>(reinterpret_cast<const VkDebugReportCallbackCreateInfoEXT*>(object), settings, "VkDebugReportCallbackCreateInfoEXT", indents, dump_text_VkDebugReportCallbackCreateInfoEXT);
         break;
-    case 1000018000:
+    case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD:
         dump_text_pNext<const VkPipelineRasterizationStateRasterizationOrderAMD>(reinterpret_cast<const VkPipelineRasterizationStateRasterizationOrderAMD*>(object), settings, "VkPipelineRasterizationStateRasterizationOrderAMD", indents, dump_text_VkPipelineRasterizationStateRasterizationOrderAMD);
         break;
-    case 1000022000:
+    case VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT:
         dump_text_pNext<const VkDebugMarkerObjectNameInfoEXT>(reinterpret_cast<const VkDebugMarkerObjectNameInfoEXT*>(object), settings, "VkDebugMarkerObjectNameInfoEXT", indents, dump_text_VkDebugMarkerObjectNameInfoEXT);
         break;
-    case 1000022001:
+    case VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT:
         dump_text_pNext<const VkDebugMarkerObjectTagInfoEXT>(reinterpret_cast<const VkDebugMarkerObjectTagInfoEXT*>(object), settings, "VkDebugMarkerObjectTagInfoEXT", indents, dump_text_VkDebugMarkerObjectTagInfoEXT);
         break;
-    case 1000022002:
+    case VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT:
         dump_text_pNext<const VkDebugMarkerMarkerInfoEXT>(reinterpret_cast<const VkDebugMarkerMarkerInfoEXT*>(object), settings, "VkDebugMarkerMarkerInfoEXT", indents, dump_text_VkDebugMarkerMarkerInfoEXT);
         break;
-    case 1000026000:
+    case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV:
         dump_text_pNext<const VkDedicatedAllocationImageCreateInfoNV>(reinterpret_cast<const VkDedicatedAllocationImageCreateInfoNV*>(object), settings, "VkDedicatedAllocationImageCreateInfoNV", indents, dump_text_VkDedicatedAllocationImageCreateInfoNV);
         break;
-    case 1000026001:
+    case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV:
         dump_text_pNext<const VkDedicatedAllocationBufferCreateInfoNV>(reinterpret_cast<const VkDedicatedAllocationBufferCreateInfoNV*>(object), settings, "VkDedicatedAllocationBufferCreateInfoNV", indents, dump_text_VkDedicatedAllocationBufferCreateInfoNV);
         break;
-    case 1000026002:
+    case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
         dump_text_pNext<const VkDedicatedAllocationMemoryAllocateInfoNV>(reinterpret_cast<const VkDedicatedAllocationMemoryAllocateInfoNV*>(object), settings, "VkDedicatedAllocationMemoryAllocateInfoNV", indents, dump_text_VkDedicatedAllocationMemoryAllocateInfoNV);
         break;
-    case 1000028000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceTransformFeedbackFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceTransformFeedbackFeaturesEXT*>(object), settings, "VkPhysicalDeviceTransformFeedbackFeaturesEXT", indents, dump_text_VkPhysicalDeviceTransformFeedbackFeaturesEXT);
         break;
-    case 1000028001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceTransformFeedbackPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceTransformFeedbackPropertiesEXT*>(object), settings, "VkPhysicalDeviceTransformFeedbackPropertiesEXT", indents, dump_text_VkPhysicalDeviceTransformFeedbackPropertiesEXT);
         break;
-    case 1000028002:
+    case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineRasterizationStateStreamCreateInfoEXT>(reinterpret_cast<const VkPipelineRasterizationStateStreamCreateInfoEXT*>(object), settings, "VkPipelineRasterizationStateStreamCreateInfoEXT", indents, dump_text_VkPipelineRasterizationStateStreamCreateInfoEXT);
         break;
-    case 1000029000:
+    case VK_STRUCTURE_TYPE_CU_MODULE_CREATE_INFO_NVX:
         dump_text_pNext<const VkCuModuleCreateInfoNVX>(reinterpret_cast<const VkCuModuleCreateInfoNVX*>(object), settings, "VkCuModuleCreateInfoNVX", indents, dump_text_VkCuModuleCreateInfoNVX);
         break;
-    case 1000029004:
+    case VK_STRUCTURE_TYPE_CU_MODULE_TEXTURING_MODE_CREATE_INFO_NVX:
         dump_text_pNext<const VkCuModuleTexturingModeCreateInfoNVX>(reinterpret_cast<const VkCuModuleTexturingModeCreateInfoNVX*>(object), settings, "VkCuModuleTexturingModeCreateInfoNVX", indents, dump_text_VkCuModuleTexturingModeCreateInfoNVX);
         break;
-    case 1000029001:
+    case VK_STRUCTURE_TYPE_CU_FUNCTION_CREATE_INFO_NVX:
         dump_text_pNext<const VkCuFunctionCreateInfoNVX>(reinterpret_cast<const VkCuFunctionCreateInfoNVX*>(object), settings, "VkCuFunctionCreateInfoNVX", indents, dump_text_VkCuFunctionCreateInfoNVX);
         break;
-    case 1000029002:
+    case VK_STRUCTURE_TYPE_CU_LAUNCH_INFO_NVX:
         dump_text_pNext<const VkCuLaunchInfoNVX>(reinterpret_cast<const VkCuLaunchInfoNVX*>(object), settings, "VkCuLaunchInfoNVX", indents, dump_text_VkCuLaunchInfoNVX);
         break;
-    case 1000030000:
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_HANDLE_INFO_NVX:
         dump_text_pNext<const VkImageViewHandleInfoNVX>(reinterpret_cast<const VkImageViewHandleInfoNVX*>(object), settings, "VkImageViewHandleInfoNVX", indents, dump_text_VkImageViewHandleInfoNVX);
         break;
-    case 1000030001:
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_ADDRESS_PROPERTIES_NVX:
         dump_text_pNext<const VkImageViewAddressPropertiesNVX>(reinterpret_cast<const VkImageViewAddressPropertiesNVX*>(object), settings, "VkImageViewAddressPropertiesNVX", indents, dump_text_VkImageViewAddressPropertiesNVX);
         break;
-    case 1000041000:
+    case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
         dump_text_pNext<const VkTextureLODGatherFormatPropertiesAMD>(reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(object), settings, "VkTextureLODGatherFormatPropertiesAMD", indents, dump_text_VkTextureLODGatherFormatPropertiesAMD);
         break;
 #if defined(VK_USE_PLATFORM_GGP)
-    case 1000049000:
+    case VK_STRUCTURE_TYPE_STREAM_DESCRIPTOR_SURFACE_CREATE_INFO_GGP:
         dump_text_pNext<const VkStreamDescriptorSurfaceCreateInfoGGP>(reinterpret_cast<const VkStreamDescriptorSurfaceCreateInfoGGP*>(object), settings, "VkStreamDescriptorSurfaceCreateInfoGGP", indents, dump_text_VkStreamDescriptorSurfaceCreateInfoGGP);
         break;
 #endif // VK_USE_PLATFORM_GGP
-    case 1000050000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CORNER_SAMPLED_IMAGE_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceCornerSampledImageFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCornerSampledImageFeaturesNV*>(object), settings, "VkPhysicalDeviceCornerSampledImageFeaturesNV", indents, dump_text_VkPhysicalDeviceCornerSampledImageFeaturesNV);
         break;
-    case 1000056000:
+    case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
         dump_text_pNext<const VkExternalMemoryImageCreateInfoNV>(reinterpret_cast<const VkExternalMemoryImageCreateInfoNV*>(object), settings, "VkExternalMemoryImageCreateInfoNV", indents, dump_text_VkExternalMemoryImageCreateInfoNV);
         break;
-    case 1000056001:
+    case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV:
         dump_text_pNext<const VkExportMemoryAllocateInfoNV>(reinterpret_cast<const VkExportMemoryAllocateInfoNV*>(object), settings, "VkExportMemoryAllocateInfoNV", indents, dump_text_VkExportMemoryAllocateInfoNV);
         break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000057000:
+    case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV:
         dump_text_pNext<const VkImportMemoryWin32HandleInfoNV>(reinterpret_cast<const VkImportMemoryWin32HandleInfoNV*>(object), settings, "VkImportMemoryWin32HandleInfoNV", indents, dump_text_VkImportMemoryWin32HandleInfoNV);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000057001:
+    case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV:
         dump_text_pNext<const VkExportMemoryWin32HandleInfoNV>(reinterpret_cast<const VkExportMemoryWin32HandleInfoNV*>(object), settings, "VkExportMemoryWin32HandleInfoNV", indents, dump_text_VkExportMemoryWin32HandleInfoNV);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000058000:
+    case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
         dump_text_pNext<const VkWin32KeyedMutexAcquireReleaseInfoNV>(reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoNV*>(object), settings, "VkWin32KeyedMutexAcquireReleaseInfoNV", indents, dump_text_VkWin32KeyedMutexAcquireReleaseInfoNV);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-    case 1000061000:
+    case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
         dump_text_pNext<const VkValidationFlagsEXT>(reinterpret_cast<const VkValidationFlagsEXT*>(object), settings, "VkValidationFlagsEXT", indents, dump_text_VkValidationFlagsEXT);
         break;
 #if defined(VK_USE_PLATFORM_VI_NN)
-    case 1000062000:
+    case VK_STRUCTURE_TYPE_VI_SURFACE_CREATE_INFO_NN:
         dump_text_pNext<const VkViSurfaceCreateInfoNN>(reinterpret_cast<const VkViSurfaceCreateInfoNN*>(object), settings, "VkViSurfaceCreateInfoNN", indents, dump_text_VkViSurfaceCreateInfoNN);
         break;
 #endif // VK_USE_PLATFORM_VI_NN
-    case 1000067000:
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_ASTC_DECODE_MODE_EXT:
         dump_text_pNext<const VkImageViewASTCDecodeModeEXT>(reinterpret_cast<const VkImageViewASTCDecodeModeEXT*>(object), settings, "VkImageViewASTCDecodeModeEXT", indents, dump_text_VkImageViewASTCDecodeModeEXT);
         break;
-    case 1000067001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ASTC_DECODE_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceASTCDecodeFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceASTCDecodeFeaturesEXT*>(object), settings, "VkPhysicalDeviceASTCDecodeFeaturesEXT", indents, dump_text_VkPhysicalDeviceASTCDecodeFeaturesEXT);
         break;
-    case 1000081002:
+    case VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT:
         dump_text_pNext<const VkConditionalRenderingBeginInfoEXT>(reinterpret_cast<const VkConditionalRenderingBeginInfoEXT*>(object), settings, "VkConditionalRenderingBeginInfoEXT", indents, dump_text_VkConditionalRenderingBeginInfoEXT);
         break;
-    case 1000081001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceConditionalRenderingFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceConditionalRenderingFeaturesEXT*>(object), settings, "VkPhysicalDeviceConditionalRenderingFeaturesEXT", indents, dump_text_VkPhysicalDeviceConditionalRenderingFeaturesEXT);
         break;
-    case 1000081000:
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT:
         dump_text_pNext<const VkCommandBufferInheritanceConditionalRenderingInfoEXT>(reinterpret_cast<const VkCommandBufferInheritanceConditionalRenderingInfoEXT*>(object), settings, "VkCommandBufferInheritanceConditionalRenderingInfoEXT", indents, dump_text_VkCommandBufferInheritanceConditionalRenderingInfoEXT);
         break;
-    case 1000087000:
+    case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_W_SCALING_STATE_CREATE_INFO_NV:
         dump_text_pNext<const VkPipelineViewportWScalingStateCreateInfoNV>(reinterpret_cast<const VkPipelineViewportWScalingStateCreateInfoNV*>(object), settings, "VkPipelineViewportWScalingStateCreateInfoNV", indents, dump_text_VkPipelineViewportWScalingStateCreateInfoNV);
         break;
-    case 1000090000:
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT:
         dump_text_pNext<const VkSurfaceCapabilities2EXT>(reinterpret_cast<const VkSurfaceCapabilities2EXT*>(object), settings, "VkSurfaceCapabilities2EXT", indents, dump_text_VkSurfaceCapabilities2EXT);
         break;
-    case 1000091000:
+    case VK_STRUCTURE_TYPE_DISPLAY_POWER_INFO_EXT:
         dump_text_pNext<const VkDisplayPowerInfoEXT>(reinterpret_cast<const VkDisplayPowerInfoEXT*>(object), settings, "VkDisplayPowerInfoEXT", indents, dump_text_VkDisplayPowerInfoEXT);
         break;
-    case 1000091001:
+    case VK_STRUCTURE_TYPE_DEVICE_EVENT_INFO_EXT:
         dump_text_pNext<const VkDeviceEventInfoEXT>(reinterpret_cast<const VkDeviceEventInfoEXT*>(object), settings, "VkDeviceEventInfoEXT", indents, dump_text_VkDeviceEventInfoEXT);
         break;
-    case 1000091002:
+    case VK_STRUCTURE_TYPE_DISPLAY_EVENT_INFO_EXT:
         dump_text_pNext<const VkDisplayEventInfoEXT>(reinterpret_cast<const VkDisplayEventInfoEXT*>(object), settings, "VkDisplayEventInfoEXT", indents, dump_text_VkDisplayEventInfoEXT);
         break;
-    case 1000091003:
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_COUNTER_CREATE_INFO_EXT:
         dump_text_pNext<const VkSwapchainCounterCreateInfoEXT>(reinterpret_cast<const VkSwapchainCounterCreateInfoEXT*>(object), settings, "VkSwapchainCounterCreateInfoEXT", indents, dump_text_VkSwapchainCounterCreateInfoEXT);
         break;
-    case 1000092000:
+    case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
         dump_text_pNext<const VkPresentTimesInfoGOOGLE>(reinterpret_cast<const VkPresentTimesInfoGOOGLE*>(object), settings, "VkPresentTimesInfoGOOGLE", indents, dump_text_VkPresentTimesInfoGOOGLE);
         break;
-    case 1000097000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_ATTRIBUTES_PROPERTIES_NVX:
         dump_text_pNext<const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX>(reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX*>(object), settings, "VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX", indents, dump_text_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX);
         break;
-    case 1000044009:
+    case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX:
         dump_text_pNext<const VkMultiviewPerViewAttributesInfoNVX>(reinterpret_cast<const VkMultiviewPerViewAttributesInfoNVX*>(object), settings, "VkMultiviewPerViewAttributesInfoNVX", indents, dump_text_VkMultiviewPerViewAttributesInfoNVX);
         break;
-    case 1000098000:
+    case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SWIZZLE_STATE_CREATE_INFO_NV:
         dump_text_pNext<const VkPipelineViewportSwizzleStateCreateInfoNV>(reinterpret_cast<const VkPipelineViewportSwizzleStateCreateInfoNV*>(object), settings, "VkPipelineViewportSwizzleStateCreateInfoNV", indents, dump_text_VkPipelineViewportSwizzleStateCreateInfoNV);
         break;
-    case 1000099000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISCARD_RECTANGLE_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDiscardRectanglePropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceDiscardRectanglePropertiesEXT*>(object), settings, "VkPhysicalDeviceDiscardRectanglePropertiesEXT", indents, dump_text_VkPhysicalDeviceDiscardRectanglePropertiesEXT);
         break;
-    case 1000099001:
+    case VK_STRUCTURE_TYPE_PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineDiscardRectangleStateCreateInfoEXT>(reinterpret_cast<const VkPipelineDiscardRectangleStateCreateInfoEXT*>(object), settings, "VkPipelineDiscardRectangleStateCreateInfoEXT", indents, dump_text_VkPipelineDiscardRectangleStateCreateInfoEXT);
         break;
-    case 1000101000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONSERVATIVE_RASTERIZATION_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceConservativeRasterizationPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceConservativeRasterizationPropertiesEXT*>(object), settings, "VkPhysicalDeviceConservativeRasterizationPropertiesEXT", indents, dump_text_VkPhysicalDeviceConservativeRasterizationPropertiesEXT);
         break;
-    case 1000101001:
+    case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineRasterizationConservativeStateCreateInfoEXT>(reinterpret_cast<const VkPipelineRasterizationConservativeStateCreateInfoEXT*>(object), settings, "VkPipelineRasterizationConservativeStateCreateInfoEXT", indents, dump_text_VkPipelineRasterizationConservativeStateCreateInfoEXT);
         break;
-    case 1000102000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDepthClipEnableFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDepthClipEnableFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthClipEnableFeaturesEXT", indents, dump_text_VkPhysicalDeviceDepthClipEnableFeaturesEXT);
         break;
-    case 1000102001:
+    case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineRasterizationDepthClipStateCreateInfoEXT>(reinterpret_cast<const VkPipelineRasterizationDepthClipStateCreateInfoEXT*>(object), settings, "VkPipelineRasterizationDepthClipStateCreateInfoEXT", indents, dump_text_VkPipelineRasterizationDepthClipStateCreateInfoEXT);
         break;
-    case 1000105000:
+    case VK_STRUCTURE_TYPE_HDR_METADATA_EXT:
         dump_text_pNext<const VkHdrMetadataEXT>(reinterpret_cast<const VkHdrMetadataEXT*>(object), settings, "VkHdrMetadataEXT", indents, dump_text_VkHdrMetadataEXT);
         break;
-    case 1000110000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG:
         dump_text_pNext<const VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG>(reinterpret_cast<const VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG*>(object), settings, "VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG", indents, dump_text_VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG);
         break;
 #if defined(VK_USE_PLATFORM_IOS_MVK)
-    case 1000122000:
+    case VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK:
         dump_text_pNext<const VkIOSSurfaceCreateInfoMVK>(reinterpret_cast<const VkIOSSurfaceCreateInfoMVK*>(object), settings, "VkIOSSurfaceCreateInfoMVK", indents, dump_text_VkIOSSurfaceCreateInfoMVK);
         break;
 #endif // VK_USE_PLATFORM_IOS_MVK
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
-    case 1000123000:
+    case VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK:
         dump_text_pNext<const VkMacOSSurfaceCreateInfoMVK>(reinterpret_cast<const VkMacOSSurfaceCreateInfoMVK*>(object), settings, "VkMacOSSurfaceCreateInfoMVK", indents, dump_text_VkMacOSSurfaceCreateInfoMVK);
         break;
 #endif // VK_USE_PLATFORM_MACOS_MVK
-    case 1000128002:
+    case VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT:
         dump_text_pNext<const VkDebugUtilsLabelEXT>(reinterpret_cast<const VkDebugUtilsLabelEXT*>(object), settings, "VkDebugUtilsLabelEXT", indents, dump_text_VkDebugUtilsLabelEXT);
         break;
-    case 1000128000:
+    case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
         dump_text_pNext<const VkDebugUtilsObjectNameInfoEXT>(reinterpret_cast<const VkDebugUtilsObjectNameInfoEXT*>(object), settings, "VkDebugUtilsObjectNameInfoEXT", indents, dump_text_VkDebugUtilsObjectNameInfoEXT);
         break;
-    case 1000128003:
+    case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT:
         dump_text_pNext<const VkDebugUtilsMessengerCallbackDataEXT>(reinterpret_cast<const VkDebugUtilsMessengerCallbackDataEXT*>(object), settings, "VkDebugUtilsMessengerCallbackDataEXT", indents, dump_text_VkDebugUtilsMessengerCallbackDataEXT);
         break;
-    case 1000128004:
+    case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
         dump_text_pNext<const VkDebugUtilsMessengerCreateInfoEXT>(reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(object), settings, "VkDebugUtilsMessengerCreateInfoEXT", indents, dump_text_VkDebugUtilsMessengerCreateInfoEXT);
         break;
-    case 1000128001:
+    case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT:
         dump_text_pNext<const VkDebugUtilsObjectTagInfoEXT>(reinterpret_cast<const VkDebugUtilsObjectTagInfoEXT*>(object), settings, "VkDebugUtilsObjectTagInfoEXT", indents, dump_text_VkDebugUtilsObjectTagInfoEXT);
         break;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000129000:
+    case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID:
         dump_text_pNext<const VkAndroidHardwareBufferUsageANDROID>(reinterpret_cast<const VkAndroidHardwareBufferUsageANDROID*>(object), settings, "VkAndroidHardwareBufferUsageANDROID", indents, dump_text_VkAndroidHardwareBufferUsageANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000129001:
+    case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID:
         dump_text_pNext<const VkAndroidHardwareBufferPropertiesANDROID>(reinterpret_cast<const VkAndroidHardwareBufferPropertiesANDROID*>(object), settings, "VkAndroidHardwareBufferPropertiesANDROID", indents, dump_text_VkAndroidHardwareBufferPropertiesANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000129002:
+    case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID:
         dump_text_pNext<const VkAndroidHardwareBufferFormatPropertiesANDROID>(reinterpret_cast<const VkAndroidHardwareBufferFormatPropertiesANDROID*>(object), settings, "VkAndroidHardwareBufferFormatPropertiesANDROID", indents, dump_text_VkAndroidHardwareBufferFormatPropertiesANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000129003:
+    case VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
         dump_text_pNext<const VkImportAndroidHardwareBufferInfoANDROID>(reinterpret_cast<const VkImportAndroidHardwareBufferInfoANDROID*>(object), settings, "VkImportAndroidHardwareBufferInfoANDROID", indents, dump_text_VkImportAndroidHardwareBufferInfoANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000129004:
+    case VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
         dump_text_pNext<const VkMemoryGetAndroidHardwareBufferInfoANDROID>(reinterpret_cast<const VkMemoryGetAndroidHardwareBufferInfoANDROID*>(object), settings, "VkMemoryGetAndroidHardwareBufferInfoANDROID", indents, dump_text_VkMemoryGetAndroidHardwareBufferInfoANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000129005:
+    case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID:
         dump_text_pNext<const VkExternalFormatANDROID>(reinterpret_cast<const VkExternalFormatANDROID*>(object), settings, "VkExternalFormatANDROID", indents, dump_text_VkExternalFormatANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000129006:
+    case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID:
         dump_text_pNext<const VkAndroidHardwareBufferFormatProperties2ANDROID>(reinterpret_cast<const VkAndroidHardwareBufferFormatProperties2ANDROID*>(object), settings, "VkAndroidHardwareBufferFormatProperties2ANDROID", indents, dump_text_VkAndroidHardwareBufferFormatProperties2ANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000134000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX:
         dump_text_pNext<const VkPhysicalDeviceShaderEnqueueFeaturesAMDX>(reinterpret_cast<const VkPhysicalDeviceShaderEnqueueFeaturesAMDX*>(object), settings, "VkPhysicalDeviceShaderEnqueueFeaturesAMDX", indents, dump_text_VkPhysicalDeviceShaderEnqueueFeaturesAMDX);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000134001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_PROPERTIES_AMDX:
         dump_text_pNext<const VkPhysicalDeviceShaderEnqueuePropertiesAMDX>(reinterpret_cast<const VkPhysicalDeviceShaderEnqueuePropertiesAMDX*>(object), settings, "VkPhysicalDeviceShaderEnqueuePropertiesAMDX", indents, dump_text_VkPhysicalDeviceShaderEnqueuePropertiesAMDX);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000134002:
+    case VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_SCRATCH_SIZE_AMDX:
         dump_text_pNext<const VkExecutionGraphPipelineScratchSizeAMDX>(reinterpret_cast<const VkExecutionGraphPipelineScratchSizeAMDX*>(object), settings, "VkExecutionGraphPipelineScratchSizeAMDX", indents, dump_text_VkExecutionGraphPipelineScratchSizeAMDX);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000134003:
+    case VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_CREATE_INFO_AMDX:
         dump_text_pNext<const VkExecutionGraphPipelineCreateInfoAMDX>(reinterpret_cast<const VkExecutionGraphPipelineCreateInfoAMDX*>(object), settings, "VkExecutionGraphPipelineCreateInfoAMDX", indents, dump_text_VkExecutionGraphPipelineCreateInfoAMDX);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
@@ -38345,1631 +38345,1631 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000134004:
+    case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_NODE_CREATE_INFO_AMDX:
         dump_text_pNext<const VkPipelineShaderStageNodeCreateInfoAMDX>(reinterpret_cast<const VkPipelineShaderStageNodeCreateInfoAMDX*>(object), settings, "VkPipelineShaderStageNodeCreateInfoAMDX", indents, dump_text_VkPipelineShaderStageNodeCreateInfoAMDX);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
-    case 1000044008:
+    case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
         dump_text_pNext<const VkAttachmentSampleCountInfoAMD>(reinterpret_cast<const VkAttachmentSampleCountInfoAMD*>(object), settings, "VkAttachmentSampleCountInfoAMD", indents, dump_text_VkAttachmentSampleCountInfoAMD);
         break;
-    case 1000143000:
+    case VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT:
         dump_text_pNext<const VkSampleLocationsInfoEXT>(reinterpret_cast<const VkSampleLocationsInfoEXT*>(object), settings, "VkSampleLocationsInfoEXT", indents, dump_text_VkSampleLocationsInfoEXT);
         break;
-    case 1000143001:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
         dump_text_pNext<const VkRenderPassSampleLocationsBeginInfoEXT>(reinterpret_cast<const VkRenderPassSampleLocationsBeginInfoEXT*>(object), settings, "VkRenderPassSampleLocationsBeginInfoEXT", indents, dump_text_VkRenderPassSampleLocationsBeginInfoEXT);
         break;
-    case 1000143002:
+    case VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineSampleLocationsStateCreateInfoEXT>(reinterpret_cast<const VkPipelineSampleLocationsStateCreateInfoEXT*>(object), settings, "VkPipelineSampleLocationsStateCreateInfoEXT", indents, dump_text_VkPipelineSampleLocationsStateCreateInfoEXT);
         break;
-    case 1000143003:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceSampleLocationsPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceSampleLocationsPropertiesEXT*>(object), settings, "VkPhysicalDeviceSampleLocationsPropertiesEXT", indents, dump_text_VkPhysicalDeviceSampleLocationsPropertiesEXT);
         break;
-    case 1000143004:
+    case VK_STRUCTURE_TYPE_MULTISAMPLE_PROPERTIES_EXT:
         dump_text_pNext<const VkMultisamplePropertiesEXT>(reinterpret_cast<const VkMultisamplePropertiesEXT*>(object), settings, "VkMultisamplePropertiesEXT", indents, dump_text_VkMultisamplePropertiesEXT);
         break;
-    case 1000148000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(object), settings, "VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT", indents, dump_text_VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT);
         break;
-    case 1000148001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT*>(object), settings, "VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT", indents, dump_text_VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT);
         break;
-    case 1000148002:
+    case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineColorBlendAdvancedStateCreateInfoEXT>(reinterpret_cast<const VkPipelineColorBlendAdvancedStateCreateInfoEXT*>(object), settings, "VkPipelineColorBlendAdvancedStateCreateInfoEXT", indents, dump_text_VkPipelineColorBlendAdvancedStateCreateInfoEXT);
         break;
-    case 1000149000:
+    case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_TO_COLOR_STATE_CREATE_INFO_NV:
         dump_text_pNext<const VkPipelineCoverageToColorStateCreateInfoNV>(reinterpret_cast<const VkPipelineCoverageToColorStateCreateInfoNV*>(object), settings, "VkPipelineCoverageToColorStateCreateInfoNV", indents, dump_text_VkPipelineCoverageToColorStateCreateInfoNV);
         break;
-    case 1000152000:
+    case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV:
         dump_text_pNext<const VkPipelineCoverageModulationStateCreateInfoNV>(reinterpret_cast<const VkPipelineCoverageModulationStateCreateInfoNV*>(object), settings, "VkPipelineCoverageModulationStateCreateInfoNV", indents, dump_text_VkPipelineCoverageModulationStateCreateInfoNV);
         break;
-    case 1000154001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV*>(object), settings, "VkPhysicalDeviceShaderSMBuiltinsPropertiesNV", indents, dump_text_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV);
         break;
-    case 1000154000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceShaderSMBuiltinsFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceShaderSMBuiltinsFeaturesNV*>(object), settings, "VkPhysicalDeviceShaderSMBuiltinsFeaturesNV", indents, dump_text_VkPhysicalDeviceShaderSMBuiltinsFeaturesNV);
         break;
-    case 1000158000:
+    case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT:
         dump_text_pNext<const VkDrmFormatModifierPropertiesListEXT>(reinterpret_cast<const VkDrmFormatModifierPropertiesListEXT*>(object), settings, "VkDrmFormatModifierPropertiesListEXT", indents, dump_text_VkDrmFormatModifierPropertiesListEXT);
         break;
-    case 1000158002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT:
         dump_text_pNext<const VkPhysicalDeviceImageDrmFormatModifierInfoEXT>(reinterpret_cast<const VkPhysicalDeviceImageDrmFormatModifierInfoEXT*>(object), settings, "VkPhysicalDeviceImageDrmFormatModifierInfoEXT", indents, dump_text_VkPhysicalDeviceImageDrmFormatModifierInfoEXT);
         break;
-    case 1000158003:
+    case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT:
         dump_text_pNext<const VkImageDrmFormatModifierListCreateInfoEXT>(reinterpret_cast<const VkImageDrmFormatModifierListCreateInfoEXT*>(object), settings, "VkImageDrmFormatModifierListCreateInfoEXT", indents, dump_text_VkImageDrmFormatModifierListCreateInfoEXT);
         break;
-    case 1000158004:
+    case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT:
         dump_text_pNext<const VkImageDrmFormatModifierExplicitCreateInfoEXT>(reinterpret_cast<const VkImageDrmFormatModifierExplicitCreateInfoEXT*>(object), settings, "VkImageDrmFormatModifierExplicitCreateInfoEXT", indents, dump_text_VkImageDrmFormatModifierExplicitCreateInfoEXT);
         break;
-    case 1000158005:
+    case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT:
         dump_text_pNext<const VkImageDrmFormatModifierPropertiesEXT>(reinterpret_cast<const VkImageDrmFormatModifierPropertiesEXT*>(object), settings, "VkImageDrmFormatModifierPropertiesEXT", indents, dump_text_VkImageDrmFormatModifierPropertiesEXT);
         break;
-    case 1000158006:
+    case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_2_EXT:
         dump_text_pNext<const VkDrmFormatModifierPropertiesList2EXT>(reinterpret_cast<const VkDrmFormatModifierPropertiesList2EXT*>(object), settings, "VkDrmFormatModifierPropertiesList2EXT", indents, dump_text_VkDrmFormatModifierPropertiesList2EXT);
         break;
-    case 1000160000:
+    case VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT:
         dump_text_pNext<const VkValidationCacheCreateInfoEXT>(reinterpret_cast<const VkValidationCacheCreateInfoEXT*>(object), settings, "VkValidationCacheCreateInfoEXT", indents, dump_text_VkValidationCacheCreateInfoEXT);
         break;
-    case 1000160001:
+    case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
         dump_text_pNext<const VkShaderModuleValidationCacheCreateInfoEXT>(reinterpret_cast<const VkShaderModuleValidationCacheCreateInfoEXT*>(object), settings, "VkShaderModuleValidationCacheCreateInfoEXT", indents, dump_text_VkShaderModuleValidationCacheCreateInfoEXT);
         break;
-    case 1000164000:
+    case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SHADING_RATE_IMAGE_STATE_CREATE_INFO_NV:
         dump_text_pNext<const VkPipelineViewportShadingRateImageStateCreateInfoNV>(reinterpret_cast<const VkPipelineViewportShadingRateImageStateCreateInfoNV*>(object), settings, "VkPipelineViewportShadingRateImageStateCreateInfoNV", indents, dump_text_VkPipelineViewportShadingRateImageStateCreateInfoNV);
         break;
-    case 1000164001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceShadingRateImageFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceShadingRateImageFeaturesNV*>(object), settings, "VkPhysicalDeviceShadingRateImageFeaturesNV", indents, dump_text_VkPhysicalDeviceShadingRateImageFeaturesNV);
         break;
-    case 1000164002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceShadingRateImagePropertiesNV>(reinterpret_cast<const VkPhysicalDeviceShadingRateImagePropertiesNV*>(object), settings, "VkPhysicalDeviceShadingRateImagePropertiesNV", indents, dump_text_VkPhysicalDeviceShadingRateImagePropertiesNV);
         break;
-    case 1000164005:
+    case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_COARSE_SAMPLE_ORDER_STATE_CREATE_INFO_NV:
         dump_text_pNext<const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV>(reinterpret_cast<const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV*>(object), settings, "VkPipelineViewportCoarseSampleOrderStateCreateInfoNV", indents, dump_text_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV);
         break;
-    case 1000165011:
+    case VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV:
         dump_text_pNext<const VkRayTracingShaderGroupCreateInfoNV>(reinterpret_cast<const VkRayTracingShaderGroupCreateInfoNV*>(object), settings, "VkRayTracingShaderGroupCreateInfoNV", indents, dump_text_VkRayTracingShaderGroupCreateInfoNV);
         break;
-    case 1000165000:
+    case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV:
         dump_text_pNext<const VkRayTracingPipelineCreateInfoNV>(reinterpret_cast<const VkRayTracingPipelineCreateInfoNV*>(object), settings, "VkRayTracingPipelineCreateInfoNV", indents, dump_text_VkRayTracingPipelineCreateInfoNV);
         break;
-    case 1000165004:
+    case VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV:
         dump_text_pNext<const VkGeometryTrianglesNV>(reinterpret_cast<const VkGeometryTrianglesNV*>(object), settings, "VkGeometryTrianglesNV", indents, dump_text_VkGeometryTrianglesNV);
         break;
-    case 1000165005:
+    case VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV:
         dump_text_pNext<const VkGeometryAABBNV>(reinterpret_cast<const VkGeometryAABBNV*>(object), settings, "VkGeometryAABBNV", indents, dump_text_VkGeometryAABBNV);
         break;
-    case 1000165003:
+    case VK_STRUCTURE_TYPE_GEOMETRY_NV:
         dump_text_pNext<const VkGeometryNV>(reinterpret_cast<const VkGeometryNV*>(object), settings, "VkGeometryNV", indents, dump_text_VkGeometryNV);
         break;
-    case 1000165012:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV:
         dump_text_pNext<const VkAccelerationStructureInfoNV>(reinterpret_cast<const VkAccelerationStructureInfoNV*>(object), settings, "VkAccelerationStructureInfoNV", indents, dump_text_VkAccelerationStructureInfoNV);
         break;
-    case 1000165001:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV:
         dump_text_pNext<const VkAccelerationStructureCreateInfoNV>(reinterpret_cast<const VkAccelerationStructureCreateInfoNV*>(object), settings, "VkAccelerationStructureCreateInfoNV", indents, dump_text_VkAccelerationStructureCreateInfoNV);
         break;
-    case 1000165006:
+    case VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_NV:
         dump_text_pNext<const VkBindAccelerationStructureMemoryInfoNV>(reinterpret_cast<const VkBindAccelerationStructureMemoryInfoNV*>(object), settings, "VkBindAccelerationStructureMemoryInfoNV", indents, dump_text_VkBindAccelerationStructureMemoryInfoNV);
         break;
-    case 1000165007:
+    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
         dump_text_pNext<const VkWriteDescriptorSetAccelerationStructureNV>(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(object), settings, "VkWriteDescriptorSetAccelerationStructureNV", indents, dump_text_VkWriteDescriptorSetAccelerationStructureNV);
         break;
-    case 1000165008:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV:
         dump_text_pNext<const VkAccelerationStructureMemoryRequirementsInfoNV>(reinterpret_cast<const VkAccelerationStructureMemoryRequirementsInfoNV*>(object), settings, "VkAccelerationStructureMemoryRequirementsInfoNV", indents, dump_text_VkAccelerationStructureMemoryRequirementsInfoNV);
         break;
-    case 1000165009:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceRayTracingPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingPropertiesNV*>(object), settings, "VkPhysicalDeviceRayTracingPropertiesNV", indents, dump_text_VkPhysicalDeviceRayTracingPropertiesNV);
         break;
-    case 1000166000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_REPRESENTATIVE_FRAGMENT_TEST_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV*>(object), settings, "VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV", indents, dump_text_VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV);
         break;
-    case 1000166001:
+    case VK_STRUCTURE_TYPE_PIPELINE_REPRESENTATIVE_FRAGMENT_TEST_STATE_CREATE_INFO_NV:
         dump_text_pNext<const VkPipelineRepresentativeFragmentTestStateCreateInfoNV>(reinterpret_cast<const VkPipelineRepresentativeFragmentTestStateCreateInfoNV*>(object), settings, "VkPipelineRepresentativeFragmentTestStateCreateInfoNV", indents, dump_text_VkPipelineRepresentativeFragmentTestStateCreateInfoNV);
         break;
-    case 1000170000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_IMAGE_FORMAT_INFO_EXT:
         dump_text_pNext<const VkPhysicalDeviceImageViewImageFormatInfoEXT>(reinterpret_cast<const VkPhysicalDeviceImageViewImageFormatInfoEXT*>(object), settings, "VkPhysicalDeviceImageViewImageFormatInfoEXT", indents, dump_text_VkPhysicalDeviceImageViewImageFormatInfoEXT);
         break;
-    case 1000170001:
+    case VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT:
         dump_text_pNext<const VkFilterCubicImageViewImageFormatPropertiesEXT>(reinterpret_cast<const VkFilterCubicImageViewImageFormatPropertiesEXT*>(object), settings, "VkFilterCubicImageViewImageFormatPropertiesEXT", indents, dump_text_VkFilterCubicImageViewImageFormatPropertiesEXT);
         break;
-    case 1000178000:
+    case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
         dump_text_pNext<const VkImportMemoryHostPointerInfoEXT>(reinterpret_cast<const VkImportMemoryHostPointerInfoEXT*>(object), settings, "VkImportMemoryHostPointerInfoEXT", indents, dump_text_VkImportMemoryHostPointerInfoEXT);
         break;
-    case 1000178001:
+    case VK_STRUCTURE_TYPE_MEMORY_HOST_POINTER_PROPERTIES_EXT:
         dump_text_pNext<const VkMemoryHostPointerPropertiesEXT>(reinterpret_cast<const VkMemoryHostPointerPropertiesEXT*>(object), settings, "VkMemoryHostPointerPropertiesEXT", indents, dump_text_VkMemoryHostPointerPropertiesEXT);
         break;
-    case 1000178002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceExternalMemoryHostPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceExternalMemoryHostPropertiesEXT*>(object), settings, "VkPhysicalDeviceExternalMemoryHostPropertiesEXT", indents, dump_text_VkPhysicalDeviceExternalMemoryHostPropertiesEXT);
         break;
-    case 1000183000:
+    case VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD:
         dump_text_pNext<const VkPipelineCompilerControlCreateInfoAMD>(reinterpret_cast<const VkPipelineCompilerControlCreateInfoAMD*>(object), settings, "VkPipelineCompilerControlCreateInfoAMD", indents, dump_text_VkPipelineCompilerControlCreateInfoAMD);
         break;
-    case 1000185000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD:
         dump_text_pNext<const VkPhysicalDeviceShaderCorePropertiesAMD>(reinterpret_cast<const VkPhysicalDeviceShaderCorePropertiesAMD*>(object), settings, "VkPhysicalDeviceShaderCorePropertiesAMD", indents, dump_text_VkPhysicalDeviceShaderCorePropertiesAMD);
         break;
-    case 1000189000:
+    case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD:
         dump_text_pNext<const VkDeviceMemoryOverallocationCreateInfoAMD>(reinterpret_cast<const VkDeviceMemoryOverallocationCreateInfoAMD*>(object), settings, "VkDeviceMemoryOverallocationCreateInfoAMD", indents, dump_text_VkDeviceMemoryOverallocationCreateInfoAMD);
         break;
-    case 1000190000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT*>(object), settings, "VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT", indents, dump_text_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT);
         break;
 #if defined(VK_USE_PLATFORM_GGP)
-    case 1000191000:
+    case VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP:
         dump_text_pNext<const VkPresentFrameTokenGGP>(reinterpret_cast<const VkPresentFrameTokenGGP*>(object), settings, "VkPresentFrameTokenGGP", indents, dump_text_VkPresentFrameTokenGGP);
         break;
 #endif // VK_USE_PLATFORM_GGP
-    case 1000202000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceMeshShaderFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceMeshShaderFeaturesNV*>(object), settings, "VkPhysicalDeviceMeshShaderFeaturesNV", indents, dump_text_VkPhysicalDeviceMeshShaderFeaturesNV);
         break;
-    case 1000202001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceMeshShaderPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceMeshShaderPropertiesNV*>(object), settings, "VkPhysicalDeviceMeshShaderPropertiesNV", indents, dump_text_VkPhysicalDeviceMeshShaderPropertiesNV);
         break;
-    case 1000204000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_FOOTPRINT_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceShaderImageFootprintFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceShaderImageFootprintFeaturesNV*>(object), settings, "VkPhysicalDeviceShaderImageFootprintFeaturesNV", indents, dump_text_VkPhysicalDeviceShaderImageFootprintFeaturesNV);
         break;
-    case 1000205000:
+    case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_EXCLUSIVE_SCISSOR_STATE_CREATE_INFO_NV:
         dump_text_pNext<const VkPipelineViewportExclusiveScissorStateCreateInfoNV>(reinterpret_cast<const VkPipelineViewportExclusiveScissorStateCreateInfoNV*>(object), settings, "VkPipelineViewportExclusiveScissorStateCreateInfoNV", indents, dump_text_VkPipelineViewportExclusiveScissorStateCreateInfoNV);
         break;
-    case 1000205002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXCLUSIVE_SCISSOR_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceExclusiveScissorFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceExclusiveScissorFeaturesNV*>(object), settings, "VkPhysicalDeviceExclusiveScissorFeaturesNV", indents, dump_text_VkPhysicalDeviceExclusiveScissorFeaturesNV);
         break;
-    case 1000206001:
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV:
         dump_text_pNext<const VkQueueFamilyCheckpointPropertiesNV>(reinterpret_cast<const VkQueueFamilyCheckpointPropertiesNV*>(object), settings, "VkQueueFamilyCheckpointPropertiesNV", indents, dump_text_VkQueueFamilyCheckpointPropertiesNV);
         break;
-    case 1000206000:
+    case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV:
         dump_text_pNext<const VkCheckpointDataNV>(reinterpret_cast<const VkCheckpointDataNV*>(object), settings, "VkCheckpointDataNV", indents, dump_text_VkCheckpointDataNV);
         break;
-    case 1000314008:
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV:
         dump_text_pNext<const VkQueueFamilyCheckpointProperties2NV>(reinterpret_cast<const VkQueueFamilyCheckpointProperties2NV*>(object), settings, "VkQueueFamilyCheckpointProperties2NV", indents, dump_text_VkQueueFamilyCheckpointProperties2NV);
         break;
-    case 1000314009:
+    case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV:
         dump_text_pNext<const VkCheckpointData2NV>(reinterpret_cast<const VkCheckpointData2NV*>(object), settings, "VkCheckpointData2NV", indents, dump_text_VkCheckpointData2NV);
         break;
-    case 1000209000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL:
         dump_text_pNext<const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL>(reinterpret_cast<const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL*>(object), settings, "VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL", indents, dump_text_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL);
         break;
-    case 1000210001:
+    case VK_STRUCTURE_TYPE_INITIALIZE_PERFORMANCE_API_INFO_INTEL:
         dump_text_pNext<const VkInitializePerformanceApiInfoINTEL>(reinterpret_cast<const VkInitializePerformanceApiInfoINTEL*>(object), settings, "VkInitializePerformanceApiInfoINTEL", indents, dump_text_VkInitializePerformanceApiInfoINTEL);
         break;
-    case 1000210000:
+    case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL:
         dump_text_pNext<const VkQueryPoolPerformanceQueryCreateInfoINTEL>(reinterpret_cast<const VkQueryPoolPerformanceQueryCreateInfoINTEL*>(object), settings, "VkQueryPoolPerformanceQueryCreateInfoINTEL", indents, dump_text_VkQueryPoolPerformanceQueryCreateInfoINTEL);
         break;
-    case 1000210002:
+    case VK_STRUCTURE_TYPE_PERFORMANCE_MARKER_INFO_INTEL:
         dump_text_pNext<const VkPerformanceMarkerInfoINTEL>(reinterpret_cast<const VkPerformanceMarkerInfoINTEL*>(object), settings, "VkPerformanceMarkerInfoINTEL", indents, dump_text_VkPerformanceMarkerInfoINTEL);
         break;
-    case 1000210003:
+    case VK_STRUCTURE_TYPE_PERFORMANCE_STREAM_MARKER_INFO_INTEL:
         dump_text_pNext<const VkPerformanceStreamMarkerInfoINTEL>(reinterpret_cast<const VkPerformanceStreamMarkerInfoINTEL*>(object), settings, "VkPerformanceStreamMarkerInfoINTEL", indents, dump_text_VkPerformanceStreamMarkerInfoINTEL);
         break;
-    case 1000210004:
+    case VK_STRUCTURE_TYPE_PERFORMANCE_OVERRIDE_INFO_INTEL:
         dump_text_pNext<const VkPerformanceOverrideInfoINTEL>(reinterpret_cast<const VkPerformanceOverrideInfoINTEL*>(object), settings, "VkPerformanceOverrideInfoINTEL", indents, dump_text_VkPerformanceOverrideInfoINTEL);
         break;
-    case 1000210005:
+    case VK_STRUCTURE_TYPE_PERFORMANCE_CONFIGURATION_ACQUIRE_INFO_INTEL:
         dump_text_pNext<const VkPerformanceConfigurationAcquireInfoINTEL>(reinterpret_cast<const VkPerformanceConfigurationAcquireInfoINTEL*>(object), settings, "VkPerformanceConfigurationAcquireInfoINTEL", indents, dump_text_VkPerformanceConfigurationAcquireInfoINTEL);
         break;
-    case 1000212000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDevicePCIBusInfoPropertiesEXT>(reinterpret_cast<const VkPhysicalDevicePCIBusInfoPropertiesEXT*>(object), settings, "VkPhysicalDevicePCIBusInfoPropertiesEXT", indents, dump_text_VkPhysicalDevicePCIBusInfoPropertiesEXT);
         break;
-    case 1000213000:
+    case VK_STRUCTURE_TYPE_DISPLAY_NATIVE_HDR_SURFACE_CAPABILITIES_AMD:
         dump_text_pNext<const VkDisplayNativeHdrSurfaceCapabilitiesAMD>(reinterpret_cast<const VkDisplayNativeHdrSurfaceCapabilitiesAMD*>(object), settings, "VkDisplayNativeHdrSurfaceCapabilitiesAMD", indents, dump_text_VkDisplayNativeHdrSurfaceCapabilitiesAMD);
         break;
-    case 1000213001:
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_DISPLAY_NATIVE_HDR_CREATE_INFO_AMD:
         dump_text_pNext<const VkSwapchainDisplayNativeHdrCreateInfoAMD>(reinterpret_cast<const VkSwapchainDisplayNativeHdrCreateInfoAMD*>(object), settings, "VkSwapchainDisplayNativeHdrCreateInfoAMD", indents, dump_text_VkSwapchainDisplayNativeHdrCreateInfoAMD);
         break;
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000214000:
+    case VK_STRUCTURE_TYPE_IMAGEPIPE_SURFACE_CREATE_INFO_FUCHSIA:
         dump_text_pNext<const VkImagePipeSurfaceCreateInfoFUCHSIA>(reinterpret_cast<const VkImagePipeSurfaceCreateInfoFUCHSIA*>(object), settings, "VkImagePipeSurfaceCreateInfoFUCHSIA", indents, dump_text_VkImagePipeSurfaceCreateInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000217000:
+    case VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT:
         dump_text_pNext<const VkMetalSurfaceCreateInfoEXT>(reinterpret_cast<const VkMetalSurfaceCreateInfoEXT*>(object), settings, "VkMetalSurfaceCreateInfoEXT", indents, dump_text_VkMetalSurfaceCreateInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
-    case 1000218000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceFragmentDensityMapFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapFeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapFeaturesEXT", indents, dump_text_VkPhysicalDeviceFragmentDensityMapFeaturesEXT);
         break;
-    case 1000218001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceFragmentDensityMapPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapPropertiesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapPropertiesEXT", indents, dump_text_VkPhysicalDeviceFragmentDensityMapPropertiesEXT);
         break;
-    case 1000218002:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_CREATE_INFO_EXT:
         dump_text_pNext<const VkRenderPassFragmentDensityMapCreateInfoEXT>(reinterpret_cast<const VkRenderPassFragmentDensityMapCreateInfoEXT*>(object), settings, "VkRenderPassFragmentDensityMapCreateInfoEXT", indents, dump_text_VkRenderPassFragmentDensityMapCreateInfoEXT);
         break;
-    case 1000044007:
+    case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
         dump_text_pNext<const VkRenderingFragmentDensityMapAttachmentInfoEXT>(reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(object), settings, "VkRenderingFragmentDensityMapAttachmentInfoEXT", indents, dump_text_VkRenderingFragmentDensityMapAttachmentInfoEXT);
         break;
-    case 1000227000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_2_AMD:
         dump_text_pNext<const VkPhysicalDeviceShaderCoreProperties2AMD>(reinterpret_cast<const VkPhysicalDeviceShaderCoreProperties2AMD*>(object), settings, "VkPhysicalDeviceShaderCoreProperties2AMD", indents, dump_text_VkPhysicalDeviceShaderCoreProperties2AMD);
         break;
-    case 1000229000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COHERENT_MEMORY_FEATURES_AMD:
         dump_text_pNext<const VkPhysicalDeviceCoherentMemoryFeaturesAMD>(reinterpret_cast<const VkPhysicalDeviceCoherentMemoryFeaturesAMD*>(object), settings, "VkPhysicalDeviceCoherentMemoryFeaturesAMD", indents, dump_text_VkPhysicalDeviceCoherentMemoryFeaturesAMD);
         break;
-    case 1000234000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT", indents, dump_text_VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT);
         break;
-    case 1000237000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceMemoryBudgetPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceMemoryBudgetPropertiesEXT*>(object), settings, "VkPhysicalDeviceMemoryBudgetPropertiesEXT", indents, dump_text_VkPhysicalDeviceMemoryBudgetPropertiesEXT);
         break;
-    case 1000238000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceMemoryPriorityFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMemoryPriorityFeaturesEXT*>(object), settings, "VkPhysicalDeviceMemoryPriorityFeaturesEXT", indents, dump_text_VkPhysicalDeviceMemoryPriorityFeaturesEXT);
         break;
-    case 1000238001:
+    case VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT:
         dump_text_pNext<const VkMemoryPriorityAllocateInfoEXT>(reinterpret_cast<const VkMemoryPriorityAllocateInfoEXT*>(object), settings, "VkMemoryPriorityAllocateInfoEXT", indents, dump_text_VkMemoryPriorityAllocateInfoEXT);
         break;
-    case 1000240000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEDICATED_ALLOCATION_IMAGE_ALIASING_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV*>(object), settings, "VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV", indents, dump_text_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV);
         break;
-    case 1000244000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceBufferDeviceAddressFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceBufferDeviceAddressFeaturesEXT*>(object), settings, "VkPhysicalDeviceBufferDeviceAddressFeaturesEXT", indents, dump_text_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT);
         break;
-    case 1000244002:
+    case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT:
         dump_text_pNext<const VkBufferDeviceAddressCreateInfoEXT>(reinterpret_cast<const VkBufferDeviceAddressCreateInfoEXT*>(object), settings, "VkBufferDeviceAddressCreateInfoEXT", indents, dump_text_VkBufferDeviceAddressCreateInfoEXT);
         break;
-    case 1000247000:
+    case VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT:
         dump_text_pNext<const VkValidationFeaturesEXT>(reinterpret_cast<const VkValidationFeaturesEXT*>(object), settings, "VkValidationFeaturesEXT", indents, dump_text_VkValidationFeaturesEXT);
         break;
-    case 1000249001:
+    case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_NV:
         dump_text_pNext<const VkCooperativeMatrixPropertiesNV>(reinterpret_cast<const VkCooperativeMatrixPropertiesNV*>(object), settings, "VkCooperativeMatrixPropertiesNV", indents, dump_text_VkCooperativeMatrixPropertiesNV);
         break;
-    case 1000249000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceCooperativeMatrixFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrixFeaturesNV", indents, dump_text_VkPhysicalDeviceCooperativeMatrixFeaturesNV);
         break;
-    case 1000249002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceCooperativeMatrixPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixPropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrixPropertiesNV", indents, dump_text_VkPhysicalDeviceCooperativeMatrixPropertiesNV);
         break;
-    case 1000250000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COVERAGE_REDUCTION_MODE_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceCoverageReductionModeFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCoverageReductionModeFeaturesNV*>(object), settings, "VkPhysicalDeviceCoverageReductionModeFeaturesNV", indents, dump_text_VkPhysicalDeviceCoverageReductionModeFeaturesNV);
         break;
-    case 1000250001:
+    case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_REDUCTION_STATE_CREATE_INFO_NV:
         dump_text_pNext<const VkPipelineCoverageReductionStateCreateInfoNV>(reinterpret_cast<const VkPipelineCoverageReductionStateCreateInfoNV*>(object), settings, "VkPipelineCoverageReductionStateCreateInfoNV", indents, dump_text_VkPipelineCoverageReductionStateCreateInfoNV);
         break;
-    case 1000250002:
+    case VK_STRUCTURE_TYPE_FRAMEBUFFER_MIXED_SAMPLES_COMBINATION_NV:
         dump_text_pNext<const VkFramebufferMixedSamplesCombinationNV>(reinterpret_cast<const VkFramebufferMixedSamplesCombinationNV*>(object), settings, "VkFramebufferMixedSamplesCombinationNV", indents, dump_text_VkFramebufferMixedSamplesCombinationNV);
         break;
-    case 1000251000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT", indents, dump_text_VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT);
         break;
-    case 1000252000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_IMAGE_ARRAYS_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT*>(object), settings, "VkPhysicalDeviceYcbcrImageArraysFeaturesEXT", indents, dump_text_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT);
         break;
-    case 1000254000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceProvokingVertexFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceProvokingVertexFeaturesEXT*>(object), settings, "VkPhysicalDeviceProvokingVertexFeaturesEXT", indents, dump_text_VkPhysicalDeviceProvokingVertexFeaturesEXT);
         break;
-    case 1000254002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceProvokingVertexPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceProvokingVertexPropertiesEXT*>(object), settings, "VkPhysicalDeviceProvokingVertexPropertiesEXT", indents, dump_text_VkPhysicalDeviceProvokingVertexPropertiesEXT);
         break;
-    case 1000254001:
+    case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT>(reinterpret_cast<const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT*>(object), settings, "VkPipelineRasterizationProvokingVertexStateCreateInfoEXT", indents, dump_text_VkPipelineRasterizationProvokingVertexStateCreateInfoEXT);
         break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000255000:
+    case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT:
         dump_text_pNext<const VkSurfaceFullScreenExclusiveInfoEXT>(reinterpret_cast<const VkSurfaceFullScreenExclusiveInfoEXT*>(object), settings, "VkSurfaceFullScreenExclusiveInfoEXT", indents, dump_text_VkSurfaceFullScreenExclusiveInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000255002:
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:
         dump_text_pNext<const VkSurfaceCapabilitiesFullScreenExclusiveEXT>(reinterpret_cast<const VkSurfaceCapabilitiesFullScreenExclusiveEXT*>(object), settings, "VkSurfaceCapabilitiesFullScreenExclusiveEXT", indents, dump_text_VkSurfaceCapabilitiesFullScreenExclusiveEXT);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    case 1000255001:
+    case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT:
         dump_text_pNext<const VkSurfaceFullScreenExclusiveWin32InfoEXT>(reinterpret_cast<const VkSurfaceFullScreenExclusiveWin32InfoEXT*>(object), settings, "VkSurfaceFullScreenExclusiveWin32InfoEXT", indents, dump_text_VkSurfaceFullScreenExclusiveWin32InfoEXT);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
-    case 1000256000:
+    case VK_STRUCTURE_TYPE_HEADLESS_SURFACE_CREATE_INFO_EXT:
         dump_text_pNext<const VkHeadlessSurfaceCreateInfoEXT>(reinterpret_cast<const VkHeadlessSurfaceCreateInfoEXT*>(object), settings, "VkHeadlessSurfaceCreateInfoEXT", indents, dump_text_VkHeadlessSurfaceCreateInfoEXT);
         break;
-    case 1000260000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderAtomicFloatFeaturesEXT", indents, dump_text_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT);
         break;
-    case 1000267000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicStateFeaturesEXT", indents, dump_text_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT);
         break;
-    case 1000272000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT*>(object), settings, "VkPhysicalDeviceMapMemoryPlacedFeaturesEXT", indents, dump_text_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT);
         break;
-    case 1000272001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceMapMemoryPlacedPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceMapMemoryPlacedPropertiesEXT*>(object), settings, "VkPhysicalDeviceMapMemoryPlacedPropertiesEXT", indents, dump_text_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT);
         break;
-    case 1000272002:
+    case VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT:
         dump_text_pNext<const VkMemoryMapPlacedInfoEXT>(reinterpret_cast<const VkMemoryMapPlacedInfoEXT*>(object), settings, "VkMemoryMapPlacedInfoEXT", indents, dump_text_VkMemoryMapPlacedInfoEXT);
         break;
-    case 1000273000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT", indents, dump_text_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT);
         break;
-    case 1000274000:
+    case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT:
         dump_text_pNext<const VkSurfacePresentModeEXT>(reinterpret_cast<const VkSurfacePresentModeEXT*>(object), settings, "VkSurfacePresentModeEXT", indents, dump_text_VkSurfacePresentModeEXT);
         break;
-    case 1000274001:
+    case VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT:
         dump_text_pNext<const VkSurfacePresentScalingCapabilitiesEXT>(reinterpret_cast<const VkSurfacePresentScalingCapabilitiesEXT*>(object), settings, "VkSurfacePresentScalingCapabilitiesEXT", indents, dump_text_VkSurfacePresentScalingCapabilitiesEXT);
         break;
-    case 1000274002:
+    case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT:
         dump_text_pNext<const VkSurfacePresentModeCompatibilityEXT>(reinterpret_cast<const VkSurfacePresentModeCompatibilityEXT*>(object), settings, "VkSurfacePresentModeCompatibilityEXT", indents, dump_text_VkSurfacePresentModeCompatibilityEXT);
         break;
-    case 1000275000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT*>(object), settings, "VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT", indents, dump_text_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT);
         break;
-    case 1000275001:
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
         dump_text_pNext<const VkSwapchainPresentFenceInfoEXT>(reinterpret_cast<const VkSwapchainPresentFenceInfoEXT*>(object), settings, "VkSwapchainPresentFenceInfoEXT", indents, dump_text_VkSwapchainPresentFenceInfoEXT);
         break;
-    case 1000275002:
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT:
         dump_text_pNext<const VkSwapchainPresentModesCreateInfoEXT>(reinterpret_cast<const VkSwapchainPresentModesCreateInfoEXT*>(object), settings, "VkSwapchainPresentModesCreateInfoEXT", indents, dump_text_VkSwapchainPresentModesCreateInfoEXT);
         break;
-    case 1000275003:
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT:
         dump_text_pNext<const VkSwapchainPresentModeInfoEXT>(reinterpret_cast<const VkSwapchainPresentModeInfoEXT*>(object), settings, "VkSwapchainPresentModeInfoEXT", indents, dump_text_VkSwapchainPresentModeInfoEXT);
         break;
-    case 1000275004:
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT:
         dump_text_pNext<const VkSwapchainPresentScalingCreateInfoEXT>(reinterpret_cast<const VkSwapchainPresentScalingCreateInfoEXT*>(object), settings, "VkSwapchainPresentScalingCreateInfoEXT", indents, dump_text_VkSwapchainPresentScalingCreateInfoEXT);
         break;
-    case 1000275005:
+    case VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_EXT:
         dump_text_pNext<const VkReleaseSwapchainImagesInfoEXT>(reinterpret_cast<const VkReleaseSwapchainImagesInfoEXT*>(object), settings, "VkReleaseSwapchainImagesInfoEXT", indents, dump_text_VkReleaseSwapchainImagesInfoEXT);
         break;
-    case 1000277000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV", indents, dump_text_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV);
         break;
-    case 1000277007:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV", indents, dump_text_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV);
         break;
-    case 1000277001:
+    case VK_STRUCTURE_TYPE_GRAPHICS_SHADER_GROUP_CREATE_INFO_NV:
         dump_text_pNext<const VkGraphicsShaderGroupCreateInfoNV>(reinterpret_cast<const VkGraphicsShaderGroupCreateInfoNV*>(object), settings, "VkGraphicsShaderGroupCreateInfoNV", indents, dump_text_VkGraphicsShaderGroupCreateInfoNV);
         break;
-    case 1000277002:
+    case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
         dump_text_pNext<const VkGraphicsPipelineShaderGroupsCreateInfoNV>(reinterpret_cast<const VkGraphicsPipelineShaderGroupsCreateInfoNV*>(object), settings, "VkGraphicsPipelineShaderGroupsCreateInfoNV", indents, dump_text_VkGraphicsPipelineShaderGroupsCreateInfoNV);
         break;
-    case 1000277003:
+    case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV:
         dump_text_pNext<const VkIndirectCommandsLayoutTokenNV>(reinterpret_cast<const VkIndirectCommandsLayoutTokenNV*>(object), settings, "VkIndirectCommandsLayoutTokenNV", indents, dump_text_VkIndirectCommandsLayoutTokenNV);
         break;
-    case 1000277004:
+    case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NV:
         dump_text_pNext<const VkIndirectCommandsLayoutCreateInfoNV>(reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoNV*>(object), settings, "VkIndirectCommandsLayoutCreateInfoNV", indents, dump_text_VkIndirectCommandsLayoutCreateInfoNV);
         break;
-    case 1000277005:
+    case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_NV:
         dump_text_pNext<const VkGeneratedCommandsInfoNV>(reinterpret_cast<const VkGeneratedCommandsInfoNV*>(object), settings, "VkGeneratedCommandsInfoNV", indents, dump_text_VkGeneratedCommandsInfoNV);
         break;
-    case 1000277006:
+    case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_NV:
         dump_text_pNext<const VkGeneratedCommandsMemoryRequirementsInfoNV>(reinterpret_cast<const VkGeneratedCommandsMemoryRequirementsInfoNV*>(object), settings, "VkGeneratedCommandsMemoryRequirementsInfoNV", indents, dump_text_VkGeneratedCommandsMemoryRequirementsInfoNV);
         break;
-    case 1000278000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceInheritedViewportScissorFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceInheritedViewportScissorFeaturesNV*>(object), settings, "VkPhysicalDeviceInheritedViewportScissorFeaturesNV", indents, dump_text_VkPhysicalDeviceInheritedViewportScissorFeaturesNV);
         break;
-    case 1000278001:
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_VIEWPORT_SCISSOR_INFO_NV:
         dump_text_pNext<const VkCommandBufferInheritanceViewportScissorInfoNV>(reinterpret_cast<const VkCommandBufferInheritanceViewportScissorInfoNV*>(object), settings, "VkCommandBufferInheritanceViewportScissorInfoNV", indents, dump_text_VkCommandBufferInheritanceViewportScissorInfoNV);
         break;
-    case 1000281000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT*>(object), settings, "VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT", indents, dump_text_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT);
         break;
-    case 1000282001:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
         dump_text_pNext<const VkRenderPassTransformBeginInfoQCOM>(reinterpret_cast<const VkRenderPassTransformBeginInfoQCOM*>(object), settings, "VkRenderPassTransformBeginInfoQCOM", indents, dump_text_VkRenderPassTransformBeginInfoQCOM);
         break;
-    case 1000282000:
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM:
         dump_text_pNext<const VkCommandBufferInheritanceRenderPassTransformInfoQCOM>(reinterpret_cast<const VkCommandBufferInheritanceRenderPassTransformInfoQCOM*>(object), settings, "VkCommandBufferInheritanceRenderPassTransformInfoQCOM", indents, dump_text_VkCommandBufferInheritanceRenderPassTransformInfoQCOM);
         break;
-    case 1000283000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_BIAS_CONTROL_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDepthBiasControlFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDepthBiasControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthBiasControlFeaturesEXT", indents, dump_text_VkPhysicalDeviceDepthBiasControlFeaturesEXT);
         break;
-    case 1000283001:
+    case VK_STRUCTURE_TYPE_DEPTH_BIAS_INFO_EXT:
         dump_text_pNext<const VkDepthBiasInfoEXT>(reinterpret_cast<const VkDepthBiasInfoEXT*>(object), settings, "VkDepthBiasInfoEXT", indents, dump_text_VkDepthBiasInfoEXT);
         break;
-    case 1000283002:
+    case VK_STRUCTURE_TYPE_DEPTH_BIAS_REPRESENTATION_INFO_EXT:
         dump_text_pNext<const VkDepthBiasRepresentationInfoEXT>(reinterpret_cast<const VkDepthBiasRepresentationInfoEXT*>(object), settings, "VkDepthBiasRepresentationInfoEXT", indents, dump_text_VkDepthBiasRepresentationInfoEXT);
         break;
-    case 1000284000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_MEMORY_REPORT_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT*>(object), settings, "VkPhysicalDeviceDeviceMemoryReportFeaturesEXT", indents, dump_text_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT);
         break;
-    case 1000284002:
+    case VK_STRUCTURE_TYPE_DEVICE_MEMORY_REPORT_CALLBACK_DATA_EXT:
         dump_text_pNext<const VkDeviceMemoryReportCallbackDataEXT>(reinterpret_cast<const VkDeviceMemoryReportCallbackDataEXT*>(object), settings, "VkDeviceMemoryReportCallbackDataEXT", indents, dump_text_VkDeviceMemoryReportCallbackDataEXT);
         break;
-    case 1000284001:
+    case VK_STRUCTURE_TYPE_DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT:
         dump_text_pNext<const VkDeviceDeviceMemoryReportCreateInfoEXT>(reinterpret_cast<const VkDeviceDeviceMemoryReportCreateInfoEXT*>(object), settings, "VkDeviceDeviceMemoryReportCreateInfoEXT", indents, dump_text_VkDeviceDeviceMemoryReportCreateInfoEXT);
         break;
-    case 1000287000:
+    case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
         dump_text_pNext<const VkSamplerCustomBorderColorCreateInfoEXT>(reinterpret_cast<const VkSamplerCustomBorderColorCreateInfoEXT*>(object), settings, "VkSamplerCustomBorderColorCreateInfoEXT", indents, dump_text_VkSamplerCustomBorderColorCreateInfoEXT);
         break;
-    case 1000287001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceCustomBorderColorPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceCustomBorderColorPropertiesEXT*>(object), settings, "VkPhysicalDeviceCustomBorderColorPropertiesEXT", indents, dump_text_VkPhysicalDeviceCustomBorderColorPropertiesEXT);
         break;
-    case 1000287002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceCustomBorderColorFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceCustomBorderColorFeaturesEXT*>(object), settings, "VkPhysicalDeviceCustomBorderColorFeaturesEXT", indents, dump_text_VkPhysicalDeviceCustomBorderColorFeaturesEXT);
         break;
-    case 1000292000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDevicePresentBarrierFeaturesNV>(reinterpret_cast<const VkPhysicalDevicePresentBarrierFeaturesNV*>(object), settings, "VkPhysicalDevicePresentBarrierFeaturesNV", indents, dump_text_VkPhysicalDevicePresentBarrierFeaturesNV);
         break;
-    case 1000292001:
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_BARRIER_NV:
         dump_text_pNext<const VkSurfaceCapabilitiesPresentBarrierNV>(reinterpret_cast<const VkSurfaceCapabilitiesPresentBarrierNV*>(object), settings, "VkSurfaceCapabilitiesPresentBarrierNV", indents, dump_text_VkSurfaceCapabilitiesPresentBarrierNV);
         break;
-    case 1000292002:
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV:
         dump_text_pNext<const VkSwapchainPresentBarrierCreateInfoNV>(reinterpret_cast<const VkSwapchainPresentBarrierCreateInfoNV*>(object), settings, "VkSwapchainPresentBarrierCreateInfoNV", indents, dump_text_VkSwapchainPresentBarrierCreateInfoNV);
         break;
-    case 1000300000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(object), settings, "VkPhysicalDeviceDiagnosticsConfigFeaturesNV", indents, dump_text_VkPhysicalDeviceDiagnosticsConfigFeaturesNV);
         break;
-    case 1000300001:
+    case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
         dump_text_pNext<const VkDeviceDiagnosticsConfigCreateInfoNV>(reinterpret_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(object), settings, "VkDeviceDiagnosticsConfigCreateInfoNV", indents, dump_text_VkDeviceDiagnosticsConfigCreateInfoNV);
         break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000307000:
+    case VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV:
         dump_text_pNext<const VkCudaModuleCreateInfoNV>(reinterpret_cast<const VkCudaModuleCreateInfoNV*>(object), settings, "VkCudaModuleCreateInfoNV", indents, dump_text_VkCudaModuleCreateInfoNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000307001:
+    case VK_STRUCTURE_TYPE_CUDA_FUNCTION_CREATE_INFO_NV:
         dump_text_pNext<const VkCudaFunctionCreateInfoNV>(reinterpret_cast<const VkCudaFunctionCreateInfoNV*>(object), settings, "VkCudaFunctionCreateInfoNV", indents, dump_text_VkCudaFunctionCreateInfoNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000307002:
+    case VK_STRUCTURE_TYPE_CUDA_LAUNCH_INFO_NV:
         dump_text_pNext<const VkCudaLaunchInfoNV>(reinterpret_cast<const VkCudaLaunchInfoNV*>(object), settings, "VkCudaLaunchInfoNV", indents, dump_text_VkCudaLaunchInfoNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000307003:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceCudaKernelLaunchFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCudaKernelLaunchFeaturesNV*>(object), settings, "VkPhysicalDeviceCudaKernelLaunchFeaturesNV", indents, dump_text_VkPhysicalDeviceCudaKernelLaunchFeaturesNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000307004:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceCudaKernelLaunchPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCudaKernelLaunchPropertiesNV*>(object), settings, "VkPhysicalDeviceCudaKernelLaunchPropertiesNV", indents, dump_text_VkPhysicalDeviceCudaKernelLaunchPropertiesNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
-    case 1000309000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceTileShadingFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceTileShadingFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTileShadingFeaturesQCOM", indents, dump_text_VkPhysicalDeviceTileShadingFeaturesQCOM);
         break;
-    case 1000309001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_PROPERTIES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceTileShadingPropertiesQCOM>(reinterpret_cast<const VkPhysicalDeviceTileShadingPropertiesQCOM*>(object), settings, "VkPhysicalDeviceTileShadingPropertiesQCOM", indents, dump_text_VkPhysicalDeviceTileShadingPropertiesQCOM);
         break;
-    case 1000309002:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_TILE_SHADING_CREATE_INFO_QCOM:
         dump_text_pNext<const VkRenderPassTileShadingCreateInfoQCOM>(reinterpret_cast<const VkRenderPassTileShadingCreateInfoQCOM*>(object), settings, "VkRenderPassTileShadingCreateInfoQCOM", indents, dump_text_VkRenderPassTileShadingCreateInfoQCOM);
         break;
-    case 1000309003:
+    case VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM:
         dump_text_pNext<const VkPerTileBeginInfoQCOM>(reinterpret_cast<const VkPerTileBeginInfoQCOM*>(object), settings, "VkPerTileBeginInfoQCOM", indents, dump_text_VkPerTileBeginInfoQCOM);
         break;
-    case 1000309004:
+    case VK_STRUCTURE_TYPE_PER_TILE_END_INFO_QCOM:
         dump_text_pNext<const VkPerTileEndInfoQCOM>(reinterpret_cast<const VkPerTileEndInfoQCOM*>(object), settings, "VkPerTileEndInfoQCOM", indents, dump_text_VkPerTileEndInfoQCOM);
         break;
-    case 1000309005:
+    case VK_STRUCTURE_TYPE_DISPATCH_TILE_INFO_QCOM:
         dump_text_pNext<const VkDispatchTileInfoQCOM>(reinterpret_cast<const VkDispatchTileInfoQCOM*>(object), settings, "VkDispatchTileInfoQCOM", indents, dump_text_VkDispatchTileInfoQCOM);
         break;
-    case 1000310000:
+    case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
         dump_text_pNext<const VkQueryLowLatencySupportNV>(reinterpret_cast<const VkQueryLowLatencySupportNV*>(object), settings, "VkQueryLowLatencySupportNV", indents, dump_text_VkQueryLowLatencySupportNV);
         break;
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311000:
+    case VK_STRUCTURE_TYPE_EXPORT_METAL_OBJECT_CREATE_INFO_EXT:
         dump_text_pNext<const VkExportMetalObjectCreateInfoEXT>(reinterpret_cast<const VkExportMetalObjectCreateInfoEXT*>(object), settings, "VkExportMetalObjectCreateInfoEXT", indents, dump_text_VkExportMetalObjectCreateInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311001:
+    case VK_STRUCTURE_TYPE_EXPORT_METAL_OBJECTS_INFO_EXT:
         dump_text_pNext<const VkExportMetalObjectsInfoEXT>(reinterpret_cast<const VkExportMetalObjectsInfoEXT*>(object), settings, "VkExportMetalObjectsInfoEXT", indents, dump_text_VkExportMetalObjectsInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311002:
+    case VK_STRUCTURE_TYPE_EXPORT_METAL_DEVICE_INFO_EXT:
         dump_text_pNext<const VkExportMetalDeviceInfoEXT>(reinterpret_cast<const VkExportMetalDeviceInfoEXT*>(object), settings, "VkExportMetalDeviceInfoEXT", indents, dump_text_VkExportMetalDeviceInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311003:
+    case VK_STRUCTURE_TYPE_EXPORT_METAL_COMMAND_QUEUE_INFO_EXT:
         dump_text_pNext<const VkExportMetalCommandQueueInfoEXT>(reinterpret_cast<const VkExportMetalCommandQueueInfoEXT*>(object), settings, "VkExportMetalCommandQueueInfoEXT", indents, dump_text_VkExportMetalCommandQueueInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311004:
+    case VK_STRUCTURE_TYPE_EXPORT_METAL_BUFFER_INFO_EXT:
         dump_text_pNext<const VkExportMetalBufferInfoEXT>(reinterpret_cast<const VkExportMetalBufferInfoEXT*>(object), settings, "VkExportMetalBufferInfoEXT", indents, dump_text_VkExportMetalBufferInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311005:
+    case VK_STRUCTURE_TYPE_IMPORT_METAL_BUFFER_INFO_EXT:
         dump_text_pNext<const VkImportMetalBufferInfoEXT>(reinterpret_cast<const VkImportMetalBufferInfoEXT*>(object), settings, "VkImportMetalBufferInfoEXT", indents, dump_text_VkImportMetalBufferInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311006:
+    case VK_STRUCTURE_TYPE_EXPORT_METAL_TEXTURE_INFO_EXT:
         dump_text_pNext<const VkExportMetalTextureInfoEXT>(reinterpret_cast<const VkExportMetalTextureInfoEXT*>(object), settings, "VkExportMetalTextureInfoEXT", indents, dump_text_VkExportMetalTextureInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311007:
+    case VK_STRUCTURE_TYPE_IMPORT_METAL_TEXTURE_INFO_EXT:
         dump_text_pNext<const VkImportMetalTextureInfoEXT>(reinterpret_cast<const VkImportMetalTextureInfoEXT*>(object), settings, "VkImportMetalTextureInfoEXT", indents, dump_text_VkImportMetalTextureInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311008:
+    case VK_STRUCTURE_TYPE_EXPORT_METAL_IO_SURFACE_INFO_EXT:
         dump_text_pNext<const VkExportMetalIOSurfaceInfoEXT>(reinterpret_cast<const VkExportMetalIOSurfaceInfoEXT*>(object), settings, "VkExportMetalIOSurfaceInfoEXT", indents, dump_text_VkExportMetalIOSurfaceInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311009:
+    case VK_STRUCTURE_TYPE_IMPORT_METAL_IO_SURFACE_INFO_EXT:
         dump_text_pNext<const VkImportMetalIOSurfaceInfoEXT>(reinterpret_cast<const VkImportMetalIOSurfaceInfoEXT*>(object), settings, "VkImportMetalIOSurfaceInfoEXT", indents, dump_text_VkImportMetalIOSurfaceInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311010:
+    case VK_STRUCTURE_TYPE_EXPORT_METAL_SHARED_EVENT_INFO_EXT:
         dump_text_pNext<const VkExportMetalSharedEventInfoEXT>(reinterpret_cast<const VkExportMetalSharedEventInfoEXT*>(object), settings, "VkExportMetalSharedEventInfoEXT", indents, dump_text_VkExportMetalSharedEventInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000311011:
+    case VK_STRUCTURE_TYPE_IMPORT_METAL_SHARED_EVENT_INFO_EXT:
         dump_text_pNext<const VkImportMetalSharedEventInfoEXT>(reinterpret_cast<const VkImportMetalSharedEventInfoEXT*>(object), settings, "VkImportMetalSharedEventInfoEXT", indents, dump_text_VkImportMetalSharedEventInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
-    case 1000316000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDescriptorBufferPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferPropertiesEXT*>(object), settings, "VkPhysicalDeviceDescriptorBufferPropertiesEXT", indents, dump_text_VkPhysicalDeviceDescriptorBufferPropertiesEXT);
         break;
-    case 1000316001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_DENSITY_MAP_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT*>(object), settings, "VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT", indents, dump_text_VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT);
         break;
-    case 1000316002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDescriptorBufferFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(object), settings, "VkPhysicalDeviceDescriptorBufferFeaturesEXT", indents, dump_text_VkPhysicalDeviceDescriptorBufferFeaturesEXT);
         break;
-    case 1000316003:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_ADDRESS_INFO_EXT:
         dump_text_pNext<const VkDescriptorAddressInfoEXT>(reinterpret_cast<const VkDescriptorAddressInfoEXT*>(object), settings, "VkDescriptorAddressInfoEXT", indents, dump_text_VkDescriptorAddressInfoEXT);
         break;
-    case 1000316011:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT:
         dump_text_pNext<const VkDescriptorBufferBindingInfoEXT>(reinterpret_cast<const VkDescriptorBufferBindingInfoEXT*>(object), settings, "VkDescriptorBufferBindingInfoEXT", indents, dump_text_VkDescriptorBufferBindingInfoEXT);
         break;
-    case 1000316012:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
         dump_text_pNext<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT>(reinterpret_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(object), settings, "VkDescriptorBufferBindingPushDescriptorBufferHandleEXT", indents, dump_text_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT);
         break;
-    case 1000316004:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT:
         dump_text_pNext<const VkDescriptorGetInfoEXT>(reinterpret_cast<const VkDescriptorGetInfoEXT*>(object), settings, "VkDescriptorGetInfoEXT", indents, dump_text_VkDescriptorGetInfoEXT);
         break;
-    case 1000316005:
+    case VK_STRUCTURE_TYPE_BUFFER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
         dump_text_pNext<const VkBufferCaptureDescriptorDataInfoEXT>(reinterpret_cast<const VkBufferCaptureDescriptorDataInfoEXT*>(object), settings, "VkBufferCaptureDescriptorDataInfoEXT", indents, dump_text_VkBufferCaptureDescriptorDataInfoEXT);
         break;
-    case 1000316006:
+    case VK_STRUCTURE_TYPE_IMAGE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
         dump_text_pNext<const VkImageCaptureDescriptorDataInfoEXT>(reinterpret_cast<const VkImageCaptureDescriptorDataInfoEXT*>(object), settings, "VkImageCaptureDescriptorDataInfoEXT", indents, dump_text_VkImageCaptureDescriptorDataInfoEXT);
         break;
-    case 1000316007:
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
         dump_text_pNext<const VkImageViewCaptureDescriptorDataInfoEXT>(reinterpret_cast<const VkImageViewCaptureDescriptorDataInfoEXT*>(object), settings, "VkImageViewCaptureDescriptorDataInfoEXT", indents, dump_text_VkImageViewCaptureDescriptorDataInfoEXT);
         break;
-    case 1000316008:
+    case VK_STRUCTURE_TYPE_SAMPLER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
         dump_text_pNext<const VkSamplerCaptureDescriptorDataInfoEXT>(reinterpret_cast<const VkSamplerCaptureDescriptorDataInfoEXT*>(object), settings, "VkSamplerCaptureDescriptorDataInfoEXT", indents, dump_text_VkSamplerCaptureDescriptorDataInfoEXT);
         break;
-    case 1000316010:
+    case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT:
         dump_text_pNext<const VkOpaqueCaptureDescriptorDataCreateInfoEXT>(reinterpret_cast<const VkOpaqueCaptureDescriptorDataCreateInfoEXT*>(object), settings, "VkOpaqueCaptureDescriptorDataCreateInfoEXT", indents, dump_text_VkOpaqueCaptureDescriptorDataCreateInfoEXT);
         break;
-    case 1000316009:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
         dump_text_pNext<const VkAccelerationStructureCaptureDescriptorDataInfoEXT>(reinterpret_cast<const VkAccelerationStructureCaptureDescriptorDataInfoEXT*>(object), settings, "VkAccelerationStructureCaptureDescriptorDataInfoEXT", indents, dump_text_VkAccelerationStructureCaptureDescriptorDataInfoEXT);
         break;
-    case 1000320000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(object), settings, "VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT", indents, dump_text_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT);
         break;
-    case 1000320001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT*>(object), settings, "VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT", indents, dump_text_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT);
         break;
-    case 1000320002:
+    case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT:
         dump_text_pNext<const VkGraphicsPipelineLibraryCreateInfoEXT>(reinterpret_cast<const VkGraphicsPipelineLibraryCreateInfoEXT*>(object), settings, "VkGraphicsPipelineLibraryCreateInfoEXT", indents, dump_text_VkGraphicsPipelineLibraryCreateInfoEXT);
         break;
-    case 1000321000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD:
         dump_text_pNext<const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD>(reinterpret_cast<const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD*>(object), settings, "VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD", indents, dump_text_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD);
         break;
-    case 1000326001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV*>(object), settings, "VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV", indents, dump_text_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV);
         break;
-    case 1000326000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV*>(object), settings, "VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV", indents, dump_text_VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV);
         break;
-    case 1000326002:
+    case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_ENUM_STATE_CREATE_INFO_NV:
         dump_text_pNext<const VkPipelineFragmentShadingRateEnumStateCreateInfoNV>(reinterpret_cast<const VkPipelineFragmentShadingRateEnumStateCreateInfoNV*>(object), settings, "VkPipelineFragmentShadingRateEnumStateCreateInfoNV", indents, dump_text_VkPipelineFragmentShadingRateEnumStateCreateInfoNV);
         break;
-    case 1000327000:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MOTION_TRIANGLES_DATA_NV:
         dump_text_pNext<const VkAccelerationStructureGeometryMotionTrianglesDataNV>(reinterpret_cast<const VkAccelerationStructureGeometryMotionTrianglesDataNV*>(object), settings, "VkAccelerationStructureGeometryMotionTrianglesDataNV", indents, dump_text_VkAccelerationStructureGeometryMotionTrianglesDataNV);
         break;
-    case 1000327002:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MOTION_INFO_NV:
         dump_text_pNext<const VkAccelerationStructureMotionInfoNV>(reinterpret_cast<const VkAccelerationStructureMotionInfoNV*>(object), settings, "VkAccelerationStructureMotionInfoNV", indents, dump_text_VkAccelerationStructureMotionInfoNV);
         break;
-    case 1000327001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MOTION_BLUR_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingMotionBlurFeaturesNV", indents, dump_text_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV);
         break;
-    case 1000330000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_2_PLANE_444_FORMATS_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT*>(object), settings, "VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT", indents, dump_text_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT);
         break;
-    case 1000332000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMap2FeaturesEXT", indents, dump_text_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT);
         break;
-    case 1000332001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMap2PropertiesEXT", indents, dump_text_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT);
         break;
-    case 1000333000:
+    case VK_STRUCTURE_TYPE_COPY_COMMAND_TRANSFORM_INFO_QCOM:
         dump_text_pNext<const VkCopyCommandTransformInfoQCOM>(reinterpret_cast<const VkCopyCommandTransformInfoQCOM*>(object), settings, "VkCopyCommandTransformInfoQCOM", indents, dump_text_VkCopyCommandTransformInfoQCOM);
         break;
-    case 1000338000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceImageCompressionControlFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceImageCompressionControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageCompressionControlFeaturesEXT", indents, dump_text_VkPhysicalDeviceImageCompressionControlFeaturesEXT);
         break;
-    case 1000338001:
+    case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT:
         dump_text_pNext<const VkImageCompressionControlEXT>(reinterpret_cast<const VkImageCompressionControlEXT*>(object), settings, "VkImageCompressionControlEXT", indents, dump_text_VkImageCompressionControlEXT);
         break;
-    case 1000338004:
+    case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT:
         dump_text_pNext<const VkImageCompressionPropertiesEXT>(reinterpret_cast<const VkImageCompressionPropertiesEXT*>(object), settings, "VkImageCompressionPropertiesEXT", indents, dump_text_VkImageCompressionPropertiesEXT);
         break;
-    case 1000339000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT*>(object), settings, "VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT", indents, dump_text_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT);
         break;
-    case 1000340000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDevice4444FormatsFeaturesEXT>(reinterpret_cast<const VkPhysicalDevice4444FormatsFeaturesEXT*>(object), settings, "VkPhysicalDevice4444FormatsFeaturesEXT", indents, dump_text_VkPhysicalDevice4444FormatsFeaturesEXT);
         break;
-    case 1000341000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceFaultFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(object), settings, "VkPhysicalDeviceFaultFeaturesEXT", indents, dump_text_VkPhysicalDeviceFaultFeaturesEXT);
         break;
-    case 1000341001:
+    case VK_STRUCTURE_TYPE_DEVICE_FAULT_COUNTS_EXT:
         dump_text_pNext<const VkDeviceFaultCountsEXT>(reinterpret_cast<const VkDeviceFaultCountsEXT*>(object), settings, "VkDeviceFaultCountsEXT", indents, dump_text_VkDeviceFaultCountsEXT);
         break;
-    case 1000341002:
+    case VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT:
         dump_text_pNext<const VkDeviceFaultInfoEXT>(reinterpret_cast<const VkDeviceFaultInfoEXT*>(object), settings, "VkDeviceFaultInfoEXT", indents, dump_text_VkDeviceFaultInfoEXT);
         break;
-    case 1000342000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(object), settings, "VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT", indents, dump_text_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT);
         break;
-    case 1000344000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT*>(object), settings, "VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT", indents, dump_text_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-    case 1000346000:
+    case VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT:
         dump_text_pNext<const VkDirectFBSurfaceCreateInfoEXT>(reinterpret_cast<const VkDirectFBSurfaceCreateInfoEXT*>(object), settings, "VkDirectFBSurfaceCreateInfoEXT", indents, dump_text_VkDirectFBSurfaceCreateInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_DIRECTFB_EXT
-    case 1000351000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT*>(object), settings, "VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT", indents, dump_text_VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT);
         break;
-    case 1000351002:
+    case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
         dump_text_pNext<const VkMutableDescriptorTypeCreateInfoEXT>(reinterpret_cast<const VkMutableDescriptorTypeCreateInfoEXT*>(object), settings, "VkMutableDescriptorTypeCreateInfoEXT", indents, dump_text_VkMutableDescriptorTypeCreateInfoEXT);
         break;
-    case 1000352000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(object), settings, "VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT", indents, dump_text_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT);
         break;
-    case 1000352001:
+    case VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT:
         dump_text_pNext<const VkVertexInputBindingDescription2EXT>(reinterpret_cast<const VkVertexInputBindingDescription2EXT*>(object), settings, "VkVertexInputBindingDescription2EXT", indents, dump_text_VkVertexInputBindingDescription2EXT);
         break;
-    case 1000352002:
+    case VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT:
         dump_text_pNext<const VkVertexInputAttributeDescription2EXT>(reinterpret_cast<const VkVertexInputAttributeDescription2EXT*>(object), settings, "VkVertexInputAttributeDescription2EXT", indents, dump_text_VkVertexInputAttributeDescription2EXT);
         break;
-    case 1000353000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDrmPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceDrmPropertiesEXT*>(object), settings, "VkPhysicalDeviceDrmPropertiesEXT", indents, dump_text_VkPhysicalDeviceDrmPropertiesEXT);
         break;
-    case 1000354000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceAddressBindingReportFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceAddressBindingReportFeaturesEXT*>(object), settings, "VkPhysicalDeviceAddressBindingReportFeaturesEXT", indents, dump_text_VkPhysicalDeviceAddressBindingReportFeaturesEXT);
         break;
-    case 1000354001:
+    case VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT:
         dump_text_pNext<const VkDeviceAddressBindingCallbackDataEXT>(reinterpret_cast<const VkDeviceAddressBindingCallbackDataEXT*>(object), settings, "VkDeviceAddressBindingCallbackDataEXT", indents, dump_text_VkDeviceAddressBindingCallbackDataEXT);
         break;
-    case 1000355000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDepthClipControlFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDepthClipControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthClipControlFeaturesEXT", indents, dump_text_VkPhysicalDeviceDepthClipControlFeaturesEXT);
         break;
-    case 1000355001:
+    case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineViewportDepthClipControlCreateInfoEXT>(reinterpret_cast<const VkPipelineViewportDepthClipControlCreateInfoEXT*>(object), settings, "VkPipelineViewportDepthClipControlCreateInfoEXT", indents, dump_text_VkPipelineViewportDepthClipControlCreateInfoEXT);
         break;
-    case 1000356000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT*>(object), settings, "VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT", indents, dump_text_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT);
         break;
-    case 1000361000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(object), settings, "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT", indents, dump_text_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000364000:
+    case VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA:
         dump_text_pNext<const VkImportMemoryZirconHandleInfoFUCHSIA>(reinterpret_cast<const VkImportMemoryZirconHandleInfoFUCHSIA*>(object), settings, "VkImportMemoryZirconHandleInfoFUCHSIA", indents, dump_text_VkImportMemoryZirconHandleInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000364001:
+    case VK_STRUCTURE_TYPE_MEMORY_ZIRCON_HANDLE_PROPERTIES_FUCHSIA:
         dump_text_pNext<const VkMemoryZirconHandlePropertiesFUCHSIA>(reinterpret_cast<const VkMemoryZirconHandlePropertiesFUCHSIA*>(object), settings, "VkMemoryZirconHandlePropertiesFUCHSIA", indents, dump_text_VkMemoryZirconHandlePropertiesFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000364002:
+    case VK_STRUCTURE_TYPE_MEMORY_GET_ZIRCON_HANDLE_INFO_FUCHSIA:
         dump_text_pNext<const VkMemoryGetZirconHandleInfoFUCHSIA>(reinterpret_cast<const VkMemoryGetZirconHandleInfoFUCHSIA*>(object), settings, "VkMemoryGetZirconHandleInfoFUCHSIA", indents, dump_text_VkMemoryGetZirconHandleInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000365000:
+    case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_ZIRCON_HANDLE_INFO_FUCHSIA:
         dump_text_pNext<const VkImportSemaphoreZirconHandleInfoFUCHSIA>(reinterpret_cast<const VkImportSemaphoreZirconHandleInfoFUCHSIA*>(object), settings, "VkImportSemaphoreZirconHandleInfoFUCHSIA", indents, dump_text_VkImportSemaphoreZirconHandleInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000365001:
+    case VK_STRUCTURE_TYPE_SEMAPHORE_GET_ZIRCON_HANDLE_INFO_FUCHSIA:
         dump_text_pNext<const VkSemaphoreGetZirconHandleInfoFUCHSIA>(reinterpret_cast<const VkSemaphoreGetZirconHandleInfoFUCHSIA*>(object), settings, "VkSemaphoreGetZirconHandleInfoFUCHSIA", indents, dump_text_VkSemaphoreGetZirconHandleInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000366000:
+    case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_CREATE_INFO_FUCHSIA:
         dump_text_pNext<const VkBufferCollectionCreateInfoFUCHSIA>(reinterpret_cast<const VkBufferCollectionCreateInfoFUCHSIA*>(object), settings, "VkBufferCollectionCreateInfoFUCHSIA", indents, dump_text_VkBufferCollectionCreateInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000366001:
+    case VK_STRUCTURE_TYPE_IMPORT_MEMORY_BUFFER_COLLECTION_FUCHSIA:
         dump_text_pNext<const VkImportMemoryBufferCollectionFUCHSIA>(reinterpret_cast<const VkImportMemoryBufferCollectionFUCHSIA*>(object), settings, "VkImportMemoryBufferCollectionFUCHSIA", indents, dump_text_VkImportMemoryBufferCollectionFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000366002:
+    case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_IMAGE_CREATE_INFO_FUCHSIA:
         dump_text_pNext<const VkBufferCollectionImageCreateInfoFUCHSIA>(reinterpret_cast<const VkBufferCollectionImageCreateInfoFUCHSIA*>(object), settings, "VkBufferCollectionImageCreateInfoFUCHSIA", indents, dump_text_VkBufferCollectionImageCreateInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000366009:
+    case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_CONSTRAINTS_INFO_FUCHSIA:
         dump_text_pNext<const VkBufferCollectionConstraintsInfoFUCHSIA>(reinterpret_cast<const VkBufferCollectionConstraintsInfoFUCHSIA*>(object), settings, "VkBufferCollectionConstraintsInfoFUCHSIA", indents, dump_text_VkBufferCollectionConstraintsInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000366004:
+    case VK_STRUCTURE_TYPE_BUFFER_CONSTRAINTS_INFO_FUCHSIA:
         dump_text_pNext<const VkBufferConstraintsInfoFUCHSIA>(reinterpret_cast<const VkBufferConstraintsInfoFUCHSIA*>(object), settings, "VkBufferConstraintsInfoFUCHSIA", indents, dump_text_VkBufferConstraintsInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000366005:
+    case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_BUFFER_CREATE_INFO_FUCHSIA:
         dump_text_pNext<const VkBufferCollectionBufferCreateInfoFUCHSIA>(reinterpret_cast<const VkBufferCollectionBufferCreateInfoFUCHSIA*>(object), settings, "VkBufferCollectionBufferCreateInfoFUCHSIA", indents, dump_text_VkBufferCollectionBufferCreateInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000366008:
+    case VK_STRUCTURE_TYPE_SYSMEM_COLOR_SPACE_FUCHSIA:
         dump_text_pNext<const VkSysmemColorSpaceFUCHSIA>(reinterpret_cast<const VkSysmemColorSpaceFUCHSIA*>(object), settings, "VkSysmemColorSpaceFUCHSIA", indents, dump_text_VkSysmemColorSpaceFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000366003:
+    case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_PROPERTIES_FUCHSIA:
         dump_text_pNext<const VkBufferCollectionPropertiesFUCHSIA>(reinterpret_cast<const VkBufferCollectionPropertiesFUCHSIA*>(object), settings, "VkBufferCollectionPropertiesFUCHSIA", indents, dump_text_VkBufferCollectionPropertiesFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000366007:
+    case VK_STRUCTURE_TYPE_IMAGE_FORMAT_CONSTRAINTS_INFO_FUCHSIA:
         dump_text_pNext<const VkImageFormatConstraintsInfoFUCHSIA>(reinterpret_cast<const VkImageFormatConstraintsInfoFUCHSIA*>(object), settings, "VkImageFormatConstraintsInfoFUCHSIA", indents, dump_text_VkImageFormatConstraintsInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-    case 1000366006:
+    case VK_STRUCTURE_TYPE_IMAGE_CONSTRAINTS_INFO_FUCHSIA:
         dump_text_pNext<const VkImageConstraintsInfoFUCHSIA>(reinterpret_cast<const VkImageConstraintsInfoFUCHSIA*>(object), settings, "VkImageConstraintsInfoFUCHSIA", indents, dump_text_VkImageConstraintsInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
-    case 1000369000:
+    case VK_STRUCTURE_TYPE_SUBPASS_SHADING_PIPELINE_CREATE_INFO_HUAWEI:
         dump_text_pNext<const VkSubpassShadingPipelineCreateInfoHUAWEI>(reinterpret_cast<const VkSubpassShadingPipelineCreateInfoHUAWEI*>(object), settings, "VkSubpassShadingPipelineCreateInfoHUAWEI", indents, dump_text_VkSubpassShadingPipelineCreateInfoHUAWEI);
         break;
-    case 1000369001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_FEATURES_HUAWEI:
         dump_text_pNext<const VkPhysicalDeviceSubpassShadingFeaturesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceSubpassShadingFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceSubpassShadingFeaturesHUAWEI", indents, dump_text_VkPhysicalDeviceSubpassShadingFeaturesHUAWEI);
         break;
-    case 1000369002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_PROPERTIES_HUAWEI:
         dump_text_pNext<const VkPhysicalDeviceSubpassShadingPropertiesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceSubpassShadingPropertiesHUAWEI*>(object), settings, "VkPhysicalDeviceSubpassShadingPropertiesHUAWEI", indents, dump_text_VkPhysicalDeviceSubpassShadingPropertiesHUAWEI);
         break;
-    case 1000370000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI:
         dump_text_pNext<const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceInvocationMaskFeaturesHUAWEI", indents, dump_text_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI);
         break;
-    case 1000371000:
+    case VK_STRUCTURE_TYPE_MEMORY_GET_REMOTE_ADDRESS_INFO_NV:
         dump_text_pNext<const VkMemoryGetRemoteAddressInfoNV>(reinterpret_cast<const VkMemoryGetRemoteAddressInfoNV*>(object), settings, "VkMemoryGetRemoteAddressInfoNV", indents, dump_text_VkMemoryGetRemoteAddressInfoNV);
         break;
-    case 1000371001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV*>(object), settings, "VkPhysicalDeviceExternalMemoryRDMAFeaturesNV", indents, dump_text_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV);
         break;
-    case 1000372000:
+    case VK_STRUCTURE_TYPE_PIPELINE_PROPERTIES_IDENTIFIER_EXT:
         dump_text_pNext<const VkPipelinePropertiesIdentifierEXT>(reinterpret_cast<const VkPipelinePropertiesIdentifierEXT*>(object), settings, "VkPipelinePropertiesIdentifierEXT", indents, dump_text_VkPipelinePropertiesIdentifierEXT);
         break;
-    case 1000372001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROPERTIES_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDevicePipelinePropertiesFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePipelinePropertiesFeaturesEXT*>(object), settings, "VkPhysicalDevicePipelinePropertiesFeaturesEXT", indents, dump_text_VkPhysicalDevicePipelinePropertiesFeaturesEXT);
         break;
-    case 1000375000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceFrameBoundaryFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(object), settings, "VkPhysicalDeviceFrameBoundaryFeaturesEXT", indents, dump_text_VkPhysicalDeviceFrameBoundaryFeaturesEXT);
         break;
-    case 1000375001:
+    case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
         dump_text_pNext<const VkFrameBoundaryEXT>(reinterpret_cast<const VkFrameBoundaryEXT*>(object), settings, "VkFrameBoundaryEXT", indents, dump_text_VkFrameBoundaryEXT);
         break;
-    case 1000376000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(object), settings, "VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT", indents, dump_text_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT);
         break;
-    case 1000376001:
+    case VK_STRUCTURE_TYPE_SUBPASS_RESOLVE_PERFORMANCE_QUERY_EXT:
         dump_text_pNext<const VkSubpassResolvePerformanceQueryEXT>(reinterpret_cast<const VkSubpassResolvePerformanceQueryEXT*>(object), settings, "VkSubpassResolvePerformanceQueryEXT", indents, dump_text_VkSubpassResolvePerformanceQueryEXT);
         break;
-    case 1000376002:
+    case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
         dump_text_pNext<const VkMultisampledRenderToSingleSampledInfoEXT>(reinterpret_cast<const VkMultisampledRenderToSingleSampledInfoEXT*>(object), settings, "VkMultisampledRenderToSingleSampledInfoEXT", indents, dump_text_VkMultisampledRenderToSingleSampledInfoEXT);
         break;
-    case 1000377000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicState2FeaturesEXT", indents, dump_text_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-    case 1000378000:
+    case VK_STRUCTURE_TYPE_SCREEN_SURFACE_CREATE_INFO_QNX:
         dump_text_pNext<const VkScreenSurfaceCreateInfoQNX>(reinterpret_cast<const VkScreenSurfaceCreateInfoQNX*>(object), settings, "VkScreenSurfaceCreateInfoQNX", indents, dump_text_VkScreenSurfaceCreateInfoQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
-    case 1000381000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceColorWriteEnableFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceColorWriteEnableFeaturesEXT*>(object), settings, "VkPhysicalDeviceColorWriteEnableFeaturesEXT", indents, dump_text_VkPhysicalDeviceColorWriteEnableFeaturesEXT);
         break;
-    case 1000381001:
+    case VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineColorWriteCreateInfoEXT>(reinterpret_cast<const VkPipelineColorWriteCreateInfoEXT*>(object), settings, "VkPipelineColorWriteCreateInfoEXT", indents, dump_text_VkPipelineColorWriteCreateInfoEXT);
         break;
-    case 1000382000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT*>(object), settings, "VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT", indents, dump_text_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT);
         break;
-    case 1000391000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceImageViewMinLodFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceImageViewMinLodFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageViewMinLodFeaturesEXT", indents, dump_text_VkPhysicalDeviceImageViewMinLodFeaturesEXT);
         break;
-    case 1000391001:
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT:
         dump_text_pNext<const VkImageViewMinLodCreateInfoEXT>(reinterpret_cast<const VkImageViewMinLodCreateInfoEXT*>(object), settings, "VkImageViewMinLodCreateInfoEXT", indents, dump_text_VkImageViewMinLodCreateInfoEXT);
         break;
-    case 1000392000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceMultiDrawFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMultiDrawFeaturesEXT*>(object), settings, "VkPhysicalDeviceMultiDrawFeaturesEXT", indents, dump_text_VkPhysicalDeviceMultiDrawFeaturesEXT);
         break;
-    case 1000392001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceMultiDrawPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceMultiDrawPropertiesEXT*>(object), settings, "VkPhysicalDeviceMultiDrawPropertiesEXT", indents, dump_text_VkPhysicalDeviceMultiDrawPropertiesEXT);
         break;
-    case 1000393000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(object), settings, "VkPhysicalDeviceImage2DViewOf3DFeaturesEXT", indents, dump_text_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT);
         break;
-    case 1000395000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderTileImageFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderTileImageFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderTileImageFeaturesEXT", indents, dump_text_VkPhysicalDeviceShaderTileImageFeaturesEXT);
         break;
-    case 1000395001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderTileImagePropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderTileImagePropertiesEXT*>(object), settings, "VkPhysicalDeviceShaderTileImagePropertiesEXT", indents, dump_text_VkPhysicalDeviceShaderTileImagePropertiesEXT);
         break;
-    case 1000396000:
+    case VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT:
         dump_text_pNext<const VkMicromapBuildInfoEXT>(reinterpret_cast<const VkMicromapBuildInfoEXT*>(object), settings, "VkMicromapBuildInfoEXT", indents, dump_text_VkMicromapBuildInfoEXT);
         break;
-    case 1000396007:
+    case VK_STRUCTURE_TYPE_MICROMAP_CREATE_INFO_EXT:
         dump_text_pNext<const VkMicromapCreateInfoEXT>(reinterpret_cast<const VkMicromapCreateInfoEXT*>(object), settings, "VkMicromapCreateInfoEXT", indents, dump_text_VkMicromapCreateInfoEXT);
         break;
-    case 1000396005:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceOpacityMicromapFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(object), settings, "VkPhysicalDeviceOpacityMicromapFeaturesEXT", indents, dump_text_VkPhysicalDeviceOpacityMicromapFeaturesEXT);
         break;
-    case 1000396006:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceOpacityMicromapPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceOpacityMicromapPropertiesEXT*>(object), settings, "VkPhysicalDeviceOpacityMicromapPropertiesEXT", indents, dump_text_VkPhysicalDeviceOpacityMicromapPropertiesEXT);
         break;
-    case 1000396001:
+    case VK_STRUCTURE_TYPE_MICROMAP_VERSION_INFO_EXT:
         dump_text_pNext<const VkMicromapVersionInfoEXT>(reinterpret_cast<const VkMicromapVersionInfoEXT*>(object), settings, "VkMicromapVersionInfoEXT", indents, dump_text_VkMicromapVersionInfoEXT);
         break;
-    case 1000396003:
+    case VK_STRUCTURE_TYPE_COPY_MICROMAP_TO_MEMORY_INFO_EXT:
         dump_text_pNext<const VkCopyMicromapToMemoryInfoEXT>(reinterpret_cast<const VkCopyMicromapToMemoryInfoEXT*>(object), settings, "VkCopyMicromapToMemoryInfoEXT", indents, dump_text_VkCopyMicromapToMemoryInfoEXT);
         break;
-    case 1000396004:
+    case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_MICROMAP_INFO_EXT:
         dump_text_pNext<const VkCopyMemoryToMicromapInfoEXT>(reinterpret_cast<const VkCopyMemoryToMicromapInfoEXT*>(object), settings, "VkCopyMemoryToMicromapInfoEXT", indents, dump_text_VkCopyMemoryToMicromapInfoEXT);
         break;
-    case 1000396002:
+    case VK_STRUCTURE_TYPE_COPY_MICROMAP_INFO_EXT:
         dump_text_pNext<const VkCopyMicromapInfoEXT>(reinterpret_cast<const VkCopyMicromapInfoEXT*>(object), settings, "VkCopyMicromapInfoEXT", indents, dump_text_VkCopyMicromapInfoEXT);
         break;
-    case 1000396008:
+    case VK_STRUCTURE_TYPE_MICROMAP_BUILD_SIZES_INFO_EXT:
         dump_text_pNext<const VkMicromapBuildSizesInfoEXT>(reinterpret_cast<const VkMicromapBuildSizesInfoEXT*>(object), settings, "VkMicromapBuildSizesInfoEXT", indents, dump_text_VkMicromapBuildSizesInfoEXT);
         break;
-    case 1000396009:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
         dump_text_pNext<const VkAccelerationStructureTrianglesOpacityMicromapEXT>(reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(object), settings, "VkAccelerationStructureTrianglesOpacityMicromapEXT", indents, dump_text_VkAccelerationStructureTrianglesOpacityMicromapEXT);
         break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000397000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceDisplacementMicromapFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDisplacementMicromapFeaturesNV*>(object), settings, "VkPhysicalDeviceDisplacementMicromapFeaturesNV", indents, dump_text_VkPhysicalDeviceDisplacementMicromapFeaturesNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000397001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceDisplacementMicromapPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceDisplacementMicromapPropertiesNV*>(object), settings, "VkPhysicalDeviceDisplacementMicromapPropertiesNV", indents, dump_text_VkPhysicalDeviceDisplacementMicromapPropertiesNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000397002:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
         dump_text_pNext<const VkAccelerationStructureTrianglesDisplacementMicromapNV>(reinterpret_cast<const VkAccelerationStructureTrianglesDisplacementMicromapNV*>(object), settings, "VkAccelerationStructureTrianglesDisplacementMicromapNV", indents, dump_text_VkAccelerationStructureTrianglesDisplacementMicromapNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
-    case 1000404000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI:
         dump_text_pNext<const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI", indents, dump_text_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI);
         break;
-    case 1000404001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI:
         dump_text_pNext<const VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI*>(object), settings, "VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI", indents, dump_text_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI);
         break;
-    case 1000404002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI:
         dump_text_pNext<const VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI", indents, dump_text_VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI);
         break;
-    case 1000411000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(object), settings, "VkPhysicalDeviceBorderColorSwizzleFeaturesEXT", indents, dump_text_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT);
         break;
-    case 1000411001:
+    case VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT:
         dump_text_pNext<const VkSamplerBorderColorComponentMappingCreateInfoEXT>(reinterpret_cast<const VkSamplerBorderColorComponentMappingCreateInfoEXT*>(object), settings, "VkSamplerBorderColorComponentMappingCreateInfoEXT", indents, dump_text_VkSamplerBorderColorComponentMappingCreateInfoEXT);
         break;
-    case 1000412000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT*>(object), settings, "VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT", indents, dump_text_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT);
         break;
-    case 1000415000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM:
         dump_text_pNext<const VkPhysicalDeviceShaderCorePropertiesARM>(reinterpret_cast<const VkPhysicalDeviceShaderCorePropertiesARM*>(object), settings, "VkPhysicalDeviceShaderCorePropertiesARM", indents, dump_text_VkPhysicalDeviceShaderCorePropertiesARM);
         break;
-    case 1000417000:
+    case VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM:
         dump_text_pNext<const VkDeviceQueueShaderCoreControlCreateInfoARM>(reinterpret_cast<const VkDeviceQueueShaderCoreControlCreateInfoARM*>(object), settings, "VkDeviceQueueShaderCoreControlCreateInfoARM", indents, dump_text_VkDeviceQueueShaderCoreControlCreateInfoARM);
         break;
-    case 1000417001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM:
         dump_text_pNext<const VkPhysicalDeviceSchedulingControlsFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceSchedulingControlsFeaturesARM*>(object), settings, "VkPhysicalDeviceSchedulingControlsFeaturesARM", indents, dump_text_VkPhysicalDeviceSchedulingControlsFeaturesARM);
         break;
-    case 1000417002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM:
         dump_text_pNext<const VkPhysicalDeviceSchedulingControlsPropertiesARM>(reinterpret_cast<const VkPhysicalDeviceSchedulingControlsPropertiesARM*>(object), settings, "VkPhysicalDeviceSchedulingControlsPropertiesARM", indents, dump_text_VkPhysicalDeviceSchedulingControlsPropertiesARM);
         break;
-    case 1000418000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT", indents, dump_text_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT);
         break;
-    case 1000418001:
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_SLICED_CREATE_INFO_EXT:
         dump_text_pNext<const VkImageViewSlicedCreateInfoEXT>(reinterpret_cast<const VkImageViewSlicedCreateInfoEXT*>(object), settings, "VkImageViewSlicedCreateInfoEXT", indents, dump_text_VkImageViewSlicedCreateInfoEXT);
         break;
-    case 1000420000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE:
         dump_text_pNext<const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE>(reinterpret_cast<const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE*>(object), settings, "VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE", indents, dump_text_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE);
         break;
-    case 1000420001:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE:
         dump_text_pNext<const VkDescriptorSetBindingReferenceVALVE>(reinterpret_cast<const VkDescriptorSetBindingReferenceVALVE*>(object), settings, "VkDescriptorSetBindingReferenceVALVE", indents, dump_text_VkDescriptorSetBindingReferenceVALVE);
         break;
-    case 1000420002:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE:
         dump_text_pNext<const VkDescriptorSetLayoutHostMappingInfoVALVE>(reinterpret_cast<const VkDescriptorSetLayoutHostMappingInfoVALVE*>(object), settings, "VkDescriptorSetLayoutHostMappingInfoVALVE", indents, dump_text_VkDescriptorSetLayoutHostMappingInfoVALVE);
         break;
-    case 1000422000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(object), settings, "VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT", indents, dump_text_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT);
         break;
-    case 1000424000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM:
         dump_text_pNext<const VkPhysicalDeviceRenderPassStripedFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceRenderPassStripedFeaturesARM*>(object), settings, "VkPhysicalDeviceRenderPassStripedFeaturesARM", indents, dump_text_VkPhysicalDeviceRenderPassStripedFeaturesARM);
         break;
-    case 1000424001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM:
         dump_text_pNext<const VkPhysicalDeviceRenderPassStripedPropertiesARM>(reinterpret_cast<const VkPhysicalDeviceRenderPassStripedPropertiesARM*>(object), settings, "VkPhysicalDeviceRenderPassStripedPropertiesARM", indents, dump_text_VkPhysicalDeviceRenderPassStripedPropertiesARM);
         break;
-    case 1000424003:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_INFO_ARM:
         dump_text_pNext<const VkRenderPassStripeInfoARM>(reinterpret_cast<const VkRenderPassStripeInfoARM*>(object), settings, "VkRenderPassStripeInfoARM", indents, dump_text_VkRenderPassStripeInfoARM);
         break;
-    case 1000424002:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
         dump_text_pNext<const VkRenderPassStripeBeginInfoARM>(reinterpret_cast<const VkRenderPassStripeBeginInfoARM*>(object), settings, "VkRenderPassStripeBeginInfoARM", indents, dump_text_VkRenderPassStripeBeginInfoARM);
         break;
-    case 1000424004:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
         dump_text_pNext<const VkRenderPassStripeSubmitInfoARM>(reinterpret_cast<const VkRenderPassStripeSubmitInfoARM*>(object), settings, "VkRenderPassStripeSubmitInfoARM", indents, dump_text_VkRenderPassStripeSubmitInfoARM);
         break;
-    case 1000425000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT", indents, dump_text_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT);
         break;
-    case 1000425001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT", indents, dump_text_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT);
         break;
-    case 1000425002:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT:
         dump_text_pNext<const VkRenderPassFragmentDensityMapOffsetEndInfoEXT>(reinterpret_cast<const VkRenderPassFragmentDensityMapOffsetEndInfoEXT*>(object), settings, "VkRenderPassFragmentDensityMapOffsetEndInfoEXT", indents, dump_text_VkRenderPassFragmentDensityMapOffsetEndInfoEXT);
         break;
-    case 1000426000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceCopyMemoryIndirectFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectFeaturesNV*>(object), settings, "VkPhysicalDeviceCopyMemoryIndirectFeaturesNV", indents, dump_text_VkPhysicalDeviceCopyMemoryIndirectFeaturesNV);
         break;
-    case 1000426001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceCopyMemoryIndirectPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectPropertiesNV*>(object), settings, "VkPhysicalDeviceCopyMemoryIndirectPropertiesNV", indents, dump_text_VkPhysicalDeviceCopyMemoryIndirectPropertiesNV);
         break;
-    case 1000427000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceMemoryDecompressionFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceMemoryDecompressionFeaturesNV*>(object), settings, "VkPhysicalDeviceMemoryDecompressionFeaturesNV", indents, dump_text_VkPhysicalDeviceMemoryDecompressionFeaturesNV);
         break;
-    case 1000427001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceMemoryDecompressionPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceMemoryDecompressionPropertiesNV*>(object), settings, "VkPhysicalDeviceMemoryDecompressionPropertiesNV", indents, dump_text_VkPhysicalDeviceMemoryDecompressionPropertiesNV);
         break;
-    case 1000428000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_COMPUTE_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV", indents, dump_text_VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV);
         break;
-    case 1000428001:
+    case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_INDIRECT_BUFFER_INFO_NV:
         dump_text_pNext<const VkComputePipelineIndirectBufferInfoNV>(reinterpret_cast<const VkComputePipelineIndirectBufferInfoNV*>(object), settings, "VkComputePipelineIndirectBufferInfoNV", indents, dump_text_VkComputePipelineIndirectBufferInfoNV);
         break;
-    case 1000428002:
+    case VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV:
         dump_text_pNext<const VkPipelineIndirectDeviceAddressInfoNV>(reinterpret_cast<const VkPipelineIndirectDeviceAddressInfoNV*>(object), settings, "VkPipelineIndirectDeviceAddressInfoNV", indents, dump_text_VkPipelineIndirectDeviceAddressInfoNV);
         break;
-    case 1000429008:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_LINEAR_SWEPT_SPHERES_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV", indents, dump_text_VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV);
         break;
-    case 1000429009:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_LINEAR_SWEPT_SPHERES_DATA_NV:
         dump_text_pNext<const VkAccelerationStructureGeometryLinearSweptSpheresDataNV>(reinterpret_cast<const VkAccelerationStructureGeometryLinearSweptSpheresDataNV*>(object), settings, "VkAccelerationStructureGeometryLinearSweptSpheresDataNV", indents, dump_text_VkAccelerationStructureGeometryLinearSweptSpheresDataNV);
         break;
-    case 1000429010:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_SPHERES_DATA_NV:
         dump_text_pNext<const VkAccelerationStructureGeometrySpheresDataNV>(reinterpret_cast<const VkAccelerationStructureGeometrySpheresDataNV*>(object), settings, "VkAccelerationStructureGeometrySpheresDataNV", indents, dump_text_VkAccelerationStructureGeometrySpheresDataNV);
         break;
-    case 1000430000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceLinearColorAttachmentFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceLinearColorAttachmentFeaturesNV*>(object), settings, "VkPhysicalDeviceLinearColorAttachmentFeaturesNV", indents, dump_text_VkPhysicalDeviceLinearColorAttachmentFeaturesNV);
         break;
-    case 1000437000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT", indents, dump_text_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT);
         break;
-    case 1000440002:
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM:
         dump_text_pNext<const VkImageViewSampleWeightCreateInfoQCOM>(reinterpret_cast<const VkImageViewSampleWeightCreateInfoQCOM*>(object), settings, "VkImageViewSampleWeightCreateInfoQCOM", indents, dump_text_VkImageViewSampleWeightCreateInfoQCOM);
         break;
-    case 1000440000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_FEATURES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceImageProcessingFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceImageProcessingFeaturesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessingFeaturesQCOM", indents, dump_text_VkPhysicalDeviceImageProcessingFeaturesQCOM);
         break;
-    case 1000440001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceImageProcessingPropertiesQCOM>(reinterpret_cast<const VkPhysicalDeviceImageProcessingPropertiesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessingPropertiesQCOM", indents, dump_text_VkPhysicalDeviceImageProcessingPropertiesQCOM);
         break;
-    case 1000451000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceNestedCommandBufferFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceNestedCommandBufferFeaturesEXT*>(object), settings, "VkPhysicalDeviceNestedCommandBufferFeaturesEXT", indents, dump_text_VkPhysicalDeviceNestedCommandBufferFeaturesEXT);
         break;
-    case 1000451001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceNestedCommandBufferPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceNestedCommandBufferPropertiesEXT*>(object), settings, "VkPhysicalDeviceNestedCommandBufferPropertiesEXT", indents, dump_text_VkPhysicalDeviceNestedCommandBufferPropertiesEXT);
         break;
-    case 1000453000:
+    case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT:
         dump_text_pNext<const VkExternalMemoryAcquireUnmodifiedEXT>(reinterpret_cast<const VkExternalMemoryAcquireUnmodifiedEXT*>(object), settings, "VkExternalMemoryAcquireUnmodifiedEXT", indents, dump_text_VkExternalMemoryAcquireUnmodifiedEXT);
         break;
-    case 1000455000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicState3FeaturesEXT", indents, dump_text_VkPhysicalDeviceExtendedDynamicState3FeaturesEXT);
         break;
-    case 1000455001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceExtendedDynamicState3PropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3PropertiesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicState3PropertiesEXT", indents, dump_text_VkPhysicalDeviceExtendedDynamicState3PropertiesEXT);
         break;
-    case 1000458000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(object), settings, "VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT", indents, dump_text_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT);
         break;
-    case 1000458001:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT:
         dump_text_pNext<const VkRenderPassCreationControlEXT>(reinterpret_cast<const VkRenderPassCreationControlEXT*>(object), settings, "VkRenderPassCreationControlEXT", indents, dump_text_VkRenderPassCreationControlEXT);
         break;
-    case 1000458002:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_CREATE_INFO_EXT:
         dump_text_pNext<const VkRenderPassCreationFeedbackCreateInfoEXT>(reinterpret_cast<const VkRenderPassCreationFeedbackCreateInfoEXT*>(object), settings, "VkRenderPassCreationFeedbackCreateInfoEXT", indents, dump_text_VkRenderPassCreationFeedbackCreateInfoEXT);
         break;
-    case 1000458003:
+    case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT:
         dump_text_pNext<const VkRenderPassSubpassFeedbackCreateInfoEXT>(reinterpret_cast<const VkRenderPassSubpassFeedbackCreateInfoEXT*>(object), settings, "VkRenderPassSubpassFeedbackCreateInfoEXT", indents, dump_text_VkRenderPassSubpassFeedbackCreateInfoEXT);
         break;
-    case 1000459000:
+    case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_INFO_LUNARG:
         dump_text_pNext<const VkDirectDriverLoadingInfoLUNARG>(reinterpret_cast<const VkDirectDriverLoadingInfoLUNARG*>(object), settings, "VkDirectDriverLoadingInfoLUNARG", indents, dump_text_VkDirectDriverLoadingInfoLUNARG);
         break;
-    case 1000459001:
+    case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG:
         dump_text_pNext<const VkDirectDriverLoadingListLUNARG>(reinterpret_cast<const VkDirectDriverLoadingListLUNARG*>(object), settings, "VkDirectDriverLoadingListLUNARG", indents, dump_text_VkDirectDriverLoadingListLUNARG);
         break;
-    case 1000460006:
+    case VK_STRUCTURE_TYPE_TENSOR_DESCRIPTION_ARM:
         dump_text_pNext<const VkTensorDescriptionARM>(reinterpret_cast<const VkTensorDescriptionARM*>(object), settings, "VkTensorDescriptionARM", indents, dump_text_VkTensorDescriptionARM);
         break;
-    case 1000460000:
+    case VK_STRUCTURE_TYPE_TENSOR_CREATE_INFO_ARM:
         dump_text_pNext<const VkTensorCreateInfoARM>(reinterpret_cast<const VkTensorCreateInfoARM*>(object), settings, "VkTensorCreateInfoARM", indents, dump_text_VkTensorCreateInfoARM);
         break;
-    case 1000460001:
+    case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
         dump_text_pNext<const VkTensorViewCreateInfoARM>(reinterpret_cast<const VkTensorViewCreateInfoARM*>(object), settings, "VkTensorViewCreateInfoARM", indents, dump_text_VkTensorViewCreateInfoARM);
         break;
-    case 1000460007:
+    case VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM:
         dump_text_pNext<const VkTensorMemoryRequirementsInfoARM>(reinterpret_cast<const VkTensorMemoryRequirementsInfoARM*>(object), settings, "VkTensorMemoryRequirementsInfoARM", indents, dump_text_VkTensorMemoryRequirementsInfoARM);
         break;
-    case 1000460002:
+    case VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM:
         dump_text_pNext<const VkBindTensorMemoryInfoARM>(reinterpret_cast<const VkBindTensorMemoryInfoARM*>(object), settings, "VkBindTensorMemoryInfoARM", indents, dump_text_VkBindTensorMemoryInfoARM);
         break;
-    case 1000460003:
+    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_TENSOR_ARM:
         dump_text_pNext<const VkWriteDescriptorSetTensorARM>(reinterpret_cast<const VkWriteDescriptorSetTensorARM*>(object), settings, "VkWriteDescriptorSetTensorARM", indents, dump_text_VkWriteDescriptorSetTensorARM);
         break;
-    case 1000460005:
+    case VK_STRUCTURE_TYPE_TENSOR_FORMAT_PROPERTIES_ARM:
         dump_text_pNext<const VkTensorFormatPropertiesARM>(reinterpret_cast<const VkTensorFormatPropertiesARM*>(object), settings, "VkTensorFormatPropertiesARM", indents, dump_text_VkTensorFormatPropertiesARM);
         break;
-    case 1000460004:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_PROPERTIES_ARM:
         dump_text_pNext<const VkPhysicalDeviceTensorPropertiesARM>(reinterpret_cast<const VkPhysicalDeviceTensorPropertiesARM*>(object), settings, "VkPhysicalDeviceTensorPropertiesARM", indents, dump_text_VkPhysicalDeviceTensorPropertiesARM);
         break;
-    case 1000460008:
+    case VK_STRUCTURE_TYPE_TENSOR_MEMORY_BARRIER_ARM:
         dump_text_pNext<const VkTensorMemoryBarrierARM>(reinterpret_cast<const VkTensorMemoryBarrierARM*>(object), settings, "VkTensorMemoryBarrierARM", indents, dump_text_VkTensorMemoryBarrierARM);
         break;
-    case 1000460013:
+    case VK_STRUCTURE_TYPE_TENSOR_DEPENDENCY_INFO_ARM:
         dump_text_pNext<const VkTensorDependencyInfoARM>(reinterpret_cast<const VkTensorDependencyInfoARM*>(object), settings, "VkTensorDependencyInfoARM", indents, dump_text_VkTensorDependencyInfoARM);
         break;
-    case 1000460009:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_FEATURES_ARM:
         dump_text_pNext<const VkPhysicalDeviceTensorFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceTensorFeaturesARM*>(object), settings, "VkPhysicalDeviceTensorFeaturesARM", indents, dump_text_VkPhysicalDeviceTensorFeaturesARM);
         break;
-    case 1000460010:
+    case VK_STRUCTURE_TYPE_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM:
         dump_text_pNext<const VkDeviceTensorMemoryRequirementsARM>(reinterpret_cast<const VkDeviceTensorMemoryRequirementsARM*>(object), settings, "VkDeviceTensorMemoryRequirementsARM", indents, dump_text_VkDeviceTensorMemoryRequirementsARM);
         break;
-    case 1000460012:
+    case VK_STRUCTURE_TYPE_TENSOR_COPY_ARM:
         dump_text_pNext<const VkTensorCopyARM>(reinterpret_cast<const VkTensorCopyARM*>(object), settings, "VkTensorCopyARM", indents, dump_text_VkTensorCopyARM);
         break;
-    case 1000460011:
+    case VK_STRUCTURE_TYPE_COPY_TENSOR_INFO_ARM:
         dump_text_pNext<const VkCopyTensorInfoARM>(reinterpret_cast<const VkCopyTensorInfoARM*>(object), settings, "VkCopyTensorInfoARM", indents, dump_text_VkCopyTensorInfoARM);
         break;
-    case 1000460014:
+    case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_TENSOR_ARM:
         dump_text_pNext<const VkMemoryDedicatedAllocateInfoTensorARM>(reinterpret_cast<const VkMemoryDedicatedAllocateInfoTensorARM*>(object), settings, "VkMemoryDedicatedAllocateInfoTensorARM", indents, dump_text_VkMemoryDedicatedAllocateInfoTensorARM);
         break;
-    case 1000460015:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_TENSOR_INFO_ARM:
         dump_text_pNext<const VkPhysicalDeviceExternalTensorInfoARM>(reinterpret_cast<const VkPhysicalDeviceExternalTensorInfoARM*>(object), settings, "VkPhysicalDeviceExternalTensorInfoARM", indents, dump_text_VkPhysicalDeviceExternalTensorInfoARM);
         break;
-    case 1000460016:
+    case VK_STRUCTURE_TYPE_EXTERNAL_TENSOR_PROPERTIES_ARM:
         dump_text_pNext<const VkExternalTensorPropertiesARM>(reinterpret_cast<const VkExternalTensorPropertiesARM*>(object), settings, "VkExternalTensorPropertiesARM", indents, dump_text_VkExternalTensorPropertiesARM);
         break;
-    case 1000460017:
+    case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_TENSOR_CREATE_INFO_ARM:
         dump_text_pNext<const VkExternalMemoryTensorCreateInfoARM>(reinterpret_cast<const VkExternalMemoryTensorCreateInfoARM*>(object), settings, "VkExternalMemoryTensorCreateInfoARM", indents, dump_text_VkExternalMemoryTensorCreateInfoARM);
         break;
-    case 1000460018:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM:
         dump_text_pNext<const VkPhysicalDeviceDescriptorBufferTensorFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferTensorFeaturesARM*>(object), settings, "VkPhysicalDeviceDescriptorBufferTensorFeaturesARM", indents, dump_text_VkPhysicalDeviceDescriptorBufferTensorFeaturesARM);
         break;
-    case 1000460019:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_PROPERTIES_ARM:
         dump_text_pNext<const VkPhysicalDeviceDescriptorBufferTensorPropertiesARM>(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferTensorPropertiesARM*>(object), settings, "VkPhysicalDeviceDescriptorBufferTensorPropertiesARM", indents, dump_text_VkPhysicalDeviceDescriptorBufferTensorPropertiesARM);
         break;
-    case 1000460020:
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_TENSOR_INFO_ARM:
         dump_text_pNext<const VkDescriptorGetTensorInfoARM>(reinterpret_cast<const VkDescriptorGetTensorInfoARM*>(object), settings, "VkDescriptorGetTensorInfoARM", indents, dump_text_VkDescriptorGetTensorInfoARM);
         break;
-    case 1000460021:
+    case VK_STRUCTURE_TYPE_TENSOR_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
         dump_text_pNext<const VkTensorCaptureDescriptorDataInfoARM>(reinterpret_cast<const VkTensorCaptureDescriptorDataInfoARM*>(object), settings, "VkTensorCaptureDescriptorDataInfoARM", indents, dump_text_VkTensorCaptureDescriptorDataInfoARM);
         break;
-    case 1000460022:
+    case VK_STRUCTURE_TYPE_TENSOR_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
         dump_text_pNext<const VkTensorViewCaptureDescriptorDataInfoARM>(reinterpret_cast<const VkTensorViewCaptureDescriptorDataInfoARM*>(object), settings, "VkTensorViewCaptureDescriptorDataInfoARM", indents, dump_text_VkTensorViewCaptureDescriptorDataInfoARM);
         break;
-    case 1000460023:
+    case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_TENSORS_ARM:
         dump_text_pNext<const VkFrameBoundaryTensorsARM>(reinterpret_cast<const VkFrameBoundaryTensorsARM*>(object), settings, "VkFrameBoundaryTensorsARM", indents, dump_text_VkFrameBoundaryTensorsARM);
         break;
-    case 1000462000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT", indents, dump_text_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT);
         break;
-    case 1000462001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT*>(object), settings, "VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT", indents, dump_text_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT);
         break;
-    case 1000462002:
+    case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineShaderStageModuleIdentifierCreateInfoEXT>(reinterpret_cast<const VkPipelineShaderStageModuleIdentifierCreateInfoEXT*>(object), settings, "VkPipelineShaderStageModuleIdentifierCreateInfoEXT", indents, dump_text_VkPipelineShaderStageModuleIdentifierCreateInfoEXT);
         break;
-    case 1000462003:
+    case VK_STRUCTURE_TYPE_SHADER_MODULE_IDENTIFIER_EXT:
         dump_text_pNext<const VkShaderModuleIdentifierEXT>(reinterpret_cast<const VkShaderModuleIdentifierEXT*>(object), settings, "VkShaderModuleIdentifierEXT", indents, dump_text_VkShaderModuleIdentifierEXT);
         break;
-    case 1000464000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceOpticalFlowFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceOpticalFlowFeaturesNV*>(object), settings, "VkPhysicalDeviceOpticalFlowFeaturesNV", indents, dump_text_VkPhysicalDeviceOpticalFlowFeaturesNV);
         break;
-    case 1000464001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceOpticalFlowPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceOpticalFlowPropertiesNV*>(object), settings, "VkPhysicalDeviceOpticalFlowPropertiesNV", indents, dump_text_VkPhysicalDeviceOpticalFlowPropertiesNV);
         break;
-    case 1000464002:
+    case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:
         dump_text_pNext<const VkOpticalFlowImageFormatInfoNV>(reinterpret_cast<const VkOpticalFlowImageFormatInfoNV*>(object), settings, "VkOpticalFlowImageFormatInfoNV", indents, dump_text_VkOpticalFlowImageFormatInfoNV);
         break;
-    case 1000464003:
+    case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_NV:
         dump_text_pNext<const VkOpticalFlowImageFormatPropertiesNV>(reinterpret_cast<const VkOpticalFlowImageFormatPropertiesNV*>(object), settings, "VkOpticalFlowImageFormatPropertiesNV", indents, dump_text_VkOpticalFlowImageFormatPropertiesNV);
         break;
-    case 1000464004:
+    case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_INFO_NV:
         dump_text_pNext<const VkOpticalFlowSessionCreateInfoNV>(reinterpret_cast<const VkOpticalFlowSessionCreateInfoNV*>(object), settings, "VkOpticalFlowSessionCreateInfoNV", indents, dump_text_VkOpticalFlowSessionCreateInfoNV);
         break;
-    case 1000464010:
+    case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_PRIVATE_DATA_INFO_NV:
         dump_text_pNext<const VkOpticalFlowSessionCreatePrivateDataInfoNV>(reinterpret_cast<const VkOpticalFlowSessionCreatePrivateDataInfoNV*>(object), settings, "VkOpticalFlowSessionCreatePrivateDataInfoNV", indents, dump_text_VkOpticalFlowSessionCreatePrivateDataInfoNV);
         break;
-    case 1000464005:
+    case VK_STRUCTURE_TYPE_OPTICAL_FLOW_EXECUTE_INFO_NV:
         dump_text_pNext<const VkOpticalFlowExecuteInfoNV>(reinterpret_cast<const VkOpticalFlowExecuteInfoNV*>(object), settings, "VkOpticalFlowExecuteInfoNV", indents, dump_text_VkOpticalFlowExecuteInfoNV);
         break;
-    case 1000465000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceLegacyDitheringFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceLegacyDitheringFeaturesEXT*>(object), settings, "VkPhysicalDeviceLegacyDitheringFeaturesEXT", indents, dump_text_VkPhysicalDeviceLegacyDitheringFeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000468000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID:
         dump_text_pNext<const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID>(reinterpret_cast<const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID*>(object), settings, "VkPhysicalDeviceExternalFormatResolveFeaturesANDROID", indents, dump_text_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000468001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_PROPERTIES_ANDROID:
         dump_text_pNext<const VkPhysicalDeviceExternalFormatResolvePropertiesANDROID>(reinterpret_cast<const VkPhysicalDeviceExternalFormatResolvePropertiesANDROID*>(object), settings, "VkPhysicalDeviceExternalFormatResolvePropertiesANDROID", indents, dump_text_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    case 1000468002:
+    case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_RESOLVE_PROPERTIES_ANDROID:
         dump_text_pNext<const VkAndroidHardwareBufferFormatResolvePropertiesANDROID>(reinterpret_cast<const VkAndroidHardwareBufferFormatResolvePropertiesANDROID*>(object), settings, "VkAndroidHardwareBufferFormatResolvePropertiesANDROID", indents, dump_text_VkAndroidHardwareBufferFormatResolvePropertiesANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
-    case 1000476000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ANTI_LAG_FEATURES_AMD:
         dump_text_pNext<const VkPhysicalDeviceAntiLagFeaturesAMD>(reinterpret_cast<const VkPhysicalDeviceAntiLagFeaturesAMD*>(object), settings, "VkPhysicalDeviceAntiLagFeaturesAMD", indents, dump_text_VkPhysicalDeviceAntiLagFeaturesAMD);
         break;
-    case 1000476002:
+    case VK_STRUCTURE_TYPE_ANTI_LAG_PRESENTATION_INFO_AMD:
         dump_text_pNext<const VkAntiLagPresentationInfoAMD>(reinterpret_cast<const VkAntiLagPresentationInfoAMD*>(object), settings, "VkAntiLagPresentationInfoAMD", indents, dump_text_VkAntiLagPresentationInfoAMD);
         break;
-    case 1000476001:
+    case VK_STRUCTURE_TYPE_ANTI_LAG_DATA_AMD:
         dump_text_pNext<const VkAntiLagDataAMD>(reinterpret_cast<const VkAntiLagDataAMD*>(object), settings, "VkAntiLagDataAMD", indents, dump_text_VkAntiLagDataAMD);
         break;
-    case 1000482000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderObjectFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderObjectFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderObjectFeaturesEXT", indents, dump_text_VkPhysicalDeviceShaderObjectFeaturesEXT);
         break;
-    case 1000482001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderObjectPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderObjectPropertiesEXT*>(object), settings, "VkPhysicalDeviceShaderObjectPropertiesEXT", indents, dump_text_VkPhysicalDeviceShaderObjectPropertiesEXT);
         break;
-    case 1000482002:
+    case VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT:
         dump_text_pNext<const VkShaderCreateInfoEXT>(reinterpret_cast<const VkShaderCreateInfoEXT*>(object), settings, "VkShaderCreateInfoEXT", indents, dump_text_VkShaderCreateInfoEXT);
         break;
-    case 1000484000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceTilePropertiesFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTilePropertiesFeaturesQCOM", indents, dump_text_VkPhysicalDeviceTilePropertiesFeaturesQCOM);
         break;
-    case 1000484001:
+    case VK_STRUCTURE_TYPE_TILE_PROPERTIES_QCOM:
         dump_text_pNext<const VkTilePropertiesQCOM>(reinterpret_cast<const VkTilePropertiesQCOM*>(object), settings, "VkTilePropertiesQCOM", indents, dump_text_VkTilePropertiesQCOM);
         break;
-    case 1000485000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC:
         dump_text_pNext<const VkPhysicalDeviceAmigoProfilingFeaturesSEC>(reinterpret_cast<const VkPhysicalDeviceAmigoProfilingFeaturesSEC*>(object), settings, "VkPhysicalDeviceAmigoProfilingFeaturesSEC", indents, dump_text_VkPhysicalDeviceAmigoProfilingFeaturesSEC);
         break;
-    case 1000485001:
+    case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
         dump_text_pNext<const VkAmigoProfilingSubmitInfoSEC>(reinterpret_cast<const VkAmigoProfilingSubmitInfoSEC*>(object), settings, "VkAmigoProfilingSubmitInfoSEC", indents, dump_text_VkAmigoProfilingSubmitInfoSEC);
         break;
-    case 1000488000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM*>(object), settings, "VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM", indents, dump_text_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM);
         break;
-    case 1000490001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV*>(object), settings, "VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV", indents, dump_text_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV);
         break;
-    case 1000490000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV", indents, dump_text_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV);
         break;
-    case 1000491001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceCooperativeVectorPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeVectorPropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeVectorPropertiesNV", indents, dump_text_VkPhysicalDeviceCooperativeVectorPropertiesNV);
         break;
-    case 1000491000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceCooperativeVectorFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeVectorFeaturesNV*>(object), settings, "VkPhysicalDeviceCooperativeVectorFeaturesNV", indents, dump_text_VkPhysicalDeviceCooperativeVectorFeaturesNV);
         break;
-    case 1000491002:
+    case VK_STRUCTURE_TYPE_COOPERATIVE_VECTOR_PROPERTIES_NV:
         dump_text_pNext<const VkCooperativeVectorPropertiesNV>(reinterpret_cast<const VkCooperativeVectorPropertiesNV*>(object), settings, "VkCooperativeVectorPropertiesNV", indents, dump_text_VkCooperativeVectorPropertiesNV);
         break;
-    case 1000491004:
+    case VK_STRUCTURE_TYPE_CONVERT_COOPERATIVE_VECTOR_MATRIX_INFO_NV:
         dump_text_pNext<const VkConvertCooperativeVectorMatrixInfoNV>(reinterpret_cast<const VkConvertCooperativeVectorMatrixInfoNV*>(object), settings, "VkConvertCooperativeVectorMatrixInfoNV", indents, dump_text_VkConvertCooperativeVectorMatrixInfoNV);
         break;
-    case 1000492000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV*>(object), settings, "VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV", indents, dump_text_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV);
         break;
-    case 1000492001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV>(reinterpret_cast<const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV*>(object), settings, "VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV", indents, dump_text_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV);
         break;
-    case 1000495000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT*>(object), settings, "VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT", indents, dump_text_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT);
         break;
-    case 1000495001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT*>(object), settings, "VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT", indents, dump_text_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT);
         break;
-    case 1000496000:
+    case VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT:
         dump_text_pNext<const VkLayerSettingsCreateInfoEXT>(reinterpret_cast<const VkLayerSettingsCreateInfoEXT*>(object), settings, "VkLayerSettingsCreateInfoEXT", indents, dump_text_VkLayerSettingsCreateInfoEXT);
         break;
-    case 1000497000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
         dump_text_pNext<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(object), settings, "VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM", indents, dump_text_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM);
         break;
-    case 1000497001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM:
         dump_text_pNext<const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>(reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM*>(object), settings, "VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM", indents, dump_text_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM);
         break;
-    case 1000498000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(object), settings, "VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT", indents, dump_text_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT);
         break;
-    case 1000499000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(object), settings, "VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT", indents, dump_text_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT);
         break;
-    case 1000505000:
+    case VK_STRUCTURE_TYPE_LATENCY_SLEEP_MODE_INFO_NV:
         dump_text_pNext<const VkLatencySleepModeInfoNV>(reinterpret_cast<const VkLatencySleepModeInfoNV*>(object), settings, "VkLatencySleepModeInfoNV", indents, dump_text_VkLatencySleepModeInfoNV);
         break;
-    case 1000505001:
+    case VK_STRUCTURE_TYPE_LATENCY_SLEEP_INFO_NV:
         dump_text_pNext<const VkLatencySleepInfoNV>(reinterpret_cast<const VkLatencySleepInfoNV*>(object), settings, "VkLatencySleepInfoNV", indents, dump_text_VkLatencySleepInfoNV);
         break;
-    case 1000505002:
+    case VK_STRUCTURE_TYPE_SET_LATENCY_MARKER_INFO_NV:
         dump_text_pNext<const VkSetLatencyMarkerInfoNV>(reinterpret_cast<const VkSetLatencyMarkerInfoNV*>(object), settings, "VkSetLatencyMarkerInfoNV", indents, dump_text_VkSetLatencyMarkerInfoNV);
         break;
-    case 1000505004:
+    case VK_STRUCTURE_TYPE_LATENCY_TIMINGS_FRAME_REPORT_NV:
         dump_text_pNext<const VkLatencyTimingsFrameReportNV>(reinterpret_cast<const VkLatencyTimingsFrameReportNV*>(object), settings, "VkLatencyTimingsFrameReportNV", indents, dump_text_VkLatencyTimingsFrameReportNV);
         break;
-    case 1000505003:
+    case VK_STRUCTURE_TYPE_GET_LATENCY_MARKER_INFO_NV:
         dump_text_pNext<const VkGetLatencyMarkerInfoNV>(reinterpret_cast<const VkGetLatencyMarkerInfoNV*>(object), settings, "VkGetLatencyMarkerInfoNV", indents, dump_text_VkGetLatencyMarkerInfoNV);
         break;
-    case 1000505005:
+    case VK_STRUCTURE_TYPE_LATENCY_SUBMISSION_PRESENT_ID_NV:
         dump_text_pNext<const VkLatencySubmissionPresentIdNV>(reinterpret_cast<const VkLatencySubmissionPresentIdNV*>(object), settings, "VkLatencySubmissionPresentIdNV", indents, dump_text_VkLatencySubmissionPresentIdNV);
         break;
-    case 1000505007:
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_LATENCY_CREATE_INFO_NV:
         dump_text_pNext<const VkSwapchainLatencyCreateInfoNV>(reinterpret_cast<const VkSwapchainLatencyCreateInfoNV*>(object), settings, "VkSwapchainLatencyCreateInfoNV", indents, dump_text_VkSwapchainLatencyCreateInfoNV);
         break;
-    case 1000505006:
+    case VK_STRUCTURE_TYPE_OUT_OF_BAND_QUEUE_TYPE_INFO_NV:
         dump_text_pNext<const VkOutOfBandQueueTypeInfoNV>(reinterpret_cast<const VkOutOfBandQueueTypeInfoNV*>(object), settings, "VkOutOfBandQueueTypeInfoNV", indents, dump_text_VkOutOfBandQueueTypeInfoNV);
         break;
-    case 1000505008:
+    case VK_STRUCTURE_TYPE_LATENCY_SURFACE_CAPABILITIES_NV:
         dump_text_pNext<const VkLatencySurfaceCapabilitiesNV>(reinterpret_cast<const VkLatencySurfaceCapabilitiesNV*>(object), settings, "VkLatencySurfaceCapabilitiesNV", indents, dump_text_VkLatencySurfaceCapabilitiesNV);
         break;
-    case 1000510000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(object), settings, "VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM", indents, dump_text_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM);
         break;
-    case 1000510001:
+    case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
         dump_text_pNext<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM>(reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(object), settings, "VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM", indents, dump_text_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM);
         break;
-    case 1000516000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PER_STAGE_DESCRIPTOR_SET_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDevicePerStageDescriptorSetFeaturesNV>(reinterpret_cast<const VkPhysicalDevicePerStageDescriptorSetFeaturesNV*>(object), settings, "VkPhysicalDevicePerStageDescriptorSetFeaturesNV", indents, dump_text_VkPhysicalDevicePerStageDescriptorSetFeaturesNV);
         break;
-    case 1000518000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceImageProcessing2FeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceImageProcessing2FeaturesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessing2FeaturesQCOM", indents, dump_text_VkPhysicalDeviceImageProcessing2FeaturesQCOM);
         break;
-    case 1000518001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceImageProcessing2PropertiesQCOM>(reinterpret_cast<const VkPhysicalDeviceImageProcessing2PropertiesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessing2PropertiesQCOM", indents, dump_text_VkPhysicalDeviceImageProcessing2PropertiesQCOM);
         break;
-    case 1000518002:
+    case VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM:
         dump_text_pNext<const VkSamplerBlockMatchWindowCreateInfoQCOM>(reinterpret_cast<const VkSamplerBlockMatchWindowCreateInfoQCOM*>(object), settings, "VkSamplerBlockMatchWindowCreateInfoQCOM", indents, dump_text_VkSamplerBlockMatchWindowCreateInfoQCOM);
         break;
-    case 1000519001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceCubicWeightsFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceCubicWeightsFeaturesQCOM*>(object), settings, "VkPhysicalDeviceCubicWeightsFeaturesQCOM", indents, dump_text_VkPhysicalDeviceCubicWeightsFeaturesQCOM);
         break;
-    case 1000519000:
+    case VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM:
         dump_text_pNext<const VkSamplerCubicWeightsCreateInfoQCOM>(reinterpret_cast<const VkSamplerCubicWeightsCreateInfoQCOM*>(object), settings, "VkSamplerCubicWeightsCreateInfoQCOM", indents, dump_text_VkSamplerCubicWeightsCreateInfoQCOM);
         break;
-    case 1000519002:
+    case VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM:
         dump_text_pNext<const VkBlitImageCubicWeightsInfoQCOM>(reinterpret_cast<const VkBlitImageCubicWeightsInfoQCOM*>(object), settings, "VkBlitImageCubicWeightsInfoQCOM", indents, dump_text_VkBlitImageCubicWeightsInfoQCOM);
         break;
-    case 1000520000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceYcbcrDegammaFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceYcbcrDegammaFeaturesQCOM*>(object), settings, "VkPhysicalDeviceYcbcrDegammaFeaturesQCOM", indents, dump_text_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM);
         break;
-    case 1000520001:
+    case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM:
         dump_text_pNext<const VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM>(reinterpret_cast<const VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM*>(object), settings, "VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM", indents, dump_text_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM);
         break;
-    case 1000521000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceCubicClampFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceCubicClampFeaturesQCOM*>(object), settings, "VkPhysicalDeviceCubicClampFeaturesQCOM", indents, dump_text_VkPhysicalDeviceCubicClampFeaturesQCOM);
         break;
-    case 1000524000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT*>(object), settings, "VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT", indents, dump_text_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-    case 1000529000:
+    case VK_STRUCTURE_TYPE_SCREEN_BUFFER_PROPERTIES_QNX:
         dump_text_pNext<const VkScreenBufferPropertiesQNX>(reinterpret_cast<const VkScreenBufferPropertiesQNX*>(object), settings, "VkScreenBufferPropertiesQNX", indents, dump_text_VkScreenBufferPropertiesQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-    case 1000529001:
+    case VK_STRUCTURE_TYPE_SCREEN_BUFFER_FORMAT_PROPERTIES_QNX:
         dump_text_pNext<const VkScreenBufferFormatPropertiesQNX>(reinterpret_cast<const VkScreenBufferFormatPropertiesQNX*>(object), settings, "VkScreenBufferFormatPropertiesQNX", indents, dump_text_VkScreenBufferFormatPropertiesQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-    case 1000529002:
+    case VK_STRUCTURE_TYPE_IMPORT_SCREEN_BUFFER_INFO_QNX:
         dump_text_pNext<const VkImportScreenBufferInfoQNX>(reinterpret_cast<const VkImportScreenBufferInfoQNX*>(object), settings, "VkImportScreenBufferInfoQNX", indents, dump_text_VkImportScreenBufferInfoQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-    case 1000529003:
+    case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_QNX:
         dump_text_pNext<const VkExternalFormatQNX>(reinterpret_cast<const VkExternalFormatQNX*>(object), settings, "VkExternalFormatQNX", indents, dump_text_VkExternalFormatQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-    case 1000529004:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_SCREEN_BUFFER_FEATURES_QNX:
         dump_text_pNext<const VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX>(reinterpret_cast<const VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX*>(object), settings, "VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX", indents, dump_text_VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
-    case 1000530000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT:
         dump_text_pNext<const VkPhysicalDeviceLayeredDriverPropertiesMSFT>(reinterpret_cast<const VkPhysicalDeviceLayeredDriverPropertiesMSFT*>(object), settings, "VkPhysicalDeviceLayeredDriverPropertiesMSFT", indents, dump_text_VkPhysicalDeviceLayeredDriverPropertiesMSFT);
         break;
-    case 1000546000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV*>(object), settings, "VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV", indents, dump_text_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV);
         break;
-    case 1000547000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTileMemoryHeapFeaturesQCOM", indents, dump_text_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM);
         break;
-    case 1000547001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_PROPERTIES_QCOM:
         dump_text_pNext<const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM>(reinterpret_cast<const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM*>(object), settings, "VkPhysicalDeviceTileMemoryHeapPropertiesQCOM", indents, dump_text_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM);
         break;
-    case 1000547002:
+    case VK_STRUCTURE_TYPE_TILE_MEMORY_REQUIREMENTS_QCOM:
         dump_text_pNext<const VkTileMemoryRequirementsQCOM>(reinterpret_cast<const VkTileMemoryRequirementsQCOM*>(object), settings, "VkTileMemoryRequirementsQCOM", indents, dump_text_VkTileMemoryRequirementsQCOM);
         break;
-    case 1000547003:
+    case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
         dump_text_pNext<const VkTileMemoryBindInfoQCOM>(reinterpret_cast<const VkTileMemoryBindInfoQCOM*>(object), settings, "VkTileMemoryBindInfoQCOM", indents, dump_text_VkTileMemoryBindInfoQCOM);
         break;
-    case 1000547004:
+    case VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM:
         dump_text_pNext<const VkTileMemorySizeInfoQCOM>(reinterpret_cast<const VkTileMemorySizeInfoQCOM*>(object), settings, "VkTileMemorySizeInfoQCOM", indents, dump_text_VkTileMemorySizeInfoQCOM);
         break;
-    case 1000551000:
+    case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_STEREO_CREATE_INFO_NV:
         dump_text_pNext<const VkDisplaySurfaceStereoCreateInfoNV>(reinterpret_cast<const VkDisplaySurfaceStereoCreateInfoNV*>(object), settings, "VkDisplaySurfaceStereoCreateInfoNV", indents, dump_text_VkDisplaySurfaceStereoCreateInfoNV);
         break;
-    case 1000551001:
+    case VK_STRUCTURE_TYPE_DISPLAY_MODE_STEREO_PROPERTIES_NV:
         dump_text_pNext<const VkDisplayModeStereoPropertiesNV>(reinterpret_cast<const VkDisplayModeStereoPropertiesNV*>(object), settings, "VkDisplayModeStereoPropertiesNV", indents, dump_text_VkDisplayModeStereoPropertiesNV);
         break;
-    case 1000555000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceRawAccessChainsFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRawAccessChainsFeaturesNV*>(object), settings, "VkPhysicalDeviceRawAccessChainsFeaturesNV", indents, dump_text_VkPhysicalDeviceRawAccessChainsFeaturesNV);
         break;
-    case 1000556000:
+    case VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_DEVICE_CREATE_INFO_NV:
         dump_text_pNext<const VkExternalComputeQueueDeviceCreateInfoNV>(reinterpret_cast<const VkExternalComputeQueueDeviceCreateInfoNV*>(object), settings, "VkExternalComputeQueueDeviceCreateInfoNV", indents, dump_text_VkExternalComputeQueueDeviceCreateInfoNV);
         break;
-    case 1000556001:
+    case VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_CREATE_INFO_NV:
         dump_text_pNext<const VkExternalComputeQueueCreateInfoNV>(reinterpret_cast<const VkExternalComputeQueueCreateInfoNV*>(object), settings, "VkExternalComputeQueueCreateInfoNV", indents, dump_text_VkExternalComputeQueueCreateInfoNV);
         break;
-    case 1000556002:
+    case VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_DATA_PARAMS_NV:
         dump_text_pNext<const VkExternalComputeQueueDataParamsNV>(reinterpret_cast<const VkExternalComputeQueueDataParamsNV*>(object), settings, "VkExternalComputeQueueDataParamsNV", indents, dump_text_VkExternalComputeQueueDataParamsNV);
         break;
-    case 1000556003:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_COMPUTE_QUEUE_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceExternalComputeQueuePropertiesNV>(reinterpret_cast<const VkPhysicalDeviceExternalComputeQueuePropertiesNV*>(object), settings, "VkPhysicalDeviceExternalComputeQueuePropertiesNV", indents, dump_text_VkPhysicalDeviceExternalComputeQueuePropertiesNV);
         break;
-    case 1000559000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMMAND_BUFFER_INHERITANCE_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceCommandBufferInheritanceFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCommandBufferInheritanceFeaturesNV*>(object), settings, "VkPhysicalDeviceCommandBufferInheritanceFeaturesNV", indents, dump_text_VkPhysicalDeviceCommandBufferInheritanceFeaturesNV);
         break;
-    case 1000563000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV*>(object), settings, "VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV", indents, dump_text_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV);
         break;
-    case 1000564000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT", indents, dump_text_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT);
         break;
-    case 1000567000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceShaderFloat8FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderFloat8FeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderFloat8FeaturesEXT", indents, dump_text_VkPhysicalDeviceShaderFloat8FeaturesEXT);
         break;
-    case 1000568000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceRayTracingValidationFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingValidationFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingValidationFeaturesNV", indents, dump_text_VkPhysicalDeviceRayTracingValidationFeaturesNV);
         break;
-    case 1000569000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_ACCELERATION_STRUCTURE_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceClusterAccelerationStructureFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceClusterAccelerationStructureFeaturesNV*>(object), settings, "VkPhysicalDeviceClusterAccelerationStructureFeaturesNV", indents, dump_text_VkPhysicalDeviceClusterAccelerationStructureFeaturesNV);
         break;
-    case 1000569001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_ACCELERATION_STRUCTURE_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceClusterAccelerationStructurePropertiesNV>(reinterpret_cast<const VkPhysicalDeviceClusterAccelerationStructurePropertiesNV*>(object), settings, "VkPhysicalDeviceClusterAccelerationStructurePropertiesNV", indents, dump_text_VkPhysicalDeviceClusterAccelerationStructurePropertiesNV);
         break;
-    case 1000569002:
+    case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_CLUSTERS_BOTTOM_LEVEL_INPUT_NV:
         dump_text_pNext<const VkClusterAccelerationStructureClustersBottomLevelInputNV>(reinterpret_cast<const VkClusterAccelerationStructureClustersBottomLevelInputNV*>(object), settings, "VkClusterAccelerationStructureClustersBottomLevelInputNV", indents, dump_text_VkClusterAccelerationStructureClustersBottomLevelInputNV);
         break;
-    case 1000569003:
+    case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_TRIANGLE_CLUSTER_INPUT_NV:
         dump_text_pNext<const VkClusterAccelerationStructureTriangleClusterInputNV>(reinterpret_cast<const VkClusterAccelerationStructureTriangleClusterInputNV*>(object), settings, "VkClusterAccelerationStructureTriangleClusterInputNV", indents, dump_text_VkClusterAccelerationStructureTriangleClusterInputNV);
         break;
-    case 1000569004:
+    case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_MOVE_OBJECTS_INPUT_NV:
         dump_text_pNext<const VkClusterAccelerationStructureMoveObjectsInputNV>(reinterpret_cast<const VkClusterAccelerationStructureMoveObjectsInputNV*>(object), settings, "VkClusterAccelerationStructureMoveObjectsInputNV", indents, dump_text_VkClusterAccelerationStructureMoveObjectsInputNV);
         break;
-    case 1000569005:
+    case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_INPUT_INFO_NV:
         dump_text_pNext<const VkClusterAccelerationStructureInputInfoNV>(reinterpret_cast<const VkClusterAccelerationStructureInputInfoNV*>(object), settings, "VkClusterAccelerationStructureInputInfoNV", indents, dump_text_VkClusterAccelerationStructureInputInfoNV);
         break;
-    case 1000569006:
+    case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_COMMANDS_INFO_NV:
         dump_text_pNext<const VkClusterAccelerationStructureCommandsInfoNV>(reinterpret_cast<const VkClusterAccelerationStructureCommandsInfoNV*>(object), settings, "VkClusterAccelerationStructureCommandsInfoNV", indents, dump_text_VkClusterAccelerationStructureCommandsInfoNV);
         break;
-    case 1000150020:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR:
         dump_text_pNext<const VkAccelerationStructureBuildSizesInfoKHR>(reinterpret_cast<const VkAccelerationStructureBuildSizesInfoKHR*>(object), settings, "VkAccelerationStructureBuildSizesInfoKHR", indents, dump_text_VkAccelerationStructureBuildSizesInfoKHR);
         break;
-    case 1000569007:
+    case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CLUSTER_ACCELERATION_STRUCTURE_CREATE_INFO_NV:
         dump_text_pNext<const VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV>(reinterpret_cast<const VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV*>(object), settings, "VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV", indents, dump_text_VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV);
         break;
-    case 1000570000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PARTITIONED_ACCELERATION_STRUCTURE_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV>(reinterpret_cast<const VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV*>(object), settings, "VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV", indents, dump_text_VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV);
         break;
-    case 1000570001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PARTITIONED_ACCELERATION_STRUCTURE_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV>(reinterpret_cast<const VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV*>(object), settings, "VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV", indents, dump_text_VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV);
         break;
-    case 1000570005:
+    case VK_STRUCTURE_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_FLAGS_NV:
         dump_text_pNext<const VkPartitionedAccelerationStructureFlagsNV>(reinterpret_cast<const VkPartitionedAccelerationStructureFlagsNV*>(object), settings, "VkPartitionedAccelerationStructureFlagsNV", indents, dump_text_VkPartitionedAccelerationStructureFlagsNV);
         break;
-    case 1000570002:
+    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_PARTITIONED_ACCELERATION_STRUCTURE_NV:
         dump_text_pNext<const VkWriteDescriptorSetPartitionedAccelerationStructureNV>(reinterpret_cast<const VkWriteDescriptorSetPartitionedAccelerationStructureNV*>(object), settings, "VkWriteDescriptorSetPartitionedAccelerationStructureNV", indents, dump_text_VkWriteDescriptorSetPartitionedAccelerationStructureNV);
         break;
-    case 1000570003:
+    case VK_STRUCTURE_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCES_INPUT_NV:
         dump_text_pNext<const VkPartitionedAccelerationStructureInstancesInputNV>(reinterpret_cast<const VkPartitionedAccelerationStructureInstancesInputNV*>(object), settings, "VkPartitionedAccelerationStructureInstancesInputNV", indents, dump_text_VkPartitionedAccelerationStructureInstancesInputNV);
         break;
-    case 1000570004:
+    case VK_STRUCTURE_TYPE_BUILD_PARTITIONED_ACCELERATION_STRUCTURE_INFO_NV:
         dump_text_pNext<const VkBuildPartitionedAccelerationStructureInfoNV>(reinterpret_cast<const VkBuildPartitionedAccelerationStructureInfoNV*>(object), settings, "VkBuildPartitionedAccelerationStructureInfoNV", indents, dump_text_VkBuildPartitionedAccelerationStructureInfoNV);
         break;
-    case 1000572000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT", indents, dump_text_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT);
         break;
-    case 1000572001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT", indents, dump_text_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT);
         break;
-    case 1000572002:
+    case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_EXT:
         dump_text_pNext<const VkGeneratedCommandsMemoryRequirementsInfoEXT>(reinterpret_cast<const VkGeneratedCommandsMemoryRequirementsInfoEXT*>(object), settings, "VkGeneratedCommandsMemoryRequirementsInfoEXT", indents, dump_text_VkGeneratedCommandsMemoryRequirementsInfoEXT);
         break;
-    case 1000572010:
+    case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT:
         dump_text_pNext<const VkIndirectExecutionSetPipelineInfoEXT>(reinterpret_cast<const VkIndirectExecutionSetPipelineInfoEXT*>(object), settings, "VkIndirectExecutionSetPipelineInfoEXT", indents, dump_text_VkIndirectExecutionSetPipelineInfoEXT);
         break;
-    case 1000572012:
+    case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_LAYOUT_INFO_EXT:
         dump_text_pNext<const VkIndirectExecutionSetShaderLayoutInfoEXT>(reinterpret_cast<const VkIndirectExecutionSetShaderLayoutInfoEXT*>(object), settings, "VkIndirectExecutionSetShaderLayoutInfoEXT", indents, dump_text_VkIndirectExecutionSetShaderLayoutInfoEXT);
         break;
-    case 1000572011:
+    case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_INFO_EXT:
         dump_text_pNext<const VkIndirectExecutionSetShaderInfoEXT>(reinterpret_cast<const VkIndirectExecutionSetShaderInfoEXT*>(object), settings, "VkIndirectExecutionSetShaderInfoEXT", indents, dump_text_VkIndirectExecutionSetShaderInfoEXT);
         break;
-    case 1000572003:
+    case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_CREATE_INFO_EXT:
         dump_text_pNext<const VkIndirectExecutionSetCreateInfoEXT>(reinterpret_cast<const VkIndirectExecutionSetCreateInfoEXT*>(object), settings, "VkIndirectExecutionSetCreateInfoEXT", indents, dump_text_VkIndirectExecutionSetCreateInfoEXT);
         break;
-    case 1000572004:
+    case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_EXT:
         dump_text_pNext<const VkGeneratedCommandsInfoEXT>(reinterpret_cast<const VkGeneratedCommandsInfoEXT*>(object), settings, "VkGeneratedCommandsInfoEXT", indents, dump_text_VkGeneratedCommandsInfoEXT);
         break;
-    case 1000572008:
+    case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_PIPELINE_EXT:
         dump_text_pNext<const VkWriteIndirectExecutionSetPipelineEXT>(reinterpret_cast<const VkWriteIndirectExecutionSetPipelineEXT*>(object), settings, "VkWriteIndirectExecutionSetPipelineEXT", indents, dump_text_VkWriteIndirectExecutionSetPipelineEXT);
         break;
-    case 1000572007:
+    case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT:
         dump_text_pNext<const VkIndirectCommandsLayoutTokenEXT>(reinterpret_cast<const VkIndirectCommandsLayoutTokenEXT*>(object), settings, "VkIndirectCommandsLayoutTokenEXT", indents, dump_text_VkIndirectCommandsLayoutTokenEXT);
         break;
-    case 1000572006:
+    case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_EXT:
         dump_text_pNext<const VkIndirectCommandsLayoutCreateInfoEXT>(reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoEXT*>(object), settings, "VkIndirectCommandsLayoutCreateInfoEXT", indents, dump_text_VkIndirectCommandsLayoutCreateInfoEXT);
         break;
-    case 1000572013:
+    case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
         dump_text_pNext<const VkGeneratedCommandsPipelineInfoEXT>(reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(object), settings, "VkGeneratedCommandsPipelineInfoEXT", indents, dump_text_VkGeneratedCommandsPipelineInfoEXT);
         break;
-    case 1000572014:
+    case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
         dump_text_pNext<const VkGeneratedCommandsShaderInfoEXT>(reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(object), settings, "VkGeneratedCommandsShaderInfoEXT", indents, dump_text_VkGeneratedCommandsShaderInfoEXT);
         break;
-    case 1000572009:
+    case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_SHADER_EXT:
         dump_text_pNext<const VkWriteIndirectExecutionSetShaderEXT>(reinterpret_cast<const VkWriteIndirectExecutionSetShaderEXT*>(object), settings, "VkWriteIndirectExecutionSetShaderEXT", indents, dump_text_VkWriteIndirectExecutionSetShaderEXT);
         break;
-    case 1000575000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA:
         dump_text_pNext<const VkPhysicalDeviceImageAlignmentControlFeaturesMESA>(reinterpret_cast<const VkPhysicalDeviceImageAlignmentControlFeaturesMESA*>(object), settings, "VkPhysicalDeviceImageAlignmentControlFeaturesMESA", indents, dump_text_VkPhysicalDeviceImageAlignmentControlFeaturesMESA);
         break;
-    case 1000575001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA:
         dump_text_pNext<const VkPhysicalDeviceImageAlignmentControlPropertiesMESA>(reinterpret_cast<const VkPhysicalDeviceImageAlignmentControlPropertiesMESA*>(object), settings, "VkPhysicalDeviceImageAlignmentControlPropertiesMESA", indents, dump_text_VkPhysicalDeviceImageAlignmentControlPropertiesMESA);
         break;
-    case 1000575002:
+    case VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA:
         dump_text_pNext<const VkImageAlignmentControlCreateInfoMESA>(reinterpret_cast<const VkImageAlignmentControlCreateInfoMESA*>(object), settings, "VkImageAlignmentControlCreateInfoMESA", indents, dump_text_VkImageAlignmentControlCreateInfoMESA);
         break;
-    case 1000582000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceDepthClampControlFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDepthClampControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthClampControlFeaturesEXT", indents, dump_text_VkPhysicalDeviceDepthClampControlFeaturesEXT);
         break;
-    case 1000582001:
+    case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT:
         dump_text_pNext<const VkPipelineViewportDepthClampControlCreateInfoEXT>(reinterpret_cast<const VkPipelineViewportDepthClampControlCreateInfoEXT*>(object), settings, "VkPipelineViewportDepthClampControlCreateInfoEXT", indents, dump_text_VkPipelineViewportDepthClampControlCreateInfoEXT);
         break;
 #if defined(VK_USE_PLATFORM_OHOS)
-    case 1000587000:
+    case VK_STRUCTURE_TYPE_OH_SURFACE_CREATE_INFO_OHOS:
         dump_text_pNext<const VkOHSurfaceCreateInfoOHOS>(reinterpret_cast<const VkOHSurfaceCreateInfoOHOS*>(object), settings, "VkOHSurfaceCreateInfoOHOS", indents, dump_text_VkOHSurfaceCreateInfoOHOS);
         break;
 #endif // VK_USE_PLATFORM_OHOS
-    case 1000590000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
         dump_text_pNext<const VkPhysicalDeviceHdrVividFeaturesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceHdrVividFeaturesHUAWEI", indents, dump_text_VkPhysicalDeviceHdrVividFeaturesHUAWEI);
         break;
-    case 1000590001:
+    case VK_STRUCTURE_TYPE_HDR_VIVID_DYNAMIC_METADATA_HUAWEI:
         dump_text_pNext<const VkHdrVividDynamicMetadataHUAWEI>(reinterpret_cast<const VkHdrVividDynamicMetadataHUAWEI*>(object), settings, "VkHdrVividDynamicMetadataHUAWEI", indents, dump_text_VkHdrVividDynamicMetadataHUAWEI);
         break;
-    case 1000593001:
+    case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_FLEXIBLE_DIMENSIONS_PROPERTIES_NV:
         dump_text_pNext<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV>(reinterpret_cast<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV*>(object), settings, "VkCooperativeMatrixFlexibleDimensionsPropertiesNV", indents, dump_text_VkCooperativeMatrixFlexibleDimensionsPropertiesNV);
         break;
-    case 1000593000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDeviceCooperativeMatrix2FeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrix2FeaturesNV", indents, dump_text_VkPhysicalDeviceCooperativeMatrix2FeaturesNV);
         break;
-    case 1000593002:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_PROPERTIES_NV:
         dump_text_pNext<const VkPhysicalDeviceCooperativeMatrix2PropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrix2PropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrix2PropertiesNV", indents, dump_text_VkPhysicalDeviceCooperativeMatrix2PropertiesNV);
         break;
-    case 1000596000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_OPACITY_MICROMAP_FEATURES_ARM:
         dump_text_pNext<const VkPhysicalDevicePipelineOpacityMicromapFeaturesARM>(reinterpret_cast<const VkPhysicalDevicePipelineOpacityMicromapFeaturesARM*>(object), settings, "VkPhysicalDevicePipelineOpacityMicromapFeaturesARM", indents, dump_text_VkPhysicalDevicePipelineOpacityMicromapFeaturesARM);
         break;
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000602000:
+    case VK_STRUCTURE_TYPE_IMPORT_MEMORY_METAL_HANDLE_INFO_EXT:
         dump_text_pNext<const VkImportMemoryMetalHandleInfoEXT>(reinterpret_cast<const VkImportMemoryMetalHandleInfoEXT*>(object), settings, "VkImportMemoryMetalHandleInfoEXT", indents, dump_text_VkImportMemoryMetalHandleInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000602001:
+    case VK_STRUCTURE_TYPE_MEMORY_METAL_HANDLE_PROPERTIES_EXT:
         dump_text_pNext<const VkMemoryMetalHandlePropertiesEXT>(reinterpret_cast<const VkMemoryMetalHandlePropertiesEXT*>(object), settings, "VkMemoryMetalHandlePropertiesEXT", indents, dump_text_VkMemoryMetalHandlePropertiesEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    case 1000602002:
+    case VK_STRUCTURE_TYPE_MEMORY_GET_METAL_HANDLE_INFO_EXT:
         dump_text_pNext<const VkMemoryGetMetalHandleInfoEXT>(reinterpret_cast<const VkMemoryGetMetalHandleInfoEXT*>(object), settings, "VkMemoryGetMetalHandleInfoEXT", indents, dump_text_VkMemoryGetMetalHandleInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
-    case 1000608000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT*>(object), settings, "VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT", indents, dump_text_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT);
         break;
-    case 1000609000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FORMAT_PACK_FEATURES_ARM:
         dump_text_pNext<const VkPhysicalDeviceFormatPackFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceFormatPackFeaturesARM*>(object), settings, "VkPhysicalDeviceFormatPackFeaturesARM", indents, dump_text_VkPhysicalDeviceFormatPackFeaturesARM);
         break;
-    case 1000611000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_FEATURES_VALVE:
         dump_text_pNext<const VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE*>(object), settings, "VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE", indents, dump_text_VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE);
         break;
-    case 1000611001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_PROPERTIES_VALVE:
         dump_text_pNext<const VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE*>(object), settings, "VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE", indents, dump_text_VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE);
         break;
-    case 1000611002:
+    case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_DENSITY_MAP_LAYERED_CREATE_INFO_VALVE:
         dump_text_pNext<const VkPipelineFragmentDensityMapLayeredCreateInfoVALVE>(reinterpret_cast<const VkPipelineFragmentDensityMapLayeredCreateInfoVALVE*>(object), settings, "VkPipelineFragmentDensityMapLayeredCreateInfoVALVE", indents, dump_text_VkPipelineFragmentDensityMapLayeredCreateInfoVALVE);
         break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000613000:
+    case VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV:
         dump_text_pNext<const VkSetPresentConfigNV>(reinterpret_cast<const VkSetPresentConfigNV*>(object), settings, "VkSetPresentConfigNV", indents, dump_text_VkSetPresentConfigNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-    case 1000613001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_METERING_FEATURES_NV:
         dump_text_pNext<const VkPhysicalDevicePresentMeteringFeaturesNV>(reinterpret_cast<const VkPhysicalDevicePresentMeteringFeaturesNV*>(object), settings, "VkPhysicalDevicePresentMeteringFeaturesNV", indents, dump_text_VkPhysicalDevicePresentMeteringFeaturesNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
-    case 1000619003:
+    case VK_STRUCTURE_TYPE_RENDERING_END_INFO_EXT:
         dump_text_pNext<const VkRenderingEndInfoEXT>(reinterpret_cast<const VkRenderingEndInfoEXT*>(object), settings, "VkRenderingEndInfoEXT", indents, dump_text_VkRenderingEndInfoEXT);
         break;
-    case 1000620000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT*>(object), settings, "VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT", indents, dump_text_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT);
         break;
-    case 1000150005:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
         dump_text_pNext<const VkAccelerationStructureGeometryTrianglesDataKHR>(reinterpret_cast<const VkAccelerationStructureGeometryTrianglesDataKHR*>(object), settings, "VkAccelerationStructureGeometryTrianglesDataKHR", indents, dump_text_VkAccelerationStructureGeometryTrianglesDataKHR);
         break;
-    case 1000150003:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR:
         dump_text_pNext<const VkAccelerationStructureGeometryAabbsDataKHR>(reinterpret_cast<const VkAccelerationStructureGeometryAabbsDataKHR*>(object), settings, "VkAccelerationStructureGeometryAabbsDataKHR", indents, dump_text_VkAccelerationStructureGeometryAabbsDataKHR);
         break;
-    case 1000150004:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR:
         dump_text_pNext<const VkAccelerationStructureGeometryInstancesDataKHR>(reinterpret_cast<const VkAccelerationStructureGeometryInstancesDataKHR*>(object), settings, "VkAccelerationStructureGeometryInstancesDataKHR", indents, dump_text_VkAccelerationStructureGeometryInstancesDataKHR);
         break;
-    case 1000150006:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR:
         dump_text_pNext<const VkAccelerationStructureGeometryKHR>(reinterpret_cast<const VkAccelerationStructureGeometryKHR*>(object), settings, "VkAccelerationStructureGeometryKHR", indents, dump_text_VkAccelerationStructureGeometryKHR);
         break;
-    case 1000150000:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR:
         dump_text_pNext<const VkAccelerationStructureBuildGeometryInfoKHR>(reinterpret_cast<const VkAccelerationStructureBuildGeometryInfoKHR*>(object), settings, "VkAccelerationStructureBuildGeometryInfoKHR", indents, dump_text_VkAccelerationStructureBuildGeometryInfoKHR);
         break;
-    case 1000150017:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR:
         dump_text_pNext<const VkAccelerationStructureCreateInfoKHR>(reinterpret_cast<const VkAccelerationStructureCreateInfoKHR*>(object), settings, "VkAccelerationStructureCreateInfoKHR", indents, dump_text_VkAccelerationStructureCreateInfoKHR);
         break;
-    case 1000150007:
+    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
         dump_text_pNext<const VkWriteDescriptorSetAccelerationStructureKHR>(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(object), settings, "VkWriteDescriptorSetAccelerationStructureKHR", indents, dump_text_VkWriteDescriptorSetAccelerationStructureKHR);
         break;
-    case 1000150013:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceAccelerationStructureFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(object), settings, "VkPhysicalDeviceAccelerationStructureFeaturesKHR", indents, dump_text_VkPhysicalDeviceAccelerationStructureFeaturesKHR);
         break;
-    case 1000150014:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceAccelerationStructurePropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceAccelerationStructurePropertiesKHR*>(object), settings, "VkPhysicalDeviceAccelerationStructurePropertiesKHR", indents, dump_text_VkPhysicalDeviceAccelerationStructurePropertiesKHR);
         break;
-    case 1000150002:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR:
         dump_text_pNext<const VkAccelerationStructureDeviceAddressInfoKHR>(reinterpret_cast<const VkAccelerationStructureDeviceAddressInfoKHR*>(object), settings, "VkAccelerationStructureDeviceAddressInfoKHR", indents, dump_text_VkAccelerationStructureDeviceAddressInfoKHR);
         break;
-    case 1000150009:
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_VERSION_INFO_KHR:
         dump_text_pNext<const VkAccelerationStructureVersionInfoKHR>(reinterpret_cast<const VkAccelerationStructureVersionInfoKHR*>(object), settings, "VkAccelerationStructureVersionInfoKHR", indents, dump_text_VkAccelerationStructureVersionInfoKHR);
         break;
-    case 1000150011:
+    case VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_INFO_KHR:
         dump_text_pNext<const VkCopyAccelerationStructureToMemoryInfoKHR>(reinterpret_cast<const VkCopyAccelerationStructureToMemoryInfoKHR*>(object), settings, "VkCopyAccelerationStructureToMemoryInfoKHR", indents, dump_text_VkCopyAccelerationStructureToMemoryInfoKHR);
         break;
-    case 1000150012:
+    case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_INFO_KHR:
         dump_text_pNext<const VkCopyMemoryToAccelerationStructureInfoKHR>(reinterpret_cast<const VkCopyMemoryToAccelerationStructureInfoKHR*>(object), settings, "VkCopyMemoryToAccelerationStructureInfoKHR", indents, dump_text_VkCopyMemoryToAccelerationStructureInfoKHR);
         break;
-    case 1000150010:
+    case VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR:
         dump_text_pNext<const VkCopyAccelerationStructureInfoKHR>(reinterpret_cast<const VkCopyAccelerationStructureInfoKHR*>(object), settings, "VkCopyAccelerationStructureInfoKHR", indents, dump_text_VkCopyAccelerationStructureInfoKHR);
         break;
-    case 1000150016:
+    case VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR:
         dump_text_pNext<const VkRayTracingShaderGroupCreateInfoKHR>(reinterpret_cast<const VkRayTracingShaderGroupCreateInfoKHR*>(object), settings, "VkRayTracingShaderGroupCreateInfoKHR", indents, dump_text_VkRayTracingShaderGroupCreateInfoKHR);
         break;
-    case 1000150018:
+    case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_INTERFACE_CREATE_INFO_KHR:
         dump_text_pNext<const VkRayTracingPipelineInterfaceCreateInfoKHR>(reinterpret_cast<const VkRayTracingPipelineInterfaceCreateInfoKHR*>(object), settings, "VkRayTracingPipelineInterfaceCreateInfoKHR", indents, dump_text_VkRayTracingPipelineInterfaceCreateInfoKHR);
         break;
-    case 1000150015:
+    case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
         dump_text_pNext<const VkRayTracingPipelineCreateInfoKHR>(reinterpret_cast<const VkRayTracingPipelineCreateInfoKHR*>(object), settings, "VkRayTracingPipelineCreateInfoKHR", indents, dump_text_VkRayTracingPipelineCreateInfoKHR);
         break;
-    case 1000347000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceRayTracingPipelineFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPipelineFeaturesKHR", indents, dump_text_VkPhysicalDeviceRayTracingPipelineFeaturesKHR);
         break;
-    case 1000347001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR:
         dump_text_pNext<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPipelinePropertiesKHR", indents, dump_text_VkPhysicalDeviceRayTracingPipelinePropertiesKHR);
         break;
-    case 1000348013:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR:
         dump_text_pNext<const VkPhysicalDeviceRayQueryFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceRayQueryFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayQueryFeaturesKHR", indents, dump_text_VkPhysicalDeviceRayQueryFeaturesKHR);
         break;
-    case 1000328000:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT:
         dump_text_pNext<const VkPhysicalDeviceMeshShaderFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMeshShaderFeaturesEXT*>(object), settings, "VkPhysicalDeviceMeshShaderFeaturesEXT", indents, dump_text_VkPhysicalDeviceMeshShaderFeaturesEXT);
         break;
-    case 1000328001:
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT:
         dump_text_pNext<const VkPhysicalDeviceMeshShaderPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceMeshShaderPropertiesEXT*>(object), settings, "VkPhysicalDeviceMeshShaderPropertiesEXT", indents, dump_text_VkPhysicalDeviceMeshShaderPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
