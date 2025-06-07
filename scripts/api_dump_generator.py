@@ -337,7 +337,7 @@ VKAPI_ATTR {funcReturn} VKAPI_CALL {funcName}({funcTypedParams})
     @if('{funcName}' in ['vkDebugMarkerSetObjectNameEXT', 'vkSetDebugUtilsObjectNameEXT'])
     ApiDumpInstance::current().update_object_name_map(pNameInfo);
     @end if
-   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {{
+    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {{
         dump_function_head(ApiDumpInstance::current(), "{funcName}", "{funcNamedParams}");
         if (ApiDumpInstance::current().shouldDumpOutput()) {{
             dump_text_params_{funcName}(ApiDumpInstance::current(), {funcNamedParams});
