@@ -14808,7 +14808,7 @@ void dump_text_VkPipelineCacheHeaderVersionOne(const VkPipelineCacheHeaderVersio
     dump_text_value<const VkPipelineCacheHeaderVersion>(object.headerVersion, settings, "VkPipelineCacheHeaderVersion", "headerVersion", indents + 1, dump_text_VkPipelineCacheHeaderVersion);  // AET
     dump_text_value<const uint32_t>(object.vendorID, settings, "uint32_t", "vendorID", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.deviceID, settings, "uint32_t", "deviceID", indents + 1, dump_text_uint32_t);  // AET
-    dump_text_array<const uint8_t>(object.pipelineCacheUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_text_uint8_t); // AQA
 }
 void dump_text_VkAllocationCallbacks(const VkAllocationCallbacks& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15108,7 +15108,7 @@ void dump_text_VkPhysicalDeviceProperties(const VkPhysicalDeviceProperties& obje
     dump_text_value<const uint32_t>(object.deviceID, settings, "uint32_t", "deviceID", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const VkPhysicalDeviceType>(object.deviceType, settings, "VkPhysicalDeviceType", "deviceType", indents + 1, dump_text_VkPhysicalDeviceType);  // AET
     dump_text_value<const char*>(object.deviceName, settings, "char[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE]", "deviceName", indents + 1, dump_text_cstring);  // AET
-    dump_text_array<const uint8_t>(object.pipelineCacheUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_text_uint8_t); // AQA
     dump_text_value<const VkPhysicalDeviceLimits>(object.limits, settings, "VkPhysicalDeviceLimits", "limits", indents + 1, dump_text_VkPhysicalDeviceLimits);  // AET
     dump_text_value<const VkPhysicalDeviceSparseProperties>(object.sparseProperties, settings, "VkPhysicalDeviceSparseProperties", "sparseProperties", indents + 1, dump_text_VkPhysicalDeviceSparseProperties);  // AET
 }
@@ -17103,9 +17103,9 @@ void dump_text_VkPhysicalDeviceIDProperties(const VkPhysicalDeviceIDProperties& 
         settings.stream() << "address:\n";
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
-    dump_text_array<const uint8_t>(object.deviceUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", indents + 1, dump_text_uint8_t); // AQA
-    dump_text_array<const uint8_t>(object.driverUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", indents + 1, dump_text_uint8_t); // AQA
-    dump_text_array<const uint8_t>(object.deviceLUID, 8, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.deviceUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.driverUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.deviceLUID, VK_LUID_SIZE, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", indents + 1, dump_text_uint8_t); // AQA
     dump_text_value<const uint32_t>(object.deviceNodeMask, settings, "uint32_t", "deviceNodeMask", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const VkBool32>(object.deviceLUIDValid, settings, "VkBool32", "deviceLUIDValid", indents + 1, dump_text_VkBool32);  // AET
     if(object.pNext != nullptr){
@@ -17305,9 +17305,9 @@ void dump_text_VkPhysicalDeviceVulkan11Properties(const VkPhysicalDeviceVulkan11
         settings.stream() << "address:\n";
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
-    dump_text_array<const uint8_t>(object.deviceUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", indents + 1, dump_text_uint8_t); // AQA
-    dump_text_array<const uint8_t>(object.driverUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", indents + 1, dump_text_uint8_t); // AQA
-    dump_text_array<const uint8_t>(object.deviceLUID, 8, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.deviceUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.driverUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.deviceLUID, VK_LUID_SIZE, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", indents + 1, dump_text_uint8_t); // AQA
     dump_text_value<const uint32_t>(object.deviceNodeMask, settings, "uint32_t", "deviceNodeMask", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const VkBool32>(object.deviceLUIDValid, settings, "VkBool32", "deviceLUIDValid", indents + 1, dump_text_VkBool32);  // AET
     dump_text_value<const uint32_t>(object.subgroupSize, settings, "uint32_t", "subgroupSize", indents + 1, dump_text_uint32_t);  // AET
@@ -19156,7 +19156,7 @@ void dump_text_VkPhysicalDeviceVulkan14Properties(const VkPhysicalDeviceVulkan14
     dump_text_array<const VkImageLayout>(object.pCopySrcLayouts, object.copySrcLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopySrcLayouts", indents + 1, dump_text_VkImageLayout); // BQB
     dump_text_value<const uint32_t>(object.copyDstLayoutCount, settings, "uint32_t", "copyDstLayoutCount", indents + 1, dump_text_uint32_t);  // AET
     dump_text_array<const VkImageLayout>(object.pCopyDstLayouts, object.copyDstLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopyDstLayouts", indents + 1, dump_text_VkImageLayout); // BQB
-    dump_text_array<const uint8_t>(object.optimalTilingLayoutUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.optimalTilingLayoutUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", indents + 1, dump_text_uint8_t); // AQA
     dump_text_value<const VkBool32>(object.identicalMemoryTypeRequirements, settings, "VkBool32", "identicalMemoryTypeRequirements", indents + 1, dump_text_VkBool32);  // AET
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
@@ -19197,7 +19197,7 @@ void dump_text_VkQueueFamilyGlobalPriorityProperties(const VkQueueFamilyGlobalPr
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
     dump_text_value<const uint32_t>(object.priorityCount, settings, "uint32_t", "priorityCount", indents + 1, dump_text_uint32_t);  // AET
-    dump_text_array<const VkQueueGlobalPriority>(object.priorities, 16, settings, "VkQueueGlobalPriority[VK_MAX_GLOBAL_PRIORITY_SIZE]", "VkQueueGlobalPriority", "priorities", indents + 1, dump_text_VkQueueGlobalPriority); // AQA
+    dump_text_array<const VkQueueGlobalPriority>(object.priorities, VK_MAX_GLOBAL_PRIORITY_SIZE, settings, "VkQueueGlobalPriority[VK_MAX_GLOBAL_PRIORITY_SIZE]", "VkQueueGlobalPriority", "priorities", indents + 1, dump_text_VkQueueGlobalPriority); // AQA
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
@@ -19746,7 +19746,7 @@ void dump_text_VkPhysicalDeviceHostImageCopyProperties(const VkPhysicalDeviceHos
     dump_text_array<const VkImageLayout>(object.pCopySrcLayouts, object.copySrcLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopySrcLayouts", indents + 1, dump_text_VkImageLayout); // BQB
     dump_text_value<const uint32_t>(object.copyDstLayoutCount, settings, "uint32_t", "copyDstLayoutCount", indents + 1, dump_text_uint32_t);  // AET
     dump_text_array<const VkImageLayout>(object.pCopyDstLayouts, object.copyDstLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopyDstLayouts", indents + 1, dump_text_VkImageLayout); // BQB
-    dump_text_array<const uint8_t>(object.optimalTilingLayoutUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.optimalTilingLayoutUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", indents + 1, dump_text_uint8_t); // AQA
     dump_text_value<const VkBool32>(object.identicalMemoryTypeRequirements, settings, "VkBool32", "identicalMemoryTypeRequirements", indents + 1, dump_text_VkBool32);  // AET
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
@@ -20011,7 +20011,7 @@ void dump_text_VkDeviceGroupPresentCapabilitiesKHR(const VkDeviceGroupPresentCap
         settings.stream() << "address:\n";
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
-    dump_text_array<const uint32_t>(object.presentMask, 32, settings, "uint32_t[VK_MAX_DEVICE_GROUP_SIZE]", "uint32_t", "presentMask", indents + 1, dump_text_uint32_t); // AQA
+    dump_text_array<const uint32_t>(object.presentMask, VK_MAX_DEVICE_GROUP_SIZE, settings, "uint32_t[VK_MAX_DEVICE_GROUP_SIZE]", "uint32_t", "presentMask", indents + 1, dump_text_uint32_t); // AQA
     dump_text_value<const VkDeviceGroupPresentModeFlagsKHR>(object.modes, settings, "VkDeviceGroupPresentModeFlagsKHR", "modes", indents + 1, dump_text_VkDeviceGroupPresentModeFlagsKHR);  // AET
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
@@ -21524,7 +21524,7 @@ void dump_text_VkPerformanceCounterKHR(const VkPerformanceCounterKHR& object, co
     dump_text_value<const VkPerformanceCounterUnitKHR>(object.unit, settings, "VkPerformanceCounterUnitKHR", "unit", indents + 1, dump_text_VkPerformanceCounterUnitKHR);  // AET
     dump_text_value<const VkPerformanceCounterScopeKHR>(object.scope, settings, "VkPerformanceCounterScopeKHR", "scope", indents + 1, dump_text_VkPerformanceCounterScopeKHR);  // AET
     dump_text_value<const VkPerformanceCounterStorageKHR>(object.storage, settings, "VkPerformanceCounterStorageKHR", "storage", indents + 1, dump_text_VkPerformanceCounterStorageKHR);  // AET
-    dump_text_array<const uint8_t>(object.uuid, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "uuid", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.uuid, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "uuid", indents + 1, dump_text_uint8_t); // AQA
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
@@ -22540,7 +22540,7 @@ void dump_text_VkPipelineBinaryKeyKHR(const VkPipelineBinaryKeyKHR& object, cons
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
     dump_text_value<const uint32_t>(object.keySize, settings, "uint32_t", "keySize", indents + 1, dump_text_uint32_t);  // AET
-    dump_text_array<const uint8_t>(object.key, 32, settings, "uint8_t[VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR]", "uint8_t", "key", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.key, VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR, settings, "uint8_t[VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR]", "uint8_t", "key", indents + 1, dump_text_uint8_t); // AQA
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
@@ -22769,7 +22769,7 @@ void dump_text_VkVideoDecodeAV1PictureInfoKHR(const VkVideoDecodeAV1PictureInfoK
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
     dump_text_pointer<const StdVideoDecodeAV1PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoDecodeAV1PictureInfo*", "pStdPictureInfo", indents + 1, dump_text_StdVideoDecodeAV1PictureInfo);
-    dump_text_array<const int32_t>(object.referenceNameSlotIndices, 7, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_text_int32_t); // AQA
+    dump_text_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_text_int32_t); // AQA
     dump_text_value<const uint32_t>(object.frameHeaderOffset, settings, "uint32_t", "frameHeaderOffset", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.tileCount, settings, "uint32_t", "tileCount", indents + 1, dump_text_uint32_t);  // AET
     dump_text_array<const uint32_t>(object.pTileOffsets, object.tileCount, settings, "const uint32_t*", "const uint32_t", "pTileOffsets", indents + 1, dump_text_uint32_t); // BQB
@@ -22919,7 +22919,7 @@ void dump_text_VkVideoEncodeAV1PictureInfoKHR(const VkVideoEncodeAV1PictureInfoK
     dump_text_value<const VkVideoEncodeAV1RateControlGroupKHR>(object.rateControlGroup, settings, "VkVideoEncodeAV1RateControlGroupKHR", "rateControlGroup", indents + 1, dump_text_VkVideoEncodeAV1RateControlGroupKHR);  // AET
     dump_text_value<const uint32_t>(object.constantQIndex, settings, "uint32_t", "constantQIndex", indents + 1, dump_text_uint32_t);  // AET
     dump_text_pointer<const StdVideoEncodeAV1PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoEncodeAV1PictureInfo*", "pStdPictureInfo", indents + 1, dump_text_StdVideoEncodeAV1PictureInfo);
-    dump_text_array<const int32_t>(object.referenceNameSlotIndices, 7, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_text_int32_t); // AQA
+    dump_text_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_text_int32_t); // AQA
     dump_text_value<const VkBool32>(object.primaryReferenceCdfOnly, settings, "VkBool32", "primaryReferenceCdfOnly", indents + 1, dump_text_VkBool32);  // AET
     dump_text_value<const VkBool32>(object.generateObuExtensionHeader, settings, "VkBool32", "generateObuExtensionHeader", indents + 1, dump_text_VkBool32);  // AET
     if(object.pNext != nullptr){
@@ -23061,7 +23061,7 @@ void dump_text_VkVideoDecodeVP9PictureInfoKHR(const VkVideoDecodeVP9PictureInfoK
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "const void*");
     dump_text_pointer<const StdVideoDecodeVP9PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoDecodeVP9PictureInfo*", "pStdPictureInfo", indents + 1, dump_text_StdVideoDecodeVP9PictureInfo);
-    dump_text_array<const int32_t>(object.referenceNameSlotIndices, 3, settings, "int32_t[VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_text_int32_t); // AQA
+    dump_text_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_text_int32_t); // AQA
     dump_text_value<const uint32_t>(object.uncompressedHeaderOffset, settings, "uint32_t", "uncompressedHeaderOffset", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.compressedHeaderOffset, settings, "uint32_t", "compressedHeaderOffset", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.tilesOffset, settings, "uint32_t", "tilesOffset", indents + 1, dump_text_uint32_t);  // AET
@@ -28015,7 +28015,7 @@ void dump_text_VkDeviceFaultVendorBinaryHeaderVersionOneEXT(const VkDeviceFaultV
     dump_text_value<const uint32_t>(object.vendorID, settings, "uint32_t", "vendorID", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.deviceID, settings, "uint32_t", "deviceID", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.driverVersion, settings, "uint32_t", "driverVersion", indents + 1, dump_text_uint32_t);  // AET
-    dump_text_array<const uint8_t>(object.pipelineCacheUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_text_uint8_t); // AQA
     dump_text_value<const uint32_t>(object.applicationNameOffset, settings, "uint32_t", "applicationNameOffset", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.applicationVersion, settings, "uint32_t", "applicationVersion", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.engineNameOffset, settings, "uint32_t", "engineNameOffset", indents + 1, dump_text_uint32_t);  // AET
@@ -28594,7 +28594,7 @@ void dump_text_VkPipelinePropertiesIdentifierEXT(const VkPipelinePropertiesIdent
         settings.stream() << "address:\n";
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
-    dump_text_array<const uint8_t>(object.pipelineIdentifier, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineIdentifier", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.pipelineIdentifier, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineIdentifier", indents + 1, dump_text_uint8_t); // AQA
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
@@ -30316,7 +30316,7 @@ void dump_text_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT(const VkPhysi
         settings.stream() << "address:\n";
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
-    dump_text_array<const uint8_t>(object.shaderModuleIdentifierAlgorithmUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderModuleIdentifierAlgorithmUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.shaderModuleIdentifierAlgorithmUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderModuleIdentifierAlgorithmUUID", indents + 1, dump_text_uint8_t); // AQA
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
@@ -30344,7 +30344,7 @@ void dump_text_VkShaderModuleIdentifierEXT(const VkShaderModuleIdentifierEXT& ob
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
     dump_text_value<const uint32_t>(object.identifierSize, settings, "uint32_t", "identifierSize", indents + 1, dump_text_uint32_t);  // AET
-    dump_text_array<const uint8_t>(object.identifier, 32, settings, "uint8_t[VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT]", "uint8_t", "identifier", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.identifier, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT, settings, "uint8_t[VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT]", "uint8_t", "identifier", indents + 1, dump_text_uint8_t); // AQA
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
     }
@@ -30585,7 +30585,7 @@ void dump_text_VkPhysicalDeviceShaderObjectPropertiesEXT(const VkPhysicalDeviceS
         settings.stream() << "address:\n";
     dump_text_value<const VkStructureType>(object.sType, settings, "VkStructureType", "sType", indents + 1, dump_text_VkStructureType);  // AET
     dump_text_pNext_struct_name(object.pNext, settings, indents + 1, "void*");
-    dump_text_array<const uint8_t>(object.shaderBinaryUUID, 16, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderBinaryUUID", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.shaderBinaryUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderBinaryUUID", indents + 1, dump_text_uint8_t); // AQA
     dump_text_value<const uint32_t>(object.shaderBinaryVersion, settings, "uint32_t", "shaderBinaryVersion", indents + 1, dump_text_uint32_t);  // AET
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
