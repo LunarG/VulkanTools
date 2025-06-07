@@ -25017,6 +25017,7 @@ void dump_text_VkTransformMatrixKHR(const VkTransformMatrixKHR& object, const Ap
         settings.stream() << &object << ":\n";
     else
         settings.stream() << "address:\n";
+    dump_text_array<const float>(object.matrix, 3*4, settings, "float[3][4]", "float[3]", "matrix", indents + 1, dump_text_float); // AQA
 }
 void dump_text_VkAabbPositionsKHR(const VkAabbPositionsKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -28514,6 +28515,7 @@ void dump_text_VkMicromapBuildInfoEXT(const VkMicromapBuildInfoEXT& object, cons
     dump_text_value<const VkMicromapEXT>(object.dstMicromap, settings, "VkMicromapEXT", "dstMicromap", indents + 1, dump_text_VkMicromapEXT);  // AET
     dump_text_value<const uint32_t>(object.usageCountsCount, settings, "uint32_t", "usageCountsCount", indents + 1, dump_text_uint32_t);  // AET
     dump_text_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_text_VkMicromapUsageEXT); // BQB
+    dump_text_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_text_VkMicromapUsageEXT); // BQB
     dump_text_value<const VkDeviceOrHostAddressConstKHR>(object.data, settings, "VkDeviceOrHostAddressConstKHR", "data", indents + 1, dump_text_VkDeviceOrHostAddressConstKHR);  // AET
     dump_text_value<const VkDeviceOrHostAddressKHR>(object.scratchData, settings, "VkDeviceOrHostAddressKHR", "scratchData", indents + 1, dump_text_VkDeviceOrHostAddressKHR);  // AET
     dump_text_value<const VkDeviceOrHostAddressConstKHR>(object.triangleArray, settings, "VkDeviceOrHostAddressConstKHR", "triangleArray", indents + 1, dump_text_VkDeviceOrHostAddressConstKHR);  // AET
@@ -28656,6 +28658,7 @@ void dump_text_VkAccelerationStructureTrianglesOpacityMicromapEXT(const VkAccele
     dump_text_value<const uint32_t>(object.baseTriangle, settings, "uint32_t", "baseTriangle", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.usageCountsCount, settings, "uint32_t", "usageCountsCount", indents + 1, dump_text_uint32_t);  // AET
     dump_text_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_text_VkMicromapUsageEXT); // BQB
+    dump_text_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_text_VkMicromapUsageEXT); // BQB
     dump_text_value<const VkMicromapEXT>(object.micromap, settings, "VkMicromapEXT", "micromap", indents + 1, dump_text_VkMicromapEXT);  // AET
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
@@ -28724,6 +28727,7 @@ void dump_text_VkAccelerationStructureTrianglesDisplacementMicromapNV(const VkAc
     dump_text_value<const uint32_t>(object.baseTriangle, settings, "uint32_t", "baseTriangle", indents + 1, dump_text_uint32_t);  // AET
     dump_text_value<const uint32_t>(object.usageCountsCount, settings, "uint32_t", "usageCountsCount", indents + 1, dump_text_uint32_t);  // AET
     dump_text_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_text_VkMicromapUsageEXT); // BQB
+    dump_text_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_text_VkMicromapUsageEXT); // BQB
     dump_text_value<const VkMicromapEXT>(object.micromap, settings, "VkMicromapEXT", "micromap", indents + 1, dump_text_VkMicromapEXT);  // AET
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);
@@ -32293,6 +32297,7 @@ void dump_text_VkAccelerationStructureBuildGeometryInfoKHR(const VkAccelerationS
     dump_text_value<const VkAccelerationStructureKHR>(object.dstAccelerationStructure, settings, "VkAccelerationStructureKHR", "dstAccelerationStructure", indents + 1, dump_text_VkAccelerationStructureKHR);  // AET
     dump_text_value<const uint32_t>(object.geometryCount, settings, "uint32_t", "geometryCount", indents + 1, dump_text_uint32_t);  // AET
     dump_text_array<const VkAccelerationStructureGeometryKHR>(object.pGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR*", "const VkAccelerationStructureGeometryKHR", "pGeometries", indents + 1, dump_text_VkAccelerationStructureGeometryKHR); // BQB
+    dump_text_array<const VkAccelerationStructureGeometryKHR>(object.ppGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR* const*", "const VkAccelerationStructureGeometryKHR* const", "ppGeometries", indents + 1, dump_text_VkAccelerationStructureGeometryKHR); // BQB
     dump_text_value<const VkDeviceOrHostAddressKHR>(object.scratchData, settings, "VkDeviceOrHostAddressKHR", "scratchData", indents + 1, dump_text_VkDeviceOrHostAddressKHR);  // AET
     if(object.pNext != nullptr){
         dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);

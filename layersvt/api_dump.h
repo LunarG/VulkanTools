@@ -1120,9 +1120,9 @@ inline void dump_text_function_head(ApiDumpInstance &dump_inst, const char *func
     settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
 }
 
-inline void dump_text_return_preamble(ApiDumpInstance& dump_inst, const char* funcReturn) {
+inline void dump_text_return_preamble(ApiDumpInstance &dump_inst, const char *funcReturn) {
     const ApiDumpSettings &settings(dump_inst.settings());
-    
+
     settings.stream() << "returns " << funcReturn;
 
     settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
@@ -1162,6 +1162,29 @@ void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings
         std::string indexName = stream.str();
         dump_text_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump);
     }
+}
+
+// Handle multidimentional arrays by just converting the first type from T[][] to T*
+template <typename T, size_t N>
+void dump_text_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string,
+                     const char *child_type, const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
+    dump_text_array(array, len, settings, type_string, child_type, name, indents, dump);
+}
+template <typename T, size_t N>
+void dump_text_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string,
+                     const char *child_type, const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
+    dump_text_array(array, len, settings, type_string, child_type, name, indents, dump);
+}
+// Handle double pointers by dereferencing the first pointer
+template <typename T>
+void dump_text_array(const T* const* array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                     const char *child_type, const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
+    dump_text_array(*array, len, settings, type_string, child_type, name, indents, dump);
+}
+template <typename T>
+void dump_text_array(const T* const* array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                     const char *child_type, const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
+    dump_text_array(*array, len, settings, type_string, child_type, name, indents, dump);
 }
 
 template <typename T>
@@ -1272,7 +1295,7 @@ inline void dump_html_function_head(ApiDumpInstance &dump_inst, const char *func
     settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
 }
 
-inline void dump_html_return_preamble(ApiDumpInstance& dump_inst, const char* funcReturn) {
+inline void dump_html_return_preamble(ApiDumpInstance &dump_inst, const char *funcReturn) {
     const ApiDumpSettings &settings(dump_inst.settings());
     if (settings.showType()) {
         settings.stream() << "<div class='type'>" << funcReturn << "</div>";
@@ -1327,6 +1350,31 @@ void dump_html_array(const T *array, size_t len, const ApiDumpSettings &settings
     }
     settings.stream() << "</details>";
 }
+
+// Handle multidimentional arrays by just converting the first type from T[][] to T*
+template <typename T, size_t N>
+void dump_html_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string,
+                     const char *child_type, const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
+    dump_html_array(array, len, settings, type_string, child_type, name, indents, dump);
+}
+template <typename T, size_t N>
+void dump_html_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string,
+                     const char *child_type, const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
+    dump_html_array(array, len, settings, type_string, child_type, name, indents, dump);
+}
+
+// Handle double pointers by dereferencing the first pointer
+template <typename T>
+void dump_html_array(const T*const* array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                     const char *child_type, const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
+    dump_html_array(*array, len, settings, type_string, child_type, name, indents, dump);
+}
+template <typename T>
+void dump_html_array(const T*const* array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                     const char *child_type, const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
+    dump_html_array(*array, len, settings, type_string, child_type, name, indents, dump);
+}
+
 
 template <typename T>
 void dump_html_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
@@ -1466,7 +1514,7 @@ inline void dump_json_function_head(ApiDumpInstance &dump_inst, const char *func
     settings.shouldFlush() ? settings.stream() << std::flush : settings.stream();
 }
 
-inline void dump_json_return_preamble(ApiDumpInstance& dump_inst, const char* funcReturn) {
+inline void dump_json_return_preamble(ApiDumpInstance &dump_inst, const char *funcReturn) {
     const ApiDumpSettings &settings(dump_inst.settings());
     settings.stream() << settings.indentation(3) << "\"returnType\" : \"" << funcReturn << "\"";
     // Add a trailing comma if the return type isn't void or detailed mode is false - JSON doesn't allow trailing commas in object
@@ -1551,6 +1599,33 @@ void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings
     settings.stream() << "\n" << settings.indentation(indents) << "}";
 }
 
+// Handle multidimentional arrays by just converting the first type from T[][] to T*
+template <typename T, size_t N>
+void dump_json_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
+                     const char *name, bool is_struct, bool is_union, int indents,
+                     void (*dump)(const T, const ApiDumpSettings &, int)) {
+    dump_json_array(array, len, settings, type_string, child_type, name, is_struct, is_union, indents, dump);
+}
+template <typename T, size_t N>
+void dump_json_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
+                     const char *name, bool is_struct, bool is_union, int indents,
+                     void (*dump)(const T &, const ApiDumpSettings &, int)) {
+    dump_json_array(array, len, settings, type_string, child_type, name, is_struct, is_union, indents, dump);
+}
+
+// Handle double pointers by dereferencing the first pointer
+template <typename T>
+void dump_json_array(const T*const* array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
+                     const char *name, bool is_struct, bool is_union, int indents,
+                     void (*dump)(const T, const ApiDumpSettings &, int)) {
+    dump_json_array(*array, len, settings, type_string, child_type, name, is_struct, is_union, indents, dump);
+}
+template <typename T>
+void dump_json_array(const T *const* array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
+                     const char *name, bool is_struct, bool is_union, int indents,
+                     void (*dump)(const T &, const ApiDumpSettings &, int)) {
+    dump_json_array(*array, len, settings, type_string, child_type, name, is_struct, is_union, indents, dump);
+}
 template <typename T>
 void dump_json_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name, bool is_struct,
                        bool is_union, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
@@ -1741,7 +1816,7 @@ inline void dump_function_head(ApiDumpInstance &dump_inst, const char *funcName,
     }
 }
 
-inline void dump_return_preamble(ApiDumpInstance& dump_inst, const char* funcReturn) {
+inline void dump_return_preamble(ApiDumpInstance &dump_inst, const char *funcReturn) {
     if (dump_inst.shouldDumpOutput()) {
         switch (dump_inst.settings().format()) {
             case ApiDumpFormat::Text:

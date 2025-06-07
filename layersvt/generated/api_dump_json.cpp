@@ -27119,6 +27119,7 @@ void dump_json_VkPhysicalDeviceRayTracingPropertiesNV(const VkPhysicalDeviceRayT
 void dump_json_VkTransformMatrixKHR(const VkTransformMatrixKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_array<const float>(object.matrix, 3*4, settings, "float[3][4]", "float[3]", "matrix", false, false, indents + 1, dump_json_float); // IQA
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkAabbPositionsKHR(const VkAabbPositionsKHR& object, const ApiDumpSettings& settings, int indents)
@@ -31211,6 +31212,7 @@ void dump_json_VkMicromapBuildInfoEXT(const VkMicromapBuildInfoEXT& object, cons
     settings.stream() << ",\n";
     dump_json_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
     settings.stream() << ",\n";
+    dump_json_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
     settings.stream() << ",\n";
     dump_json_value<const VkDeviceOrHostAddressConstKHR>(object.data, NULL, settings, "VkDeviceOrHostAddressConstKHR", "data", false, true, indents + 1, dump_json_VkDeviceOrHostAddressConstKHR);
     settings.stream() << ",\n";
@@ -31388,6 +31390,7 @@ void dump_json_VkAccelerationStructureTrianglesOpacityMicromapEXT(const VkAccele
     settings.stream() << ",\n";
     dump_json_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
     settings.stream() << ",\n";
+    dump_json_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
     settings.stream() << ",\n";
     dump_json_value<const VkMicromapEXT>(object.micromap, NULL, settings, "VkMicromapEXT", "micromap", false, false, indents + 1, dump_json_VkMicromapEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -31474,6 +31477,7 @@ void dump_json_VkAccelerationStructureTrianglesDisplacementMicromapNV(const VkAc
     settings.stream() << ",\n";
     dump_json_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
     settings.stream() << ",\n";
+    dump_json_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
     settings.stream() << ",\n";
     dump_json_value<const VkMicromapEXT>(object.micromap, NULL, settings, "VkMicromapEXT", "micromap", false, false, indents + 1, dump_json_VkMicromapEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -35655,6 +35659,7 @@ void dump_json_VkAccelerationStructureBuildGeometryInfoKHR(const VkAccelerationS
     settings.stream() << ",\n";
     dump_json_array<const VkAccelerationStructureGeometryKHR>(object.pGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR*", "const VkAccelerationStructureGeometryKHR", "pGeometries", true, false, indents + 1, dump_json_VkAccelerationStructureGeometryKHR); // JQA
     settings.stream() << ",\n";
+    dump_json_array<const VkAccelerationStructureGeometryKHR>(object.ppGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR* const*", "const VkAccelerationStructureGeometryKHR* const", "ppGeometries", true, false, indents + 1, dump_json_VkAccelerationStructureGeometryKHR); // JQA
     settings.stream() << ",\n";
     dump_json_value<const VkDeviceOrHostAddressKHR>(object.scratchData, NULL, settings, "VkDeviceOrHostAddressKHR", "scratchData", false, true, indents + 1, dump_json_VkDeviceOrHostAddressKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";

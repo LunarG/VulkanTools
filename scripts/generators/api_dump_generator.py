@@ -147,8 +147,7 @@ VALIDITY_CHECKS = {
         'pVertexBuffer': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT',
         'pIndexBuffer': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT',
         'pExecutionSet': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT',
-
-    }
+    },
 }
 
 # These types are defined in both video.xml and vk.xml. Because duplicate functions aren't allowed,
@@ -854,7 +853,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     else:
                         self.write(f'    dump_text_pNext_struct_name(object.{member.name}, settings, indents + 1, "{typeInfo.type}");')
 
-                elif typeInfo.pointerLevels == 1:
+                elif typeInfo.pointerLevels > 0:
                     if typeInfo.arrayLength is None:
                         self.write(f'    dump_text_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
 
@@ -1269,7 +1268,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                         self.write(f'        dump_html_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
                         self.write('    }')
 
-                elif typeInfo.pointerLevels == 1:
+                elif typeInfo.pointerLevels > 0:
                     if typeInfo.arrayLength is None:
                         self.write(f'    dump_html_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
 
@@ -1636,17 +1635,18 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                         self.write(f'        dump_json_value<const {typeInfo.templateType}>(object.{member.name}, object.{member.name}, settings, "{typeInfo.type}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
                         self.write('    }')
 
-                elif typeInfo.pointerLevels == 1:
+                elif typeInfo.pointerLevels > 0:
                     if typeInfo.arrayLength is None:
                         self.write(f'    dump_json_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
-                    else:
 
+                    else:
                         if not typeInfo.lengthIsMember:
                             self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // IQA')
 
                         elif typeInfo.lengthIsMember and member.name != 'pCode':
                             if typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
                                 self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // JQA')
+
                             elif not typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
                                 if typeInfo.arrayLength == 'rasterizationSamples':
                                     self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // JQA')
@@ -1655,6 +1655,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                                         self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // JQA')
                                     else:
                                         self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // JQA')
+
                 self.write('')
                 if struct.name == 'VkShaderModuleCreateInfo':
                     if member.name == 'pCode':
@@ -1846,12 +1847,14 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         if variable.name in text_list:
             text_list = text_list[0:text_list.index(variable.name)] # remove all elements after the name
         typeInfo.type = ' '.join(text_list)
-        bracketMatch = re.search('(?<=\\[)[ a-zA-Z0-9_]+(?=\\])', text)
-        if bracketMatch is not None:
-            matchText = bracketMatch.string[bracketMatch.start():bracketMatch.end()]
+        bracketMatches = re.findall('(?<=\\[)[ a-zA-Z0-9_]+(?=\\])', text)
+        for bracketMatch in bracketMatches:
             typeInfo.childType = typeInfo.type
-            typeInfo.type += '[' + matchText + ']'
-            typeInfo.arrayLength = matchText
+            typeInfo.type += '[' + bracketMatch + ']'
+            if typeInfo.arrayLength is None:
+                typeInfo.arrayLength = bracketMatch
+            else:
+                typeInfo.arrayLength = typeInfo.arrayLength + '*' + bracketMatch
 
         lengthString = variable.length
         if lengthString is not None and lengthString == '(rasterizationSamples + 31) / 32':
