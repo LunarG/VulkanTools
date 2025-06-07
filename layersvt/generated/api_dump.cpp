@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2015-2016, 2021 Valve Corporation
- * Copyright (c) 2015-2016, 2021 LunarG, Inc.
- * Copyright (c) 2015-2016, 2021 Google Inc.
+/* Copyright (c) 2015-2025 Valve Corporation
+ * Copyright (c) 2015-2025 LunarG, Inc.
+ * Copyright (c) 2015-2017, 2019, 2021 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Lenny Komow <lenny@lunarg.com>
- * Author: Shannon McPherson <shannon@lunarg.com>
- * Author: Charles Giessen <charles@lunarg.com>
  */
 
 /*
@@ -23635,6 +23632,22 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetDiscardRectangleModeEXT);
     if(strcmp(pName, "vkSetHdrMetadataEXT") == 0 && (!device || device_dispatch_table(device)->SetHdrMetadataEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkSetHdrMetadataEXT);
+    if(strcmp(pName, "vkSetDebugUtilsObjectNameEXT") == 0 && (!device || device_dispatch_table(device)->SetDebugUtilsObjectNameEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkSetDebugUtilsObjectNameEXT);
+    if(strcmp(pName, "vkSetDebugUtilsObjectTagEXT") == 0 && (!device || device_dispatch_table(device)->SetDebugUtilsObjectTagEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkSetDebugUtilsObjectTagEXT);
+    if(strcmp(pName, "vkQueueBeginDebugUtilsLabelEXT") == 0 && (!device || device_dispatch_table(device)->QueueBeginDebugUtilsLabelEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkQueueBeginDebugUtilsLabelEXT);
+    if(strcmp(pName, "vkQueueEndDebugUtilsLabelEXT") == 0 && (!device || device_dispatch_table(device)->QueueEndDebugUtilsLabelEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkQueueEndDebugUtilsLabelEXT);
+    if(strcmp(pName, "vkQueueInsertDebugUtilsLabelEXT") == 0 && (!device || device_dispatch_table(device)->QueueInsertDebugUtilsLabelEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkQueueInsertDebugUtilsLabelEXT);
+    if(strcmp(pName, "vkCmdBeginDebugUtilsLabelEXT") == 0 && (!device || device_dispatch_table(device)->CmdBeginDebugUtilsLabelEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginDebugUtilsLabelEXT);
+    if(strcmp(pName, "vkCmdEndDebugUtilsLabelEXT") == 0 && (!device || device_dispatch_table(device)->CmdEndDebugUtilsLabelEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndDebugUtilsLabelEXT);
+    if(strcmp(pName, "vkCmdInsertDebugUtilsLabelEXT") == 0 && (!device || device_dispatch_table(device)->CmdInsertDebugUtilsLabelEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdInsertDebugUtilsLabelEXT);
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     if(strcmp(pName, "vkGetAndroidHardwareBufferPropertiesANDROID") == 0 && (!device || device_dispatch_table(device)->GetAndroidHardwareBufferPropertiesANDROID))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetAndroidHardwareBufferPropertiesANDROID);

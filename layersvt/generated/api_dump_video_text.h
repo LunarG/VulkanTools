@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2015-2023 Valve Corporation
- * Copyright (c) 2015-2023 LunarG, Inc.
- * Copyright (c) 2015-2016, 2019 Google Inc.
+/* Copyright (c) 2015-2025 Valve Corporation
+ * Copyright (c) 2015-2025 LunarG, Inc.
+ * Copyright (c) 2015-2017, 2019, 2021 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author: Lenny Komow <lenny@lunarg.com>
- * Author: Shannon McPherson <shannon@lunarg.com>
- * Author: Charles Giessen <charles@lunarg.com>
  */
 
 /*
@@ -27,7 +24,6 @@
 #pragma once
 
 #include "api_dump_text.h"
-
 
 //=========================== Type Implementations ==========================//
 
