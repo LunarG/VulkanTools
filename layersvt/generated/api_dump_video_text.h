@@ -1429,6 +1429,8 @@ void dump_text_StdVideoH264ScalingLists(const StdVideoH264ScalingLists& object, 
         settings.stream() << "address:\n";
     dump_text_value<const uint16_t>(object.scaling_list_present_mask, settings, "uint16_t", "scaling_list_present_mask", indents + 1, dump_text_uint16_t);  // AET
     dump_text_value<const uint16_t>(object.use_default_scaling_matrix_mask, settings, "uint16_t", "use_default_scaling_matrix_mask", indents + 1, dump_text_uint16_t);  // AET
+    dump_text_array<const uint8_t>(object.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS]", "ScalingList4x4", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS]", "ScalingList8x8", indents + 1, dump_text_uint8_t); // AQA
 }
 void dump_text_StdVideoH264SequenceParameterSet(const StdVideoH264SequenceParameterSet& object, const ApiDumpSettings& settings, int indents)
 {
@@ -1567,8 +1569,12 @@ void dump_text_StdVideoEncodeH264WeightTable(const StdVideoEncodeH264WeightTable
     dump_text_value<const uint8_t>(object.chroma_log2_weight_denom, settings, "uint8_t", "chroma_log2_weight_denom", indents + 1, dump_text_uint8_t);  // AET
     dump_text_array<const int8_t>(object.luma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_weight_l0", indents + 1, dump_text_int8_t); // AQA
     dump_text_array<const int8_t>(object.luma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l0", indents + 1, dump_text_int8_t); // AQA
+    dump_text_array<const int8_t>(object.chroma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_weight_l0", indents + 1, dump_text_int8_t); // AQA
+    dump_text_array<const int8_t>(object.chroma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_offset_l0", indents + 1, dump_text_int8_t); // AQA
     dump_text_array<const int8_t>(object.luma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_weight_l1", indents + 1, dump_text_int8_t); // AQA
     dump_text_array<const int8_t>(object.luma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l1", indents + 1, dump_text_int8_t); // AQA
+    dump_text_array<const int8_t>(object.chroma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_weight_l1", indents + 1, dump_text_int8_t); // AQA
+    dump_text_array<const int8_t>(object.chroma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_offset_l1", indents + 1, dump_text_int8_t); // AQA
 }
 void dump_text_StdVideoEncodeH264SliceHeaderFlags(const StdVideoEncodeH264SliceHeaderFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -1817,6 +1823,10 @@ void dump_text_StdVideoH265ScalingLists(const StdVideoH265ScalingLists& object, 
         settings.stream() << &object << ":\n";
     else
         settings.stream() << "address:\n";
+    dump_text_array<const uint8_t>(object.ScalingList4x4, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS]", "ScalingList4x4", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.ScalingList8x8, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS]", "ScalingList8x8", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.ScalingList16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "ScalingList16x16", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const uint8_t>(object.ScalingList32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "ScalingList32x32", indents + 1, dump_text_uint8_t); // AQA
     dump_text_array<const uint8_t>(object.ScalingListDCCoef16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "uint8_t", "ScalingListDCCoef16x16", indents + 1, dump_text_uint8_t); // AQA
     dump_text_array<const uint8_t>(object.ScalingListDCCoef32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "uint8_t", "ScalingListDCCoef32x32", indents + 1, dump_text_uint8_t); // AQA
 }
@@ -1884,6 +1894,7 @@ void dump_text_StdVideoH265PredictorPaletteEntries(const StdVideoH265PredictorPa
         settings.stream() << &object << ":\n";
     else
         settings.stream() << "address:\n";
+    dump_text_array<const uint16_t>(object.PredictorPaletteEntries, STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE*STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE][STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE]", "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE]", "PredictorPaletteEntries", indents + 1, dump_text_uint16_t); // AQA
 }
 void dump_text_StdVideoH265SpsFlags(const StdVideoH265SpsFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2157,8 +2168,12 @@ void dump_text_StdVideoEncodeH265WeightTable(const StdVideoEncodeH265WeightTable
     dump_text_value<const int8_t>(object.delta_chroma_log2_weight_denom, settings, "int8_t", "delta_chroma_log2_weight_denom", indents + 1, dump_text_int8_t);  // AET
     dump_text_array<const int8_t>(object.delta_luma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "delta_luma_weight_l0", indents + 1, dump_text_int8_t); // AQA
     dump_text_array<const int8_t>(object.luma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l0", indents + 1, dump_text_int8_t); // AQA
+    dump_text_array<const int8_t>(object.delta_chroma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_weight_l0", indents + 1, dump_text_int8_t); // AQA
+    dump_text_array<const int8_t>(object.delta_chroma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_offset_l0", indents + 1, dump_text_int8_t); // AQA
     dump_text_array<const int8_t>(object.delta_luma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "delta_luma_weight_l1", indents + 1, dump_text_int8_t); // AQA
     dump_text_array<const int8_t>(object.luma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l1", indents + 1, dump_text_int8_t); // AQA
+    dump_text_array<const int8_t>(object.delta_chroma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_weight_l1", indents + 1, dump_text_int8_t); // AQA
+    dump_text_array<const int8_t>(object.delta_chroma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_offset_l1", indents + 1, dump_text_int8_t); // AQA
 }
 void dump_text_StdVideoEncodeH265SliceSegmentHeaderFlags(const StdVideoEncodeH265SliceSegmentHeaderFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2403,6 +2418,7 @@ void dump_text_StdVideoAV1Segmentation(const StdVideoAV1Segmentation& object, co
     else
         settings.stream() << "address:\n";
     dump_text_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_AV1_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const int16_t>(object.FeatureData, STD_VIDEO_AV1_MAX_SEGMENTS*STD_VIDEO_AV1_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS][STD_VIDEO_AV1_SEG_LVL_MAX]", "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "FeatureData", indents + 1, dump_text_int16_t); // AQA
 }
 void dump_text_StdVideoAV1TileInfoFlags(const StdVideoAV1TileInfoFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2459,6 +2475,7 @@ void dump_text_StdVideoAV1GlobalMotion(const StdVideoAV1GlobalMotion& object, co
     else
         settings.stream() << "address:\n";
     dump_text_array<const uint8_t>(object.GmType, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "GmType", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const int32_t>(object.gm_params, STD_VIDEO_AV1_NUM_REF_FRAMES*STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS, settings, "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES][STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS]", "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "gm_params", indents + 1, dump_text_int32_t); // AQA
 }
 void dump_text_StdVideoAV1FilmGrainFlags(const StdVideoAV1FilmGrainFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2850,6 +2867,7 @@ void dump_text_StdVideoVP9Segmentation(const StdVideoVP9Segmentation& object, co
     dump_text_array<const uint8_t>(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS]", "uint8_t", "segmentation_tree_probs", indents + 1, dump_text_uint8_t); // AQA
     dump_text_array<const uint8_t>(object.segmentation_pred_prob, STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB]", "uint8_t", "segmentation_pred_prob", indents + 1, dump_text_uint8_t); // AQA
     dump_text_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", indents + 1, dump_text_uint8_t); // AQA
+    dump_text_array<const int16_t>(object.FeatureData, STD_VIDEO_VP9_MAX_SEGMENTS*STD_VIDEO_VP9_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS][STD_VIDEO_VP9_SEG_LVL_MAX]", "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "FeatureData", indents + 1, dump_text_int16_t); // AQA
 }
 void dump_text_StdVideoDecodeVP9PictureInfoFlags(const StdVideoDecodeVP9PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
 {

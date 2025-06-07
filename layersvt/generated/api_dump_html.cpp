@@ -27624,6 +27624,7 @@ void dump_html_VkTransformMatrixKHR(const VkTransformMatrixKHR& object, const Ap
     else
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
+    dump_html_array<const float>(object.matrix, 3*4, settings, "float[3][4]", "float[3]", "matrix", indents + 1, dump_html_float); // ZRR
 }
 void dump_html_VkAabbPositionsKHR(const VkAabbPositionsKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -31821,6 +31822,7 @@ void dump_html_VkMicromapBuildInfoEXT(const VkMicromapBuildInfoEXT& object, cons
     dump_html_value<const VkMicromapEXT>(object.dstMicromap, settings, "VkMicromapEXT", "dstMicromap", indents + 1, dump_html_VkMicromapEXT);
     dump_html_value<const uint32_t>(object.usageCountsCount, settings, "uint32_t", "usageCountsCount", indents + 1, dump_html_uint32_t);
     dump_html_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
+    dump_html_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
     dump_html_value<const VkDeviceOrHostAddressConstKHR>(object.data, settings, "VkDeviceOrHostAddressConstKHR", "data", indents + 1, dump_html_VkDeviceOrHostAddressConstKHR);
     dump_html_value<const VkDeviceOrHostAddressKHR>(object.scratchData, settings, "VkDeviceOrHostAddressKHR", "scratchData", indents + 1, dump_html_VkDeviceOrHostAddressKHR);
     dump_html_value<const VkDeviceOrHostAddressConstKHR>(object.triangleArray, settings, "VkDeviceOrHostAddressConstKHR", "triangleArray", indents + 1, dump_html_VkDeviceOrHostAddressConstKHR);
@@ -31990,6 +31992,7 @@ void dump_html_VkAccelerationStructureTrianglesOpacityMicromapEXT(const VkAccele
     dump_html_value<const uint32_t>(object.baseTriangle, settings, "uint32_t", "baseTriangle", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.usageCountsCount, settings, "uint32_t", "usageCountsCount", indents + 1, dump_html_uint32_t);
     dump_html_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
+    dump_html_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
     dump_html_value<const VkMicromapEXT>(object.micromap, settings, "VkMicromapEXT", "micromap", indents + 1, dump_html_VkMicromapEXT);
 }
 void dump_html_VkMicromapTriangleEXT(const VkMicromapTriangleEXT& object, const ApiDumpSettings& settings, int indents)
@@ -32069,6 +32072,7 @@ void dump_html_VkAccelerationStructureTrianglesDisplacementMicromapNV(const VkAc
     dump_html_value<const uint32_t>(object.baseTriangle, settings, "uint32_t", "baseTriangle", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.usageCountsCount, settings, "uint32_t", "usageCountsCount", indents + 1, dump_html_uint32_t);
     dump_html_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
+    dump_html_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
     dump_html_value<const VkMicromapEXT>(object.micromap, settings, "VkMicromapEXT", "micromap", indents + 1, dump_html_VkMicromapEXT);
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
@@ -36355,6 +36359,7 @@ void dump_html_VkAccelerationStructureBuildGeometryInfoKHR(const VkAccelerationS
     dump_html_value<const VkAccelerationStructureKHR>(object.dstAccelerationStructure, settings, "VkAccelerationStructureKHR", "dstAccelerationStructure", indents + 1, dump_html_VkAccelerationStructureKHR);
     dump_html_value<const uint32_t>(object.geometryCount, settings, "uint32_t", "geometryCount", indents + 1, dump_html_uint32_t);
     dump_html_array<const VkAccelerationStructureGeometryKHR>(object.pGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR*", "const VkAccelerationStructureGeometryKHR", "pGeometries", indents + 1, dump_html_VkAccelerationStructureGeometryKHR); // ZRT
+    dump_html_array<const VkAccelerationStructureGeometryKHR>(object.ppGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR* const*", "const VkAccelerationStructureGeometryKHR* const", "ppGeometries", indents + 1, dump_html_VkAccelerationStructureGeometryKHR); // ZRT
     dump_html_value<const VkDeviceOrHostAddressKHR>(object.scratchData, settings, "VkDeviceOrHostAddressKHR", "scratchData", indents + 1, dump_html_VkDeviceOrHostAddressKHR);
 }
 void dump_html_VkAccelerationStructureCreateInfoKHR(const VkAccelerationStructureCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)

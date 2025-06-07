@@ -1434,7 +1434,9 @@ void dump_json_StdVideoH264ScalingLists(const StdVideoH264ScalingLists& object, 
     settings.stream() << ",\n";
     dump_json_value<const uint16_t>(object.use_default_scaling_matrix_mask, NULL, settings, "uint16_t", "use_default_scaling_matrix_mask", false, false, indents + 1, dump_json_uint16_t);
     settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS]", "ScalingList4x4", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS]", "ScalingList8x8", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_StdVideoH264SequenceParameterSet(const StdVideoH264SequenceParameterSet& object, const ApiDumpSettings& settings, int indents)
@@ -1622,13 +1624,17 @@ void dump_json_StdVideoEncodeH264WeightTable(const StdVideoEncodeH264WeightTable
     settings.stream() << ",\n";
     dump_json_array<const int8_t>(object.luma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l0", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.chroma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_weight_l0", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.chroma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_offset_l0", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
     dump_json_array<const int8_t>(object.luma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_weight_l1", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
     dump_json_array<const int8_t>(object.luma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l1", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.chroma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_weight_l1", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.chroma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_offset_l1", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_StdVideoEncodeH264SliceHeaderFlags(const StdVideoEncodeH264SliceHeaderFlags& object, const ApiDumpSettings& settings, int indents)
@@ -1936,9 +1942,13 @@ void dump_json_StdVideoH265VideoParameterSet(const StdVideoH265VideoParameterSet
 void dump_json_StdVideoH265ScalingLists(const StdVideoH265ScalingLists& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_array<const uint8_t>(object.ScalingList4x4, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS]", "ScalingList4x4", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.ScalingList8x8, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS]", "ScalingList8x8", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.ScalingList16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "ScalingList16x16", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.ScalingList32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "ScalingList32x32", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << ",\n";
     dump_json_array<const uint8_t>(object.ScalingListDCCoef16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "uint8_t", "ScalingListDCCoef16x16", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << ",\n";
@@ -2044,6 +2054,7 @@ void dump_json_StdVideoH265SequenceParameterSetVui(const StdVideoH265SequencePar
 void dump_json_StdVideoH265PredictorPaletteEntries(const StdVideoH265PredictorPaletteEntries& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_array<const uint16_t>(object.PredictorPaletteEntries, STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE*STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE][STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE]", "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE]", "PredictorPaletteEntries", false, false, indents + 1, dump_json_uint16_t); // IQA
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_StdVideoH265SpsFlags(const StdVideoH265SpsFlags& object, const ApiDumpSettings& settings, int indents)
@@ -2461,13 +2472,17 @@ void dump_json_StdVideoEncodeH265WeightTable(const StdVideoEncodeH265WeightTable
     settings.stream() << ",\n";
     dump_json_array<const int8_t>(object.luma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l0", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.delta_chroma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_weight_l0", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.delta_chroma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_offset_l0", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
     dump_json_array<const int8_t>(object.delta_luma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "delta_luma_weight_l1", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
     dump_json_array<const int8_t>(object.luma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l1", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.delta_chroma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_weight_l1", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.delta_chroma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_offset_l1", false, false, indents + 1, dump_json_int8_t); // IQA
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_StdVideoEncodeH265SliceSegmentHeaderFlags(const StdVideoEncodeH265SliceSegmentHeaderFlags& object, const ApiDumpSettings& settings, int indents)
@@ -2777,6 +2792,7 @@ void dump_json_StdVideoAV1Segmentation(const StdVideoAV1Segmentation& object, co
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_AV1_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int16_t>(object.FeatureData, STD_VIDEO_AV1_MAX_SEGMENTS*STD_VIDEO_AV1_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS][STD_VIDEO_AV1_SEG_LVL_MAX]", "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "FeatureData", false, false, indents + 1, dump_json_int16_t); // IQA
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_StdVideoAV1TileInfoFlags(const StdVideoAV1TileInfoFlags& object, const ApiDumpSettings& settings, int indents)
@@ -2840,6 +2856,7 @@ void dump_json_StdVideoAV1GlobalMotion(const StdVideoAV1GlobalMotion& object, co
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_array<const uint8_t>(object.GmType, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "GmType", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int32_t>(object.gm_params, STD_VIDEO_AV1_NUM_REF_FRAMES*STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS, settings, "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES][STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS]", "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "gm_params", false, false, indents + 1, dump_json_int32_t); // IQA
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_StdVideoAV1FilmGrainFlags(const StdVideoAV1FilmGrainFlags& object, const ApiDumpSettings& settings, int indents)
@@ -3403,6 +3420,7 @@ void dump_json_StdVideoVP9Segmentation(const StdVideoVP9Segmentation& object, co
     settings.stream() << ",\n";
     dump_json_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << ",\n";
+    dump_json_array<const int16_t>(object.FeatureData, STD_VIDEO_VP9_MAX_SEGMENTS*STD_VIDEO_VP9_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS][STD_VIDEO_VP9_SEG_LVL_MAX]", "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "FeatureData", false, false, indents + 1, dump_json_int16_t); // IQA
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_StdVideoDecodeVP9PictureInfoFlags(const StdVideoDecodeVP9PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
