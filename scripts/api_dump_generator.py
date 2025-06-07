@@ -2254,7 +2254,6 @@ class ApiDumpOutputGenerator(OutputGenerator):
         self.format = None
         self.isVideoGeneration = False
 
-        self.constants = {}
         self.extensions = {}
         self.extFuncs = {}
         self.extTypes = {}
@@ -2293,11 +2292,6 @@ class ApiDumpOutputGenerator(OutputGenerator):
                     self.extTypes[item] = ext
                 for item in ext.vkfuncs:
                     self.extFuncs[item] = ext
-
-        for node in self.registry.reg.findall('enums'):
-            if node.get('name') == 'API Constants':
-                for item in node.findall('enum'):
-                    self.constants[item.get('name')] = item.get('value')
 
         for node in self.registry.reg.find('types').findall('type'):
             if node.get('category') == 'include':
@@ -2446,7 +2440,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
 
         if name == "vkEnumerateInstanceVersion": return # TODO: Create exclusion list or metadata to indicate this
 
-        self.functions[cmd.elem.get('name')] = VulkanFunction(cmd.elem, self.constants, self.aliases, self.extFuncs)
+        self.functions[cmd.elem.get('name')] = VulkanFunction(cmd.elem, self.aliases, self.extFuncs)
 
     # These are actually constants
     def genEnum(self, enuminfo, name, alias):
@@ -2474,7 +2468,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
             return
 
         if typeinfo.elem.get('category') == 'struct':
-            self.structs[typeinfo.elem.get('name')] = VulkanStruct(typeinfo.elem, self.constants, self.enums)
+            self.structs[typeinfo.elem.get('name')] = VulkanStruct(typeinfo.elem, self.enums)
         elif typeinfo.elem.get('category') == 'basetype':
             self.basetypes[typeinfo.elem.get('name')] = VulkanBasetype(typeinfo.elem)
         elif typeinfo.elem.get('category') is None and typeinfo.elem.get('requires') in ['vk_platform', 'stdint']:
@@ -2487,7 +2481,7 @@ class ApiDumpOutputGenerator(OutputGenerator):
         elif typeinfo.elem.get('category') == 'handle':
             self.handles[typeinfo.elem.get('name')] = VulkanHandle(typeinfo.elem)
         elif typeinfo.elem.get('category') == 'union':
-            self.unions[typeinfo.elem.get('name')] = VulkanUnion(typeinfo.elem, self.constants)
+            self.unions[typeinfo.elem.get('name')] = VulkanUnion(typeinfo.elem)
         elif typeinfo.elem.get('category') == 'bitmask':
             self.flags[typeinfo.elem.get('name')] = VulkanFlags(typeinfo.elem)
         elif typeinfo.elem.get('category') == 'funcpointer':
@@ -2611,7 +2605,7 @@ class Control:
 # Base class for VulkanStruct.Member and VulkanStruct.Parameter
 class VulkanVariable:
 
-    def __init__(self, rootNode, constants, aliases, parentName):
+    def __init__(self, rootNode, aliases, parentName):
         # Set basic properties
         self.name = rootNode.find('name').text      # Variable name
         self.typeID = rootNode.find('type').text    # Typename, dereferenced and converted to a useable C++ token
@@ -2641,10 +2635,7 @@ class VulkanVariable:
             matchText = bracketMatch.string[bracketMatch.start():bracketMatch.end()]
             self.childType = self.type
             self.type += '[' + matchText + ']'
-            if matchText in constants:
-                self.arrayLength = constants[matchText]
-            else:
-                self.arrayLength = matchText
+            self.arrayLength = matchText
 
         self.lengthMember = False
         lengthString = rootNode.get('len')
@@ -2840,7 +2831,6 @@ class VulkanExtension:
 
         self.vktypes = []
         self.vkfuncs = []
-        self.constants = {}
         self.enumValues = {}
 
         for req in rootNode.findall('require'):
@@ -2867,8 +2857,6 @@ class VulkanExtension:
                     if enum.get('dir') == '-':
                         enumValue = -enumValue
                     self.enumValues[base] = (name, enumValue)
-                else:
-                    self.constants[name] = value
 
     def values(self):
         return {
@@ -2913,8 +2901,8 @@ class VulkanFunction:
 
     class Parameter(VulkanVariable):
 
-        def __init__(self, rootNode, constants, aliases, parentName, index):
-            VulkanVariable.__init__(self, rootNode, constants, aliases, parentName)
+        def __init__(self, rootNode, aliases, parentName, index):
+            VulkanVariable.__init__(self, rootNode, aliases, parentName)
             self.index = index
 
         def values(self):
@@ -2932,14 +2920,14 @@ class VulkanFunction:
                 'prmIsUnion': 'true' if self.is_union else 'false'
             }
 
-    def __init__(self, rootNode, constants, aliases, extensions):
+    def __init__(self, rootNode, aliases, extensions):
         self.name = rootNode.find('proto').find('name').text
         self.returnType = rootNode.find('proto').find('type').text
 
         self.parameters = []
         index = 0
         for node in rootNode.findall('param'):
-            self.parameters.append(VulkanFunction.Parameter(node, constants, aliases, self.name, index))
+            self.parameters.append(VulkanFunction.Parameter(node, aliases, self.name, index))
             index = index + 1
 
         self.namedParams = ', '.join(p.name for p in self.parameters)
@@ -3005,8 +2993,8 @@ class VulkanStruct:
 
     class Member(VulkanVariable):
 
-        def __init__(self, rootNode, constants, parentName, index):
-            VulkanVariable.__init__(self, rootNode, constants, None, parentName)
+        def __init__(self, rootNode, parentName, index):
+            VulkanVariable.__init__(self, rootNode, None, parentName)
 
             # Search for a member condition
             self.condition = None
@@ -3034,13 +3022,13 @@ class VulkanStruct:
             }
 
 
-    def __init__(self, rootNode, constants, enums):
+    def __init__(self, rootNode, enums):
         self.name = rootNode.get('name')
         self.structExtends = rootNode.get('structextends')
         self.members = []
         index = 0
         for node in rootNode.findall('member'):
-            self.members.append(VulkanStruct.Member(node, constants, self.name, index))
+            self.members.append(VulkanStruct.Member(node, self.name, index))
             index = index + 1
 
         self.structureIndex = -1
@@ -3110,8 +3098,8 @@ class VulkanUnion:
 
     class Choice(VulkanVariable):
 
-        def __init__(self, rootNode, constants, parentName, index):
-            VulkanVariable.__init__(self, rootNode, constants, None, parentName)
+        def __init__(self, rootNode, parentName, index):
+            VulkanVariable.__init__(self, rootNode, None, parentName)
             self.index = index
 
              # Search for a member condition
@@ -3135,12 +3123,12 @@ class VulkanUnion:
                 'chcIsUnion': 'true' if self.is_union else 'false',
             }
 
-    def __init__(self, rootNode, constants):
+    def __init__(self, rootNode):
         self.name = rootNode.get('name')
         self.choices = []
         index = 0
         for node in rootNode.findall('member'):
-            self.choices.append(VulkanUnion.Choice(node, constants, self.name, index))
+            self.choices.append(VulkanUnion.Choice(node, self.name, index))
             index = index + 1
 
     def values(self):
