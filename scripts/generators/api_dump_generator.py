@@ -211,21 +211,21 @@ class ApiDumpGenerator(BaseGenerator):
         elif self.filename == 'api_dump_text.h':
             self.generate_header(output_format='text')
         elif self.filename == 'api_dump_text.cpp':
-            self.generate_text_implementation(video=False)
+            self.generate_implementation('text', video=False)
         elif self.filename == 'api_dump_html.h':
             self.generate_header(output_format='html')
         elif self.filename == 'api_dump_html.cpp':
-            self.generate_html_implementation(video=False)
+            self.generate_implementation('html', video=False)
         elif self.filename == 'api_dump_json.h':
             self.generate_header(output_format='json')
         elif self.filename == 'api_dump_json.cpp':
-            self.generate_json_implementation(video=False)
+            self.generate_implementation('json', video=False)
         elif self.filename == 'api_dump_video_text.h':
-            self.generate_text_implementation(video=True)
+            self.generate_implementation('text', video=True)
         elif self.filename == 'api_dump_video_html.h':
-            self.generate_html_implementation(video=True)
+            self.generate_implementation('html', video=True)
         elif self.filename == 'api_dump_video_json.h':
-            self.generate_json_implementation(video=True)
+            self.generate_implementation('json', video=True)
 
     def generate_copyright(self):
         self.write('''
@@ -634,7 +634,14 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write(f'#endif // {command.protect}')
         self.write('\n')
 
-    def generate_type_implementation(self, video, output_format):
+    def generate_implementation(self, output_format, video=False):
+        if video:
+            self.write('#pragma once\n')
+
+        self.write(f'#include "api_dump_{output_format}.h"')
+        if not video:
+            self.write(f'\n#include "api_dump_video_{output_format}.h"')
+
         self.write('\n//=========================== Type Implementations ==========================//\n')
 
         for t in [x for x in self.vk.platformTypes.values() if x.requires in ['vk_platform', 'stdint']]:
@@ -662,7 +669,6 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
             self.write('}')
 
-    def generate_basetype_implementation(self, output_format):
         self.write('\n//========================= Basetype Implementations ========================//\n')
 
         for basetype in self.vk.baseTypes.values():
@@ -683,18 +689,6 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             if basetype.protect:
                 self.write(f'#endif // {basetype.protect}')
 
-
-    def generate_text_implementation(self, video=False):
-        if video:
-            self.write('#pragma once\n')
-
-        self.write('#include "api_dump_text.h"')
-        if not video:
-            self.write('\n#include "api_dump_video_text.h"')
-
-        self.generate_type_implementation(video, 'text')
-        self.generate_basetype_implementation('text')
-
         self.write('\n//======================= System Type Implementations =======================//\n')
         sortedSystemTypes = dict(sorted(self.vk.platformTypes.items()))
         for sys in sortedSystemTypes.values():
@@ -702,19 +696,41 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 continue
             if sys.protect:
                 self.write(f'#if defined({sys.protect})')
-            self.write(f'void dump_text_{sys.name}(const {sys.name}{"*" if sys.name in POINTER_TYPES else ""} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{sys.name}(const {sys.name}{"*" if sys.name in POINTER_TYPES else ""} object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
-            if sys.name in POINTER_TYPES:
-                self.write('''    if (object == NULL) {
-        settings.stream() << "NULL";
-        return;
-    }
-    OutputAddress(settings, object);''')
-            else:
-                self.write('''    if (settings.showAddress())
-        settings.stream() << object;
-    else
-        settings.stream() << "address";''')
+            if output_format == 'text':
+                if sys.name in POINTER_TYPES:
+                    self.write('    if (object == NULL) {')
+                    self.write('        settings.stream() << "NULL";')
+                    self.write('        return;')
+                    self.write('    }')
+                    self.write('    OutputAddress(settings, object);')
+                else:
+                    self.write('    if (settings.showAddress())')
+                    self.write('        settings.stream() << object;')
+                    self.write('    else')
+                    self.write('        settings.stream() << "address";')
+
+            if output_format == 'html':
+                if sys.name in POINTER_TYPES:
+                    self.write('    settings.stream() << "<div class=\'val\'>";')
+                    self.write('    OutputAddress(settings, object);')
+                    self.write('    settings.stream() << "</div>";')
+                else:
+                    self.write('    if (settings.showAddress())')
+                    self.write('        settings.stream() << "<div class=\'val\'>" << object << "</div></summary>";')
+                    self.write('    else')
+                    self.write('        settings.stream() << "<div class=\'val\'>address</div></summary>";')
+
+            if output_format == 'json':
+                if sys.name in POINTER_TYPES:
+                    self.write('    OutputAddressJSON(settings, object);')
+                    self.write('    settings.stream() << "\\n";')
+                else:
+                    self.write('    if (settings.showAddress())')
+                    self.write('        settings.stream() << "\\"" << object << "\\"";')
+                    self.write('    else')
+                    self.write('        settings.stream() << "\\"address\\"";')
             self.write('}')
             if sys.protect:
                 self.write(f'#endif // {sys.protect}')
@@ -723,19 +739,46 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for handle in self.vk.handles.values():
             if handle.protect:
                 self.write(f'#if defined({handle.protect})')
-            self.write(f'''void dump_text_{handle.name}(const {handle.name} object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress()) {{
+            self.write(f'void dump_{output_format}_{handle.name}(const {handle.name} object, const ApiDumpSettings& settings, int indents)')
+
+            if output_format == 'text':
+                self.write('''{
+    if(settings.showAddress()) {
         settings.stream() << object;
 
         std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
-        if (it != ApiDumpInstance::current().object_name_map.end()) {{
+        if (it != ApiDumpInstance::current().object_name_map.end()) {
             settings.stream() << " [" << it->second << "]";
-        }}
-    }} else {{
+        }
+    } else {
         settings.stream() << "address";
-    }}
-}}''')
+    }
+}''')
+
+            if output_format == 'html':
+                self.write('''{
+    settings.stream() << "<div class=\'val\'>";
+    if(settings.showAddress()) {
+        settings.stream() << object;
+
+        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
+        if (it != ApiDumpInstance::current().object_name_map.end()) {
+            settings.stream() << "</div><div class=\'val\'>[" << it->second << "]";
+        }
+    } else {
+        settings.stream() << "address";
+    }
+    settings.stream() << "</div></summary>";
+}''')
+
+            if output_format == 'json':
+                self.write('''{
+    if(settings.showAddress()) {
+        settings.stream() << "\\"" << object << "\\"";
+    } else {
+        settings.stream() << "\\"address\\"";
+    }
+}''')
             if handle.protect:
                 self.write(f'#endif // {handle.protect}')
 
@@ -743,38 +786,64 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for enum in self.vk.enums.values():
             if enum.protect:
                 self.write(f'#if defined({enum.protect})')
-            self.write(f'void dump_text_{enum.name}({enum.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{enum.name}({enum.name} object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
+            if output_format == 'html':
+                self.write('    settings.stream() << "<div class=\'val\'>";')
             self.write('    switch((int64_t) object)')
             self.write('    {')
             for field in enum.fields:
                 self.write(f'    case {field.valueStr}:')
-                self.write(f'        settings.stream() << "{field.name} (";')
+                if output_format in ['text', 'html']:
+                    self.write(f'        settings.stream() << "{field.name} (";')
+                if output_format == 'json':
+                    self.write(f'        settings.stream() << "\\"{field.name}\\"";')
                 self.write('        break;')
+
             self.write('    default:')
-            self.write('        settings.stream() << "UNKNOWN (";')
+            if output_format in ['text', 'html']:
+                self.write('        settings.stream() << "UNKNOWN (";')
+            if output_format == 'json':
+                self.write('        settings.stream() << "\\"UNKNOWN (" << object << ")\\"";')
             self.write('    }')
-            self.write('    settings.stream() << object << ")";')
+            if output_format == 'text':
+                self.write('    settings.stream() << object << ")";')
+            if output_format == 'html':
+                self.write('    settings.stream() << object << ")</div></summary>";')
             self.write('}')
             if enum.protect:
                 self.write(f'#endif // {enum.protect}')
+
         self.write('\n//========================= Bitmask Implementations =========================//\n')
         for bitmask in self.vk.bitmasks.values():
             if bitmask.protect:
                 self.write(f'#if defined({bitmask.protect})')
-            if bitmask.bitWidth == 64:
-                self.write('// 64 bit bitmasks don\'t have an enum of bit values.')
-                self.write(f'typedef VkFlags64 {bitmask.name};')
-            self.write(f'void dump_text_{bitmask.name}({bitmask.name} object, const ApiDumpSettings& settings, int indents)')
+            if output_format == 'text':
+                if bitmask.bitWidth == 64:
+                    self.write('// 64 bit bitmasks don\'t have an enum of bit values.')
+                    self.write(f'typedef VkFlags64 {bitmask.name};')
+            self.write(f'void dump_{output_format}_{bitmask.name}({bitmask.name} object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
+            if output_format == 'html':
+                self.write('    settings.stream() << "<div class=\'val\'>";')
             self.write('    bool is_first = true;')
-            self.write('    settings.stream() << object;')
+            if output_format in ['text', 'html']:
+                self.write('    settings.stream() << object;')
+            if output_format == 'json':
+                self.write('    settings.stream() << \'"\' << object;')
             for field in bitmask.flags:
                 self.write(f'    if(object {"==" if  field.zero or field.multiBit else "&"} {field.valueStr if field.multiBit else field.value}) {{')
                 self.write(f'        settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
                 self.write('    }')
             self.write('    if(!is_first)')
-            self.write('        settings.stream() << ")";')
+            if output_format in ['text', 'html']:
+                self.write('        settings.stream() << ")";')
+            if output_format == 'json':
+                self.write('        settings.stream() << \')\';')
+            if output_format == 'html':
+                self.write('    settings.stream() << "</div></summary>";')
+            if output_format == 'json':
+                self.write('    settings.stream() << "\\"";')
             self.write('}')
             if bitmask.protect:
                 self.write(f'#endif // {bitmask.protect}')
@@ -783,9 +852,9 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for bitmask in self.vk.bitmasks.values():
             if bitmask.protect:
                 self.write(f'#if defined({bitmask.protect})')
-            self.write(f'void dump_text_{bitmask.flagName}({bitmask.flagName} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{bitmask.flagName}({bitmask.flagName} object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
-            self.write(f'    dump_text_{bitmask.name}(({bitmask.name}) object, settings, indents);')
+            self.write(f'    dump_{output_format}_{bitmask.name}(({bitmask.name}) object, settings, indents);')
             self.write('}')
             if bitmask.protect:
                 self.write(f'#endif // {bitmask.protect}')
@@ -796,9 +865,15 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 continue
             if flag.protect:
                 self.write(f'#if defined({flag.protect})')
-            self.write(f'void dump_text_{flag.name}({flag.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{flag.name}({flag.name} object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
-            self.write('    settings.stream() << object;')
+            if output_format == 'text':
+                self.write('    settings.stream() << object;')
+            if output_format == 'html':
+                self.write('    settings.stream() << "<div class=\'val\'>"')
+                self.write('                             << object << "</div></summary>";')
+            if output_format == 'json':
+                self.write('    settings.stream() << \'"\' << object << "\\"";')
             self.write('}')
             if flag.protect:
                 self.write(f'#endif // {flag.protect}')
@@ -806,12 +881,23 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         self.write('\n//======================= Func Pointer Implementations ======================//\n')
 
         for funcpointer in self.vk.funcPointers.values():
-            self.write(f'void dump_text_{funcpointer.name}({funcpointer.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{funcpointer.name}({funcpointer.name} object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
-            self.write('    if(settings.showAddress())')
-            self.write('        settings.stream() << object;')
-            self.write('    else')
-            self.write('        settings.stream() << "address";')
+            if output_format == 'html':
+                self.write('    settings.stream() << "<div class=\'val\'>";')
+            if output_format in ['text', 'html']:
+                self.write('    if(settings.showAddress())')
+                self.write('        settings.stream() << object;')
+                self.write('    else')
+                self.write('        settings.stream() << "address";')
+            if output_format == 'html':
+                self.write('    settings.stream() << "</div></summary>";')
+
+            if output_format == 'json':
+                self.write('    if(settings.showAddress())')
+                self.write('       settings.stream() << "\\"" << object << "\\"";')
+                self.write('    else')
+                self.write('        settings.stream() << "\\"address\\"";')
             self.write('}')
 
         self.write('\n//======================== Union Forward Declarations =======================//\n')
@@ -819,25 +905,38 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for union in [ x for x in self.vk.structs.values() if x.union ]:
             if union.protect:
                 self.write(f'#if defined({union.protect})')
-            self.write(f'void dump_text_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, int indents);')
+            self.write(f'void dump_{output_format}_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, int indents);')
             if union.protect:
                 self.write(f'#endif // {union.protect}')
 
         self.write('\n//======================== pNext Chain Declarations =======================//\n')
         if not video:
-            self.write('void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type);')
-            self.write('void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);')
+            if output_format == 'text':
+                self.write(f'void dump_{output_format}_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type);')
+            self.write(f'void dump_{output_format}_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);')
 
         self.write('\n//========================== Struct Implementations =========================//\n')
         for struct in [ x for x in self.vk.structs.values() if not x.union ]:
             if struct.protect:
                 self.write(f'#if defined({struct.protect})')
-            self.write(f'void dump_text_{struct.name}(const {struct.name}& object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{struct.name}(const {struct.name}& object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
-            self.write('    if(settings.showAddress())')
-            self.write('        settings.stream() << &object << ":\\n";')
-            self.write('    else')
-            self.write('        settings.stream() << "address:\\n";')
+            if output_format == 'text':
+                self.write('    if(settings.showAddress())')
+                self.write('        settings.stream() << &object << ":\\n";')
+                self.write('    else')
+                self.write('        settings.stream() << "address:\\n";')
+            if output_format == 'html':
+                self.write('    settings.stream() << "<div class=\'val\'>";')
+                self.write('    if(settings.showAddress())')
+                self.write('        settings.stream() << &object << "\\n";')
+                self.write('    else')
+                self.write('        settings.stream() << "address\\n";')
+                self.write('    settings.stream() << "</div></summary>";')
+            if output_format == 'json':
+                self.write('    settings.stream() << settings.indentation(indents) << "[\\n";')
+                self.write('')
+
             for member in struct.members:
                 typeInfo = self.fillin_variable_typeinfo(member, struct)
                 if typeInfo.parameter_state:
@@ -851,59 +950,83 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             for member in struct.members:
                 typeInfo = self.fillin_variable_typeinfo(member, struct)
 
+                if output_format == 'json':
+                    if member != struct.members[0]:
+                        self.write('    settings.stream() << ",\\n";')
+
                 if typeInfo.validity_check is not None:
                     self.write(f'    if({typeInfo.validity_check})')
+
+                json_params = f' {typeInfo.isStruct}, {typeInfo.isUnion},' if output_format == 'json' else ''
 
                 if typeInfo.pointerLevels == 0:
                     if member.name != 'pNext':
                         if member.name == 'apiVersion':
-                            self.write(f'    dump_text_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, OutputApiVersionTEXT);')
+                            self.write(f'    dump_{output_format}_value<const {typeInfo.templateType}>(object.{member.name}, {"NULL, " if output_format == "json" else ""}settings, "{typeInfo.type}", "{member.name}",{json_params} indents + 1, OutputApiVersion{output_format.upper()});')
                         else:
-                            self.write(f'    dump_text_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                            self.write(f'    dump_{output_format}_value<const {typeInfo.templateType}>(object.{member.name}, {"NULL, " if output_format == "json" else ""}settings, "{typeInfo.type}", "{member.name}",{json_params} indents + 1, dump_{output_format}_{typeInfo.id});')
                     else:
-                        self.write(f'    dump_text_pNext_struct_name(object.{member.name}, settings, indents + 1, "{typeInfo.type}");')
+                        if output_format == 'text':
+                            self.write(f'    dump_{output_format}_pNext_struct_name(object.{member.name}, settings, indents + 1, "{typeInfo.type}");')
+                        if output_format == 'html':
+                            self.write('    if(object.pNext != nullptr){')
+                            self.write(f'        dump_{output_format}_pNext_trampoline(object.{member.name}, settings, indents + 1);')
+                            self.write('    } else {')
+                            self.write(f'        dump_{output_format}_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
+                            self.write('    }')
+                        if output_format == 'json':
+                            self.write('    if(object.pNext != nullptr){')
+                            self.write(f'        dump_json_pNext_trampoline(object.{member.name}, settings, indents + 1);')
+                            self.write('    } else {')
+                            self.write(f'        dump_json_value<const {typeInfo.templateType}>(object.{member.name}, object.{member.name}, settings, "{typeInfo.type}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
+                            self.write('    }')
 
                 elif typeInfo.pointerLevels > 0:
                     if typeInfo.arrayLength is None:
-                        self.write(f'    dump_text_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                        self.write(f'    dump_{output_format}_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}",{json_params} indents + 1, dump_{output_format}_{typeInfo.id});')
 
                     else:
                         if not typeInfo.lengthIsMember:
-                            self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                            self.write(f'    dump_{output_format}_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}",{json_params} indents + 1, dump_{output_format}_{typeInfo.id});')
 
                         elif typeInfo.lengthIsMember and member.name != 'pCode':
                             if typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
-                                self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                                self.write(f'    dump_{output_format}_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}",{json_params} indents + 1, dump_{output_format}_{typeInfo.id});')
 
                             elif not typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
                                 if typeInfo.arrayLength == 'rasterizationSamples':
-                                    self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                                    self.write(f'    dump_{output_format}_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}",{json_params} indents + 1, dump_{output_format}_{typeInfo.id});')
                                 else:
                                     if typeInfo.maxArrayLength is not None:
-                                        self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                                        self.write(f'    dump_{output_format}_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}",{json_params} indents + 1, dump_{output_format}_{typeInfo.id});')
                                     else:
-                                        self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                                        self.write(f'    dump_{output_format}_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}",{json_params} indents + 1, dump_{output_format}_{typeInfo.id});')
 
                 self.write('')
                 if struct.name == 'VkShaderModuleCreateInfo':
                     if member.name == 'pCode':
                         self.write('    if(settings.showShader())')
-                        self.write(f'        dump_text_array<const {member.type}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                        self.write(f'        dump_{output_format}_array<const {member.type}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}",{json_params} indents + 1, dump_{output_format}_{typeInfo.id});')
                         self.write('    else')
-                        self.write(f'        dump_text_special("SHADER DATA", settings, "{typeInfo.type}", "{member.name}", indents + 1);')
+                        self.write(f'        dump_{output_format}_special("SHADER DATA", settings, "{typeInfo.type}", "{member.name}", indents + 1);')
                 self.write('')
                 if typeInfo.validity_check is not None:
                     self.write('    else')
-                    self.write(f'        dump_text_special("UNUSED", settings, "{typeInfo.type}", "{member.name}", indents + 1);')
+                    if output_format in ['text', 'html']:
+                        self.write(f'        dump_{output_format}_special("UNUSED", settings, "{typeInfo.type}", "{member.name}", indents + 1);')
+                    if output_format == 'json':
+                        self.write(f'        dump_{output_format}_UNUSED(settings, "{typeInfo.type}", "{member.name}", indents + 1);')
 
 
             self.write('')
-            for member in struct.members:
-                if member.pointer and member.name == 'pNext' and struct.name not in ['VkBaseInStructure', 'VkBaseOutStructure']:
-                    self.write('    if(object.pNext != nullptr){')
-                    self.write('        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);')
-                    self.write('    }')
-
+            if output_format == 'text':
+                for member in struct.members:
+                    if member.pointer and member.name == 'pNext' and struct.name not in ['VkBaseInStructure', 'VkBaseOutStructure']:
+                        self.write('    if(object.pNext != nullptr){')
+                        self.write('        dump_text_pNext_trampoline(object.pNext, settings, indents < 2 ? indents + 1 : indents);')
+                        self.write('    }')
+            if output_format == 'json':
+                self.write('    settings.stream() << "\\n" << settings.indentation(indents) << "]";')
             self.write('}')
             if struct.protect:
                 self.write(f'#endif // {struct.protect}')
@@ -913,26 +1036,48 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for union in [ x for x in self.vk.structs.values() if x.union ]:
             if union.protect:
                 self.write(f'#if defined({union.protect})')
-            self.write(f'void dump_text_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, int indents)')
-            self.write('''{
-    if(settings.showAddress())
+            self.write(f'void dump_{output_format}_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, int indents)')
+            self.write('{')
+
+            if output_format == 'text':
+                self.write('''    if(settings.showAddress())
         settings.stream() << &object << " (Union):\\n";
     else
         settings.stream() << "address (Union):\\n";''')
+            if output_format == 'html':
+                self.write('''    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << " (Union):\\n";
+    else
+        settings.stream() << "address (Union):\\n";
+    settings.stream() << "</div></summary>";''')
+            if output_format == 'json':
+                self.write('    settings.stream() << settings.indentation(indents) << "[\\n";')
+
             for member in union.members:
                 typeInfo = self.fillin_variable_typeinfo(member, union)
+
+                if output_format == 'json':
+                    if member != union.members[0] and typeInfo.validity_check is None:
+                        self.write('    settings.stream() << ",\\n"; // Only need commas when more than one field is printed')
 
                 if typeInfo.validity_check is not None:
                     self.write(f'    if({typeInfo.validity_check})')
 
+                json_params = f' {typeInfo.isStruct}, {typeInfo.isUnion},' if output_format == 'json' else ''
+                json_indent = '2' if output_format == 'json' else '1'
+
                 if typeInfo.pointerLevels == 0:
-                    self.write(f'    dump_text_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                    self.write(f'    dump_{output_format}_value<const {typeInfo.templateType}>(object.{member.name}, {"NULL, " if output_format == "json" else ""}settings, "{typeInfo.type}", "{member.name}",{json_params} indents + {json_indent}, dump_{output_format}_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is None:
-                    self.write(f'    dump_text_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                    self.write(f'    dump_{output_format}_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}",{json_params} indents + {json_indent}, dump_{output_format}_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
+                    self.write(f'    dump_{output_format}_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}",{json_params} indents + {json_indent}, dump_{output_format}_{typeInfo.id});')
+
+            if output_format == 'json':
+                self.write('    settings.stream() << "\\n" << settings.indentation(indents) << "]";')
 
             self.write('}')
             if union.protect:
@@ -940,33 +1085,34 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
         self.write('\n//======================== pNext Chain Implementation =======================//\n')
         if not video:
-            self.write('void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type)')
-            self.write('{')
-            self.write('    if (object == nullptr) {')
-            self.write('        dump_text_value<const void*>(object, settings, pnext_type, "pNext", indents, dump_text_void);')
-            self.write('        return;')
-            self.write('    }\n')
+            if output_format == 'text':
+                self.write('void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type)')
+                self.write('{')
+                self.write('    if (object == nullptr) {')
+                self.write('        dump_text_value<const void*>(object, settings, pnext_type, "pNext", indents, dump_text_void);')
+                self.write('        return;')
+                self.write('    }\n')
 
-            self.write('    settings.formatNameType(indents, "pNext", pnext_type);')
-            self.write('    switch(reinterpret_cast<const VkBaseInStructure*>(object)->sType) {')
-            for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-                if struct.protect:
-                    self.write(f'#if defined({struct.protect})')
-                if struct.sType is not None:
-                    self.write(f'        case {struct.sType}:')
-                    self.write(f'            settings.stream() << "{struct.name}\\n";')
-                    self.write('            break;')
-                if struct.protect:
-                    self.write(f'#endif // {struct.protect}')
-            self.write('        case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47')
-            self.write('        case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
-            self.write('        default:')
-            self.write('            settings.stream() << "NULL\\n";')
-            self.write('            break;')
-            self.write('    }')
-            self.write('}\n')
+                self.write('    settings.formatNameType(indents, "pNext", pnext_type);')
+                self.write('    switch(reinterpret_cast<const VkBaseInStructure*>(object)->sType) {')
+                for struct in [ x for x in self.vk.structs.values() if not x.union ]:
+                    if struct.protect:
+                        self.write(f'#if defined({struct.protect})')
+                    if struct.sType is not None:
+                        self.write(f'        case {struct.sType}:')
+                        self.write(f'            settings.stream() << "{struct.name}\\n";')
+                        self.write('            break;')
+                    if struct.protect:
+                        self.write(f'#endif // {struct.protect}')
+                self.write('        case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47')
+                self.write('        case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
+                self.write('        default:')
+                self.write('            settings.stream() << "NULL\\n";')
+                self.write('            break;')
+                self.write('    }')
+                self.write('}\n')
 
-            self.write('void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
             self.write('    VkBaseInStructure base_struct{};')
             self.write('    memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
@@ -976,7 +1122,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     self.write(f'#if defined({struct.protect})')
                 if struct.sType is not None:
                     self.write(f'    case {struct.sType}:')
-                    self.write(f'        dump_text_pNext<const {struct.name}>(reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}", indents, dump_text_{struct.name});')
+                    self.write(f'        dump_{output_format}_pNext<const {struct.name}>(reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}", indents, dump_{output_format}_{struct.name});')
                     self.write('        break;')
                 if struct.protect:
                     self.write(f'#endif // {struct.protect}')
@@ -984,16 +1130,43 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write('    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47')
             self.write('    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
             self.write('        if(base_struct.pNext != nullptr){')
-            self.write('            dump_text_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, indents);')
+            self.write(f'            dump_{output_format}_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, indents);')
             self.write('        } else {')
-            self.write('            settings.formatNameType(indents, "pNext", "const void*");')
-            self.write('            settings.stream() << "NULL\\n";')
-            self.write('        }')
-            self.write('        break;')
-            self.write('    default:')
-            self.write('        settings.formatNameType(indents, "pNext", "const void*");')
-            self.write('        settings.stream() << "UNKNOWN (" << (int64_t) (base_struct.sType) << ")\\n";')
-            self.write('    }')
+            if output_format == 'text':
+                self.write('            settings.formatNameType(indents, "pNext", "const void*");')
+                self.write('            settings.stream() << "NULL\\n";')
+                self.write('        }')
+                self.write('        break;')
+                self.write('    default:')
+                self.write('        settings.formatNameType(indents, "pNext", "const void*");')
+                self.write('        settings.stream() << "UNKNOWN (" << (int64_t) (base_struct.sType) << ")\\n";')
+                self.write('    }')
+            if output_format == 'html':
+                self.write('            settings.stream() << "<details class=\'data\'><summary>";')
+                self.write('            dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");')
+                self.write('            settings.stream() << "<div class=\'val\'> NULL</div></summary></details>";')
+                self.write('        }')
+                self.write('        break;')
+                self.write('    default:')
+                self.write('        settings.stream() << "<details class=\'data\'><summary>";')
+                self.write('        dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");')
+                self.write('        settings.stream() << "<div class=\'val\'>UNKNOWN (" << (int64_t) (base_struct.sType) <<")</div></summary></details>";')
+                self.write('    }')
+            if output_format == 'json':
+                self.write('            settings.stream() << settings.indentation(indents) << "{\\n";')
+                self.write('            settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";')
+                self.write('            settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";')
+                self.write('            settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"NULL\\"\\n";')
+                self.write('            settings.stream() << settings.indentation(indents) << "}";')
+                self.write('        }')
+                self.write('        break;')
+                self.write('    default:')
+                self.write('        settings.stream() << settings.indentation(indents) << "{\\n";')
+                self.write('        settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";')
+                self.write('        settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";')
+                self.write('        settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"UNKNOWN (" << (int64_t) (base_struct.sType) << ")\\"\\n";')
+                self.write('        settings.stream() << settings.indentation(indents) << "}";')
+                self.write('    }')
             self.write('}')
 
         self.write('\n//========================== Function Helpers ===============================//\n')
@@ -1001,29 +1174,47 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
             if command.protect:
                 self.write(f'#if defined({command.protect})')
-            self.write(f'void dump_text_params_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)})')
+            self.write(f'void dump_{output_format}_params_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)})')
             self.write('{')
-            self.write('    const ApiDumpSettings& settings(dump_inst.settings());')
+            self.write(f'    const ApiDumpSettings& settings(dump_inst.settings());{"\n" if output_format != "text" else ""}')
             self.write('    if(settings.showParams())')
             self.write('    {')
-            self.write('        settings.stream() << "\\n";')
+            if output_format == 'text':
+                self.write('        settings.stream() << "\\n";')
+            if output_format == 'json':
+                self.write('        settings.stream() << settings.indentation(3) << "\\\"args\\\" :\\n";')
+                self.write('        settings.stream() << settings.indentation(3) << "[\\n";')
             for param in command.params:
                 typeInfo = self.fillin_variable_typeinfo(param, command)
+
+                if output_format == 'json':
+                    if param != command.params[0]:
+                        self.write('        settings.stream() << ",\\n";')
 
                 if typeInfo.parameter_state is not None:
                     self.write('        ' + typeInfo.parameter_state)
 
+                indent_level = 4 if output_format == 'json' else 1
+                json_params = f' {typeInfo.isStruct}, {typeInfo.isUnion},' if output_format == 'json' else ''
+
                 if typeInfo.pointerLevels == 0:
-                    self.write(f'        dump_text_value<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}", 1, dump_text_{typeInfo.id});')
+                    self.write(f'        dump_{output_format}_value<const {typeInfo.templateType}>({param.name}, {"NULL, " if output_format == "json" else ""}settings, "{typeInfo.type}", "{param.name}",{json_params} {indent_level}, dump_{output_format}_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is None:
-                    self.write(f'        dump_text_pointer<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}", 1, dump_text_{typeInfo.id});')
+                    self.write(f'        dump_{output_format}_pointer<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}",{json_params} {indent_level}, dump_{output_format}_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'        dump_text_array<const {typeInfo.templateType}>({param.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{param.name}", 1, dump_text_{typeInfo.id});')
+                    self.write(f'        dump_{output_format}_array<const {typeInfo.templateType}>({param.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{param.name}",{json_params} {indent_level}, dump_{output_format}_{typeInfo.id});')
 
-            self.write('        if (settings.shouldFlush()) settings.stream().flush();')
+            if output_format == 'text':
+                self.write('        if (settings.shouldFlush()) settings.stream().flush();')
+            if output_format == 'json':
+                self.write('        settings.stream() << "\\n" << settings.indentation(3) << "]\\n";')
             self.write('    }')
+            if output_format == 'html':
+                self.write('    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";')
+            if output_format == 'json':
+                self.write('    if (settings.shouldFlush()) settings.stream().flush();')
             self.write('}')
             if command.protect:
                 self.write(f'#endif // {command.protect}')
@@ -1033,708 +1224,32 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             if command.protect:
                 self.write(f'#if defined({command.protect})')
             returnParam = f'{command.returnType} result, ' if command.returnType != 'void' else ''
-            self.write(f'void dump_text_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{commandParameterDeclarationText(command)})')
+            self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{commandParameterDeclarationText(command)})')
 
             self.write('{')
             self.write('    const ApiDumpSettings& settings(dump_inst.settings());')
 
             if command.returnType != 'void':
-                self.write('    settings.stream() << " ";')
-                self.write(f'    dump_text_{command.returnType}(result, settings, 0);')
-            self.write('    settings.stream() << ":";')
-            self.write(f'    dump_text_params_{command.name}(dump_inst, {commandParameterUsageText(command)});')
-            self.write('    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";')
-            self.write('}')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
-        self.write('\n')
-
-    def generate_html_implementation(self, video=False):
-
-        if video:
-            self.write('#pragma once\n')
-
-        self.write('#include "api_dump_html.h"')
-        if not video:
-            self.write('\n#include "api_dump_video_html.h"')
-
-        self.generate_type_implementation(video, 'html')
-        self.generate_basetype_implementation('html')
-
-        self.write('\n//======================= System Type Implementations =======================//\n')
-        sortedSystemTypes = dict(sorted(self.vk.platformTypes.items()))
-        for sys in sortedSystemTypes.values():
-            if shouldSkipSystemType(sys, video):
-                continue
-            if sys.protect:
-                self.write(f'#if defined({sys.protect})')
-            self.write(f'void dump_html_{sys.name}(const {sys.name}{"*" if sys.name in POINTER_TYPES else ""} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            if sys.name in POINTER_TYPES:
-                self.write('''    settings.stream() << "<div class=\'val\'>";
-    OutputAddress(settings, object);
-    settings.stream() << "</div>";''')
-            else:
-                self.write('''    if (settings.showAddress())
-        settings.stream() << "<div class='val'>" << object << "</div></summary>";
-    else
-        settings.stream() << "<div class='val'>address</div></summary>";''')
-            self.write('}')
-            if sys.protect:
-                self.write(f'#endif // {sys.protect}')
-        self.write('\n//========================== Handle Implementations =========================//\n')
-        for handle in self.vk.handles.values():
-            if handle.protect:
-                self.write(f'#if defined({handle.protect})')
-            self.write(f'''void dump_html_{handle.name}(const {handle.name} object, const ApiDumpSettings& settings, int indents)
-{{
-    settings.stream() << "<div class=\'val\'>";
-    if(settings.showAddress()) {{
-        settings.stream() << object;
-
-        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
-        if (it != ApiDumpInstance::current().object_name_map.end()) {{
-            settings.stream() << "</div><div class=\'val\'>[" << it->second << "]";
-        }}
-    }} else {{
-        settings.stream() << "address";
-    }}
-    settings.stream() << "</div></summary>";
-}}''')
-            if handle.protect:
-                self.write(f'#endif // {handle.protect}')
-
-        self.write('\n//=========================== Enum Implementations ==========================//\n')
-        for enum in self.vk.enums.values():
-            if enum.protect:
-                self.write(f'#if defined({enum.protect})')
-            self.write(f'void dump_html_{enum.name}({enum.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "<div class=\'val\'>";')
-            self.write('    switch((int64_t) object)')
-            self.write('    {')
-            for field in enum.fields:
-                self.write(f'    case {field.valueStr}:')
-                self.write(f'        settings.stream() << "{field.name} (";')
-                self.write('        break;')
-
-            self.write('    default:')
-            self.write('        settings.stream() << "UNKNOWN (";')
-            self.write('    }')
-            self.write('    settings.stream() << object << ")</div></summary>";')
-            self.write('}')
-            if enum.protect:
-                self.write(f'#endif // {enum.protect}')
-
-        self.write('\n//========================= Bitmask Implementations =========================//\n')
-        for bitmask in self.vk.bitmasks.values():
-            if bitmask.protect:
-                self.write(f'#if defined({bitmask.protect})')
-            self.write(f'void dump_html_{bitmask.name}({bitmask.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "<div class=\'val\'>";')
-            self.write('    bool is_first = true;')
-            self.write('    settings.stream() << object;')
-            for field in bitmask.flags:
-                self.write(f'    if(object {"==" if  field.zero or field.multiBit else "&"} {field.valueStr if field.multiBit else field.value}) {{')
-                self.write(f'        settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
-                self.write('    }')
-            self.write('    if(!is_first)')
-            self.write('        settings.stream() << ")";')
-            self.write('    settings.stream() << "</div></summary>";')
-            self.write('}')
-            if bitmask.protect:
-                self.write(f'#endif // {bitmask.protect}')
-
-        self.write('\n//=========================== Flag Implementations ==========================//\n')
-        for bitmask in self.vk.bitmasks.values():
-            if bitmask.protect:
-                self.write(f'#if defined({bitmask.protect})')
-            self.write(f'void dump_html_{bitmask.flagName}({bitmask.flagName} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write(f'    dump_html_{bitmask.name}(({bitmask.name}) object, settings, indents);')
-            self.write('}')
-            if bitmask.protect:
-                self.write(f'#endif // {bitmask.protect}')
-
-        self.write('\n')
-        for flag in self.vk.flags.values():
-            if flag.bitmaskName is not None:
-                continue
-            if flag.protect:
-                self.write(f'#if defined({flag.protect})')
-            self.write(f'void dump_html_{flag.name}({flag.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "<div class=\'val\'>"')
-            self.write('                             << object << "</div></summary>";')
-            self.write('}')
-            if flag.protect:
-                self.write(f'#endif // {flag.protect}')
-
-        self.write('\n//======================= Func Pointer Implementations ======================//\n')
-
-        for funcpointer in self.vk.funcPointers.values():
-            self.write(f'void dump_html_{funcpointer.name}({funcpointer.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "<div class=\'val\'>";')
-            self.write('    if(settings.showAddress())')
-            self.write('        settings.stream() << object;')
-            self.write('    else')
-            self.write('        settings.stream() << "address";')
-            self.write('    settings.stream() << "</div></summary>";')
-            self.write('}')
-
-        self.write('\n//======================== Union Forward Declarations =======================//\n')
-
-        for union in [ x for x in self.vk.structs.values() if x.union ]:
-            if union.protect:
-                self.write(f'#if defined({union.protect})')
-            self.write(f'void dump_html_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, int indents);')
-            if union.protect:
-                self.write(f'#endif // {union.protect}')
-
-        self.write('\n//======================== pNext Chain Declarations =======================//\n')
-        if not video:
-            self.write('void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);')
-
-        self.write('\n//========================== Struct Implementations =========================//\n')
-        for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-            if struct.protect:
-                self.write(f'#if defined({struct.protect})')
-            self.write(f'void dump_html_{struct.name}(const {struct.name}& object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "<div class=\'val\'>";')
-            self.write('    if(settings.showAddress())')
-            self.write('        settings.stream() << &object << "\\n";')
-            self.write('    else')
-            self.write('        settings.stream() << "address\\n";')
-            self.write('    settings.stream() << "</div></summary>";')
-            for member in struct.members:
-                typeInfo = self.fillin_variable_typeinfo(member, struct)
-                if typeInfo.parameter_state:
-                    if typeInfo.validity_check:
-                        self.write(f'    if ({typeInfo.validity_check})')
-                        self.write('        ' + typeInfo.parameter_state)
-                    else:
-                        self.write('    ' + typeInfo.parameter_state)
-
-            self.write('')
-            for member in struct.members:
-                typeInfo = self.fillin_variable_typeinfo(member, struct)
-
-                if typeInfo.validity_check is not None:
-                    self.write(f'    if({typeInfo.validity_check})')
-
-                if typeInfo.pointerLevels == 0:
-                    if member.name != 'pNext':
-                        if member.name == 'apiVersion':
-                            self.write(f'    dump_html_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, OutputApiVersionHTML);')
-                        else:
-                            self.write(f'    dump_html_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-                    else:
-                        self.write('    if(object.pNext != nullptr){')
-                        self.write(f'        dump_html_pNext_trampoline(object.{member.name}, settings, indents + 1);')
-                        self.write('    } else {')
-                        self.write(f'        dump_html_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-                        self.write('    }')
-
-                elif typeInfo.pointerLevels > 0:
-                    if typeInfo.arrayLength is None:
-                        self.write(f'    dump_html_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-
-                    else:
-                        if not typeInfo.lengthIsMember:
-                            self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-
-                        elif typeInfo.lengthIsMember and member.name != 'pCode':
-                            if typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
-                                self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-
-                            elif not typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
-                                if typeInfo.arrayLength == 'rasterizationSamples':
-                                    self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-                                else:
-                                    if typeInfo.maxArrayLength is not None:
-                                        self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-                                    else:
-                                        self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-
-                self.write('')
-                if struct.name == 'VkShaderModuleCreateInfo':
-                    if member.name == 'pCode':
-                        self.write('    if(settings.showShader())')
-                        self.write(f'        dump_html_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-                        self.write('    else')
-                        self.write(f'        dump_html_special("SHADER DATA", settings, "{typeInfo.type}", "{member.name}", indents + 1);')
-
-                self.write('')
-                if typeInfo.validity_check is not None:
-                    self.write('    else')
-                    self.write(f'        dump_html_special("UNUSED", settings, "{typeInfo.type}", "{member.name}", indents + 1);')
-
-            self.write('}')
-            if struct.protect:
-                self.write(f'#endif // {struct.protect}')
-
-
-        self.write('\n//========================== Union Implementations ==========================//\n')
-        for union in [ x for x in self.vk.structs.values() if x.union ]:
-            if union.protect:
-                self.write(f'#if defined({union.protect})')
-            self.write(f'void dump_html_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, int indents)')
-            self.write('''{
-    settings.stream() << "<div class='val'>";
-    if(settings.showAddress())
-        settings.stream() << &object << " (Union):\\n";
-    else
-        settings.stream() << "address (Union):\\n";
-    settings.stream() << "</div></summary>";''')
-            for member in union.members:
-                typeInfo = self.fillin_variable_typeinfo(member, union)
-
-                if typeInfo.validity_check is not None:
-                    self.write(f'    if({typeInfo.validity_check})')
-
-                if typeInfo.pointerLevels == 0:
-                    self.write(f'    dump_html_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-
-                elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is None:
-                    self.write(f'    dump_html_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-
-                elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
-
-            self.write('}')
-            if union.protect:
-                self.write(f'#endif // {union.protect}')
-
-        self.write('\n//======================== pNext Chain Implementation =======================//\n')
-        if not video:
-            self.write('void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    VkBaseInStructure base_struct{};')
-            self.write('    memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
-            self.write('    switch(base_struct.sType) {')
-            for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-                if struct.protect:
-                    self.write(f'#if defined({struct.protect})')
-                if struct.sType is not None:
-                    self.write(f'    case {struct.sType}:')
-                    self.write(f'        dump_html_pNext<const {struct.name}>(reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}", indents, dump_html_{struct.name});')
-                    self.write('        break;')
-                if struct.protect:
-                    self.write(f'#endif // {struct.protect}')
-            self.write('')
-            self.write('    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47')
-            self.write('    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
-            self.write('        if(base_struct.pNext != nullptr){')
-            self.write('            dump_html_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, indents);')
-            self.write('        } else {')
-            self.write('            settings.stream() << "<details class=\'data\'><summary>";')
-            self.write('            dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");')
-            self.write('            settings.stream() << "<div class=\'val\'> NULL</div></summary></details>";')
-            self.write('        }')
-            self.write('        break;')
-            self.write('    default:')
-            self.write('        settings.stream() << "<details class=\'data\'><summary>";')
-            self.write('        dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");')
-            self.write('        settings.stream() << "<div class=\'val\'>UNKNOWN (" << (int64_t) (base_struct.sType) <<")</div></summary></details>";')
-            self.write('    }')
-            self.write('}')
-
-        self.write('\n//========================= Function Helpers ================================//\n')
-        for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
-            self.write(f'void dump_html_params_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)})')
-            self.write('{')
-            self.write('    const ApiDumpSettings& settings(dump_inst.settings());\n')
-
-            self.write('    if(settings.showParams())')
-            self.write('    {')
-            for param in command.params:
-                typeInfo = self.fillin_variable_typeinfo(param, command)
-
-                if typeInfo.parameter_state is not None:
-                    self.write('        ' + typeInfo.parameter_state)
-
-                if typeInfo.pointerLevels == 0:
-                    self.write(f'        dump_html_value<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}", 1, dump_html_{typeInfo.id});')
-
-                elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is None:
-                    self.write(f'        dump_html_pointer<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}", 1, dump_html_{typeInfo.id});')
-
-                elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'        dump_html_array<const {typeInfo.templateType}>({param.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{param.name}", 1, dump_html_{typeInfo.id});')
-
-            self.write('    }')
-            self.write('    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";')
-            self.write('}')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
-
-        self.write('\n//========================= Function Implementations ========================//\n')
-
-        for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
-            returnParam = f'{command.returnType} result, ' if command.returnType != 'void' else ''
-            self.write(f'void dump_html_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{commandParameterDeclarationText(command)})')
-
-            self.write('{')
-            self.write('    const ApiDumpSettings& settings(dump_inst.settings());')
-
-            if command.returnType != 'void':
-                self.write(f'    dump_html_{command.returnType}(result, settings, 0);')
-
-            self.write(f'    dump_html_params_{command.name}(dump_inst, {commandParameterUsageText(command)});\n')
-            self.write('    settings.stream() << "</details>";')
-            self.write('}')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
-        self.write('\n')
-
-    def generate_json_implementation(self, video=False):
-        if video:
-            self.write('#pragma once\n')
-
-        self.write('#include "api_dump_json.h"')
-        if not video:
-            self.write('\n#include "api_dump_video_json.h"')
-
-        self.generate_type_implementation(video, 'json')
-        self.generate_basetype_implementation('json')
-
-        self.write('\n//======================= System Type Implementations =======================//\n')
-        sortedSystemTypes = dict(sorted(self.vk.platformTypes.items()))
-        for sys in sortedSystemTypes.values():
-            if shouldSkipSystemType(sys, video):
-                continue
-            if sys.protect:
-                self.write(f'#if defined({sys.protect})')
-            self.write(f'void dump_json_{sys.name}(const {sys.name}{"*" if sys.name in POINTER_TYPES else ""} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            if sys.name in POINTER_TYPES:
-                self.write('    OutputAddressJSON(settings, object);')
-                self.write('    settings.stream() << "\\n";')
-            else:
-                self.write('''    if (settings.showAddress())
-        settings.stream() << "\\"" << object << "\\"";
-    else
-        settings.stream() << "\\"address\\"";''')
-            self.write('}')
-            if sys.protect:
-                self.write(f'#endif // {sys.protect}')
-
-        self.write('\n//========================== Handle Implementations =========================//\n')
-        for handle in self.vk.handles.values():
-            if handle.protect:
-                self.write(f'#if defined({handle.protect})')
-            self.write(f'''void dump_json_{handle.name}(const {handle.name} object, const ApiDumpSettings& settings, int indents)
-{{
-    if(settings.showAddress()) {{
-        settings.stream() << "\\"" << object << "\\"";
-    }} else {{
-        settings.stream() << "\\"address\\"";
-    }}
-}}''')
-            if handle.protect:
-                self.write(f'#endif // {handle.protect}')
-
-        self.write('\n//=========================== Enum Implementations ==========================//\n')
-        for enum in self.vk.enums.values():
-            if enum.protect:
-                self.write(f'#if defined({enum.protect})')
-            self.write(f'void dump_json_{enum.name}({enum.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    switch((int64_t) object)')
-            self.write('    {')
-            for field in enum.fields:
-                self.write(f'    case {field.valueStr}:')
-                self.write(f'        settings.stream() << "\\"{field.name}\\"";')
-                self.write('        break;')
-
-            self.write('    default:')
-            self.write('        settings.stream() << "\\"UNKNOWN (" << object << ")\\"";')
-            self.write('    }')
-            self.write('}')
-            if enum.protect:
-                self.write(f'#endif // {enum.protect}')
-
-        self.write('\n//========================= Bitmask Implementations =========================//\n')
-        for bitmask in self.vk.bitmasks.values():
-            if bitmask.protect:
-                self.write(f'#if defined({bitmask.protect})')
-            self.write(f'void dump_json_{bitmask.name}({bitmask.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    bool is_first = true;')
-            self.write('    settings.stream() << \'"\' << object;')
-            for field in bitmask.flags:
-                self.write(f'    if(object {"==" if  field.zero or field.multiBit else "&"} {field.valueStr if field.multiBit else field.value}) {{')
-                self.write(f'        settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
-                self.write('    }')
-            self.write('    if(!is_first)')
-            self.write('        settings.stream() << \')\';')
-            self.write('    settings.stream() << "\\"";')
-            self.write('}')
-            if bitmask.protect:
-                self.write(f'#endif // {bitmask.protect}')
-
-        self.write('\n//=========================== Flag Implementations ==========================//\n')
-        for bitmask in self.vk.bitmasks.values():
-            if bitmask.protect:
-                self.write(f'#if defined({bitmask.protect})')
-            self.write(f'void dump_json_{bitmask.flagName}({bitmask.flagName} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write(f'    dump_json_{bitmask.name}(({bitmask.name}) object, settings, indents);')
-            self.write('}')
-            if bitmask.protect:
-                self.write(f'#endif // {bitmask.protect}')
-
-        self.write('\n')
-        for flag in self.vk.flags.values():
-            if flag.bitmaskName is not None:
-                continue
-            if flag.protect:
-                self.write(f'#if defined({flag.protect})')
-            self.write(f'void dump_json_{flag.name}({flag.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << \'"\' << object << "\\"";')
-            self.write('}')
-            if flag.protect:
-                self.write(f'#endif // {flag.protect}')
-
-        self.write('\n//======================= Func Pointer Implementations ======================//\n')
-        for funcpointer in self.vk.funcPointers.values():
-            self.write(f'void dump_json_{funcpointer.name}({funcpointer.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    if(settings.showAddress())')
-            self.write('       settings.stream() << "\\"" << object << "\\"";')
-            self.write('    else')
-            self.write('        settings.stream() << "\\"address\\"";')
-            self.write('}')
-
-        self.write('\n//======================== Union Forward Declarations =======================//\n')
-
-        for union in [ x for x in self.vk.structs.values() if x.union ]:
-            if union.protect:
-                self.write(f'#if defined({union.protect})')
-            self.write(f'void dump_json_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, int indents);')
-            if union.protect:
-                self.write(f'#endif // {union.protect}')
-
-
-        self.write('\n//======================== pNext Chain Declarations =======================//\n')
-        if not video:
-            self.write('void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);')
-
-        self.write('\n//========================== Struct Implementations =========================//\n')
-        for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-            if struct.protect:
-                self.write(f'#if defined({struct.protect})')
-            self.write(f'void dump_json_{struct.name}(const {struct.name}& object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << settings.indentation(indents) << "[\\n";')
-            self.write('')
-            for member in struct.members:
-                typeInfo = self.fillin_variable_typeinfo(member, struct)
-                if typeInfo.parameter_state:
-                    if typeInfo.validity_check:
-                        self.write(f'    if ({typeInfo.validity_check})')
-                        self.write('        ' + typeInfo.parameter_state)
-                    else:
-                        self.write('    ' + typeInfo.parameter_state)
-
-            self.write('')
-            for member in struct.members:
-                typeInfo = self.fillin_variable_typeinfo(member, struct)
-
-                if member != struct.members[0]:
-                    self.write('    settings.stream() << ",\\n";')
-
-                if typeInfo.validity_check is not None:
-                    self.write(f'    if({typeInfo.validity_check})')
-
-                if typeInfo.pointerLevels == 0:
-                    if member.name != 'pNext':
-                        if member.name == 'apiVersion':
-                            self.write(f'    dump_json_value<const {typeInfo.templateType}>(object.{member.name}, NULL, settings, "{typeInfo.type}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, OutputApiVersionJSON);')
-                        else:
-                            self.write(f'    dump_json_value<const {typeInfo.templateType}>(object.{member.name}, NULL, settings, "{typeInfo.type}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
-                    else:
-                        self.write('    if(object.pNext != nullptr){')
-                        self.write(f'        dump_json_pNext_trampoline(object.{member.name}, settings, indents + 1);')
-                        self.write('    } else {')
-                        self.write(f'        dump_json_value<const {typeInfo.templateType}>(object.{member.name}, object.{member.name}, settings, "{typeInfo.type}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
-                        self.write('    }')
-
-                elif typeInfo.pointerLevels > 0:
-                    if typeInfo.arrayLength is None:
-                        self.write(f'    dump_json_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
-
-                    else:
-                        if not typeInfo.lengthIsMember:
-                            self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
-
-                        elif typeInfo.lengthIsMember and member.name != 'pCode':
-                            if typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
-                                self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
-
-                            elif not typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
-                                if typeInfo.arrayLength == 'rasterizationSamples':
-                                    self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
-                                else:
-                                    if typeInfo.maxArrayLength is not None:
-                                        self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
-                                    else:
-                                        self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
-
-                self.write('')
-                if struct.name == 'VkShaderModuleCreateInfo':
-                    if member.name == 'pCode':
-                        self.write('    if(settings.showShader())')
-                        self.write(f'        dump_json_array<const {member.type}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
-                        self.write('    else')
-                        self.write(f'        dump_json_special("SHADER DATA", settings, "{typeInfo.type}", "{member.name}", indents + 1);')
-
-                self.write('')
-                if typeInfo.validity_check is not None:
-                    self.write('    else')
-                    self.write(f'        dump_json_UNUSED(settings, "{typeInfo.type}", "{member.name}", indents + 1);')
-
-            self.write('    settings.stream() << "\\n" << settings.indentation(indents) << "]";')
-            self.write('}')
-            if struct.protect:
-                self.write(f'#endif // {struct.protect}')
-
-        self.write('\n//========================== Union Implementations ==========================//\n')
-        for union in [ x for x in self.vk.structs.values() if x.union ]:
-            if union.protect:
-                self.write(f'#if defined({union.protect})')
-            self.write(f'void dump_json_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << settings.indentation(indents) << "[\\n";')
-            for member in union.members:
-                typeInfo = self.fillin_variable_typeinfo(member, union)
-
-                if member != union.members[0] and typeInfo.validity_check is None:
-                    self.write('    settings.stream() << ",\\n"; // Only need commas when more than one field is printed')
-
-                if typeInfo.validity_check is not None:
-                    self.write(f'    if({typeInfo.validity_check})')
-
-                if typeInfo.pointerLevels == 0:
-                    self.write(f'    dump_json_value<const {typeInfo.templateType}>(object.{member.name}, NULL, settings, "{typeInfo.type}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 2, dump_json_{typeInfo.id});')
-
-                elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is None:
-                    self.write(f'    dump_json_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 2, dump_json_{typeInfo.id});')
-
-                elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {member.length}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 2, dump_json_{typeInfo.id});')
-
-            self.write('    settings.stream() << "\\n" << settings.indentation(indents) << "]";')
-            self.write('}')
-            if union.protect:
-                self.write(f'#endif // {union.protect}')
-
-        self.write('\n//======================== pNext Chain Implementation =======================//\n')
-        if not video:
-            self.write('void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    VkBaseInStructure base_struct{};')
-            self.write('    memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
-            self.write('    switch(base_struct.sType) {')
-            for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-                if struct.protect:
-                    self.write(f'#if defined({struct.protect})')
-                if struct.sType is not None:
-                    self.write(f'    case {struct.sType}:')
-                    self.write(f'        dump_json_pNext<const {struct.name}>(reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}", indents, dump_json_{struct.name});')
-                    self.write('        break;')
-                if struct.protect:
-                    self.write(f'#endif // {struct.protect}')
-            self.write('')
-            self.write('    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47')
-            self.write('    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
-            self.write('        if(base_struct.pNext != nullptr){')
-            self.write('            dump_json_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, indents);')
-            self.write('        } else {')
-            self.write('            settings.stream() << settings.indentation(indents) << "{\\n";')
-            self.write('            settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";')
-            self.write('            settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";')
-            self.write('            settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"NULL\\"\\n";')
-            self.write('            settings.stream() << settings.indentation(indents) << "}";')
-            self.write('        }')
-            self.write('        break;')
-            self.write('    default:')
-            self.write('        settings.stream() << settings.indentation(indents) << "{\\n";')
-            self.write('        settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";')
-            self.write('        settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";')
-            self.write('        settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"UNKNOWN (" << (int64_t) (base_struct.sType) << ")\\"\\n";')
-            self.write('        settings.stream() << settings.indentation(indents) << "}";')
-            self.write('    }')
-            self.write('}')
-
-        self.write('\n//========================= Function Helpers ================================//\n')
-
-        self.write('// Display parameter values\n')
-        for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
-
-            self.write(f'void dump_json_params_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)})')
-            self.write('{')
-            self.write('    const ApiDumpSettings& settings(dump_inst.settings());\n')
-
-            self.write('    if(settings.showParams())')
-            self.write('    {')
-            self.write('        settings.stream() << settings.indentation(3) << "\\\"args\\\" :\\n";')
-            self.write('        settings.stream() << settings.indentation(3) << "[\\n";')
-
-            for param in command.params:
-                if param != command.params[0]:
-                    self.write('        settings.stream() << ",\\n";')
-
-                typeInfo = self.fillin_variable_typeinfo(param, command)
-
-                if typeInfo.parameter_state is not None:
-                    self.write('        ' + typeInfo.parameter_state)
-
-                if typeInfo.pointerLevels == 0:
-                    self.write(f'        dump_json_value<const {typeInfo.templateType}>({param.name}, NULL, settings, "{typeInfo.type}", "{param.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, 4, dump_json_{typeInfo.id});')
-
-                elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is None:
-                    self.write(f'        dump_json_pointer<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, 4, dump_json_{typeInfo.id});')
-
-                elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'        dump_json_array<const {typeInfo.templateType}>({param.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{param.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, 4, dump_json_{typeInfo.id});')
-
-            self.write('        settings.stream() << "\\n" << settings.indentation(3) << "]\\n";')
-            self.write('    }')
-            self.write('    if (settings.shouldFlush()) settings.stream().flush();')
-            self.write('}')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
-
-        self.write('\n//========================= Function Implementations ========================//\n')
-        for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
-            returnParam = f'{command.returnType} result, ' if command.returnType != 'void' else ''
-            self.write(f'void dump_json_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{commandParameterDeclarationText(command)})')
-
-            self.write('{')
-            self.write('    const ApiDumpSettings& settings(dump_inst.settings());')
-
-            if command.returnType != 'void':
-                self.write('    settings.stream() << settings.indentation(3) << "\\\"returnValue\\\" : ";')
-                self.write(f'    dump_json_{command.returnType}(result, settings, 0);')
-                self.write('    if(settings.showParams())')
-                self.write('        settings.stream() << ",";')
-                self.write('    settings.stream() << "\\n";')
-
-            self.write(f'    dump_json_params_{command.name}(dump_inst, {commandParameterUsageText(command)});')
-            self.write('    settings.stream() << settings.indentation(2) << "}";')
+                if output_format == 'text':
+                    self.write('    settings.stream() << " ";')
+                if output_format in ['text', 'html']:
+                    self.write(f'    dump_{output_format}_{command.returnType}(result, settings, 0);')
+                if output_format == 'json':
+                    self.write('    settings.stream() << settings.indentation(3) << "\\\"returnValue\\\" : ";')
+                    self.write(f'    dump_json_{command.returnType}(result, settings, 0);')
+                    self.write('    if(settings.showParams())')
+                    self.write('        settings.stream() << ",";')
+                    self.write('    settings.stream() << "\\n";')
+            if output_format == 'text':
+                self.write('    settings.stream() << ":";')
+
+            self.write(f'    dump_{output_format}_params_{command.name}(dump_inst, {commandParameterUsageText(command)});')
+            if output_format == 'text':
+                self.write('    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";')
+            if output_format == 'html':
+                self.write('\n    settings.stream() << "</details>";')
+            if output_format == 'json':
+                self.write('    settings.stream() << settings.indentation(2) << "}";')
             self.write('}')
             if command.protect:
                 self.write(f'#endif // {command.protect}')

@@ -3154,7 +3154,7 @@ void dump_html_StdVideoDecodeVP9PictureInfo(const StdVideoDecodeVP9PictureInfo& 
 //======================== pNext Chain Implementation =======================//
 
 
-//========================= Function Helpers ================================//
+//========================== Function Helpers ===============================//
 
 
 //========================= Function Implementations ========================//
