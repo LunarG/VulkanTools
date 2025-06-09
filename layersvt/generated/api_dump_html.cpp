@@ -40345,7 +40345,7 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     }
 }
 
-//========================= Function Helpers ================================//
+//========================== Function Helpers ===============================//
 
 void dump_html_params_vkCreateInstance(ApiDumpInstance& dump_inst, const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance)
 {
