@@ -55,10 +55,6 @@ void dump_json_int16_t(int16_t object, const ApiDumpSettings& settings, int inde
 //========================= Basetype Implementations ========================//
 
 
-
-
-
-
 //======================= System Type Implementations =======================//
 
 

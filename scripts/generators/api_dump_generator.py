@@ -634,6 +634,56 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write(f'#endif // {command.protect}')
         self.write('\n')
 
+    def generate_type_implementation(self, video, output_format):
+        self.write('\n//=========================== Type Implementations ==========================//\n')
+
+        for t in [x for x in self.vk.platformTypes.values() if x.requires in ['vk_platform', 'stdint']]:
+            if t.name in ['void'] or (not video and t.name in DUPLICATE_TYPES_IN_VIDEO_HEADER):
+                continue
+            self.write(f'void dump_{output_format}_{t.name}({t.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write('{')
+            cast = ''
+            if t.name == 'uint8_t':
+                cast = '(uint32_t) '
+            if t.name == 'int8_t':
+                cast = '(int32_t) '
+
+            if output_format == 'text':
+                self.write(f'    settings.stream() << {cast}object;')
+
+            if output_format == 'html':
+                self.write('    settings.stream() << "<div class=\'val\'>";')
+                self.write(f'    settings.stream() << {cast}object;')
+                self.write('    settings.stream() << "</div></summary>";')
+
+            if output_format == 'json':
+                self.write('')
+                self.write(f'    settings.stream() << "\\"" << {cast}object << "\\"";')
+
+            self.write('}')
+
+    def generate_basetype_implementation(self, output_format):
+        self.write('\n//========================= Basetype Implementations ========================//\n')
+
+        for basetype in self.vk.baseTypes.values():
+            if basetype.protect:
+                self.write(f'#if defined({basetype.protect})')
+            if basetype.name in ['ANativeWindow', 'AHardwareBuffer']:
+                self.write(f'void dump_{output_format}_{basetype.name}(const {basetype.name}* object, const ApiDumpSettings& settings, int indents)')
+            else:
+                self.write(f'void dump_{output_format}_{basetype.name}({basetype.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write('{')
+            if output_format == 'text':
+                self.write('    settings.stream() << object;')
+            if output_format == 'html':
+                self.write('    settings.stream() << "<div class=\'val\'>" << object << "</div></summary>";')
+            if output_format == 'json':
+                self.write('    settings.stream() << "\\"" << object << "\\"";')
+            self.write('}')
+            if basetype.protect:
+                self.write(f'#endif // {basetype.protect}')
+
+
     def generate_text_implementation(self, video=False):
         if video:
             self.write('#pragma once\n')
@@ -642,48 +692,8 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         if not video:
             self.write('\n#include "api_dump_video_text.h"')
 
-        self.write('\n//=========================== Type Implementations ==========================//\n')
-
-        for t in [x for x in self.vk.platformTypes.values() if x.requires in ['vk_platform', 'stdint']]:
-            if t.name in ['void'] or (not video and t.name in DUPLICATE_TYPES_IN_VIDEO_HEADER):
-                continue
-            self.write(f'void dump_text_{t.name}({t.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            if t.name != 'uint8_t' and t.name != 'int8_t':
-                self.write('    settings.stream() << object;')
-            if t.name == 'uint8_t':
-                self.write('    settings.stream() << (uint32_t) object;')
-            if t.name == 'int8_t':
-                self.write('    settings.stream() << (int32_t) object;')
-            self.write('}')
-
-        self.write('\n//========================= Basetype Implementations ========================//\n')
-
-        for basetype in [x for x in self.vk.baseTypes.values() if x.name not in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer']]:
-            if basetype.protect:
-                self.write(f'#if defined({basetype.protect})')
-            self.write(f'void dump_text_{basetype.name}({basetype.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << object;')
-            self.write('}')
-            if basetype.protect:
-                self.write(f'#endif // {basetype.protect}')
-        self.write('\n')
-        for basetype in [x for x in self.vk.baseTypes.values() if x.name in ['ANativeWindow', 'AHardwareBuffer']]:
-            self.write('#if defined(VK_USE_PLATFORM_ANDROID_KHR)')
-            self.write(f'void dump_text_{basetype.name}(const {basetype.name}* object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << object;')
-            self.write('}')
-            self.write('#endif // VK_USE_PLATFORM_ANDROID_KHR')
-        self.write('\n')
-        for basetype in [x for x in self.vk.baseTypes.values() if x.name in ['CAMetalLayer']]:
-            self.write('#if defined(VK_USE_PLATFORM_METAL_EXT)')
-            self.write(f'void dump_text_{basetype.name}({basetype.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << object;')
-            self.write('}')
-            self.write('#endif // VK_USE_PLATFORM_METAL_EXT')
+        self.generate_type_implementation(video, 'text')
+        self.generate_basetype_implementation('text')
 
         self.write('\n//======================= System Type Implementations =======================//\n')
         sortedSystemTypes = dict(sorted(self.vk.platformTypes.items()))
@@ -1047,49 +1057,8 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         if not video:
             self.write('\n#include "api_dump_video_html.h"')
 
-        self.write('\n//=========================== Type Implementations ==========================//\n')
-
-        for t in [x for x in self.vk.platformTypes.values() if x.requires in ['vk_platform', 'stdint']]:
-            if t.name in ['void'] or (not video and t.name in DUPLICATE_TYPES_IN_VIDEO_HEADER):
-                continue
-            self.write(f'void dump_html_{t.name}({t.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "<div class=\'val\'>";')
-            if t.name != 'uint8_t' and t.name != 'int8_t':
-                self.write('    settings.stream() << object;')
-            if t.name == 'uint8_t':
-                self.write('    settings.stream() << (uint32_t) object;')
-            if t.name == 'int8_t':
-                self.write('    settings.stream() << (int32_t) object;')
-            self.write('    settings.stream() << "</div></summary>";')
-            self.write('}')
-
-        self.write('\n//========================= Basetype Implementations ========================//\n')
-        for basetype in [x for x in self.vk.baseTypes.values() if x.name not in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer']]:
-            if basetype.protect:
-                self.write(f'#if defined({basetype.protect})')
-            self.write(f'void dump_html_{basetype.name}({basetype.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "<div class=\'val\'>" << object << "</div></summary>";')
-            self.write('}')
-            if basetype.protect:
-                self.write(f'#endif // {basetype.protect}')
-        self.write('\n')
-        for basetype in [x for x in self.vk.baseTypes.values() if x.name in ['ANativeWindow', 'AHardwareBuffer']]:
-            self.write('#if defined(VK_USE_PLATFORM_ANDROID_KHR)')
-            self.write(f'void dump_html_{basetype.name}(const {basetype.name}* object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "<div class=\'val\'>" << object << "</div></summary>";')
-            self.write('}')
-            self.write('#endif // VK_USE_PLATFORM_ANDROID_KHR')
-        self.write('\n')
-        for basetype in [x for x in self.vk.baseTypes.values() if x.name in ['CAMetalLayer']]:
-            self.write('#if defined(VK_USE_PLATFORM_METAL_EXT)')
-            self.write(f'void dump_html_{basetype.name}({basetype.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "<div class=\'val\'>" << object << "</div></summary>";')
-            self.write('}')
-            self.write('#endif // VK_USE_PLATFORM_METAL_EXT')
+        self.generate_type_implementation(video, 'html')
+        self.generate_basetype_implementation('html')
 
         self.write('\n//======================= System Type Implementations =======================//\n')
         sortedSystemTypes = dict(sorted(self.vk.platformTypes.items()))
@@ -1430,47 +1399,8 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         if not video:
             self.write('\n#include "api_dump_video_json.h"')
 
-        self.write('\n//=========================== Type Implementations ==========================//\n')
-        for t in [x for x in self.vk.platformTypes.values() if x.requires in ['vk_platform', 'stdint']]:
-            if t.name in ['void'] or (not video and t.name in DUPLICATE_TYPES_IN_VIDEO_HEADER):
-                continue
-            self.write(f'void dump_json_{t.name}({t.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('')
-            if t.name != 'uint8_t' and t.name != 'int8_t':
-                self.write('    settings.stream() << "\\"" << object << "\\"";')
-            if t.name == 'uint8_t':
-                self.write('    settings.stream() << "\\"" << (uint32_t) object << "\\"";')
-            if t.name == 'int8_t':
-                self.write('    settings.stream() << "\\"" << (int32_t) object << "\\"";')
-            self.write('}')
-
-        self.write('\n//========================= Basetype Implementations ========================//\n')
-        for basetype in [x for x in self.vk.baseTypes.values() if x.name not in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer']]:
-            if basetype.protect:
-                self.write(f'#if defined({basetype.protect})')
-            self.write(f'void dump_json_{basetype.name}({basetype.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "\\"" << object << "\\"";')
-            self.write('}')
-            if basetype.protect:
-                self.write(f'#endif // {basetype.protect}')
-        self.write('\n')
-        for basetype in [x for x in self.vk.baseTypes.values() if x.name in ['ANativeWindow', 'AHardwareBuffer']]:
-            self.write('#if defined(VK_USE_PLATFORM_ANDROID_KHR)')
-            self.write(f'void dump_json_{basetype.name}(const {basetype.name}* object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "\\"" << object << "\\"";')
-            self.write('}')
-            self.write('#endif // VK_USE_PLATFORM_ANDROID_KHR')
-        self.write('\n')
-        for basetype in [x for x in self.vk.baseTypes.values() if x.name in ['CAMetalLayer']]:
-            self.write('#if defined(VK_USE_PLATFORM_METAL_EXT)')
-            self.write(f'void dump_json_{basetype.name}({basetype.name} object, const ApiDumpSettings& settings, int indents)')
-            self.write('{')
-            self.write('    settings.stream() << "\\"" << object << "\\"";')
-            self.write('}')
-            self.write('#endif // VK_USE_PLATFORM_METAL_EXT')
+        self.generate_type_implementation(video, 'json')
+        self.generate_basetype_implementation('json')
 
         self.write('\n//======================= System Type Implementations =======================//\n')
         sortedSystemTypes = dict(sorted(self.vk.platformTypes.items()))

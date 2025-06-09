@@ -78,6 +78,24 @@ void dump_text_VkFlags64(VkFlags64 object, const ApiDumpSettings& settings, int 
 {
     settings.stream() << object;
 }
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+void dump_text_ANativeWindow(const ANativeWindow* object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << object;
+}
+#endif // VK_USE_PLATFORM_ANDROID_KHR
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+void dump_text_AHardwareBuffer(const AHardwareBuffer* object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << object;
+}
+#endif // VK_USE_PLATFORM_ANDROID_KHR
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_text_CAMetalLayer(CAMetalLayer object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << object;
+}
+#endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_text_MTLDevice_id(MTLDevice_id object, const ApiDumpSettings& settings, int indents)
 {
@@ -124,28 +142,6 @@ void dump_text_OHNativeWindow(OHNativeWindow object, const ApiDumpSettings& sett
     settings.stream() << object;
 }
 #endif // VK_USE_PLATFORM_OHOS
-
-
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-void dump_text_ANativeWindow(const ANativeWindow* object, const ApiDumpSettings& settings, int indents)
-{
-    settings.stream() << object;
-}
-#endif // VK_USE_PLATFORM_ANDROID_KHR
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-void dump_text_AHardwareBuffer(const AHardwareBuffer* object, const ApiDumpSettings& settings, int indents)
-{
-    settings.stream() << object;
-}
-#endif // VK_USE_PLATFORM_ANDROID_KHR
-
-
-#if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_text_CAMetalLayer(CAMetalLayer object, const ApiDumpSettings& settings, int indents)
-{
-    settings.stream() << object;
-}
-#endif // VK_USE_PLATFORM_METAL_EXT
 
 //======================= System Type Implementations =======================//
 

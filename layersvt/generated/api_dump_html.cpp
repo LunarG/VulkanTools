@@ -90,6 +90,24 @@ void dump_html_VkFlags64(VkFlags64 object, const ApiDumpSettings& settings, int 
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+void dump_html_ANativeWindow(const ANativeWindow* object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>" << object << "</div></summary>";
+}
+#endif // VK_USE_PLATFORM_ANDROID_KHR
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+void dump_html_AHardwareBuffer(const AHardwareBuffer* object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>" << object << "</div></summary>";
+}
+#endif // VK_USE_PLATFORM_ANDROID_KHR
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+void dump_html_CAMetalLayer(CAMetalLayer object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>" << object << "</div></summary>";
+}
+#endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
 void dump_html_MTLDevice_id(MTLDevice_id object, const ApiDumpSettings& settings, int indents)
 {
@@ -136,28 +154,6 @@ void dump_html_OHNativeWindow(OHNativeWindow object, const ApiDumpSettings& sett
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_OHOS
-
-
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-void dump_html_ANativeWindow(const ANativeWindow* object, const ApiDumpSettings& settings, int indents)
-{
-    settings.stream() << "<div class='val'>" << object << "</div></summary>";
-}
-#endif // VK_USE_PLATFORM_ANDROID_KHR
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-void dump_html_AHardwareBuffer(const AHardwareBuffer* object, const ApiDumpSettings& settings, int indents)
-{
-    settings.stream() << "<div class='val'>" << object << "</div></summary>";
-}
-#endif // VK_USE_PLATFORM_ANDROID_KHR
-
-
-#if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_CAMetalLayer(CAMetalLayer object, const ApiDumpSettings& settings, int indents)
-{
-    settings.stream() << "<div class='val'>" << object << "</div></summary>";
-}
-#endif // VK_USE_PLATFORM_METAL_EXT
 
 //======================= System Type Implementations =======================//
 
