@@ -27,37 +27,37 @@
 
 //=========================== Type Implementations ==========================//
 
-void dump_html_uint32_t(uint32_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_uint32_t(const uint32_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     settings.stream() << "</div></summary>";
 }
-void dump_html_uint8_t(uint8_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_uint8_t(const uint8_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << (uint32_t) object;
     settings.stream() << "</div></summary>";
 }
-void dump_html_uint16_t(uint16_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_uint16_t(const uint16_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     settings.stream() << "</div></summary>";
 }
-void dump_html_int32_t(int32_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_int32_t(const int32_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     settings.stream() << "</div></summary>";
 }
-void dump_html_int8_t(int8_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_int8_t(const int8_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << (int32_t) object;
     settings.stream() << "</div></summary>";
 }
-void dump_html_int16_t(int16_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_int16_t(const int16_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
@@ -75,7 +75,7 @@ void dump_html_int16_t(int16_t object, const ApiDumpSettings& settings, int inde
 
 //=========================== Enum Implementations ==========================//
 
-void dump_html_StdVideoH264ChromaFormatIdc(StdVideoH264ChromaFormatIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264ChromaFormatIdc(const StdVideoH264ChromaFormatIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -100,7 +100,7 @@ void dump_html_StdVideoH264ChromaFormatIdc(StdVideoH264ChromaFormatIdc object, c
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264ProfileIdc(StdVideoH264ProfileIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264ProfileIdc(const StdVideoH264ProfileIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -125,7 +125,7 @@ void dump_html_StdVideoH264ProfileIdc(StdVideoH264ProfileIdc object, const ApiDu
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264LevelIdc(StdVideoH264LevelIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264LevelIdc(const StdVideoH264LevelIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -195,7 +195,7 @@ void dump_html_StdVideoH264LevelIdc(StdVideoH264LevelIdc object, const ApiDumpSe
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264PocType(StdVideoH264PocType object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264PocType(const StdVideoH264PocType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -217,7 +217,7 @@ void dump_html_StdVideoH264PocType(StdVideoH264PocType object, const ApiDumpSett
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264AspectRatioIdc(StdVideoH264AspectRatioIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264AspectRatioIdc(const StdVideoH264AspectRatioIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -284,7 +284,7 @@ void dump_html_StdVideoH264AspectRatioIdc(StdVideoH264AspectRatioIdc object, con
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264WeightedBipredIdc(StdVideoH264WeightedBipredIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264WeightedBipredIdc(const StdVideoH264WeightedBipredIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -306,7 +306,7 @@ void dump_html_StdVideoH264WeightedBipredIdc(StdVideoH264WeightedBipredIdc objec
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264ModificationOfPicNumsIdc(StdVideoH264ModificationOfPicNumsIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264ModificationOfPicNumsIdc(const StdVideoH264ModificationOfPicNumsIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -331,7 +331,7 @@ void dump_html_StdVideoH264ModificationOfPicNumsIdc(StdVideoH264ModificationOfPi
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264MemMgmtControlOp(StdVideoH264MemMgmtControlOp object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264MemMgmtControlOp(const StdVideoH264MemMgmtControlOp& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -365,7 +365,7 @@ void dump_html_StdVideoH264MemMgmtControlOp(StdVideoH264MemMgmtControlOp object,
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264CabacInitIdc(StdVideoH264CabacInitIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264CabacInitIdc(const StdVideoH264CabacInitIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -387,7 +387,7 @@ void dump_html_StdVideoH264CabacInitIdc(StdVideoH264CabacInitIdc object, const A
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264DisableDeblockingFilterIdc(StdVideoH264DisableDeblockingFilterIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264DisableDeblockingFilterIdc(const StdVideoH264DisableDeblockingFilterIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -409,7 +409,7 @@ void dump_html_StdVideoH264DisableDeblockingFilterIdc(StdVideoH264DisableDeblock
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264SliceType(StdVideoH264SliceType object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264SliceType(const StdVideoH264SliceType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -431,7 +431,7 @@ void dump_html_StdVideoH264SliceType(StdVideoH264SliceType object, const ApiDump
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264PictureType(StdVideoH264PictureType object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264PictureType(const StdVideoH264PictureType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -456,7 +456,7 @@ void dump_html_StdVideoH264PictureType(StdVideoH264PictureType object, const Api
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH264NonVclNaluType(StdVideoH264NonVclNaluType object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH264NonVclNaluType(const StdVideoH264NonVclNaluType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -490,7 +490,7 @@ void dump_html_StdVideoH264NonVclNaluType(StdVideoH264NonVclNaluType object, con
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoDecodeH264FieldOrderCount(StdVideoDecodeH264FieldOrderCount object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoDecodeH264FieldOrderCount(const StdVideoDecodeH264FieldOrderCount& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -509,7 +509,7 @@ void dump_html_StdVideoDecodeH264FieldOrderCount(StdVideoDecodeH264FieldOrderCou
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH265ChromaFormatIdc(StdVideoH265ChromaFormatIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH265ChromaFormatIdc(const StdVideoH265ChromaFormatIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -534,7 +534,7 @@ void dump_html_StdVideoH265ChromaFormatIdc(StdVideoH265ChromaFormatIdc object, c
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH265ProfileIdc(StdVideoH265ProfileIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH265ProfileIdc(const StdVideoH265ProfileIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -562,7 +562,7 @@ void dump_html_StdVideoH265ProfileIdc(StdVideoH265ProfileIdc object, const ApiDu
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH265LevelIdc(StdVideoH265LevelIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH265LevelIdc(const StdVideoH265LevelIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -614,7 +614,7 @@ void dump_html_StdVideoH265LevelIdc(StdVideoH265LevelIdc object, const ApiDumpSe
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH265SliceType(StdVideoH265SliceType object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH265SliceType(const StdVideoH265SliceType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -636,7 +636,7 @@ void dump_html_StdVideoH265SliceType(StdVideoH265SliceType object, const ApiDump
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH265PictureType(StdVideoH265PictureType object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH265PictureType(const StdVideoH265PictureType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -661,7 +661,7 @@ void dump_html_StdVideoH265PictureType(StdVideoH265PictureType object, const Api
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoH265AspectRatioIdc(StdVideoH265AspectRatioIdc object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoH265AspectRatioIdc(const StdVideoH265AspectRatioIdc& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -728,7 +728,7 @@ void dump_html_StdVideoH265AspectRatioIdc(StdVideoH265AspectRatioIdc object, con
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1Profile(StdVideoAV1Profile object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1Profile(const StdVideoAV1Profile& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -750,7 +750,7 @@ void dump_html_StdVideoAV1Profile(StdVideoAV1Profile object, const ApiDumpSettin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1Level(StdVideoAV1Level object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1Level(const StdVideoAV1Level& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -835,7 +835,7 @@ void dump_html_StdVideoAV1Level(StdVideoAV1Level object, const ApiDumpSettings& 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1FrameType(StdVideoAV1FrameType object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1FrameType(const StdVideoAV1FrameType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -860,7 +860,7 @@ void dump_html_StdVideoAV1FrameType(StdVideoAV1FrameType object, const ApiDumpSe
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1ReferenceName(StdVideoAV1ReferenceName object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1ReferenceName(const StdVideoAV1ReferenceName& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -897,7 +897,7 @@ void dump_html_StdVideoAV1ReferenceName(StdVideoAV1ReferenceName object, const A
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1InterpolationFilter(StdVideoAV1InterpolationFilter object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1InterpolationFilter(const StdVideoAV1InterpolationFilter& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -925,7 +925,7 @@ void dump_html_StdVideoAV1InterpolationFilter(StdVideoAV1InterpolationFilter obj
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1TxMode(StdVideoAV1TxMode object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1TxMode(const StdVideoAV1TxMode& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -947,7 +947,7 @@ void dump_html_StdVideoAV1TxMode(StdVideoAV1TxMode object, const ApiDumpSettings
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1FrameRestorationType(StdVideoAV1FrameRestorationType object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1FrameRestorationType(const StdVideoAV1FrameRestorationType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -972,7 +972,7 @@ void dump_html_StdVideoAV1FrameRestorationType(StdVideoAV1FrameRestorationType o
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1ColorPrimaries(StdVideoAV1ColorPrimaries object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1ColorPrimaries(const StdVideoAV1ColorPrimaries& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1021,7 +1021,7 @@ void dump_html_StdVideoAV1ColorPrimaries(StdVideoAV1ColorPrimaries object, const
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1TransferCharacteristics(StdVideoAV1TransferCharacteristics object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1TransferCharacteristics(const StdVideoAV1TransferCharacteristics& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1091,7 +1091,7 @@ void dump_html_StdVideoAV1TransferCharacteristics(StdVideoAV1TransferCharacteris
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1MatrixCoefficients(StdVideoAV1MatrixCoefficients object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1MatrixCoefficients(const StdVideoAV1MatrixCoefficients& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1149,7 +1149,7 @@ void dump_html_StdVideoAV1MatrixCoefficients(StdVideoAV1MatrixCoefficients objec
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoAV1ChromaSamplePosition(StdVideoAV1ChromaSamplePosition object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoAV1ChromaSamplePosition(const StdVideoAV1ChromaSamplePosition& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1174,7 +1174,7 @@ void dump_html_StdVideoAV1ChromaSamplePosition(StdVideoAV1ChromaSamplePosition o
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoVP9Profile(StdVideoVP9Profile object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoVP9Profile(const StdVideoVP9Profile& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1199,7 +1199,7 @@ void dump_html_StdVideoVP9Profile(StdVideoVP9Profile object, const ApiDumpSettin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoVP9Level(StdVideoVP9Level object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoVP9Level(const StdVideoVP9Level& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1254,7 +1254,7 @@ void dump_html_StdVideoVP9Level(StdVideoVP9Level object, const ApiDumpSettings& 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoVP9FrameType(StdVideoVP9FrameType object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoVP9FrameType(const StdVideoVP9FrameType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1273,7 +1273,7 @@ void dump_html_StdVideoVP9FrameType(StdVideoVP9FrameType object, const ApiDumpSe
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoVP9ReferenceName(StdVideoVP9ReferenceName object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoVP9ReferenceName(const StdVideoVP9ReferenceName& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1298,7 +1298,7 @@ void dump_html_StdVideoVP9ReferenceName(StdVideoVP9ReferenceName object, const A
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoVP9InterpolationFilter(StdVideoVP9InterpolationFilter object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoVP9InterpolationFilter(const StdVideoVP9InterpolationFilter& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1326,7 +1326,7 @@ void dump_html_StdVideoVP9InterpolationFilter(StdVideoVP9InterpolationFilter obj
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_StdVideoVP9ColorSpace(StdVideoVP9ColorSpace object, const ApiDumpSettings& settings, int indents)
+void dump_html_StdVideoVP9ColorSpace(const StdVideoVP9ColorSpace& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
