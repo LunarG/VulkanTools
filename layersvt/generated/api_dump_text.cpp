@@ -36200,8 +36200,9 @@ void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& sett
 
 void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {
-    const auto* base_struct = reinterpret_cast<const VkBaseInStructure*>(object);
-    switch(base_struct->sType) {
+    VkBaseInStructure base_struct{};
+    memcpy(&base_struct, object, sizeof(VkBaseInStructure));
+    switch(base_struct.sType) {
     case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
         dump_text_pNext<const VkBufferMemoryBarrier>(reinterpret_cast<const VkBufferMemoryBarrier*>(object), settings, "VkBufferMemoryBarrier", indents, dump_text_VkBufferMemoryBarrier);
         break;
@@ -39590,8 +39591,8 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         break;
     case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
     case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
-        if(base_struct->pNext != nullptr){
-            dump_text_pNext_trampoline(reinterpret_cast<const void*>(base_struct->pNext), settings, indents);
+        if(base_struct.pNext != nullptr){
+            dump_text_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, indents);
         } else {
             settings.formatNameType(indents, "pNext", "const void*");
             settings.stream() << "NULL\n";
@@ -39599,7 +39600,7 @@ void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& setti
         break;
     default:
         settings.formatNameType(indents, "pNext", "const void*");
-        settings.stream() << "UNKNOWN (" << (int64_t) (base_struct->sType) << ")\n";
+        settings.stream() << "UNKNOWN (" << (int64_t) (base_struct.sType) << ")\n";
     }
 }
 
