@@ -15056,7 +15056,7 @@ void dump_html_VkPipelineCacheHeaderVersionOne(const VkPipelineCacheHeaderVersio
     dump_html_value<const VkPipelineCacheHeaderVersion>(object.headerVersion, settings, "VkPipelineCacheHeaderVersion", "headerVersion", indents + 1, dump_html_VkPipelineCacheHeaderVersion);
     dump_html_value<const uint32_t>(object.vendorID, settings, "uint32_t", "vendorID", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.deviceID, settings, "uint32_t", "deviceID", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_html_uint8_t);
 }
 void dump_html_VkAllocationCallbacks(const VkAllocationCallbacks& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15136,9 +15136,9 @@ void dump_html_VkInstanceCreateInfo(const VkInstanceCreateInfo& object, const Ap
     dump_html_value<const VkInstanceCreateFlags>(object.flags, settings, "VkInstanceCreateFlags", "flags", indents + 1, dump_html_VkInstanceCreateFlags);
     dump_html_pointer<const VkApplicationInfo>(object.pApplicationInfo, settings, "const VkApplicationInfo*", "pApplicationInfo", indents + 1, dump_html_VkApplicationInfo);
     dump_html_value<const uint32_t>(object.enabledLayerCount, settings, "uint32_t", "enabledLayerCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const char*>(object.ppEnabledLayerNames, object.enabledLayerCount, settings, "const char* const*", "const char* const", "ppEnabledLayerNames", indents + 1, dump_html_cstring); // ZRT
+    dump_html_array<const char*>(object.ppEnabledLayerNames, object.enabledLayerCount, settings, "const char* const*", "const char* const", "ppEnabledLayerNames", indents + 1, dump_html_cstring);
     dump_html_value<const uint32_t>(object.enabledExtensionCount, settings, "uint32_t", "enabledExtensionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const char*>(object.ppEnabledExtensionNames, object.enabledExtensionCount, settings, "const char* const*", "const char* const", "ppEnabledExtensionNames", indents + 1, dump_html_cstring); // ZRT
+    dump_html_array<const char*>(object.ppEnabledExtensionNames, object.enabledExtensionCount, settings, "const char* const*", "const char* const", "ppEnabledExtensionNames", indents + 1, dump_html_cstring);
 }
 void dump_html_VkMemoryHeap(const VkMemoryHeap& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15286,9 +15286,9 @@ void dump_html_VkPhysicalDeviceLimits(const VkPhysicalDeviceLimits& object, cons
     dump_html_value<const uint32_t>(object.maxFragmentDualSrcAttachments, settings, "uint32_t", "maxFragmentDualSrcAttachments", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxFragmentCombinedOutputResources, settings, "uint32_t", "maxFragmentCombinedOutputResources", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxComputeSharedMemorySize, settings, "uint32_t", "maxComputeSharedMemorySize", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.maxComputeWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxComputeWorkGroupCount", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.maxComputeWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxComputeWorkGroupCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxComputeWorkGroupInvocations, settings, "uint32_t", "maxComputeWorkGroupInvocations", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.maxComputeWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxComputeWorkGroupSize", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.maxComputeWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxComputeWorkGroupSize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.subPixelPrecisionBits, settings, "uint32_t", "subPixelPrecisionBits", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.subTexelPrecisionBits, settings, "uint32_t", "subTexelPrecisionBits", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.mipmapPrecisionBits, settings, "uint32_t", "mipmapPrecisionBits", indents + 1, dump_html_uint32_t);
@@ -15297,8 +15297,8 @@ void dump_html_VkPhysicalDeviceLimits(const VkPhysicalDeviceLimits& object, cons
     dump_html_value<const float>(object.maxSamplerLodBias, settings, "float", "maxSamplerLodBias", indents + 1, dump_html_float);
     dump_html_value<const float>(object.maxSamplerAnisotropy, settings, "float", "maxSamplerAnisotropy", indents + 1, dump_html_float);
     dump_html_value<const uint32_t>(object.maxViewports, settings, "uint32_t", "maxViewports", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.maxViewportDimensions, 2, settings, "uint32_t[2]", "uint32_t", "maxViewportDimensions", indents + 1, dump_html_uint32_t); // ZRR
-    dump_html_array<const float>(object.viewportBoundsRange, 2, settings, "float[2]", "float", "viewportBoundsRange", indents + 1, dump_html_float); // ZRR
+    dump_html_array<const uint32_t>(object.maxViewportDimensions, 2, settings, "uint32_t[2]", "uint32_t", "maxViewportDimensions", indents + 1, dump_html_uint32_t);
+    dump_html_array<const float>(object.viewportBoundsRange, 2, settings, "float[2]", "float", "viewportBoundsRange", indents + 1, dump_html_float);
     dump_html_value<const uint32_t>(object.viewportSubPixelBits, settings, "uint32_t", "viewportSubPixelBits", indents + 1, dump_html_uint32_t);
     dump_html_value<const size_t>(object.minMemoryMapAlignment, settings, "size_t", "minMemoryMapAlignment", indents + 1, dump_html_size_t);
     dump_html_value<const VkDeviceSize>(object.minTexelBufferOffsetAlignment, settings, "VkDeviceSize", "minTexelBufferOffsetAlignment", indents + 1, dump_html_VkDeviceSize);
@@ -15331,8 +15331,8 @@ void dump_html_VkPhysicalDeviceLimits(const VkPhysicalDeviceLimits& object, cons
     dump_html_value<const uint32_t>(object.maxCullDistances, settings, "uint32_t", "maxCullDistances", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxCombinedClipAndCullDistances, settings, "uint32_t", "maxCombinedClipAndCullDistances", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.discreteQueuePriorities, settings, "uint32_t", "discreteQueuePriorities", indents + 1, dump_html_uint32_t);
-    dump_html_array<const float>(object.pointSizeRange, 2, settings, "float[2]", "float", "pointSizeRange", indents + 1, dump_html_float); // ZRR
-    dump_html_array<const float>(object.lineWidthRange, 2, settings, "float[2]", "float", "lineWidthRange", indents + 1, dump_html_float); // ZRR
+    dump_html_array<const float>(object.pointSizeRange, 2, settings, "float[2]", "float", "pointSizeRange", indents + 1, dump_html_float);
+    dump_html_array<const float>(object.lineWidthRange, 2, settings, "float[2]", "float", "lineWidthRange", indents + 1, dump_html_float);
     dump_html_value<const float>(object.pointSizeGranularity, settings, "float", "pointSizeGranularity", indents + 1, dump_html_float);
     dump_html_value<const float>(object.lineWidthGranularity, settings, "float", "lineWidthGranularity", indents + 1, dump_html_float);
     dump_html_value<const VkBool32>(object.strictLines, settings, "VkBool32", "strictLines", indents + 1, dump_html_VkBool32);
@@ -15350,9 +15350,9 @@ void dump_html_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProp
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const uint32_t>(object.memoryTypeCount, settings, "uint32_t", "memoryTypeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMemoryType>(object.memoryTypes, std::min(object.memoryTypeCount, VK_MAX_MEMORY_TYPES), settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_html_VkMemoryType); // BQB
+    dump_html_array<const VkMemoryType>(object.memoryTypes, std::min(object.memoryTypeCount, VK_MAX_MEMORY_TYPES), settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", indents + 1, dump_html_VkMemoryType);
     dump_html_value<const uint32_t>(object.memoryHeapCount, settings, "uint32_t", "memoryHeapCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMemoryHeap>(object.memoryHeaps, std::min(object.memoryHeapCount, VK_MAX_MEMORY_HEAPS), settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_html_VkMemoryHeap); // BQB
+    dump_html_array<const VkMemoryHeap>(object.memoryHeaps, std::min(object.memoryHeapCount, VK_MAX_MEMORY_HEAPS), settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", indents + 1, dump_html_VkMemoryHeap);
 }
 void dump_html_VkPhysicalDeviceSparseProperties(const VkPhysicalDeviceSparseProperties& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15382,7 +15382,7 @@ void dump_html_VkPhysicalDeviceProperties(const VkPhysicalDeviceProperties& obje
     dump_html_value<const uint32_t>(object.deviceID, settings, "uint32_t", "deviceID", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkPhysicalDeviceType>(object.deviceType, settings, "VkPhysicalDeviceType", "deviceType", indents + 1, dump_html_VkPhysicalDeviceType);
     dump_html_value<const char*>(object.deviceName, settings, "char[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE]", "deviceName", indents + 1, dump_html_cstring);
-    dump_html_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_html_uint8_t);
     dump_html_value<const VkPhysicalDeviceLimits>(object.limits, settings, "VkPhysicalDeviceLimits", "limits", indents + 1, dump_html_VkPhysicalDeviceLimits);
     dump_html_value<const VkPhysicalDeviceSparseProperties>(object.sparseProperties, settings, "VkPhysicalDeviceSparseProperties", "sparseProperties", indents + 1, dump_html_VkPhysicalDeviceSparseProperties);
 }
@@ -15416,7 +15416,7 @@ void dump_html_VkDeviceQueueCreateInfo(const VkDeviceQueueCreateInfo& object, co
     dump_html_value<const VkDeviceQueueCreateFlags>(object.flags, settings, "VkDeviceQueueCreateFlags", "flags", indents + 1, dump_html_VkDeviceQueueCreateFlags);
     dump_html_value<const uint32_t>(object.queueFamilyIndex, settings, "uint32_t", "queueFamilyIndex", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.queueCount, settings, "uint32_t", "queueCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const float>(object.pQueuePriorities, object.queueCount, settings, "const float*", "const float", "pQueuePriorities", indents + 1, dump_html_float); // ZRT
+    dump_html_array<const float>(object.pQueuePriorities, object.queueCount, settings, "const float*", "const float", "pQueuePriorities", indents + 1, dump_html_float);
 }
 void dump_html_VkDeviceCreateInfo(const VkDeviceCreateInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15434,11 +15434,11 @@ void dump_html_VkDeviceCreateInfo(const VkDeviceCreateInfo& object, const ApiDum
     }
     dump_html_value<const VkDeviceCreateFlags>(object.flags, settings, "VkDeviceCreateFlags", "flags", indents + 1, dump_html_VkDeviceCreateFlags);
     dump_html_value<const uint32_t>(object.queueCreateInfoCount, settings, "uint32_t", "queueCreateInfoCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDeviceQueueCreateInfo>(object.pQueueCreateInfos, object.queueCreateInfoCount, settings, "const VkDeviceQueueCreateInfo*", "const VkDeviceQueueCreateInfo", "pQueueCreateInfos", indents + 1, dump_html_VkDeviceQueueCreateInfo); // ZRT
+    dump_html_array<const VkDeviceQueueCreateInfo>(object.pQueueCreateInfos, object.queueCreateInfoCount, settings, "const VkDeviceQueueCreateInfo*", "const VkDeviceQueueCreateInfo", "pQueueCreateInfos", indents + 1, dump_html_VkDeviceQueueCreateInfo);
     dump_html_value<const uint32_t>(object.enabledLayerCount, settings, "uint32_t", "enabledLayerCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const char*>(object.ppEnabledLayerNames, object.enabledLayerCount, settings, "const char* const*", "const char* const", "ppEnabledLayerNames", indents + 1, dump_html_cstring); // ZRT
+    dump_html_array<const char*>(object.ppEnabledLayerNames, object.enabledLayerCount, settings, "const char* const*", "const char* const", "ppEnabledLayerNames", indents + 1, dump_html_cstring);
     dump_html_value<const uint32_t>(object.enabledExtensionCount, settings, "uint32_t", "enabledExtensionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const char*>(object.ppEnabledExtensionNames, object.enabledExtensionCount, settings, "const char* const*", "const char* const", "ppEnabledExtensionNames", indents + 1, dump_html_cstring); // ZRT
+    dump_html_array<const char*>(object.ppEnabledExtensionNames, object.enabledExtensionCount, settings, "const char* const*", "const char* const", "ppEnabledExtensionNames", indents + 1, dump_html_cstring);
     dump_html_pointer<const VkPhysicalDeviceFeatures>(object.pEnabledFeatures, settings, "const VkPhysicalDeviceFeatures*", "pEnabledFeatures", indents + 1, dump_html_VkPhysicalDeviceFeatures);
 }
 void dump_html_VkExtensionProperties(const VkExtensionProperties& object, const ApiDumpSettings& settings, int indents)
@@ -15480,12 +15480,12 @@ void dump_html_VkSubmitInfo(const VkSubmitInfo& object, const ApiDumpSettings& s
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.waitSemaphoreCount, settings, "uint32_t", "waitSemaphoreCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", indents + 1, dump_html_VkSemaphore); // ZRT
-    dump_html_array<const VkPipelineStageFlags>(object.pWaitDstStageMask, object.waitSemaphoreCount, settings, "const VkPipelineStageFlags*", "const VkPipelineStageFlags", "pWaitDstStageMask", indents + 1, dump_html_VkPipelineStageFlags); // ZRT
+    dump_html_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", indents + 1, dump_html_VkSemaphore);
+    dump_html_array<const VkPipelineStageFlags>(object.pWaitDstStageMask, object.waitSemaphoreCount, settings, "const VkPipelineStageFlags*", "const VkPipelineStageFlags", "pWaitDstStageMask", indents + 1, dump_html_VkPipelineStageFlags);
     dump_html_value<const uint32_t>(object.commandBufferCount, settings, "uint32_t", "commandBufferCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkCommandBuffer>(object.pCommandBuffers, object.commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", indents + 1, dump_html_VkCommandBuffer); // ZRT
+    dump_html_array<const VkCommandBuffer>(object.pCommandBuffers, object.commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", indents + 1, dump_html_VkCommandBuffer);
     dump_html_value<const uint32_t>(object.signalSemaphoreCount, settings, "uint32_t", "signalSemaphoreCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSemaphore>(object.pSignalSemaphores, object.signalSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSignalSemaphores", indents + 1, dump_html_VkSemaphore); // ZRT
+    dump_html_array<const VkSemaphore>(object.pSignalSemaphores, object.signalSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSignalSemaphores", indents + 1, dump_html_VkSemaphore);
 }
 void dump_html_VkMappedMemoryRange(const VkMappedMemoryRange& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15558,7 +15558,7 @@ void dump_html_VkSparseBufferMemoryBindInfo(const VkSparseBufferMemoryBindInfo& 
     settings.stream() << "</div></summary>";
     dump_html_value<const VkBuffer>(object.buffer, settings, "VkBuffer", "buffer", indents + 1, dump_html_VkBuffer);
     dump_html_value<const uint32_t>(object.bindCount, settings, "uint32_t", "bindCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSparseMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseMemoryBind*", "const VkSparseMemoryBind", "pBinds", indents + 1, dump_html_VkSparseMemoryBind); // ZRT
+    dump_html_array<const VkSparseMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseMemoryBind*", "const VkSparseMemoryBind", "pBinds", indents + 1, dump_html_VkSparseMemoryBind);
 }
 void dump_html_VkSparseImageOpaqueMemoryBindInfo(const VkSparseImageOpaqueMemoryBindInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15570,7 +15570,7 @@ void dump_html_VkSparseImageOpaqueMemoryBindInfo(const VkSparseImageOpaqueMemory
     settings.stream() << "</div></summary>";
     dump_html_value<const VkImage>(object.image, settings, "VkImage", "image", indents + 1, dump_html_VkImage);
     dump_html_value<const uint32_t>(object.bindCount, settings, "uint32_t", "bindCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSparseMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseMemoryBind*", "const VkSparseMemoryBind", "pBinds", indents + 1, dump_html_VkSparseMemoryBind); // ZRT
+    dump_html_array<const VkSparseMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseMemoryBind*", "const VkSparseMemoryBind", "pBinds", indents + 1, dump_html_VkSparseMemoryBind);
 }
 void dump_html_VkImageSubresource(const VkImageSubresource& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15609,7 +15609,7 @@ void dump_html_VkSparseImageMemoryBindInfo(const VkSparseImageMemoryBindInfo& ob
     settings.stream() << "</div></summary>";
     dump_html_value<const VkImage>(object.image, settings, "VkImage", "image", indents + 1, dump_html_VkImage);
     dump_html_value<const uint32_t>(object.bindCount, settings, "uint32_t", "bindCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSparseImageMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseImageMemoryBind*", "const VkSparseImageMemoryBind", "pBinds", indents + 1, dump_html_VkSparseImageMemoryBind); // ZRT
+    dump_html_array<const VkSparseImageMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseImageMemoryBind*", "const VkSparseImageMemoryBind", "pBinds", indents + 1, dump_html_VkSparseImageMemoryBind);
 }
 void dump_html_VkBindSparseInfo(const VkBindSparseInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15626,15 +15626,15 @@ void dump_html_VkBindSparseInfo(const VkBindSparseInfo& object, const ApiDumpSet
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.waitSemaphoreCount, settings, "uint32_t", "waitSemaphoreCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", indents + 1, dump_html_VkSemaphore); // ZRT
+    dump_html_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", indents + 1, dump_html_VkSemaphore);
     dump_html_value<const uint32_t>(object.bufferBindCount, settings, "uint32_t", "bufferBindCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSparseBufferMemoryBindInfo>(object.pBufferBinds, object.bufferBindCount, settings, "const VkSparseBufferMemoryBindInfo*", "const VkSparseBufferMemoryBindInfo", "pBufferBinds", indents + 1, dump_html_VkSparseBufferMemoryBindInfo); // ZRT
+    dump_html_array<const VkSparseBufferMemoryBindInfo>(object.pBufferBinds, object.bufferBindCount, settings, "const VkSparseBufferMemoryBindInfo*", "const VkSparseBufferMemoryBindInfo", "pBufferBinds", indents + 1, dump_html_VkSparseBufferMemoryBindInfo);
     dump_html_value<const uint32_t>(object.imageOpaqueBindCount, settings, "uint32_t", "imageOpaqueBindCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSparseImageOpaqueMemoryBindInfo>(object.pImageOpaqueBinds, object.imageOpaqueBindCount, settings, "const VkSparseImageOpaqueMemoryBindInfo*", "const VkSparseImageOpaqueMemoryBindInfo", "pImageOpaqueBinds", indents + 1, dump_html_VkSparseImageOpaqueMemoryBindInfo); // ZRT
+    dump_html_array<const VkSparseImageOpaqueMemoryBindInfo>(object.pImageOpaqueBinds, object.imageOpaqueBindCount, settings, "const VkSparseImageOpaqueMemoryBindInfo*", "const VkSparseImageOpaqueMemoryBindInfo", "pImageOpaqueBinds", indents + 1, dump_html_VkSparseImageOpaqueMemoryBindInfo);
     dump_html_value<const uint32_t>(object.imageBindCount, settings, "uint32_t", "imageBindCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSparseImageMemoryBindInfo>(object.pImageBinds, object.imageBindCount, settings, "const VkSparseImageMemoryBindInfo*", "const VkSparseImageMemoryBindInfo", "pImageBinds", indents + 1, dump_html_VkSparseImageMemoryBindInfo); // ZRT
+    dump_html_array<const VkSparseImageMemoryBindInfo>(object.pImageBinds, object.imageBindCount, settings, "const VkSparseImageMemoryBindInfo*", "const VkSparseImageMemoryBindInfo", "pImageBinds", indents + 1, dump_html_VkSparseImageMemoryBindInfo);
     dump_html_value<const uint32_t>(object.signalSemaphoreCount, settings, "uint32_t", "signalSemaphoreCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSemaphore>(object.pSignalSemaphores, object.signalSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSignalSemaphores", indents + 1, dump_html_VkSemaphore); // ZRT
+    dump_html_array<const VkSemaphore>(object.pSignalSemaphores, object.signalSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSignalSemaphores", indents + 1, dump_html_VkSemaphore);
 }
 void dump_html_VkSparseImageFormatProperties(const VkSparseImageFormatProperties& object, const ApiDumpSettings& settings, int indents)
 {
@@ -15749,7 +15749,7 @@ void dump_html_VkBufferCreateInfo(const VkBufferCreateInfo& object, const ApiDum
     dump_html_value<const VkSharingMode>(object.sharingMode, settings, "VkSharingMode", "sharingMode", indents + 1, dump_html_VkSharingMode);
     dump_html_value<const uint32_t>(object.queueFamilyIndexCount, settings, "uint32_t", "queueFamilyIndexCount", indents + 1, dump_html_uint32_t);
     if(object.sharingMode == VK_SHARING_MODE_CONCURRENT)
-    dump_html_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", indents + 1, dump_html_uint32_t);
     else
         dump_html_special("UNUSED", settings, "const uint32_t*", "pQueueFamilyIndices", indents + 1);
 }
@@ -15799,7 +15799,7 @@ void dump_html_VkImageCreateInfo(const VkImageCreateInfo& object, const ApiDumpS
     dump_html_value<const VkSharingMode>(object.sharingMode, settings, "VkSharingMode", "sharingMode", indents + 1, dump_html_VkSharingMode);
     dump_html_value<const uint32_t>(object.queueFamilyIndexCount, settings, "uint32_t", "queueFamilyIndexCount", indents + 1, dump_html_uint32_t);
     if(object.sharingMode == VK_SHARING_MODE_CONCURRENT)
-    dump_html_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", indents + 1, dump_html_uint32_t);
     else
         dump_html_special("UNUSED", settings, "const uint32_t*", "pQueueFamilyIndices", indents + 1);
     dump_html_value<const VkImageLayout>(object.initialLayout, settings, "VkImageLayout", "initialLayout", indents + 1, dump_html_VkImageLayout);
@@ -15869,7 +15869,7 @@ void dump_html_VkShaderModuleCreateInfo(const VkShaderModuleCreateInfo& object, 
     dump_html_value<const VkShaderModuleCreateFlags>(object.flags, settings, "VkShaderModuleCreateFlags", "flags", indents + 1, dump_html_VkShaderModuleCreateFlags);
     dump_html_value<const size_t>(object.codeSize, settings, "size_t", "codeSize", indents + 1, dump_html_size_t);
     if(settings.showShader())
-        dump_html_array<const uint32_t>(object.pCode, object.codeSize / 4, settings, "const uint32_t*", "const uint32_t", "pCode", indents + 1, dump_html_uint32_t); // ZRU
+        dump_html_array<const uint32_t>(object.pCode, object.codeSize / 4, settings, "const uint32_t*", "const uint32_t", "pCode", indents + 1, dump_html_uint32_t);
     else
         dump_html_special("SHADER DATA", settings, "const uint32_t*", "pCode", indents + 1);
 }
@@ -15912,7 +15912,7 @@ void dump_html_VkSpecializationInfo(const VkSpecializationInfo& object, const Ap
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const uint32_t>(object.mapEntryCount, settings, "uint32_t", "mapEntryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSpecializationMapEntry>(object.pMapEntries, object.mapEntryCount, settings, "const VkSpecializationMapEntry*", "const VkSpecializationMapEntry", "pMapEntries", indents + 1, dump_html_VkSpecializationMapEntry); // ZRT
+    dump_html_array<const VkSpecializationMapEntry>(object.pMapEntries, object.mapEntryCount, settings, "const VkSpecializationMapEntry*", "const VkSpecializationMapEntry", "pMapEntries", indents + 1, dump_html_VkSpecializationMapEntry);
     dump_html_value<const size_t>(object.dataSize, settings, "size_t", "dataSize", indents + 1, dump_html_size_t);
     dump_html_value<const void*>(object.pData, settings, "const void*", "pData", indents + 1, dump_html_void);
 }
@@ -15997,9 +15997,9 @@ void dump_html_VkPipelineVertexInputStateCreateInfo(const VkPipelineVertexInputS
     }
     dump_html_value<const VkPipelineVertexInputStateCreateFlags>(object.flags, settings, "VkPipelineVertexInputStateCreateFlags", "flags", indents + 1, dump_html_VkPipelineVertexInputStateCreateFlags);
     dump_html_value<const uint32_t>(object.vertexBindingDescriptionCount, settings, "uint32_t", "vertexBindingDescriptionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkVertexInputBindingDescription>(object.pVertexBindingDescriptions, object.vertexBindingDescriptionCount, settings, "const VkVertexInputBindingDescription*", "const VkVertexInputBindingDescription", "pVertexBindingDescriptions", indents + 1, dump_html_VkVertexInputBindingDescription); // ZRT
+    dump_html_array<const VkVertexInputBindingDescription>(object.pVertexBindingDescriptions, object.vertexBindingDescriptionCount, settings, "const VkVertexInputBindingDescription*", "const VkVertexInputBindingDescription", "pVertexBindingDescriptions", indents + 1, dump_html_VkVertexInputBindingDescription);
     dump_html_value<const uint32_t>(object.vertexAttributeDescriptionCount, settings, "uint32_t", "vertexAttributeDescriptionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkVertexInputAttributeDescription>(object.pVertexAttributeDescriptions, object.vertexAttributeDescriptionCount, settings, "const VkVertexInputAttributeDescription*", "const VkVertexInputAttributeDescription", "pVertexAttributeDescriptions", indents + 1, dump_html_VkVertexInputAttributeDescription); // ZRT
+    dump_html_array<const VkVertexInputAttributeDescription>(object.pVertexAttributeDescriptions, object.vertexAttributeDescriptionCount, settings, "const VkVertexInputAttributeDescription*", "const VkVertexInputAttributeDescription", "pVertexAttributeDescriptions", indents + 1, dump_html_VkVertexInputAttributeDescription);
 }
 void dump_html_VkPipelineInputAssemblyStateCreateInfo(const VkPipelineInputAssemblyStateCreateInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16068,12 +16068,12 @@ void dump_html_VkPipelineViewportStateCreateInfo(const VkPipelineViewportStateCr
     dump_html_value<const VkPipelineViewportStateCreateFlags>(object.flags, settings, "VkPipelineViewportStateCreateFlags", "flags", indents + 1, dump_html_VkPipelineViewportStateCreateFlags);
     dump_html_value<const uint32_t>(object.viewportCount, settings, "uint32_t", "viewportCount", indents + 1, dump_html_uint32_t);
     if(!ApiDumpInstance::current().getIsDynamicViewport())
-    dump_html_array<const VkViewport>(object.pViewports, object.viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", indents + 1, dump_html_VkViewport); // ZRT
+    dump_html_array<const VkViewport>(object.pViewports, object.viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", indents + 1, dump_html_VkViewport);
     else
         dump_html_special("UNUSED", settings, "const VkViewport*", "pViewports", indents + 1);
     dump_html_value<const uint32_t>(object.scissorCount, settings, "uint32_t", "scissorCount", indents + 1, dump_html_uint32_t);
     if(!ApiDumpInstance::current().getIsDynamicScissor())
-    dump_html_array<const VkRect2D>(object.pScissors, object.scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", indents + 1, dump_html_VkRect2D); // ZRT
+    dump_html_array<const VkRect2D>(object.pScissors, object.scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", indents + 1, dump_html_VkRect2D);
     else
         dump_html_special("UNUSED", settings, "const VkRect2D*", "pScissors", indents + 1);
 }
@@ -16121,7 +16121,7 @@ void dump_html_VkPipelineMultisampleStateCreateInfo(const VkPipelineMultisampleS
     dump_html_value<const VkSampleCountFlagBits>(object.rasterizationSamples, settings, "VkSampleCountFlagBits", "rasterizationSamples", indents + 1, dump_html_VkSampleCountFlagBits);
     dump_html_value<const VkBool32>(object.sampleShadingEnable, settings, "VkBool32", "sampleShadingEnable", indents + 1, dump_html_VkBool32);
     dump_html_value<const float>(object.minSampleShading, settings, "float", "minSampleShading", indents + 1, dump_html_float);
-    dump_html_array<const VkSampleMask>(object.pSampleMask, (object.rasterizationSamples + 31) / 32, settings, "const VkSampleMask*", "const VkSampleMask", "pSampleMask", indents + 1, dump_html_VkSampleMask); // ZRT
+    dump_html_array<const VkSampleMask>(object.pSampleMask, (object.rasterizationSamples + 31) / 32, settings, "const VkSampleMask*", "const VkSampleMask", "pSampleMask", indents + 1, dump_html_VkSampleMask);
     dump_html_value<const VkBool32>(object.alphaToCoverageEnable, settings, "VkBool32", "alphaToCoverageEnable", indents + 1, dump_html_VkBool32);
     dump_html_value<const VkBool32>(object.alphaToOneEnable, settings, "VkBool32", "alphaToOneEnable", indents + 1, dump_html_VkBool32);
 }
@@ -16201,8 +16201,8 @@ void dump_html_VkPipelineColorBlendStateCreateInfo(const VkPipelineColorBlendSta
     dump_html_value<const VkBool32>(object.logicOpEnable, settings, "VkBool32", "logicOpEnable", indents + 1, dump_html_VkBool32);
     dump_html_value<const VkLogicOp>(object.logicOp, settings, "VkLogicOp", "logicOp", indents + 1, dump_html_VkLogicOp);
     dump_html_value<const uint32_t>(object.attachmentCount, settings, "uint32_t", "attachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipelineColorBlendAttachmentState>(object.pAttachments, object.attachmentCount, settings, "const VkPipelineColorBlendAttachmentState*", "const VkPipelineColorBlendAttachmentState", "pAttachments", indents + 1, dump_html_VkPipelineColorBlendAttachmentState); // ZRT
-    dump_html_array<const float>(object.blendConstants, 4, settings, "float[4]", "float", "blendConstants", indents + 1, dump_html_float); // ZRR
+    dump_html_array<const VkPipelineColorBlendAttachmentState>(object.pAttachments, object.attachmentCount, settings, "const VkPipelineColorBlendAttachmentState*", "const VkPipelineColorBlendAttachmentState", "pAttachments", indents + 1, dump_html_VkPipelineColorBlendAttachmentState);
+    dump_html_array<const float>(object.blendConstants, 4, settings, "float[4]", "float", "blendConstants", indents + 1, dump_html_float);
 }
 void dump_html_VkPipelineDynamicStateCreateInfo(const VkPipelineDynamicStateCreateInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16220,7 +16220,7 @@ void dump_html_VkPipelineDynamicStateCreateInfo(const VkPipelineDynamicStateCrea
     }
     dump_html_value<const VkPipelineDynamicStateCreateFlags>(object.flags, settings, "VkPipelineDynamicStateCreateFlags", "flags", indents + 1, dump_html_VkPipelineDynamicStateCreateFlags);
     dump_html_value<const uint32_t>(object.dynamicStateCount, settings, "uint32_t", "dynamicStateCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDynamicState>(object.pDynamicStates, object.dynamicStateCount, settings, "const VkDynamicState*", "const VkDynamicState", "pDynamicStates", indents + 1, dump_html_VkDynamicState); // ZRT
+    dump_html_array<const VkDynamicState>(object.pDynamicStates, object.dynamicStateCount, settings, "const VkDynamicState*", "const VkDynamicState", "pDynamicStates", indents + 1, dump_html_VkDynamicState);
 }
 void dump_html_VkGraphicsPipelineCreateInfo(const VkGraphicsPipelineCreateInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16239,7 +16239,7 @@ void dump_html_VkGraphicsPipelineCreateInfo(const VkGraphicsPipelineCreateInfo& 
     }
     dump_html_value<const VkPipelineCreateFlags>(object.flags, settings, "VkPipelineCreateFlags", "flags", indents + 1, dump_html_VkPipelineCreateFlags);
     dump_html_value<const uint32_t>(object.stageCount, settings, "uint32_t", "stageCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", indents + 1, dump_html_VkPipelineShaderStageCreateInfo); // ZRT
+    dump_html_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", indents + 1, dump_html_VkPipelineShaderStageCreateInfo);
     dump_html_pointer<const VkPipelineVertexInputStateCreateInfo>(object.pVertexInputState, settings, "const VkPipelineVertexInputStateCreateInfo*", "pVertexInputState", indents + 1, dump_html_VkPipelineVertexInputStateCreateInfo);
     dump_html_pointer<const VkPipelineInputAssemblyStateCreateInfo>(object.pInputAssemblyState, settings, "const VkPipelineInputAssemblyStateCreateInfo*", "pInputAssemblyState", indents + 1, dump_html_VkPipelineInputAssemblyStateCreateInfo);
     dump_html_pointer<const VkPipelineTessellationStateCreateInfo>(object.pTessellationState, settings, "const VkPipelineTessellationStateCreateInfo*", "pTessellationState", indents + 1, dump_html_VkPipelineTessellationStateCreateInfo);
@@ -16283,9 +16283,9 @@ void dump_html_VkPipelineLayoutCreateInfo(const VkPipelineLayoutCreateInfo& obje
     }
     dump_html_value<const VkPipelineLayoutCreateFlags>(object.flags, settings, "VkPipelineLayoutCreateFlags", "flags", indents + 1, dump_html_VkPipelineLayoutCreateFlags);
     dump_html_value<const uint32_t>(object.setLayoutCount, settings, "uint32_t", "setLayoutCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", indents + 1, dump_html_VkDescriptorSetLayout); // ZRT
+    dump_html_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", indents + 1, dump_html_VkDescriptorSetLayout);
     dump_html_value<const uint32_t>(object.pushConstantRangeCount, settings, "uint32_t", "pushConstantRangeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", indents + 1, dump_html_VkPushConstantRange); // ZRT
+    dump_html_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", indents + 1, dump_html_VkPushConstantRange);
 }
 void dump_html_VkSamplerCreateInfo(const VkSamplerCreateInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16392,7 +16392,7 @@ void dump_html_VkDescriptorPoolCreateInfo(const VkDescriptorPoolCreateInfo& obje
     dump_html_value<const VkDescriptorPoolCreateFlags>(object.flags, settings, "VkDescriptorPoolCreateFlags", "flags", indents + 1, dump_html_VkDescriptorPoolCreateFlags);
     dump_html_value<const uint32_t>(object.maxSets, settings, "uint32_t", "maxSets", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.poolSizeCount, settings, "uint32_t", "poolSizeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDescriptorPoolSize>(object.pPoolSizes, object.poolSizeCount, settings, "const VkDescriptorPoolSize*", "const VkDescriptorPoolSize", "pPoolSizes", indents + 1, dump_html_VkDescriptorPoolSize); // ZRT
+    dump_html_array<const VkDescriptorPoolSize>(object.pPoolSizes, object.poolSizeCount, settings, "const VkDescriptorPoolSize*", "const VkDescriptorPoolSize", "pPoolSizes", indents + 1, dump_html_VkDescriptorPoolSize);
 }
 void dump_html_VkDescriptorSetAllocateInfo(const VkDescriptorSetAllocateInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16410,7 +16410,7 @@ void dump_html_VkDescriptorSetAllocateInfo(const VkDescriptorSetAllocateInfo& ob
     }
     dump_html_value<const VkDescriptorPool>(object.descriptorPool, settings, "VkDescriptorPool", "descriptorPool", indents + 1, dump_html_VkDescriptorPool);
     dump_html_value<const uint32_t>(object.descriptorSetCount, settings, "uint32_t", "descriptorSetCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.descriptorSetCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", indents + 1, dump_html_VkDescriptorSetLayout); // ZRT
+    dump_html_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.descriptorSetCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", indents + 1, dump_html_VkDescriptorSetLayout);
 }
 void dump_html_VkDescriptorSetLayoutBinding(const VkDescriptorSetLayoutBinding& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16425,7 +16425,7 @@ void dump_html_VkDescriptorSetLayoutBinding(const VkDescriptorSetLayoutBinding& 
     dump_html_value<const uint32_t>(object.descriptorCount, settings, "uint32_t", "descriptorCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkShaderStageFlags>(object.stageFlags, settings, "VkShaderStageFlags", "stageFlags", indents + 1, dump_html_VkShaderStageFlags);
     if((object.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
-    dump_html_array<const VkSampler>(object.pImmutableSamplers, object.descriptorCount, settings, "const VkSampler*", "const VkSampler", "pImmutableSamplers", indents + 1, dump_html_VkSampler); // ZRT
+    dump_html_array<const VkSampler>(object.pImmutableSamplers, object.descriptorCount, settings, "const VkSampler*", "const VkSampler", "pImmutableSamplers", indents + 1, dump_html_VkSampler);
     else
         dump_html_special("UNUSED", settings, "const VkSampler*", "pImmutableSamplers", indents + 1);
 }
@@ -16445,7 +16445,7 @@ void dump_html_VkDescriptorSetLayoutCreateInfo(const VkDescriptorSetLayoutCreate
     }
     dump_html_value<const VkDescriptorSetLayoutCreateFlags>(object.flags, settings, "VkDescriptorSetLayoutCreateFlags", "flags", indents + 1, dump_html_VkDescriptorSetLayoutCreateFlags);
     dump_html_value<const uint32_t>(object.bindingCount, settings, "uint32_t", "bindingCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDescriptorSetLayoutBinding>(object.pBindings, object.bindingCount, settings, "const VkDescriptorSetLayoutBinding*", "const VkDescriptorSetLayoutBinding", "pBindings", indents + 1, dump_html_VkDescriptorSetLayoutBinding); // ZRT
+    dump_html_array<const VkDescriptorSetLayoutBinding>(object.pBindings, object.bindingCount, settings, "const VkDescriptorSetLayoutBinding*", "const VkDescriptorSetLayoutBinding", "pBindings", indents + 1, dump_html_VkDescriptorSetLayoutBinding);
 }
 void dump_html_VkWriteDescriptorSet(const VkWriteDescriptorSet& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16467,15 +16467,15 @@ void dump_html_VkWriteDescriptorSet(const VkWriteDescriptorSet& object, const Ap
     dump_html_value<const uint32_t>(object.descriptorCount, settings, "uint32_t", "descriptorCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkDescriptorType>(object.descriptorType, settings, "VkDescriptorType", "descriptorType", indents + 1, dump_html_VkDescriptorType);
     if((object.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) || (object.descriptorType == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
-    dump_html_array<const VkDescriptorImageInfo>(object.pImageInfo, object.descriptorCount, settings, "const VkDescriptorImageInfo*", "const VkDescriptorImageInfo", "pImageInfo", indents + 1, dump_html_VkDescriptorImageInfo); // ZRT
+    dump_html_array<const VkDescriptorImageInfo>(object.pImageInfo, object.descriptorCount, settings, "const VkDescriptorImageInfo*", "const VkDescriptorImageInfo", "pImageInfo", indents + 1, dump_html_VkDescriptorImageInfo);
     else
         dump_html_special("UNUSED", settings, "const VkDescriptorImageInfo*", "pImageInfo", indents + 1);
     if((object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) || (object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
-    dump_html_array<const VkDescriptorBufferInfo>(object.pBufferInfo, object.descriptorCount, settings, "const VkDescriptorBufferInfo*", "const VkDescriptorBufferInfo", "pBufferInfo", indents + 1, dump_html_VkDescriptorBufferInfo); // ZRT
+    dump_html_array<const VkDescriptorBufferInfo>(object.pBufferInfo, object.descriptorCount, settings, "const VkDescriptorBufferInfo*", "const VkDescriptorBufferInfo", "pBufferInfo", indents + 1, dump_html_VkDescriptorBufferInfo);
     else
         dump_html_special("UNUSED", settings, "const VkDescriptorBufferInfo*", "pBufferInfo", indents + 1);
     if((object.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
-    dump_html_array<const VkBufferView>(object.pTexelBufferView, object.descriptorCount, settings, "const VkBufferView*", "const VkBufferView", "pTexelBufferView", indents + 1, dump_html_VkBufferView); // ZRT
+    dump_html_array<const VkBufferView>(object.pTexelBufferView, object.descriptorCount, settings, "const VkBufferView*", "const VkBufferView", "pTexelBufferView", indents + 1, dump_html_VkBufferView);
     else
         dump_html_special("UNUSED", settings, "const VkBufferView*", "pTexelBufferView", indents + 1);
 }
@@ -16525,7 +16525,7 @@ void dump_html_VkFramebufferCreateInfo(const VkFramebufferCreateInfo& object, co
     dump_html_value<const VkFramebufferCreateFlags>(object.flags, settings, "VkFramebufferCreateFlags", "flags", indents + 1, dump_html_VkFramebufferCreateFlags);
     dump_html_value<const VkRenderPass>(object.renderPass, settings, "VkRenderPass", "renderPass", indents + 1, dump_html_VkRenderPass);
     dump_html_value<const uint32_t>(object.attachmentCount, settings, "uint32_t", "attachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageView>(object.pAttachments, object.attachmentCount, settings, "const VkImageView*", "const VkImageView", "pAttachments", indents + 1, dump_html_VkImageView); // ZRT
+    dump_html_array<const VkImageView>(object.pAttachments, object.attachmentCount, settings, "const VkImageView*", "const VkImageView", "pAttachments", indents + 1, dump_html_VkImageView);
     dump_html_value<const uint32_t>(object.width, settings, "uint32_t", "width", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.height, settings, "uint32_t", "height", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.layers, settings, "uint32_t", "layers", indents + 1, dump_html_uint32_t);
@@ -16541,13 +16541,13 @@ void dump_html_VkSubpassDescription(const VkSubpassDescription& object, const Ap
     dump_html_value<const VkSubpassDescriptionFlags>(object.flags, settings, "VkSubpassDescriptionFlags", "flags", indents + 1, dump_html_VkSubpassDescriptionFlags);
     dump_html_value<const VkPipelineBindPoint>(object.pipelineBindPoint, settings, "VkPipelineBindPoint", "pipelineBindPoint", indents + 1, dump_html_VkPipelineBindPoint);
     dump_html_value<const uint32_t>(object.inputAttachmentCount, settings, "uint32_t", "inputAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkAttachmentReference>(object.pInputAttachments, object.inputAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pInputAttachments", indents + 1, dump_html_VkAttachmentReference); // ZRT
+    dump_html_array<const VkAttachmentReference>(object.pInputAttachments, object.inputAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pInputAttachments", indents + 1, dump_html_VkAttachmentReference);
     dump_html_value<const uint32_t>(object.colorAttachmentCount, settings, "uint32_t", "colorAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkAttachmentReference>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pColorAttachments", indents + 1, dump_html_VkAttachmentReference); // ZRT
-    dump_html_array<const VkAttachmentReference>(object.pResolveAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pResolveAttachments", indents + 1, dump_html_VkAttachmentReference); // ZRT
+    dump_html_array<const VkAttachmentReference>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pColorAttachments", indents + 1, dump_html_VkAttachmentReference);
+    dump_html_array<const VkAttachmentReference>(object.pResolveAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pResolveAttachments", indents + 1, dump_html_VkAttachmentReference);
     dump_html_pointer<const VkAttachmentReference>(object.pDepthStencilAttachment, settings, "const VkAttachmentReference*", "pDepthStencilAttachment", indents + 1, dump_html_VkAttachmentReference);
     dump_html_value<const uint32_t>(object.preserveAttachmentCount, settings, "uint32_t", "preserveAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pPreserveAttachments, object.preserveAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pPreserveAttachments", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pPreserveAttachments, object.preserveAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pPreserveAttachments", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkSubpassDependency(const VkSubpassDependency& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16581,11 +16581,11 @@ void dump_html_VkRenderPassCreateInfo(const VkRenderPassCreateInfo& object, cons
     }
     dump_html_value<const VkRenderPassCreateFlags>(object.flags, settings, "VkRenderPassCreateFlags", "flags", indents + 1, dump_html_VkRenderPassCreateFlags);
     dump_html_value<const uint32_t>(object.attachmentCount, settings, "uint32_t", "attachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkAttachmentDescription>(object.pAttachments, object.attachmentCount, settings, "const VkAttachmentDescription*", "const VkAttachmentDescription", "pAttachments", indents + 1, dump_html_VkAttachmentDescription); // ZRT
+    dump_html_array<const VkAttachmentDescription>(object.pAttachments, object.attachmentCount, settings, "const VkAttachmentDescription*", "const VkAttachmentDescription", "pAttachments", indents + 1, dump_html_VkAttachmentDescription);
     dump_html_value<const uint32_t>(object.subpassCount, settings, "uint32_t", "subpassCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSubpassDescription>(object.pSubpasses, object.subpassCount, settings, "const VkSubpassDescription*", "const VkSubpassDescription", "pSubpasses", indents + 1, dump_html_VkSubpassDescription); // ZRT
+    dump_html_array<const VkSubpassDescription>(object.pSubpasses, object.subpassCount, settings, "const VkSubpassDescription*", "const VkSubpassDescription", "pSubpasses", indents + 1, dump_html_VkSubpassDescription);
     dump_html_value<const uint32_t>(object.dependencyCount, settings, "uint32_t", "dependencyCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSubpassDependency>(object.pDependencies, object.dependencyCount, settings, "const VkSubpassDependency*", "const VkSubpassDependency", "pDependencies", indents + 1, dump_html_VkSubpassDependency); // ZRT
+    dump_html_array<const VkSubpassDependency>(object.pDependencies, object.dependencyCount, settings, "const VkSubpassDependency*", "const VkSubpassDependency", "pDependencies", indents + 1, dump_html_VkSubpassDependency);
 }
 void dump_html_VkCommandPoolCreateInfo(const VkCommandPoolCreateInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16747,9 +16747,9 @@ void dump_html_VkImageBlit(const VkImageBlit& object, const ApiDumpSettings& set
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const VkImageSubresourceLayers>(object.srcSubresource, settings, "VkImageSubresourceLayers", "srcSubresource", indents + 1, dump_html_VkImageSubresourceLayers);
-    dump_html_array<const VkOffset3D>(object.srcOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "srcOffsets", indents + 1, dump_html_VkOffset3D); // ZRR
+    dump_html_array<const VkOffset3D>(object.srcOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "srcOffsets", indents + 1, dump_html_VkOffset3D);
     dump_html_value<const VkImageSubresourceLayers>(object.dstSubresource, settings, "VkImageSubresourceLayers", "dstSubresource", indents + 1, dump_html_VkImageSubresourceLayers);
-    dump_html_array<const VkOffset3D>(object.dstOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "dstOffsets", indents + 1, dump_html_VkOffset3D); // ZRR
+    dump_html_array<const VkOffset3D>(object.dstOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "dstOffsets", indents + 1, dump_html_VkOffset3D);
 }
 void dump_html_VkImageCopy(const VkImageCopy& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16797,7 +16797,7 @@ void dump_html_VkRenderPassBeginInfo(const VkRenderPassBeginInfo& object, const 
     dump_html_value<const VkFramebuffer>(object.framebuffer, settings, "VkFramebuffer", "framebuffer", indents + 1, dump_html_VkFramebuffer);
     dump_html_value<const VkRect2D>(object.renderArea, settings, "VkRect2D", "renderArea", indents + 1, dump_html_VkRect2D);
     dump_html_value<const uint32_t>(object.clearValueCount, settings, "uint32_t", "clearValueCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkClearValue>(object.pClearValues, object.clearValueCount, settings, "const VkClearValue*", "const VkClearValue", "pClearValues", indents + 1, dump_html_VkClearValue); // ZRT
+    dump_html_array<const VkClearValue>(object.pClearValues, object.clearValueCount, settings, "const VkClearValue*", "const VkClearValue", "pClearValues", indents + 1, dump_html_VkClearValue);
 }
 void dump_html_VkPhysicalDeviceSubgroupProperties(const VkPhysicalDeviceSubgroupProperties& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16940,7 +16940,7 @@ void dump_html_VkDeviceGroupRenderPassBeginInfo(const VkDeviceGroupRenderPassBeg
     }
     dump_html_value<const uint32_t>(object.deviceMask, settings, "uint32_t", "deviceMask", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.deviceRenderAreaCount, settings, "uint32_t", "deviceRenderAreaCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRect2D>(object.pDeviceRenderAreas, object.deviceRenderAreaCount, settings, "const VkRect2D*", "const VkRect2D", "pDeviceRenderAreas", indents + 1, dump_html_VkRect2D); // ZRT
+    dump_html_array<const VkRect2D>(object.pDeviceRenderAreas, object.deviceRenderAreaCount, settings, "const VkRect2D*", "const VkRect2D", "pDeviceRenderAreas", indents + 1, dump_html_VkRect2D);
 }
 void dump_html_VkDeviceGroupCommandBufferBeginInfo(const VkDeviceGroupCommandBufferBeginInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -16973,11 +16973,11 @@ void dump_html_VkDeviceGroupSubmitInfo(const VkDeviceGroupSubmitInfo& object, co
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.waitSemaphoreCount, settings, "uint32_t", "waitSemaphoreCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pWaitSemaphoreDeviceIndices, object.waitSemaphoreCount, settings, "const uint32_t*", "const uint32_t", "pWaitSemaphoreDeviceIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pWaitSemaphoreDeviceIndices, object.waitSemaphoreCount, settings, "const uint32_t*", "const uint32_t", "pWaitSemaphoreDeviceIndices", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.commandBufferCount, settings, "uint32_t", "commandBufferCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pCommandBufferDeviceMasks, object.commandBufferCount, settings, "const uint32_t*", "const uint32_t", "pCommandBufferDeviceMasks", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pCommandBufferDeviceMasks, object.commandBufferCount, settings, "const uint32_t*", "const uint32_t", "pCommandBufferDeviceMasks", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.signalSemaphoreCount, settings, "uint32_t", "signalSemaphoreCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pSignalSemaphoreDeviceIndices, object.signalSemaphoreCount, settings, "const uint32_t*", "const uint32_t", "pSignalSemaphoreDeviceIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pSignalSemaphoreDeviceIndices, object.signalSemaphoreCount, settings, "const uint32_t*", "const uint32_t", "pSignalSemaphoreDeviceIndices", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkDeviceGroupBindSparseInfo(const VkDeviceGroupBindSparseInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -17011,7 +17011,7 @@ void dump_html_VkBindBufferMemoryDeviceGroupInfo(const VkBindBufferMemoryDeviceG
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.deviceIndexCount, settings, "uint32_t", "deviceIndexCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkBindImageMemoryDeviceGroupInfo(const VkBindImageMemoryDeviceGroupInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -17028,9 +17028,9 @@ void dump_html_VkBindImageMemoryDeviceGroupInfo(const VkBindImageMemoryDeviceGro
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.deviceIndexCount, settings, "uint32_t", "deviceIndexCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.splitInstanceBindRegionCount, settings, "uint32_t", "splitInstanceBindRegionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRect2D>(object.pSplitInstanceBindRegions, object.splitInstanceBindRegionCount, settings, "const VkRect2D*", "const VkRect2D", "pSplitInstanceBindRegions", indents + 1, dump_html_VkRect2D); // ZRT
+    dump_html_array<const VkRect2D>(object.pSplitInstanceBindRegions, object.splitInstanceBindRegionCount, settings, "const VkRect2D*", "const VkRect2D", "pSplitInstanceBindRegions", indents + 1, dump_html_VkRect2D);
 }
 void dump_html_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
 {
@@ -17047,7 +17047,7 @@ void dump_html_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProper
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_html_VkPhysicalDevice); // ZRT
+    dump_html_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", indents + 1, dump_html_VkPhysicalDevice);
     dump_html_value<const VkBool32>(object.subsetAllocation, settings, "VkBool32", "subsetAllocation", indents + 1, dump_html_VkBool32);
 }
 void dump_html_VkDeviceGroupDeviceCreateInfo(const VkDeviceGroupDeviceCreateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -17065,7 +17065,7 @@ void dump_html_VkDeviceGroupDeviceCreateInfo(const VkDeviceGroupDeviceCreateInfo
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.physicalDeviceCount, settings, "uint32_t", "physicalDeviceCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPhysicalDevice>(object.pPhysicalDevices, object.physicalDeviceCount, settings, "const VkPhysicalDevice*", "const VkPhysicalDevice", "pPhysicalDevices", indents + 1, dump_html_VkPhysicalDevice); // ZRT
+    dump_html_array<const VkPhysicalDevice>(object.pPhysicalDevices, object.physicalDeviceCount, settings, "const VkPhysicalDevice*", "const VkPhysicalDevice", "pPhysicalDevices", indents + 1, dump_html_VkPhysicalDevice);
 }
 void dump_html_VkBufferMemoryRequirementsInfo2(const VkBufferMemoryRequirementsInfo2& object, const ApiDumpSettings& settings, int indents)
 {
@@ -17343,7 +17343,7 @@ void dump_html_VkRenderPassInputAttachmentAspectCreateInfo(const VkRenderPassInp
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.aspectReferenceCount, settings, "uint32_t", "aspectReferenceCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkInputAttachmentAspectReference>(object.pAspectReferences, object.aspectReferenceCount, settings, "const VkInputAttachmentAspectReference*", "const VkInputAttachmentAspectReference", "pAspectReferences", indents + 1, dump_html_VkInputAttachmentAspectReference); // ZRT
+    dump_html_array<const VkInputAttachmentAspectReference>(object.pAspectReferences, object.aspectReferenceCount, settings, "const VkInputAttachmentAspectReference*", "const VkInputAttachmentAspectReference", "pAspectReferences", indents + 1, dump_html_VkInputAttachmentAspectReference);
 }
 void dump_html_VkImageViewUsageCreateInfo(const VkImageViewUsageCreateInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -17392,11 +17392,11 @@ void dump_html_VkRenderPassMultiviewCreateInfo(const VkRenderPassMultiviewCreate
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.subpassCount, settings, "uint32_t", "subpassCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pViewMasks, object.subpassCount, settings, "const uint32_t*", "const uint32_t", "pViewMasks", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pViewMasks, object.subpassCount, settings, "const uint32_t*", "const uint32_t", "pViewMasks", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.dependencyCount, settings, "uint32_t", "dependencyCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const int32_t>(object.pViewOffsets, object.dependencyCount, settings, "const int32_t*", "const int32_t", "pViewOffsets", indents + 1, dump_html_int32_t); // ZRT
+    dump_html_array<const int32_t>(object.pViewOffsets, object.dependencyCount, settings, "const int32_t*", "const int32_t", "pViewOffsets", indents + 1, dump_html_int32_t);
     dump_html_value<const uint32_t>(object.correlationMaskCount, settings, "uint32_t", "correlationMaskCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pCorrelationMasks, object.correlationMaskCount, settings, "const uint32_t*", "const uint32_t", "pCorrelationMasks", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pCorrelationMasks, object.correlationMaskCount, settings, "const uint32_t*", "const uint32_t", "pCorrelationMasks", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkPhysicalDeviceMultiviewFeatures(const VkPhysicalDeviceMultiviewFeatures& object, const ApiDumpSettings& settings, int indents)
 {
@@ -17650,7 +17650,7 @@ void dump_html_VkDescriptorUpdateTemplateCreateInfo(const VkDescriptorUpdateTemp
     }
     dump_html_value<const VkDescriptorUpdateTemplateCreateFlags>(object.flags, settings, "VkDescriptorUpdateTemplateCreateFlags", "flags", indents + 1, dump_html_VkDescriptorUpdateTemplateCreateFlags);
     dump_html_value<const uint32_t>(object.descriptorUpdateEntryCount, settings, "uint32_t", "descriptorUpdateEntryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDescriptorUpdateTemplateEntry>(object.pDescriptorUpdateEntries, object.descriptorUpdateEntryCount, settings, "const VkDescriptorUpdateTemplateEntry*", "const VkDescriptorUpdateTemplateEntry", "pDescriptorUpdateEntries", indents + 1, dump_html_VkDescriptorUpdateTemplateEntry); // ZRT
+    dump_html_array<const VkDescriptorUpdateTemplateEntry>(object.pDescriptorUpdateEntries, object.descriptorUpdateEntryCount, settings, "const VkDescriptorUpdateTemplateEntry*", "const VkDescriptorUpdateTemplateEntry", "pDescriptorUpdateEntries", indents + 1, dump_html_VkDescriptorUpdateTemplateEntry);
     dump_html_value<const VkDescriptorUpdateTemplateType>(object.templateType, settings, "VkDescriptorUpdateTemplateType", "templateType", indents + 1, dump_html_VkDescriptorUpdateTemplateType);
     dump_html_value<const VkDescriptorSetLayout>(object.descriptorSetLayout, settings, "VkDescriptorSetLayout", "descriptorSetLayout", indents + 1, dump_html_VkDescriptorSetLayout);
     dump_html_value<const VkPipelineBindPoint>(object.pipelineBindPoint, settings, "VkPipelineBindPoint", "pipelineBindPoint", indents + 1, dump_html_VkPipelineBindPoint);
@@ -17749,9 +17749,9 @@ void dump_html_VkPhysicalDeviceIDProperties(const VkPhysicalDeviceIDProperties& 
     } else {
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
-    dump_html_array<const uint8_t>(object.deviceUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.driverUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.deviceLUID, VK_LUID_SIZE, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.deviceUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.driverUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.deviceLUID, VK_LUID_SIZE, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint32_t>(object.deviceNodeMask, settings, "uint32_t", "deviceNodeMask", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkBool32>(object.deviceLUIDValid, settings, "VkBool32", "deviceLUIDValid", indents + 1, dump_html_VkBool32);
 }
@@ -17993,9 +17993,9 @@ void dump_html_VkPhysicalDeviceVulkan11Properties(const VkPhysicalDeviceVulkan11
     } else {
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
-    dump_html_array<const uint8_t>(object.deviceUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.driverUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.deviceLUID, VK_LUID_SIZE, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.deviceUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.driverUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.deviceLUID, VK_LUID_SIZE, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint32_t>(object.deviceNodeMask, settings, "uint32_t", "deviceNodeMask", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkBool32>(object.deviceLUIDValid, settings, "VkBool32", "deviceLUIDValid", indents + 1, dump_html_VkBool32);
     dump_html_value<const uint32_t>(object.subgroupSize, settings, "uint32_t", "subgroupSize", indents + 1, dump_html_uint32_t);
@@ -18166,7 +18166,7 @@ void dump_html_VkImageFormatListCreateInfo(const VkImageFormatListCreateInfo& ob
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.viewFormatCount, settings, "uint32_t", "viewFormatCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkFormat>(object.pViewFormats, object.viewFormatCount, settings, "const VkFormat*", "const VkFormat", "pViewFormats", indents + 1, dump_html_VkFormat); // ZRT
+    dump_html_array<const VkFormat>(object.pViewFormats, object.viewFormatCount, settings, "const VkFormat*", "const VkFormat", "pViewFormats", indents + 1, dump_html_VkFormat);
 }
 void dump_html_VkAttachmentDescription2(const VkAttachmentDescription2& object, const ApiDumpSettings& settings, int indents)
 {
@@ -18228,13 +18228,13 @@ void dump_html_VkSubpassDescription2(const VkSubpassDescription2& object, const 
     dump_html_value<const VkPipelineBindPoint>(object.pipelineBindPoint, settings, "VkPipelineBindPoint", "pipelineBindPoint", indents + 1, dump_html_VkPipelineBindPoint);
     dump_html_value<const uint32_t>(object.viewMask, settings, "uint32_t", "viewMask", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.inputAttachmentCount, settings, "uint32_t", "inputAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkAttachmentReference2>(object.pInputAttachments, object.inputAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pInputAttachments", indents + 1, dump_html_VkAttachmentReference2); // ZRT
+    dump_html_array<const VkAttachmentReference2>(object.pInputAttachments, object.inputAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pInputAttachments", indents + 1, dump_html_VkAttachmentReference2);
     dump_html_value<const uint32_t>(object.colorAttachmentCount, settings, "uint32_t", "colorAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkAttachmentReference2>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pColorAttachments", indents + 1, dump_html_VkAttachmentReference2); // ZRT
-    dump_html_array<const VkAttachmentReference2>(object.pResolveAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pResolveAttachments", indents + 1, dump_html_VkAttachmentReference2); // ZRT
+    dump_html_array<const VkAttachmentReference2>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pColorAttachments", indents + 1, dump_html_VkAttachmentReference2);
+    dump_html_array<const VkAttachmentReference2>(object.pResolveAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pResolveAttachments", indents + 1, dump_html_VkAttachmentReference2);
     dump_html_pointer<const VkAttachmentReference2>(object.pDepthStencilAttachment, settings, "const VkAttachmentReference2*", "pDepthStencilAttachment", indents + 1, dump_html_VkAttachmentReference2);
     dump_html_value<const uint32_t>(object.preserveAttachmentCount, settings, "uint32_t", "preserveAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pPreserveAttachments, object.preserveAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pPreserveAttachments", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pPreserveAttachments, object.preserveAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pPreserveAttachments", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkSubpassDependency2(const VkSubpassDependency2& object, const ApiDumpSettings& settings, int indents)
 {
@@ -18275,13 +18275,13 @@ void dump_html_VkRenderPassCreateInfo2(const VkRenderPassCreateInfo2& object, co
     }
     dump_html_value<const VkRenderPassCreateFlags>(object.flags, settings, "VkRenderPassCreateFlags", "flags", indents + 1, dump_html_VkRenderPassCreateFlags);
     dump_html_value<const uint32_t>(object.attachmentCount, settings, "uint32_t", "attachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkAttachmentDescription2>(object.pAttachments, object.attachmentCount, settings, "const VkAttachmentDescription2*", "const VkAttachmentDescription2", "pAttachments", indents + 1, dump_html_VkAttachmentDescription2); // ZRT
+    dump_html_array<const VkAttachmentDescription2>(object.pAttachments, object.attachmentCount, settings, "const VkAttachmentDescription2*", "const VkAttachmentDescription2", "pAttachments", indents + 1, dump_html_VkAttachmentDescription2);
     dump_html_value<const uint32_t>(object.subpassCount, settings, "uint32_t", "subpassCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSubpassDescription2>(object.pSubpasses, object.subpassCount, settings, "const VkSubpassDescription2*", "const VkSubpassDescription2", "pSubpasses", indents + 1, dump_html_VkSubpassDescription2); // ZRT
+    dump_html_array<const VkSubpassDescription2>(object.pSubpasses, object.subpassCount, settings, "const VkSubpassDescription2*", "const VkSubpassDescription2", "pSubpasses", indents + 1, dump_html_VkSubpassDescription2);
     dump_html_value<const uint32_t>(object.dependencyCount, settings, "uint32_t", "dependencyCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSubpassDependency2>(object.pDependencies, object.dependencyCount, settings, "const VkSubpassDependency2*", "const VkSubpassDependency2", "pDependencies", indents + 1, dump_html_VkSubpassDependency2); // ZRT
+    dump_html_array<const VkSubpassDependency2>(object.pDependencies, object.dependencyCount, settings, "const VkSubpassDependency2*", "const VkSubpassDependency2", "pDependencies", indents + 1, dump_html_VkSubpassDependency2);
     dump_html_value<const uint32_t>(object.correlatedViewMaskCount, settings, "uint32_t", "correlatedViewMaskCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pCorrelatedViewMasks, object.correlatedViewMaskCount, settings, "const uint32_t*", "const uint32_t", "pCorrelatedViewMasks", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pCorrelatedViewMasks, object.correlatedViewMaskCount, settings, "const uint32_t*", "const uint32_t", "pCorrelatedViewMasks", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkSubpassBeginInfo(const VkSubpassBeginInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -18432,7 +18432,7 @@ void dump_html_VkDescriptorSetLayoutBindingFlagsCreateInfo(const VkDescriptorSet
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.bindingCount, settings, "uint32_t", "bindingCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDescriptorBindingFlags>(object.pBindingFlags, object.bindingCount, settings, "const VkDescriptorBindingFlags*", "const VkDescriptorBindingFlags", "pBindingFlags", indents + 1, dump_html_VkDescriptorBindingFlags); // ZRT
+    dump_html_array<const VkDescriptorBindingFlags>(object.pBindingFlags, object.bindingCount, settings, "const VkDescriptorBindingFlags*", "const VkDescriptorBindingFlags", "pBindingFlags", indents + 1, dump_html_VkDescriptorBindingFlags);
 }
 void dump_html_VkPhysicalDeviceDescriptorIndexingFeatures(const VkPhysicalDeviceDescriptorIndexingFeatures& object, const ApiDumpSettings& settings, int indents)
 {
@@ -18522,7 +18522,7 @@ void dump_html_VkDescriptorSetVariableDescriptorCountAllocateInfo(const VkDescri
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.descriptorSetCount, settings, "uint32_t", "descriptorSetCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pDescriptorCounts, object.descriptorSetCount, settings, "const uint32_t*", "const uint32_t", "pDescriptorCounts", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pDescriptorCounts, object.descriptorSetCount, settings, "const uint32_t*", "const uint32_t", "pDescriptorCounts", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkDescriptorSetVariableDescriptorCountLayoutSupport(const VkDescriptorSetVariableDescriptorCountLayoutSupport& object, const ApiDumpSettings& settings, int indents)
 {
@@ -18696,7 +18696,7 @@ void dump_html_VkFramebufferAttachmentImageInfo(const VkFramebufferAttachmentIma
     dump_html_value<const uint32_t>(object.height, settings, "uint32_t", "height", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.layerCount, settings, "uint32_t", "layerCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.viewFormatCount, settings, "uint32_t", "viewFormatCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkFormat>(object.pViewFormats, object.viewFormatCount, settings, "const VkFormat*", "const VkFormat", "pViewFormats", indents + 1, dump_html_VkFormat); // ZRT
+    dump_html_array<const VkFormat>(object.pViewFormats, object.viewFormatCount, settings, "const VkFormat*", "const VkFormat", "pViewFormats", indents + 1, dump_html_VkFormat);
 }
 void dump_html_VkFramebufferAttachmentsCreateInfo(const VkFramebufferAttachmentsCreateInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -18713,7 +18713,7 @@ void dump_html_VkFramebufferAttachmentsCreateInfo(const VkFramebufferAttachments
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.attachmentImageInfoCount, settings, "uint32_t", "attachmentImageInfoCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkFramebufferAttachmentImageInfo>(object.pAttachmentImageInfos, object.attachmentImageInfoCount, settings, "const VkFramebufferAttachmentImageInfo*", "const VkFramebufferAttachmentImageInfo", "pAttachmentImageInfos", indents + 1, dump_html_VkFramebufferAttachmentImageInfo); // ZRT
+    dump_html_array<const VkFramebufferAttachmentImageInfo>(object.pAttachmentImageInfos, object.attachmentImageInfoCount, settings, "const VkFramebufferAttachmentImageInfo*", "const VkFramebufferAttachmentImageInfo", "pAttachmentImageInfos", indents + 1, dump_html_VkFramebufferAttachmentImageInfo);
 }
 void dump_html_VkRenderPassAttachmentBeginInfo(const VkRenderPassAttachmentBeginInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -18730,7 +18730,7 @@ void dump_html_VkRenderPassAttachmentBeginInfo(const VkRenderPassAttachmentBegin
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.attachmentCount, settings, "uint32_t", "attachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageView>(object.pAttachments, object.attachmentCount, settings, "const VkImageView*", "const VkImageView", "pAttachments", indents + 1, dump_html_VkImageView); // ZRT
+    dump_html_array<const VkImageView>(object.pAttachments, object.attachmentCount, settings, "const VkImageView*", "const VkImageView", "pAttachments", indents + 1, dump_html_VkImageView);
 }
 void dump_html_VkPhysicalDeviceUniformBufferStandardLayoutFeatures(const VkPhysicalDeviceUniformBufferStandardLayoutFeatures& object, const ApiDumpSettings& settings, int indents)
 {
@@ -18893,9 +18893,9 @@ void dump_html_VkTimelineSemaphoreSubmitInfo(const VkTimelineSemaphoreSubmitInfo
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.waitSemaphoreValueCount, settings, "uint32_t", "waitSemaphoreValueCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint64_t>(object.pWaitSemaphoreValues, object.waitSemaphoreValueCount, settings, "const uint64_t*", "const uint64_t", "pWaitSemaphoreValues", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const uint64_t>(object.pWaitSemaphoreValues, object.waitSemaphoreValueCount, settings, "const uint64_t*", "const uint64_t", "pWaitSemaphoreValues", indents + 1, dump_html_uint64_t);
     dump_html_value<const uint32_t>(object.signalSemaphoreValueCount, settings, "uint32_t", "signalSemaphoreValueCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint64_t>(object.pSignalSemaphoreValues, object.signalSemaphoreValueCount, settings, "const uint64_t*", "const uint64_t", "pSignalSemaphoreValues", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const uint64_t>(object.pSignalSemaphoreValues, object.signalSemaphoreValueCount, settings, "const uint64_t*", "const uint64_t", "pSignalSemaphoreValues", indents + 1, dump_html_uint64_t);
 }
 void dump_html_VkSemaphoreWaitInfo(const VkSemaphoreWaitInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -18913,8 +18913,8 @@ void dump_html_VkSemaphoreWaitInfo(const VkSemaphoreWaitInfo& object, const ApiD
     }
     dump_html_value<const VkSemaphoreWaitFlags>(object.flags, settings, "VkSemaphoreWaitFlags", "flags", indents + 1, dump_html_VkSemaphoreWaitFlags);
     dump_html_value<const uint32_t>(object.semaphoreCount, settings, "uint32_t", "semaphoreCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSemaphore>(object.pSemaphores, object.semaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSemaphores", indents + 1, dump_html_VkSemaphore); // ZRT
-    dump_html_array<const uint64_t>(object.pValues, object.semaphoreCount, settings, "const uint64_t*", "const uint64_t", "pValues", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const VkSemaphore>(object.pSemaphores, object.semaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSemaphores", indents + 1, dump_html_VkSemaphore);
+    dump_html_array<const uint64_t>(object.pValues, object.semaphoreCount, settings, "const uint64_t*", "const uint64_t", "pValues", indents + 1, dump_html_uint64_t);
 }
 void dump_html_VkSemaphoreSignalInfo(const VkSemaphoreSignalInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -19132,7 +19132,7 @@ void dump_html_VkPipelineCreationFeedbackCreateInfo(const VkPipelineCreationFeed
     }
     dump_html_pointer<const VkPipelineCreationFeedback>(object.pPipelineCreationFeedback, settings, "VkPipelineCreationFeedback*", "pPipelineCreationFeedback", indents + 1, dump_html_VkPipelineCreationFeedback);
     dump_html_value<const uint32_t>(object.pipelineStageCreationFeedbackCount, settings, "uint32_t", "pipelineStageCreationFeedbackCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipelineCreationFeedback>(object.pPipelineStageCreationFeedbacks, object.pipelineStageCreationFeedbackCount, settings, "VkPipelineCreationFeedback*", "VkPipelineCreationFeedback", "pPipelineStageCreationFeedbacks", indents + 1, dump_html_VkPipelineCreationFeedback); // ZRT
+    dump_html_array<const VkPipelineCreationFeedback>(object.pPipelineStageCreationFeedbacks, object.pipelineStageCreationFeedbackCount, settings, "VkPipelineCreationFeedback*", "VkPipelineCreationFeedback", "pPipelineStageCreationFeedbacks", indents + 1, dump_html_VkPipelineCreationFeedback);
 }
 void dump_html_VkPhysicalDeviceShaderTerminateInvocationFeatures(const VkPhysicalDeviceShaderTerminateInvocationFeatures& object, const ApiDumpSettings& settings, int indents)
 {
@@ -19334,11 +19334,11 @@ void dump_html_VkDependencyInfo(const VkDependencyInfo& object, const ApiDumpSet
     }
     dump_html_value<const VkDependencyFlags>(object.dependencyFlags, settings, "VkDependencyFlags", "dependencyFlags", indents + 1, dump_html_VkDependencyFlags);
     dump_html_value<const uint32_t>(object.memoryBarrierCount, settings, "uint32_t", "memoryBarrierCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMemoryBarrier2>(object.pMemoryBarriers, object.memoryBarrierCount, settings, "const VkMemoryBarrier2*", "const VkMemoryBarrier2", "pMemoryBarriers", indents + 1, dump_html_VkMemoryBarrier2); // ZRT
+    dump_html_array<const VkMemoryBarrier2>(object.pMemoryBarriers, object.memoryBarrierCount, settings, "const VkMemoryBarrier2*", "const VkMemoryBarrier2", "pMemoryBarriers", indents + 1, dump_html_VkMemoryBarrier2);
     dump_html_value<const uint32_t>(object.bufferMemoryBarrierCount, settings, "uint32_t", "bufferMemoryBarrierCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkBufferMemoryBarrier2>(object.pBufferMemoryBarriers, object.bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier2*", "const VkBufferMemoryBarrier2", "pBufferMemoryBarriers", indents + 1, dump_html_VkBufferMemoryBarrier2); // ZRT
+    dump_html_array<const VkBufferMemoryBarrier2>(object.pBufferMemoryBarriers, object.bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier2*", "const VkBufferMemoryBarrier2", "pBufferMemoryBarriers", indents + 1, dump_html_VkBufferMemoryBarrier2);
     dump_html_value<const uint32_t>(object.imageMemoryBarrierCount, settings, "uint32_t", "imageMemoryBarrierCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageMemoryBarrier2>(object.pImageMemoryBarriers, object.imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier2*", "const VkImageMemoryBarrier2", "pImageMemoryBarriers", indents + 1, dump_html_VkImageMemoryBarrier2); // ZRT
+    dump_html_array<const VkImageMemoryBarrier2>(object.pImageMemoryBarriers, object.imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier2*", "const VkImageMemoryBarrier2", "pImageMemoryBarriers", indents + 1, dump_html_VkImageMemoryBarrier2);
 }
 void dump_html_VkSemaphoreSubmitInfo(const VkSemaphoreSubmitInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -19392,11 +19392,11 @@ void dump_html_VkSubmitInfo2(const VkSubmitInfo2& object, const ApiDumpSettings&
     }
     dump_html_value<const VkSubmitFlags>(object.flags, settings, "VkSubmitFlags", "flags", indents + 1, dump_html_VkSubmitFlags);
     dump_html_value<const uint32_t>(object.waitSemaphoreInfoCount, settings, "uint32_t", "waitSemaphoreInfoCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSemaphoreSubmitInfo>(object.pWaitSemaphoreInfos, object.waitSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pWaitSemaphoreInfos", indents + 1, dump_html_VkSemaphoreSubmitInfo); // ZRT
+    dump_html_array<const VkSemaphoreSubmitInfo>(object.pWaitSemaphoreInfos, object.waitSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pWaitSemaphoreInfos", indents + 1, dump_html_VkSemaphoreSubmitInfo);
     dump_html_value<const uint32_t>(object.commandBufferInfoCount, settings, "uint32_t", "commandBufferInfoCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkCommandBufferSubmitInfo>(object.pCommandBufferInfos, object.commandBufferInfoCount, settings, "const VkCommandBufferSubmitInfo*", "const VkCommandBufferSubmitInfo", "pCommandBufferInfos", indents + 1, dump_html_VkCommandBufferSubmitInfo); // ZRT
+    dump_html_array<const VkCommandBufferSubmitInfo>(object.pCommandBufferInfos, object.commandBufferInfoCount, settings, "const VkCommandBufferSubmitInfo*", "const VkCommandBufferSubmitInfo", "pCommandBufferInfos", indents + 1, dump_html_VkCommandBufferSubmitInfo);
     dump_html_value<const uint32_t>(object.signalSemaphoreInfoCount, settings, "uint32_t", "signalSemaphoreInfoCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSemaphoreSubmitInfo>(object.pSignalSemaphoreInfos, object.signalSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pSignalSemaphoreInfos", indents + 1, dump_html_VkSemaphoreSubmitInfo); // ZRT
+    dump_html_array<const VkSemaphoreSubmitInfo>(object.pSignalSemaphoreInfos, object.signalSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pSignalSemaphoreInfos", indents + 1, dump_html_VkSemaphoreSubmitInfo);
 }
 void dump_html_VkPhysicalDeviceSynchronization2Features(const VkPhysicalDeviceSynchronization2Features& object, const ApiDumpSettings& settings, int indents)
 {
@@ -19481,7 +19481,7 @@ void dump_html_VkCopyBufferInfo2(const VkCopyBufferInfo2& object, const ApiDumpS
     dump_html_value<const VkBuffer>(object.srcBuffer, settings, "VkBuffer", "srcBuffer", indents + 1, dump_html_VkBuffer);
     dump_html_value<const VkBuffer>(object.dstBuffer, settings, "VkBuffer", "dstBuffer", indents + 1, dump_html_VkBuffer);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkBufferCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferCopy2*", "const VkBufferCopy2", "pRegions", indents + 1, dump_html_VkBufferCopy2); // ZRT
+    dump_html_array<const VkBufferCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferCopy2*", "const VkBufferCopy2", "pRegions", indents + 1, dump_html_VkBufferCopy2);
 }
 void dump_html_VkImageCopy2(const VkImageCopy2& object, const ApiDumpSettings& settings, int indents)
 {
@@ -19522,7 +19522,7 @@ void dump_html_VkCopyImageInfo2(const VkCopyImageInfo2& object, const ApiDumpSet
     dump_html_value<const VkImage>(object.dstImage, settings, "VkImage", "dstImage", indents + 1, dump_html_VkImage);
     dump_html_value<const VkImageLayout>(object.dstImageLayout, settings, "VkImageLayout", "dstImageLayout", indents + 1, dump_html_VkImageLayout);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageCopy2>(object.pRegions, object.regionCount, settings, "const VkImageCopy2*", "const VkImageCopy2", "pRegions", indents + 1, dump_html_VkImageCopy2); // ZRT
+    dump_html_array<const VkImageCopy2>(object.pRegions, object.regionCount, settings, "const VkImageCopy2*", "const VkImageCopy2", "pRegions", indents + 1, dump_html_VkImageCopy2);
 }
 void dump_html_VkBufferImageCopy2(const VkBufferImageCopy2& object, const ApiDumpSettings& settings, int indents)
 {
@@ -19563,7 +19563,7 @@ void dump_html_VkCopyBufferToImageInfo2(const VkCopyBufferToImageInfo2& object, 
     dump_html_value<const VkImage>(object.dstImage, settings, "VkImage", "dstImage", indents + 1, dump_html_VkImage);
     dump_html_value<const VkImageLayout>(object.dstImageLayout, settings, "VkImageLayout", "dstImageLayout", indents + 1, dump_html_VkImageLayout);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkBufferImageCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferImageCopy2*", "const VkBufferImageCopy2", "pRegions", indents + 1, dump_html_VkBufferImageCopy2); // ZRT
+    dump_html_array<const VkBufferImageCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferImageCopy2*", "const VkBufferImageCopy2", "pRegions", indents + 1, dump_html_VkBufferImageCopy2);
 }
 void dump_html_VkCopyImageToBufferInfo2(const VkCopyImageToBufferInfo2& object, const ApiDumpSettings& settings, int indents)
 {
@@ -19583,7 +19583,7 @@ void dump_html_VkCopyImageToBufferInfo2(const VkCopyImageToBufferInfo2& object, 
     dump_html_value<const VkImageLayout>(object.srcImageLayout, settings, "VkImageLayout", "srcImageLayout", indents + 1, dump_html_VkImageLayout);
     dump_html_value<const VkBuffer>(object.dstBuffer, settings, "VkBuffer", "dstBuffer", indents + 1, dump_html_VkBuffer);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkBufferImageCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferImageCopy2*", "const VkBufferImageCopy2", "pRegions", indents + 1, dump_html_VkBufferImageCopy2); // ZRT
+    dump_html_array<const VkBufferImageCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferImageCopy2*", "const VkBufferImageCopy2", "pRegions", indents + 1, dump_html_VkBufferImageCopy2);
 }
 void dump_html_VkImageBlit2(const VkImageBlit2& object, const ApiDumpSettings& settings, int indents)
 {
@@ -19600,9 +19600,9 @@ void dump_html_VkImageBlit2(const VkImageBlit2& object, const ApiDumpSettings& s
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const VkImageSubresourceLayers>(object.srcSubresource, settings, "VkImageSubresourceLayers", "srcSubresource", indents + 1, dump_html_VkImageSubresourceLayers);
-    dump_html_array<const VkOffset3D>(object.srcOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "srcOffsets", indents + 1, dump_html_VkOffset3D); // ZRR
+    dump_html_array<const VkOffset3D>(object.srcOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "srcOffsets", indents + 1, dump_html_VkOffset3D);
     dump_html_value<const VkImageSubresourceLayers>(object.dstSubresource, settings, "VkImageSubresourceLayers", "dstSubresource", indents + 1, dump_html_VkImageSubresourceLayers);
-    dump_html_array<const VkOffset3D>(object.dstOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "dstOffsets", indents + 1, dump_html_VkOffset3D); // ZRR
+    dump_html_array<const VkOffset3D>(object.dstOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "dstOffsets", indents + 1, dump_html_VkOffset3D);
 }
 void dump_html_VkBlitImageInfo2(const VkBlitImageInfo2& object, const ApiDumpSettings& settings, int indents)
 {
@@ -19623,7 +19623,7 @@ void dump_html_VkBlitImageInfo2(const VkBlitImageInfo2& object, const ApiDumpSet
     dump_html_value<const VkImage>(object.dstImage, settings, "VkImage", "dstImage", indents + 1, dump_html_VkImage);
     dump_html_value<const VkImageLayout>(object.dstImageLayout, settings, "VkImageLayout", "dstImageLayout", indents + 1, dump_html_VkImageLayout);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageBlit2>(object.pRegions, object.regionCount, settings, "const VkImageBlit2*", "const VkImageBlit2", "pRegions", indents + 1, dump_html_VkImageBlit2); // ZRT
+    dump_html_array<const VkImageBlit2>(object.pRegions, object.regionCount, settings, "const VkImageBlit2*", "const VkImageBlit2", "pRegions", indents + 1, dump_html_VkImageBlit2);
     dump_html_value<const VkFilter>(object.filter, settings, "VkFilter", "filter", indents + 1, dump_html_VkFilter);
 }
 void dump_html_VkImageResolve2(const VkImageResolve2& object, const ApiDumpSettings& settings, int indents)
@@ -19665,7 +19665,7 @@ void dump_html_VkResolveImageInfo2(const VkResolveImageInfo2& object, const ApiD
     dump_html_value<const VkImage>(object.dstImage, settings, "VkImage", "dstImage", indents + 1, dump_html_VkImage);
     dump_html_value<const VkImageLayout>(object.dstImageLayout, settings, "VkImageLayout", "dstImageLayout", indents + 1, dump_html_VkImageLayout);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageResolve2>(object.pRegions, object.regionCount, settings, "const VkImageResolve2*", "const VkImageResolve2", "pRegions", indents + 1, dump_html_VkImageResolve2); // ZRT
+    dump_html_array<const VkImageResolve2>(object.pRegions, object.regionCount, settings, "const VkImageResolve2*", "const VkImageResolve2", "pRegions", indents + 1, dump_html_VkImageResolve2);
 }
 void dump_html_VkPhysicalDeviceSubgroupSizeControlFeatures(const VkPhysicalDeviceSubgroupSizeControlFeatures& object, const ApiDumpSettings& settings, int indents)
 {
@@ -19847,7 +19847,7 @@ void dump_html_VkRenderingInfo(const VkRenderingInfo& object, const ApiDumpSetti
     dump_html_value<const uint32_t>(object.layerCount, settings, "uint32_t", "layerCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.viewMask, settings, "uint32_t", "viewMask", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.colorAttachmentCount, settings, "uint32_t", "colorAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRenderingAttachmentInfo>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkRenderingAttachmentInfo*", "const VkRenderingAttachmentInfo", "pColorAttachments", indents + 1, dump_html_VkRenderingAttachmentInfo); // ZRT
+    dump_html_array<const VkRenderingAttachmentInfo>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkRenderingAttachmentInfo*", "const VkRenderingAttachmentInfo", "pColorAttachments", indents + 1, dump_html_VkRenderingAttachmentInfo);
     dump_html_pointer<const VkRenderingAttachmentInfo>(object.pDepthAttachment, settings, "const VkRenderingAttachmentInfo*", "pDepthAttachment", indents + 1, dump_html_VkRenderingAttachmentInfo);
     dump_html_pointer<const VkRenderingAttachmentInfo>(object.pStencilAttachment, settings, "const VkRenderingAttachmentInfo*", "pStencilAttachment", indents + 1, dump_html_VkRenderingAttachmentInfo);
 }
@@ -19868,7 +19868,7 @@ void dump_html_VkPipelineRenderingCreateInfo(const VkPipelineRenderingCreateInfo
     dump_html_value<const uint32_t>(object.viewMask, settings, "uint32_t", "viewMask", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.colorAttachmentCount, settings, "uint32_t", "colorAttachmentCount", indents + 1, dump_html_uint32_t);
     if(!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader())
-    dump_html_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", indents + 1, dump_html_VkFormat); // ZRT
+    dump_html_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", indents + 1, dump_html_VkFormat);
     else
         dump_html_special("UNUSED", settings, "const VkFormat*", "pColorAttachmentFormats", indents + 1);
     if(!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader())
@@ -19913,7 +19913,7 @@ void dump_html_VkCommandBufferInheritanceRenderingInfo(const VkCommandBufferInhe
     dump_html_value<const VkRenderingFlags>(object.flags, settings, "VkRenderingFlags", "flags", indents + 1, dump_html_VkRenderingFlags);
     dump_html_value<const uint32_t>(object.viewMask, settings, "uint32_t", "viewMask", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.colorAttachmentCount, settings, "uint32_t", "colorAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", indents + 1, dump_html_VkFormat); // ZRT
+    dump_html_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", indents + 1, dump_html_VkFormat);
     dump_html_value<const VkFormat>(object.depthAttachmentFormat, settings, "VkFormat", "depthAttachmentFormat", indents + 1, dump_html_VkFormat);
     dump_html_value<const VkFormat>(object.stencilAttachmentFormat, settings, "VkFormat", "stencilAttachmentFormat", indents + 1, dump_html_VkFormat);
     dump_html_value<const VkSampleCountFlagBits>(object.rasterizationSamples, settings, "VkSampleCountFlagBits", "rasterizationSamples", indents + 1, dump_html_VkSampleCountFlagBits);
@@ -20151,10 +20151,10 @@ void dump_html_VkPhysicalDeviceVulkan14Properties(const VkPhysicalDeviceVulkan14
     dump_html_value<const VkPipelineRobustnessBufferBehavior>(object.defaultRobustnessVertexInputs, settings, "VkPipelineRobustnessBufferBehavior", "defaultRobustnessVertexInputs", indents + 1, dump_html_VkPipelineRobustnessBufferBehavior);
     dump_html_value<const VkPipelineRobustnessImageBehavior>(object.defaultRobustnessImages, settings, "VkPipelineRobustnessImageBehavior", "defaultRobustnessImages", indents + 1, dump_html_VkPipelineRobustnessImageBehavior);
     dump_html_value<const uint32_t>(object.copySrcLayoutCount, settings, "uint32_t", "copySrcLayoutCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageLayout>(object.pCopySrcLayouts, object.copySrcLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopySrcLayouts", indents + 1, dump_html_VkImageLayout); // ZRT
+    dump_html_array<const VkImageLayout>(object.pCopySrcLayouts, object.copySrcLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopySrcLayouts", indents + 1, dump_html_VkImageLayout);
     dump_html_value<const uint32_t>(object.copyDstLayoutCount, settings, "uint32_t", "copyDstLayoutCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageLayout>(object.pCopyDstLayouts, object.copyDstLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopyDstLayouts", indents + 1, dump_html_VkImageLayout); // ZRT
-    dump_html_array<const uint8_t>(object.optimalTilingLayoutUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const VkImageLayout>(object.pCopyDstLayouts, object.copyDstLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopyDstLayouts", indents + 1, dump_html_VkImageLayout);
+    dump_html_array<const uint8_t>(object.optimalTilingLayoutUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", indents + 1, dump_html_uint8_t);
     dump_html_value<const VkBool32>(object.identicalMemoryTypeRequirements, settings, "VkBool32", "identicalMemoryTypeRequirements", indents + 1, dump_html_VkBool32);
 }
 void dump_html_VkDeviceQueueGlobalPriorityCreateInfo(const VkDeviceQueueGlobalPriorityCreateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -20204,7 +20204,7 @@ void dump_html_VkQueueFamilyGlobalPriorityProperties(const VkQueueFamilyGlobalPr
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.priorityCount, settings, "uint32_t", "priorityCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkQueueGlobalPriority>(object.priorities, VK_MAX_GLOBAL_PRIORITY_SIZE, settings, "VkQueueGlobalPriority[VK_MAX_GLOBAL_PRIORITY_SIZE]", "VkQueueGlobalPriority", "priorities", indents + 1, dump_html_VkQueueGlobalPriority); // ZRR
+    dump_html_array<const VkQueueGlobalPriority>(object.priorities, VK_MAX_GLOBAL_PRIORITY_SIZE, settings, "VkQueueGlobalPriority[VK_MAX_GLOBAL_PRIORITY_SIZE]", "VkQueueGlobalPriority", "priorities", indents + 1, dump_html_VkQueueGlobalPriority);
 }
 void dump_html_VkPhysicalDeviceShaderSubgroupRotateFeatures(const VkPhysicalDeviceShaderSubgroupRotateFeatures& object, const ApiDumpSettings& settings, int indents)
 {
@@ -20354,7 +20354,7 @@ void dump_html_VkPipelineVertexInputDivisorStateCreateInfo(const VkPipelineVerte
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.vertexBindingDivisorCount, settings, "uint32_t", "vertexBindingDivisorCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkVertexInputBindingDivisorDescription>(object.pVertexBindingDivisors, object.vertexBindingDivisorCount, settings, "const VkVertexInputBindingDivisorDescription*", "const VkVertexInputBindingDivisorDescription", "pVertexBindingDivisors", indents + 1, dump_html_VkVertexInputBindingDivisorDescription); // ZRT
+    dump_html_array<const VkVertexInputBindingDivisorDescription>(object.pVertexBindingDivisors, object.vertexBindingDivisorCount, settings, "const VkVertexInputBindingDivisorDescription*", "const VkVertexInputBindingDivisorDescription", "pVertexBindingDivisors", indents + 1, dump_html_VkVertexInputBindingDivisorDescription);
 }
 void dump_html_VkPhysicalDeviceVertexAttributeDivisorFeatures(const VkPhysicalDeviceVertexAttributeDivisorFeatures& object, const ApiDumpSettings& settings, int indents)
 {
@@ -20478,7 +20478,7 @@ void dump_html_VkRenderingAreaInfo(const VkRenderingAreaInfo& object, const ApiD
     }
     dump_html_value<const uint32_t>(object.viewMask, settings, "uint32_t", "viewMask", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.colorAttachmentCount, settings, "uint32_t", "colorAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", indents + 1, dump_html_VkFormat); // ZRT
+    dump_html_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", indents + 1, dump_html_VkFormat);
     dump_html_value<const VkFormat>(object.depthAttachmentFormat, settings, "VkFormat", "depthAttachmentFormat", indents + 1, dump_html_VkFormat);
     dump_html_value<const VkFormat>(object.stencilAttachmentFormat, settings, "VkFormat", "stencilAttachmentFormat", indents + 1, dump_html_VkFormat);
 }
@@ -20610,7 +20610,7 @@ void dump_html_VkRenderingAttachmentLocationInfo(const VkRenderingAttachmentLoca
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.colorAttachmentCount, settings, "uint32_t", "colorAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pColorAttachmentLocations, object.colorAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pColorAttachmentLocations", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pColorAttachmentLocations, object.colorAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pColorAttachmentLocations", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkRenderingInputAttachmentIndexInfo(const VkRenderingInputAttachmentIndexInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -20627,7 +20627,7 @@ void dump_html_VkRenderingInputAttachmentIndexInfo(const VkRenderingInputAttachm
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.colorAttachmentCount, settings, "uint32_t", "colorAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pColorAttachmentInputIndices, object.colorAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pColorAttachmentInputIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pColorAttachmentInputIndices, object.colorAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pColorAttachmentInputIndices", indents + 1, dump_html_uint32_t);
     dump_html_pointer<const uint32_t>(object.pDepthInputAttachmentIndex, settings, "const uint32_t*", "pDepthInputAttachmentIndex", indents + 1, dump_html_uint32_t);
     dump_html_pointer<const uint32_t>(object.pStencilInputAttachmentIndex, settings, "const uint32_t*", "pStencilInputAttachmentIndex", indents + 1, dump_html_uint32_t);
 }
@@ -20699,9 +20699,9 @@ void dump_html_VkBindDescriptorSetsInfo(const VkBindDescriptorSetsInfo& object, 
     dump_html_value<const VkPipelineLayout>(object.layout, settings, "VkPipelineLayout", "layout", indents + 1, dump_html_VkPipelineLayout);
     dump_html_value<const uint32_t>(object.firstSet, settings, "uint32_t", "firstSet", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.descriptorSetCount, settings, "uint32_t", "descriptorSetCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDescriptorSet>(object.pDescriptorSets, object.descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", indents + 1, dump_html_VkDescriptorSet); // ZRT
+    dump_html_array<const VkDescriptorSet>(object.pDescriptorSets, object.descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", indents + 1, dump_html_VkDescriptorSet);
     dump_html_value<const uint32_t>(object.dynamicOffsetCount, settings, "uint32_t", "dynamicOffsetCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pDynamicOffsets, object.dynamicOffsetCount, settings, "const uint32_t*", "const uint32_t", "pDynamicOffsets", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pDynamicOffsets, object.dynamicOffsetCount, settings, "const uint32_t*", "const uint32_t", "pDynamicOffsets", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkPushConstantsInfo(const VkPushConstantsInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -20741,7 +20741,7 @@ void dump_html_VkPushDescriptorSetInfo(const VkPushDescriptorSetInfo& object, co
     dump_html_value<const VkPipelineLayout>(object.layout, settings, "VkPipelineLayout", "layout", indents + 1, dump_html_VkPipelineLayout);
     dump_html_value<const uint32_t>(object.set, settings, "uint32_t", "set", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.descriptorWriteCount, settings, "uint32_t", "descriptorWriteCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkWriteDescriptorSet>(object.pDescriptorWrites, object.descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", indents + 1, dump_html_VkWriteDescriptorSet); // ZRT
+    dump_html_array<const VkWriteDescriptorSet>(object.pDescriptorWrites, object.descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", indents + 1, dump_html_VkWriteDescriptorSet);
 }
 void dump_html_VkPushDescriptorSetWithTemplateInfo(const VkPushDescriptorSetWithTemplateInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -20863,10 +20863,10 @@ void dump_html_VkPhysicalDeviceHostImageCopyProperties(const VkPhysicalDeviceHos
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.copySrcLayoutCount, settings, "uint32_t", "copySrcLayoutCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageLayout>(object.pCopySrcLayouts, object.copySrcLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopySrcLayouts", indents + 1, dump_html_VkImageLayout); // ZRT
+    dump_html_array<const VkImageLayout>(object.pCopySrcLayouts, object.copySrcLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopySrcLayouts", indents + 1, dump_html_VkImageLayout);
     dump_html_value<const uint32_t>(object.copyDstLayoutCount, settings, "uint32_t", "copyDstLayoutCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageLayout>(object.pCopyDstLayouts, object.copyDstLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopyDstLayouts", indents + 1, dump_html_VkImageLayout); // ZRT
-    dump_html_array<const uint8_t>(object.optimalTilingLayoutUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const VkImageLayout>(object.pCopyDstLayouts, object.copyDstLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopyDstLayouts", indents + 1, dump_html_VkImageLayout);
+    dump_html_array<const uint8_t>(object.optimalTilingLayoutUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", indents + 1, dump_html_uint8_t);
     dump_html_value<const VkBool32>(object.identicalMemoryTypeRequirements, settings, "VkBool32", "identicalMemoryTypeRequirements", indents + 1, dump_html_VkBool32);
 }
 void dump_html_VkMemoryToImageCopy(const VkMemoryToImageCopy& object, const ApiDumpSettings& settings, int indents)
@@ -20929,7 +20929,7 @@ void dump_html_VkCopyMemoryToImageInfo(const VkCopyMemoryToImageInfo& object, co
     dump_html_value<const VkImage>(object.dstImage, settings, "VkImage", "dstImage", indents + 1, dump_html_VkImage);
     dump_html_value<const VkImageLayout>(object.dstImageLayout, settings, "VkImageLayout", "dstImageLayout", indents + 1, dump_html_VkImageLayout);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMemoryToImageCopy>(object.pRegions, object.regionCount, settings, "const VkMemoryToImageCopy*", "const VkMemoryToImageCopy", "pRegions", indents + 1, dump_html_VkMemoryToImageCopy); // ZRT
+    dump_html_array<const VkMemoryToImageCopy>(object.pRegions, object.regionCount, settings, "const VkMemoryToImageCopy*", "const VkMemoryToImageCopy", "pRegions", indents + 1, dump_html_VkMemoryToImageCopy);
 }
 void dump_html_VkCopyImageToMemoryInfo(const VkCopyImageToMemoryInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -20949,7 +20949,7 @@ void dump_html_VkCopyImageToMemoryInfo(const VkCopyImageToMemoryInfo& object, co
     dump_html_value<const VkImage>(object.srcImage, settings, "VkImage", "srcImage", indents + 1, dump_html_VkImage);
     dump_html_value<const VkImageLayout>(object.srcImageLayout, settings, "VkImageLayout", "srcImageLayout", indents + 1, dump_html_VkImageLayout);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageToMemoryCopy>(object.pRegions, object.regionCount, settings, "const VkImageToMemoryCopy*", "const VkImageToMemoryCopy", "pRegions", indents + 1, dump_html_VkImageToMemoryCopy); // ZRT
+    dump_html_array<const VkImageToMemoryCopy>(object.pRegions, object.regionCount, settings, "const VkImageToMemoryCopy*", "const VkImageToMemoryCopy", "pRegions", indents + 1, dump_html_VkImageToMemoryCopy);
 }
 void dump_html_VkCopyImageToImageInfo(const VkCopyImageToImageInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -20971,7 +20971,7 @@ void dump_html_VkCopyImageToImageInfo(const VkCopyImageToImageInfo& object, cons
     dump_html_value<const VkImage>(object.dstImage, settings, "VkImage", "dstImage", indents + 1, dump_html_VkImage);
     dump_html_value<const VkImageLayout>(object.dstImageLayout, settings, "VkImageLayout", "dstImageLayout", indents + 1, dump_html_VkImageLayout);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageCopy2>(object.pRegions, object.regionCount, settings, "const VkImageCopy2*", "const VkImageCopy2", "pRegions", indents + 1, dump_html_VkImageCopy2); // ZRT
+    dump_html_array<const VkImageCopy2>(object.pRegions, object.regionCount, settings, "const VkImageCopy2*", "const VkImageCopy2", "pRegions", indents + 1, dump_html_VkImageCopy2);
 }
 void dump_html_VkHostImageLayoutTransitionInfo(const VkHostImageLayoutTransitionInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -21080,7 +21080,7 @@ void dump_html_VkSwapchainCreateInfoKHR(const VkSwapchainCreateInfoKHR& object, 
     dump_html_value<const VkSharingMode>(object.imageSharingMode, settings, "VkSharingMode", "imageSharingMode", indents + 1, dump_html_VkSharingMode);
     dump_html_value<const uint32_t>(object.queueFamilyIndexCount, settings, "uint32_t", "queueFamilyIndexCount", indents + 1, dump_html_uint32_t);
     if(object.imageSharingMode == VK_SHARING_MODE_CONCURRENT)
-    dump_html_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", indents + 1, dump_html_uint32_t);
     else
         dump_html_special("UNUSED", settings, "const uint32_t*", "pQueueFamilyIndices", indents + 1);
     dump_html_value<const VkSurfaceTransformFlagBitsKHR>(object.preTransform, settings, "VkSurfaceTransformFlagBitsKHR", "preTransform", indents + 1, dump_html_VkSurfaceTransformFlagBitsKHR);
@@ -21104,11 +21104,11 @@ void dump_html_VkPresentInfoKHR(const VkPresentInfoKHR& object, const ApiDumpSet
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.waitSemaphoreCount, settings, "uint32_t", "waitSemaphoreCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", indents + 1, dump_html_VkSemaphore); // ZRT
+    dump_html_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", indents + 1, dump_html_VkSemaphore);
     dump_html_value<const uint32_t>(object.swapchainCount, settings, "uint32_t", "swapchainCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSwapchainKHR>(object.pSwapchains, object.swapchainCount, settings, "const VkSwapchainKHR*", "const VkSwapchainKHR", "pSwapchains", indents + 1, dump_html_VkSwapchainKHR); // ZRT
-    dump_html_array<const uint32_t>(object.pImageIndices, object.swapchainCount, settings, "const uint32_t*", "const uint32_t", "pImageIndices", indents + 1, dump_html_uint32_t); // ZRT
-    dump_html_array<const VkResult>(object.pResults, object.swapchainCount, settings, "VkResult*", "VkResult", "pResults", indents + 1, dump_html_VkResult); // ZRT
+    dump_html_array<const VkSwapchainKHR>(object.pSwapchains, object.swapchainCount, settings, "const VkSwapchainKHR*", "const VkSwapchainKHR", "pSwapchains", indents + 1, dump_html_VkSwapchainKHR);
+    dump_html_array<const uint32_t>(object.pImageIndices, object.swapchainCount, settings, "const uint32_t*", "const uint32_t", "pImageIndices", indents + 1, dump_html_uint32_t);
+    dump_html_array<const VkResult>(object.pResults, object.swapchainCount, settings, "VkResult*", "VkResult", "pResults", indents + 1, dump_html_VkResult);
 }
 void dump_html_VkImageSwapchainCreateInfoKHR(const VkImageSwapchainCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -21177,7 +21177,7 @@ void dump_html_VkDeviceGroupPresentCapabilitiesKHR(const VkDeviceGroupPresentCap
     } else {
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
-    dump_html_array<const uint32_t>(object.presentMask, VK_MAX_DEVICE_GROUP_SIZE, settings, "uint32_t[VK_MAX_DEVICE_GROUP_SIZE]", "uint32_t", "presentMask", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.presentMask, VK_MAX_DEVICE_GROUP_SIZE, settings, "uint32_t[VK_MAX_DEVICE_GROUP_SIZE]", "uint32_t", "presentMask", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkDeviceGroupPresentModeFlagsKHR>(object.modes, settings, "VkDeviceGroupPresentModeFlagsKHR", "modes", indents + 1, dump_html_VkDeviceGroupPresentModeFlagsKHR);
 }
 void dump_html_VkDeviceGroupPresentInfoKHR(const VkDeviceGroupPresentInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -21195,7 +21195,7 @@ void dump_html_VkDeviceGroupPresentInfoKHR(const VkDeviceGroupPresentInfoKHR& ob
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.swapchainCount, settings, "uint32_t", "swapchainCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pDeviceMasks, object.swapchainCount, settings, "const uint32_t*", "const uint32_t", "pDeviceMasks", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pDeviceMasks, object.swapchainCount, settings, "const uint32_t*", "const uint32_t", "pDeviceMasks", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkDeviceGroupPresentModeFlagBitsKHR>(object.mode, settings, "VkDeviceGroupPresentModeFlagBitsKHR", "mode", indents + 1, dump_html_VkDeviceGroupPresentModeFlagBitsKHR);
 }
 void dump_html_VkDeviceGroupSwapchainCreateInfoKHR(const VkDeviceGroupSwapchainCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -21504,7 +21504,7 @@ void dump_html_VkVideoProfileListInfoKHR(const VkVideoProfileListInfoKHR& object
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.profileCount, settings, "uint32_t", "profileCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkVideoProfileInfoKHR>(object.pProfiles, object.profileCount, settings, "const VkVideoProfileInfoKHR*", "const VkVideoProfileInfoKHR", "pProfiles", indents + 1, dump_html_VkVideoProfileInfoKHR); // ZRT
+    dump_html_array<const VkVideoProfileInfoKHR>(object.pProfiles, object.profileCount, settings, "const VkVideoProfileInfoKHR*", "const VkVideoProfileInfoKHR", "pProfiles", indents + 1, dump_html_VkVideoProfileInfoKHR);
 }
 void dump_html_VkVideoCapabilitiesKHR(const VkVideoCapabilitiesKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -21715,7 +21715,7 @@ void dump_html_VkVideoBeginCodingInfoKHR(const VkVideoBeginCodingInfoKHR& object
     dump_html_value<const VkVideoSessionKHR>(object.videoSession, settings, "VkVideoSessionKHR", "videoSession", indents + 1, dump_html_VkVideoSessionKHR);
     dump_html_value<const VkVideoSessionParametersKHR>(object.videoSessionParameters, settings, "VkVideoSessionParametersKHR", "videoSessionParameters", indents + 1, dump_html_VkVideoSessionParametersKHR);
     dump_html_value<const uint32_t>(object.referenceSlotCount, settings, "uint32_t", "referenceSlotCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", indents + 1, dump_html_VkVideoReferenceSlotInfoKHR); // ZRT
+    dump_html_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", indents + 1, dump_html_VkVideoReferenceSlotInfoKHR);
 }
 void dump_html_VkVideoEndCodingInfoKHR(const VkVideoEndCodingInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -21802,7 +21802,7 @@ void dump_html_VkVideoDecodeInfoKHR(const VkVideoDecodeInfoKHR& object, const Ap
     dump_html_value<const VkVideoPictureResourceInfoKHR>(object.dstPictureResource, settings, "VkVideoPictureResourceInfoKHR", "dstPictureResource", indents + 1, dump_html_VkVideoPictureResourceInfoKHR);
     dump_html_pointer<const VkVideoReferenceSlotInfoKHR>(object.pSetupReferenceSlot, settings, "const VkVideoReferenceSlotInfoKHR*", "pSetupReferenceSlot", indents + 1, dump_html_VkVideoReferenceSlotInfoKHR);
     dump_html_value<const uint32_t>(object.referenceSlotCount, settings, "uint32_t", "referenceSlotCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", indents + 1, dump_html_VkVideoReferenceSlotInfoKHR); // ZRT
+    dump_html_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", indents + 1, dump_html_VkVideoReferenceSlotInfoKHR);
 }
 void dump_html_VkVideoEncodeH264CapabilitiesKHR(const VkVideoEncodeH264CapabilitiesKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -21900,9 +21900,9 @@ void dump_html_VkVideoEncodeH264SessionParametersAddInfoKHR(const VkVideoEncodeH
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.stdSPSCount, settings, "uint32_t", "stdSPSCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoH264SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH264SequenceParameterSet*", "const StdVideoH264SequenceParameterSet", "pStdSPSs", indents + 1, dump_html_StdVideoH264SequenceParameterSet); // ZRT
+    dump_html_array<const StdVideoH264SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH264SequenceParameterSet*", "const StdVideoH264SequenceParameterSet", "pStdSPSs", indents + 1, dump_html_StdVideoH264SequenceParameterSet);
     dump_html_value<const uint32_t>(object.stdPPSCount, settings, "uint32_t", "stdPPSCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoH264PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH264PictureParameterSet*", "const StdVideoH264PictureParameterSet", "pStdPPSs", indents + 1, dump_html_StdVideoH264PictureParameterSet); // ZRT
+    dump_html_array<const StdVideoH264PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH264PictureParameterSet*", "const StdVideoH264PictureParameterSet", "pStdPPSs", indents + 1, dump_html_StdVideoH264PictureParameterSet);
 }
 void dump_html_VkVideoEncodeH264SessionParametersCreateInfoKHR(const VkVideoEncodeH264SessionParametersCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -21990,7 +21990,7 @@ void dump_html_VkVideoEncodeH264PictureInfoKHR(const VkVideoEncodeH264PictureInf
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.naluSliceEntryCount, settings, "uint32_t", "naluSliceEntryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkVideoEncodeH264NaluSliceInfoKHR>(object.pNaluSliceEntries, object.naluSliceEntryCount, settings, "const VkVideoEncodeH264NaluSliceInfoKHR*", "const VkVideoEncodeH264NaluSliceInfoKHR", "pNaluSliceEntries", indents + 1, dump_html_VkVideoEncodeH264NaluSliceInfoKHR); // ZRT
+    dump_html_array<const VkVideoEncodeH264NaluSliceInfoKHR>(object.pNaluSliceEntries, object.naluSliceEntryCount, settings, "const VkVideoEncodeH264NaluSliceInfoKHR*", "const VkVideoEncodeH264NaluSliceInfoKHR", "pNaluSliceEntries", indents + 1, dump_html_VkVideoEncodeH264NaluSliceInfoKHR);
     dump_html_pointer<const StdVideoEncodeH264PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoEncodeH264PictureInfo*", "pStdPictureInfo", indents + 1, dump_html_StdVideoEncodeH264PictureInfo);
     dump_html_value<const VkBool32>(object.generatePrefixNalu, settings, "VkBool32", "generatePrefixNalu", indents + 1, dump_html_VkBool32);
 }
@@ -22196,11 +22196,11 @@ void dump_html_VkVideoEncodeH265SessionParametersAddInfoKHR(const VkVideoEncodeH
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.stdVPSCount, settings, "uint32_t", "stdVPSCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoH265VideoParameterSet>(object.pStdVPSs, object.stdVPSCount, settings, "const StdVideoH265VideoParameterSet*", "const StdVideoH265VideoParameterSet", "pStdVPSs", indents + 1, dump_html_StdVideoH265VideoParameterSet); // ZRT
+    dump_html_array<const StdVideoH265VideoParameterSet>(object.pStdVPSs, object.stdVPSCount, settings, "const StdVideoH265VideoParameterSet*", "const StdVideoH265VideoParameterSet", "pStdVPSs", indents + 1, dump_html_StdVideoH265VideoParameterSet);
     dump_html_value<const uint32_t>(object.stdSPSCount, settings, "uint32_t", "stdSPSCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoH265SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH265SequenceParameterSet*", "const StdVideoH265SequenceParameterSet", "pStdSPSs", indents + 1, dump_html_StdVideoH265SequenceParameterSet); // ZRT
+    dump_html_array<const StdVideoH265SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH265SequenceParameterSet*", "const StdVideoH265SequenceParameterSet", "pStdSPSs", indents + 1, dump_html_StdVideoH265SequenceParameterSet);
     dump_html_value<const uint32_t>(object.stdPPSCount, settings, "uint32_t", "stdPPSCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoH265PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH265PictureParameterSet*", "const StdVideoH265PictureParameterSet", "pStdPPSs", indents + 1, dump_html_StdVideoH265PictureParameterSet); // ZRT
+    dump_html_array<const StdVideoH265PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH265PictureParameterSet*", "const StdVideoH265PictureParameterSet", "pStdPPSs", indents + 1, dump_html_StdVideoH265PictureParameterSet);
 }
 void dump_html_VkVideoEncodeH265SessionParametersCreateInfoKHR(const VkVideoEncodeH265SessionParametersCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -22292,7 +22292,7 @@ void dump_html_VkVideoEncodeH265PictureInfoKHR(const VkVideoEncodeH265PictureInf
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.naluSliceSegmentEntryCount, settings, "uint32_t", "naluSliceSegmentEntryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkVideoEncodeH265NaluSliceSegmentInfoKHR>(object.pNaluSliceSegmentEntries, object.naluSliceSegmentEntryCount, settings, "const VkVideoEncodeH265NaluSliceSegmentInfoKHR*", "const VkVideoEncodeH265NaluSliceSegmentInfoKHR", "pNaluSliceSegmentEntries", indents + 1, dump_html_VkVideoEncodeH265NaluSliceSegmentInfoKHR); // ZRT
+    dump_html_array<const VkVideoEncodeH265NaluSliceSegmentInfoKHR>(object.pNaluSliceSegmentEntries, object.naluSliceSegmentEntryCount, settings, "const VkVideoEncodeH265NaluSliceSegmentInfoKHR*", "const VkVideoEncodeH265NaluSliceSegmentInfoKHR", "pNaluSliceSegmentEntries", indents + 1, dump_html_VkVideoEncodeH265NaluSliceSegmentInfoKHR);
     dump_html_pointer<const StdVideoEncodeH265PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoEncodeH265PictureInfo*", "pStdPictureInfo", indents + 1, dump_html_StdVideoEncodeH265PictureInfo);
 }
 void dump_html_VkVideoEncodeH265DpbSlotInfoKHR(const VkVideoEncodeH265DpbSlotInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -22448,9 +22448,9 @@ void dump_html_VkVideoDecodeH264SessionParametersAddInfoKHR(const VkVideoDecodeH
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.stdSPSCount, settings, "uint32_t", "stdSPSCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoH264SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH264SequenceParameterSet*", "const StdVideoH264SequenceParameterSet", "pStdSPSs", indents + 1, dump_html_StdVideoH264SequenceParameterSet); // ZRT
+    dump_html_array<const StdVideoH264SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH264SequenceParameterSet*", "const StdVideoH264SequenceParameterSet", "pStdSPSs", indents + 1, dump_html_StdVideoH264SequenceParameterSet);
     dump_html_value<const uint32_t>(object.stdPPSCount, settings, "uint32_t", "stdPPSCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoH264PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH264PictureParameterSet*", "const StdVideoH264PictureParameterSet", "pStdPPSs", indents + 1, dump_html_StdVideoH264PictureParameterSet); // ZRT
+    dump_html_array<const StdVideoH264PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH264PictureParameterSet*", "const StdVideoH264PictureParameterSet", "pStdPPSs", indents + 1, dump_html_StdVideoH264PictureParameterSet);
 }
 void dump_html_VkVideoDecodeH264SessionParametersCreateInfoKHR(const VkVideoDecodeH264SessionParametersCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -22486,7 +22486,7 @@ void dump_html_VkVideoDecodeH264PictureInfoKHR(const VkVideoDecodeH264PictureInf
     }
     dump_html_pointer<const StdVideoDecodeH264PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoDecodeH264PictureInfo*", "pStdPictureInfo", indents + 1, dump_html_StdVideoDecodeH264PictureInfo);
     dump_html_value<const uint32_t>(object.sliceCount, settings, "uint32_t", "sliceCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pSliceOffsets, object.sliceCount, settings, "const uint32_t*", "const uint32_t", "pSliceOffsets", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pSliceOffsets, object.sliceCount, settings, "const uint32_t*", "const uint32_t", "pSliceOffsets", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkVideoDecodeH264DpbSlotInfoKHR(const VkVideoDecodeH264DpbSlotInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -22647,12 +22647,12 @@ void dump_html_VkWin32KeyedMutexAcquireReleaseInfoKHR(const VkWin32KeyedMutexAcq
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.acquireCount, settings, "uint32_t", "acquireCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDeviceMemory>(object.pAcquireSyncs, object.acquireCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pAcquireSyncs", indents + 1, dump_html_VkDeviceMemory); // ZRT
-    dump_html_array<const uint64_t>(object.pAcquireKeys, object.acquireCount, settings, "const uint64_t*", "const uint64_t", "pAcquireKeys", indents + 1, dump_html_uint64_t); // ZRT
-    dump_html_array<const uint32_t>(object.pAcquireTimeouts, object.acquireCount, settings, "const uint32_t*", "const uint32_t", "pAcquireTimeouts", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const VkDeviceMemory>(object.pAcquireSyncs, object.acquireCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pAcquireSyncs", indents + 1, dump_html_VkDeviceMemory);
+    dump_html_array<const uint64_t>(object.pAcquireKeys, object.acquireCount, settings, "const uint64_t*", "const uint64_t", "pAcquireKeys", indents + 1, dump_html_uint64_t);
+    dump_html_array<const uint32_t>(object.pAcquireTimeouts, object.acquireCount, settings, "const uint32_t*", "const uint32_t", "pAcquireTimeouts", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.releaseCount, settings, "uint32_t", "releaseCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDeviceMemory>(object.pReleaseSyncs, object.releaseCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pReleaseSyncs", indents + 1, dump_html_VkDeviceMemory); // ZRT
-    dump_html_array<const uint64_t>(object.pReleaseKeys, object.releaseCount, settings, "const uint64_t*", "const uint64_t", "pReleaseKeys", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const VkDeviceMemory>(object.pReleaseSyncs, object.releaseCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pReleaseSyncs", indents + 1, dump_html_VkDeviceMemory);
+    dump_html_array<const uint64_t>(object.pReleaseKeys, object.releaseCount, settings, "const uint64_t*", "const uint64_t", "pReleaseKeys", indents + 1, dump_html_uint64_t);
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -22713,9 +22713,9 @@ void dump_html_VkD3D12FenceSubmitInfoKHR(const VkD3D12FenceSubmitInfoKHR& object
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.waitSemaphoreValuesCount, settings, "uint32_t", "waitSemaphoreValuesCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint64_t>(object.pWaitSemaphoreValues, object.waitSemaphoreValuesCount, settings, "const uint64_t*", "const uint64_t", "pWaitSemaphoreValues", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const uint64_t>(object.pWaitSemaphoreValues, object.waitSemaphoreValuesCount, settings, "const uint64_t*", "const uint64_t", "pWaitSemaphoreValues", indents + 1, dump_html_uint64_t);
     dump_html_value<const uint32_t>(object.signalSemaphoreValuesCount, settings, "uint32_t", "signalSemaphoreValuesCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint64_t>(object.pSignalSemaphoreValues, object.signalSemaphoreValuesCount, settings, "const uint64_t*", "const uint64_t", "pSignalSemaphoreValues", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const uint64_t>(object.pSignalSemaphoreValues, object.signalSemaphoreValuesCount, settings, "const uint64_t*", "const uint64_t", "pSignalSemaphoreValues", indents + 1, dump_html_uint64_t);
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -22794,7 +22794,7 @@ void dump_html_VkPresentRegionKHR(const VkPresentRegionKHR& object, const ApiDum
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const uint32_t>(object.rectangleCount, settings, "uint32_t", "rectangleCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRectLayerKHR>(object.pRectangles, object.rectangleCount, settings, "const VkRectLayerKHR*", "const VkRectLayerKHR", "pRectangles", indents + 1, dump_html_VkRectLayerKHR); // ZRT
+    dump_html_array<const VkRectLayerKHR>(object.pRectangles, object.rectangleCount, settings, "const VkRectLayerKHR*", "const VkRectLayerKHR", "pRectangles", indents + 1, dump_html_VkRectLayerKHR);
 }
 void dump_html_VkPresentRegionsKHR(const VkPresentRegionsKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -22811,7 +22811,7 @@ void dump_html_VkPresentRegionsKHR(const VkPresentRegionsKHR& object, const ApiD
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.swapchainCount, settings, "uint32_t", "swapchainCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPresentRegionKHR>(object.pRegions, object.swapchainCount, settings, "const VkPresentRegionKHR*", "const VkPresentRegionKHR", "pRegions", indents + 1, dump_html_VkPresentRegionKHR); // ZRT
+    dump_html_array<const VkPresentRegionKHR>(object.pRegions, object.swapchainCount, settings, "const VkPresentRegionKHR*", "const VkPresentRegionKHR", "pRegions", indents + 1, dump_html_VkPresentRegionKHR);
 }
 void dump_html_VkSharedPresentSurfaceCapabilitiesKHR(const VkSharedPresentSurfaceCapabilitiesKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -22976,7 +22976,7 @@ void dump_html_VkPerformanceCounterKHR(const VkPerformanceCounterKHR& object, co
     dump_html_value<const VkPerformanceCounterUnitKHR>(object.unit, settings, "VkPerformanceCounterUnitKHR", "unit", indents + 1, dump_html_VkPerformanceCounterUnitKHR);
     dump_html_value<const VkPerformanceCounterScopeKHR>(object.scope, settings, "VkPerformanceCounterScopeKHR", "scope", indents + 1, dump_html_VkPerformanceCounterScopeKHR);
     dump_html_value<const VkPerformanceCounterStorageKHR>(object.storage, settings, "VkPerformanceCounterStorageKHR", "storage", indents + 1, dump_html_VkPerformanceCounterStorageKHR);
-    dump_html_array<const uint8_t>(object.uuid, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "uuid", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.uuid, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "uuid", indents + 1, dump_html_uint8_t);
 }
 void dump_html_VkPerformanceCounterDescriptionKHR(const VkPerformanceCounterDescriptionKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -23013,7 +23013,7 @@ void dump_html_VkQueryPoolPerformanceCreateInfoKHR(const VkQueryPoolPerformanceC
     }
     dump_html_value<const uint32_t>(object.queueFamilyIndex, settings, "uint32_t", "queueFamilyIndex", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.counterIndexCount, settings, "uint32_t", "counterIndexCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pCounterIndices, object.counterIndexCount, settings, "const uint32_t*", "const uint32_t", "pCounterIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pCounterIndices, object.counterIndexCount, settings, "const uint32_t*", "const uint32_t", "pCounterIndices", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkAcquireProfilingLockInfoKHR(const VkAcquireProfilingLockInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -23309,11 +23309,11 @@ void dump_html_VkVideoDecodeH265SessionParametersAddInfoKHR(const VkVideoDecodeH
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.stdVPSCount, settings, "uint32_t", "stdVPSCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoH265VideoParameterSet>(object.pStdVPSs, object.stdVPSCount, settings, "const StdVideoH265VideoParameterSet*", "const StdVideoH265VideoParameterSet", "pStdVPSs", indents + 1, dump_html_StdVideoH265VideoParameterSet); // ZRT
+    dump_html_array<const StdVideoH265VideoParameterSet>(object.pStdVPSs, object.stdVPSCount, settings, "const StdVideoH265VideoParameterSet*", "const StdVideoH265VideoParameterSet", "pStdVPSs", indents + 1, dump_html_StdVideoH265VideoParameterSet);
     dump_html_value<const uint32_t>(object.stdSPSCount, settings, "uint32_t", "stdSPSCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoH265SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH265SequenceParameterSet*", "const StdVideoH265SequenceParameterSet", "pStdSPSs", indents + 1, dump_html_StdVideoH265SequenceParameterSet); // ZRT
+    dump_html_array<const StdVideoH265SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH265SequenceParameterSet*", "const StdVideoH265SequenceParameterSet", "pStdSPSs", indents + 1, dump_html_StdVideoH265SequenceParameterSet);
     dump_html_value<const uint32_t>(object.stdPPSCount, settings, "uint32_t", "stdPPSCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoH265PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH265PictureParameterSet*", "const StdVideoH265PictureParameterSet", "pStdPPSs", indents + 1, dump_html_StdVideoH265PictureParameterSet); // ZRT
+    dump_html_array<const StdVideoH265PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH265PictureParameterSet*", "const StdVideoH265PictureParameterSet", "pStdPPSs", indents + 1, dump_html_StdVideoH265PictureParameterSet);
 }
 void dump_html_VkVideoDecodeH265SessionParametersCreateInfoKHR(const VkVideoDecodeH265SessionParametersCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -23350,7 +23350,7 @@ void dump_html_VkVideoDecodeH265PictureInfoKHR(const VkVideoDecodeH265PictureInf
     }
     dump_html_pointer<const StdVideoDecodeH265PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoDecodeH265PictureInfo*", "pStdPictureInfo", indents + 1, dump_html_StdVideoDecodeH265PictureInfo);
     dump_html_value<const uint32_t>(object.sliceSegmentCount, settings, "uint32_t", "sliceSegmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pSliceSegmentOffsets, object.sliceSegmentCount, settings, "const uint32_t*", "const uint32_t", "pSliceSegmentOffsets", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pSliceSegmentOffsets, object.sliceSegmentCount, settings, "const uint32_t*", "const uint32_t", "pSliceSegmentOffsets", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkVideoDecodeH265DpbSlotInfoKHR(const VkVideoDecodeH265DpbSlotInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -23400,7 +23400,7 @@ void dump_html_VkPipelineFragmentShadingRateStateCreateInfoKHR(const VkPipelineF
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const VkExtent2D>(object.fragmentSize, settings, "VkExtent2D", "fragmentSize", indents + 1, dump_html_VkExtent2D);
-    dump_html_array<const VkFragmentShadingRateCombinerOpKHR>(object.combinerOps, 2, settings, "VkFragmentShadingRateCombinerOpKHR[2]", "VkFragmentShadingRateCombinerOpKHR", "combinerOps", indents + 1, dump_html_VkFragmentShadingRateCombinerOpKHR); // ZRR
+    dump_html_array<const VkFragmentShadingRateCombinerOpKHR>(object.combinerOps, 2, settings, "VkFragmentShadingRateCombinerOpKHR[2]", "VkFragmentShadingRateCombinerOpKHR", "combinerOps", indents + 1, dump_html_VkFragmentShadingRateCombinerOpKHR);
 }
 void dump_html_VkPhysicalDeviceFragmentShadingRateFeaturesKHR(const VkPhysicalDeviceFragmentShadingRateFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -23657,7 +23657,7 @@ void dump_html_VkPipelineLibraryCreateInfoKHR(const VkPipelineLibraryCreateInfoK
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.libraryCount, settings, "uint32_t", "libraryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipeline>(object.pLibraries, object.libraryCount, settings, "const VkPipeline*", "const VkPipeline", "pLibraries", indents + 1, dump_html_VkPipeline); // ZRT
+    dump_html_array<const VkPipeline>(object.pLibraries, object.libraryCount, settings, "const VkPipeline*", "const VkPipeline", "pLibraries", indents + 1, dump_html_VkPipeline);
 }
 void dump_html_VkPresentIdKHR(const VkPresentIdKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -23674,7 +23674,7 @@ void dump_html_VkPresentIdKHR(const VkPresentIdKHR& object, const ApiDumpSetting
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.swapchainCount, settings, "uint32_t", "swapchainCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint64_t>(object.pPresentIds, object.swapchainCount, settings, "const uint64_t*", "const uint64_t", "pPresentIds", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const uint64_t>(object.pPresentIds, object.swapchainCount, settings, "const uint64_t*", "const uint64_t", "pPresentIds", indents + 1, dump_html_uint64_t);
 }
 void dump_html_VkPhysicalDevicePresentIdFeaturesKHR(const VkPhysicalDevicePresentIdFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -23713,7 +23713,7 @@ void dump_html_VkVideoEncodeInfoKHR(const VkVideoEncodeInfoKHR& object, const Ap
     dump_html_value<const VkVideoPictureResourceInfoKHR>(object.srcPictureResource, settings, "VkVideoPictureResourceInfoKHR", "srcPictureResource", indents + 1, dump_html_VkVideoPictureResourceInfoKHR);
     dump_html_pointer<const VkVideoReferenceSlotInfoKHR>(object.pSetupReferenceSlot, settings, "const VkVideoReferenceSlotInfoKHR*", "pSetupReferenceSlot", indents + 1, dump_html_VkVideoReferenceSlotInfoKHR);
     dump_html_value<const uint32_t>(object.referenceSlotCount, settings, "uint32_t", "referenceSlotCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", indents + 1, dump_html_VkVideoReferenceSlotInfoKHR); // ZRT
+    dump_html_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", indents + 1, dump_html_VkVideoReferenceSlotInfoKHR);
     dump_html_value<const uint32_t>(object.precedingExternallyEncodedBytes, settings, "uint32_t", "precedingExternallyEncodedBytes", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkVideoEncodeCapabilitiesKHR(const VkVideoEncodeCapabilitiesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -23808,7 +23808,7 @@ void dump_html_VkVideoEncodeRateControlInfoKHR(const VkVideoEncodeRateControlInf
     dump_html_value<const VkVideoEncodeRateControlFlagsKHR>(object.flags, settings, "VkVideoEncodeRateControlFlagsKHR", "flags", indents + 1, dump_html_VkVideoEncodeRateControlFlagsKHR);
     dump_html_value<const VkVideoEncodeRateControlModeFlagBitsKHR>(object.rateControlMode, settings, "VkVideoEncodeRateControlModeFlagBitsKHR", "rateControlMode", indents + 1, dump_html_VkVideoEncodeRateControlModeFlagBitsKHR);
     dump_html_value<const uint32_t>(object.layerCount, settings, "uint32_t", "layerCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkVideoEncodeRateControlLayerInfoKHR>(object.pLayers, object.layerCount, settings, "const VkVideoEncodeRateControlLayerInfoKHR*", "const VkVideoEncodeRateControlLayerInfoKHR", "pLayers", indents + 1, dump_html_VkVideoEncodeRateControlLayerInfoKHR); // ZRT
+    dump_html_array<const VkVideoEncodeRateControlLayerInfoKHR>(object.pLayers, object.layerCount, settings, "const VkVideoEncodeRateControlLayerInfoKHR*", "const VkVideoEncodeRateControlLayerInfoKHR", "pLayers", indents + 1, dump_html_VkVideoEncodeRateControlLayerInfoKHR);
     dump_html_value<const uint32_t>(object.virtualBufferSizeInMs, settings, "uint32_t", "virtualBufferSizeInMs", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.initialVirtualBufferSizeInMs, settings, "uint32_t", "initialVirtualBufferSizeInMs", indents + 1, dump_html_uint32_t);
 }
@@ -24048,7 +24048,7 @@ void dump_html_VkPresentId2KHR(const VkPresentId2KHR& object, const ApiDumpSetti
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.swapchainCount, settings, "uint32_t", "swapchainCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint64_t>(object.pPresentIds, object.swapchainCount, settings, "const uint64_t*", "const uint64_t", "pPresentIds", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const uint64_t>(object.pPresentIds, object.swapchainCount, settings, "const uint64_t*", "const uint64_t", "pPresentIds", indents + 1, dump_html_uint64_t);
 }
 void dump_html_VkPhysicalDevicePresentId2FeaturesKHR(const VkPhysicalDevicePresentId2FeaturesKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -24198,7 +24198,7 @@ void dump_html_VkPipelineBinaryKeyKHR(const VkPipelineBinaryKeyKHR& object, cons
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.keySize, settings, "uint32_t", "keySize", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint8_t>(object.key, VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR, settings, "uint8_t[VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR]", "uint8_t", "key", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.key, VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR, settings, "uint8_t[VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR]", "uint8_t", "key", indents + 1, dump_html_uint8_t);
 }
 void dump_html_VkPipelineBinaryDataKHR(const VkPipelineBinaryDataKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -24220,8 +24220,8 @@ void dump_html_VkPipelineBinaryKeysAndDataKHR(const VkPipelineBinaryKeysAndDataK
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const uint32_t>(object.binaryCount, settings, "uint32_t", "binaryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipelineBinaryKeyKHR>(object.pPipelineBinaryKeys, object.binaryCount, settings, "const VkPipelineBinaryKeyKHR*", "const VkPipelineBinaryKeyKHR", "pPipelineBinaryKeys", indents + 1, dump_html_VkPipelineBinaryKeyKHR); // ZRT
-    dump_html_array<const VkPipelineBinaryDataKHR>(object.pPipelineBinaryData, object.binaryCount, settings, "const VkPipelineBinaryDataKHR*", "const VkPipelineBinaryDataKHR", "pPipelineBinaryData", indents + 1, dump_html_VkPipelineBinaryDataKHR); // ZRT
+    dump_html_array<const VkPipelineBinaryKeyKHR>(object.pPipelineBinaryKeys, object.binaryCount, settings, "const VkPipelineBinaryKeyKHR*", "const VkPipelineBinaryKeyKHR", "pPipelineBinaryKeys", indents + 1, dump_html_VkPipelineBinaryKeyKHR);
+    dump_html_array<const VkPipelineBinaryDataKHR>(object.pPipelineBinaryData, object.binaryCount, settings, "const VkPipelineBinaryDataKHR*", "const VkPipelineBinaryDataKHR", "pPipelineBinaryData", indents + 1, dump_html_VkPipelineBinaryDataKHR);
 }
 void dump_html_VkPipelineCreateInfoKHR(const VkPipelineCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -24271,7 +24271,7 @@ void dump_html_VkPipelineBinaryInfoKHR(const VkPipelineBinaryInfoKHR& object, co
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.binaryCount, settings, "uint32_t", "binaryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipelineBinaryKHR>(object.pPipelineBinaries, object.binaryCount, settings, "const VkPipelineBinaryKHR*", "const VkPipelineBinaryKHR", "pPipelineBinaries", indents + 1, dump_html_VkPipelineBinaryKHR); // ZRT
+    dump_html_array<const VkPipelineBinaryKHR>(object.pPipelineBinaries, object.binaryCount, settings, "const VkPipelineBinaryKHR*", "const VkPipelineBinaryKHR", "pPipelineBinaries", indents + 1, dump_html_VkPipelineBinaryKHR);
 }
 void dump_html_VkReleaseCapturedPipelineDataInfoKHR(const VkReleaseCapturedPipelineDataInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -24320,7 +24320,7 @@ void dump_html_VkPipelineBinaryHandlesInfoKHR(const VkPipelineBinaryHandlesInfoK
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.pipelineBinaryCount, settings, "uint32_t", "pipelineBinaryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipelineBinaryKHR>(object.pPipelineBinaries, object.pipelineBinaryCount, settings, "VkPipelineBinaryKHR*", "VkPipelineBinaryKHR", "pPipelineBinaries", indents + 1, dump_html_VkPipelineBinaryKHR); // ZRT
+    dump_html_array<const VkPipelineBinaryKHR>(object.pPipelineBinaries, object.pipelineBinaryCount, settings, "VkPipelineBinaryKHR*", "VkPipelineBinaryKHR", "pPipelineBinaries", indents + 1, dump_html_VkPipelineBinaryKHR);
 }
 void dump_html_VkCooperativeMatrixPropertiesKHR(const VkCooperativeMatrixPropertiesKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -24476,11 +24476,11 @@ void dump_html_VkVideoDecodeAV1PictureInfoKHR(const VkVideoDecodeAV1PictureInfoK
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_pointer<const StdVideoDecodeAV1PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoDecodeAV1PictureInfo*", "pStdPictureInfo", indents + 1, dump_html_StdVideoDecodeAV1PictureInfo);
-    dump_html_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_html_int32_t); // ZRR
+    dump_html_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_html_int32_t);
     dump_html_value<const uint32_t>(object.frameHeaderOffset, settings, "uint32_t", "frameHeaderOffset", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.tileCount, settings, "uint32_t", "tileCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pTileOffsets, object.tileCount, settings, "const uint32_t*", "const uint32_t", "pTileOffsets", indents + 1, dump_html_uint32_t); // ZRT
-    dump_html_array<const uint32_t>(object.pTileSizes, object.tileCount, settings, "const uint32_t*", "const uint32_t", "pTileSizes", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pTileOffsets, object.tileCount, settings, "const uint32_t*", "const uint32_t", "pTileOffsets", indents + 1, dump_html_uint32_t);
+    dump_html_array<const uint32_t>(object.pTileSizes, object.tileCount, settings, "const uint32_t*", "const uint32_t", "pTileSizes", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkVideoDecodeAV1DpbSlotInfoKHR(const VkVideoDecodeAV1DpbSlotInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -24629,7 +24629,7 @@ void dump_html_VkVideoEncodeAV1SessionParametersCreateInfoKHR(const VkVideoEncod
     dump_html_pointer<const StdVideoAV1SequenceHeader>(object.pStdSequenceHeader, settings, "const StdVideoAV1SequenceHeader*", "pStdSequenceHeader", indents + 1, dump_html_StdVideoAV1SequenceHeader);
     dump_html_pointer<const StdVideoEncodeAV1DecoderModelInfo>(object.pStdDecoderModelInfo, settings, "const StdVideoEncodeAV1DecoderModelInfo*", "pStdDecoderModelInfo", indents + 1, dump_html_StdVideoEncodeAV1DecoderModelInfo);
     dump_html_value<const uint32_t>(object.stdOperatingPointCount, settings, "uint32_t", "stdOperatingPointCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const StdVideoEncodeAV1OperatingPointInfo>(object.pStdOperatingPoints, object.stdOperatingPointCount, settings, "const StdVideoEncodeAV1OperatingPointInfo*", "const StdVideoEncodeAV1OperatingPointInfo", "pStdOperatingPoints", indents + 1, dump_html_StdVideoEncodeAV1OperatingPointInfo); // ZRT
+    dump_html_array<const StdVideoEncodeAV1OperatingPointInfo>(object.pStdOperatingPoints, object.stdOperatingPointCount, settings, "const StdVideoEncodeAV1OperatingPointInfo*", "const StdVideoEncodeAV1OperatingPointInfo", "pStdOperatingPoints", indents + 1, dump_html_StdVideoEncodeAV1OperatingPointInfo);
 }
 void dump_html_VkVideoEncodeAV1PictureInfoKHR(const VkVideoEncodeAV1PictureInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -24649,7 +24649,7 @@ void dump_html_VkVideoEncodeAV1PictureInfoKHR(const VkVideoEncodeAV1PictureInfoK
     dump_html_value<const VkVideoEncodeAV1RateControlGroupKHR>(object.rateControlGroup, settings, "VkVideoEncodeAV1RateControlGroupKHR", "rateControlGroup", indents + 1, dump_html_VkVideoEncodeAV1RateControlGroupKHR);
     dump_html_value<const uint32_t>(object.constantQIndex, settings, "uint32_t", "constantQIndex", indents + 1, dump_html_uint32_t);
     dump_html_pointer<const StdVideoEncodeAV1PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoEncodeAV1PictureInfo*", "pStdPictureInfo", indents + 1, dump_html_StdVideoEncodeAV1PictureInfo);
-    dump_html_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_html_int32_t); // ZRR
+    dump_html_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_html_int32_t);
     dump_html_value<const VkBool32>(object.primaryReferenceCdfOnly, settings, "VkBool32", "primaryReferenceCdfOnly", indents + 1, dump_html_VkBool32);
     dump_html_value<const VkBool32>(object.generateObuExtensionHeader, settings, "VkBool32", "generateObuExtensionHeader", indents + 1, dump_html_VkBool32);
 }
@@ -24820,7 +24820,7 @@ void dump_html_VkVideoDecodeVP9PictureInfoKHR(const VkVideoDecodeVP9PictureInfoK
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_pointer<const StdVideoDecodeVP9PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoDecodeVP9PictureInfo*", "pStdPictureInfo", indents + 1, dump_html_StdVideoDecodeVP9PictureInfo);
-    dump_html_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_html_int32_t); // ZRR
+    dump_html_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", indents + 1, dump_html_int32_t);
     dump_html_value<const uint32_t>(object.uncompressedHeaderOffset, settings, "uint32_t", "uncompressedHeaderOffset", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.compressedHeaderOffset, settings, "uint32_t", "compressedHeaderOffset", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.tilesOffset, settings, "uint32_t", "tilesOffset", indents + 1, dump_html_uint32_t);
@@ -24926,8 +24926,8 @@ void dump_html_VkSetDescriptorBufferOffsetsInfoEXT(const VkSetDescriptorBufferOf
     dump_html_value<const VkPipelineLayout>(object.layout, settings, "VkPipelineLayout", "layout", indents + 1, dump_html_VkPipelineLayout);
     dump_html_value<const uint32_t>(object.firstSet, settings, "uint32_t", "firstSet", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.setCount, settings, "uint32_t", "setCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pBufferIndices, object.setCount, settings, "const uint32_t*", "const uint32_t", "pBufferIndices", indents + 1, dump_html_uint32_t); // ZRT
-    dump_html_array<const VkDeviceSize>(object.pOffsets, object.setCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", indents + 1, dump_html_VkDeviceSize); // ZRT
+    dump_html_array<const uint32_t>(object.pBufferIndices, object.setCount, settings, "const uint32_t*", "const uint32_t", "pBufferIndices", indents + 1, dump_html_uint32_t);
+    dump_html_array<const VkDeviceSize>(object.pOffsets, object.setCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", indents + 1, dump_html_VkDeviceSize);
 }
 void dump_html_VkBindDescriptorBufferEmbeddedSamplersInfoEXT(const VkBindDescriptorBufferEmbeddedSamplersInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -25200,7 +25200,7 @@ void dump_html_VkPhysicalDeviceLayeredApiPropertiesListKHR(const VkPhysicalDevic
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.layeredApiCount, settings, "uint32_t", "layeredApiCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPhysicalDeviceLayeredApiPropertiesKHR>(object.pLayeredApis, object.layeredApiCount, settings, "VkPhysicalDeviceLayeredApiPropertiesKHR*", "VkPhysicalDeviceLayeredApiPropertiesKHR", "pLayeredApis", indents + 1, dump_html_VkPhysicalDeviceLayeredApiPropertiesKHR); // ZRT
+    dump_html_array<const VkPhysicalDeviceLayeredApiPropertiesKHR>(object.pLayeredApis, object.layeredApiCount, settings, "VkPhysicalDeviceLayeredApiPropertiesKHR*", "VkPhysicalDeviceLayeredApiPropertiesKHR", "pLayeredApis", indents + 1, dump_html_VkPhysicalDeviceLayeredApiPropertiesKHR);
 }
 void dump_html_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR(const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -25505,7 +25505,7 @@ void dump_html_VkDebugMarkerMarkerInfoEXT(const VkDebugMarkerMarkerInfoEXT& obje
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const char*>(object.pMarkerName, settings, "const char*", "pMarkerName", indents + 1, dump_html_cstring);
-    dump_html_array<const float>(object.color, 4, settings, "float[4]", "float", "color", indents + 1, dump_html_float); // ZRR
+    dump_html_array<const float>(object.color, 4, settings, "float[4]", "float", "color", indents + 1, dump_html_float);
 }
 void dump_html_VkDedicatedAllocationImageCreateInfoNV(const VkDedicatedAllocationImageCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -25688,9 +25688,9 @@ void dump_html_VkCuLaunchInfoNVX(const VkCuLaunchInfoNVX& object, const ApiDumpS
     dump_html_value<const uint32_t>(object.blockDimZ, settings, "uint32_t", "blockDimZ", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.sharedMemBytes, settings, "uint32_t", "sharedMemBytes", indents + 1, dump_html_uint32_t);
     dump_html_value<const size_t>(object.paramCount, settings, "size_t", "paramCount", indents + 1, dump_html_size_t);
-    dump_html_array<const void*>(object.pParams, object.paramCount, settings, "const void* const *", "const void* const ", "pParams", indents + 1, dump_html_void); // ZRT
+    dump_html_array<const void*>(object.pParams, object.paramCount, settings, "const void* const *", "const void* const ", "pParams", indents + 1, dump_html_void);
     dump_html_value<const size_t>(object.extraCount, settings, "size_t", "extraCount", indents + 1, dump_html_size_t);
-    dump_html_array<const void*>(object.pExtras, object.extraCount, settings, "const void* const *", "const void* const ", "pExtras", indents + 1, dump_html_void); // ZRT
+    dump_html_array<const void*>(object.pExtras, object.extraCount, settings, "const void* const *", "const void* const ", "pExtras", indents + 1, dump_html_void);
 }
 void dump_html_VkImageViewHandleInfoNVX(const VkImageViewHandleInfoNVX& object, const ApiDumpSettings& settings, int indents)
 {
@@ -25771,7 +25771,7 @@ void dump_html_VkShaderStatisticsInfoAMD(const VkShaderStatisticsInfoAMD& object
     dump_html_value<const uint32_t>(object.numPhysicalSgprs, settings, "uint32_t", "numPhysicalSgprs", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.numAvailableVgprs, settings, "uint32_t", "numAvailableVgprs", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.numAvailableSgprs, settings, "uint32_t", "numAvailableSgprs", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.computeWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "computeWorkGroupSize", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.computeWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "computeWorkGroupSize", indents + 1, dump_html_uint32_t);
 }
 #if defined(VK_USE_PLATFORM_GGP)
 void dump_html_VkStreamDescriptorSurfaceCreateInfoGGP(const VkStreamDescriptorSurfaceCreateInfoGGP& object, const ApiDumpSettings& settings, int indents)
@@ -25907,12 +25907,12 @@ void dump_html_VkWin32KeyedMutexAcquireReleaseInfoNV(const VkWin32KeyedMutexAcqu
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.acquireCount, settings, "uint32_t", "acquireCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDeviceMemory>(object.pAcquireSyncs, object.acquireCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pAcquireSyncs", indents + 1, dump_html_VkDeviceMemory); // ZRT
-    dump_html_array<const uint64_t>(object.pAcquireKeys, object.acquireCount, settings, "const uint64_t*", "const uint64_t", "pAcquireKeys", indents + 1, dump_html_uint64_t); // ZRT
-    dump_html_array<const uint32_t>(object.pAcquireTimeoutMilliseconds, object.acquireCount, settings, "const uint32_t*", "const uint32_t", "pAcquireTimeoutMilliseconds", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const VkDeviceMemory>(object.pAcquireSyncs, object.acquireCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pAcquireSyncs", indents + 1, dump_html_VkDeviceMemory);
+    dump_html_array<const uint64_t>(object.pAcquireKeys, object.acquireCount, settings, "const uint64_t*", "const uint64_t", "pAcquireKeys", indents + 1, dump_html_uint64_t);
+    dump_html_array<const uint32_t>(object.pAcquireTimeoutMilliseconds, object.acquireCount, settings, "const uint32_t*", "const uint32_t", "pAcquireTimeoutMilliseconds", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.releaseCount, settings, "uint32_t", "releaseCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDeviceMemory>(object.pReleaseSyncs, object.releaseCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pReleaseSyncs", indents + 1, dump_html_VkDeviceMemory); // ZRT
-    dump_html_array<const uint64_t>(object.pReleaseKeys, object.releaseCount, settings, "const uint64_t*", "const uint64_t", "pReleaseKeys", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const VkDeviceMemory>(object.pReleaseSyncs, object.releaseCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pReleaseSyncs", indents + 1, dump_html_VkDeviceMemory);
+    dump_html_array<const uint64_t>(object.pReleaseKeys, object.releaseCount, settings, "const uint64_t*", "const uint64_t", "pReleaseKeys", indents + 1, dump_html_uint64_t);
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 void dump_html_VkValidationFlagsEXT(const VkValidationFlagsEXT& object, const ApiDumpSettings& settings, int indents)
@@ -25930,7 +25930,7 @@ void dump_html_VkValidationFlagsEXT(const VkValidationFlagsEXT& object, const Ap
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.disabledValidationCheckCount, settings, "uint32_t", "disabledValidationCheckCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkValidationCheckEXT>(object.pDisabledValidationChecks, object.disabledValidationCheckCount, settings, "const VkValidationCheckEXT*", "const VkValidationCheckEXT", "pDisabledValidationChecks", indents + 1, dump_html_VkValidationCheckEXT); // ZRT
+    dump_html_array<const VkValidationCheckEXT>(object.pDisabledValidationChecks, object.disabledValidationCheckCount, settings, "const VkValidationCheckEXT*", "const VkValidationCheckEXT", "pDisabledValidationChecks", indents + 1, dump_html_VkValidationCheckEXT);
 }
 #if defined(VK_USE_PLATFORM_VI_NN)
 void dump_html_VkViSurfaceCreateInfoNN(const VkViSurfaceCreateInfoNN& object, const ApiDumpSettings& settings, int indents)
@@ -26061,7 +26061,7 @@ void dump_html_VkPipelineViewportWScalingStateCreateInfoNV(const VkPipelineViewp
     }
     dump_html_value<const VkBool32>(object.viewportWScalingEnable, settings, "VkBool32", "viewportWScalingEnable", indents + 1, dump_html_VkBool32);
     dump_html_value<const uint32_t>(object.viewportCount, settings, "uint32_t", "viewportCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkViewportWScalingNV>(object.pViewportWScalings, object.viewportCount, settings, "const VkViewportWScalingNV*", "const VkViewportWScalingNV", "pViewportWScalings", indents + 1, dump_html_VkViewportWScalingNV); // ZRT
+    dump_html_array<const VkViewportWScalingNV>(object.pViewportWScalings, object.viewportCount, settings, "const VkViewportWScalingNV*", "const VkViewportWScalingNV", "pViewportWScalings", indents + 1, dump_html_VkViewportWScalingNV);
 }
 void dump_html_VkSurfaceCapabilities2EXT(const VkSurfaceCapabilities2EXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -26203,7 +26203,7 @@ void dump_html_VkPresentTimesInfoGOOGLE(const VkPresentTimesInfoGOOGLE& object, 
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.swapchainCount, settings, "uint32_t", "swapchainCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPresentTimeGOOGLE>(object.pTimes, object.swapchainCount, settings, "const VkPresentTimeGOOGLE*", "const VkPresentTimeGOOGLE", "pTimes", indents + 1, dump_html_VkPresentTimeGOOGLE); // ZRT
+    dump_html_array<const VkPresentTimeGOOGLE>(object.pTimes, object.swapchainCount, settings, "const VkPresentTimeGOOGLE*", "const VkPresentTimeGOOGLE", "pTimes", indents + 1, dump_html_VkPresentTimeGOOGLE);
 }
 void dump_html_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX(const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX& object, const ApiDumpSettings& settings, int indents)
 {
@@ -26267,7 +26267,7 @@ void dump_html_VkPipelineViewportSwizzleStateCreateInfoNV(const VkPipelineViewpo
     }
     dump_html_value<const VkPipelineViewportSwizzleStateCreateFlagsNV>(object.flags, settings, "VkPipelineViewportSwizzleStateCreateFlagsNV", "flags", indents + 1, dump_html_VkPipelineViewportSwizzleStateCreateFlagsNV);
     dump_html_value<const uint32_t>(object.viewportCount, settings, "uint32_t", "viewportCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkViewportSwizzleNV>(object.pViewportSwizzles, object.viewportCount, settings, "const VkViewportSwizzleNV*", "const VkViewportSwizzleNV", "pViewportSwizzles", indents + 1, dump_html_VkViewportSwizzleNV); // ZRT
+    dump_html_array<const VkViewportSwizzleNV>(object.pViewportSwizzles, object.viewportCount, settings, "const VkViewportSwizzleNV*", "const VkViewportSwizzleNV", "pViewportSwizzles", indents + 1, dump_html_VkViewportSwizzleNV);
 }
 void dump_html_VkPhysicalDeviceDiscardRectanglePropertiesEXT(const VkPhysicalDeviceDiscardRectanglePropertiesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -26302,7 +26302,7 @@ void dump_html_VkPipelineDiscardRectangleStateCreateInfoEXT(const VkPipelineDisc
     dump_html_value<const VkPipelineDiscardRectangleStateCreateFlagsEXT>(object.flags, settings, "VkPipelineDiscardRectangleStateCreateFlagsEXT", "flags", indents + 1, dump_html_VkPipelineDiscardRectangleStateCreateFlagsEXT);
     dump_html_value<const VkDiscardRectangleModeEXT>(object.discardRectangleMode, settings, "VkDiscardRectangleModeEXT", "discardRectangleMode", indents + 1, dump_html_VkDiscardRectangleModeEXT);
     dump_html_value<const uint32_t>(object.discardRectangleCount, settings, "uint32_t", "discardRectangleCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRect2D>(object.pDiscardRectangles, object.discardRectangleCount, settings, "const VkRect2D*", "const VkRect2D", "pDiscardRectangles", indents + 1, dump_html_VkRect2D); // ZRT
+    dump_html_array<const VkRect2D>(object.pDiscardRectangles, object.discardRectangleCount, settings, "const VkRect2D*", "const VkRect2D", "pDiscardRectangles", indents + 1, dump_html_VkRect2D);
 }
 void dump_html_VkPhysicalDeviceConservativeRasterizationPropertiesEXT(const VkPhysicalDeviceConservativeRasterizationPropertiesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -26482,7 +26482,7 @@ void dump_html_VkDebugUtilsLabelEXT(const VkDebugUtilsLabelEXT& object, const Ap
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const char*>(object.pLabelName, settings, "const char*", "pLabelName", indents + 1, dump_html_cstring);
-    dump_html_array<const float>(object.color, 4, settings, "float[4]", "float", "color", indents + 1, dump_html_float); // ZRR
+    dump_html_array<const float>(object.color, 4, settings, "float[4]", "float", "color", indents + 1, dump_html_float);
 }
 void dump_html_VkDebugUtilsObjectNameInfoEXT(const VkDebugUtilsObjectNameInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -26521,11 +26521,11 @@ void dump_html_VkDebugUtilsMessengerCallbackDataEXT(const VkDebugUtilsMessengerC
     dump_html_value<const int32_t>(object.messageIdNumber, settings, "int32_t", "messageIdNumber", indents + 1, dump_html_int32_t);
     dump_html_value<const char*>(object.pMessage, settings, "const char*", "pMessage", indents + 1, dump_html_cstring);
     dump_html_value<const uint32_t>(object.queueLabelCount, settings, "uint32_t", "queueLabelCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDebugUtilsLabelEXT>(object.pQueueLabels, object.queueLabelCount, settings, "const VkDebugUtilsLabelEXT*", "const VkDebugUtilsLabelEXT", "pQueueLabels", indents + 1, dump_html_VkDebugUtilsLabelEXT); // ZRT
+    dump_html_array<const VkDebugUtilsLabelEXT>(object.pQueueLabels, object.queueLabelCount, settings, "const VkDebugUtilsLabelEXT*", "const VkDebugUtilsLabelEXT", "pQueueLabels", indents + 1, dump_html_VkDebugUtilsLabelEXT);
     dump_html_value<const uint32_t>(object.cmdBufLabelCount, settings, "uint32_t", "cmdBufLabelCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDebugUtilsLabelEXT>(object.pCmdBufLabels, object.cmdBufLabelCount, settings, "const VkDebugUtilsLabelEXT*", "const VkDebugUtilsLabelEXT", "pCmdBufLabels", indents + 1, dump_html_VkDebugUtilsLabelEXT); // ZRT
+    dump_html_array<const VkDebugUtilsLabelEXT>(object.pCmdBufLabels, object.cmdBufLabelCount, settings, "const VkDebugUtilsLabelEXT*", "const VkDebugUtilsLabelEXT", "pCmdBufLabels", indents + 1, dump_html_VkDebugUtilsLabelEXT);
     dump_html_value<const uint32_t>(object.objectCount, settings, "uint32_t", "objectCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDebugUtilsObjectNameInfoEXT>(object.pObjects, object.objectCount, settings, "const VkDebugUtilsObjectNameInfoEXT*", "const VkDebugUtilsObjectNameInfoEXT", "pObjects", indents + 1, dump_html_VkDebugUtilsObjectNameInfoEXT); // ZRT
+    dump_html_array<const VkDebugUtilsObjectNameInfoEXT>(object.pObjects, object.objectCount, settings, "const VkDebugUtilsObjectNameInfoEXT*", "const VkDebugUtilsObjectNameInfoEXT", "pObjects", indents + 1, dump_html_VkDebugUtilsObjectNameInfoEXT);
 }
 void dump_html_VkDebugUtilsMessengerCreateInfoEXT(const VkDebugUtilsMessengerCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -26747,7 +26747,7 @@ void dump_html_VkPhysicalDeviceShaderEnqueuePropertiesAMDX(const VkPhysicalDevic
     dump_html_value<const uint32_t>(object.maxExecutionGraphShaderPayloadSize, settings, "uint32_t", "maxExecutionGraphShaderPayloadSize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxExecutionGraphShaderPayloadCount, settings, "uint32_t", "maxExecutionGraphShaderPayloadCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.executionGraphDispatchAddressAlignment, settings, "uint32_t", "executionGraphDispatchAddressAlignment", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.maxExecutionGraphWorkgroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxExecutionGraphWorkgroupCount", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.maxExecutionGraphWorkgroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxExecutionGraphWorkgroupCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxExecutionGraphWorkgroups, settings, "uint32_t", "maxExecutionGraphWorkgroups", indents + 1, dump_html_uint32_t);
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
@@ -26788,7 +26788,7 @@ void dump_html_VkExecutionGraphPipelineCreateInfoAMDX(const VkExecutionGraphPipe
     }
     dump_html_value<const VkPipelineCreateFlags>(object.flags, settings, "VkPipelineCreateFlags", "flags", indents + 1, dump_html_VkPipelineCreateFlags);
     dump_html_value<const uint32_t>(object.stageCount, settings, "uint32_t", "stageCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", indents + 1, dump_html_VkPipelineShaderStageCreateInfo); // ZRT
+    dump_html_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", indents + 1, dump_html_VkPipelineShaderStageCreateInfo);
     dump_html_pointer<const VkPipelineLibraryCreateInfoKHR>(object.pLibraryInfo, settings, "const VkPipelineLibraryCreateInfoKHR*", "pLibraryInfo", indents + 1, dump_html_VkPipelineLibraryCreateInfoKHR);
     dump_html_value<const VkPipelineLayout>(object.layout, settings, "VkPipelineLayout", "layout", indents + 1, dump_html_VkPipelineLayout);
     dump_html_value<const VkPipeline>(object.basePipelineHandle, settings, "VkPipeline", "basePipelineHandle", indents + 1, dump_html_VkPipeline);
@@ -26858,7 +26858,7 @@ void dump_html_VkAttachmentSampleCountInfoAMD(const VkAttachmentSampleCountInfoA
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.colorAttachmentCount, settings, "uint32_t", "colorAttachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSampleCountFlagBits>(object.pColorAttachmentSamples, object.colorAttachmentCount, settings, "const VkSampleCountFlagBits*", "const VkSampleCountFlagBits", "pColorAttachmentSamples", indents + 1, dump_html_VkSampleCountFlagBits); // ZRT
+    dump_html_array<const VkSampleCountFlagBits>(object.pColorAttachmentSamples, object.colorAttachmentCount, settings, "const VkSampleCountFlagBits*", "const VkSampleCountFlagBits", "pColorAttachmentSamples", indents + 1, dump_html_VkSampleCountFlagBits);
     dump_html_value<const VkSampleCountFlagBits>(object.depthStencilAttachmentSamples, settings, "VkSampleCountFlagBits", "depthStencilAttachmentSamples", indents + 1, dump_html_VkSampleCountFlagBits);
 }
 void dump_html_VkSampleLocationEXT(const VkSampleLocationEXT& object, const ApiDumpSettings& settings, int indents)
@@ -26889,7 +26889,7 @@ void dump_html_VkSampleLocationsInfoEXT(const VkSampleLocationsInfoEXT& object, 
     dump_html_value<const VkSampleCountFlagBits>(object.sampleLocationsPerPixel, settings, "VkSampleCountFlagBits", "sampleLocationsPerPixel", indents + 1, dump_html_VkSampleCountFlagBits);
     dump_html_value<const VkExtent2D>(object.sampleLocationGridSize, settings, "VkExtent2D", "sampleLocationGridSize", indents + 1, dump_html_VkExtent2D);
     dump_html_value<const uint32_t>(object.sampleLocationsCount, settings, "uint32_t", "sampleLocationsCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSampleLocationEXT>(object.pSampleLocations, object.sampleLocationsCount, settings, "const VkSampleLocationEXT*", "const VkSampleLocationEXT", "pSampleLocations", indents + 1, dump_html_VkSampleLocationEXT); // ZRT
+    dump_html_array<const VkSampleLocationEXT>(object.pSampleLocations, object.sampleLocationsCount, settings, "const VkSampleLocationEXT*", "const VkSampleLocationEXT", "pSampleLocations", indents + 1, dump_html_VkSampleLocationEXT);
 }
 void dump_html_VkAttachmentSampleLocationsEXT(const VkAttachmentSampleLocationsEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -26928,9 +26928,9 @@ void dump_html_VkRenderPassSampleLocationsBeginInfoEXT(const VkRenderPassSampleL
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.attachmentInitialSampleLocationsCount, settings, "uint32_t", "attachmentInitialSampleLocationsCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkAttachmentSampleLocationsEXT>(object.pAttachmentInitialSampleLocations, object.attachmentInitialSampleLocationsCount, settings, "const VkAttachmentSampleLocationsEXT*", "const VkAttachmentSampleLocationsEXT", "pAttachmentInitialSampleLocations", indents + 1, dump_html_VkAttachmentSampleLocationsEXT); // ZRT
+    dump_html_array<const VkAttachmentSampleLocationsEXT>(object.pAttachmentInitialSampleLocations, object.attachmentInitialSampleLocationsCount, settings, "const VkAttachmentSampleLocationsEXT*", "const VkAttachmentSampleLocationsEXT", "pAttachmentInitialSampleLocations", indents + 1, dump_html_VkAttachmentSampleLocationsEXT);
     dump_html_value<const uint32_t>(object.postSubpassSampleLocationsCount, settings, "uint32_t", "postSubpassSampleLocationsCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSubpassSampleLocationsEXT>(object.pPostSubpassSampleLocations, object.postSubpassSampleLocationsCount, settings, "const VkSubpassSampleLocationsEXT*", "const VkSubpassSampleLocationsEXT", "pPostSubpassSampleLocations", indents + 1, dump_html_VkSubpassSampleLocationsEXT); // ZRT
+    dump_html_array<const VkSubpassSampleLocationsEXT>(object.pPostSubpassSampleLocations, object.postSubpassSampleLocationsCount, settings, "const VkSubpassSampleLocationsEXT*", "const VkSubpassSampleLocationsEXT", "pPostSubpassSampleLocations", indents + 1, dump_html_VkSubpassSampleLocationsEXT);
 }
 void dump_html_VkPipelineSampleLocationsStateCreateInfoEXT(const VkPipelineSampleLocationsStateCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -26965,7 +26965,7 @@ void dump_html_VkPhysicalDeviceSampleLocationsPropertiesEXT(const VkPhysicalDevi
     }
     dump_html_value<const VkSampleCountFlags>(object.sampleLocationSampleCounts, settings, "VkSampleCountFlags", "sampleLocationSampleCounts", indents + 1, dump_html_VkSampleCountFlags);
     dump_html_value<const VkExtent2D>(object.maxSampleLocationGridSize, settings, "VkExtent2D", "maxSampleLocationGridSize", indents + 1, dump_html_VkExtent2D);
-    dump_html_array<const float>(object.sampleLocationCoordinateRange, 2, settings, "float[2]", "float", "sampleLocationCoordinateRange", indents + 1, dump_html_float); // ZRR
+    dump_html_array<const float>(object.sampleLocationCoordinateRange, 2, settings, "float[2]", "float", "sampleLocationCoordinateRange", indents + 1, dump_html_float);
     dump_html_value<const uint32_t>(object.sampleLocationSubPixelBits, settings, "uint32_t", "sampleLocationSubPixelBits", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkBool32>(object.variableSampleLocations, settings, "VkBool32", "variableSampleLocations", indents + 1, dump_html_VkBool32);
 }
@@ -27076,7 +27076,7 @@ void dump_html_VkPipelineCoverageModulationStateCreateInfoNV(const VkPipelineCov
     dump_html_value<const VkCoverageModulationModeNV>(object.coverageModulationMode, settings, "VkCoverageModulationModeNV", "coverageModulationMode", indents + 1, dump_html_VkCoverageModulationModeNV);
     dump_html_value<const VkBool32>(object.coverageModulationTableEnable, settings, "VkBool32", "coverageModulationTableEnable", indents + 1, dump_html_VkBool32);
     dump_html_value<const uint32_t>(object.coverageModulationTableCount, settings, "uint32_t", "coverageModulationTableCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const float>(object.pCoverageModulationTable, object.coverageModulationTableCount, settings, "const float*", "const float", "pCoverageModulationTable", indents + 1, dump_html_float); // ZRT
+    dump_html_array<const float>(object.pCoverageModulationTable, object.coverageModulationTableCount, settings, "const float*", "const float", "pCoverageModulationTable", indents + 1, dump_html_float);
 }
 void dump_html_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV(const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27138,7 +27138,7 @@ void dump_html_VkDrmFormatModifierPropertiesListEXT(const VkDrmFormatModifierPro
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.drmFormatModifierCount, settings, "uint32_t", "drmFormatModifierCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDrmFormatModifierPropertiesEXT>(object.pDrmFormatModifierProperties, object.drmFormatModifierCount, settings, "VkDrmFormatModifierPropertiesEXT*", "VkDrmFormatModifierPropertiesEXT", "pDrmFormatModifierProperties", indents + 1, dump_html_VkDrmFormatModifierPropertiesEXT); // ZRT
+    dump_html_array<const VkDrmFormatModifierPropertiesEXT>(object.pDrmFormatModifierProperties, object.drmFormatModifierCount, settings, "VkDrmFormatModifierPropertiesEXT*", "VkDrmFormatModifierPropertiesEXT", "pDrmFormatModifierProperties", indents + 1, dump_html_VkDrmFormatModifierPropertiesEXT);
 }
 void dump_html_VkPhysicalDeviceImageDrmFormatModifierInfoEXT(const VkPhysicalDeviceImageDrmFormatModifierInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27157,7 +27157,7 @@ void dump_html_VkPhysicalDeviceImageDrmFormatModifierInfoEXT(const VkPhysicalDev
     dump_html_value<const uint64_t>(object.drmFormatModifier, settings, "uint64_t", "drmFormatModifier", indents + 1, dump_html_uint64_t);
     dump_html_value<const VkSharingMode>(object.sharingMode, settings, "VkSharingMode", "sharingMode", indents + 1, dump_html_VkSharingMode);
     dump_html_value<const uint32_t>(object.queueFamilyIndexCount, settings, "uint32_t", "queueFamilyIndexCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkImageDrmFormatModifierListCreateInfoEXT(const VkImageDrmFormatModifierListCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27174,7 +27174,7 @@ void dump_html_VkImageDrmFormatModifierListCreateInfoEXT(const VkImageDrmFormatM
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.drmFormatModifierCount, settings, "uint32_t", "drmFormatModifierCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint64_t>(object.pDrmFormatModifiers, object.drmFormatModifierCount, settings, "const uint64_t*", "const uint64_t", "pDrmFormatModifiers", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const uint64_t>(object.pDrmFormatModifiers, object.drmFormatModifierCount, settings, "const uint64_t*", "const uint64_t", "pDrmFormatModifiers", indents + 1, dump_html_uint64_t);
 }
 void dump_html_VkImageDrmFormatModifierExplicitCreateInfoEXT(const VkImageDrmFormatModifierExplicitCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27192,7 +27192,7 @@ void dump_html_VkImageDrmFormatModifierExplicitCreateInfoEXT(const VkImageDrmFor
     }
     dump_html_value<const uint64_t>(object.drmFormatModifier, settings, "uint64_t", "drmFormatModifier", indents + 1, dump_html_uint64_t);
     dump_html_value<const uint32_t>(object.drmFormatModifierPlaneCount, settings, "uint32_t", "drmFormatModifierPlaneCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSubresourceLayout>(object.pPlaneLayouts, object.drmFormatModifierPlaneCount, settings, "const VkSubresourceLayout*", "const VkSubresourceLayout", "pPlaneLayouts", indents + 1, dump_html_VkSubresourceLayout); // ZRT
+    dump_html_array<const VkSubresourceLayout>(object.pPlaneLayouts, object.drmFormatModifierPlaneCount, settings, "const VkSubresourceLayout*", "const VkSubresourceLayout", "pPlaneLayouts", indents + 1, dump_html_VkSubresourceLayout);
 }
 void dump_html_VkImageDrmFormatModifierPropertiesEXT(const VkImageDrmFormatModifierPropertiesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27237,7 +27237,7 @@ void dump_html_VkDrmFormatModifierPropertiesList2EXT(const VkDrmFormatModifierPr
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.drmFormatModifierCount, settings, "uint32_t", "drmFormatModifierCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDrmFormatModifierProperties2EXT>(object.pDrmFormatModifierProperties, object.drmFormatModifierCount, settings, "VkDrmFormatModifierProperties2EXT*", "VkDrmFormatModifierProperties2EXT", "pDrmFormatModifierProperties", indents + 1, dump_html_VkDrmFormatModifierProperties2EXT); // ZRT
+    dump_html_array<const VkDrmFormatModifierProperties2EXT>(object.pDrmFormatModifierProperties, object.drmFormatModifierCount, settings, "VkDrmFormatModifierProperties2EXT*", "VkDrmFormatModifierProperties2EXT", "pDrmFormatModifierProperties", indents + 1, dump_html_VkDrmFormatModifierProperties2EXT);
 }
 void dump_html_VkValidationCacheCreateInfoEXT(const VkValidationCacheCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27282,7 +27282,7 @@ void dump_html_VkShadingRatePaletteNV(const VkShadingRatePaletteNV& object, cons
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const uint32_t>(object.shadingRatePaletteEntryCount, settings, "uint32_t", "shadingRatePaletteEntryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkShadingRatePaletteEntryNV>(object.pShadingRatePaletteEntries, object.shadingRatePaletteEntryCount, settings, "const VkShadingRatePaletteEntryNV*", "const VkShadingRatePaletteEntryNV", "pShadingRatePaletteEntries", indents + 1, dump_html_VkShadingRatePaletteEntryNV); // ZRT
+    dump_html_array<const VkShadingRatePaletteEntryNV>(object.pShadingRatePaletteEntries, object.shadingRatePaletteEntryCount, settings, "const VkShadingRatePaletteEntryNV*", "const VkShadingRatePaletteEntryNV", "pShadingRatePaletteEntries", indents + 1, dump_html_VkShadingRatePaletteEntryNV);
 }
 void dump_html_VkPipelineViewportShadingRateImageStateCreateInfoNV(const VkPipelineViewportShadingRateImageStateCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27300,7 +27300,7 @@ void dump_html_VkPipelineViewportShadingRateImageStateCreateInfoNV(const VkPipel
     }
     dump_html_value<const VkBool32>(object.shadingRateImageEnable, settings, "VkBool32", "shadingRateImageEnable", indents + 1, dump_html_VkBool32);
     dump_html_value<const uint32_t>(object.viewportCount, settings, "uint32_t", "viewportCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkShadingRatePaletteNV>(object.pShadingRatePalettes, object.viewportCount, settings, "const VkShadingRatePaletteNV*", "const VkShadingRatePaletteNV", "pShadingRatePalettes", indents + 1, dump_html_VkShadingRatePaletteNV); // ZRT
+    dump_html_array<const VkShadingRatePaletteNV>(object.pShadingRatePalettes, object.viewportCount, settings, "const VkShadingRatePaletteNV*", "const VkShadingRatePaletteNV", "pShadingRatePalettes", indents + 1, dump_html_VkShadingRatePaletteNV);
 }
 void dump_html_VkPhysicalDeviceShadingRateImageFeaturesNV(const VkPhysicalDeviceShadingRateImageFeaturesNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27360,7 +27360,7 @@ void dump_html_VkCoarseSampleOrderCustomNV(const VkCoarseSampleOrderCustomNV& ob
     dump_html_value<const VkShadingRatePaletteEntryNV>(object.shadingRate, settings, "VkShadingRatePaletteEntryNV", "shadingRate", indents + 1, dump_html_VkShadingRatePaletteEntryNV);
     dump_html_value<const uint32_t>(object.sampleCount, settings, "uint32_t", "sampleCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.sampleLocationCount, settings, "uint32_t", "sampleLocationCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkCoarseSampleLocationNV>(object.pSampleLocations, object.sampleLocationCount, settings, "const VkCoarseSampleLocationNV*", "const VkCoarseSampleLocationNV", "pSampleLocations", indents + 1, dump_html_VkCoarseSampleLocationNV); // ZRT
+    dump_html_array<const VkCoarseSampleLocationNV>(object.pSampleLocations, object.sampleLocationCount, settings, "const VkCoarseSampleLocationNV*", "const VkCoarseSampleLocationNV", "pSampleLocations", indents + 1, dump_html_VkCoarseSampleLocationNV);
 }
 void dump_html_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV(const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27378,7 +27378,7 @@ void dump_html_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV(const VkPipe
     }
     dump_html_value<const VkCoarseSampleOrderTypeNV>(object.sampleOrderType, settings, "VkCoarseSampleOrderTypeNV", "sampleOrderType", indents + 1, dump_html_VkCoarseSampleOrderTypeNV);
     dump_html_value<const uint32_t>(object.customSampleOrderCount, settings, "uint32_t", "customSampleOrderCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkCoarseSampleOrderCustomNV>(object.pCustomSampleOrders, object.customSampleOrderCount, settings, "const VkCoarseSampleOrderCustomNV*", "const VkCoarseSampleOrderCustomNV", "pCustomSampleOrders", indents + 1, dump_html_VkCoarseSampleOrderCustomNV); // ZRT
+    dump_html_array<const VkCoarseSampleOrderCustomNV>(object.pCustomSampleOrders, object.customSampleOrderCount, settings, "const VkCoarseSampleOrderCustomNV*", "const VkCoarseSampleOrderCustomNV", "pCustomSampleOrders", indents + 1, dump_html_VkCoarseSampleOrderCustomNV);
 }
 void dump_html_VkRayTracingShaderGroupCreateInfoNV(const VkRayTracingShaderGroupCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27416,9 +27416,9 @@ void dump_html_VkRayTracingPipelineCreateInfoNV(const VkRayTracingPipelineCreate
     }
     dump_html_value<const VkPipelineCreateFlags>(object.flags, settings, "VkPipelineCreateFlags", "flags", indents + 1, dump_html_VkPipelineCreateFlags);
     dump_html_value<const uint32_t>(object.stageCount, settings, "uint32_t", "stageCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", indents + 1, dump_html_VkPipelineShaderStageCreateInfo); // ZRT
+    dump_html_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", indents + 1, dump_html_VkPipelineShaderStageCreateInfo);
     dump_html_value<const uint32_t>(object.groupCount, settings, "uint32_t", "groupCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRayTracingShaderGroupCreateInfoNV>(object.pGroups, object.groupCount, settings, "const VkRayTracingShaderGroupCreateInfoNV*", "const VkRayTracingShaderGroupCreateInfoNV", "pGroups", indents + 1, dump_html_VkRayTracingShaderGroupCreateInfoNV); // ZRT
+    dump_html_array<const VkRayTracingShaderGroupCreateInfoNV>(object.pGroups, object.groupCount, settings, "const VkRayTracingShaderGroupCreateInfoNV*", "const VkRayTracingShaderGroupCreateInfoNV", "pGroups", indents + 1, dump_html_VkRayTracingShaderGroupCreateInfoNV);
     dump_html_value<const uint32_t>(object.maxRecursionDepth, settings, "uint32_t", "maxRecursionDepth", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkPipelineLayout>(object.layout, settings, "VkPipelineLayout", "layout", indents + 1, dump_html_VkPipelineLayout);
     dump_html_value<const VkPipeline>(object.basePipelineHandle, settings, "VkPipeline", "basePipelineHandle", indents + 1, dump_html_VkPipeline);
@@ -27516,7 +27516,7 @@ void dump_html_VkAccelerationStructureInfoNV(const VkAccelerationStructureInfoNV
     dump_html_value<const VkBuildAccelerationStructureFlagsKHR>(object.flags, settings, "VkBuildAccelerationStructureFlagsNV", "flags", indents + 1, dump_html_VkBuildAccelerationStructureFlagsKHR);
     dump_html_value<const uint32_t>(object.instanceCount, settings, "uint32_t", "instanceCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.geometryCount, settings, "uint32_t", "geometryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkGeometryNV>(object.pGeometries, object.geometryCount, settings, "const VkGeometryNV*", "const VkGeometryNV", "pGeometries", indents + 1, dump_html_VkGeometryNV); // ZRT
+    dump_html_array<const VkGeometryNV>(object.pGeometries, object.geometryCount, settings, "const VkGeometryNV*", "const VkGeometryNV", "pGeometries", indents + 1, dump_html_VkGeometryNV);
 }
 void dump_html_VkAccelerationStructureCreateInfoNV(const VkAccelerationStructureCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27553,7 +27553,7 @@ void dump_html_VkBindAccelerationStructureMemoryInfoNV(const VkBindAccelerationS
     dump_html_value<const VkDeviceMemory>(object.memory, settings, "VkDeviceMemory", "memory", indents + 1, dump_html_VkDeviceMemory);
     dump_html_value<const VkDeviceSize>(object.memoryOffset, settings, "VkDeviceSize", "memoryOffset", indents + 1, dump_html_VkDeviceSize);
     dump_html_value<const uint32_t>(object.deviceIndexCount, settings, "uint32_t", "deviceIndexCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkWriteDescriptorSetAccelerationStructureNV(const VkWriteDescriptorSetAccelerationStructureNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27570,7 +27570,7 @@ void dump_html_VkWriteDescriptorSetAccelerationStructureNV(const VkWriteDescript
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.accelerationStructureCount, settings, "uint32_t", "accelerationStructureCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkAccelerationStructureNV>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkAccelerationStructureNV*", "const VkAccelerationStructureNV", "pAccelerationStructures", indents + 1, dump_html_VkAccelerationStructureNV); // ZRT
+    dump_html_array<const VkAccelerationStructureNV>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkAccelerationStructureNV*", "const VkAccelerationStructureNV", "pAccelerationStructures", indents + 1, dump_html_VkAccelerationStructureNV);
 }
 void dump_html_VkAccelerationStructureMemoryRequirementsInfoNV(const VkAccelerationStructureMemoryRequirementsInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27620,7 +27620,7 @@ void dump_html_VkTransformMatrixKHR(const VkTransformMatrixKHR& object, const Ap
     else
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
-    dump_html_array<const float>(object.matrix, 3*4, settings, "float[3][4]", "float[3]", "matrix", indents + 1, dump_html_float); // ZRR
+    dump_html_array<const float>(object.matrix, 3*4, settings, "float[3][4]", "float[3]", "matrix", indents + 1, dump_html_float);
 }
 void dump_html_VkAabbPositionsKHR(const VkAabbPositionsKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -27894,11 +27894,11 @@ void dump_html_VkPhysicalDeviceMeshShaderPropertiesNV(const VkPhysicalDeviceMesh
     }
     dump_html_value<const uint32_t>(object.maxDrawMeshTasksCount, settings, "uint32_t", "maxDrawMeshTasksCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxTaskWorkGroupInvocations, settings, "uint32_t", "maxTaskWorkGroupInvocations", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.maxTaskWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupSize", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.maxTaskWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupSize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxTaskTotalMemorySize, settings, "uint32_t", "maxTaskTotalMemorySize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxTaskOutputCount, settings, "uint32_t", "maxTaskOutputCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxMeshWorkGroupInvocations, settings, "uint32_t", "maxMeshWorkGroupInvocations", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.maxMeshWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupSize", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.maxMeshWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupSize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxMeshTotalMemorySize, settings, "uint32_t", "maxMeshTotalMemorySize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxMeshOutputVertices, settings, "uint32_t", "maxMeshOutputVertices", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxMeshOutputPrimitives, settings, "uint32_t", "maxMeshOutputPrimitives", indents + 1, dump_html_uint32_t);
@@ -27948,7 +27948,7 @@ void dump_html_VkPipelineViewportExclusiveScissorStateCreateInfoNV(const VkPipel
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.exclusiveScissorCount, settings, "uint32_t", "exclusiveScissorCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRect2D>(object.pExclusiveScissors, object.exclusiveScissorCount, settings, "const VkRect2D*", "const VkRect2D", "pExclusiveScissors", indents + 1, dump_html_VkRect2D); // ZRT
+    dump_html_array<const VkRect2D>(object.pExclusiveScissors, object.exclusiveScissorCount, settings, "const VkRect2D*", "const VkRect2D", "pExclusiveScissors", indents + 1, dump_html_VkRect2D);
 }
 void dump_html_VkPhysicalDeviceExclusiveScissorFeaturesNV(const VkPhysicalDeviceExclusiveScissorFeaturesNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -28379,8 +28379,8 @@ void dump_html_VkPhysicalDeviceMemoryBudgetPropertiesEXT(const VkPhysicalDeviceM
     } else {
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
-    dump_html_array<const VkDeviceSize>(object.heapBudget, ApiDumpInstance::current().getMemoryHeapCount(), settings, "VkDeviceSize[VK_MAX_MEMORY_HEAPS]", "VkDeviceSize", "heapBudget", indents + 1, dump_html_VkDeviceSize); // ZRS
-    dump_html_array<const VkDeviceSize>(object.heapUsage, ApiDumpInstance::current().getMemoryHeapCount(), settings, "VkDeviceSize[VK_MAX_MEMORY_HEAPS]", "VkDeviceSize", "heapUsage", indents + 1, dump_html_VkDeviceSize); // ZRS
+    dump_html_array<const VkDeviceSize>(object.heapBudget, ApiDumpInstance::current().getMemoryHeapCount(), settings, "VkDeviceSize[VK_MAX_MEMORY_HEAPS]", "VkDeviceSize", "heapBudget", indents + 1, dump_html_VkDeviceSize);
+    dump_html_array<const VkDeviceSize>(object.heapUsage, ApiDumpInstance::current().getMemoryHeapCount(), settings, "VkDeviceSize[VK_MAX_MEMORY_HEAPS]", "VkDeviceSize", "heapUsage", indents + 1, dump_html_VkDeviceSize);
 }
 void dump_html_VkPhysicalDeviceMemoryPriorityFeaturesEXT(const VkPhysicalDeviceMemoryPriorityFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -28479,9 +28479,9 @@ void dump_html_VkValidationFeaturesEXT(const VkValidationFeaturesEXT& object, co
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.enabledValidationFeatureCount, settings, "uint32_t", "enabledValidationFeatureCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkValidationFeatureEnableEXT>(object.pEnabledValidationFeatures, object.enabledValidationFeatureCount, settings, "const VkValidationFeatureEnableEXT*", "const VkValidationFeatureEnableEXT", "pEnabledValidationFeatures", indents + 1, dump_html_VkValidationFeatureEnableEXT); // ZRT
+    dump_html_array<const VkValidationFeatureEnableEXT>(object.pEnabledValidationFeatures, object.enabledValidationFeatureCount, settings, "const VkValidationFeatureEnableEXT*", "const VkValidationFeatureEnableEXT", "pEnabledValidationFeatures", indents + 1, dump_html_VkValidationFeatureEnableEXT);
     dump_html_value<const uint32_t>(object.disabledValidationFeatureCount, settings, "uint32_t", "disabledValidationFeatureCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkValidationFeatureDisableEXT>(object.pDisabledValidationFeatures, object.disabledValidationFeatureCount, settings, "const VkValidationFeatureDisableEXT*", "const VkValidationFeatureDisableEXT", "pDisabledValidationFeatures", indents + 1, dump_html_VkValidationFeatureDisableEXT); // ZRT
+    dump_html_array<const VkValidationFeatureDisableEXT>(object.pDisabledValidationFeatures, object.disabledValidationFeatureCount, settings, "const VkValidationFeatureDisableEXT*", "const VkValidationFeatureDisableEXT", "pDisabledValidationFeatures", indents + 1, dump_html_VkValidationFeatureDisableEXT);
 }
 void dump_html_VkCooperativeMatrixPropertiesNV(const VkCooperativeMatrixPropertiesNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -28916,7 +28916,7 @@ void dump_html_VkSurfacePresentModeCompatibilityEXT(const VkSurfacePresentModeCo
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.presentModeCount, settings, "uint32_t", "presentModeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", indents + 1, dump_html_VkPresentModeKHR); // ZRT
+    dump_html_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", indents + 1, dump_html_VkPresentModeKHR);
 }
 void dump_html_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT(const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -28949,7 +28949,7 @@ void dump_html_VkSwapchainPresentFenceInfoEXT(const VkSwapchainPresentFenceInfoE
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.swapchainCount, settings, "uint32_t", "swapchainCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkFence>(object.pFences, object.swapchainCount, settings, "const VkFence*", "const VkFence", "pFences", indents + 1, dump_html_VkFence); // ZRT
+    dump_html_array<const VkFence>(object.pFences, object.swapchainCount, settings, "const VkFence*", "const VkFence", "pFences", indents + 1, dump_html_VkFence);
 }
 void dump_html_VkSwapchainPresentModesCreateInfoEXT(const VkSwapchainPresentModesCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -28966,7 +28966,7 @@ void dump_html_VkSwapchainPresentModesCreateInfoEXT(const VkSwapchainPresentMode
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.presentModeCount, settings, "uint32_t", "presentModeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "const VkPresentModeKHR*", "const VkPresentModeKHR", "pPresentModes", indents + 1, dump_html_VkPresentModeKHR); // ZRT
+    dump_html_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "const VkPresentModeKHR*", "const VkPresentModeKHR", "pPresentModes", indents + 1, dump_html_VkPresentModeKHR);
 }
 void dump_html_VkSwapchainPresentModeInfoEXT(const VkSwapchainPresentModeInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -28983,7 +28983,7 @@ void dump_html_VkSwapchainPresentModeInfoEXT(const VkSwapchainPresentModeInfoEXT
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.swapchainCount, settings, "uint32_t", "swapchainCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPresentModeKHR>(object.pPresentModes, object.swapchainCount, settings, "const VkPresentModeKHR*", "const VkPresentModeKHR", "pPresentModes", indents + 1, dump_html_VkPresentModeKHR); // ZRT
+    dump_html_array<const VkPresentModeKHR>(object.pPresentModes, object.swapchainCount, settings, "const VkPresentModeKHR*", "const VkPresentModeKHR", "pPresentModes", indents + 1, dump_html_VkPresentModeKHR);
 }
 void dump_html_VkSwapchainPresentScalingCreateInfoEXT(const VkSwapchainPresentScalingCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -29019,7 +29019,7 @@ void dump_html_VkReleaseSwapchainImagesInfoEXT(const VkReleaseSwapchainImagesInf
     }
     dump_html_value<const VkSwapchainKHR>(object.swapchain, settings, "VkSwapchainKHR", "swapchain", indents + 1, dump_html_VkSwapchainKHR);
     dump_html_value<const uint32_t>(object.imageIndexCount, settings, "uint32_t", "imageIndexCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pImageIndices, object.imageIndexCount, settings, "const uint32_t*", "const uint32_t", "pImageIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pImageIndices, object.imageIndexCount, settings, "const uint32_t*", "const uint32_t", "pImageIndices", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV(const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -29076,7 +29076,7 @@ void dump_html_VkGraphicsShaderGroupCreateInfoNV(const VkGraphicsShaderGroupCrea
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.stageCount, settings, "uint32_t", "stageCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", indents + 1, dump_html_VkPipelineShaderStageCreateInfo); // ZRT
+    dump_html_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", indents + 1, dump_html_VkPipelineShaderStageCreateInfo);
     dump_html_pointer<const VkPipelineVertexInputStateCreateInfo>(object.pVertexInputState, settings, "const VkPipelineVertexInputStateCreateInfo*", "pVertexInputState", indents + 1, dump_html_VkPipelineVertexInputStateCreateInfo);
     dump_html_pointer<const VkPipelineTessellationStateCreateInfo>(object.pTessellationState, settings, "const VkPipelineTessellationStateCreateInfo*", "pTessellationState", indents + 1, dump_html_VkPipelineTessellationStateCreateInfo);
 }
@@ -29095,9 +29095,9 @@ void dump_html_VkGraphicsPipelineShaderGroupsCreateInfoNV(const VkGraphicsPipeli
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.groupCount, settings, "uint32_t", "groupCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkGraphicsShaderGroupCreateInfoNV>(object.pGroups, object.groupCount, settings, "const VkGraphicsShaderGroupCreateInfoNV*", "const VkGraphicsShaderGroupCreateInfoNV", "pGroups", indents + 1, dump_html_VkGraphicsShaderGroupCreateInfoNV); // ZRT
+    dump_html_array<const VkGraphicsShaderGroupCreateInfoNV>(object.pGroups, object.groupCount, settings, "const VkGraphicsShaderGroupCreateInfoNV*", "const VkGraphicsShaderGroupCreateInfoNV", "pGroups", indents + 1, dump_html_VkGraphicsShaderGroupCreateInfoNV);
     dump_html_value<const uint32_t>(object.pipelineCount, settings, "uint32_t", "pipelineCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipeline>(object.pPipelines, object.pipelineCount, settings, "const VkPipeline*", "const VkPipeline", "pPipelines", indents + 1, dump_html_VkPipeline); // ZRT
+    dump_html_array<const VkPipeline>(object.pPipelines, object.pipelineCount, settings, "const VkPipeline*", "const VkPipeline", "pPipelines", indents + 1, dump_html_VkPipeline);
 }
 void dump_html_VkBindShaderGroupIndirectCommandNV(const VkBindShaderGroupIndirectCommandNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -29179,8 +29179,8 @@ void dump_html_VkIndirectCommandsLayoutTokenNV(const VkIndirectCommandsLayoutTok
     dump_html_value<const uint32_t>(object.pushconstantSize, settings, "uint32_t", "pushconstantSize", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkIndirectStateFlagsNV>(object.indirectStateFlags, settings, "VkIndirectStateFlagsNV", "indirectStateFlags", indents + 1, dump_html_VkIndirectStateFlagsNV);
     dump_html_value<const uint32_t>(object.indexTypeCount, settings, "uint32_t", "indexTypeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkIndexType>(object.pIndexTypes, object.indexTypeCount, settings, "const VkIndexType*", "const VkIndexType", "pIndexTypes", indents + 1, dump_html_VkIndexType); // ZRT
-    dump_html_array<const uint32_t>(object.pIndexTypeValues, object.indexTypeCount, settings, "const uint32_t*", "const uint32_t", "pIndexTypeValues", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const VkIndexType>(object.pIndexTypes, object.indexTypeCount, settings, "const VkIndexType*", "const VkIndexType", "pIndexTypes", indents + 1, dump_html_VkIndexType);
+    dump_html_array<const uint32_t>(object.pIndexTypeValues, object.indexTypeCount, settings, "const uint32_t*", "const uint32_t", "pIndexTypeValues", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkIndirectCommandsLayoutCreateInfoNV(const VkIndirectCommandsLayoutCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -29199,9 +29199,9 @@ void dump_html_VkIndirectCommandsLayoutCreateInfoNV(const VkIndirectCommandsLayo
     dump_html_value<const VkIndirectCommandsLayoutUsageFlagsNV>(object.flags, settings, "VkIndirectCommandsLayoutUsageFlagsNV", "flags", indents + 1, dump_html_VkIndirectCommandsLayoutUsageFlagsNV);
     dump_html_value<const VkPipelineBindPoint>(object.pipelineBindPoint, settings, "VkPipelineBindPoint", "pipelineBindPoint", indents + 1, dump_html_VkPipelineBindPoint);
     dump_html_value<const uint32_t>(object.tokenCount, settings, "uint32_t", "tokenCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkIndirectCommandsLayoutTokenNV>(object.pTokens, object.tokenCount, settings, "const VkIndirectCommandsLayoutTokenNV*", "const VkIndirectCommandsLayoutTokenNV", "pTokens", indents + 1, dump_html_VkIndirectCommandsLayoutTokenNV); // ZRT
+    dump_html_array<const VkIndirectCommandsLayoutTokenNV>(object.pTokens, object.tokenCount, settings, "const VkIndirectCommandsLayoutTokenNV*", "const VkIndirectCommandsLayoutTokenNV", "pTokens", indents + 1, dump_html_VkIndirectCommandsLayoutTokenNV);
     dump_html_value<const uint32_t>(object.streamCount, settings, "uint32_t", "streamCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pStreamStrides, object.streamCount, settings, "const uint32_t*", "const uint32_t", "pStreamStrides", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pStreamStrides, object.streamCount, settings, "const uint32_t*", "const uint32_t", "pStreamStrides", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkGeneratedCommandsInfoNV(const VkGeneratedCommandsInfoNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -29221,7 +29221,7 @@ void dump_html_VkGeneratedCommandsInfoNV(const VkGeneratedCommandsInfoNV& object
     dump_html_value<const VkPipeline>(object.pipeline, settings, "VkPipeline", "pipeline", indents + 1, dump_html_VkPipeline);
     dump_html_value<const VkIndirectCommandsLayoutNV>(object.indirectCommandsLayout, settings, "VkIndirectCommandsLayoutNV", "indirectCommandsLayout", indents + 1, dump_html_VkIndirectCommandsLayoutNV);
     dump_html_value<const uint32_t>(object.streamCount, settings, "uint32_t", "streamCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkIndirectCommandsStreamNV>(object.pStreams, object.streamCount, settings, "const VkIndirectCommandsStreamNV*", "const VkIndirectCommandsStreamNV", "pStreams", indents + 1, dump_html_VkIndirectCommandsStreamNV); // ZRT
+    dump_html_array<const VkIndirectCommandsStreamNV>(object.pStreams, object.streamCount, settings, "const VkIndirectCommandsStreamNV*", "const VkIndirectCommandsStreamNV", "pStreams", indents + 1, dump_html_VkIndirectCommandsStreamNV);
     dump_html_value<const uint32_t>(object.sequencesCount, settings, "uint32_t", "sequencesCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkBuffer>(object.preprocessBuffer, settings, "VkBuffer", "preprocessBuffer", indents + 1, dump_html_VkBuffer);
     dump_html_value<const VkDeviceSize>(object.preprocessOffset, settings, "VkDeviceSize", "preprocessOffset", indents + 1, dump_html_VkDeviceSize);
@@ -29635,9 +29635,9 @@ void dump_html_VkCudaLaunchInfoNV(const VkCudaLaunchInfoNV& object, const ApiDum
     dump_html_value<const uint32_t>(object.blockDimZ, settings, "uint32_t", "blockDimZ", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.sharedMemBytes, settings, "uint32_t", "sharedMemBytes", indents + 1, dump_html_uint32_t);
     dump_html_value<const size_t>(object.paramCount, settings, "size_t", "paramCount", indents + 1, dump_html_size_t);
-    dump_html_array<const void*>(object.pParams, object.paramCount, settings, "const void* const *", "const void* const ", "pParams", indents + 1, dump_html_void); // ZRT
+    dump_html_array<const void*>(object.pParams, object.paramCount, settings, "const void* const *", "const void* const ", "pParams", indents + 1, dump_html_void);
     dump_html_value<const size_t>(object.extraCount, settings, "size_t", "extraCount", indents + 1, dump_html_size_t);
-    dump_html_array<const void*>(object.pExtras, object.extraCount, settings, "const void* const *", "const void* const ", "pExtras", indents + 1, dump_html_void); // ZRT
+    dump_html_array<const void*>(object.pExtras, object.extraCount, settings, "const void* const *", "const void* const ", "pExtras", indents + 1, dump_html_void);
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
@@ -30392,7 +30392,7 @@ void dump_html_VkPipelineFragmentShadingRateEnumStateCreateInfoNV(const VkPipeli
     }
     dump_html_value<const VkFragmentShadingRateTypeNV>(object.shadingRateType, settings, "VkFragmentShadingRateTypeNV", "shadingRateType", indents + 1, dump_html_VkFragmentShadingRateTypeNV);
     dump_html_value<const VkFragmentShadingRateNV>(object.shadingRate, settings, "VkFragmentShadingRateNV", "shadingRate", indents + 1, dump_html_VkFragmentShadingRateNV);
-    dump_html_array<const VkFragmentShadingRateCombinerOpKHR>(object.combinerOps, 2, settings, "VkFragmentShadingRateCombinerOpKHR[2]", "VkFragmentShadingRateCombinerOpKHR", "combinerOps", indents + 1, dump_html_VkFragmentShadingRateCombinerOpKHR); // ZRR
+    dump_html_array<const VkFragmentShadingRateCombinerOpKHR>(object.combinerOps, 2, settings, "VkFragmentShadingRateCombinerOpKHR[2]", "VkFragmentShadingRateCombinerOpKHR", "combinerOps", indents + 1, dump_html_VkFragmentShadingRateCombinerOpKHR);
 }
 void dump_html_VkAccelerationStructureGeometryMotionTrianglesDataNV(const VkAccelerationStructureGeometryMotionTrianglesDataNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -30612,7 +30612,7 @@ void dump_html_VkImageCompressionControlEXT(const VkImageCompressionControlEXT& 
     }
     dump_html_value<const VkImageCompressionFlagsEXT>(object.flags, settings, "VkImageCompressionFlagsEXT", "flags", indents + 1, dump_html_VkImageCompressionFlagsEXT);
     dump_html_value<const uint32_t>(object.compressionControlPlaneCount, settings, "uint32_t", "compressionControlPlaneCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageCompressionFixedRateFlagsEXT>(object.pFixedRateFlags, object.compressionControlPlaneCount, settings, "VkImageCompressionFixedRateFlagsEXT*", "VkImageCompressionFixedRateFlagsEXT", "pFixedRateFlags", indents + 1, dump_html_VkImageCompressionFixedRateFlagsEXT); // ZRT
+    dump_html_array<const VkImageCompressionFixedRateFlagsEXT>(object.pFixedRateFlags, object.compressionControlPlaneCount, settings, "VkImageCompressionFixedRateFlagsEXT*", "VkImageCompressionFixedRateFlagsEXT", "pFixedRateFlags", indents + 1, dump_html_VkImageCompressionFixedRateFlagsEXT);
 }
 void dump_html_VkImageCompressionPropertiesEXT(const VkImageCompressionPropertiesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -30755,7 +30755,7 @@ void dump_html_VkDeviceFaultVendorBinaryHeaderVersionOneEXT(const VkDeviceFaultV
     dump_html_value<const uint32_t>(object.vendorID, settings, "uint32_t", "vendorID", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.deviceID, settings, "uint32_t", "deviceID", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.driverVersion, settings, "uint32_t", "driverVersion", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint32_t>(object.applicationNameOffset, settings, "uint32_t", "applicationNameOffset", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.applicationVersion, settings, "uint32_t", "applicationVersion", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.engineNameOffset, settings, "uint32_t", "engineNameOffset", indents + 1, dump_html_uint32_t);
@@ -30841,7 +30841,7 @@ void dump_html_VkMutableDescriptorTypeListEXT(const VkMutableDescriptorTypeListE
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const uint32_t>(object.descriptorTypeCount, settings, "uint32_t", "descriptorTypeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDescriptorType>(object.pDescriptorTypes, object.descriptorTypeCount, settings, "const VkDescriptorType*", "const VkDescriptorType", "pDescriptorTypes", indents + 1, dump_html_VkDescriptorType); // ZRT
+    dump_html_array<const VkDescriptorType>(object.pDescriptorTypes, object.descriptorTypeCount, settings, "const VkDescriptorType*", "const VkDescriptorType", "pDescriptorTypes", indents + 1, dump_html_VkDescriptorType);
 }
 void dump_html_VkMutableDescriptorTypeCreateInfoEXT(const VkMutableDescriptorTypeCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -30858,7 +30858,7 @@ void dump_html_VkMutableDescriptorTypeCreateInfoEXT(const VkMutableDescriptorTyp
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.mutableDescriptorTypeListCount, settings, "uint32_t", "mutableDescriptorTypeListCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMutableDescriptorTypeListEXT>(object.pMutableDescriptorTypeLists, object.mutableDescriptorTypeListCount, settings, "const VkMutableDescriptorTypeListEXT*", "const VkMutableDescriptorTypeListEXT", "pMutableDescriptorTypeLists", indents + 1, dump_html_VkMutableDescriptorTypeListEXT); // ZRT
+    dump_html_array<const VkMutableDescriptorTypeListEXT>(object.pMutableDescriptorTypeLists, object.mutableDescriptorTypeListCount, settings, "const VkMutableDescriptorTypeListEXT*", "const VkMutableDescriptorTypeListEXT", "pMutableDescriptorTypeLists", indents + 1, dump_html_VkMutableDescriptorTypeListEXT);
 }
 void dump_html_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT(const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -31314,7 +31314,7 @@ void dump_html_VkImageFormatConstraintsInfoFUCHSIA(const VkImageFormatConstraint
     dump_html_value<const VkImageFormatConstraintsFlagsFUCHSIA>(object.flags, settings, "VkImageFormatConstraintsFlagsFUCHSIA", "flags", indents + 1, dump_html_VkImageFormatConstraintsFlagsFUCHSIA);
     dump_html_value<const uint64_t>(object.sysmemPixelFormat, settings, "uint64_t", "sysmemPixelFormat", indents + 1, dump_html_uint64_t);
     dump_html_value<const uint32_t>(object.colorSpaceCount, settings, "uint32_t", "colorSpaceCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSysmemColorSpaceFUCHSIA>(object.pColorSpaces, object.colorSpaceCount, settings, "const VkSysmemColorSpaceFUCHSIA*", "const VkSysmemColorSpaceFUCHSIA", "pColorSpaces", indents + 1, dump_html_VkSysmemColorSpaceFUCHSIA); // ZRT
+    dump_html_array<const VkSysmemColorSpaceFUCHSIA>(object.pColorSpaces, object.colorSpaceCount, settings, "const VkSysmemColorSpaceFUCHSIA*", "const VkSysmemColorSpaceFUCHSIA", "pColorSpaces", indents + 1, dump_html_VkSysmemColorSpaceFUCHSIA);
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
@@ -31333,7 +31333,7 @@ void dump_html_VkImageConstraintsInfoFUCHSIA(const VkImageConstraintsInfoFUCHSIA
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.formatConstraintsCount, settings, "uint32_t", "formatConstraintsCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImageFormatConstraintsInfoFUCHSIA>(object.pFormatConstraints, object.formatConstraintsCount, settings, "const VkImageFormatConstraintsInfoFUCHSIA*", "const VkImageFormatConstraintsInfoFUCHSIA", "pFormatConstraints", indents + 1, dump_html_VkImageFormatConstraintsInfoFUCHSIA); // ZRT
+    dump_html_array<const VkImageFormatConstraintsInfoFUCHSIA>(object.pFormatConstraints, object.formatConstraintsCount, settings, "const VkImageFormatConstraintsInfoFUCHSIA*", "const VkImageFormatConstraintsInfoFUCHSIA", "pFormatConstraints", indents + 1, dump_html_VkImageFormatConstraintsInfoFUCHSIA);
     dump_html_value<const VkBufferCollectionConstraintsInfoFUCHSIA>(object.bufferCollectionConstraints, settings, "VkBufferCollectionConstraintsInfoFUCHSIA", "bufferCollectionConstraints", indents + 1, dump_html_VkBufferCollectionConstraintsInfoFUCHSIA);
     dump_html_value<const VkImageConstraintsInfoFlagsFUCHSIA>(object.flags, settings, "VkImageConstraintsInfoFlagsFUCHSIA", "flags", indents + 1, dump_html_VkImageConstraintsInfoFlagsFUCHSIA);
 }
@@ -31450,7 +31450,7 @@ void dump_html_VkPipelinePropertiesIdentifierEXT(const VkPipelinePropertiesIdent
     } else {
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
-    dump_html_array<const uint8_t>(object.pipelineIdentifier, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineIdentifier", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.pipelineIdentifier, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineIdentifier", indents + 1, dump_html_uint8_t);
 }
 void dump_html_VkPhysicalDevicePipelinePropertiesFeaturesEXT(const VkPhysicalDevicePipelinePropertiesFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -31501,9 +31501,9 @@ void dump_html_VkFrameBoundaryEXT(const VkFrameBoundaryEXT& object, const ApiDum
     dump_html_value<const VkFrameBoundaryFlagsEXT>(object.flags, settings, "VkFrameBoundaryFlagsEXT", "flags", indents + 1, dump_html_VkFrameBoundaryFlagsEXT);
     dump_html_value<const uint64_t>(object.frameID, settings, "uint64_t", "frameID", indents + 1, dump_html_uint64_t);
     dump_html_value<const uint32_t>(object.imageCount, settings, "uint32_t", "imageCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkImage>(object.pImages, object.imageCount, settings, "const VkImage*", "const VkImage", "pImages", indents + 1, dump_html_VkImage); // ZRT
+    dump_html_array<const VkImage>(object.pImages, object.imageCount, settings, "const VkImage*", "const VkImage", "pImages", indents + 1, dump_html_VkImage);
     dump_html_value<const uint32_t>(object.bufferCount, settings, "uint32_t", "bufferCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkBuffer>(object.pBuffers, object.bufferCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", indents + 1, dump_html_VkBuffer); // ZRT
+    dump_html_array<const VkBuffer>(object.pBuffers, object.bufferCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", indents + 1, dump_html_VkBuffer);
     dump_html_value<const uint64_t>(object.tagName, settings, "uint64_t", "tagName", indents + 1, dump_html_uint64_t);
     dump_html_value<const size_t>(object.tagSize, settings, "size_t", "tagSize", indents + 1, dump_html_size_t);
     dump_html_value<const void*>(object.pTag, settings, "const void*", "pTag", indents + 1, dump_html_void);
@@ -31626,7 +31626,7 @@ void dump_html_VkPipelineColorWriteCreateInfoEXT(const VkPipelineColorWriteCreat
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.attachmentCount, settings, "uint32_t", "attachmentCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkBool32>(object.pColorWriteEnables, object.attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorWriteEnables", indents + 1, dump_html_VkBool32); // ZRT
+    dump_html_array<const VkBool32>(object.pColorWriteEnables, object.attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorWriteEnables", indents + 1, dump_html_VkBool32);
 }
 void dump_html_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT(const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -31817,8 +31817,8 @@ void dump_html_VkMicromapBuildInfoEXT(const VkMicromapBuildInfoEXT& object, cons
     dump_html_value<const VkBuildMicromapModeEXT>(object.mode, settings, "VkBuildMicromapModeEXT", "mode", indents + 1, dump_html_VkBuildMicromapModeEXT);
     dump_html_value<const VkMicromapEXT>(object.dstMicromap, settings, "VkMicromapEXT", "dstMicromap", indents + 1, dump_html_VkMicromapEXT);
     dump_html_value<const uint32_t>(object.usageCountsCount, settings, "uint32_t", "usageCountsCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
-    dump_html_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
+    dump_html_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT);
+    dump_html_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT);
     dump_html_value<const VkDeviceOrHostAddressConstKHR>(object.data, settings, "VkDeviceOrHostAddressConstKHR", "data", indents + 1, dump_html_VkDeviceOrHostAddressConstKHR);
     dump_html_value<const VkDeviceOrHostAddressKHR>(object.scratchData, settings, "VkDeviceOrHostAddressKHR", "scratchData", indents + 1, dump_html_VkDeviceOrHostAddressKHR);
     dump_html_value<const VkDeviceOrHostAddressConstKHR>(object.triangleArray, settings, "VkDeviceOrHostAddressConstKHR", "triangleArray", indents + 1, dump_html_VkDeviceOrHostAddressConstKHR);
@@ -31894,7 +31894,7 @@ void dump_html_VkMicromapVersionInfoEXT(const VkMicromapVersionInfoEXT& object, 
     } else {
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
-    dump_html_array<const uint8_t>(object.pVersionData, 2*VK_UUID_SIZE, settings, "const uint8_t*", "const uint8_t", "pVersionData", indents + 1, dump_html_uint8_t); // ZRS
+    dump_html_array<const uint8_t>(object.pVersionData, 2*VK_UUID_SIZE, settings, "const uint8_t*", "const uint8_t", "pVersionData", indents + 1, dump_html_uint8_t);
 }
 void dump_html_VkCopyMicromapToMemoryInfoEXT(const VkCopyMicromapToMemoryInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -31987,8 +31987,8 @@ void dump_html_VkAccelerationStructureTrianglesOpacityMicromapEXT(const VkAccele
     dump_html_value<const VkDeviceSize>(object.indexStride, settings, "VkDeviceSize", "indexStride", indents + 1, dump_html_VkDeviceSize);
     dump_html_value<const uint32_t>(object.baseTriangle, settings, "uint32_t", "baseTriangle", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.usageCountsCount, settings, "uint32_t", "usageCountsCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
-    dump_html_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
+    dump_html_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT);
+    dump_html_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT);
     dump_html_value<const VkMicromapEXT>(object.micromap, settings, "VkMicromapEXT", "micromap", indents + 1, dump_html_VkMicromapEXT);
 }
 void dump_html_VkMicromapTriangleEXT(const VkMicromapTriangleEXT& object, const ApiDumpSettings& settings, int indents)
@@ -32067,8 +32067,8 @@ void dump_html_VkAccelerationStructureTrianglesDisplacementMicromapNV(const VkAc
     dump_html_value<const VkDeviceSize>(object.indexStride, settings, "VkDeviceSize", "indexStride", indents + 1, dump_html_VkDeviceSize);
     dump_html_value<const uint32_t>(object.baseTriangle, settings, "uint32_t", "baseTriangle", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.usageCountsCount, settings, "uint32_t", "usageCountsCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
-    dump_html_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT); // ZRT
+    dump_html_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT);
+    dump_html_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", indents + 1, dump_html_VkMicromapUsageEXT);
     dump_html_value<const VkMicromapEXT>(object.micromap, settings, "VkMicromapEXT", "micromap", indents + 1, dump_html_VkMicromapEXT);
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
@@ -32103,8 +32103,8 @@ void dump_html_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI(const VkPhys
     } else {
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
-    dump_html_array<const uint32_t>(object.maxWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxWorkGroupCount", indents + 1, dump_html_uint32_t); // ZRR
-    dump_html_array<const uint32_t>(object.maxWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxWorkGroupSize", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.maxWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxWorkGroupCount", indents + 1, dump_html_uint32_t);
+    dump_html_array<const uint32_t>(object.maxWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxWorkGroupSize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxOutputClusterCount, settings, "uint32_t", "maxOutputClusterCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkDeviceSize>(object.indirectBufferOffsetAlignment, settings, "VkDeviceSize", "indirectBufferOffsetAlignment", indents + 1, dump_html_VkDeviceSize);
 }
@@ -32403,7 +32403,7 @@ void dump_html_VkRenderPassStripeBeginInfoARM(const VkRenderPassStripeBeginInfoA
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.stripeInfoCount, settings, "uint32_t", "stripeInfoCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRenderPassStripeInfoARM>(object.pStripeInfos, object.stripeInfoCount, settings, "const VkRenderPassStripeInfoARM*", "const VkRenderPassStripeInfoARM", "pStripeInfos", indents + 1, dump_html_VkRenderPassStripeInfoARM); // ZRT
+    dump_html_array<const VkRenderPassStripeInfoARM>(object.pStripeInfos, object.stripeInfoCount, settings, "const VkRenderPassStripeInfoARM*", "const VkRenderPassStripeInfoARM", "pStripeInfos", indents + 1, dump_html_VkRenderPassStripeInfoARM);
 }
 void dump_html_VkRenderPassStripeSubmitInfoARM(const VkRenderPassStripeSubmitInfoARM& object, const ApiDumpSettings& settings, int indents)
 {
@@ -32420,7 +32420,7 @@ void dump_html_VkRenderPassStripeSubmitInfoARM(const VkRenderPassStripeSubmitInf
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.stripeSemaphoreInfoCount, settings, "uint32_t", "stripeSemaphoreInfoCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkSemaphoreSubmitInfo>(object.pStripeSemaphoreInfos, object.stripeSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pStripeSemaphoreInfos", indents + 1, dump_html_VkSemaphoreSubmitInfo); // ZRT
+    dump_html_array<const VkSemaphoreSubmitInfo>(object.pStripeSemaphoreInfos, object.stripeSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pStripeSemaphoreInfos", indents + 1, dump_html_VkSemaphoreSubmitInfo);
 }
 void dump_html_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT(const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -32469,7 +32469,7 @@ void dump_html_VkRenderPassFragmentDensityMapOffsetEndInfoEXT(const VkRenderPass
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.fragmentDensityOffsetCount, settings, "uint32_t", "fragmentDensityOffsetCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkOffset2D>(object.pFragmentDensityOffsets, object.fragmentDensityOffsetCount, settings, "const VkOffset2D*", "const VkOffset2D", "pFragmentDensityOffsets", indents + 1, dump_html_VkOffset2D); // ZRT
+    dump_html_array<const VkOffset2D>(object.pFragmentDensityOffsets, object.fragmentDensityOffsetCount, settings, "const VkOffset2D*", "const VkOffset2D", "pFragmentDensityOffsets", indents + 1, dump_html_VkOffset2D);
 }
 void dump_html_VkCopyMemoryIndirectCommandNV(const VkCopyMemoryIndirectCommandNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33054,7 +33054,7 @@ void dump_html_VkDirectDriverLoadingListLUNARG(const VkDirectDriverLoadingListLU
     }
     dump_html_value<const VkDirectDriverLoadingModeLUNARG>(object.mode, settings, "VkDirectDriverLoadingModeLUNARG", "mode", indents + 1, dump_html_VkDirectDriverLoadingModeLUNARG);
     dump_html_value<const uint32_t>(object.driverCount, settings, "uint32_t", "driverCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDirectDriverLoadingInfoLUNARG>(object.pDrivers, object.driverCount, settings, "const VkDirectDriverLoadingInfoLUNARG*", "const VkDirectDriverLoadingInfoLUNARG", "pDrivers", indents + 1, dump_html_VkDirectDriverLoadingInfoLUNARG); // ZRT
+    dump_html_array<const VkDirectDriverLoadingInfoLUNARG>(object.pDrivers, object.driverCount, settings, "const VkDirectDriverLoadingInfoLUNARG*", "const VkDirectDriverLoadingInfoLUNARG", "pDrivers", indents + 1, dump_html_VkDirectDriverLoadingInfoLUNARG);
 }
 void dump_html_VkTensorDescriptionARM(const VkTensorDescriptionARM& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33073,8 +33073,8 @@ void dump_html_VkTensorDescriptionARM(const VkTensorDescriptionARM& object, cons
     dump_html_value<const VkTensorTilingARM>(object.tiling, settings, "VkTensorTilingARM", "tiling", indents + 1, dump_html_VkTensorTilingARM);
     dump_html_value<const VkFormat>(object.format, settings, "VkFormat", "format", indents + 1, dump_html_VkFormat);
     dump_html_value<const uint32_t>(object.dimensionCount, settings, "uint32_t", "dimensionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const int64_t>(object.pDimensions, object.dimensionCount, settings, "const int64_t*", "const int64_t", "pDimensions", indents + 1, dump_html_int64_t); // ZRT
-    dump_html_array<const int64_t>(object.pStrides, object.dimensionCount, settings, "const int64_t*", "const int64_t", "pStrides", indents + 1, dump_html_int64_t); // ZRT
+    dump_html_array<const int64_t>(object.pDimensions, object.dimensionCount, settings, "const int64_t*", "const int64_t", "pDimensions", indents + 1, dump_html_int64_t);
+    dump_html_array<const int64_t>(object.pStrides, object.dimensionCount, settings, "const int64_t*", "const int64_t", "pStrides", indents + 1, dump_html_int64_t);
     dump_html_value<const VkTensorUsageFlagsARM>(object.usage, settings, "VkTensorUsageFlagsARM", "usage", indents + 1, dump_html_VkTensorUsageFlagsARM);
 }
 void dump_html_VkTensorCreateInfoARM(const VkTensorCreateInfoARM& object, const ApiDumpSettings& settings, int indents)
@@ -33095,7 +33095,7 @@ void dump_html_VkTensorCreateInfoARM(const VkTensorCreateInfoARM& object, const 
     dump_html_pointer<const VkTensorDescriptionARM>(object.pDescription, settings, "const VkTensorDescriptionARM*", "pDescription", indents + 1, dump_html_VkTensorDescriptionARM);
     dump_html_value<const VkSharingMode>(object.sharingMode, settings, "VkSharingMode", "sharingMode", indents + 1, dump_html_VkSharingMode);
     dump_html_value<const uint32_t>(object.queueFamilyIndexCount, settings, "uint32_t", "queueFamilyIndexCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", indents + 1, dump_html_uint32_t); // ZRT
+    dump_html_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkTensorViewCreateInfoARM(const VkTensorViewCreateInfoARM& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33164,7 +33164,7 @@ void dump_html_VkWriteDescriptorSetTensorARM(const VkWriteDescriptorSetTensorARM
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.tensorViewCount, settings, "uint32_t", "tensorViewCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkTensorViewARM>(object.pTensorViews, object.tensorViewCount, settings, "const VkTensorViewARM*", "const VkTensorViewARM", "pTensorViews", indents + 1, dump_html_VkTensorViewARM); // ZRT
+    dump_html_array<const VkTensorViewARM>(object.pTensorViews, object.tensorViewCount, settings, "const VkTensorViewARM*", "const VkTensorViewARM", "pTensorViews", indents + 1, dump_html_VkTensorViewARM);
 }
 void dump_html_VkTensorFormatPropertiesARM(const VkTensorFormatPropertiesARM& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33302,9 +33302,9 @@ void dump_html_VkTensorCopyARM(const VkTensorCopyARM& object, const ApiDumpSetti
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.dimensionCount, settings, "uint32_t", "dimensionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint64_t>(object.pSrcOffset, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pSrcOffset", indents + 1, dump_html_uint64_t); // ZRT
-    dump_html_array<const uint64_t>(object.pDstOffset, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pDstOffset", indents + 1, dump_html_uint64_t); // ZRT
-    dump_html_array<const uint64_t>(object.pExtent, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pExtent", indents + 1, dump_html_uint64_t); // ZRT
+    dump_html_array<const uint64_t>(object.pSrcOffset, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pSrcOffset", indents + 1, dump_html_uint64_t);
+    dump_html_array<const uint64_t>(object.pDstOffset, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pDstOffset", indents + 1, dump_html_uint64_t);
+    dump_html_array<const uint64_t>(object.pExtent, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pExtent", indents + 1, dump_html_uint64_t);
 }
 void dump_html_VkCopyTensorInfoARM(const VkCopyTensorInfoARM& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33323,7 +33323,7 @@ void dump_html_VkCopyTensorInfoARM(const VkCopyTensorInfoARM& object, const ApiD
     dump_html_value<const VkTensorARM>(object.srcTensor, settings, "VkTensorARM", "srcTensor", indents + 1, dump_html_VkTensorARM);
     dump_html_value<const VkTensorARM>(object.dstTensor, settings, "VkTensorARM", "dstTensor", indents + 1, dump_html_VkTensorARM);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkTensorCopyARM>(object.pRegions, object.regionCount, settings, "const VkTensorCopyARM*", "const VkTensorCopyARM", "pRegions", indents + 1, dump_html_VkTensorCopyARM); // ZRT
+    dump_html_array<const VkTensorCopyARM>(object.pRegions, object.regionCount, settings, "const VkTensorCopyARM*", "const VkTensorCopyARM", "pRegions", indents + 1, dump_html_VkTensorCopyARM);
 }
 void dump_html_VkMemoryDedicatedAllocateInfoTensorARM(const VkMemoryDedicatedAllocateInfoTensorARM& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33488,7 +33488,7 @@ void dump_html_VkFrameBoundaryTensorsARM(const VkFrameBoundaryTensorsARM& object
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.tensorCount, settings, "uint32_t", "tensorCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkTensorARM>(object.pTensors, object.tensorCount, settings, "const VkTensorARM*", "const VkTensorARM", "pTensors", indents + 1, dump_html_VkTensorARM); // ZRT
+    dump_html_array<const VkTensorARM>(object.pTensors, object.tensorCount, settings, "const VkTensorARM*", "const VkTensorARM", "pTensors", indents + 1, dump_html_VkTensorARM);
 }
 void dump_html_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT(const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33520,7 +33520,7 @@ void dump_html_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT(const VkPhysi
     } else {
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
-    dump_html_array<const uint8_t>(object.shaderModuleIdentifierAlgorithmUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderModuleIdentifierAlgorithmUUID", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.shaderModuleIdentifierAlgorithmUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderModuleIdentifierAlgorithmUUID", indents + 1, dump_html_uint8_t);
 }
 void dump_html_VkPipelineShaderStageModuleIdentifierCreateInfoEXT(const VkPipelineShaderStageModuleIdentifierCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33537,7 +33537,7 @@ void dump_html_VkPipelineShaderStageModuleIdentifierCreateInfoEXT(const VkPipeli
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.identifierSize, settings, "uint32_t", "identifierSize", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint8_t>(object.pIdentifier, object.identifierSize, settings, "const uint8_t*", "const uint8_t", "pIdentifier", indents + 1, dump_html_uint8_t); // ZRT
+    dump_html_array<const uint8_t>(object.pIdentifier, object.identifierSize, settings, "const uint8_t*", "const uint8_t", "pIdentifier", indents + 1, dump_html_uint8_t);
 }
 void dump_html_VkShaderModuleIdentifierEXT(const VkShaderModuleIdentifierEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33554,7 +33554,7 @@ void dump_html_VkShaderModuleIdentifierEXT(const VkShaderModuleIdentifierEXT& ob
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.identifierSize, settings, "uint32_t", "identifierSize", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint8_t>(object.identifier, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT, settings, "uint8_t[VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT]", "uint8_t", "identifier", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.identifier, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT, settings, "uint8_t[VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT]", "uint8_t", "identifier", indents + 1, dump_html_uint8_t);
 }
 void dump_html_VkPhysicalDeviceOpticalFlowFeaturesNV(const VkPhysicalDeviceOpticalFlowFeaturesNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33688,7 +33688,7 @@ void dump_html_VkOpticalFlowExecuteInfoNV(const VkOpticalFlowExecuteInfoNV& obje
     }
     dump_html_value<const VkOpticalFlowExecuteFlagsNV>(object.flags, settings, "VkOpticalFlowExecuteFlagsNV", "flags", indents + 1, dump_html_VkOpticalFlowExecuteFlagsNV);
     dump_html_value<const uint32_t>(object.regionCount, settings, "uint32_t", "regionCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRect2D>(object.pRegions, object.regionCount, settings, "const VkRect2D*", "const VkRect2D", "pRegions", indents + 1, dump_html_VkRect2D); // ZRT
+    dump_html_array<const VkRect2D>(object.pRegions, object.regionCount, settings, "const VkRect2D*", "const VkRect2D", "pRegions", indents + 1, dump_html_VkRect2D);
 }
 void dump_html_VkPhysicalDeviceLegacyDitheringFeaturesEXT(const VkPhysicalDeviceLegacyDitheringFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -33843,7 +33843,7 @@ void dump_html_VkPhysicalDeviceShaderObjectPropertiesEXT(const VkPhysicalDeviceS
     } else {
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
-    dump_html_array<const uint8_t>(object.shaderBinaryUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderBinaryUUID", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.shaderBinaryUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderBinaryUUID", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint32_t>(object.shaderBinaryVersion, settings, "uint32_t", "shaderBinaryVersion", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkShaderCreateInfoEXT(const VkShaderCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -33868,9 +33868,9 @@ void dump_html_VkShaderCreateInfoEXT(const VkShaderCreateInfoEXT& object, const 
     dump_html_value<const void*>(object.pCode, settings, "const void*", "pCode", indents + 1, dump_html_void);
     dump_html_value<const char*>(object.pName, settings, "const char*", "pName", indents + 1, dump_html_cstring);
     dump_html_value<const uint32_t>(object.setLayoutCount, settings, "uint32_t", "setLayoutCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", indents + 1, dump_html_VkDescriptorSetLayout); // ZRT
+    dump_html_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", indents + 1, dump_html_VkDescriptorSetLayout);
     dump_html_value<const uint32_t>(object.pushConstantRangeCount, settings, "uint32_t", "pushConstantRangeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", indents + 1, dump_html_VkPushConstantRange); // ZRT
+    dump_html_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", indents + 1, dump_html_VkPushConstantRange);
     dump_html_pointer<const VkSpecializationInfo>(object.pSpecializationInfo, settings, "const VkSpecializationInfo*", "pSpecializationInfo", indents + 1, dump_html_VkSpecializationInfo);
 }
 void dump_html_VkDepthClampRangeEXT(const VkDepthClampRangeEXT& object, const ApiDumpSettings& settings, int indents)
@@ -34178,7 +34178,7 @@ void dump_html_VkLayerSettingsCreateInfoEXT(const VkLayerSettingsCreateInfoEXT& 
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.settingCount, settings, "uint32_t", "settingCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkLayerSettingEXT>(object.pSettings, object.settingCount, settings, "const VkLayerSettingEXT*", "const VkLayerSettingEXT", "pSettings", indents + 1, dump_html_VkLayerSettingEXT); // ZRT
+    dump_html_array<const VkLayerSettingEXT>(object.pSettings, object.settingCount, settings, "const VkLayerSettingEXT*", "const VkLayerSettingEXT", "pSettings", indents + 1, dump_html_VkLayerSettingEXT);
 }
 void dump_html_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM(const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM& object, const ApiDumpSettings& settings, int indents)
 {
@@ -34342,7 +34342,7 @@ void dump_html_VkGetLatencyMarkerInfoNV(const VkGetLatencyMarkerInfoNV& object, 
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.timingCount, settings, "uint32_t", "timingCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkLatencyTimingsFrameReportNV>(object.pTimings, object.timingCount, settings, "VkLatencyTimingsFrameReportNV*", "VkLatencyTimingsFrameReportNV", "pTimings", indents + 1, dump_html_VkLatencyTimingsFrameReportNV); // ZRT
+    dump_html_array<const VkLatencyTimingsFrameReportNV>(object.pTimings, object.timingCount, settings, "VkLatencyTimingsFrameReportNV*", "VkLatencyTimingsFrameReportNV", "pTimings", indents + 1, dump_html_VkLatencyTimingsFrameReportNV);
 }
 void dump_html_VkLatencySubmissionPresentIdNV(const VkLatencySubmissionPresentIdNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -34407,7 +34407,7 @@ void dump_html_VkLatencySurfaceCapabilitiesNV(const VkLatencySurfaceCapabilities
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.presentModeCount, settings, "uint32_t", "presentModeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", indents + 1, dump_html_VkPresentModeKHR); // ZRT
+    dump_html_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", indents + 1, dump_html_VkPresentModeKHR);
 }
 void dump_html_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM(const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM& object, const ApiDumpSettings& settings, int indents)
 {
@@ -34440,7 +34440,7 @@ void dump_html_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM(const VkMult
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.perViewRenderAreaCount, settings, "uint32_t", "perViewRenderAreaCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRect2D>(object.pPerViewRenderAreas, object.perViewRenderAreaCount, settings, "const VkRect2D*", "const VkRect2D", "pPerViewRenderAreas", indents + 1, dump_html_VkRect2D); // ZRT
+    dump_html_array<const VkRect2D>(object.pPerViewRenderAreas, object.perViewRenderAreaCount, settings, "const VkRect2D*", "const VkRect2D", "pPerViewRenderAreas", indents + 1, dump_html_VkRect2D);
 }
 void dump_html_VkPhysicalDevicePerStageDescriptorSetFeaturesNV(const VkPhysicalDevicePerStageDescriptorSetFeaturesNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -35395,7 +35395,7 @@ void dump_html_VkPartitionedAccelerationStructureWriteInstanceDataNV(const VkPar
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const VkTransformMatrixKHR>(object.transform, settings, "VkTransformMatrixKHR", "transform", indents + 1, dump_html_VkTransformMatrixKHR);
-    dump_html_array<const float>(object.explicitAABB, 6, settings, "float[6]", "float", "explicitAABB", indents + 1, dump_html_float); // ZRR
+    dump_html_array<const float>(object.explicitAABB, 6, settings, "float[6]", "float", "explicitAABB", indents + 1, dump_html_float);
     dump_html_value<const uint32_t>(object.instanceID, settings, "uint32_t", "instanceID", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.instanceMask, settings, "uint32_t", "instanceMask", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.instanceContributionToHitGroupIndex, settings, "uint32_t", "instanceContributionToHitGroupIndex", indents + 1, dump_html_uint32_t);
@@ -35425,7 +35425,7 @@ void dump_html_VkPartitionedAccelerationStructureWritePartitionTranslationDataNV
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const uint32_t>(object.partitionIndex, settings, "uint32_t", "partitionIndex", indents + 1, dump_html_uint32_t);
-    dump_html_array<const float>(object.partitionTranslation, 3, settings, "float[3]", "float", "partitionTranslation", indents + 1, dump_html_float); // ZRR
+    dump_html_array<const float>(object.partitionTranslation, 3, settings, "float[3]", "float", "partitionTranslation", indents + 1, dump_html_float);
 }
 void dump_html_VkWriteDescriptorSetPartitionedAccelerationStructureNV(const VkWriteDescriptorSetPartitionedAccelerationStructureNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -35442,7 +35442,7 @@ void dump_html_VkWriteDescriptorSetPartitionedAccelerationStructureNV(const VkWr
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.accelerationStructureCount, settings, "uint32_t", "accelerationStructureCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDeviceAddress>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkDeviceAddress*", "const VkDeviceAddress", "pAccelerationStructures", indents + 1, dump_html_VkDeviceAddress); // ZRT
+    dump_html_array<const VkDeviceAddress>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkDeviceAddress*", "const VkDeviceAddress", "pAccelerationStructures", indents + 1, dump_html_VkDeviceAddress);
 }
 void dump_html_VkPartitionedAccelerationStructureInstancesInputNV(const VkPartitionedAccelerationStructureInstancesInputNV& object, const ApiDumpSettings& settings, int indents)
 {
@@ -35580,7 +35580,7 @@ void dump_html_VkIndirectExecutionSetShaderLayoutInfoEXT(const VkIndirectExecuti
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.setLayoutCount, settings, "uint32_t", "setLayoutCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", indents + 1, dump_html_VkDescriptorSetLayout); // ZRT
+    dump_html_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", indents + 1, dump_html_VkDescriptorSetLayout);
 }
 void dump_html_VkIndirectExecutionSetShaderInfoEXT(const VkIndirectExecutionSetShaderInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -35597,11 +35597,11 @@ void dump_html_VkIndirectExecutionSetShaderInfoEXT(const VkIndirectExecutionSetS
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.shaderCount, settings, "uint32_t", "shaderCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkShaderEXT>(object.pInitialShaders, object.shaderCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pInitialShaders", indents + 1, dump_html_VkShaderEXT); // ZRT
-    dump_html_array<const VkIndirectExecutionSetShaderLayoutInfoEXT>(object.pSetLayoutInfos, object.shaderCount, settings, "const VkIndirectExecutionSetShaderLayoutInfoEXT*", "const VkIndirectExecutionSetShaderLayoutInfoEXT", "pSetLayoutInfos", indents + 1, dump_html_VkIndirectExecutionSetShaderLayoutInfoEXT); // ZRT
+    dump_html_array<const VkShaderEXT>(object.pInitialShaders, object.shaderCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pInitialShaders", indents + 1, dump_html_VkShaderEXT);
+    dump_html_array<const VkIndirectExecutionSetShaderLayoutInfoEXT>(object.pSetLayoutInfos, object.shaderCount, settings, "const VkIndirectExecutionSetShaderLayoutInfoEXT*", "const VkIndirectExecutionSetShaderLayoutInfoEXT", "pSetLayoutInfos", indents + 1, dump_html_VkIndirectExecutionSetShaderLayoutInfoEXT);
     dump_html_value<const uint32_t>(object.maxShaderCount, settings, "uint32_t", "maxShaderCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.pushConstantRangeCount, settings, "uint32_t", "pushConstantRangeCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", indents + 1, dump_html_VkPushConstantRange); // ZRT
+    dump_html_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", indents + 1, dump_html_VkPushConstantRange);
 }
 void dump_html_VkIndirectExecutionSetCreateInfoEXT(const VkIndirectExecutionSetCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -35741,7 +35741,7 @@ void dump_html_VkIndirectCommandsLayoutCreateInfoEXT(const VkIndirectCommandsLay
     dump_html_value<const uint32_t>(object.indirectStride, settings, "uint32_t", "indirectStride", indents + 1, dump_html_uint32_t);
     dump_html_value<const VkPipelineLayout>(object.pipelineLayout, settings, "VkPipelineLayout", "pipelineLayout", indents + 1, dump_html_VkPipelineLayout);
     dump_html_value<const uint32_t>(object.tokenCount, settings, "uint32_t", "tokenCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkIndirectCommandsLayoutTokenEXT>(object.pTokens, object.tokenCount, settings, "const VkIndirectCommandsLayoutTokenEXT*", "const VkIndirectCommandsLayoutTokenEXT", "pTokens", indents + 1, dump_html_VkIndirectCommandsLayoutTokenEXT); // ZRT
+    dump_html_array<const VkIndirectCommandsLayoutTokenEXT>(object.pTokens, object.tokenCount, settings, "const VkIndirectCommandsLayoutTokenEXT*", "const VkIndirectCommandsLayoutTokenEXT", "pTokens", indents + 1, dump_html_VkIndirectCommandsLayoutTokenEXT);
 }
 void dump_html_VkDrawIndirectCountIndirectCommandEXT(const VkDrawIndirectCountIndirectCommandEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -35810,7 +35810,7 @@ void dump_html_VkGeneratedCommandsShaderInfoEXT(const VkGeneratedCommandsShaderI
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.shaderCount, settings, "uint32_t", "shaderCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkShaderEXT>(object.pShaders, object.shaderCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pShaders", indents + 1, dump_html_VkShaderEXT); // ZRT
+    dump_html_array<const VkShaderEXT>(object.pShaders, object.shaderCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pShaders", indents + 1, dump_html_VkShaderEXT);
 }
 void dump_html_VkWriteIndirectExecutionSetShaderEXT(const VkWriteIndirectExecutionSetShaderEXT& object, const ApiDumpSettings& settings, int indents)
 {
@@ -36354,8 +36354,8 @@ void dump_html_VkAccelerationStructureBuildGeometryInfoKHR(const VkAccelerationS
     dump_html_value<const VkAccelerationStructureKHR>(object.srcAccelerationStructure, settings, "VkAccelerationStructureKHR", "srcAccelerationStructure", indents + 1, dump_html_VkAccelerationStructureKHR);
     dump_html_value<const VkAccelerationStructureKHR>(object.dstAccelerationStructure, settings, "VkAccelerationStructureKHR", "dstAccelerationStructure", indents + 1, dump_html_VkAccelerationStructureKHR);
     dump_html_value<const uint32_t>(object.geometryCount, settings, "uint32_t", "geometryCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkAccelerationStructureGeometryKHR>(object.pGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR*", "const VkAccelerationStructureGeometryKHR", "pGeometries", indents + 1, dump_html_VkAccelerationStructureGeometryKHR); // ZRT
-    dump_html_array<const VkAccelerationStructureGeometryKHR>(object.ppGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR* const*", "const VkAccelerationStructureGeometryKHR* const", "ppGeometries", indents + 1, dump_html_VkAccelerationStructureGeometryKHR); // ZRT
+    dump_html_array<const VkAccelerationStructureGeometryKHR>(object.pGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR*", "const VkAccelerationStructureGeometryKHR", "pGeometries", indents + 1, dump_html_VkAccelerationStructureGeometryKHR);
+    dump_html_array<const VkAccelerationStructureGeometryKHR>(object.ppGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR* const*", "const VkAccelerationStructureGeometryKHR* const", "ppGeometries", indents + 1, dump_html_VkAccelerationStructureGeometryKHR);
     dump_html_value<const VkDeviceOrHostAddressKHR>(object.scratchData, settings, "VkDeviceOrHostAddressKHR", "scratchData", indents + 1, dump_html_VkDeviceOrHostAddressKHR);
 }
 void dump_html_VkAccelerationStructureCreateInfoKHR(const VkAccelerationStructureCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -36394,7 +36394,7 @@ void dump_html_VkWriteDescriptorSetAccelerationStructureKHR(const VkWriteDescrip
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.accelerationStructureCount, settings, "uint32_t", "accelerationStructureCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkAccelerationStructureKHR>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", indents + 1, dump_html_VkAccelerationStructureKHR); // ZRT
+    dump_html_array<const VkAccelerationStructureKHR>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", indents + 1, dump_html_VkAccelerationStructureKHR);
 }
 void dump_html_VkPhysicalDeviceAccelerationStructureFeaturesKHR(const VkPhysicalDeviceAccelerationStructureFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -36469,7 +36469,7 @@ void dump_html_VkAccelerationStructureVersionInfoKHR(const VkAccelerationStructu
     } else {
         dump_html_value<const void*>(object.pNext, settings, "const void*", "pNext", indents + 1, dump_html_void);
     }
-    dump_html_array<const uint8_t>(object.pVersionData, 2*VK_UUID_SIZE, settings, "const uint8_t*", "const uint8_t", "pVersionData", indents + 1, dump_html_uint8_t); // ZRS
+    dump_html_array<const uint8_t>(object.pVersionData, 2*VK_UUID_SIZE, settings, "const uint8_t*", "const uint8_t", "pVersionData", indents + 1, dump_html_uint8_t);
 }
 void dump_html_VkCopyAccelerationStructureToMemoryInfoKHR(const VkCopyAccelerationStructureToMemoryInfoKHR& object, const ApiDumpSettings& settings, int indents)
 {
@@ -36579,9 +36579,9 @@ void dump_html_VkRayTracingPipelineCreateInfoKHR(const VkRayTracingPipelineCreat
     }
     dump_html_value<const VkPipelineCreateFlags>(object.flags, settings, "VkPipelineCreateFlags", "flags", indents + 1, dump_html_VkPipelineCreateFlags);
     dump_html_value<const uint32_t>(object.stageCount, settings, "uint32_t", "stageCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", indents + 1, dump_html_VkPipelineShaderStageCreateInfo); // ZRT
+    dump_html_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", indents + 1, dump_html_VkPipelineShaderStageCreateInfo);
     dump_html_value<const uint32_t>(object.groupCount, settings, "uint32_t", "groupCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const VkRayTracingShaderGroupCreateInfoKHR>(object.pGroups, object.groupCount, settings, "const VkRayTracingShaderGroupCreateInfoKHR*", "const VkRayTracingShaderGroupCreateInfoKHR", "pGroups", indents + 1, dump_html_VkRayTracingShaderGroupCreateInfoKHR); // ZRT
+    dump_html_array<const VkRayTracingShaderGroupCreateInfoKHR>(object.pGroups, object.groupCount, settings, "const VkRayTracingShaderGroupCreateInfoKHR*", "const VkRayTracingShaderGroupCreateInfoKHR", "pGroups", indents + 1, dump_html_VkRayTracingShaderGroupCreateInfoKHR);
     dump_html_value<const uint32_t>(object.maxPipelineRayRecursionDepth, settings, "uint32_t", "maxPipelineRayRecursionDepth", indents + 1, dump_html_uint32_t);
     dump_html_pointer<const VkPipelineLibraryCreateInfoKHR>(object.pLibraryInfo, settings, "const VkPipelineLibraryCreateInfoKHR*", "pLibraryInfo", indents + 1, dump_html_VkPipelineLibraryCreateInfoKHR);
     dump_html_pointer<const VkRayTracingPipelineInterfaceCreateInfoKHR>(object.pLibraryInterface, settings, "const VkRayTracingPipelineInterfaceCreateInfoKHR*", "pLibraryInterface", indents + 1, dump_html_VkRayTracingPipelineInterfaceCreateInfoKHR);
@@ -36696,16 +36696,16 @@ void dump_html_VkPhysicalDeviceMeshShaderPropertiesEXT(const VkPhysicalDeviceMes
         dump_html_value<const void*>(object.pNext, settings, "void*", "pNext", indents + 1, dump_html_void);
     }
     dump_html_value<const uint32_t>(object.maxTaskWorkGroupTotalCount, settings, "uint32_t", "maxTaskWorkGroupTotalCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.maxTaskWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupCount", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.maxTaskWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxTaskWorkGroupInvocations, settings, "uint32_t", "maxTaskWorkGroupInvocations", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.maxTaskWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupSize", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.maxTaskWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupSize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxTaskPayloadSize, settings, "uint32_t", "maxTaskPayloadSize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxTaskSharedMemorySize, settings, "uint32_t", "maxTaskSharedMemorySize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxTaskPayloadAndSharedMemorySize, settings, "uint32_t", "maxTaskPayloadAndSharedMemorySize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxMeshWorkGroupTotalCount, settings, "uint32_t", "maxMeshWorkGroupTotalCount", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.maxMeshWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupCount", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.maxMeshWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupCount", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxMeshWorkGroupInvocations, settings, "uint32_t", "maxMeshWorkGroupInvocations", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.maxMeshWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupSize", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.maxMeshWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupSize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxMeshSharedMemorySize, settings, "uint32_t", "maxMeshSharedMemorySize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxMeshPayloadAndSharedMemorySize, settings, "uint32_t", "maxMeshPayloadAndSharedMemorySize", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.maxMeshOutputMemorySize, settings, "uint32_t", "maxMeshOutputMemorySize", indents + 1, dump_html_uint32_t);
@@ -36747,9 +36747,9 @@ void dump_html_VkClearColorValue(const VkClearColorValue& object, const ApiDumpS
     else
         settings.stream() << "address (Union):\n";
     settings.stream() << "</div></summary>";
-    dump_html_array<const float>(object.float32, 4, settings, "float[4]", "float", "float32", indents + 1, dump_html_float); // ZRY
-    dump_html_array<const int32_t>(object.int32, 4, settings, "int32_t[4]", "int32_t", "int32", indents + 1, dump_html_int32_t); // ZRY
-    dump_html_array<const uint32_t>(object.uint32, 4, settings, "uint32_t[4]", "uint32_t", "uint32", indents + 1, dump_html_uint32_t); // ZRY
+    dump_html_array<const float>(object.float32, 4, settings, "float[4]", "float", "float32", indents + 1, dump_html_float);
+    dump_html_array<const int32_t>(object.int32, 4, settings, "int32_t[4]", "int32_t", "int32", indents + 1, dump_html_int32_t);
+    dump_html_array<const uint32_t>(object.uint32, 4, settings, "uint32_t[4]", "uint32_t", "uint32", indents + 1, dump_html_uint32_t);
 }
 void dump_html_VkClearValue(const VkClearValue& object, const ApiDumpSettings& settings, int indents)
 {
@@ -40376,7 +40376,7 @@ void dump_html_params_vkEnumeratePhysicalDevices(ApiDumpInstance& dump_inst, VkI
     {
         dump_html_value<const VkInstance>(instance, settings, "VkInstance", "instance", 1, dump_html_VkInstance);
         dump_html_pointer<const uint32_t>(pPhysicalDeviceCount, settings, "uint32_t*", "pPhysicalDeviceCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPhysicalDevice>(pPhysicalDevices, *pPhysicalDeviceCount, settings, "VkPhysicalDevice*", "VkPhysicalDevice", "pPhysicalDevices", 1, dump_html_VkPhysicalDevice); // ZRZ
+        dump_html_array<const VkPhysicalDevice>(pPhysicalDevices, *pPhysicalDeviceCount, settings, "VkPhysicalDevice*", "VkPhysicalDevice", "pPhysicalDevices", 1, dump_html_VkPhysicalDevice);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40438,7 +40438,7 @@ void dump_html_params_vkGetPhysicalDeviceQueueFamilyProperties(ApiDumpInstance& 
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pQueueFamilyPropertyCount, settings, "uint32_t*", "pQueueFamilyPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkQueueFamilyProperties>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties*", "VkQueueFamilyProperties", "pQueueFamilyProperties", 1, dump_html_VkQueueFamilyProperties); // ZRZ
+        dump_html_array<const VkQueueFamilyProperties>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties*", "VkQueueFamilyProperties", "pQueueFamilyProperties", 1, dump_html_VkQueueFamilyProperties);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40485,7 +40485,7 @@ void dump_html_params_vkEnumerateInstanceExtensionProperties(ApiDumpInstance& du
     {
         dump_html_value<const char*>(pLayerName, settings, "const char*", "pLayerName", 1, dump_html_cstring);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkExtensionProperties>(pProperties, *pPropertyCount, settings, "VkExtensionProperties*", "VkExtensionProperties", "pProperties", 1, dump_html_VkExtensionProperties); // ZRZ
+        dump_html_array<const VkExtensionProperties>(pProperties, *pPropertyCount, settings, "VkExtensionProperties*", "VkExtensionProperties", "pProperties", 1, dump_html_VkExtensionProperties);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40498,7 +40498,7 @@ void dump_html_params_vkEnumerateDeviceExtensionProperties(ApiDumpInstance& dump
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_value<const char*>(pLayerName, settings, "const char*", "pLayerName", 1, dump_html_cstring);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkExtensionProperties>(pProperties, *pPropertyCount, settings, "VkExtensionProperties*", "VkExtensionProperties", "pProperties", 1, dump_html_VkExtensionProperties); // ZRZ
+        dump_html_array<const VkExtensionProperties>(pProperties, *pPropertyCount, settings, "VkExtensionProperties*", "VkExtensionProperties", "pProperties", 1, dump_html_VkExtensionProperties);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40509,7 +40509,7 @@ void dump_html_params_vkEnumerateInstanceLayerProperties(ApiDumpInstance& dump_i
     if(settings.showParams())
     {
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkLayerProperties>(pProperties, *pPropertyCount, settings, "VkLayerProperties*", "VkLayerProperties", "pProperties", 1, dump_html_VkLayerProperties); // ZRZ
+        dump_html_array<const VkLayerProperties>(pProperties, *pPropertyCount, settings, "VkLayerProperties*", "VkLayerProperties", "pProperties", 1, dump_html_VkLayerProperties);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40521,7 +40521,7 @@ void dump_html_params_vkEnumerateDeviceLayerProperties(ApiDumpInstance& dump_ins
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkLayerProperties>(pProperties, *pPropertyCount, settings, "VkLayerProperties*", "VkLayerProperties", "pProperties", 1, dump_html_VkLayerProperties); // ZRZ
+        dump_html_array<const VkLayerProperties>(pProperties, *pPropertyCount, settings, "VkLayerProperties*", "VkLayerProperties", "pProperties", 1, dump_html_VkLayerProperties);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40546,7 +40546,7 @@ void dump_html_params_vkQueueSubmit(ApiDumpInstance& dump_inst, VkQueue queue, u
     {
         dump_html_value<const VkQueue>(queue, settings, "VkQueue", "queue", 1, dump_html_VkQueue);
         dump_html_value<const uint32_t>(submitCount, settings, "uint32_t", "submitCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSubmitInfo>(pSubmits, submitCount, settings, "const VkSubmitInfo*", "const VkSubmitInfo", "pSubmits", 1, dump_html_VkSubmitInfo); // ZRZ
+        dump_html_array<const VkSubmitInfo>(pSubmits, submitCount, settings, "const VkSubmitInfo*", "const VkSubmitInfo", "pSubmits", 1, dump_html_VkSubmitInfo);
         dump_html_value<const VkFence>(fence, settings, "VkFence", "fence", 1, dump_html_VkFence);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
@@ -40630,7 +40630,7 @@ void dump_html_params_vkFlushMappedMemoryRanges(ApiDumpInstance& dump_inst, VkDe
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(memoryRangeCount, settings, "uint32_t", "memoryRangeCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkMappedMemoryRange>(pMemoryRanges, memoryRangeCount, settings, "const VkMappedMemoryRange*", "const VkMappedMemoryRange", "pMemoryRanges", 1, dump_html_VkMappedMemoryRange); // ZRZ
+        dump_html_array<const VkMappedMemoryRange>(pMemoryRanges, memoryRangeCount, settings, "const VkMappedMemoryRange*", "const VkMappedMemoryRange", "pMemoryRanges", 1, dump_html_VkMappedMemoryRange);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40642,7 +40642,7 @@ void dump_html_params_vkInvalidateMappedMemoryRanges(ApiDumpInstance& dump_inst,
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(memoryRangeCount, settings, "uint32_t", "memoryRangeCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkMappedMemoryRange>(pMemoryRanges, memoryRangeCount, settings, "const VkMappedMemoryRange*", "const VkMappedMemoryRange", "pMemoryRanges", 1, dump_html_VkMappedMemoryRange); // ZRZ
+        dump_html_array<const VkMappedMemoryRange>(pMemoryRanges, memoryRangeCount, settings, "const VkMappedMemoryRange*", "const VkMappedMemoryRange", "pMemoryRanges", 1, dump_html_VkMappedMemoryRange);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40717,7 +40717,7 @@ void dump_html_params_vkGetImageSparseMemoryRequirements(ApiDumpInstance& dump_i
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkImage>(image, settings, "VkImage", "image", 1, dump_html_VkImage);
         dump_html_pointer<const uint32_t>(pSparseMemoryRequirementCount, settings, "uint32_t*", "pSparseMemoryRequirementCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSparseImageMemoryRequirements>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements*", "VkSparseImageMemoryRequirements", "pSparseMemoryRequirements", 1, dump_html_VkSparseImageMemoryRequirements); // ZRZ
+        dump_html_array<const VkSparseImageMemoryRequirements>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements*", "VkSparseImageMemoryRequirements", "pSparseMemoryRequirements", 1, dump_html_VkSparseImageMemoryRequirements);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40734,7 +40734,7 @@ void dump_html_params_vkGetPhysicalDeviceSparseImageFormatProperties(ApiDumpInst
         dump_html_value<const VkImageUsageFlags>(usage, settings, "VkImageUsageFlags", "usage", 1, dump_html_VkImageUsageFlags);
         dump_html_value<const VkImageTiling>(tiling, settings, "VkImageTiling", "tiling", 1, dump_html_VkImageTiling);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSparseImageFormatProperties>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties*", "VkSparseImageFormatProperties", "pProperties", 1, dump_html_VkSparseImageFormatProperties); // ZRZ
+        dump_html_array<const VkSparseImageFormatProperties>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties*", "VkSparseImageFormatProperties", "pProperties", 1, dump_html_VkSparseImageFormatProperties);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40746,7 +40746,7 @@ void dump_html_params_vkQueueBindSparse(ApiDumpInstance& dump_inst, VkQueue queu
     {
         dump_html_value<const VkQueue>(queue, settings, "VkQueue", "queue", 1, dump_html_VkQueue);
         dump_html_value<const uint32_t>(bindInfoCount, settings, "uint32_t", "bindInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBindSparseInfo>(pBindInfo, bindInfoCount, settings, "const VkBindSparseInfo*", "const VkBindSparseInfo", "pBindInfo", 1, dump_html_VkBindSparseInfo); // ZRZ
+        dump_html_array<const VkBindSparseInfo>(pBindInfo, bindInfoCount, settings, "const VkBindSparseInfo*", "const VkBindSparseInfo", "pBindInfo", 1, dump_html_VkBindSparseInfo);
         dump_html_value<const VkFence>(fence, settings, "VkFence", "fence", 1, dump_html_VkFence);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
@@ -40784,7 +40784,7 @@ void dump_html_params_vkResetFences(ApiDumpInstance& dump_inst, VkDevice device,
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(fenceCount, settings, "uint32_t", "fenceCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkFence>(pFences, fenceCount, settings, "const VkFence*", "const VkFence", "pFences", 1, dump_html_VkFence); // ZRZ
+        dump_html_array<const VkFence>(pFences, fenceCount, settings, "const VkFence*", "const VkFence", "pFences", 1, dump_html_VkFence);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -40807,7 +40807,7 @@ void dump_html_params_vkWaitForFences(ApiDumpInstance& dump_inst, VkDevice devic
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(fenceCount, settings, "uint32_t", "fenceCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkFence>(pFences, fenceCount, settings, "const VkFence*", "const VkFence", "pFences", 1, dump_html_VkFence); // ZRZ
+        dump_html_array<const VkFence>(pFences, fenceCount, settings, "const VkFence*", "const VkFence", "pFences", 1, dump_html_VkFence);
         dump_html_value<const VkBool32>(waitAll, settings, "VkBool32", "waitAll", 1, dump_html_VkBool32);
         dump_html_value<const uint64_t>(timeout, settings, "uint64_t", "timeout", 1, dump_html_uint64_t);
     }
@@ -41123,7 +41123,7 @@ void dump_html_params_vkMergePipelineCaches(ApiDumpInstance& dump_inst, VkDevice
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkPipelineCache>(dstCache, settings, "VkPipelineCache", "dstCache", 1, dump_html_VkPipelineCache);
         dump_html_value<const uint32_t>(srcCacheCount, settings, "uint32_t", "srcCacheCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPipelineCache>(pSrcCaches, srcCacheCount, settings, "const VkPipelineCache*", "const VkPipelineCache", "pSrcCaches", 1, dump_html_VkPipelineCache); // ZRZ
+        dump_html_array<const VkPipelineCache>(pSrcCaches, srcCacheCount, settings, "const VkPipelineCache*", "const VkPipelineCache", "pSrcCaches", 1, dump_html_VkPipelineCache);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41136,9 +41136,9 @@ void dump_html_params_vkCreateGraphicsPipelines(ApiDumpInstance& dump_inst, VkDe
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkPipelineCache>(pipelineCache, settings, "VkPipelineCache", "pipelineCache", 1, dump_html_VkPipelineCache);
         dump_html_value<const uint32_t>(createInfoCount, settings, "uint32_t", "createInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkGraphicsPipelineCreateInfo>(pCreateInfos, createInfoCount, settings, "const VkGraphicsPipelineCreateInfo*", "const VkGraphicsPipelineCreateInfo", "pCreateInfos", 1, dump_html_VkGraphicsPipelineCreateInfo); // ZRZ
+        dump_html_array<const VkGraphicsPipelineCreateInfo>(pCreateInfos, createInfoCount, settings, "const VkGraphicsPipelineCreateInfo*", "const VkGraphicsPipelineCreateInfo", "pCreateInfos", 1, dump_html_VkGraphicsPipelineCreateInfo);
         dump_html_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", 1, dump_html_VkAllocationCallbacks);
-        dump_html_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", 1, dump_html_VkPipeline); // ZRZ
+        dump_html_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", 1, dump_html_VkPipeline);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41151,9 +41151,9 @@ void dump_html_params_vkCreateComputePipelines(ApiDumpInstance& dump_inst, VkDev
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkPipelineCache>(pipelineCache, settings, "VkPipelineCache", "pipelineCache", 1, dump_html_VkPipelineCache);
         dump_html_value<const uint32_t>(createInfoCount, settings, "uint32_t", "createInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkComputePipelineCreateInfo>(pCreateInfos, createInfoCount, settings, "const VkComputePipelineCreateInfo*", "const VkComputePipelineCreateInfo", "pCreateInfos", 1, dump_html_VkComputePipelineCreateInfo); // ZRZ
+        dump_html_array<const VkComputePipelineCreateInfo>(pCreateInfos, createInfoCount, settings, "const VkComputePipelineCreateInfo*", "const VkComputePipelineCreateInfo", "pCreateInfos", 1, dump_html_VkComputePipelineCreateInfo);
         dump_html_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", 1, dump_html_VkAllocationCallbacks);
-        dump_html_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", 1, dump_html_VkPipeline); // ZRZ
+        dump_html_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", 1, dump_html_VkPipeline);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41289,7 +41289,7 @@ void dump_html_params_vkAllocateDescriptorSets(ApiDumpInstance& dump_inst, VkDev
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_pointer<const VkDescriptorSetAllocateInfo>(pAllocateInfo, settings, "const VkDescriptorSetAllocateInfo*", "pAllocateInfo", 1, dump_html_VkDescriptorSetAllocateInfo);
-        dump_html_array<const VkDescriptorSet>(pDescriptorSets, pAllocateInfo->descriptorSetCount, settings, "VkDescriptorSet*", "VkDescriptorSet", "pDescriptorSets", 1, dump_html_VkDescriptorSet); // ZRZ
+        dump_html_array<const VkDescriptorSet>(pDescriptorSets, pAllocateInfo->descriptorSetCount, settings, "VkDescriptorSet*", "VkDescriptorSet", "pDescriptorSets", 1, dump_html_VkDescriptorSet);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41302,7 +41302,7 @@ void dump_html_params_vkFreeDescriptorSets(ApiDumpInstance& dump_inst, VkDevice 
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkDescriptorPool>(descriptorPool, settings, "VkDescriptorPool", "descriptorPool", 1, dump_html_VkDescriptorPool);
         dump_html_value<const uint32_t>(descriptorSetCount, settings, "uint32_t", "descriptorSetCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDescriptorSet>(pDescriptorSets, descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", 1, dump_html_VkDescriptorSet); // ZRZ
+        dump_html_array<const VkDescriptorSet>(pDescriptorSets, descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", 1, dump_html_VkDescriptorSet);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41314,9 +41314,9 @@ void dump_html_params_vkUpdateDescriptorSets(ApiDumpInstance& dump_inst, VkDevic
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(descriptorWriteCount, settings, "uint32_t", "descriptorWriteCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", 1, dump_html_VkWriteDescriptorSet); // ZRZ
+        dump_html_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", 1, dump_html_VkWriteDescriptorSet);
         dump_html_value<const uint32_t>(descriptorCopyCount, settings, "uint32_t", "descriptorCopyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCopyDescriptorSet>(pDescriptorCopies, descriptorCopyCount, settings, "const VkCopyDescriptorSet*", "const VkCopyDescriptorSet", "pDescriptorCopies", 1, dump_html_VkCopyDescriptorSet); // ZRZ
+        dump_html_array<const VkCopyDescriptorSet>(pDescriptorCopies, descriptorCopyCount, settings, "const VkCopyDescriptorSet*", "const VkCopyDescriptorSet", "pDescriptorCopies", 1, dump_html_VkCopyDescriptorSet);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41427,7 +41427,7 @@ void dump_html_params_vkAllocateCommandBuffers(ApiDumpInstance& dump_inst, VkDev
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_pointer<const VkCommandBufferAllocateInfo>(pAllocateInfo, settings, "const VkCommandBufferAllocateInfo*", "pAllocateInfo", 1, dump_html_VkCommandBufferAllocateInfo);
-        dump_html_array<const VkCommandBuffer>(pCommandBuffers, pAllocateInfo->commandBufferCount, settings, "VkCommandBuffer*", "VkCommandBuffer", "pCommandBuffers", 1, dump_html_VkCommandBuffer); // ZRZ
+        dump_html_array<const VkCommandBuffer>(pCommandBuffers, pAllocateInfo->commandBufferCount, settings, "VkCommandBuffer*", "VkCommandBuffer", "pCommandBuffers", 1, dump_html_VkCommandBuffer);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41440,7 +41440,7 @@ void dump_html_params_vkFreeCommandBuffers(ApiDumpInstance& dump_inst, VkDevice 
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkCommandPool>(commandPool, settings, "VkCommandPool", "commandPool", 1, dump_html_VkCommandPool);
         dump_html_value<const uint32_t>(commandBufferCount, settings, "uint32_t", "commandBufferCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCommandBuffer>(pCommandBuffers, commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", 1, dump_html_VkCommandBuffer); // ZRZ
+        dump_html_array<const VkCommandBuffer>(pCommandBuffers, commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", 1, dump_html_VkCommandBuffer);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41498,7 +41498,7 @@ void dump_html_params_vkCmdSetViewport(ApiDumpInstance& dump_inst, VkCommandBuff
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstViewport, settings, "uint32_t", "firstViewport", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(viewportCount, settings, "uint32_t", "viewportCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", 1, dump_html_VkViewport); // ZRZ
+        dump_html_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", 1, dump_html_VkViewport);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41511,7 +41511,7 @@ void dump_html_params_vkCmdSetScissor(ApiDumpInstance& dump_inst, VkCommandBuffe
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstScissor, settings, "uint32_t", "firstScissor", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(scissorCount, settings, "uint32_t", "scissorCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", 1, dump_html_VkRect2D); // ZRZ
+        dump_html_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", 1, dump_html_VkRect2D);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41546,7 +41546,7 @@ void dump_html_params_vkCmdSetBlendConstants(ApiDumpInstance& dump_inst, VkComma
     if(settings.showParams())
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
-        dump_html_array<const float>(blendConstants, 4, settings, "const float[4]", "const float", "blendConstants", 1, dump_html_float); // ZRZ
+        dump_html_array<const float>(blendConstants, 4, settings, "const float[4]", "const float", "blendConstants", 1, dump_html_float);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41609,9 +41609,9 @@ void dump_html_params_vkCmdBindDescriptorSets(ApiDumpInstance& dump_inst, VkComm
         dump_html_value<const VkPipelineLayout>(layout, settings, "VkPipelineLayout", "layout", 1, dump_html_VkPipelineLayout);
         dump_html_value<const uint32_t>(firstSet, settings, "uint32_t", "firstSet", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(descriptorSetCount, settings, "uint32_t", "descriptorSetCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDescriptorSet>(pDescriptorSets, descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", 1, dump_html_VkDescriptorSet); // ZRZ
+        dump_html_array<const VkDescriptorSet>(pDescriptorSets, descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", 1, dump_html_VkDescriptorSet);
         dump_html_value<const uint32_t>(dynamicOffsetCount, settings, "uint32_t", "dynamicOffsetCount", 1, dump_html_uint32_t);
-        dump_html_array<const uint32_t>(pDynamicOffsets, dynamicOffsetCount, settings, "const uint32_t*", "const uint32_t", "pDynamicOffsets", 1, dump_html_uint32_t); // ZRZ
+        dump_html_array<const uint32_t>(pDynamicOffsets, dynamicOffsetCount, settings, "const uint32_t*", "const uint32_t", "pDynamicOffsets", 1, dump_html_uint32_t);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41637,8 +41637,8 @@ void dump_html_params_vkCmdBindVertexBuffers(ApiDumpInstance& dump_inst, VkComma
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstBinding, settings, "uint32_t", "firstBinding", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(bindingCount, settings, "uint32_t", "bindingCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", 1, dump_html_VkBuffer); // ZRZ
-        dump_html_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", 1, dump_html_VkDeviceSize); // ZRZ
+        dump_html_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", 1, dump_html_VkBuffer);
+        dump_html_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", 1, dump_html_VkDeviceSize);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41734,7 +41734,7 @@ void dump_html_params_vkCmdCopyBuffer(ApiDumpInstance& dump_inst, VkCommandBuffe
         dump_html_value<const VkBuffer>(srcBuffer, settings, "VkBuffer", "srcBuffer", 1, dump_html_VkBuffer);
         dump_html_value<const VkBuffer>(dstBuffer, settings, "VkBuffer", "dstBuffer", 1, dump_html_VkBuffer);
         dump_html_value<const uint32_t>(regionCount, settings, "uint32_t", "regionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBufferCopy>(pRegions, regionCount, settings, "const VkBufferCopy*", "const VkBufferCopy", "pRegions", 1, dump_html_VkBufferCopy); // ZRZ
+        dump_html_array<const VkBufferCopy>(pRegions, regionCount, settings, "const VkBufferCopy*", "const VkBufferCopy", "pRegions", 1, dump_html_VkBufferCopy);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41750,7 +41750,7 @@ void dump_html_params_vkCmdCopyImage(ApiDumpInstance& dump_inst, VkCommandBuffer
         dump_html_value<const VkImage>(dstImage, settings, "VkImage", "dstImage", 1, dump_html_VkImage);
         dump_html_value<const VkImageLayout>(dstImageLayout, settings, "VkImageLayout", "dstImageLayout", 1, dump_html_VkImageLayout);
         dump_html_value<const uint32_t>(regionCount, settings, "uint32_t", "regionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkImageCopy>(pRegions, regionCount, settings, "const VkImageCopy*", "const VkImageCopy", "pRegions", 1, dump_html_VkImageCopy); // ZRZ
+        dump_html_array<const VkImageCopy>(pRegions, regionCount, settings, "const VkImageCopy*", "const VkImageCopy", "pRegions", 1, dump_html_VkImageCopy);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41766,7 +41766,7 @@ void dump_html_params_vkCmdBlitImage(ApiDumpInstance& dump_inst, VkCommandBuffer
         dump_html_value<const VkImage>(dstImage, settings, "VkImage", "dstImage", 1, dump_html_VkImage);
         dump_html_value<const VkImageLayout>(dstImageLayout, settings, "VkImageLayout", "dstImageLayout", 1, dump_html_VkImageLayout);
         dump_html_value<const uint32_t>(regionCount, settings, "uint32_t", "regionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkImageBlit>(pRegions, regionCount, settings, "const VkImageBlit*", "const VkImageBlit", "pRegions", 1, dump_html_VkImageBlit); // ZRZ
+        dump_html_array<const VkImageBlit>(pRegions, regionCount, settings, "const VkImageBlit*", "const VkImageBlit", "pRegions", 1, dump_html_VkImageBlit);
         dump_html_value<const VkFilter>(filter, settings, "VkFilter", "filter", 1, dump_html_VkFilter);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
@@ -41782,7 +41782,7 @@ void dump_html_params_vkCmdCopyBufferToImage(ApiDumpInstance& dump_inst, VkComma
         dump_html_value<const VkImage>(dstImage, settings, "VkImage", "dstImage", 1, dump_html_VkImage);
         dump_html_value<const VkImageLayout>(dstImageLayout, settings, "VkImageLayout", "dstImageLayout", 1, dump_html_VkImageLayout);
         dump_html_value<const uint32_t>(regionCount, settings, "uint32_t", "regionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBufferImageCopy>(pRegions, regionCount, settings, "const VkBufferImageCopy*", "const VkBufferImageCopy", "pRegions", 1, dump_html_VkBufferImageCopy); // ZRZ
+        dump_html_array<const VkBufferImageCopy>(pRegions, regionCount, settings, "const VkBufferImageCopy*", "const VkBufferImageCopy", "pRegions", 1, dump_html_VkBufferImageCopy);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41797,7 +41797,7 @@ void dump_html_params_vkCmdCopyImageToBuffer(ApiDumpInstance& dump_inst, VkComma
         dump_html_value<const VkImageLayout>(srcImageLayout, settings, "VkImageLayout", "srcImageLayout", 1, dump_html_VkImageLayout);
         dump_html_value<const VkBuffer>(dstBuffer, settings, "VkBuffer", "dstBuffer", 1, dump_html_VkBuffer);
         dump_html_value<const uint32_t>(regionCount, settings, "uint32_t", "regionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBufferImageCopy>(pRegions, regionCount, settings, "const VkBufferImageCopy*", "const VkBufferImageCopy", "pRegions", 1, dump_html_VkBufferImageCopy); // ZRZ
+        dump_html_array<const VkBufferImageCopy>(pRegions, regionCount, settings, "const VkBufferImageCopy*", "const VkBufferImageCopy", "pRegions", 1, dump_html_VkBufferImageCopy);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41840,7 +41840,7 @@ void dump_html_params_vkCmdClearColorImage(ApiDumpInstance& dump_inst, VkCommand
         dump_html_value<const VkImageLayout>(imageLayout, settings, "VkImageLayout", "imageLayout", 1, dump_html_VkImageLayout);
         dump_html_pointer<const VkClearColorValue>(pColor, settings, "const VkClearColorValue*", "pColor", 1, dump_html_VkClearColorValue);
         dump_html_value<const uint32_t>(rangeCount, settings, "uint32_t", "rangeCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkImageSubresourceRange>(pRanges, rangeCount, settings, "const VkImageSubresourceRange*", "const VkImageSubresourceRange", "pRanges", 1, dump_html_VkImageSubresourceRange); // ZRZ
+        dump_html_array<const VkImageSubresourceRange>(pRanges, rangeCount, settings, "const VkImageSubresourceRange*", "const VkImageSubresourceRange", "pRanges", 1, dump_html_VkImageSubresourceRange);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41855,7 +41855,7 @@ void dump_html_params_vkCmdClearDepthStencilImage(ApiDumpInstance& dump_inst, Vk
         dump_html_value<const VkImageLayout>(imageLayout, settings, "VkImageLayout", "imageLayout", 1, dump_html_VkImageLayout);
         dump_html_pointer<const VkClearDepthStencilValue>(pDepthStencil, settings, "const VkClearDepthStencilValue*", "pDepthStencil", 1, dump_html_VkClearDepthStencilValue);
         dump_html_value<const uint32_t>(rangeCount, settings, "uint32_t", "rangeCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkImageSubresourceRange>(pRanges, rangeCount, settings, "const VkImageSubresourceRange*", "const VkImageSubresourceRange", "pRanges", 1, dump_html_VkImageSubresourceRange); // ZRZ
+        dump_html_array<const VkImageSubresourceRange>(pRanges, rangeCount, settings, "const VkImageSubresourceRange*", "const VkImageSubresourceRange", "pRanges", 1, dump_html_VkImageSubresourceRange);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41867,9 +41867,9 @@ void dump_html_params_vkCmdClearAttachments(ApiDumpInstance& dump_inst, VkComman
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(attachmentCount, settings, "uint32_t", "attachmentCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkClearAttachment>(pAttachments, attachmentCount, settings, "const VkClearAttachment*", "const VkClearAttachment", "pAttachments", 1, dump_html_VkClearAttachment); // ZRZ
+        dump_html_array<const VkClearAttachment>(pAttachments, attachmentCount, settings, "const VkClearAttachment*", "const VkClearAttachment", "pAttachments", 1, dump_html_VkClearAttachment);
         dump_html_value<const uint32_t>(rectCount, settings, "uint32_t", "rectCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkClearRect>(pRects, rectCount, settings, "const VkClearRect*", "const VkClearRect", "pRects", 1, dump_html_VkClearRect); // ZRZ
+        dump_html_array<const VkClearRect>(pRects, rectCount, settings, "const VkClearRect*", "const VkClearRect", "pRects", 1, dump_html_VkClearRect);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41885,7 +41885,7 @@ void dump_html_params_vkCmdResolveImage(ApiDumpInstance& dump_inst, VkCommandBuf
         dump_html_value<const VkImage>(dstImage, settings, "VkImage", "dstImage", 1, dump_html_VkImage);
         dump_html_value<const VkImageLayout>(dstImageLayout, settings, "VkImageLayout", "dstImageLayout", 1, dump_html_VkImageLayout);
         dump_html_value<const uint32_t>(regionCount, settings, "uint32_t", "regionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkImageResolve>(pRegions, regionCount, settings, "const VkImageResolve*", "const VkImageResolve", "pRegions", 1, dump_html_VkImageResolve); // ZRZ
+        dump_html_array<const VkImageResolve>(pRegions, regionCount, settings, "const VkImageResolve*", "const VkImageResolve", "pRegions", 1, dump_html_VkImageResolve);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41921,15 +41921,15 @@ void dump_html_params_vkCmdWaitEvents(ApiDumpInstance& dump_inst, VkCommandBuffe
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(eventCount, settings, "uint32_t", "eventCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", 1, dump_html_VkEvent); // ZRZ
+        dump_html_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", 1, dump_html_VkEvent);
         dump_html_value<const VkPipelineStageFlags>(srcStageMask, settings, "VkPipelineStageFlags", "srcStageMask", 1, dump_html_VkPipelineStageFlags);
         dump_html_value<const VkPipelineStageFlags>(dstStageMask, settings, "VkPipelineStageFlags", "dstStageMask", 1, dump_html_VkPipelineStageFlags);
         dump_html_value<const uint32_t>(memoryBarrierCount, settings, "uint32_t", "memoryBarrierCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkMemoryBarrier>(pMemoryBarriers, memoryBarrierCount, settings, "const VkMemoryBarrier*", "const VkMemoryBarrier", "pMemoryBarriers", 1, dump_html_VkMemoryBarrier); // ZRZ
+        dump_html_array<const VkMemoryBarrier>(pMemoryBarriers, memoryBarrierCount, settings, "const VkMemoryBarrier*", "const VkMemoryBarrier", "pMemoryBarriers", 1, dump_html_VkMemoryBarrier);
         dump_html_value<const uint32_t>(bufferMemoryBarrierCount, settings, "uint32_t", "bufferMemoryBarrierCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBufferMemoryBarrier>(pBufferMemoryBarriers, bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier*", "const VkBufferMemoryBarrier", "pBufferMemoryBarriers", 1, dump_html_VkBufferMemoryBarrier); // ZRZ
+        dump_html_array<const VkBufferMemoryBarrier>(pBufferMemoryBarriers, bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier*", "const VkBufferMemoryBarrier", "pBufferMemoryBarriers", 1, dump_html_VkBufferMemoryBarrier);
         dump_html_value<const uint32_t>(imageMemoryBarrierCount, settings, "uint32_t", "imageMemoryBarrierCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkImageMemoryBarrier>(pImageMemoryBarriers, imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier*", "const VkImageMemoryBarrier", "pImageMemoryBarriers", 1, dump_html_VkImageMemoryBarrier); // ZRZ
+        dump_html_array<const VkImageMemoryBarrier>(pImageMemoryBarriers, imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier*", "const VkImageMemoryBarrier", "pImageMemoryBarriers", 1, dump_html_VkImageMemoryBarrier);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -41944,11 +41944,11 @@ void dump_html_params_vkCmdPipelineBarrier(ApiDumpInstance& dump_inst, VkCommand
         dump_html_value<const VkPipelineStageFlags>(dstStageMask, settings, "VkPipelineStageFlags", "dstStageMask", 1, dump_html_VkPipelineStageFlags);
         dump_html_value<const VkDependencyFlags>(dependencyFlags, settings, "VkDependencyFlags", "dependencyFlags", 1, dump_html_VkDependencyFlags);
         dump_html_value<const uint32_t>(memoryBarrierCount, settings, "uint32_t", "memoryBarrierCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkMemoryBarrier>(pMemoryBarriers, memoryBarrierCount, settings, "const VkMemoryBarrier*", "const VkMemoryBarrier", "pMemoryBarriers", 1, dump_html_VkMemoryBarrier); // ZRZ
+        dump_html_array<const VkMemoryBarrier>(pMemoryBarriers, memoryBarrierCount, settings, "const VkMemoryBarrier*", "const VkMemoryBarrier", "pMemoryBarriers", 1, dump_html_VkMemoryBarrier);
         dump_html_value<const uint32_t>(bufferMemoryBarrierCount, settings, "uint32_t", "bufferMemoryBarrierCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBufferMemoryBarrier>(pBufferMemoryBarriers, bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier*", "const VkBufferMemoryBarrier", "pBufferMemoryBarriers", 1, dump_html_VkBufferMemoryBarrier); // ZRZ
+        dump_html_array<const VkBufferMemoryBarrier>(pBufferMemoryBarriers, bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier*", "const VkBufferMemoryBarrier", "pBufferMemoryBarriers", 1, dump_html_VkBufferMemoryBarrier);
         dump_html_value<const uint32_t>(imageMemoryBarrierCount, settings, "uint32_t", "imageMemoryBarrierCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkImageMemoryBarrier>(pImageMemoryBarriers, imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier*", "const VkImageMemoryBarrier", "pImageMemoryBarriers", 1, dump_html_VkImageMemoryBarrier); // ZRZ
+        dump_html_array<const VkImageMemoryBarrier>(pImageMemoryBarriers, imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier*", "const VkImageMemoryBarrier", "pImageMemoryBarriers", 1, dump_html_VkImageMemoryBarrier);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42076,7 +42076,7 @@ void dump_html_params_vkCmdExecuteCommands(ApiDumpInstance& dump_inst, VkCommand
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(commandBufferCount, settings, "uint32_t", "commandBufferCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCommandBuffer>(pCommandBuffers, commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", 1, dump_html_VkCommandBuffer); // ZRZ
+        dump_html_array<const VkCommandBuffer>(pCommandBuffers, commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", 1, dump_html_VkCommandBuffer);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42088,7 +42088,7 @@ void dump_html_params_vkBindBufferMemory2(ApiDumpInstance& dump_inst, VkDevice d
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(bindInfoCount, settings, "uint32_t", "bindInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBindBufferMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindBufferMemoryInfo*", "const VkBindBufferMemoryInfo", "pBindInfos", 1, dump_html_VkBindBufferMemoryInfo); // ZRZ
+        dump_html_array<const VkBindBufferMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindBufferMemoryInfo*", "const VkBindBufferMemoryInfo", "pBindInfos", 1, dump_html_VkBindBufferMemoryInfo);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42100,7 +42100,7 @@ void dump_html_params_vkBindImageMemory2(ApiDumpInstance& dump_inst, VkDevice de
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(bindInfoCount, settings, "uint32_t", "bindInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBindImageMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindImageMemoryInfo*", "const VkBindImageMemoryInfo", "pBindInfos", 1, dump_html_VkBindImageMemoryInfo); // ZRZ
+        dump_html_array<const VkBindImageMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindImageMemoryInfo*", "const VkBindImageMemoryInfo", "pBindInfos", 1, dump_html_VkBindImageMemoryInfo);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42153,7 +42153,7 @@ void dump_html_params_vkEnumeratePhysicalDeviceGroups(ApiDumpInstance& dump_inst
     {
         dump_html_value<const VkInstance>(instance, settings, "VkInstance", "instance", 1, dump_html_VkInstance);
         dump_html_pointer<const uint32_t>(pPhysicalDeviceGroupCount, settings, "uint32_t*", "pPhysicalDeviceGroupCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties, *pPhysicalDeviceGroupCount, settings, "VkPhysicalDeviceGroupProperties*", "VkPhysicalDeviceGroupProperties", "pPhysicalDeviceGroupProperties", 1, dump_html_VkPhysicalDeviceGroupProperties); // ZRZ
+        dump_html_array<const VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties, *pPhysicalDeviceGroupCount, settings, "VkPhysicalDeviceGroupProperties*", "VkPhysicalDeviceGroupProperties", "pPhysicalDeviceGroupProperties", 1, dump_html_VkPhysicalDeviceGroupProperties);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42190,7 +42190,7 @@ void dump_html_params_vkGetImageSparseMemoryRequirements2(ApiDumpInstance& dump_
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_pointer<const VkImageSparseMemoryRequirementsInfo2>(pInfo, settings, "const VkImageSparseMemoryRequirementsInfo2*", "pInfo", 1, dump_html_VkImageSparseMemoryRequirementsInfo2);
         dump_html_pointer<const uint32_t>(pSparseMemoryRequirementCount, settings, "uint32_t*", "pSparseMemoryRequirementCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", 1, dump_html_VkSparseImageMemoryRequirements2); // ZRZ
+        dump_html_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", 1, dump_html_VkSparseImageMemoryRequirements2);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42248,7 +42248,7 @@ void dump_html_params_vkGetPhysicalDeviceQueueFamilyProperties2(ApiDumpInstance&
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pQueueFamilyPropertyCount, settings, "uint32_t*", "pQueueFamilyPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkQueueFamilyProperties2>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties2*", "VkQueueFamilyProperties2", "pQueueFamilyProperties", 1, dump_html_VkQueueFamilyProperties2); // ZRZ
+        dump_html_array<const VkQueueFamilyProperties2>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties2*", "VkQueueFamilyProperties2", "pQueueFamilyProperties", 1, dump_html_VkQueueFamilyProperties2);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42272,7 +42272,7 @@ void dump_html_params_vkGetPhysicalDeviceSparseImageFormatProperties2(ApiDumpIns
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const VkPhysicalDeviceSparseImageFormatInfo2>(pFormatInfo, settings, "const VkPhysicalDeviceSparseImageFormatInfo2*", "pFormatInfo", 1, dump_html_VkPhysicalDeviceSparseImageFormatInfo2);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSparseImageFormatProperties2>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties2*", "VkSparseImageFormatProperties2", "pProperties", 1, dump_html_VkSparseImageFormatProperties2); // ZRZ
+        dump_html_array<const VkSparseImageFormatProperties2>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties2*", "VkSparseImageFormatProperties2", "pProperties", 1, dump_html_VkSparseImageFormatProperties2);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42580,7 +42580,7 @@ void dump_html_params_vkGetPhysicalDeviceToolProperties(ApiDumpInstance& dump_in
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pToolCount, settings, "uint32_t*", "pToolCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPhysicalDeviceToolProperties>(pToolProperties, *pToolCount, settings, "VkPhysicalDeviceToolProperties*", "VkPhysicalDeviceToolProperties", "pToolProperties", 1, dump_html_VkPhysicalDeviceToolProperties); // ZRZ
+        dump_html_array<const VkPhysicalDeviceToolProperties>(pToolProperties, *pToolCount, settings, "VkPhysicalDeviceToolProperties*", "VkPhysicalDeviceToolProperties", "pToolProperties", 1, dump_html_VkPhysicalDeviceToolProperties);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42669,8 +42669,8 @@ void dump_html_params_vkCmdWaitEvents2(ApiDumpInstance& dump_inst, VkCommandBuff
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(eventCount, settings, "uint32_t", "eventCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", 1, dump_html_VkEvent); // ZRZ
-        dump_html_array<const VkDependencyInfo>(pDependencyInfos, eventCount, settings, "const VkDependencyInfo*", "const VkDependencyInfo", "pDependencyInfos", 1, dump_html_VkDependencyInfo); // ZRZ
+        dump_html_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", 1, dump_html_VkEvent);
+        dump_html_array<const VkDependencyInfo>(pDependencyInfos, eventCount, settings, "const VkDependencyInfo*", "const VkDependencyInfo", "pDependencyInfos", 1, dump_html_VkDependencyInfo);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42706,7 +42706,7 @@ void dump_html_params_vkQueueSubmit2(ApiDumpInstance& dump_inst, VkQueue queue, 
     {
         dump_html_value<const VkQueue>(queue, settings, "VkQueue", "queue", 1, dump_html_VkQueue);
         dump_html_value<const uint32_t>(submitCount, settings, "uint32_t", "submitCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSubmitInfo2>(pSubmits, submitCount, settings, "const VkSubmitInfo2*", "const VkSubmitInfo2", "pSubmits", 1, dump_html_VkSubmitInfo2); // ZRZ
+        dump_html_array<const VkSubmitInfo2>(pSubmits, submitCount, settings, "const VkSubmitInfo2*", "const VkSubmitInfo2", "pSubmits", 1, dump_html_VkSubmitInfo2);
         dump_html_value<const VkFence>(fence, settings, "VkFence", "fence", 1, dump_html_VkFence);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
@@ -42839,7 +42839,7 @@ void dump_html_params_vkCmdSetViewportWithCount(ApiDumpInstance& dump_inst, VkCo
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(viewportCount, settings, "uint32_t", "viewportCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", 1, dump_html_VkViewport); // ZRZ
+        dump_html_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", 1, dump_html_VkViewport);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42851,7 +42851,7 @@ void dump_html_params_vkCmdSetScissorWithCount(ApiDumpInstance& dump_inst, VkCom
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(scissorCount, settings, "uint32_t", "scissorCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", 1, dump_html_VkRect2D); // ZRZ
+        dump_html_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", 1, dump_html_VkRect2D);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -42864,10 +42864,10 @@ void dump_html_params_vkCmdBindVertexBuffers2(ApiDumpInstance& dump_inst, VkComm
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstBinding, settings, "uint32_t", "firstBinding", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(bindingCount, settings, "uint32_t", "bindingCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", 1, dump_html_VkBuffer); // ZRZ
-        dump_html_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", 1, dump_html_VkDeviceSize); // ZRZ
-        dump_html_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", 1, dump_html_VkDeviceSize); // ZRZ
-        dump_html_array<const VkDeviceSize>(pStrides, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pStrides", 1, dump_html_VkDeviceSize); // ZRZ
+        dump_html_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", 1, dump_html_VkBuffer);
+        dump_html_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", 1, dump_html_VkDeviceSize);
+        dump_html_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", 1, dump_html_VkDeviceSize);
+        dump_html_array<const VkDeviceSize>(pStrides, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pStrides", 1, dump_html_VkDeviceSize);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43007,7 +43007,7 @@ void dump_html_params_vkGetDeviceImageSparseMemoryRequirements(ApiDumpInstance& 
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_pointer<const VkDeviceImageMemoryRequirements>(pInfo, settings, "const VkDeviceImageMemoryRequirements*", "pInfo", 1, dump_html_VkDeviceImageMemoryRequirements);
         dump_html_pointer<const uint32_t>(pSparseMemoryRequirementCount, settings, "uint32_t*", "pSparseMemoryRequirementCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", 1, dump_html_VkSparseImageMemoryRequirements2); // ZRZ
+        dump_html_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", 1, dump_html_VkSparseImageMemoryRequirements2);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43108,7 +43108,7 @@ void dump_html_params_vkCmdPushDescriptorSet(ApiDumpInstance& dump_inst, VkComma
         dump_html_value<const VkPipelineLayout>(layout, settings, "VkPipelineLayout", "layout", 1, dump_html_VkPipelineLayout);
         dump_html_value<const uint32_t>(set, settings, "uint32_t", "set", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(descriptorWriteCount, settings, "uint32_t", "descriptorWriteCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", 1, dump_html_VkWriteDescriptorSet); // ZRZ
+        dump_html_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", 1, dump_html_VkWriteDescriptorSet);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43233,7 +43233,7 @@ void dump_html_params_vkTransitionImageLayout(ApiDumpInstance& dump_inst, VkDevi
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(transitionCount, settings, "uint32_t", "transitionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkHostImageLayoutTransitionInfo>(pTransitions, transitionCount, settings, "const VkHostImageLayoutTransitionInfo*", "const VkHostImageLayoutTransitionInfo", "pTransitions", 1, dump_html_VkHostImageLayoutTransitionInfo); // ZRZ
+        dump_html_array<const VkHostImageLayoutTransitionInfo>(pTransitions, transitionCount, settings, "const VkHostImageLayoutTransitionInfo*", "const VkHostImageLayoutTransitionInfo", "pTransitions", 1, dump_html_VkHostImageLayoutTransitionInfo);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43283,7 +43283,7 @@ void dump_html_params_vkGetPhysicalDeviceSurfaceFormatsKHR(ApiDumpInstance& dump
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_value<const VkSurfaceKHR>(surface, settings, "VkSurfaceKHR", "surface", 1, dump_html_VkSurfaceKHR);
         dump_html_pointer<const uint32_t>(pSurfaceFormatCount, settings, "uint32_t*", "pSurfaceFormatCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSurfaceFormatKHR>(pSurfaceFormats, *pSurfaceFormatCount, settings, "VkSurfaceFormatKHR*", "VkSurfaceFormatKHR", "pSurfaceFormats", 1, dump_html_VkSurfaceFormatKHR); // ZRZ
+        dump_html_array<const VkSurfaceFormatKHR>(pSurfaceFormats, *pSurfaceFormatCount, settings, "VkSurfaceFormatKHR*", "VkSurfaceFormatKHR", "pSurfaceFormats", 1, dump_html_VkSurfaceFormatKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43296,7 +43296,7 @@ void dump_html_params_vkGetPhysicalDeviceSurfacePresentModesKHR(ApiDumpInstance&
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_value<const VkSurfaceKHR>(surface, settings, "VkSurfaceKHR", "surface", 1, dump_html_VkSurfaceKHR);
         dump_html_pointer<const uint32_t>(pPresentModeCount, settings, "uint32_t*", "pPresentModeCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPresentModeKHR>(pPresentModes, *pPresentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", 1, dump_html_VkPresentModeKHR); // ZRZ
+        dump_html_array<const VkPresentModeKHR>(pPresentModes, *pPresentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", 1, dump_html_VkPresentModeKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43334,7 +43334,7 @@ void dump_html_params_vkGetSwapchainImagesKHR(ApiDumpInstance& dump_inst, VkDevi
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkSwapchainKHR>(swapchain, settings, "VkSwapchainKHR", "swapchain", 1, dump_html_VkSwapchainKHR);
         dump_html_pointer<const uint32_t>(pSwapchainImageCount, settings, "uint32_t*", "pSwapchainImageCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkImage>(pSwapchainImages, *pSwapchainImageCount, settings, "VkImage*", "VkImage", "pSwapchainImages", 1, dump_html_VkImage); // ZRZ
+        dump_html_array<const VkImage>(pSwapchainImages, *pSwapchainImageCount, settings, "VkImage*", "VkImage", "pSwapchainImages", 1, dump_html_VkImage);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43396,7 +43396,7 @@ void dump_html_params_vkGetPhysicalDevicePresentRectanglesKHR(ApiDumpInstance& d
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_value<const VkSurfaceKHR>(surface, settings, "VkSurfaceKHR", "surface", 1, dump_html_VkSurfaceKHR);
         dump_html_pointer<const uint32_t>(pRectCount, settings, "uint32_t*", "pRectCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkRect2D>(pRects, *pRectCount, settings, "VkRect2D*", "VkRect2D", "pRects", 1, dump_html_VkRect2D); // ZRZ
+        dump_html_array<const VkRect2D>(pRects, *pRectCount, settings, "VkRect2D*", "VkRect2D", "pRects", 1, dump_html_VkRect2D);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43420,7 +43420,7 @@ void dump_html_params_vkGetPhysicalDeviceDisplayPropertiesKHR(ApiDumpInstance& d
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDisplayPropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayPropertiesKHR*", "VkDisplayPropertiesKHR", "pProperties", 1, dump_html_VkDisplayPropertiesKHR); // ZRZ
+        dump_html_array<const VkDisplayPropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayPropertiesKHR*", "VkDisplayPropertiesKHR", "pProperties", 1, dump_html_VkDisplayPropertiesKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43432,7 +43432,7 @@ void dump_html_params_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(ApiDumpInstan
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDisplayPlanePropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayPlanePropertiesKHR*", "VkDisplayPlanePropertiesKHR", "pProperties", 1, dump_html_VkDisplayPlanePropertiesKHR); // ZRZ
+        dump_html_array<const VkDisplayPlanePropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayPlanePropertiesKHR*", "VkDisplayPlanePropertiesKHR", "pProperties", 1, dump_html_VkDisplayPlanePropertiesKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43445,7 +43445,7 @@ void dump_html_params_vkGetDisplayPlaneSupportedDisplaysKHR(ApiDumpInstance& dum
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_value<const uint32_t>(planeIndex, settings, "uint32_t", "planeIndex", 1, dump_html_uint32_t);
         dump_html_pointer<const uint32_t>(pDisplayCount, settings, "uint32_t*", "pDisplayCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDisplayKHR>(pDisplays, *pDisplayCount, settings, "VkDisplayKHR*", "VkDisplayKHR", "pDisplays", 1, dump_html_VkDisplayKHR); // ZRZ
+        dump_html_array<const VkDisplayKHR>(pDisplays, *pDisplayCount, settings, "VkDisplayKHR*", "VkDisplayKHR", "pDisplays", 1, dump_html_VkDisplayKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43458,7 +43458,7 @@ void dump_html_params_vkGetDisplayModePropertiesKHR(ApiDumpInstance& dump_inst, 
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_value<const VkDisplayKHR>(display, settings, "VkDisplayKHR", "display", 1, dump_html_VkDisplayKHR);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDisplayModePropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayModePropertiesKHR*", "VkDisplayModePropertiesKHR", "pProperties", 1, dump_html_VkDisplayModePropertiesKHR); // ZRZ
+        dump_html_array<const VkDisplayModePropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayModePropertiesKHR*", "VkDisplayModePropertiesKHR", "pProperties", 1, dump_html_VkDisplayModePropertiesKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43510,9 +43510,9 @@ void dump_html_params_vkCreateSharedSwapchainsKHR(ApiDumpInstance& dump_inst, Vk
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(swapchainCount, settings, "uint32_t", "swapchainCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSwapchainCreateInfoKHR>(pCreateInfos, swapchainCount, settings, "const VkSwapchainCreateInfoKHR*", "const VkSwapchainCreateInfoKHR", "pCreateInfos", 1, dump_html_VkSwapchainCreateInfoKHR); // ZRZ
+        dump_html_array<const VkSwapchainCreateInfoKHR>(pCreateInfos, swapchainCount, settings, "const VkSwapchainCreateInfoKHR*", "const VkSwapchainCreateInfoKHR", "pCreateInfos", 1, dump_html_VkSwapchainCreateInfoKHR);
         dump_html_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", 1, dump_html_VkAllocationCallbacks);
-        dump_html_array<const VkSwapchainKHR>(pSwapchains, swapchainCount, settings, "VkSwapchainKHR*", "VkSwapchainKHR", "pSwapchains", 1, dump_html_VkSwapchainKHR); // ZRZ
+        dump_html_array<const VkSwapchainKHR>(pSwapchains, swapchainCount, settings, "VkSwapchainKHR*", "VkSwapchainKHR", "pSwapchains", 1, dump_html_VkSwapchainKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43669,7 +43669,7 @@ void dump_html_params_vkGetPhysicalDeviceVideoFormatPropertiesKHR(ApiDumpInstanc
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const VkPhysicalDeviceVideoFormatInfoKHR>(pVideoFormatInfo, settings, "const VkPhysicalDeviceVideoFormatInfoKHR*", "pVideoFormatInfo", 1, dump_html_VkPhysicalDeviceVideoFormatInfoKHR);
         dump_html_pointer<const uint32_t>(pVideoFormatPropertyCount, settings, "uint32_t*", "pVideoFormatPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkVideoFormatPropertiesKHR>(pVideoFormatProperties, *pVideoFormatPropertyCount, settings, "VkVideoFormatPropertiesKHR*", "VkVideoFormatPropertiesKHR", "pVideoFormatProperties", 1, dump_html_VkVideoFormatPropertiesKHR); // ZRZ
+        dump_html_array<const VkVideoFormatPropertiesKHR>(pVideoFormatProperties, *pVideoFormatPropertyCount, settings, "VkVideoFormatPropertiesKHR*", "VkVideoFormatPropertiesKHR", "pVideoFormatProperties", 1, dump_html_VkVideoFormatPropertiesKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43707,7 +43707,7 @@ void dump_html_params_vkGetVideoSessionMemoryRequirementsKHR(ApiDumpInstance& du
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkVideoSessionKHR>(videoSession, settings, "VkVideoSessionKHR", "videoSession", 1, dump_html_VkVideoSessionKHR);
         dump_html_pointer<const uint32_t>(pMemoryRequirementsCount, settings, "uint32_t*", "pMemoryRequirementsCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkVideoSessionMemoryRequirementsKHR>(pMemoryRequirements, *pMemoryRequirementsCount, settings, "VkVideoSessionMemoryRequirementsKHR*", "VkVideoSessionMemoryRequirementsKHR", "pMemoryRequirements", 1, dump_html_VkVideoSessionMemoryRequirementsKHR); // ZRZ
+        dump_html_array<const VkVideoSessionMemoryRequirementsKHR>(pMemoryRequirements, *pMemoryRequirementsCount, settings, "VkVideoSessionMemoryRequirementsKHR*", "VkVideoSessionMemoryRequirementsKHR", "pMemoryRequirements", 1, dump_html_VkVideoSessionMemoryRequirementsKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43720,7 +43720,7 @@ void dump_html_params_vkBindVideoSessionMemoryKHR(ApiDumpInstance& dump_inst, Vk
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkVideoSessionKHR>(videoSession, settings, "VkVideoSessionKHR", "videoSession", 1, dump_html_VkVideoSessionKHR);
         dump_html_value<const uint32_t>(bindSessionMemoryInfoCount, settings, "uint32_t", "bindSessionMemoryInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBindVideoSessionMemoryInfoKHR>(pBindSessionMemoryInfos, bindSessionMemoryInfoCount, settings, "const VkBindVideoSessionMemoryInfoKHR*", "const VkBindVideoSessionMemoryInfoKHR", "pBindSessionMemoryInfos", 1, dump_html_VkBindVideoSessionMemoryInfoKHR); // ZRZ
+        dump_html_array<const VkBindVideoSessionMemoryInfoKHR>(pBindSessionMemoryInfos, bindSessionMemoryInfoCount, settings, "const VkBindVideoSessionMemoryInfoKHR*", "const VkBindVideoSessionMemoryInfoKHR", "pBindSessionMemoryInfos", 1, dump_html_VkBindVideoSessionMemoryInfoKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43880,7 +43880,7 @@ void dump_html_params_vkGetPhysicalDeviceQueueFamilyProperties2KHR(ApiDumpInstan
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pQueueFamilyPropertyCount, settings, "uint32_t*", "pQueueFamilyPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkQueueFamilyProperties2>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties2*", "VkQueueFamilyProperties2", "pQueueFamilyProperties", 1, dump_html_VkQueueFamilyProperties2); // ZRZ
+        dump_html_array<const VkQueueFamilyProperties2>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties2*", "VkQueueFamilyProperties2", "pQueueFamilyProperties", 1, dump_html_VkQueueFamilyProperties2);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43904,7 +43904,7 @@ void dump_html_params_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(ApiDump
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const VkPhysicalDeviceSparseImageFormatInfo2>(pFormatInfo, settings, "const VkPhysicalDeviceSparseImageFormatInfo2*", "pFormatInfo", 1, dump_html_VkPhysicalDeviceSparseImageFormatInfo2);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSparseImageFormatProperties2>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties2*", "VkSparseImageFormatProperties2", "pProperties", 1, dump_html_VkSparseImageFormatProperties2); // ZRZ
+        dump_html_array<const VkSparseImageFormatProperties2>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties2*", "VkSparseImageFormatProperties2", "pProperties", 1, dump_html_VkSparseImageFormatProperties2);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -43969,7 +43969,7 @@ void dump_html_params_vkEnumeratePhysicalDeviceGroupsKHR(ApiDumpInstance& dump_i
     {
         dump_html_value<const VkInstance>(instance, settings, "VkInstance", "instance", 1, dump_html_VkInstance);
         dump_html_pointer<const uint32_t>(pPhysicalDeviceGroupCount, settings, "uint32_t*", "pPhysicalDeviceGroupCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties, *pPhysicalDeviceGroupCount, settings, "VkPhysicalDeviceGroupProperties*", "VkPhysicalDeviceGroupProperties", "pPhysicalDeviceGroupProperties", 1, dump_html_VkPhysicalDeviceGroupProperties); // ZRZ
+        dump_html_array<const VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties, *pPhysicalDeviceGroupCount, settings, "VkPhysicalDeviceGroupProperties*", "VkPhysicalDeviceGroupProperties", "pPhysicalDeviceGroupProperties", 1, dump_html_VkPhysicalDeviceGroupProperties);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44112,7 +44112,7 @@ void dump_html_params_vkCmdPushDescriptorSetKHR(ApiDumpInstance& dump_inst, VkCo
         dump_html_value<const VkPipelineLayout>(layout, settings, "VkPipelineLayout", "layout", 1, dump_html_VkPipelineLayout);
         dump_html_value<const uint32_t>(set, settings, "uint32_t", "set", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(descriptorWriteCount, settings, "uint32_t", "descriptorWriteCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", 1, dump_html_VkWriteDescriptorSet); // ZRZ
+        dump_html_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", 1, dump_html_VkWriteDescriptorSet);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44298,8 +44298,8 @@ void dump_html_params_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCounte
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_value<const uint32_t>(queueFamilyIndex, settings, "uint32_t", "queueFamilyIndex", 1, dump_html_uint32_t);
         dump_html_pointer<const uint32_t>(pCounterCount, settings, "uint32_t*", "pCounterCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPerformanceCounterKHR>(pCounters, *pCounterCount, settings, "VkPerformanceCounterKHR*", "VkPerformanceCounterKHR", "pCounters", 1, dump_html_VkPerformanceCounterKHR); // ZRZ
-        dump_html_array<const VkPerformanceCounterDescriptionKHR>(pCounterDescriptions, *pCounterCount, settings, "VkPerformanceCounterDescriptionKHR*", "VkPerformanceCounterDescriptionKHR", "pCounterDescriptions", 1, dump_html_VkPerformanceCounterDescriptionKHR); // ZRZ
+        dump_html_array<const VkPerformanceCounterKHR>(pCounters, *pCounterCount, settings, "VkPerformanceCounterKHR*", "VkPerformanceCounterKHR", "pCounters", 1, dump_html_VkPerformanceCounterKHR);
+        dump_html_array<const VkPerformanceCounterDescriptionKHR>(pCounterDescriptions, *pCounterCount, settings, "VkPerformanceCounterDescriptionKHR*", "VkPerformanceCounterDescriptionKHR", "pCounterDescriptions", 1, dump_html_VkPerformanceCounterDescriptionKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44357,7 +44357,7 @@ void dump_html_params_vkGetPhysicalDeviceSurfaceFormats2KHR(ApiDumpInstance& dum
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const VkPhysicalDeviceSurfaceInfo2KHR>(pSurfaceInfo, settings, "const VkPhysicalDeviceSurfaceInfo2KHR*", "pSurfaceInfo", 1, dump_html_VkPhysicalDeviceSurfaceInfo2KHR);
         dump_html_pointer<const uint32_t>(pSurfaceFormatCount, settings, "uint32_t*", "pSurfaceFormatCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSurfaceFormat2KHR>(pSurfaceFormats, *pSurfaceFormatCount, settings, "VkSurfaceFormat2KHR*", "VkSurfaceFormat2KHR", "pSurfaceFormats", 1, dump_html_VkSurfaceFormat2KHR); // ZRZ
+        dump_html_array<const VkSurfaceFormat2KHR>(pSurfaceFormats, *pSurfaceFormatCount, settings, "VkSurfaceFormat2KHR*", "VkSurfaceFormat2KHR", "pSurfaceFormats", 1, dump_html_VkSurfaceFormat2KHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44369,7 +44369,7 @@ void dump_html_params_vkGetPhysicalDeviceDisplayProperties2KHR(ApiDumpInstance& 
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDisplayProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayProperties2KHR*", "VkDisplayProperties2KHR", "pProperties", 1, dump_html_VkDisplayProperties2KHR); // ZRZ
+        dump_html_array<const VkDisplayProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayProperties2KHR*", "VkDisplayProperties2KHR", "pProperties", 1, dump_html_VkDisplayProperties2KHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44381,7 +44381,7 @@ void dump_html_params_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(ApiDumpInsta
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDisplayPlaneProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayPlaneProperties2KHR*", "VkDisplayPlaneProperties2KHR", "pProperties", 1, dump_html_VkDisplayPlaneProperties2KHR); // ZRZ
+        dump_html_array<const VkDisplayPlaneProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayPlaneProperties2KHR*", "VkDisplayPlaneProperties2KHR", "pProperties", 1, dump_html_VkDisplayPlaneProperties2KHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44394,7 +44394,7 @@ void dump_html_params_vkGetDisplayModeProperties2KHR(ApiDumpInstance& dump_inst,
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_value<const VkDisplayKHR>(display, settings, "VkDisplayKHR", "display", 1, dump_html_VkDisplayKHR);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDisplayModeProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayModeProperties2KHR*", "VkDisplayModeProperties2KHR", "pProperties", 1, dump_html_VkDisplayModeProperties2KHR); // ZRZ
+        dump_html_array<const VkDisplayModeProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayModeProperties2KHR*", "VkDisplayModeProperties2KHR", "pProperties", 1, dump_html_VkDisplayModeProperties2KHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44443,7 +44443,7 @@ void dump_html_params_vkGetImageSparseMemoryRequirements2KHR(ApiDumpInstance& du
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_pointer<const VkImageSparseMemoryRequirementsInfo2>(pInfo, settings, "const VkImageSparseMemoryRequirementsInfo2*", "pInfo", 1, dump_html_VkImageSparseMemoryRequirementsInfo2);
         dump_html_pointer<const uint32_t>(pSparseMemoryRequirementCount, settings, "uint32_t*", "pSparseMemoryRequirementCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", 1, dump_html_VkSparseImageMemoryRequirements2); // ZRZ
+        dump_html_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", 1, dump_html_VkSparseImageMemoryRequirements2);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44480,7 +44480,7 @@ void dump_html_params_vkBindBufferMemory2KHR(ApiDumpInstance& dump_inst, VkDevic
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(bindInfoCount, settings, "uint32_t", "bindInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBindBufferMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindBufferMemoryInfo*", "const VkBindBufferMemoryInfo", "pBindInfos", 1, dump_html_VkBindBufferMemoryInfo); // ZRZ
+        dump_html_array<const VkBindBufferMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindBufferMemoryInfo*", "const VkBindBufferMemoryInfo", "pBindInfos", 1, dump_html_VkBindBufferMemoryInfo);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44492,7 +44492,7 @@ void dump_html_params_vkBindImageMemory2KHR(ApiDumpInstance& dump_inst, VkDevice
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(bindInfoCount, settings, "uint32_t", "bindInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBindImageMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindImageMemoryInfo*", "const VkBindImageMemoryInfo", "pBindInfos", 1, dump_html_VkBindImageMemoryInfo); // ZRZ
+        dump_html_array<const VkBindImageMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindImageMemoryInfo*", "const VkBindImageMemoryInfo", "pBindInfos", 1, dump_html_VkBindImageMemoryInfo);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44583,7 +44583,7 @@ void dump_html_params_vkGetPhysicalDeviceFragmentShadingRatesKHR(ApiDumpInstance
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pFragmentShadingRateCount, settings, "uint32_t*", "pFragmentShadingRateCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPhysicalDeviceFragmentShadingRateKHR>(pFragmentShadingRates, *pFragmentShadingRateCount, settings, "VkPhysicalDeviceFragmentShadingRateKHR*", "VkPhysicalDeviceFragmentShadingRateKHR", "pFragmentShadingRates", 1, dump_html_VkPhysicalDeviceFragmentShadingRateKHR); // ZRZ
+        dump_html_array<const VkPhysicalDeviceFragmentShadingRateKHR>(pFragmentShadingRates, *pFragmentShadingRateCount, settings, "VkPhysicalDeviceFragmentShadingRateKHR*", "VkPhysicalDeviceFragmentShadingRateKHR", "pFragmentShadingRates", 1, dump_html_VkPhysicalDeviceFragmentShadingRateKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44595,7 +44595,7 @@ void dump_html_params_vkCmdSetFragmentShadingRateKHR(ApiDumpInstance& dump_inst,
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_pointer<const VkExtent2D>(pFragmentSize, settings, "const VkExtent2D*", "pFragmentSize", 1, dump_html_VkExtent2D);
-        dump_html_array<const VkFragmentShadingRateCombinerOpKHR>(combinerOps, 2, settings, "const VkFragmentShadingRateCombinerOpKHR[2]", "const VkFragmentShadingRateCombinerOpKHR", "combinerOps", 1, dump_html_VkFragmentShadingRateCombinerOpKHR); // ZRZ
+        dump_html_array<const VkFragmentShadingRateCombinerOpKHR>(combinerOps, 2, settings, "const VkFragmentShadingRateCombinerOpKHR[2]", "const VkFragmentShadingRateCombinerOpKHR", "combinerOps", 1, dump_html_VkFragmentShadingRateCombinerOpKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44733,7 +44733,7 @@ void dump_html_params_vkGetPipelineExecutablePropertiesKHR(ApiDumpInstance& dump
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_pointer<const VkPipelineInfoKHR>(pPipelineInfo, settings, "const VkPipelineInfoKHR*", "pPipelineInfo", 1, dump_html_VkPipelineInfoKHR);
         dump_html_pointer<const uint32_t>(pExecutableCount, settings, "uint32_t*", "pExecutableCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPipelineExecutablePropertiesKHR>(pProperties, *pExecutableCount, settings, "VkPipelineExecutablePropertiesKHR*", "VkPipelineExecutablePropertiesKHR", "pProperties", 1, dump_html_VkPipelineExecutablePropertiesKHR); // ZRZ
+        dump_html_array<const VkPipelineExecutablePropertiesKHR>(pProperties, *pExecutableCount, settings, "VkPipelineExecutablePropertiesKHR*", "VkPipelineExecutablePropertiesKHR", "pProperties", 1, dump_html_VkPipelineExecutablePropertiesKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44746,7 +44746,7 @@ void dump_html_params_vkGetPipelineExecutableStatisticsKHR(ApiDumpInstance& dump
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_pointer<const VkPipelineExecutableInfoKHR>(pExecutableInfo, settings, "const VkPipelineExecutableInfoKHR*", "pExecutableInfo", 1, dump_html_VkPipelineExecutableInfoKHR);
         dump_html_pointer<const uint32_t>(pStatisticCount, settings, "uint32_t*", "pStatisticCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPipelineExecutableStatisticKHR>(pStatistics, *pStatisticCount, settings, "VkPipelineExecutableStatisticKHR*", "VkPipelineExecutableStatisticKHR", "pStatistics", 1, dump_html_VkPipelineExecutableStatisticKHR); // ZRZ
+        dump_html_array<const VkPipelineExecutableStatisticKHR>(pStatistics, *pStatisticCount, settings, "VkPipelineExecutableStatisticKHR*", "VkPipelineExecutableStatisticKHR", "pStatistics", 1, dump_html_VkPipelineExecutableStatisticKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44759,7 +44759,7 @@ void dump_html_params_vkGetPipelineExecutableInternalRepresentationsKHR(ApiDumpI
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_pointer<const VkPipelineExecutableInfoKHR>(pExecutableInfo, settings, "const VkPipelineExecutableInfoKHR*", "pExecutableInfo", 1, dump_html_VkPipelineExecutableInfoKHR);
         dump_html_pointer<const uint32_t>(pInternalRepresentationCount, settings, "uint32_t*", "pInternalRepresentationCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPipelineExecutableInternalRepresentationKHR>(pInternalRepresentations, *pInternalRepresentationCount, settings, "VkPipelineExecutableInternalRepresentationKHR*", "VkPipelineExecutableInternalRepresentationKHR", "pInternalRepresentations", 1, dump_html_VkPipelineExecutableInternalRepresentationKHR); // ZRZ
+        dump_html_array<const VkPipelineExecutableInternalRepresentationKHR>(pInternalRepresentations, *pInternalRepresentationCount, settings, "VkPipelineExecutableInternalRepresentationKHR*", "VkPipelineExecutableInternalRepresentationKHR", "pInternalRepresentations", 1, dump_html_VkPipelineExecutableInternalRepresentationKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44855,8 +44855,8 @@ void dump_html_params_vkCmdWaitEvents2KHR(ApiDumpInstance& dump_inst, VkCommandB
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(eventCount, settings, "uint32_t", "eventCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", 1, dump_html_VkEvent); // ZRZ
-        dump_html_array<const VkDependencyInfo>(pDependencyInfos, eventCount, settings, "const VkDependencyInfo*", "const VkDependencyInfo", "pDependencyInfos", 1, dump_html_VkDependencyInfo); // ZRZ
+        dump_html_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", 1, dump_html_VkEvent);
+        dump_html_array<const VkDependencyInfo>(pDependencyInfos, eventCount, settings, "const VkDependencyInfo*", "const VkDependencyInfo", "pDependencyInfos", 1, dump_html_VkDependencyInfo);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -44892,7 +44892,7 @@ void dump_html_params_vkQueueSubmit2KHR(ApiDumpInstance& dump_inst, VkQueue queu
     {
         dump_html_value<const VkQueue>(queue, settings, "VkQueue", "queue", 1, dump_html_VkQueue);
         dump_html_value<const uint32_t>(submitCount, settings, "uint32_t", "submitCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSubmitInfo2>(pSubmits, submitCount, settings, "const VkSubmitInfo2*", "const VkSubmitInfo2", "pSubmits", 1, dump_html_VkSubmitInfo2); // ZRZ
+        dump_html_array<const VkSubmitInfo2>(pSubmits, submitCount, settings, "const VkSubmitInfo2*", "const VkSubmitInfo2", "pSubmits", 1, dump_html_VkSubmitInfo2);
         dump_html_value<const VkFence>(fence, settings, "VkFence", "fence", 1, dump_html_VkFence);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
@@ -45007,7 +45007,7 @@ void dump_html_params_vkGetDeviceImageSparseMemoryRequirementsKHR(ApiDumpInstanc
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_pointer<const VkDeviceImageMemoryRequirements>(pInfo, settings, "const VkDeviceImageMemoryRequirements*", "pInfo", 1, dump_html_VkDeviceImageMemoryRequirements);
         dump_html_pointer<const uint32_t>(pSparseMemoryRequirementCount, settings, "uint32_t*", "pSparseMemoryRequirementCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", 1, dump_html_VkSparseImageMemoryRequirements2); // ZRZ
+        dump_html_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", 1, dump_html_VkSparseImageMemoryRequirements2);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -45145,7 +45145,7 @@ void dump_html_params_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(ApiDumpI
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCooperativeMatrixPropertiesKHR>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixPropertiesKHR*", "VkCooperativeMatrixPropertiesKHR", "pProperties", 1, dump_html_VkCooperativeMatrixPropertiesKHR); // ZRZ
+        dump_html_array<const VkCooperativeMatrixPropertiesKHR>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixPropertiesKHR*", "VkCooperativeMatrixPropertiesKHR", "pProperties", 1, dump_html_VkCooperativeMatrixPropertiesKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -45169,7 +45169,7 @@ void dump_html_params_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(ApiDumpInst
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pTimeDomainCount, settings, "uint32_t*", "pTimeDomainCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkTimeDomainKHR>(pTimeDomains, *pTimeDomainCount, settings, "VkTimeDomainKHR*", "VkTimeDomainKHR", "pTimeDomains", 1, dump_html_VkTimeDomainKHR); // ZRZ
+        dump_html_array<const VkTimeDomainKHR>(pTimeDomains, *pTimeDomainCount, settings, "VkTimeDomainKHR*", "VkTimeDomainKHR", "pTimeDomains", 1, dump_html_VkTimeDomainKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -45181,8 +45181,8 @@ void dump_html_params_vkGetCalibratedTimestampsKHR(ApiDumpInstance& dump_inst, V
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(timestampCount, settings, "uint32_t", "timestampCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCalibratedTimestampInfoKHR>(pTimestampInfos, timestampCount, settings, "const VkCalibratedTimestampInfoKHR*", "const VkCalibratedTimestampInfoKHR", "pTimestampInfos", 1, dump_html_VkCalibratedTimestampInfoKHR); // ZRZ
-        dump_html_array<const uint64_t>(pTimestamps, timestampCount, settings, "uint64_t*", "uint64_t", "pTimestamps", 1, dump_html_uint64_t); // ZRZ
+        dump_html_array<const VkCalibratedTimestampInfoKHR>(pTimestampInfos, timestampCount, settings, "const VkCalibratedTimestampInfoKHR*", "const VkCalibratedTimestampInfoKHR", "pTimestampInfos", 1, dump_html_VkCalibratedTimestampInfoKHR);
+        dump_html_array<const uint64_t>(pTimestamps, timestampCount, settings, "uint64_t*", "uint64_t", "pTimestamps", 1, dump_html_uint64_t);
         dump_html_pointer<const uint64_t>(pMaxDeviation, settings, "uint64_t*", "pMaxDeviation", 1, dump_html_uint64_t);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
@@ -45358,9 +45358,9 @@ void dump_html_params_vkCmdBindTransformFeedbackBuffersEXT(ApiDumpInstance& dump
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstBinding, settings, "uint32_t", "firstBinding", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(bindingCount, settings, "uint32_t", "bindingCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", 1, dump_html_VkBuffer); // ZRZ
-        dump_html_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", 1, dump_html_VkDeviceSize); // ZRZ
-        dump_html_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", 1, dump_html_VkDeviceSize); // ZRZ
+        dump_html_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", 1, dump_html_VkBuffer);
+        dump_html_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", 1, dump_html_VkDeviceSize);
+        dump_html_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", 1, dump_html_VkDeviceSize);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -45373,8 +45373,8 @@ void dump_html_params_vkCmdBeginTransformFeedbackEXT(ApiDumpInstance& dump_inst,
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstCounterBuffer, settings, "uint32_t", "firstCounterBuffer", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(counterBufferCount, settings, "uint32_t", "counterBufferCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBuffer>(pCounterBuffers, counterBufferCount, settings, "const VkBuffer*", "const VkBuffer", "pCounterBuffers", 1, dump_html_VkBuffer); // ZRZ
-        dump_html_array<const VkDeviceSize>(pCounterBufferOffsets, counterBufferCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pCounterBufferOffsets", 1, dump_html_VkDeviceSize); // ZRZ
+        dump_html_array<const VkBuffer>(pCounterBuffers, counterBufferCount, settings, "const VkBuffer*", "const VkBuffer", "pCounterBuffers", 1, dump_html_VkBuffer);
+        dump_html_array<const VkDeviceSize>(pCounterBufferOffsets, counterBufferCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pCounterBufferOffsets", 1, dump_html_VkDeviceSize);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -45387,8 +45387,8 @@ void dump_html_params_vkCmdEndTransformFeedbackEXT(ApiDumpInstance& dump_inst, V
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstCounterBuffer, settings, "uint32_t", "firstCounterBuffer", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(counterBufferCount, settings, "uint32_t", "counterBufferCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBuffer>(pCounterBuffers, counterBufferCount, settings, "const VkBuffer*", "const VkBuffer", "pCounterBuffers", 1, dump_html_VkBuffer); // ZRZ
-        dump_html_array<const VkDeviceSize>(pCounterBufferOffsets, counterBufferCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pCounterBufferOffsets", 1, dump_html_VkDeviceSize); // ZRZ
+        dump_html_array<const VkBuffer>(pCounterBuffers, counterBufferCount, settings, "const VkBuffer*", "const VkBuffer", "pCounterBuffers", 1, dump_html_VkBuffer);
+        dump_html_array<const VkDeviceSize>(pCounterBufferOffsets, counterBufferCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pCounterBufferOffsets", 1, dump_html_VkDeviceSize);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -45669,7 +45669,7 @@ void dump_html_params_vkCmdSetViewportWScalingNV(ApiDumpInstance& dump_inst, VkC
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstViewport, settings, "uint32_t", "firstViewport", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(viewportCount, settings, "uint32_t", "viewportCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkViewportWScalingNV>(pViewportWScalings, viewportCount, settings, "const VkViewportWScalingNV*", "const VkViewportWScalingNV", "pViewportWScalings", 1, dump_html_VkViewportWScalingNV); // ZRZ
+        dump_html_array<const VkViewportWScalingNV>(pViewportWScalings, viewportCount, settings, "const VkViewportWScalingNV*", "const VkViewportWScalingNV", "pViewportWScalings", 1, dump_html_VkViewportWScalingNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -45798,7 +45798,7 @@ void dump_html_params_vkGetPastPresentationTimingGOOGLE(ApiDumpInstance& dump_in
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkSwapchainKHR>(swapchain, settings, "VkSwapchainKHR", "swapchain", 1, dump_html_VkSwapchainKHR);
         dump_html_pointer<const uint32_t>(pPresentationTimingCount, settings, "uint32_t*", "pPresentationTimingCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPastPresentationTimingGOOGLE>(pPresentationTimings, *pPresentationTimingCount, settings, "VkPastPresentationTimingGOOGLE*", "VkPastPresentationTimingGOOGLE", "pPresentationTimings", 1, dump_html_VkPastPresentationTimingGOOGLE); // ZRZ
+        dump_html_array<const VkPastPresentationTimingGOOGLE>(pPresentationTimings, *pPresentationTimingCount, settings, "VkPastPresentationTimingGOOGLE*", "VkPastPresentationTimingGOOGLE", "pPresentationTimings", 1, dump_html_VkPastPresentationTimingGOOGLE);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -45811,7 +45811,7 @@ void dump_html_params_vkCmdSetDiscardRectangleEXT(ApiDumpInstance& dump_inst, Vk
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstDiscardRectangle, settings, "uint32_t", "firstDiscardRectangle", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(discardRectangleCount, settings, "uint32_t", "discardRectangleCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkRect2D>(pDiscardRectangles, discardRectangleCount, settings, "const VkRect2D*", "const VkRect2D", "pDiscardRectangles", 1, dump_html_VkRect2D); // ZRZ
+        dump_html_array<const VkRect2D>(pDiscardRectangles, discardRectangleCount, settings, "const VkRect2D*", "const VkRect2D", "pDiscardRectangles", 1, dump_html_VkRect2D);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -45845,8 +45845,8 @@ void dump_html_params_vkSetHdrMetadataEXT(ApiDumpInstance& dump_inst, VkDevice d
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(swapchainCount, settings, "uint32_t", "swapchainCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkSwapchainKHR>(pSwapchains, swapchainCount, settings, "const VkSwapchainKHR*", "const VkSwapchainKHR", "pSwapchains", 1, dump_html_VkSwapchainKHR); // ZRZ
-        dump_html_array<const VkHdrMetadataEXT>(pMetadata, swapchainCount, settings, "const VkHdrMetadataEXT*", "const VkHdrMetadataEXT", "pMetadata", 1, dump_html_VkHdrMetadataEXT); // ZRZ
+        dump_html_array<const VkSwapchainKHR>(pSwapchains, swapchainCount, settings, "const VkSwapchainKHR*", "const VkSwapchainKHR", "pSwapchains", 1, dump_html_VkSwapchainKHR);
+        dump_html_array<const VkHdrMetadataEXT>(pMetadata, swapchainCount, settings, "const VkHdrMetadataEXT*", "const VkHdrMetadataEXT", "pMetadata", 1, dump_html_VkHdrMetadataEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46042,9 +46042,9 @@ void dump_html_params_vkCreateExecutionGraphPipelinesAMDX(ApiDumpInstance& dump_
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkPipelineCache>(pipelineCache, settings, "VkPipelineCache", "pipelineCache", 1, dump_html_VkPipelineCache);
         dump_html_value<const uint32_t>(createInfoCount, settings, "uint32_t", "createInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkExecutionGraphPipelineCreateInfoAMDX>(pCreateInfos, createInfoCount, settings, "const VkExecutionGraphPipelineCreateInfoAMDX*", "const VkExecutionGraphPipelineCreateInfoAMDX", "pCreateInfos", 1, dump_html_VkExecutionGraphPipelineCreateInfoAMDX); // ZRZ
+        dump_html_array<const VkExecutionGraphPipelineCreateInfoAMDX>(pCreateInfos, createInfoCount, settings, "const VkExecutionGraphPipelineCreateInfoAMDX*", "const VkExecutionGraphPipelineCreateInfoAMDX", "pCreateInfos", 1, dump_html_VkExecutionGraphPipelineCreateInfoAMDX);
         dump_html_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", 1, dump_html_VkAllocationCallbacks);
-        dump_html_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", 1, dump_html_VkPipeline); // ZRZ
+        dump_html_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", 1, dump_html_VkPipeline);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46207,7 +46207,7 @@ void dump_html_params_vkMergeValidationCachesEXT(ApiDumpInstance& dump_inst, VkD
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkValidationCacheEXT>(dstCache, settings, "VkValidationCacheEXT", "dstCache", 1, dump_html_VkValidationCacheEXT);
         dump_html_value<const uint32_t>(srcCacheCount, settings, "uint32_t", "srcCacheCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkValidationCacheEXT>(pSrcCaches, srcCacheCount, settings, "const VkValidationCacheEXT*", "const VkValidationCacheEXT", "pSrcCaches", 1, dump_html_VkValidationCacheEXT); // ZRZ
+        dump_html_array<const VkValidationCacheEXT>(pSrcCaches, srcCacheCount, settings, "const VkValidationCacheEXT*", "const VkValidationCacheEXT", "pSrcCaches", 1, dump_html_VkValidationCacheEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46245,7 +46245,7 @@ void dump_html_params_vkCmdSetViewportShadingRatePaletteNV(ApiDumpInstance& dump
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstViewport, settings, "uint32_t", "firstViewport", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(viewportCount, settings, "uint32_t", "viewportCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkShadingRatePaletteNV>(pShadingRatePalettes, viewportCount, settings, "const VkShadingRatePaletteNV*", "const VkShadingRatePaletteNV", "pShadingRatePalettes", 1, dump_html_VkShadingRatePaletteNV); // ZRZ
+        dump_html_array<const VkShadingRatePaletteNV>(pShadingRatePalettes, viewportCount, settings, "const VkShadingRatePaletteNV*", "const VkShadingRatePaletteNV", "pShadingRatePalettes", 1, dump_html_VkShadingRatePaletteNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46258,7 +46258,7 @@ void dump_html_params_vkCmdSetCoarseSampleOrderNV(ApiDumpInstance& dump_inst, Vk
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const VkCoarseSampleOrderTypeNV>(sampleOrderType, settings, "VkCoarseSampleOrderTypeNV", "sampleOrderType", 1, dump_html_VkCoarseSampleOrderTypeNV);
         dump_html_value<const uint32_t>(customSampleOrderCount, settings, "uint32_t", "customSampleOrderCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCoarseSampleOrderCustomNV>(pCustomSampleOrders, customSampleOrderCount, settings, "const VkCoarseSampleOrderCustomNV*", "const VkCoarseSampleOrderCustomNV", "pCustomSampleOrders", 1, dump_html_VkCoarseSampleOrderCustomNV); // ZRZ
+        dump_html_array<const VkCoarseSampleOrderCustomNV>(pCustomSampleOrders, customSampleOrderCount, settings, "const VkCoarseSampleOrderCustomNV*", "const VkCoarseSampleOrderCustomNV", "pCustomSampleOrders", 1, dump_html_VkCoarseSampleOrderCustomNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46307,7 +46307,7 @@ void dump_html_params_vkBindAccelerationStructureMemoryNV(ApiDumpInstance& dump_
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(bindInfoCount, settings, "uint32_t", "bindInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBindAccelerationStructureMemoryInfoNV>(pBindInfos, bindInfoCount, settings, "const VkBindAccelerationStructureMemoryInfoNV*", "const VkBindAccelerationStructureMemoryInfoNV", "pBindInfos", 1, dump_html_VkBindAccelerationStructureMemoryInfoNV); // ZRZ
+        dump_html_array<const VkBindAccelerationStructureMemoryInfoNV>(pBindInfos, bindInfoCount, settings, "const VkBindAccelerationStructureMemoryInfoNV*", "const VkBindAccelerationStructureMemoryInfoNV", "pBindInfos", 1, dump_html_VkBindAccelerationStructureMemoryInfoNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46375,9 +46375,9 @@ void dump_html_params_vkCreateRayTracingPipelinesNV(ApiDumpInstance& dump_inst, 
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkPipelineCache>(pipelineCache, settings, "VkPipelineCache", "pipelineCache", 1, dump_html_VkPipelineCache);
         dump_html_value<const uint32_t>(createInfoCount, settings, "uint32_t", "createInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkRayTracingPipelineCreateInfoNV>(pCreateInfos, createInfoCount, settings, "const VkRayTracingPipelineCreateInfoNV*", "const VkRayTracingPipelineCreateInfoNV", "pCreateInfos", 1, dump_html_VkRayTracingPipelineCreateInfoNV); // ZRZ
+        dump_html_array<const VkRayTracingPipelineCreateInfoNV>(pCreateInfos, createInfoCount, settings, "const VkRayTracingPipelineCreateInfoNV*", "const VkRayTracingPipelineCreateInfoNV", "pCreateInfos", 1, dump_html_VkRayTracingPipelineCreateInfoNV);
         dump_html_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", 1, dump_html_VkAllocationCallbacks);
-        dump_html_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", 1, dump_html_VkPipeline); // ZRZ
+        dump_html_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", 1, dump_html_VkPipeline);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46432,7 +46432,7 @@ void dump_html_params_vkCmdWriteAccelerationStructuresPropertiesNV(ApiDumpInstan
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(accelerationStructureCount, settings, "uint32_t", "accelerationStructureCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkAccelerationStructureNV>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureNV*", "const VkAccelerationStructureNV", "pAccelerationStructures", 1, dump_html_VkAccelerationStructureNV); // ZRZ
+        dump_html_array<const VkAccelerationStructureNV>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureNV*", "const VkAccelerationStructureNV", "pAccelerationStructures", 1, dump_html_VkAccelerationStructureNV);
         dump_html_value<const VkQueryType>(queryType, settings, "VkQueryType", "queryType", 1, dump_html_VkQueryType);
         dump_html_value<const VkQueryPool>(queryPool, settings, "VkQueryPool", "queryPool", 1, dump_html_VkQueryPool);
         dump_html_value<const uint32_t>(firstQuery, settings, "uint32_t", "firstQuery", 1, dump_html_uint32_t);
@@ -46500,7 +46500,7 @@ void dump_html_params_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(ApiDumpInst
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pTimeDomainCount, settings, "uint32_t*", "pTimeDomainCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkTimeDomainKHR>(pTimeDomains, *pTimeDomainCount, settings, "VkTimeDomainKHR*", "VkTimeDomainKHR", "pTimeDomains", 1, dump_html_VkTimeDomainKHR); // ZRZ
+        dump_html_array<const VkTimeDomainKHR>(pTimeDomains, *pTimeDomainCount, settings, "VkTimeDomainKHR*", "VkTimeDomainKHR", "pTimeDomains", 1, dump_html_VkTimeDomainKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46512,8 +46512,8 @@ void dump_html_params_vkGetCalibratedTimestampsEXT(ApiDumpInstance& dump_inst, V
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(timestampCount, settings, "uint32_t", "timestampCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCalibratedTimestampInfoKHR>(pTimestampInfos, timestampCount, settings, "const VkCalibratedTimestampInfoKHR*", "const VkCalibratedTimestampInfoKHR", "pTimestampInfos", 1, dump_html_VkCalibratedTimestampInfoKHR); // ZRZ
-        dump_html_array<const uint64_t>(pTimestamps, timestampCount, settings, "uint64_t*", "uint64_t", "pTimestamps", 1, dump_html_uint64_t); // ZRZ
+        dump_html_array<const VkCalibratedTimestampInfoKHR>(pTimestampInfos, timestampCount, settings, "const VkCalibratedTimestampInfoKHR*", "const VkCalibratedTimestampInfoKHR", "pTimestampInfos", 1, dump_html_VkCalibratedTimestampInfoKHR);
+        dump_html_array<const uint64_t>(pTimestamps, timestampCount, settings, "uint64_t*", "uint64_t", "pTimestamps", 1, dump_html_uint64_t);
         dump_html_pointer<const uint64_t>(pMaxDeviation, settings, "uint64_t*", "pMaxDeviation", 1, dump_html_uint64_t);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
@@ -46569,7 +46569,7 @@ void dump_html_params_vkCmdSetExclusiveScissorEnableNV(ApiDumpInstance& dump_ins
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstExclusiveScissor, settings, "uint32_t", "firstExclusiveScissor", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(exclusiveScissorCount, settings, "uint32_t", "exclusiveScissorCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBool32>(pExclusiveScissorEnables, exclusiveScissorCount, settings, "const VkBool32*", "const VkBool32", "pExclusiveScissorEnables", 1, dump_html_VkBool32); // ZRZ
+        dump_html_array<const VkBool32>(pExclusiveScissorEnables, exclusiveScissorCount, settings, "const VkBool32*", "const VkBool32", "pExclusiveScissorEnables", 1, dump_html_VkBool32);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46582,7 +46582,7 @@ void dump_html_params_vkCmdSetExclusiveScissorNV(ApiDumpInstance& dump_inst, VkC
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstExclusiveScissor, settings, "uint32_t", "firstExclusiveScissor", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(exclusiveScissorCount, settings, "uint32_t", "exclusiveScissorCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkRect2D>(pExclusiveScissors, exclusiveScissorCount, settings, "const VkRect2D*", "const VkRect2D", "pExclusiveScissors", 1, dump_html_VkRect2D); // ZRZ
+        dump_html_array<const VkRect2D>(pExclusiveScissors, exclusiveScissorCount, settings, "const VkRect2D*", "const VkRect2D", "pExclusiveScissors", 1, dump_html_VkRect2D);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46605,7 +46605,7 @@ void dump_html_params_vkGetQueueCheckpointDataNV(ApiDumpInstance& dump_inst, VkQ
     {
         dump_html_value<const VkQueue>(queue, settings, "VkQueue", "queue", 1, dump_html_VkQueue);
         dump_html_pointer<const uint32_t>(pCheckpointDataCount, settings, "uint32_t*", "pCheckpointDataCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCheckpointDataNV>(pCheckpointData, *pCheckpointDataCount, settings, "VkCheckpointDataNV*", "VkCheckpointDataNV", "pCheckpointData", 1, dump_html_VkCheckpointDataNV); // ZRZ
+        dump_html_array<const VkCheckpointDataNV>(pCheckpointData, *pCheckpointDataCount, settings, "VkCheckpointDataNV*", "VkCheckpointDataNV", "pCheckpointData", 1, dump_html_VkCheckpointDataNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46617,7 +46617,7 @@ void dump_html_params_vkGetQueueCheckpointData2NV(ApiDumpInstance& dump_inst, Vk
     {
         dump_html_value<const VkQueue>(queue, settings, "VkQueue", "queue", 1, dump_html_VkQueue);
         dump_html_pointer<const uint32_t>(pCheckpointDataCount, settings, "uint32_t*", "pCheckpointDataCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCheckpointData2NV>(pCheckpointData, *pCheckpointDataCount, settings, "VkCheckpointData2NV*", "VkCheckpointData2NV", "pCheckpointData", 1, dump_html_VkCheckpointData2NV); // ZRZ
+        dump_html_array<const VkCheckpointData2NV>(pCheckpointData, *pCheckpointDataCount, settings, "VkCheckpointData2NV*", "VkCheckpointData2NV", "pCheckpointData", 1, dump_html_VkCheckpointData2NV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46782,7 +46782,7 @@ void dump_html_params_vkGetPhysicalDeviceToolPropertiesEXT(ApiDumpInstance& dump
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pToolCount, settings, "uint32_t*", "pToolCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPhysicalDeviceToolProperties>(pToolProperties, *pToolCount, settings, "VkPhysicalDeviceToolProperties*", "VkPhysicalDeviceToolProperties", "pToolProperties", 1, dump_html_VkPhysicalDeviceToolProperties); // ZRZ
+        dump_html_array<const VkPhysicalDeviceToolProperties>(pToolProperties, *pToolCount, settings, "VkPhysicalDeviceToolProperties*", "VkPhysicalDeviceToolProperties", "pToolProperties", 1, dump_html_VkPhysicalDeviceToolProperties);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46794,7 +46794,7 @@ void dump_html_params_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(ApiDumpIn
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCooperativeMatrixPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixPropertiesNV*", "VkCooperativeMatrixPropertiesNV", "pProperties", 1, dump_html_VkCooperativeMatrixPropertiesNV); // ZRZ
+        dump_html_array<const VkCooperativeMatrixPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixPropertiesNV*", "VkCooperativeMatrixPropertiesNV", "pProperties", 1, dump_html_VkCooperativeMatrixPropertiesNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46806,7 +46806,7 @@ void dump_html_params_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombina
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pCombinationCount, settings, "uint32_t*", "pCombinationCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkFramebufferMixedSamplesCombinationNV>(pCombinations, *pCombinationCount, settings, "VkFramebufferMixedSamplesCombinationNV*", "VkFramebufferMixedSamplesCombinationNV", "pCombinations", 1, dump_html_VkFramebufferMixedSamplesCombinationNV); // ZRZ
+        dump_html_array<const VkFramebufferMixedSamplesCombinationNV>(pCombinations, *pCombinationCount, settings, "VkFramebufferMixedSamplesCombinationNV*", "VkFramebufferMixedSamplesCombinationNV", "pCombinations", 1, dump_html_VkFramebufferMixedSamplesCombinationNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46820,7 +46820,7 @@ void dump_html_params_vkGetPhysicalDeviceSurfacePresentModes2EXT(ApiDumpInstance
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const VkPhysicalDeviceSurfaceInfo2KHR>(pSurfaceInfo, settings, "const VkPhysicalDeviceSurfaceInfo2KHR*", "pSurfaceInfo", 1, dump_html_VkPhysicalDeviceSurfaceInfo2KHR);
         dump_html_pointer<const uint32_t>(pPresentModeCount, settings, "uint32_t*", "pPresentModeCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkPresentModeKHR>(pPresentModes, *pPresentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", 1, dump_html_VkPresentModeKHR); // ZRZ
+        dump_html_array<const VkPresentModeKHR>(pPresentModes, *pPresentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", 1, dump_html_VkPresentModeKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46944,7 +46944,7 @@ void dump_html_params_vkCmdSetViewportWithCountEXT(ApiDumpInstance& dump_inst, V
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(viewportCount, settings, "uint32_t", "viewportCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", 1, dump_html_VkViewport); // ZRZ
+        dump_html_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", 1, dump_html_VkViewport);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46956,7 +46956,7 @@ void dump_html_params_vkCmdSetScissorWithCountEXT(ApiDumpInstance& dump_inst, Vk
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(scissorCount, settings, "uint32_t", "scissorCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", 1, dump_html_VkRect2D); // ZRZ
+        dump_html_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", 1, dump_html_VkRect2D);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -46969,10 +46969,10 @@ void dump_html_params_vkCmdBindVertexBuffers2EXT(ApiDumpInstance& dump_inst, VkC
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstBinding, settings, "uint32_t", "firstBinding", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(bindingCount, settings, "uint32_t", "bindingCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", 1, dump_html_VkBuffer); // ZRZ
-        dump_html_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", 1, dump_html_VkDeviceSize); // ZRZ
-        dump_html_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", 1, dump_html_VkDeviceSize); // ZRZ
-        dump_html_array<const VkDeviceSize>(pStrides, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pStrides", 1, dump_html_VkDeviceSize); // ZRZ
+        dump_html_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", 1, dump_html_VkBuffer);
+        dump_html_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", 1, dump_html_VkDeviceSize);
+        dump_html_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", 1, dump_html_VkDeviceSize);
+        dump_html_array<const VkDeviceSize>(pStrides, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pStrides", 1, dump_html_VkDeviceSize);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -47087,7 +47087,7 @@ void dump_html_params_vkTransitionImageLayoutEXT(ApiDumpInstance& dump_inst, VkD
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(transitionCount, settings, "uint32_t", "transitionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkHostImageLayoutTransitionInfo>(pTransitions, transitionCount, settings, "const VkHostImageLayoutTransitionInfo*", "const VkHostImageLayoutTransitionInfo", "pTransitions", 1, dump_html_VkHostImageLayoutTransitionInfo); // ZRZ
+        dump_html_array<const VkHostImageLayoutTransitionInfo>(pTransitions, transitionCount, settings, "const VkHostImageLayoutTransitionInfo*", "const VkHostImageLayoutTransitionInfo", "pTransitions", 1, dump_html_VkHostImageLayoutTransitionInfo);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -47455,7 +47455,7 @@ void dump_html_params_vkCmdBindDescriptorBuffersEXT(ApiDumpInstance& dump_inst, 
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(bufferCount, settings, "uint32_t", "bufferCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDescriptorBufferBindingInfoEXT>(pBindingInfos, bufferCount, settings, "const VkDescriptorBufferBindingInfoEXT*", "const VkDescriptorBufferBindingInfoEXT", "pBindingInfos", 1, dump_html_VkDescriptorBufferBindingInfoEXT); // ZRZ
+        dump_html_array<const VkDescriptorBufferBindingInfoEXT>(pBindingInfos, bufferCount, settings, "const VkDescriptorBufferBindingInfoEXT*", "const VkDescriptorBufferBindingInfoEXT", "pBindingInfos", 1, dump_html_VkDescriptorBufferBindingInfoEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -47470,8 +47470,8 @@ void dump_html_params_vkCmdSetDescriptorBufferOffsetsEXT(ApiDumpInstance& dump_i
         dump_html_value<const VkPipelineLayout>(layout, settings, "VkPipelineLayout", "layout", 1, dump_html_VkPipelineLayout);
         dump_html_value<const uint32_t>(firstSet, settings, "uint32_t", "firstSet", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(setCount, settings, "uint32_t", "setCount", 1, dump_html_uint32_t);
-        dump_html_array<const uint32_t>(pBufferIndices, setCount, settings, "const uint32_t*", "const uint32_t", "pBufferIndices", 1, dump_html_uint32_t); // ZRZ
-        dump_html_array<const VkDeviceSize>(pOffsets, setCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", 1, dump_html_VkDeviceSize); // ZRZ
+        dump_html_array<const uint32_t>(pBufferIndices, setCount, settings, "const uint32_t*", "const uint32_t", "pBufferIndices", 1, dump_html_uint32_t);
+        dump_html_array<const VkDeviceSize>(pOffsets, setCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", 1, dump_html_VkDeviceSize);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -47556,7 +47556,7 @@ void dump_html_params_vkCmdSetFragmentShadingRateEnumNV(ApiDumpInstance& dump_in
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const VkFragmentShadingRateNV>(shadingRate, settings, "VkFragmentShadingRateNV", "shadingRate", 1, dump_html_VkFragmentShadingRateNV);
-        dump_html_array<const VkFragmentShadingRateCombinerOpKHR>(combinerOps, 2, settings, "const VkFragmentShadingRateCombinerOpKHR[2]", "const VkFragmentShadingRateCombinerOpKHR", "combinerOps", 1, dump_html_VkFragmentShadingRateCombinerOpKHR); // ZRZ
+        dump_html_array<const VkFragmentShadingRateCombinerOpKHR>(combinerOps, 2, settings, "const VkFragmentShadingRateCombinerOpKHR[2]", "const VkFragmentShadingRateCombinerOpKHR", "combinerOps", 1, dump_html_VkFragmentShadingRateCombinerOpKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -47636,9 +47636,9 @@ void dump_html_params_vkCmdSetVertexInputEXT(ApiDumpInstance& dump_inst, VkComma
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(vertexBindingDescriptionCount, settings, "uint32_t", "vertexBindingDescriptionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkVertexInputBindingDescription2EXT>(pVertexBindingDescriptions, vertexBindingDescriptionCount, settings, "const VkVertexInputBindingDescription2EXT*", "const VkVertexInputBindingDescription2EXT", "pVertexBindingDescriptions", 1, dump_html_VkVertexInputBindingDescription2EXT); // ZRZ
+        dump_html_array<const VkVertexInputBindingDescription2EXT>(pVertexBindingDescriptions, vertexBindingDescriptionCount, settings, "const VkVertexInputBindingDescription2EXT*", "const VkVertexInputBindingDescription2EXT", "pVertexBindingDescriptions", 1, dump_html_VkVertexInputBindingDescription2EXT);
         dump_html_value<const uint32_t>(vertexAttributeDescriptionCount, settings, "uint32_t", "vertexAttributeDescriptionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkVertexInputAttributeDescription2EXT>(pVertexAttributeDescriptions, vertexAttributeDescriptionCount, settings, "const VkVertexInputAttributeDescription2EXT*", "const VkVertexInputAttributeDescription2EXT", "pVertexAttributeDescriptions", 1, dump_html_VkVertexInputAttributeDescription2EXT); // ZRZ
+        dump_html_array<const VkVertexInputAttributeDescription2EXT>(pVertexAttributeDescriptions, vertexAttributeDescriptionCount, settings, "const VkVertexInputAttributeDescription2EXT*", "const VkVertexInputAttributeDescription2EXT", "pVertexAttributeDescriptions", 1, dump_html_VkVertexInputAttributeDescription2EXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -47777,7 +47777,7 @@ void dump_html_params_vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI(ApiDumpIns
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkRenderPass>(renderpass, settings, "VkRenderPass", "renderpass", 1, dump_html_VkRenderPass);
-        dump_html_array<const VkExtent2D>(pMaxWorkgroupSize, 1, settings, "VkExtent2D*", "VkExtent2D", "pMaxWorkgroupSize", 1, dump_html_VkExtent2D); // ZRZ
+        dump_html_array<const VkExtent2D>(pMaxWorkgroupSize, 1, settings, "VkExtent2D*", "VkExtent2D", "pMaxWorkgroupSize", 1, dump_html_VkExtent2D);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -47919,7 +47919,7 @@ void dump_html_params_vkCmdSetColorWriteEnableEXT(ApiDumpInstance& dump_inst, Vk
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(attachmentCount, settings, "uint32_t", "attachmentCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBool32>(pColorWriteEnables, attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorWriteEnables", 1, dump_html_VkBool32); // ZRZ
+        dump_html_array<const VkBool32>(pColorWriteEnables, attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorWriteEnables", 1, dump_html_VkBool32);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -47931,7 +47931,7 @@ void dump_html_params_vkCmdDrawMultiEXT(ApiDumpInstance& dump_inst, VkCommandBuf
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(drawCount, settings, "uint32_t", "drawCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkMultiDrawInfoEXT>(pVertexInfo, drawCount, settings, "const VkMultiDrawInfoEXT*", "const VkMultiDrawInfoEXT", "pVertexInfo", 1, dump_html_VkMultiDrawInfoEXT); // ZRZ
+        dump_html_array<const VkMultiDrawInfoEXT>(pVertexInfo, drawCount, settings, "const VkMultiDrawInfoEXT*", "const VkMultiDrawInfoEXT", "pVertexInfo", 1, dump_html_VkMultiDrawInfoEXT);
         dump_html_value<const uint32_t>(instanceCount, settings, "uint32_t", "instanceCount", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(firstInstance, settings, "uint32_t", "firstInstance", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(stride, settings, "uint32_t", "stride", 1, dump_html_uint32_t);
@@ -47946,7 +47946,7 @@ void dump_html_params_vkCmdDrawMultiIndexedEXT(ApiDumpInstance& dump_inst, VkCom
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(drawCount, settings, "uint32_t", "drawCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkMultiDrawIndexedInfoEXT>(pIndexInfo, drawCount, settings, "const VkMultiDrawIndexedInfoEXT*", "const VkMultiDrawIndexedInfoEXT", "pIndexInfo", 1, dump_html_VkMultiDrawIndexedInfoEXT); // ZRZ
+        dump_html_array<const VkMultiDrawIndexedInfoEXT>(pIndexInfo, drawCount, settings, "const VkMultiDrawIndexedInfoEXT*", "const VkMultiDrawIndexedInfoEXT", "pIndexInfo", 1, dump_html_VkMultiDrawIndexedInfoEXT);
         dump_html_value<const uint32_t>(instanceCount, settings, "uint32_t", "instanceCount", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(firstInstance, settings, "uint32_t", "firstInstance", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(stride, settings, "uint32_t", "stride", 1, dump_html_uint32_t);
@@ -47987,7 +47987,7 @@ void dump_html_params_vkCmdBuildMicromapsEXT(ApiDumpInstance& dump_inst, VkComma
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(infoCount, settings, "uint32_t", "infoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkMicromapBuildInfoEXT>(pInfos, infoCount, settings, "const VkMicromapBuildInfoEXT*", "const VkMicromapBuildInfoEXT", "pInfos", 1, dump_html_VkMicromapBuildInfoEXT); // ZRZ
+        dump_html_array<const VkMicromapBuildInfoEXT>(pInfos, infoCount, settings, "const VkMicromapBuildInfoEXT*", "const VkMicromapBuildInfoEXT", "pInfos", 1, dump_html_VkMicromapBuildInfoEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48000,7 +48000,7 @@ void dump_html_params_vkBuildMicromapsEXT(ApiDumpInstance& dump_inst, VkDevice d
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkDeferredOperationKHR>(deferredOperation, settings, "VkDeferredOperationKHR", "deferredOperation", 1, dump_html_VkDeferredOperationKHR);
         dump_html_value<const uint32_t>(infoCount, settings, "uint32_t", "infoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkMicromapBuildInfoEXT>(pInfos, infoCount, settings, "const VkMicromapBuildInfoEXT*", "const VkMicromapBuildInfoEXT", "pInfos", 1, dump_html_VkMicromapBuildInfoEXT); // ZRZ
+        dump_html_array<const VkMicromapBuildInfoEXT>(pInfos, infoCount, settings, "const VkMicromapBuildInfoEXT*", "const VkMicromapBuildInfoEXT", "pInfos", 1, dump_html_VkMicromapBuildInfoEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48048,7 +48048,7 @@ void dump_html_params_vkWriteMicromapsPropertiesEXT(ApiDumpInstance& dump_inst, 
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(micromapCount, settings, "uint32_t", "micromapCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkMicromapEXT>(pMicromaps, micromapCount, settings, "const VkMicromapEXT*", "const VkMicromapEXT", "pMicromaps", 1, dump_html_VkMicromapEXT); // ZRZ
+        dump_html_array<const VkMicromapEXT>(pMicromaps, micromapCount, settings, "const VkMicromapEXT*", "const VkMicromapEXT", "pMicromaps", 1, dump_html_VkMicromapEXT);
         dump_html_value<const VkQueryType>(queryType, settings, "VkQueryType", "queryType", 1, dump_html_VkQueryType);
         dump_html_value<const size_t>(dataSize, settings, "size_t", "dataSize", 1, dump_html_size_t);
         dump_html_value<const void*>(pData, settings, "void*", "pData", 1, dump_html_void);
@@ -48097,7 +48097,7 @@ void dump_html_params_vkCmdWriteMicromapsPropertiesEXT(ApiDumpInstance& dump_ins
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(micromapCount, settings, "uint32_t", "micromapCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkMicromapEXT>(pMicromaps, micromapCount, settings, "const VkMicromapEXT*", "const VkMicromapEXT", "pMicromaps", 1, dump_html_VkMicromapEXT); // ZRZ
+        dump_html_array<const VkMicromapEXT>(pMicromaps, micromapCount, settings, "const VkMicromapEXT*", "const VkMicromapEXT", "pMicromaps", 1, dump_html_VkMicromapEXT);
         dump_html_value<const VkQueryType>(queryType, settings, "VkQueryType", "queryType", 1, dump_html_VkQueryType);
         dump_html_value<const VkQueryPool>(queryPool, settings, "VkQueryPool", "queryPool", 1, dump_html_VkQueryPool);
         dump_html_value<const uint32_t>(firstQuery, settings, "uint32_t", "firstQuery", 1, dump_html_uint32_t);
@@ -48215,7 +48215,7 @@ void dump_html_params_vkCmdCopyMemoryToImageIndirectNV(ApiDumpInstance& dump_ins
         dump_html_value<const uint32_t>(stride, settings, "uint32_t", "stride", 1, dump_html_uint32_t);
         dump_html_value<const VkImage>(dstImage, settings, "VkImage", "dstImage", 1, dump_html_VkImage);
         dump_html_value<const VkImageLayout>(dstImageLayout, settings, "VkImageLayout", "dstImageLayout", 1, dump_html_VkImageLayout);
-        dump_html_array<const VkImageSubresourceLayers>(pImageSubresources, copyCount, settings, "const VkImageSubresourceLayers*", "const VkImageSubresourceLayers", "pImageSubresources", 1, dump_html_VkImageSubresourceLayers); // ZRZ
+        dump_html_array<const VkImageSubresourceLayers>(pImageSubresources, copyCount, settings, "const VkImageSubresourceLayers*", "const VkImageSubresourceLayers", "pImageSubresources", 1, dump_html_VkImageSubresourceLayers);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48227,7 +48227,7 @@ void dump_html_params_vkCmdDecompressMemoryNV(ApiDumpInstance& dump_inst, VkComm
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(decompressRegionCount, settings, "uint32_t", "decompressRegionCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkDecompressMemoryRegionNV>(pDecompressMemoryRegions, decompressRegionCount, settings, "const VkDecompressMemoryRegionNV*", "const VkDecompressMemoryRegionNV", "pDecompressMemoryRegions", 1, dump_html_VkDecompressMemoryRegionNV); // ZRZ
+        dump_html_array<const VkDecompressMemoryRegionNV>(pDecompressMemoryRegions, decompressRegionCount, settings, "const VkDecompressMemoryRegionNV*", "const VkDecompressMemoryRegionNV", "pDecompressMemoryRegions", 1, dump_html_VkDecompressMemoryRegionNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48320,7 +48320,7 @@ void dump_html_params_vkCmdSetSampleMaskEXT(ApiDumpInstance& dump_inst, VkComman
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const VkSampleCountFlagBits>(samples, settings, "VkSampleCountFlagBits", "samples", 1, dump_html_VkSampleCountFlagBits);
-        dump_html_array<const VkSampleMask>(pSampleMask, (samples + 31) / 32, settings, "const VkSampleMask*", "const VkSampleMask", "pSampleMask", 1, dump_html_VkSampleMask); // ZRZ
+        dump_html_array<const VkSampleMask>(pSampleMask, (samples + 31) / 32, settings, "const VkSampleMask*", "const VkSampleMask", "pSampleMask", 1, dump_html_VkSampleMask);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48366,7 +48366,7 @@ void dump_html_params_vkCmdSetColorBlendEnableEXT(ApiDumpInstance& dump_inst, Vk
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstAttachment, settings, "uint32_t", "firstAttachment", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(attachmentCount, settings, "uint32_t", "attachmentCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBool32>(pColorBlendEnables, attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorBlendEnables", 1, dump_html_VkBool32); // ZRZ
+        dump_html_array<const VkBool32>(pColorBlendEnables, attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorBlendEnables", 1, dump_html_VkBool32);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48379,7 +48379,7 @@ void dump_html_params_vkCmdSetColorBlendEquationEXT(ApiDumpInstance& dump_inst, 
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstAttachment, settings, "uint32_t", "firstAttachment", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(attachmentCount, settings, "uint32_t", "attachmentCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkColorBlendEquationEXT>(pColorBlendEquations, attachmentCount, settings, "const VkColorBlendEquationEXT*", "const VkColorBlendEquationEXT", "pColorBlendEquations", 1, dump_html_VkColorBlendEquationEXT); // ZRZ
+        dump_html_array<const VkColorBlendEquationEXT>(pColorBlendEquations, attachmentCount, settings, "const VkColorBlendEquationEXT*", "const VkColorBlendEquationEXT", "pColorBlendEquations", 1, dump_html_VkColorBlendEquationEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48392,7 +48392,7 @@ void dump_html_params_vkCmdSetColorWriteMaskEXT(ApiDumpInstance& dump_inst, VkCo
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstAttachment, settings, "uint32_t", "firstAttachment", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(attachmentCount, settings, "uint32_t", "attachmentCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkColorComponentFlags>(pColorWriteMasks, attachmentCount, settings, "const VkColorComponentFlags*", "const VkColorComponentFlags", "pColorWriteMasks", 1, dump_html_VkColorComponentFlags); // ZRZ
+        dump_html_array<const VkColorComponentFlags>(pColorWriteMasks, attachmentCount, settings, "const VkColorComponentFlags*", "const VkColorComponentFlags", "pColorWriteMasks", 1, dump_html_VkColorComponentFlags);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48471,7 +48471,7 @@ void dump_html_params_vkCmdSetColorBlendAdvancedEXT(ApiDumpInstance& dump_inst, 
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstAttachment, settings, "uint32_t", "firstAttachment", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(attachmentCount, settings, "uint32_t", "attachmentCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkColorBlendAdvancedEXT>(pColorBlendAdvanced, attachmentCount, settings, "const VkColorBlendAdvancedEXT*", "const VkColorBlendAdvancedEXT", "pColorBlendAdvanced", 1, dump_html_VkColorBlendAdvancedEXT); // ZRZ
+        dump_html_array<const VkColorBlendAdvancedEXT>(pColorBlendAdvanced, attachmentCount, settings, "const VkColorBlendAdvancedEXT*", "const VkColorBlendAdvancedEXT", "pColorBlendAdvanced", 1, dump_html_VkColorBlendAdvancedEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48539,7 +48539,7 @@ void dump_html_params_vkCmdSetViewportSwizzleNV(ApiDumpInstance& dump_inst, VkCo
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(firstViewport, settings, "uint32_t", "firstViewport", 1, dump_html_uint32_t);
         dump_html_value<const uint32_t>(viewportCount, settings, "uint32_t", "viewportCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkViewportSwizzleNV>(pViewportSwizzles, viewportCount, settings, "const VkViewportSwizzleNV*", "const VkViewportSwizzleNV", "pViewportSwizzles", 1, dump_html_VkViewportSwizzleNV); // ZRZ
+        dump_html_array<const VkViewportSwizzleNV>(pViewportSwizzles, viewportCount, settings, "const VkViewportSwizzleNV*", "const VkViewportSwizzleNV", "pViewportSwizzles", 1, dump_html_VkViewportSwizzleNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48595,7 +48595,7 @@ void dump_html_params_vkCmdSetCoverageModulationTableNV(ApiDumpInstance& dump_in
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(coverageModulationTableCount, settings, "uint32_t", "coverageModulationTableCount", 1, dump_html_uint32_t);
-        dump_html_array<const float>(pCoverageModulationTable, coverageModulationTableCount, settings, "const float*", "const float", "pCoverageModulationTable", 1, dump_html_float); // ZRZ
+        dump_html_array<const float>(pCoverageModulationTable, coverageModulationTableCount, settings, "const float*", "const float", "pCoverageModulationTable", 1, dump_html_float);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48702,7 +48702,7 @@ void dump_html_params_vkBindTensorMemoryARM(ApiDumpInstance& dump_inst, VkDevice
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(bindInfoCount, settings, "uint32_t", "bindInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkBindTensorMemoryInfoARM>(pBindInfos, bindInfoCount, settings, "const VkBindTensorMemoryInfoARM*", "const VkBindTensorMemoryInfoARM", "pBindInfos", 1, dump_html_VkBindTensorMemoryInfoARM); // ZRZ
+        dump_html_array<const VkBindTensorMemoryInfoARM>(pBindInfos, bindInfoCount, settings, "const VkBindTensorMemoryInfoARM*", "const VkBindTensorMemoryInfoARM", "pBindInfos", 1, dump_html_VkBindTensorMemoryInfoARM);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48798,7 +48798,7 @@ void dump_html_params_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(ApiDumpInstan
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const VkOpticalFlowImageFormatInfoNV>(pOpticalFlowImageFormatInfo, settings, "const VkOpticalFlowImageFormatInfoNV*", "pOpticalFlowImageFormatInfo", 1, dump_html_VkOpticalFlowImageFormatInfoNV);
         dump_html_pointer<const uint32_t>(pFormatCount, settings, "uint32_t*", "pFormatCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkOpticalFlowImageFormatPropertiesNV>(pImageFormatProperties, *pFormatCount, settings, "VkOpticalFlowImageFormatPropertiesNV*", "VkOpticalFlowImageFormatPropertiesNV", "pImageFormatProperties", 1, dump_html_VkOpticalFlowImageFormatPropertiesNV); // ZRZ
+        dump_html_array<const VkOpticalFlowImageFormatPropertiesNV>(pImageFormatProperties, *pFormatCount, settings, "VkOpticalFlowImageFormatPropertiesNV*", "VkOpticalFlowImageFormatPropertiesNV", "pImageFormatProperties", 1, dump_html_VkOpticalFlowImageFormatPropertiesNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48872,9 +48872,9 @@ void dump_html_params_vkCreateShadersEXT(ApiDumpInstance& dump_inst, VkDevice de
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(createInfoCount, settings, "uint32_t", "createInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkShaderCreateInfoEXT>(pCreateInfos, createInfoCount, settings, "const VkShaderCreateInfoEXT*", "const VkShaderCreateInfoEXT", "pCreateInfos", 1, dump_html_VkShaderCreateInfoEXT); // ZRZ
+        dump_html_array<const VkShaderCreateInfoEXT>(pCreateInfos, createInfoCount, settings, "const VkShaderCreateInfoEXT*", "const VkShaderCreateInfoEXT", "pCreateInfos", 1, dump_html_VkShaderCreateInfoEXT);
         dump_html_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", 1, dump_html_VkAllocationCallbacks);
-        dump_html_array<const VkShaderEXT>(pShaders, createInfoCount, settings, "VkShaderEXT*", "VkShaderEXT", "pShaders", 1, dump_html_VkShaderEXT); // ZRZ
+        dump_html_array<const VkShaderEXT>(pShaders, createInfoCount, settings, "VkShaderEXT*", "VkShaderEXT", "pShaders", 1, dump_html_VkShaderEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48911,8 +48911,8 @@ void dump_html_params_vkCmdBindShadersEXT(ApiDumpInstance& dump_inst, VkCommandB
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(stageCount, settings, "uint32_t", "stageCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkShaderStageFlagBits>(pStages, stageCount, settings, "const VkShaderStageFlagBits*", "const VkShaderStageFlagBits", "pStages", 1, dump_html_VkShaderStageFlagBits); // ZRZ
-        dump_html_array<const VkShaderEXT>(pShaders, stageCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pShaders", 1, dump_html_VkShaderEXT); // ZRZ
+        dump_html_array<const VkShaderStageFlagBits>(pStages, stageCount, settings, "const VkShaderStageFlagBits*", "const VkShaderStageFlagBits", "pStages", 1, dump_html_VkShaderStageFlagBits);
+        dump_html_array<const VkShaderEXT>(pShaders, stageCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pShaders", 1, dump_html_VkShaderEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48937,7 +48937,7 @@ void dump_html_params_vkGetFramebufferTilePropertiesQCOM(ApiDumpInstance& dump_i
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkFramebuffer>(framebuffer, settings, "VkFramebuffer", "framebuffer", 1, dump_html_VkFramebuffer);
         dump_html_pointer<const uint32_t>(pPropertiesCount, settings, "uint32_t*", "pPropertiesCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkTilePropertiesQCOM>(pProperties, *pPropertiesCount, settings, "VkTilePropertiesQCOM*", "VkTilePropertiesQCOM", "pProperties", 1, dump_html_VkTilePropertiesQCOM); // ZRZ
+        dump_html_array<const VkTilePropertiesQCOM>(pProperties, *pPropertiesCount, settings, "VkTilePropertiesQCOM*", "VkTilePropertiesQCOM", "pProperties", 1, dump_html_VkTilePropertiesQCOM);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48961,7 +48961,7 @@ void dump_html_params_vkGetPhysicalDeviceCooperativeVectorPropertiesNV(ApiDumpIn
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCooperativeVectorPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeVectorPropertiesNV*", "VkCooperativeVectorPropertiesNV", "pProperties", 1, dump_html_VkCooperativeVectorPropertiesNV); // ZRZ
+        dump_html_array<const VkCooperativeVectorPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeVectorPropertiesNV*", "VkCooperativeVectorPropertiesNV", "pProperties", 1, dump_html_VkCooperativeVectorPropertiesNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -48984,7 +48984,7 @@ void dump_html_params_vkCmdConvertCooperativeVectorMatrixNV(ApiDumpInstance& dum
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(infoCount, settings, "uint32_t", "infoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkConvertCooperativeVectorMatrixInfoNV>(pInfos, infoCount, settings, "const VkConvertCooperativeVectorMatrixInfoNV*", "const VkConvertCooperativeVectorMatrixInfoNV", "pInfos", 1, dump_html_VkConvertCooperativeVectorMatrixInfoNV); // ZRZ
+        dump_html_array<const VkConvertCooperativeVectorMatrixInfoNV>(pInfos, infoCount, settings, "const VkConvertCooperativeVectorMatrixInfoNV*", "const VkConvertCooperativeVectorMatrixInfoNV", "pInfos", 1, dump_html_VkConvertCooperativeVectorMatrixInfoNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -49261,7 +49261,7 @@ void dump_html_params_vkUpdateIndirectExecutionSetPipelineEXT(ApiDumpInstance& d
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkIndirectExecutionSetEXT>(indirectExecutionSet, settings, "VkIndirectExecutionSetEXT", "indirectExecutionSet", 1, dump_html_VkIndirectExecutionSetEXT);
         dump_html_value<const uint32_t>(executionSetWriteCount, settings, "uint32_t", "executionSetWriteCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkWriteIndirectExecutionSetPipelineEXT>(pExecutionSetWrites, executionSetWriteCount, settings, "const VkWriteIndirectExecutionSetPipelineEXT*", "const VkWriteIndirectExecutionSetPipelineEXT", "pExecutionSetWrites", 1, dump_html_VkWriteIndirectExecutionSetPipelineEXT); // ZRZ
+        dump_html_array<const VkWriteIndirectExecutionSetPipelineEXT>(pExecutionSetWrites, executionSetWriteCount, settings, "const VkWriteIndirectExecutionSetPipelineEXT*", "const VkWriteIndirectExecutionSetPipelineEXT", "pExecutionSetWrites", 1, dump_html_VkWriteIndirectExecutionSetPipelineEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -49274,7 +49274,7 @@ void dump_html_params_vkUpdateIndirectExecutionSetShaderEXT(ApiDumpInstance& dum
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkIndirectExecutionSetEXT>(indirectExecutionSet, settings, "VkIndirectExecutionSetEXT", "indirectExecutionSet", 1, dump_html_VkIndirectExecutionSetEXT);
         dump_html_value<const uint32_t>(executionSetWriteCount, settings, "uint32_t", "executionSetWriteCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkWriteIndirectExecutionSetShaderEXT>(pExecutionSetWrites, executionSetWriteCount, settings, "const VkWriteIndirectExecutionSetShaderEXT*", "const VkWriteIndirectExecutionSetShaderEXT", "pExecutionSetWrites", 1, dump_html_VkWriteIndirectExecutionSetShaderEXT); // ZRZ
+        dump_html_array<const VkWriteIndirectExecutionSetShaderEXT>(pExecutionSetWrites, executionSetWriteCount, settings, "const VkWriteIndirectExecutionSetShaderEXT*", "const VkWriteIndirectExecutionSetShaderEXT", "pExecutionSetWrites", 1, dump_html_VkWriteIndirectExecutionSetShaderEXT);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -49301,7 +49301,7 @@ void dump_html_params_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsProp
     {
         dump_html_value<const VkPhysicalDevice>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", 1, dump_html_VkPhysicalDevice);
         dump_html_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixFlexibleDimensionsPropertiesNV*", "VkCooperativeMatrixFlexibleDimensionsPropertiesNV", "pProperties", 1, dump_html_VkCooperativeMatrixFlexibleDimensionsPropertiesNV); // ZRZ
+        dump_html_array<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixFlexibleDimensionsPropertiesNV*", "VkCooperativeMatrixFlexibleDimensionsPropertiesNV", "pProperties", 1, dump_html_VkCooperativeMatrixFlexibleDimensionsPropertiesNV);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -49378,7 +49378,7 @@ void dump_html_params_vkCmdBuildAccelerationStructuresKHR(ApiDumpInstance& dump_
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(infoCount, settings, "uint32_t", "infoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", 1, dump_html_VkAccelerationStructureBuildGeometryInfoKHR); // ZRZ
+        dump_html_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", 1, dump_html_VkAccelerationStructureBuildGeometryInfoKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -49390,9 +49390,9 @@ void dump_html_params_vkCmdBuildAccelerationStructuresIndirectKHR(ApiDumpInstanc
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(infoCount, settings, "uint32_t", "infoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", 1, dump_html_VkAccelerationStructureBuildGeometryInfoKHR); // ZRZ
-        dump_html_array<const VkDeviceAddress>(pIndirectDeviceAddresses, infoCount, settings, "const VkDeviceAddress*", "const VkDeviceAddress", "pIndirectDeviceAddresses", 1, dump_html_VkDeviceAddress); // ZRZ
-        dump_html_array<const uint32_t>(pIndirectStrides, infoCount, settings, "const uint32_t*", "const uint32_t", "pIndirectStrides", 1, dump_html_uint32_t); // ZRZ
+        dump_html_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", 1, dump_html_VkAccelerationStructureBuildGeometryInfoKHR);
+        dump_html_array<const VkDeviceAddress>(pIndirectDeviceAddresses, infoCount, settings, "const VkDeviceAddress*", "const VkDeviceAddress", "pIndirectDeviceAddresses", 1, dump_html_VkDeviceAddress);
+        dump_html_array<const uint32_t>(pIndirectStrides, infoCount, settings, "const uint32_t*", "const uint32_t", "pIndirectStrides", 1, dump_html_uint32_t);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -49405,7 +49405,7 @@ void dump_html_params_vkBuildAccelerationStructuresKHR(ApiDumpInstance& dump_ins
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkDeferredOperationKHR>(deferredOperation, settings, "VkDeferredOperationKHR", "deferredOperation", 1, dump_html_VkDeferredOperationKHR);
         dump_html_value<const uint32_t>(infoCount, settings, "uint32_t", "infoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", 1, dump_html_VkAccelerationStructureBuildGeometryInfoKHR); // ZRZ
+        dump_html_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", 1, dump_html_VkAccelerationStructureBuildGeometryInfoKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }
@@ -49453,7 +49453,7 @@ void dump_html_params_vkWriteAccelerationStructuresPropertiesKHR(ApiDumpInstance
     {
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const uint32_t>(accelerationStructureCount, settings, "uint32_t", "accelerationStructureCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", 1, dump_html_VkAccelerationStructureKHR); // ZRZ
+        dump_html_array<const VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", 1, dump_html_VkAccelerationStructureKHR);
         dump_html_value<const VkQueryType>(queryType, settings, "VkQueryType", "queryType", 1, dump_html_VkQueryType);
         dump_html_value<const size_t>(dataSize, settings, "size_t", "dataSize", 1, dump_html_size_t);
         dump_html_value<const void*>(pData, settings, "void*", "pData", 1, dump_html_void);
@@ -49513,7 +49513,7 @@ void dump_html_params_vkCmdWriteAccelerationStructuresPropertiesKHR(ApiDumpInsta
     {
         dump_html_value<const VkCommandBuffer>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", 1, dump_html_VkCommandBuffer);
         dump_html_value<const uint32_t>(accelerationStructureCount, settings, "uint32_t", "accelerationStructureCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", 1, dump_html_VkAccelerationStructureKHR); // ZRZ
+        dump_html_array<const VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", 1, dump_html_VkAccelerationStructureKHR);
         dump_html_value<const VkQueryType>(queryType, settings, "VkQueryType", "queryType", 1, dump_html_VkQueryType);
         dump_html_value<const VkQueryPool>(queryPool, settings, "VkQueryPool", "queryPool", 1, dump_html_VkQueryPool);
         dump_html_value<const uint32_t>(firstQuery, settings, "uint32_t", "firstQuery", 1, dump_html_uint32_t);
@@ -49541,7 +49541,7 @@ void dump_html_params_vkGetAccelerationStructureBuildSizesKHR(ApiDumpInstance& d
         dump_html_value<const VkDevice>(device, settings, "VkDevice", "device", 1, dump_html_VkDevice);
         dump_html_value<const VkAccelerationStructureBuildTypeKHR>(buildType, settings, "VkAccelerationStructureBuildTypeKHR", "buildType", 1, dump_html_VkAccelerationStructureBuildTypeKHR);
         dump_html_pointer<const VkAccelerationStructureBuildGeometryInfoKHR>(pBuildInfo, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "pBuildInfo", 1, dump_html_VkAccelerationStructureBuildGeometryInfoKHR);
-        dump_html_array<const uint32_t>(pMaxPrimitiveCounts, pBuildInfo->geometryCount, settings, "const uint32_t*", "const uint32_t", "pMaxPrimitiveCounts", 1, dump_html_uint32_t); // ZRZ
+        dump_html_array<const uint32_t>(pMaxPrimitiveCounts, pBuildInfo->geometryCount, settings, "const uint32_t*", "const uint32_t", "pMaxPrimitiveCounts", 1, dump_html_uint32_t);
         dump_html_pointer<const VkAccelerationStructureBuildSizesInfoKHR>(pSizeInfo, settings, "VkAccelerationStructureBuildSizesInfoKHR*", "pSizeInfo", 1, dump_html_VkAccelerationStructureBuildSizesInfoKHR);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
@@ -49573,9 +49573,9 @@ void dump_html_params_vkCreateRayTracingPipelinesKHR(ApiDumpInstance& dump_inst,
         dump_html_value<const VkDeferredOperationKHR>(deferredOperation, settings, "VkDeferredOperationKHR", "deferredOperation", 1, dump_html_VkDeferredOperationKHR);
         dump_html_value<const VkPipelineCache>(pipelineCache, settings, "VkPipelineCache", "pipelineCache", 1, dump_html_VkPipelineCache);
         dump_html_value<const uint32_t>(createInfoCount, settings, "uint32_t", "createInfoCount", 1, dump_html_uint32_t);
-        dump_html_array<const VkRayTracingPipelineCreateInfoKHR>(pCreateInfos, createInfoCount, settings, "const VkRayTracingPipelineCreateInfoKHR*", "const VkRayTracingPipelineCreateInfoKHR", "pCreateInfos", 1, dump_html_VkRayTracingPipelineCreateInfoKHR); // ZRZ
+        dump_html_array<const VkRayTracingPipelineCreateInfoKHR>(pCreateInfos, createInfoCount, settings, "const VkRayTracingPipelineCreateInfoKHR*", "const VkRayTracingPipelineCreateInfoKHR", "pCreateInfos", 1, dump_html_VkRayTracingPipelineCreateInfoKHR);
         dump_html_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", 1, dump_html_VkAllocationCallbacks);
-        dump_html_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", 1, dump_html_VkPipeline); // ZRZ
+        dump_html_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", 1, dump_html_VkPipeline);
     }
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\n";
 }

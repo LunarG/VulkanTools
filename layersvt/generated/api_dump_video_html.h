@@ -1416,9 +1416,9 @@ void dump_html_StdVideoH264HrdParameters(const StdVideoH264HrdParameters& object
     dump_html_value<const uint8_t>(object.bit_rate_scale, settings, "uint8_t", "bit_rate_scale", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.cpb_size_scale, settings, "uint8_t", "cpb_size_scale", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.reserved1, settings, "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint32_t>(object.bit_rate_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "uint32_t", "bit_rate_value_minus1", indents + 1, dump_html_uint32_t); // ZRR
-    dump_html_array<const uint32_t>(object.cpb_size_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "uint32_t", "cpb_size_value_minus1", indents + 1, dump_html_uint32_t); // ZRR
-    dump_html_array<const uint8_t>(object.cbr_flag, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "uint8_t", "cbr_flag", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint32_t>(object.bit_rate_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "uint32_t", "bit_rate_value_minus1", indents + 1, dump_html_uint32_t);
+    dump_html_array<const uint32_t>(object.cpb_size_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "uint32_t", "cpb_size_value_minus1", indents + 1, dump_html_uint32_t);
+    dump_html_array<const uint8_t>(object.cbr_flag, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "uint8_t", "cbr_flag", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint32_t>(object.initial_cpb_removal_delay_length_minus1, settings, "uint32_t", "initial_cpb_removal_delay_length_minus1", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.cpb_removal_delay_length_minus1, settings, "uint32_t", "cpb_removal_delay_length_minus1", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.dpb_output_delay_length_minus1, settings, "uint32_t", "dpb_output_delay_length_minus1", indents + 1, dump_html_uint32_t);
@@ -1484,8 +1484,8 @@ void dump_html_StdVideoH264ScalingLists(const StdVideoH264ScalingLists& object, 
     settings.stream() << "</div></summary>";
     dump_html_value<const uint16_t>(object.scaling_list_present_mask, settings, "uint16_t", "scaling_list_present_mask", indents + 1, dump_html_uint16_t);
     dump_html_value<const uint16_t>(object.use_default_scaling_matrix_mask, settings, "uint16_t", "use_default_scaling_matrix_mask", indents + 1, dump_html_uint16_t);
-    dump_html_array<const uint8_t>(object.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS]", "ScalingList4x4", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS]", "ScalingList8x8", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS]", "ScalingList4x4", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS]", "ScalingList8x8", indents + 1, dump_html_uint8_t);
 }
 void dump_html_StdVideoH264SequenceParameterSet(const StdVideoH264SequenceParameterSet& object, const ApiDumpSettings& settings, int indents)
 {
@@ -1588,7 +1588,7 @@ void dump_html_StdVideoDecodeH264PictureInfo(const StdVideoDecodeH264PictureInfo
     dump_html_value<const uint8_t>(object.reserved2, settings, "uint8_t", "reserved2", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint16_t>(object.frame_num, settings, "uint16_t", "frame_num", indents + 1, dump_html_uint16_t);
     dump_html_value<const uint16_t>(object.idr_pic_id, settings, "uint16_t", "idr_pic_id", indents + 1, dump_html_uint16_t);
-    dump_html_array<const int32_t>(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "int32_t", "PicOrderCnt", indents + 1, dump_html_int32_t); // ZRR
+    dump_html_array<const int32_t>(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "int32_t", "PicOrderCnt", indents + 1, dump_html_int32_t);
 }
 void dump_html_StdVideoDecodeH264ReferenceInfoFlags(const StdVideoDecodeH264ReferenceInfoFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -1614,7 +1614,7 @@ void dump_html_StdVideoDecodeH264ReferenceInfo(const StdVideoDecodeH264Reference
     dump_html_value<const StdVideoDecodeH264ReferenceInfoFlags>(object.flags, settings, "StdVideoDecodeH264ReferenceInfoFlags", "flags", indents + 1, dump_html_StdVideoDecodeH264ReferenceInfoFlags);
     dump_html_value<const uint16_t>(object.FrameNum, settings, "uint16_t", "FrameNum", indents + 1, dump_html_uint16_t);
     dump_html_value<const uint16_t>(object.reserved, settings, "uint16_t", "reserved", indents + 1, dump_html_uint16_t);
-    dump_html_array<const int32_t>(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "int32_t", "PicOrderCnt", indents + 1, dump_html_int32_t); // ZRR
+    dump_html_array<const int32_t>(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "int32_t", "PicOrderCnt", indents + 1, dump_html_int32_t);
 }
 void dump_html_StdVideoEncodeH264WeightTableFlags(const StdVideoEncodeH264WeightTableFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -1640,14 +1640,14 @@ void dump_html_StdVideoEncodeH264WeightTable(const StdVideoEncodeH264WeightTable
     dump_html_value<const StdVideoEncodeH264WeightTableFlags>(object.flags, settings, "StdVideoEncodeH264WeightTableFlags", "flags", indents + 1, dump_html_StdVideoEncodeH264WeightTableFlags);
     dump_html_value<const uint8_t>(object.luma_log2_weight_denom, settings, "uint8_t", "luma_log2_weight_denom", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.chroma_log2_weight_denom, settings, "uint8_t", "chroma_log2_weight_denom", indents + 1, dump_html_uint8_t);
-    dump_html_array<const int8_t>(object.luma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_weight_l0", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.luma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l0", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.chroma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_weight_l0", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.chroma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_offset_l0", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.luma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_weight_l1", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.luma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l1", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.chroma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_weight_l1", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.chroma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_offset_l1", indents + 1, dump_html_int8_t); // ZRR
+    dump_html_array<const int8_t>(object.luma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_weight_l0", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.luma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l0", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.chroma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_weight_l0", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.chroma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_offset_l0", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.luma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_weight_l1", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.luma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l1", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.chroma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_weight_l1", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.chroma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_offset_l1", indents + 1, dump_html_int8_t);
 }
 void dump_html_StdVideoEncodeH264SliceHeaderFlags(const StdVideoEncodeH264SliceHeaderFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -1736,12 +1736,12 @@ void dump_html_StdVideoEncodeH264ReferenceListsInfo(const StdVideoEncodeH264Refe
     dump_html_value<const StdVideoEncodeH264ReferenceListsInfoFlags>(object.flags, settings, "StdVideoEncodeH264ReferenceListsInfoFlags", "flags", indents + 1, dump_html_StdVideoEncodeH264ReferenceListsInfoFlags);
     dump_html_value<const uint8_t>(object.num_ref_idx_l0_active_minus1, settings, "uint8_t", "num_ref_idx_l0_active_minus1", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.num_ref_idx_l1_active_minus1, settings, "uint8_t", "num_ref_idx_l1_active_minus1", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.RefPicList0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList0", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.RefPicList1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList1", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.RefPicList0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList0", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.RefPicList1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList1", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.refList0ModOpCount, settings, "uint8_t", "refList0ModOpCount", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.refList1ModOpCount, settings, "uint8_t", "refList1ModOpCount", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.refPicMarkingOpCount, settings, "uint8_t", "refPicMarkingOpCount", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.reserved1, 7, settings, "uint8_t[7]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.reserved1, 7, settings, "uint8_t[7]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
     dump_html_pointer<const StdVideoEncodeH264RefListModEntry>(object.pRefList0ModOperations, settings, "const StdVideoEncodeH264RefListModEntry*", "pRefList0ModOperations", indents + 1, dump_html_StdVideoEncodeH264RefListModEntry);
     dump_html_pointer<const StdVideoEncodeH264RefListModEntry>(object.pRefList1ModOperations, settings, "const StdVideoEncodeH264RefListModEntry*", "pRefList1ModOperations", indents + 1, dump_html_StdVideoEncodeH264RefListModEntry);
     dump_html_pointer<const StdVideoEncodeH264RefPicMarkingEntry>(object.pRefPicMarkingOperations, settings, "const StdVideoEncodeH264RefPicMarkingEntry*", "pRefPicMarkingOperations", indents + 1, dump_html_StdVideoEncodeH264RefPicMarkingEntry);
@@ -1762,7 +1762,7 @@ void dump_html_StdVideoEncodeH264PictureInfo(const StdVideoEncodeH264PictureInfo
     dump_html_value<const uint32_t>(object.frame_num, settings, "uint32_t", "frame_num", indents + 1, dump_html_uint32_t);
     dump_html_value<const int32_t>(object.PicOrderCnt, settings, "int32_t", "PicOrderCnt", indents + 1, dump_html_int32_t);
     dump_html_value<const uint8_t>(object.temporal_id, settings, "uint8_t", "temporal_id", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
     dump_html_pointer<const StdVideoEncodeH264ReferenceListsInfo>(object.pRefLists, settings, "const StdVideoEncodeH264ReferenceListsInfo*", "pRefLists", indents + 1, dump_html_StdVideoEncodeH264ReferenceListsInfo);
 }
 void dump_html_StdVideoEncodeH264ReferenceInfo(const StdVideoEncodeH264ReferenceInfo& object, const ApiDumpSettings& settings, int indents)
@@ -1808,9 +1808,9 @@ void dump_html_StdVideoH265DecPicBufMgr(const StdVideoH265DecPicBufMgr& object, 
     else
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
-    dump_html_array<const uint32_t>(object.max_latency_increase_plus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint32_t", "max_latency_increase_plus1", indents + 1, dump_html_uint32_t); // ZRR
-    dump_html_array<const uint8_t>(object.max_dec_pic_buffering_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint8_t", "max_dec_pic_buffering_minus1", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.max_num_reorder_pics, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint8_t", "max_num_reorder_pics", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint32_t>(object.max_latency_increase_plus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint32_t", "max_latency_increase_plus1", indents + 1, dump_html_uint32_t);
+    dump_html_array<const uint8_t>(object.max_dec_pic_buffering_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint8_t", "max_dec_pic_buffering_minus1", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.max_num_reorder_pics, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint8_t", "max_num_reorder_pics", indents + 1, dump_html_uint8_t);
 }
 void dump_html_StdVideoH265SubLayerHrdParameters(const StdVideoH265SubLayerHrdParameters& object, const ApiDumpSettings& settings, int indents)
 {
@@ -1820,10 +1820,10 @@ void dump_html_StdVideoH265SubLayerHrdParameters(const StdVideoH265SubLayerHrdPa
     else
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
-    dump_html_array<const uint32_t>(object.bit_rate_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "bit_rate_value_minus1", indents + 1, dump_html_uint32_t); // ZRR
-    dump_html_array<const uint32_t>(object.cpb_size_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "cpb_size_value_minus1", indents + 1, dump_html_uint32_t); // ZRR
-    dump_html_array<const uint32_t>(object.cpb_size_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "cpb_size_du_value_minus1", indents + 1, dump_html_uint32_t); // ZRR
-    dump_html_array<const uint32_t>(object.bit_rate_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "bit_rate_du_value_minus1", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.bit_rate_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "bit_rate_value_minus1", indents + 1, dump_html_uint32_t);
+    dump_html_array<const uint32_t>(object.cpb_size_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "cpb_size_value_minus1", indents + 1, dump_html_uint32_t);
+    dump_html_array<const uint32_t>(object.cpb_size_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "cpb_size_du_value_minus1", indents + 1, dump_html_uint32_t);
+    dump_html_array<const uint32_t>(object.bit_rate_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "bit_rate_du_value_minus1", indents + 1, dump_html_uint32_t);
     dump_html_value<const uint32_t>(object.cbr_flag, settings, "uint32_t", "cbr_flag", indents + 1, dump_html_uint32_t);
 }
 void dump_html_StdVideoH265HrdFlags(const StdVideoH265HrdFlags& object, const ApiDumpSettings& settings, int indents)
@@ -1860,9 +1860,9 @@ void dump_html_StdVideoH265HrdParameters(const StdVideoH265HrdParameters& object
     dump_html_value<const uint8_t>(object.initial_cpb_removal_delay_length_minus1, settings, "uint8_t", "initial_cpb_removal_delay_length_minus1", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.au_cpb_removal_delay_length_minus1, settings, "uint8_t", "au_cpb_removal_delay_length_minus1", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.dpb_output_delay_length_minus1, settings, "uint8_t", "dpb_output_delay_length_minus1", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.cpb_cnt_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint8_t", "cpb_cnt_minus1", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint16_t>(object.elemental_duration_in_tc_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint16_t", "elemental_duration_in_tc_minus1", indents + 1, dump_html_uint16_t); // ZRR
-    dump_html_array<const uint16_t>(object.reserved, 3, settings, "uint16_t[3]", "uint16_t", "reserved", indents + 1, dump_html_uint16_t); // ZRR
+    dump_html_array<const uint8_t>(object.cpb_cnt_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint8_t", "cpb_cnt_minus1", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint16_t>(object.elemental_duration_in_tc_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint16_t", "elemental_duration_in_tc_minus1", indents + 1, dump_html_uint16_t);
+    dump_html_array<const uint16_t>(object.reserved, 3, settings, "uint16_t[3]", "uint16_t", "reserved", indents + 1, dump_html_uint16_t);
     dump_html_pointer<const StdVideoH265SubLayerHrdParameters>(object.pSubLayerHrdParametersNal, settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersNal", indents + 1, dump_html_StdVideoH265SubLayerHrdParameters);
     dump_html_pointer<const StdVideoH265SubLayerHrdParameters>(object.pSubLayerHrdParametersVcl, settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersVcl", indents + 1, dump_html_StdVideoH265SubLayerHrdParameters);
 }
@@ -1934,12 +1934,12 @@ void dump_html_StdVideoH265ScalingLists(const StdVideoH265ScalingLists& object, 
     else
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
-    dump_html_array<const uint8_t>(object.ScalingList4x4, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS]", "ScalingList4x4", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.ScalingList8x8, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS]", "ScalingList8x8", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.ScalingList16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "ScalingList16x16", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.ScalingList32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "ScalingList32x32", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.ScalingListDCCoef16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "uint8_t", "ScalingListDCCoef16x16", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.ScalingListDCCoef32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "uint8_t", "ScalingListDCCoef32x32", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.ScalingList4x4, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS]", "ScalingList4x4", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.ScalingList8x8, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS]", "ScalingList8x8", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.ScalingList16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "ScalingList16x16", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.ScalingList32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "ScalingList32x32", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.ScalingListDCCoef16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "uint8_t", "ScalingListDCCoef16x16", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.ScalingListDCCoef32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "uint8_t", "ScalingListDCCoef32x32", indents + 1, dump_html_uint8_t);
 }
 void dump_html_StdVideoH265SpsVuiFlags(const StdVideoH265SpsVuiFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2011,7 +2011,7 @@ void dump_html_StdVideoH265PredictorPaletteEntries(const StdVideoH265PredictorPa
     else
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
-    dump_html_array<const uint16_t>(object.PredictorPaletteEntries, STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE*STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE][STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE]", "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE]", "PredictorPaletteEntries", indents + 1, dump_html_uint16_t); // ZRR
+    dump_html_array<const uint16_t>(object.PredictorPaletteEntries, STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE*STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE][STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE]", "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE]", "PredictorPaletteEntries", indents + 1, dump_html_uint16_t);
 }
 void dump_html_StdVideoH265SpsFlags(const StdVideoH265SpsFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2083,8 +2083,8 @@ void dump_html_StdVideoH265ShortTermRefPicSet(const StdVideoH265ShortTermRefPicS
     dump_html_value<const uint8_t>(object.reserved3, settings, "uint8_t", "reserved3", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.num_negative_pics, settings, "uint8_t", "num_negative_pics", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.num_positive_pics, settings, "uint8_t", "num_positive_pics", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint16_t>(object.delta_poc_s0_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "uint16_t", "delta_poc_s0_minus1", indents + 1, dump_html_uint16_t); // ZRR
-    dump_html_array<const uint16_t>(object.delta_poc_s1_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "uint16_t", "delta_poc_s1_minus1", indents + 1, dump_html_uint16_t); // ZRR
+    dump_html_array<const uint16_t>(object.delta_poc_s0_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "uint16_t", "delta_poc_s0_minus1", indents + 1, dump_html_uint16_t);
+    dump_html_array<const uint16_t>(object.delta_poc_s1_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "uint16_t", "delta_poc_s1_minus1", indents + 1, dump_html_uint16_t);
 }
 void dump_html_StdVideoH265LongTermRefPicsSps(const StdVideoH265LongTermRefPicsSps& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2095,7 +2095,7 @@ void dump_html_StdVideoH265LongTermRefPicsSps(const StdVideoH265LongTermRefPicsS
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const uint32_t>(object.used_by_curr_pic_lt_sps_flag, settings, "uint32_t", "used_by_curr_pic_lt_sps_flag", indents + 1, dump_html_uint32_t);
-    dump_html_array<const uint32_t>(object.lt_ref_pic_poc_lsb_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint32_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "uint32_t", "lt_ref_pic_poc_lsb_sps", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint32_t>(object.lt_ref_pic_poc_lsb_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint32_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "uint32_t", "lt_ref_pic_poc_lsb_sps", indents + 1, dump_html_uint32_t);
 }
 void dump_html_StdVideoH265SequenceParameterSet(const StdVideoH265SequenceParameterSet& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2210,8 +2210,8 @@ void dump_html_StdVideoH265PictureParameterSet(const StdVideoH265PictureParamete
     dump_html_value<const uint8_t>(object.log2_max_transform_skip_block_size_minus2, settings, "uint8_t", "log2_max_transform_skip_block_size_minus2", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.diff_cu_chroma_qp_offset_depth, settings, "uint8_t", "diff_cu_chroma_qp_offset_depth", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.chroma_qp_offset_list_len_minus1, settings, "uint8_t", "chroma_qp_offset_list_len_minus1", indents + 1, dump_html_uint8_t);
-    dump_html_array<const int8_t>(object.cb_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "int8_t", "cb_qp_offset_list", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.cr_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "int8_t", "cr_qp_offset_list", indents + 1, dump_html_int8_t); // ZRR
+    dump_html_array<const int8_t>(object.cb_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "int8_t", "cb_qp_offset_list", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.cr_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "int8_t", "cr_qp_offset_list", indents + 1, dump_html_int8_t);
     dump_html_value<const uint8_t>(object.log2_sao_offset_scale_luma, settings, "uint8_t", "log2_sao_offset_scale_luma", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.log2_sao_offset_scale_chroma, settings, "uint8_t", "log2_sao_offset_scale_chroma", indents + 1, dump_html_uint8_t);
     dump_html_value<const int8_t>(object.pps_act_y_qp_offset_plus5, settings, "int8_t", "pps_act_y_qp_offset_plus5", indents + 1, dump_html_int8_t);
@@ -2224,8 +2224,8 @@ void dump_html_StdVideoH265PictureParameterSet(const StdVideoH265PictureParamete
     dump_html_value<const uint8_t>(object.num_tile_rows_minus1, settings, "uint8_t", "num_tile_rows_minus1", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.reserved1, settings, "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.reserved2, settings, "uint8_t", "reserved2", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint16_t>(object.column_width_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE]", "uint16_t", "column_width_minus1", indents + 1, dump_html_uint16_t); // ZRR
-    dump_html_array<const uint16_t>(object.row_height_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE]", "uint16_t", "row_height_minus1", indents + 1, dump_html_uint16_t); // ZRR
+    dump_html_array<const uint16_t>(object.column_width_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE]", "uint16_t", "column_width_minus1", indents + 1, dump_html_uint16_t);
+    dump_html_array<const uint16_t>(object.row_height_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE]", "uint16_t", "row_height_minus1", indents + 1, dump_html_uint16_t);
     dump_html_value<const uint32_t>(object.reserved3, settings, "uint32_t", "reserved3", indents + 1, dump_html_uint32_t);
     dump_html_pointer<const StdVideoH265ScalingLists>(object.pScalingLists, settings, "const StdVideoH265ScalingLists*", "pScalingLists", indents + 1, dump_html_StdVideoH265ScalingLists);
     dump_html_pointer<const StdVideoH265PredictorPaletteEntries>(object.pPredictorPaletteEntries, settings, "const StdVideoH265PredictorPaletteEntries*", "pPredictorPaletteEntries", indents + 1, dump_html_StdVideoH265PredictorPaletteEntries);
@@ -2259,9 +2259,9 @@ void dump_html_StdVideoDecodeH265PictureInfo(const StdVideoDecodeH265PictureInfo
     dump_html_value<const int32_t>(object.PicOrderCntVal, settings, "int32_t", "PicOrderCntVal", indents + 1, dump_html_int32_t);
     dump_html_value<const uint16_t>(object.NumBitsForSTRefPicSetInSlice, settings, "uint16_t", "NumBitsForSTRefPicSetInSlice", indents + 1, dump_html_uint16_t);
     dump_html_value<const uint16_t>(object.reserved, settings, "uint16_t", "reserved", indents + 1, dump_html_uint16_t);
-    dump_html_array<const uint8_t>(object.RefPicSetStCurrBefore, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "uint8_t", "RefPicSetStCurrBefore", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.RefPicSetStCurrAfter, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "uint8_t", "RefPicSetStCurrAfter", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.RefPicSetLtCurr, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "uint8_t", "RefPicSetLtCurr", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.RefPicSetStCurrBefore, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "uint8_t", "RefPicSetStCurrBefore", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.RefPicSetStCurrAfter, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "uint8_t", "RefPicSetStCurrAfter", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.RefPicSetLtCurr, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "uint8_t", "RefPicSetLtCurr", indents + 1, dump_html_uint8_t);
 }
 void dump_html_StdVideoDecodeH265ReferenceInfoFlags(const StdVideoDecodeH265ReferenceInfoFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2309,14 +2309,14 @@ void dump_html_StdVideoEncodeH265WeightTable(const StdVideoEncodeH265WeightTable
     dump_html_value<const StdVideoEncodeH265WeightTableFlags>(object.flags, settings, "StdVideoEncodeH265WeightTableFlags", "flags", indents + 1, dump_html_StdVideoEncodeH265WeightTableFlags);
     dump_html_value<const uint8_t>(object.luma_log2_weight_denom, settings, "uint8_t", "luma_log2_weight_denom", indents + 1, dump_html_uint8_t);
     dump_html_value<const int8_t>(object.delta_chroma_log2_weight_denom, settings, "int8_t", "delta_chroma_log2_weight_denom", indents + 1, dump_html_int8_t);
-    dump_html_array<const int8_t>(object.delta_luma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "delta_luma_weight_l0", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.luma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l0", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.delta_chroma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_weight_l0", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.delta_chroma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_offset_l0", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.delta_luma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "delta_luma_weight_l1", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.luma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l1", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.delta_chroma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_weight_l1", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.delta_chroma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_offset_l1", indents + 1, dump_html_int8_t); // ZRR
+    dump_html_array<const int8_t>(object.delta_luma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "delta_luma_weight_l0", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.luma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l0", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.delta_chroma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_weight_l0", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.delta_chroma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_offset_l0", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.delta_luma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "delta_luma_weight_l1", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.luma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l1", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.delta_chroma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_weight_l1", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.delta_chroma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_offset_l1", indents + 1, dump_html_int8_t);
 }
 void dump_html_StdVideoEncodeH265SliceSegmentHeaderFlags(const StdVideoEncodeH265SliceSegmentHeaderFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2387,10 +2387,10 @@ void dump_html_StdVideoEncodeH265ReferenceListsInfo(const StdVideoEncodeH265Refe
     dump_html_value<const StdVideoEncodeH265ReferenceListsInfoFlags>(object.flags, settings, "StdVideoEncodeH265ReferenceListsInfoFlags", "flags", indents + 1, dump_html_StdVideoEncodeH265ReferenceListsInfoFlags);
     dump_html_value<const uint8_t>(object.num_ref_idx_l0_active_minus1, settings, "uint8_t", "num_ref_idx_l0_active_minus1", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.num_ref_idx_l1_active_minus1, settings, "uint8_t", "num_ref_idx_l1_active_minus1", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.RefPicList0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList0", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.RefPicList1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList1", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.list_entry_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "list_entry_l0", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.list_entry_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "list_entry_l1", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.RefPicList0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList0", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.RefPicList1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList1", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.list_entry_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "list_entry_l0", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.list_entry_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "list_entry_l1", indents + 1, dump_html_uint8_t);
 }
 void dump_html_StdVideoEncodeH265PictureInfoFlags(const StdVideoEncodeH265PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2421,11 +2421,11 @@ void dump_html_StdVideoEncodeH265LongTermRefPics(const StdVideoEncodeH265LongTer
     settings.stream() << "</div></summary>";
     dump_html_value<const uint8_t>(object.num_long_term_sps, settings, "uint8_t", "num_long_term_sps", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.num_long_term_pics, settings, "uint8_t", "num_long_term_pics", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.lt_idx_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "uint8_t", "lt_idx_sps", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.poc_lsb_lt, STD_VIDEO_H265_MAX_LONG_TERM_PICS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_PICS]", "uint8_t", "poc_lsb_lt", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.lt_idx_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "uint8_t", "lt_idx_sps", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.poc_lsb_lt, STD_VIDEO_H265_MAX_LONG_TERM_PICS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_PICS]", "uint8_t", "poc_lsb_lt", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint16_t>(object.used_by_curr_pic_lt_flag, settings, "uint16_t", "used_by_curr_pic_lt_flag", indents + 1, dump_html_uint16_t);
-    dump_html_array<const uint8_t>(object.delta_poc_msb_present_flag, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "uint8_t", "delta_poc_msb_present_flag", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.delta_poc_msb_cycle_lt, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "uint8_t", "delta_poc_msb_cycle_lt", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.delta_poc_msb_present_flag, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "uint8_t", "delta_poc_msb_present_flag", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.delta_poc_msb_cycle_lt, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "uint8_t", "delta_poc_msb_cycle_lt", indents + 1, dump_html_uint8_t);
 }
 void dump_html_StdVideoEncodeH265PictureInfo(const StdVideoEncodeH265PictureInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2443,7 +2443,7 @@ void dump_html_StdVideoEncodeH265PictureInfo(const StdVideoEncodeH265PictureInfo
     dump_html_value<const uint8_t>(object.short_term_ref_pic_set_idx, settings, "uint8_t", "short_term_ref_pic_set_idx", indents + 1, dump_html_uint8_t);
     dump_html_value<const int32_t>(object.PicOrderCntVal, settings, "int32_t", "PicOrderCntVal", indents + 1, dump_html_int32_t);
     dump_html_value<const uint8_t>(object.TemporalId, settings, "uint8_t", "TemporalId", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.reserved1, 7, settings, "uint8_t[7]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.reserved1, 7, settings, "uint8_t[7]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
     dump_html_pointer<const StdVideoEncodeH265ReferenceListsInfo>(object.pRefLists, settings, "const StdVideoEncodeH265ReferenceListsInfo*", "pRefLists", indents + 1, dump_html_StdVideoEncodeH265ReferenceListsInfo);
     dump_html_pointer<const StdVideoH265ShortTermRefPicSet>(object.pShortTermRefPicSet, settings, "const StdVideoH265ShortTermRefPicSet*", "pShortTermRefPicSet", indents + 1, dump_html_StdVideoH265ShortTermRefPicSet);
     dump_html_pointer<const StdVideoEncodeH265LongTermRefPics>(object.pLongTermRefPics, settings, "const StdVideoEncodeH265LongTermRefPics*", "pLongTermRefPics", indents + 1, dump_html_StdVideoEncodeH265LongTermRefPics);
@@ -2550,12 +2550,12 @@ void dump_html_StdVideoAV1LoopFilter(const StdVideoAV1LoopFilter& object, const 
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const StdVideoAV1LoopFilterFlags>(object.flags, settings, "StdVideoAV1LoopFilterFlags", "flags", indents + 1, dump_html_StdVideoAV1LoopFilterFlags);
-    dump_html_array<const uint8_t>(object.loop_filter_level, STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS]", "uint8_t", "loop_filter_level", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.loop_filter_level, STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS]", "uint8_t", "loop_filter_level", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.loop_filter_sharpness, settings, "uint8_t", "loop_filter_sharpness", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.update_ref_delta, settings, "uint8_t", "update_ref_delta", indents + 1, dump_html_uint8_t);
-    dump_html_array<const int8_t>(object.loop_filter_ref_deltas, STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME]", "int8_t", "loop_filter_ref_deltas", indents + 1, dump_html_int8_t); // ZRR
+    dump_html_array<const int8_t>(object.loop_filter_ref_deltas, STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME]", "int8_t", "loop_filter_ref_deltas", indents + 1, dump_html_int8_t);
     dump_html_value<const uint8_t>(object.update_mode_delta, settings, "uint8_t", "update_mode_delta", indents + 1, dump_html_uint8_t);
-    dump_html_array<const int8_t>(object.loop_filter_mode_deltas, STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS]", "int8_t", "loop_filter_mode_deltas", indents + 1, dump_html_int8_t); // ZRR
+    dump_html_array<const int8_t>(object.loop_filter_mode_deltas, STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS]", "int8_t", "loop_filter_mode_deltas", indents + 1, dump_html_int8_t);
 }
 void dump_html_StdVideoAV1QuantizationFlags(const StdVideoAV1QuantizationFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2596,8 +2596,8 @@ void dump_html_StdVideoAV1Segmentation(const StdVideoAV1Segmentation& object, co
     else
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
-    dump_html_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_AV1_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const int16_t>(object.FeatureData, STD_VIDEO_AV1_MAX_SEGMENTS*STD_VIDEO_AV1_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS][STD_VIDEO_AV1_SEG_LVL_MAX]", "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "FeatureData", indents + 1, dump_html_int16_t); // ZRR
+    dump_html_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_AV1_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", indents + 1, dump_html_uint8_t);
+    dump_html_array<const int16_t>(object.FeatureData, STD_VIDEO_AV1_MAX_SEGMENTS*STD_VIDEO_AV1_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS][STD_VIDEO_AV1_SEG_LVL_MAX]", "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "FeatureData", indents + 1, dump_html_int16_t);
 }
 void dump_html_StdVideoAV1TileInfoFlags(const StdVideoAV1TileInfoFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2623,7 +2623,7 @@ void dump_html_StdVideoAV1TileInfo(const StdVideoAV1TileInfo& object, const ApiD
     dump_html_value<const uint8_t>(object.TileRows, settings, "uint8_t", "TileRows", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint16_t>(object.context_update_tile_id, settings, "uint16_t", "context_update_tile_id", indents + 1, dump_html_uint16_t);
     dump_html_value<const uint8_t>(object.tile_size_bytes_minus_1, settings, "uint8_t", "tile_size_bytes_minus_1", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.reserved1, 7, settings, "uint8_t[7]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.reserved1, 7, settings, "uint8_t[7]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
     dump_html_pointer<const uint16_t>(object.pMiColStarts, settings, "const uint16_t*", "pMiColStarts", indents + 1, dump_html_uint16_t);
     dump_html_pointer<const uint16_t>(object.pMiRowStarts, settings, "const uint16_t*", "pMiRowStarts", indents + 1, dump_html_uint16_t);
     dump_html_pointer<const uint16_t>(object.pWidthInSbsMinus1, settings, "const uint16_t*", "pWidthInSbsMinus1", indents + 1, dump_html_uint16_t);
@@ -2639,10 +2639,10 @@ void dump_html_StdVideoAV1CDEF(const StdVideoAV1CDEF& object, const ApiDumpSetti
     settings.stream() << "</div></summary>";
     dump_html_value<const uint8_t>(object.cdef_damping_minus_3, settings, "uint8_t", "cdef_damping_minus_3", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.cdef_bits, settings, "uint8_t", "cdef_bits", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.cdef_y_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_y_pri_strength", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.cdef_y_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_y_sec_strength", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.cdef_uv_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_uv_pri_strength", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.cdef_uv_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_uv_sec_strength", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.cdef_y_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_y_pri_strength", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.cdef_y_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_y_sec_strength", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.cdef_uv_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_uv_pri_strength", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.cdef_uv_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_uv_sec_strength", indents + 1, dump_html_uint8_t);
 }
 void dump_html_StdVideoAV1LoopRestoration(const StdVideoAV1LoopRestoration& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2652,8 +2652,8 @@ void dump_html_StdVideoAV1LoopRestoration(const StdVideoAV1LoopRestoration& obje
     else
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
-    dump_html_array<const StdVideoAV1FrameRestorationType>(object.FrameRestorationType, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "StdVideoAV1FrameRestorationType[STD_VIDEO_AV1_MAX_NUM_PLANES]", "StdVideoAV1FrameRestorationType", "FrameRestorationType", indents + 1, dump_html_StdVideoAV1FrameRestorationType); // ZRR
-    dump_html_array<const uint16_t>(object.LoopRestorationSize, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "uint16_t[STD_VIDEO_AV1_MAX_NUM_PLANES]", "uint16_t", "LoopRestorationSize", indents + 1, dump_html_uint16_t); // ZRR
+    dump_html_array<const StdVideoAV1FrameRestorationType>(object.FrameRestorationType, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "StdVideoAV1FrameRestorationType[STD_VIDEO_AV1_MAX_NUM_PLANES]", "StdVideoAV1FrameRestorationType", "FrameRestorationType", indents + 1, dump_html_StdVideoAV1FrameRestorationType);
+    dump_html_array<const uint16_t>(object.LoopRestorationSize, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "uint16_t[STD_VIDEO_AV1_MAX_NUM_PLANES]", "uint16_t", "LoopRestorationSize", indents + 1, dump_html_uint16_t);
 }
 void dump_html_StdVideoAV1GlobalMotion(const StdVideoAV1GlobalMotion& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2663,8 +2663,8 @@ void dump_html_StdVideoAV1GlobalMotion(const StdVideoAV1GlobalMotion& object, co
     else
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
-    dump_html_array<const uint8_t>(object.GmType, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "GmType", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const int32_t>(object.gm_params, STD_VIDEO_AV1_NUM_REF_FRAMES*STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS, settings, "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES][STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS]", "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "gm_params", indents + 1, dump_html_int32_t); // ZRR
+    dump_html_array<const uint8_t>(object.GmType, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "GmType", indents + 1, dump_html_uint8_t);
+    dump_html_array<const int32_t>(object.gm_params, STD_VIDEO_AV1_NUM_REF_FRAMES*STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS, settings, "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES][STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS]", "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "gm_params", indents + 1, dump_html_int32_t);
 }
 void dump_html_StdVideoAV1FilmGrainFlags(const StdVideoAV1FilmGrainFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2696,17 +2696,17 @@ void dump_html_StdVideoAV1FilmGrain(const StdVideoAV1FilmGrain& object, const Ap
     dump_html_value<const uint16_t>(object.grain_seed, settings, "uint16_t", "grain_seed", indents + 1, dump_html_uint16_t);
     dump_html_value<const uint8_t>(object.film_grain_params_ref_idx, settings, "uint8_t", "film_grain_params_ref_idx", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.num_y_points, settings, "uint8_t", "num_y_points", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.point_y_value, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "uint8_t", "point_y_value", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.point_y_scaling, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "uint8_t", "point_y_scaling", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.point_y_value, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "uint8_t", "point_y_value", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.point_y_scaling, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "uint8_t", "point_y_scaling", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.num_cb_points, settings, "uint8_t", "num_cb_points", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.point_cb_value, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "uint8_t", "point_cb_value", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.point_cb_scaling, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "uint8_t", "point_cb_scaling", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.point_cb_value, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "uint8_t", "point_cb_value", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.point_cb_scaling, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "uint8_t", "point_cb_scaling", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.num_cr_points, settings, "uint8_t", "num_cr_points", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.point_cr_value, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "uint8_t", "point_cr_value", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.point_cr_scaling, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "uint8_t", "point_cr_scaling", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const int8_t>(object.ar_coeffs_y_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_LUMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_LUMA]", "int8_t", "ar_coeffs_y_plus_128", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.ar_coeffs_cb_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "int8_t", "ar_coeffs_cb_plus_128", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const int8_t>(object.ar_coeffs_cr_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "int8_t", "ar_coeffs_cr_plus_128", indents + 1, dump_html_int8_t); // ZRR
+    dump_html_array<const uint8_t>(object.point_cr_value, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "uint8_t", "point_cr_value", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.point_cr_scaling, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "uint8_t", "point_cr_scaling", indents + 1, dump_html_uint8_t);
+    dump_html_array<const int8_t>(object.ar_coeffs_y_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_LUMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_LUMA]", "int8_t", "ar_coeffs_y_plus_128", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.ar_coeffs_cb_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "int8_t", "ar_coeffs_cb_plus_128", indents + 1, dump_html_int8_t);
+    dump_html_array<const int8_t>(object.ar_coeffs_cr_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "int8_t", "ar_coeffs_cr_plus_128", indents + 1, dump_html_int8_t);
     dump_html_value<const uint8_t>(object.cb_mult, settings, "uint8_t", "cb_mult", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.cb_luma_mult, settings, "uint8_t", "cb_luma_mult", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint16_t>(object.cb_offset, settings, "uint16_t", "cb_offset", indents + 1, dump_html_uint16_t);
@@ -2762,7 +2762,7 @@ void dump_html_StdVideoAV1SequenceHeader(const StdVideoAV1SequenceHeader& object
     dump_html_value<const uint8_t>(object.order_hint_bits_minus_1, settings, "uint8_t", "order_hint_bits_minus_1", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.seq_force_integer_mv, settings, "uint8_t", "seq_force_integer_mv", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.seq_force_screen_content_tools, settings, "uint8_t", "seq_force_screen_content_tools", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.reserved1, 5, settings, "uint8_t[5]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.reserved1, 5, settings, "uint8_t[5]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
     dump_html_pointer<const StdVideoAV1ColorConfig>(object.pColorConfig, settings, "const StdVideoAV1ColorConfig*", "pColorConfig", indents + 1, dump_html_StdVideoAV1ColorConfig);
     dump_html_pointer<const StdVideoAV1TimingInfo>(object.pTimingInfo, settings, "const StdVideoAV1TimingInfo*", "pTimingInfo", indents + 1, dump_html_StdVideoAV1TimingInfo);
 }
@@ -2824,11 +2824,11 @@ void dump_html_StdVideoDecodeAV1PictureInfo(const StdVideoDecodeAV1PictureInfo& 
     dump_html_value<const StdVideoAV1TxMode>(object.TxMode, settings, "StdVideoAV1TxMode", "TxMode", indents + 1, dump_html_StdVideoAV1TxMode);
     dump_html_value<const uint8_t>(object.delta_q_res, settings, "uint8_t", "delta_q_res", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.delta_lf_res, settings, "uint8_t", "delta_lf_res", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.SkipModeFrame, STD_VIDEO_AV1_SKIP_MODE_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_SKIP_MODE_FRAMES]", "uint8_t", "SkipModeFrame", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.SkipModeFrame, STD_VIDEO_AV1_SKIP_MODE_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_SKIP_MODE_FRAMES]", "uint8_t", "SkipModeFrame", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.coded_denom, settings, "uint8_t", "coded_denom", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.reserved2, 3, settings, "uint8_t[3]", "uint8_t", "reserved2", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.OrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "OrderHints", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint32_t>(object.expectedFrameId, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint32_t", "expectedFrameId", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint8_t>(object.reserved2, 3, settings, "uint8_t[3]", "uint8_t", "reserved2", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.OrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "OrderHints", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint32_t>(object.expectedFrameId, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint32_t", "expectedFrameId", indents + 1, dump_html_uint32_t);
     dump_html_pointer<const StdVideoAV1TileInfo>(object.pTileInfo, settings, "const StdVideoAV1TileInfo*", "pTileInfo", indents + 1, dump_html_StdVideoAV1TileInfo);
     dump_html_pointer<const StdVideoAV1Quantization>(object.pQuantization, settings, "const StdVideoAV1Quantization*", "pQuantization", indents + 1, dump_html_StdVideoAV1Quantization);
     dump_html_pointer<const StdVideoAV1Segmentation>(object.pSegmentation, settings, "const StdVideoAV1Segmentation*", "pSegmentation", indents + 1, dump_html_StdVideoAV1Segmentation);
@@ -2862,7 +2862,7 @@ void dump_html_StdVideoDecodeAV1ReferenceInfo(const StdVideoDecodeAV1ReferenceIn
     dump_html_value<const uint8_t>(object.frame_type, settings, "uint8_t", "frame_type", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.RefFrameSignBias, settings, "uint8_t", "RefFrameSignBias", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.OrderHint, settings, "uint8_t", "OrderHint", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.SavedOrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "SavedOrderHints", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.SavedOrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "SavedOrderHints", indents + 1, dump_html_uint8_t);
 }
 void dump_html_StdVideoEncodeAV1DecoderModelInfo(const StdVideoEncodeAV1DecoderModelInfo& object, const ApiDumpSettings& settings, int indents)
 {
@@ -2979,10 +2979,10 @@ void dump_html_StdVideoEncodeAV1PictureInfo(const StdVideoEncodeAV1PictureInfo& 
     dump_html_value<const StdVideoAV1TxMode>(object.TxMode, settings, "StdVideoAV1TxMode", "TxMode", indents + 1, dump_html_StdVideoAV1TxMode);
     dump_html_value<const uint8_t>(object.delta_q_res, settings, "uint8_t", "delta_q_res", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.delta_lf_res, settings, "uint8_t", "delta_lf_res", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.ref_order_hint, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "ref_order_hint", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const int8_t>(object.ref_frame_idx, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "int8_t", "ref_frame_idx", indents + 1, dump_html_int8_t); // ZRR
-    dump_html_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint32_t>(object.delta_frame_id_minus_1, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "uint32_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "uint32_t", "delta_frame_id_minus_1", indents + 1, dump_html_uint32_t); // ZRR
+    dump_html_array<const uint8_t>(object.ref_order_hint, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "ref_order_hint", indents + 1, dump_html_uint8_t);
+    dump_html_array<const int8_t>(object.ref_frame_idx, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "int8_t", "ref_frame_idx", indents + 1, dump_html_int8_t);
+    dump_html_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint32_t>(object.delta_frame_id_minus_1, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "uint32_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "uint32_t", "delta_frame_id_minus_1", indents + 1, dump_html_uint32_t);
     dump_html_pointer<const StdVideoAV1TileInfo>(object.pTileInfo, settings, "const StdVideoAV1TileInfo*", "pTileInfo", indents + 1, dump_html_StdVideoAV1TileInfo);
     dump_html_pointer<const StdVideoAV1Quantization>(object.pQuantization, settings, "const StdVideoAV1Quantization*", "pQuantization", indents + 1, dump_html_StdVideoAV1Quantization);
     dump_html_pointer<const StdVideoAV1Segmentation>(object.pSegmentation, settings, "const StdVideoAV1Segmentation*", "pSegmentation", indents + 1, dump_html_StdVideoAV1Segmentation);
@@ -3017,7 +3017,7 @@ void dump_html_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceIn
     dump_html_value<const uint32_t>(object.RefFrameId, settings, "uint32_t", "RefFrameId", indents + 1, dump_html_uint32_t);
     dump_html_value<const StdVideoAV1FrameType>(object.frame_type, settings, "StdVideoAV1FrameType", "frame_type", indents + 1, dump_html_StdVideoAV1FrameType);
     dump_html_value<const uint8_t>(object.OrderHint, settings, "uint8_t", "OrderHint", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
     dump_html_pointer<const StdVideoEncodeAV1ExtensionHeader>(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", indents + 1, dump_html_StdVideoEncodeAV1ExtensionHeader);
 }
 void dump_html_StdVideoVP9ColorConfigFlags(const StdVideoVP9ColorConfigFlags& object, const ApiDumpSettings& settings, int indents)
@@ -3070,9 +3070,9 @@ void dump_html_StdVideoVP9LoopFilter(const StdVideoVP9LoopFilter& object, const 
     dump_html_value<const uint8_t>(object.loop_filter_level, settings, "uint8_t", "loop_filter_level", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.loop_filter_sharpness, settings, "uint8_t", "loop_filter_sharpness", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.update_ref_delta, settings, "uint8_t", "update_ref_delta", indents + 1, dump_html_uint8_t);
-    dump_html_array<const int8_t>(object.loop_filter_ref_deltas, STD_VIDEO_VP9_MAX_REF_FRAMES, settings, "int8_t[STD_VIDEO_VP9_MAX_REF_FRAMES]", "int8_t", "loop_filter_ref_deltas", indents + 1, dump_html_int8_t); // ZRR
+    dump_html_array<const int8_t>(object.loop_filter_ref_deltas, STD_VIDEO_VP9_MAX_REF_FRAMES, settings, "int8_t[STD_VIDEO_VP9_MAX_REF_FRAMES]", "int8_t", "loop_filter_ref_deltas", indents + 1, dump_html_int8_t);
     dump_html_value<const uint8_t>(object.update_mode_delta, settings, "uint8_t", "update_mode_delta", indents + 1, dump_html_uint8_t);
-    dump_html_array<const int8_t>(object.loop_filter_mode_deltas, STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS]", "int8_t", "loop_filter_mode_deltas", indents + 1, dump_html_int8_t); // ZRR
+    dump_html_array<const int8_t>(object.loop_filter_mode_deltas, STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS]", "int8_t", "loop_filter_mode_deltas", indents + 1, dump_html_int8_t);
 }
 void dump_html_StdVideoVP9SegmentationFlags(const StdVideoVP9SegmentationFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -3097,10 +3097,10 @@ void dump_html_StdVideoVP9Segmentation(const StdVideoVP9Segmentation& object, co
         settings.stream() << "address\n";
     settings.stream() << "</div></summary>";
     dump_html_value<const StdVideoVP9SegmentationFlags>(object.flags, settings, "StdVideoVP9SegmentationFlags", "flags", indents + 1, dump_html_StdVideoVP9SegmentationFlags);
-    dump_html_array<const uint8_t>(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS]", "uint8_t", "segmentation_tree_probs", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.segmentation_pred_prob, STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB]", "uint8_t", "segmentation_pred_prob", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", indents + 1, dump_html_uint8_t); // ZRR
-    dump_html_array<const int16_t>(object.FeatureData, STD_VIDEO_VP9_MAX_SEGMENTS*STD_VIDEO_VP9_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS][STD_VIDEO_VP9_SEG_LVL_MAX]", "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "FeatureData", indents + 1, dump_html_int16_t); // ZRR
+    dump_html_array<const uint8_t>(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS]", "uint8_t", "segmentation_tree_probs", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.segmentation_pred_prob, STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB]", "uint8_t", "segmentation_pred_prob", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", indents + 1, dump_html_uint8_t);
+    dump_html_array<const int16_t>(object.FeatureData, STD_VIDEO_VP9_MAX_SEGMENTS*STD_VIDEO_VP9_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS][STD_VIDEO_VP9_SEG_LVL_MAX]", "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "FeatureData", indents + 1, dump_html_int16_t);
 }
 void dump_html_StdVideoDecodeVP9PictureInfoFlags(const StdVideoDecodeVP9PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
 {
@@ -3142,7 +3142,7 @@ void dump_html_StdVideoDecodeVP9PictureInfo(const StdVideoDecodeVP9PictureInfo& 
     dump_html_value<const int8_t>(object.delta_q_uv_ac, settings, "int8_t", "delta_q_uv_ac", indents + 1, dump_html_int8_t);
     dump_html_value<const uint8_t>(object.tile_cols_log2, settings, "uint8_t", "tile_cols_log2", indents + 1, dump_html_uint8_t);
     dump_html_value<const uint8_t>(object.tile_rows_log2, settings, "uint8_t", "tile_rows_log2", indents + 1, dump_html_uint8_t);
-    dump_html_array<const uint16_t>(object.reserved1, 3, settings, "uint16_t[3]", "uint16_t", "reserved1", indents + 1, dump_html_uint16_t); // ZRR
+    dump_html_array<const uint16_t>(object.reserved1, 3, settings, "uint16_t[3]", "uint16_t", "reserved1", indents + 1, dump_html_uint16_t);
     dump_html_pointer<const StdVideoVP9ColorConfig>(object.pColorConfig, settings, "const StdVideoVP9ColorConfig*", "pColorConfig", indents + 1, dump_html_StdVideoVP9ColorConfig);
     dump_html_pointer<const StdVideoVP9LoopFilter>(object.pLoopFilter, settings, "const StdVideoVP9LoopFilter*", "pLoopFilter", indents + 1, dump_html_StdVideoVP9LoopFilter);
     dump_html_pointer<const StdVideoVP9Segmentation>(object.pSegmentation, settings, "const StdVideoVP9Segmentation*", "pSegmentation", indents + 1, dump_html_StdVideoVP9Segmentation);

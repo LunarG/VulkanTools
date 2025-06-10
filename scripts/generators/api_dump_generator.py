@@ -857,9 +857,9 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 if typeInfo.pointerLevels == 0:
                     if member.name != 'pNext':
                         if member.name == 'apiVersion':
-                            self.write(f'    dump_text_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, OutputApiVersionTEXT);  // AET')
+                            self.write(f'    dump_text_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, OutputApiVersionTEXT);')
                         else:
-                            self.write(f'    dump_text_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_text_{typeInfo.id});  // AET')
+                            self.write(f'    dump_text_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
                     else:
                         self.write(f'    dump_text_pNext_struct_name(object.{member.name}, settings, indents + 1, "{typeInfo.type}");')
 
@@ -869,26 +869,26 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
                     else:
                         if not typeInfo.lengthIsMember:
-                            self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id}); // AQA')
+                            self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
 
                         elif typeInfo.lengthIsMember and member.name != 'pCode':
                             if typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
-                                self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id}); // BQA')
+                                self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
 
                             elif not typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
                                 if typeInfo.arrayLength == 'rasterizationSamples':
-                                    self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id}); // BQB')
+                                    self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
                                 else:
                                     if typeInfo.maxArrayLength is not None:
-                                        self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id}); // BQB')
+                                        self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
                                     else:
-                                        self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id}); // BQB')
+                                        self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
 
                 self.write('')
                 if struct.name == 'VkShaderModuleCreateInfo':
                     if member.name == 'pCode':
                         self.write('    if(settings.showShader())')
-                        self.write(f'        dump_text_array<const {member.type}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id}); // CQA')
+                        self.write(f'        dump_text_array<const {member.type}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
                         self.write('    else')
                         self.write(f'        dump_text_special("SHADER DATA", settings, "{typeInfo.type}", "{member.name}", indents + 1);')
                 self.write('')
@@ -926,13 +926,13 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     self.write(f'    if({typeInfo.validity_check})')
 
                 if typeInfo.pointerLevels == 0:
-                    self.write(f'    dump_text_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_text_{typeInfo.id}); // LET')
+                    self.write(f'    dump_text_value<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is None:
                     self.write(f'    dump_text_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id}); // GQA')
+                    self.write(f'    dump_text_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_text_{typeInfo.id});')
 
             self.write('}')
             if union.protect:
@@ -1013,13 +1013,13 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     self.write('        ' + typeInfo.parameter_state)
 
                 if typeInfo.pointerLevels == 0:
-                    self.write(f'        dump_text_value<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}", 1, dump_text_{typeInfo.id}); // MET')
+                    self.write(f'        dump_text_value<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}", 1, dump_text_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is None:
                     self.write(f'        dump_text_pointer<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}", 1, dump_text_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'        dump_text_array<const {typeInfo.templateType}>({param.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{param.name}", 1, dump_text_{typeInfo.id}); // HQA')
+                    self.write(f'        dump_text_array<const {typeInfo.templateType}>({param.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{param.name}", 1, dump_text_{typeInfo.id});')
 
             self.write('        if (settings.shouldFlush()) settings.stream().flush();')
             self.write('    }')
@@ -1243,26 +1243,26 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
                     else:
                         if not typeInfo.lengthIsMember:
-                            self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id}); // ZRR')
+                            self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
 
                         elif typeInfo.lengthIsMember and member.name != 'pCode':
                             if typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
-                                self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id}); // ZRS')
+                                self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
 
                             elif not typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
                                 if typeInfo.arrayLength == 'rasterizationSamples':
-                                    self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id}); // ZRT')
+                                    self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
                                 else:
                                     if typeInfo.maxArrayLength is not None:
-                                        self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id}); // BQB')
+                                        self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
                                     else:
-                                        self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id}); // ZRT')
+                                        self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
 
                 self.write('')
                 if struct.name == 'VkShaderModuleCreateInfo':
                     if member.name == 'pCode':
                         self.write('    if(settings.showShader())')
-                        self.write(f'        dump_html_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id}); // ZRU')
+                        self.write(f'        dump_html_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
                         self.write('    else')
                         self.write(f'        dump_html_special("SHADER DATA", settings, "{typeInfo.type}", "{member.name}", indents + 1);')
 
@@ -1301,7 +1301,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     self.write(f'    dump_html_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id}); // ZRY')
+                    self.write(f'    dump_html_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", indents + 1, dump_html_{typeInfo.id});')
 
             self.write('}')
             if union.protect:
@@ -1362,7 +1362,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     self.write(f'        dump_html_pointer<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}", 1, dump_html_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'        dump_html_array<const {typeInfo.templateType}>({param.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{param.name}", 1, dump_html_{typeInfo.id}); // ZRZ')
+                    self.write(f'        dump_html_array<const {typeInfo.templateType}>({param.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{param.name}", 1, dump_html_{typeInfo.id});')
 
             self.write('    }')
             self.write('    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";')
@@ -1571,26 +1571,26 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
                     else:
                         if not typeInfo.lengthIsMember:
-                            self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // IQA')
+                            self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
 
                         elif typeInfo.lengthIsMember and member.name != 'pCode':
                             if typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
-                                self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // JQA')
+                                self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
 
                             elif not typeInfo.arrayLength[0].isdigit() or typeInfo.arrayLength[0].isupper():
                                 if typeInfo.arrayLength == 'rasterizationSamples':
-                                    self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // JQA')
+                                    self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, (object.{typeInfo.arrayLength} + 31) / 32, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
                                 else:
                                     if typeInfo.maxArrayLength is not None:
-                                        self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // JQA')
+                                        self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, std::min(object.{typeInfo.arrayLength}, {typeInfo.maxArrayLength}), settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
                                     else:
-                                        self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // JQA')
+                                        self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
 
                 self.write('')
                 if struct.name == 'VkShaderModuleCreateInfo':
                     if member.name == 'pCode':
                         self.write('    if(settings.showShader())')
-                        self.write(f'        dump_json_array<const {member.type}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id}); // KQA')
+                        self.write(f'        dump_json_array<const {member.type}>(object.{member.name}, object.{typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 1, dump_json_{typeInfo.id});')
                         self.write('    else')
                         self.write(f'        dump_json_special("SHADER DATA", settings, "{typeInfo.type}", "{member.name}", indents + 1);')
 
@@ -1627,7 +1627,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     self.write(f'    dump_json_pointer<const {typeInfo.templateType}>(object.{member.name}, settings, "{typeInfo.type}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 2, dump_json_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {member.length}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 2, dump_json_{typeInfo.id}); // OQA')
+                    self.write(f'    dump_json_array<const {typeInfo.templateType}>(object.{member.name}, {member.length}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{member.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, indents + 2, dump_json_{typeInfo.id});')
 
             self.write('    settings.stream() << "\\n" << settings.indentation(indents) << "]";')
             self.write('}')
@@ -1702,7 +1702,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     self.write(f'        dump_json_pointer<const {typeInfo.templateType}>({param.name}, settings, "{typeInfo.type}", "{param.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, 4, dump_json_{typeInfo.id});')
 
                 elif typeInfo.pointerLevels == 1 and typeInfo.arrayLength is not None:
-                    self.write(f'        dump_json_array<const {typeInfo.templateType}>({param.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{param.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, 4, dump_json_{typeInfo.id}); // PQA')
+                    self.write(f'        dump_json_array<const {typeInfo.templateType}>({param.name}, {typeInfo.arrayLength}, settings, "{typeInfo.type}", "{typeInfo.childType}", "{param.name}", {typeInfo.isStruct}, {typeInfo.isUnion}, 4, dump_json_{typeInfo.id});')
 
             self.write('        settings.stream() << "\\n" << settings.indentation(3) << "]\\n";')
             self.write('    }')
