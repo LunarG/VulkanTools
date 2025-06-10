@@ -14119,7 +14119,7 @@ void dump_json_VkPipelineCacheHeaderVersionOne(const VkPipelineCacheHeaderVersio
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.deviceID, NULL, settings, "uint32_t", "deviceID", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkAllocationCallbacks(const VkAllocationCallbacks& object, const ApiDumpSettings& settings, int indents)
@@ -14201,11 +14201,11 @@ void dump_json_VkInstanceCreateInfo(const VkInstanceCreateInfo& object, const Ap
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.enabledLayerCount, NULL, settings, "uint32_t", "enabledLayerCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const char*>(object.ppEnabledLayerNames, object.enabledLayerCount, settings, "const char* const*", "const char* const", "ppEnabledLayerNames", false, false, indents + 1, dump_json_cstring); // JQA
+    dump_json_array<const char*>(object.ppEnabledLayerNames, object.enabledLayerCount, settings, "const char* const*", "const char* const", "ppEnabledLayerNames", false, false, indents + 1, dump_json_cstring);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.enabledExtensionCount, NULL, settings, "uint32_t", "enabledExtensionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const char*>(object.ppEnabledExtensionNames, object.enabledExtensionCount, settings, "const char* const*", "const char* const", "ppEnabledExtensionNames", false, false, indents + 1, dump_json_cstring); // JQA
+    dump_json_array<const char*>(object.ppEnabledExtensionNames, object.enabledExtensionCount, settings, "const char* const*", "const char* const", "ppEnabledExtensionNames", false, false, indents + 1, dump_json_cstring);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkMemoryHeap(const VkMemoryHeap& object, const ApiDumpSettings& settings, int indents)
@@ -14445,11 +14445,11 @@ void dump_json_VkPhysicalDeviceLimits(const VkPhysicalDeviceLimits& object, cons
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxComputeSharedMemorySize, NULL, settings, "uint32_t", "maxComputeSharedMemorySize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxComputeWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxComputeWorkGroupCount", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxComputeWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxComputeWorkGroupCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxComputeWorkGroupInvocations, NULL, settings, "uint32_t", "maxComputeWorkGroupInvocations", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxComputeWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxComputeWorkGroupSize", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxComputeWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxComputeWorkGroupSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.subPixelPrecisionBits, NULL, settings, "uint32_t", "subPixelPrecisionBits", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -14467,9 +14467,9 @@ void dump_json_VkPhysicalDeviceLimits(const VkPhysicalDeviceLimits& object, cons
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxViewports, NULL, settings, "uint32_t", "maxViewports", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxViewportDimensions, 2, settings, "uint32_t[2]", "uint32_t", "maxViewportDimensions", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxViewportDimensions, 2, settings, "uint32_t[2]", "uint32_t", "maxViewportDimensions", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.viewportBoundsRange, 2, settings, "float[2]", "float", "viewportBoundsRange", false, false, indents + 1, dump_json_float); // IQA
+    dump_json_array<const float>(object.viewportBoundsRange, 2, settings, "float[2]", "float", "viewportBoundsRange", false, false, indents + 1, dump_json_float);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.viewportSubPixelBits, NULL, settings, "uint32_t", "viewportSubPixelBits", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -14535,9 +14535,9 @@ void dump_json_VkPhysicalDeviceLimits(const VkPhysicalDeviceLimits& object, cons
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.discreteQueuePriorities, NULL, settings, "uint32_t", "discreteQueuePriorities", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.pointSizeRange, 2, settings, "float[2]", "float", "pointSizeRange", false, false, indents + 1, dump_json_float); // IQA
+    dump_json_array<const float>(object.pointSizeRange, 2, settings, "float[2]", "float", "pointSizeRange", false, false, indents + 1, dump_json_float);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.lineWidthRange, 2, settings, "float[2]", "float", "lineWidthRange", false, false, indents + 1, dump_json_float); // IQA
+    dump_json_array<const float>(object.lineWidthRange, 2, settings, "float[2]", "float", "lineWidthRange", false, false, indents + 1, dump_json_float);
     settings.stream() << ",\n";
     dump_json_value<const float>(object.pointSizeGranularity, NULL, settings, "float", "pointSizeGranularity", false, false, indents + 1, dump_json_float);
     settings.stream() << ",\n";
@@ -14559,11 +14559,11 @@ void dump_json_VkPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProp
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const uint32_t>(object.memoryTypeCount, NULL, settings, "uint32_t", "memoryTypeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkMemoryType>(object.memoryTypes, std::min(object.memoryTypeCount, VK_MAX_MEMORY_TYPES), settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", true, false, indents + 1, dump_json_VkMemoryType); // JQA
+    dump_json_array<const VkMemoryType>(object.memoryTypes, std::min(object.memoryTypeCount, VK_MAX_MEMORY_TYPES), settings, "VkMemoryType[VK_MAX_MEMORY_TYPES]", "VkMemoryType", "memoryTypes", true, false, indents + 1, dump_json_VkMemoryType);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.memoryHeapCount, NULL, settings, "uint32_t", "memoryHeapCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkMemoryHeap>(object.memoryHeaps, std::min(object.memoryHeapCount, VK_MAX_MEMORY_HEAPS), settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", true, false, indents + 1, dump_json_VkMemoryHeap); // JQA
+    dump_json_array<const VkMemoryHeap>(object.memoryHeaps, std::min(object.memoryHeapCount, VK_MAX_MEMORY_HEAPS), settings, "VkMemoryHeap[VK_MAX_MEMORY_HEAPS]", "VkMemoryHeap", "memoryHeaps", true, false, indents + 1, dump_json_VkMemoryHeap);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceSparseProperties(const VkPhysicalDeviceSparseProperties& object, const ApiDumpSettings& settings, int indents)
@@ -14595,7 +14595,7 @@ void dump_json_VkPhysicalDeviceProperties(const VkPhysicalDeviceProperties& obje
     settings.stream() << ",\n";
     dump_json_value<const char*>(object.deviceName, NULL, settings, "char[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE]", "deviceName", false, false, indents + 1, dump_json_cstring);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
     dump_json_value<const VkPhysicalDeviceLimits>(object.limits, NULL, settings, "VkPhysicalDeviceLimits", "limits", true, false, indents + 1, dump_json_VkPhysicalDeviceLimits);
     settings.stream() << ",\n";
@@ -14631,7 +14631,7 @@ void dump_json_VkDeviceQueueCreateInfo(const VkDeviceQueueCreateInfo& object, co
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.queueCount, NULL, settings, "uint32_t", "queueCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.pQueuePriorities, object.queueCount, settings, "const float*", "const float", "pQueuePriorities", false, false, indents + 1, dump_json_float); // JQA
+    dump_json_array<const float>(object.pQueuePriorities, object.queueCount, settings, "const float*", "const float", "pQueuePriorities", false, false, indents + 1, dump_json_float);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkDeviceCreateInfo(const VkDeviceCreateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -14649,15 +14649,15 @@ void dump_json_VkDeviceCreateInfo(const VkDeviceCreateInfo& object, const ApiDum
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.queueCreateInfoCount, NULL, settings, "uint32_t", "queueCreateInfoCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDeviceQueueCreateInfo>(object.pQueueCreateInfos, object.queueCreateInfoCount, settings, "const VkDeviceQueueCreateInfo*", "const VkDeviceQueueCreateInfo", "pQueueCreateInfos", true, false, indents + 1, dump_json_VkDeviceQueueCreateInfo); // JQA
+    dump_json_array<const VkDeviceQueueCreateInfo>(object.pQueueCreateInfos, object.queueCreateInfoCount, settings, "const VkDeviceQueueCreateInfo*", "const VkDeviceQueueCreateInfo", "pQueueCreateInfos", true, false, indents + 1, dump_json_VkDeviceQueueCreateInfo);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.enabledLayerCount, NULL, settings, "uint32_t", "enabledLayerCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const char*>(object.ppEnabledLayerNames, object.enabledLayerCount, settings, "const char* const*", "const char* const", "ppEnabledLayerNames", false, false, indents + 1, dump_json_cstring); // JQA
+    dump_json_array<const char*>(object.ppEnabledLayerNames, object.enabledLayerCount, settings, "const char* const*", "const char* const", "ppEnabledLayerNames", false, false, indents + 1, dump_json_cstring);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.enabledExtensionCount, NULL, settings, "uint32_t", "enabledExtensionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const char*>(object.ppEnabledExtensionNames, object.enabledExtensionCount, settings, "const char* const*", "const char* const", "ppEnabledExtensionNames", false, false, indents + 1, dump_json_cstring); // JQA
+    dump_json_array<const char*>(object.ppEnabledExtensionNames, object.enabledExtensionCount, settings, "const char* const*", "const char* const", "ppEnabledExtensionNames", false, false, indents + 1, dump_json_cstring);
     settings.stream() << ",\n";
     dump_json_pointer<const VkPhysicalDeviceFeatures>(object.pEnabledFeatures, settings, "const VkPhysicalDeviceFeatures*", "pEnabledFeatures", true, false, indents + 1, dump_json_VkPhysicalDeviceFeatures);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -14695,17 +14695,17 @@ void dump_json_VkSubmitInfo(const VkSubmitInfo& object, const ApiDumpSettings& s
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.waitSemaphoreCount, NULL, settings, "uint32_t", "waitSemaphoreCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", false, false, indents + 1, dump_json_VkSemaphore); // JQA
+    dump_json_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", false, false, indents + 1, dump_json_VkSemaphore);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineStageFlags>(object.pWaitDstStageMask, object.waitSemaphoreCount, settings, "const VkPipelineStageFlags*", "const VkPipelineStageFlags", "pWaitDstStageMask", false, false, indents + 1, dump_json_VkPipelineStageFlags); // JQA
+    dump_json_array<const VkPipelineStageFlags>(object.pWaitDstStageMask, object.waitSemaphoreCount, settings, "const VkPipelineStageFlags*", "const VkPipelineStageFlags", "pWaitDstStageMask", false, false, indents + 1, dump_json_VkPipelineStageFlags);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.commandBufferCount, NULL, settings, "uint32_t", "commandBufferCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkCommandBuffer>(object.pCommandBuffers, object.commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", false, false, indents + 1, dump_json_VkCommandBuffer); // JQA
+    dump_json_array<const VkCommandBuffer>(object.pCommandBuffers, object.commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", false, false, indents + 1, dump_json_VkCommandBuffer);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.signalSemaphoreCount, NULL, settings, "uint32_t", "signalSemaphoreCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSemaphore>(object.pSignalSemaphores, object.signalSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSignalSemaphores", false, false, indents + 1, dump_json_VkSemaphore); // JQA
+    dump_json_array<const VkSemaphore>(object.pSignalSemaphores, object.signalSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSignalSemaphores", false, false, indents + 1, dump_json_VkSemaphore);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkMappedMemoryRange(const VkMappedMemoryRange& object, const ApiDumpSettings& settings, int indents)
@@ -14773,7 +14773,7 @@ void dump_json_VkSparseBufferMemoryBindInfo(const VkSparseBufferMemoryBindInfo& 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.bindCount, NULL, settings, "uint32_t", "bindCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSparseMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseMemoryBind*", "const VkSparseMemoryBind", "pBinds", true, false, indents + 1, dump_json_VkSparseMemoryBind); // JQA
+    dump_json_array<const VkSparseMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseMemoryBind*", "const VkSparseMemoryBind", "pBinds", true, false, indents + 1, dump_json_VkSparseMemoryBind);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSparseImageOpaqueMemoryBindInfo(const VkSparseImageOpaqueMemoryBindInfo& object, const ApiDumpSettings& settings, int indents)
@@ -14783,7 +14783,7 @@ void dump_json_VkSparseImageOpaqueMemoryBindInfo(const VkSparseImageOpaqueMemory
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.bindCount, NULL, settings, "uint32_t", "bindCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSparseMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseMemoryBind*", "const VkSparseMemoryBind", "pBinds", true, false, indents + 1, dump_json_VkSparseMemoryBind); // JQA
+    dump_json_array<const VkSparseMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseMemoryBind*", "const VkSparseMemoryBind", "pBinds", true, false, indents + 1, dump_json_VkSparseMemoryBind);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageSubresource(const VkImageSubresource& object, const ApiDumpSettings& settings, int indents)
@@ -14819,7 +14819,7 @@ void dump_json_VkSparseImageMemoryBindInfo(const VkSparseImageMemoryBindInfo& ob
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.bindCount, NULL, settings, "uint32_t", "bindCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSparseImageMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseImageMemoryBind*", "const VkSparseImageMemoryBind", "pBinds", true, false, indents + 1, dump_json_VkSparseImageMemoryBind); // JQA
+    dump_json_array<const VkSparseImageMemoryBind>(object.pBinds, object.bindCount, settings, "const VkSparseImageMemoryBind*", "const VkSparseImageMemoryBind", "pBinds", true, false, indents + 1, dump_json_VkSparseImageMemoryBind);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkBindSparseInfo(const VkBindSparseInfo& object, const ApiDumpSettings& settings, int indents)
@@ -14835,23 +14835,23 @@ void dump_json_VkBindSparseInfo(const VkBindSparseInfo& object, const ApiDumpSet
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.waitSemaphoreCount, NULL, settings, "uint32_t", "waitSemaphoreCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", false, false, indents + 1, dump_json_VkSemaphore); // JQA
+    dump_json_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", false, false, indents + 1, dump_json_VkSemaphore);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.bufferBindCount, NULL, settings, "uint32_t", "bufferBindCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSparseBufferMemoryBindInfo>(object.pBufferBinds, object.bufferBindCount, settings, "const VkSparseBufferMemoryBindInfo*", "const VkSparseBufferMemoryBindInfo", "pBufferBinds", true, false, indents + 1, dump_json_VkSparseBufferMemoryBindInfo); // JQA
+    dump_json_array<const VkSparseBufferMemoryBindInfo>(object.pBufferBinds, object.bufferBindCount, settings, "const VkSparseBufferMemoryBindInfo*", "const VkSparseBufferMemoryBindInfo", "pBufferBinds", true, false, indents + 1, dump_json_VkSparseBufferMemoryBindInfo);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.imageOpaqueBindCount, NULL, settings, "uint32_t", "imageOpaqueBindCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSparseImageOpaqueMemoryBindInfo>(object.pImageOpaqueBinds, object.imageOpaqueBindCount, settings, "const VkSparseImageOpaqueMemoryBindInfo*", "const VkSparseImageOpaqueMemoryBindInfo", "pImageOpaqueBinds", true, false, indents + 1, dump_json_VkSparseImageOpaqueMemoryBindInfo); // JQA
+    dump_json_array<const VkSparseImageOpaqueMemoryBindInfo>(object.pImageOpaqueBinds, object.imageOpaqueBindCount, settings, "const VkSparseImageOpaqueMemoryBindInfo*", "const VkSparseImageOpaqueMemoryBindInfo", "pImageOpaqueBinds", true, false, indents + 1, dump_json_VkSparseImageOpaqueMemoryBindInfo);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.imageBindCount, NULL, settings, "uint32_t", "imageBindCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSparseImageMemoryBindInfo>(object.pImageBinds, object.imageBindCount, settings, "const VkSparseImageMemoryBindInfo*", "const VkSparseImageMemoryBindInfo", "pImageBinds", true, false, indents + 1, dump_json_VkSparseImageMemoryBindInfo); // JQA
+    dump_json_array<const VkSparseImageMemoryBindInfo>(object.pImageBinds, object.imageBindCount, settings, "const VkSparseImageMemoryBindInfo*", "const VkSparseImageMemoryBindInfo", "pImageBinds", true, false, indents + 1, dump_json_VkSparseImageMemoryBindInfo);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.signalSemaphoreCount, NULL, settings, "uint32_t", "signalSemaphoreCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSemaphore>(object.pSignalSemaphores, object.signalSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSignalSemaphores", false, false, indents + 1, dump_json_VkSemaphore); // JQA
+    dump_json_array<const VkSemaphore>(object.pSignalSemaphores, object.signalSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSignalSemaphores", false, false, indents + 1, dump_json_VkSemaphore);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSparseImageFormatProperties(const VkSparseImageFormatProperties& object, const ApiDumpSettings& settings, int indents)
@@ -14962,7 +14962,7 @@ void dump_json_VkBufferCreateInfo(const VkBufferCreateInfo& object, const ApiDum
     dump_json_value<const uint32_t>(object.queueFamilyIndexCount, NULL, settings, "uint32_t", "queueFamilyIndexCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     if(object.sharingMode == VK_SHARING_MODE_CONCURRENT)
-    dump_json_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", false, false, indents + 1, dump_json_uint32_t);
     else
         dump_json_UNUSED(settings, "const uint32_t*", "pQueueFamilyIndices", indents + 1);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -15023,7 +15023,7 @@ void dump_json_VkImageCreateInfo(const VkImageCreateInfo& object, const ApiDumpS
     dump_json_value<const uint32_t>(object.queueFamilyIndexCount, NULL, settings, "uint32_t", "queueFamilyIndexCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     if(object.sharingMode == VK_SHARING_MODE_CONCURRENT)
-    dump_json_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", false, false, indents + 1, dump_json_uint32_t);
     else
         dump_json_UNUSED(settings, "const uint32_t*", "pQueueFamilyIndices", indents + 1);
     settings.stream() << ",\n";
@@ -15096,7 +15096,7 @@ void dump_json_VkShaderModuleCreateInfo(const VkShaderModuleCreateInfo& object, 
     dump_json_value<const size_t>(object.codeSize, NULL, settings, "size_t", "codeSize", false, false, indents + 1, dump_json_size_t);
     settings.stream() << ",\n";
     if(settings.showShader())
-        dump_json_array<const uint32_t>(object.pCode, object.codeSize / 4, settings, "const uint32_t*", "const uint32_t", "pCode", false, false, indents + 1, dump_json_uint32_t); // KQA
+        dump_json_array<const uint32_t>(object.pCode, object.codeSize / 4, settings, "const uint32_t*", "const uint32_t", "pCode", false, false, indents + 1, dump_json_uint32_t);
     else
         dump_json_special("SHADER DATA", settings, "const uint32_t*", "pCode", indents + 1);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -15134,7 +15134,7 @@ void dump_json_VkSpecializationInfo(const VkSpecializationInfo& object, const Ap
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const uint32_t>(object.mapEntryCount, NULL, settings, "uint32_t", "mapEntryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSpecializationMapEntry>(object.pMapEntries, object.mapEntryCount, settings, "const VkSpecializationMapEntry*", "const VkSpecializationMapEntry", "pMapEntries", true, false, indents + 1, dump_json_VkSpecializationMapEntry); // JQA
+    dump_json_array<const VkSpecializationMapEntry>(object.pMapEntries, object.mapEntryCount, settings, "const VkSpecializationMapEntry*", "const VkSpecializationMapEntry", "pMapEntries", true, false, indents + 1, dump_json_VkSpecializationMapEntry);
     settings.stream() << ",\n";
     dump_json_value<const size_t>(object.dataSize, NULL, settings, "size_t", "dataSize", false, false, indents + 1, dump_json_size_t);
     settings.stream() << ",\n";
@@ -15222,11 +15222,11 @@ void dump_json_VkPipelineVertexInputStateCreateInfo(const VkPipelineVertexInputS
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.vertexBindingDescriptionCount, NULL, settings, "uint32_t", "vertexBindingDescriptionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkVertexInputBindingDescription>(object.pVertexBindingDescriptions, object.vertexBindingDescriptionCount, settings, "const VkVertexInputBindingDescription*", "const VkVertexInputBindingDescription", "pVertexBindingDescriptions", true, false, indents + 1, dump_json_VkVertexInputBindingDescription); // JQA
+    dump_json_array<const VkVertexInputBindingDescription>(object.pVertexBindingDescriptions, object.vertexBindingDescriptionCount, settings, "const VkVertexInputBindingDescription*", "const VkVertexInputBindingDescription", "pVertexBindingDescriptions", true, false, indents + 1, dump_json_VkVertexInputBindingDescription);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.vertexAttributeDescriptionCount, NULL, settings, "uint32_t", "vertexAttributeDescriptionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkVertexInputAttributeDescription>(object.pVertexAttributeDescriptions, object.vertexAttributeDescriptionCount, settings, "const VkVertexInputAttributeDescription*", "const VkVertexInputAttributeDescription", "pVertexAttributeDescriptions", true, false, indents + 1, dump_json_VkVertexInputAttributeDescription); // JQA
+    dump_json_array<const VkVertexInputAttributeDescription>(object.pVertexAttributeDescriptions, object.vertexAttributeDescriptionCount, settings, "const VkVertexInputAttributeDescription*", "const VkVertexInputAttributeDescription", "pVertexAttributeDescriptions", true, false, indents + 1, dump_json_VkVertexInputAttributeDescription);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPipelineInputAssemblyStateCreateInfo(const VkPipelineInputAssemblyStateCreateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -15295,14 +15295,14 @@ void dump_json_VkPipelineViewportStateCreateInfo(const VkPipelineViewportStateCr
     dump_json_value<const uint32_t>(object.viewportCount, NULL, settings, "uint32_t", "viewportCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     if(!ApiDumpInstance::current().getIsDynamicViewport())
-    dump_json_array<const VkViewport>(object.pViewports, object.viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", true, false, indents + 1, dump_json_VkViewport); // JQA
+    dump_json_array<const VkViewport>(object.pViewports, object.viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", true, false, indents + 1, dump_json_VkViewport);
     else
         dump_json_UNUSED(settings, "const VkViewport*", "pViewports", indents + 1);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.scissorCount, NULL, settings, "uint32_t", "scissorCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     if(!ApiDumpInstance::current().getIsDynamicScissor())
-    dump_json_array<const VkRect2D>(object.pScissors, object.scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", true, false, indents + 1, dump_json_VkRect2D); // JQA
+    dump_json_array<const VkRect2D>(object.pScissors, object.scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", true, false, indents + 1, dump_json_VkRect2D);
     else
         dump_json_UNUSED(settings, "const VkRect2D*", "pScissors", indents + 1);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -15360,7 +15360,7 @@ void dump_json_VkPipelineMultisampleStateCreateInfo(const VkPipelineMultisampleS
     settings.stream() << ",\n";
     dump_json_value<const float>(object.minSampleShading, NULL, settings, "float", "minSampleShading", false, false, indents + 1, dump_json_float);
     settings.stream() << ",\n";
-    dump_json_array<const VkSampleMask>(object.pSampleMask, (object.rasterizationSamples + 31) / 32, settings, "const VkSampleMask*", "const VkSampleMask", "pSampleMask", false, false, indents + 1, dump_json_VkSampleMask); // JQA
+    dump_json_array<const VkSampleMask>(object.pSampleMask, (object.rasterizationSamples + 31) / 32, settings, "const VkSampleMask*", "const VkSampleMask", "pSampleMask", false, false, indents + 1, dump_json_VkSampleMask);
     settings.stream() << ",\n";
     dump_json_value<const VkBool32>(object.alphaToCoverageEnable, NULL, settings, "VkBool32", "alphaToCoverageEnable", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << ",\n";
@@ -15456,9 +15456,9 @@ void dump_json_VkPipelineColorBlendStateCreateInfo(const VkPipelineColorBlendSta
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineColorBlendAttachmentState>(object.pAttachments, object.attachmentCount, settings, "const VkPipelineColorBlendAttachmentState*", "const VkPipelineColorBlendAttachmentState", "pAttachments", true, false, indents + 1, dump_json_VkPipelineColorBlendAttachmentState); // JQA
+    dump_json_array<const VkPipelineColorBlendAttachmentState>(object.pAttachments, object.attachmentCount, settings, "const VkPipelineColorBlendAttachmentState*", "const VkPipelineColorBlendAttachmentState", "pAttachments", true, false, indents + 1, dump_json_VkPipelineColorBlendAttachmentState);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.blendConstants, 4, settings, "float[4]", "float", "blendConstants", false, false, indents + 1, dump_json_float); // IQA
+    dump_json_array<const float>(object.blendConstants, 4, settings, "float[4]", "float", "blendConstants", false, false, indents + 1, dump_json_float);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPipelineDynamicStateCreateInfo(const VkPipelineDynamicStateCreateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -15476,7 +15476,7 @@ void dump_json_VkPipelineDynamicStateCreateInfo(const VkPipelineDynamicStateCrea
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.dynamicStateCount, NULL, settings, "uint32_t", "dynamicStateCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDynamicState>(object.pDynamicStates, object.dynamicStateCount, settings, "const VkDynamicState*", "const VkDynamicState", "pDynamicStates", false, false, indents + 1, dump_json_VkDynamicState); // JQA
+    dump_json_array<const VkDynamicState>(object.pDynamicStates, object.dynamicStateCount, settings, "const VkDynamicState*", "const VkDynamicState", "pDynamicStates", false, false, indents + 1, dump_json_VkDynamicState);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkGraphicsPipelineCreateInfo(const VkGraphicsPipelineCreateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -15495,7 +15495,7 @@ void dump_json_VkGraphicsPipelineCreateInfo(const VkGraphicsPipelineCreateInfo& 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stageCount, NULL, settings, "uint32_t", "stageCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", true, false, indents + 1, dump_json_VkPipelineShaderStageCreateInfo); // JQA
+    dump_json_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", true, false, indents + 1, dump_json_VkPipelineShaderStageCreateInfo);
     settings.stream() << ",\n";
     dump_json_pointer<const VkPipelineVertexInputStateCreateInfo>(object.pVertexInputState, settings, "const VkPipelineVertexInputStateCreateInfo*", "pVertexInputState", true, false, indents + 1, dump_json_VkPipelineVertexInputStateCreateInfo);
     settings.stream() << ",\n";
@@ -15551,11 +15551,11 @@ void dump_json_VkPipelineLayoutCreateInfo(const VkPipelineLayoutCreateInfo& obje
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.setLayoutCount, NULL, settings, "uint32_t", "setLayoutCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", false, false, indents + 1, dump_json_VkDescriptorSetLayout); // JQA
+    dump_json_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", false, false, indents + 1, dump_json_VkDescriptorSetLayout);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.pushConstantRangeCount, NULL, settings, "uint32_t", "pushConstantRangeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", true, false, indents + 1, dump_json_VkPushConstantRange); // JQA
+    dump_json_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", true, false, indents + 1, dump_json_VkPushConstantRange);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSamplerCreateInfo(const VkSamplerCreateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -15673,7 +15673,7 @@ void dump_json_VkDescriptorPoolCreateInfo(const VkDescriptorPoolCreateInfo& obje
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.poolSizeCount, NULL, settings, "uint32_t", "poolSizeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDescriptorPoolSize>(object.pPoolSizes, object.poolSizeCount, settings, "const VkDescriptorPoolSize*", "const VkDescriptorPoolSize", "pPoolSizes", true, false, indents + 1, dump_json_VkDescriptorPoolSize); // JQA
+    dump_json_array<const VkDescriptorPoolSize>(object.pPoolSizes, object.poolSizeCount, settings, "const VkDescriptorPoolSize*", "const VkDescriptorPoolSize", "pPoolSizes", true, false, indents + 1, dump_json_VkDescriptorPoolSize);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkDescriptorSetAllocateInfo(const VkDescriptorSetAllocateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -15691,7 +15691,7 @@ void dump_json_VkDescriptorSetAllocateInfo(const VkDescriptorSetAllocateInfo& ob
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.descriptorSetCount, NULL, settings, "uint32_t", "descriptorSetCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.descriptorSetCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", false, false, indents + 1, dump_json_VkDescriptorSetLayout); // JQA
+    dump_json_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.descriptorSetCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", false, false, indents + 1, dump_json_VkDescriptorSetLayout);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkDescriptorSetLayoutBinding(const VkDescriptorSetLayoutBinding& object, const ApiDumpSettings& settings, int indents)
@@ -15706,7 +15706,7 @@ void dump_json_VkDescriptorSetLayoutBinding(const VkDescriptorSetLayoutBinding& 
     dump_json_value<const VkShaderStageFlags>(object.stageFlags, NULL, settings, "VkShaderStageFlags", "stageFlags", false, false, indents + 1, dump_json_VkShaderStageFlags);
     settings.stream() << ",\n";
     if((object.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
-    dump_json_array<const VkSampler>(object.pImmutableSamplers, object.descriptorCount, settings, "const VkSampler*", "const VkSampler", "pImmutableSamplers", false, false, indents + 1, dump_json_VkSampler); // JQA
+    dump_json_array<const VkSampler>(object.pImmutableSamplers, object.descriptorCount, settings, "const VkSampler*", "const VkSampler", "pImmutableSamplers", false, false, indents + 1, dump_json_VkSampler);
     else
         dump_json_UNUSED(settings, "const VkSampler*", "pImmutableSamplers", indents + 1);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -15726,7 +15726,7 @@ void dump_json_VkDescriptorSetLayoutCreateInfo(const VkDescriptorSetLayoutCreate
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.bindingCount, NULL, settings, "uint32_t", "bindingCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDescriptorSetLayoutBinding>(object.pBindings, object.bindingCount, settings, "const VkDescriptorSetLayoutBinding*", "const VkDescriptorSetLayoutBinding", "pBindings", true, false, indents + 1, dump_json_VkDescriptorSetLayoutBinding); // JQA
+    dump_json_array<const VkDescriptorSetLayoutBinding>(object.pBindings, object.bindingCount, settings, "const VkDescriptorSetLayoutBinding*", "const VkDescriptorSetLayoutBinding", "pBindings", true, false, indents + 1, dump_json_VkDescriptorSetLayoutBinding);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkWriteDescriptorSet(const VkWriteDescriptorSet& object, const ApiDumpSettings& settings, int indents)
@@ -15751,17 +15751,17 @@ void dump_json_VkWriteDescriptorSet(const VkWriteDescriptorSet& object, const Ap
     dump_json_value<const VkDescriptorType>(object.descriptorType, NULL, settings, "VkDescriptorType", "descriptorType", false, false, indents + 1, dump_json_VkDescriptorType);
     settings.stream() << ",\n";
     if((object.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) || (object.descriptorType == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
-    dump_json_array<const VkDescriptorImageInfo>(object.pImageInfo, object.descriptorCount, settings, "const VkDescriptorImageInfo*", "const VkDescriptorImageInfo", "pImageInfo", true, false, indents + 1, dump_json_VkDescriptorImageInfo); // JQA
+    dump_json_array<const VkDescriptorImageInfo>(object.pImageInfo, object.descriptorCount, settings, "const VkDescriptorImageInfo*", "const VkDescriptorImageInfo", "pImageInfo", true, false, indents + 1, dump_json_VkDescriptorImageInfo);
     else
         dump_json_UNUSED(settings, "const VkDescriptorImageInfo*", "pImageInfo", indents + 1);
     settings.stream() << ",\n";
     if((object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) || (object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
-    dump_json_array<const VkDescriptorBufferInfo>(object.pBufferInfo, object.descriptorCount, settings, "const VkDescriptorBufferInfo*", "const VkDescriptorBufferInfo", "pBufferInfo", true, false, indents + 1, dump_json_VkDescriptorBufferInfo); // JQA
+    dump_json_array<const VkDescriptorBufferInfo>(object.pBufferInfo, object.descriptorCount, settings, "const VkDescriptorBufferInfo*", "const VkDescriptorBufferInfo", "pBufferInfo", true, false, indents + 1, dump_json_VkDescriptorBufferInfo);
     else
         dump_json_UNUSED(settings, "const VkDescriptorBufferInfo*", "pBufferInfo", indents + 1);
     settings.stream() << ",\n";
     if((object.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) || (object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
-    dump_json_array<const VkBufferView>(object.pTexelBufferView, object.descriptorCount, settings, "const VkBufferView*", "const VkBufferView", "pTexelBufferView", false, false, indents + 1, dump_json_VkBufferView); // JQA
+    dump_json_array<const VkBufferView>(object.pTexelBufferView, object.descriptorCount, settings, "const VkBufferView*", "const VkBufferView", "pTexelBufferView", false, false, indents + 1, dump_json_VkBufferView);
     else
         dump_json_UNUSED(settings, "const VkBufferView*", "pTexelBufferView", indents + 1);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -15813,7 +15813,7 @@ void dump_json_VkFramebufferCreateInfo(const VkFramebufferCreateInfo& object, co
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageView>(object.pAttachments, object.attachmentCount, settings, "const VkImageView*", "const VkImageView", "pAttachments", false, false, indents + 1, dump_json_VkImageView); // JQA
+    dump_json_array<const VkImageView>(object.pAttachments, object.attachmentCount, settings, "const VkImageView*", "const VkImageView", "pAttachments", false, false, indents + 1, dump_json_VkImageView);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.width, NULL, settings, "uint32_t", "width", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -15831,19 +15831,19 @@ void dump_json_VkSubpassDescription(const VkSubpassDescription& object, const Ap
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.inputAttachmentCount, NULL, settings, "uint32_t", "inputAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkAttachmentReference>(object.pInputAttachments, object.inputAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pInputAttachments", true, false, indents + 1, dump_json_VkAttachmentReference); // JQA
+    dump_json_array<const VkAttachmentReference>(object.pInputAttachments, object.inputAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pInputAttachments", true, false, indents + 1, dump_json_VkAttachmentReference);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.colorAttachmentCount, NULL, settings, "uint32_t", "colorAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkAttachmentReference>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pColorAttachments", true, false, indents + 1, dump_json_VkAttachmentReference); // JQA
+    dump_json_array<const VkAttachmentReference>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pColorAttachments", true, false, indents + 1, dump_json_VkAttachmentReference);
     settings.stream() << ",\n";
-    dump_json_array<const VkAttachmentReference>(object.pResolveAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pResolveAttachments", true, false, indents + 1, dump_json_VkAttachmentReference); // JQA
+    dump_json_array<const VkAttachmentReference>(object.pResolveAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference*", "const VkAttachmentReference", "pResolveAttachments", true, false, indents + 1, dump_json_VkAttachmentReference);
     settings.stream() << ",\n";
     dump_json_pointer<const VkAttachmentReference>(object.pDepthStencilAttachment, settings, "const VkAttachmentReference*", "pDepthStencilAttachment", true, false, indents + 1, dump_json_VkAttachmentReference);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.preserveAttachmentCount, NULL, settings, "uint32_t", "preserveAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pPreserveAttachments, object.preserveAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pPreserveAttachments", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pPreserveAttachments, object.preserveAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pPreserveAttachments", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSubpassDependency(const VkSubpassDependency& object, const ApiDumpSettings& settings, int indents)
@@ -15879,15 +15879,15 @@ void dump_json_VkRenderPassCreateInfo(const VkRenderPassCreateInfo& object, cons
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkAttachmentDescription>(object.pAttachments, object.attachmentCount, settings, "const VkAttachmentDescription*", "const VkAttachmentDescription", "pAttachments", true, false, indents + 1, dump_json_VkAttachmentDescription); // JQA
+    dump_json_array<const VkAttachmentDescription>(object.pAttachments, object.attachmentCount, settings, "const VkAttachmentDescription*", "const VkAttachmentDescription", "pAttachments", true, false, indents + 1, dump_json_VkAttachmentDescription);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.subpassCount, NULL, settings, "uint32_t", "subpassCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSubpassDescription>(object.pSubpasses, object.subpassCount, settings, "const VkSubpassDescription*", "const VkSubpassDescription", "pSubpasses", true, false, indents + 1, dump_json_VkSubpassDescription); // JQA
+    dump_json_array<const VkSubpassDescription>(object.pSubpasses, object.subpassCount, settings, "const VkSubpassDescription*", "const VkSubpassDescription", "pSubpasses", true, false, indents + 1, dump_json_VkSubpassDescription);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.dependencyCount, NULL, settings, "uint32_t", "dependencyCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSubpassDependency>(object.pDependencies, object.dependencyCount, settings, "const VkSubpassDependency*", "const VkSubpassDependency", "pDependencies", true, false, indents + 1, dump_json_VkSubpassDependency); // JQA
+    dump_json_array<const VkSubpassDependency>(object.pDependencies, object.dependencyCount, settings, "const VkSubpassDependency*", "const VkSubpassDependency", "pDependencies", true, false, indents + 1, dump_json_VkSubpassDependency);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkCommandPoolCreateInfo(const VkCommandPoolCreateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -16038,11 +16038,11 @@ void dump_json_VkImageBlit(const VkImageBlit& object, const ApiDumpSettings& set
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const VkImageSubresourceLayers>(object.srcSubresource, NULL, settings, "VkImageSubresourceLayers", "srcSubresource", true, false, indents + 1, dump_json_VkImageSubresourceLayers);
     settings.stream() << ",\n";
-    dump_json_array<const VkOffset3D>(object.srcOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "srcOffsets", true, false, indents + 1, dump_json_VkOffset3D); // IQA
+    dump_json_array<const VkOffset3D>(object.srcOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "srcOffsets", true, false, indents + 1, dump_json_VkOffset3D);
     settings.stream() << ",\n";
     dump_json_value<const VkImageSubresourceLayers>(object.dstSubresource, NULL, settings, "VkImageSubresourceLayers", "dstSubresource", true, false, indents + 1, dump_json_VkImageSubresourceLayers);
     settings.stream() << ",\n";
-    dump_json_array<const VkOffset3D>(object.dstOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "dstOffsets", true, false, indents + 1, dump_json_VkOffset3D); // IQA
+    dump_json_array<const VkOffset3D>(object.dstOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "dstOffsets", true, false, indents + 1, dump_json_VkOffset3D);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageCopy(const VkImageCopy& object, const ApiDumpSettings& settings, int indents)
@@ -16092,7 +16092,7 @@ void dump_json_VkRenderPassBeginInfo(const VkRenderPassBeginInfo& object, const 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.clearValueCount, NULL, settings, "uint32_t", "clearValueCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkClearValue>(object.pClearValues, object.clearValueCount, settings, "const VkClearValue*", "const VkClearValue", "pClearValues", false, true, indents + 1, dump_json_VkClearValue); // JQA
+    dump_json_array<const VkClearValue>(object.pClearValues, object.clearValueCount, settings, "const VkClearValue*", "const VkClearValue", "pClearValues", false, true, indents + 1, dump_json_VkClearValue);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceSubgroupProperties(const VkPhysicalDeviceSubgroupProperties& object, const ApiDumpSettings& settings, int indents)
@@ -16234,7 +16234,7 @@ void dump_json_VkDeviceGroupRenderPassBeginInfo(const VkDeviceGroupRenderPassBeg
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.deviceRenderAreaCount, NULL, settings, "uint32_t", "deviceRenderAreaCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRect2D>(object.pDeviceRenderAreas, object.deviceRenderAreaCount, settings, "const VkRect2D*", "const VkRect2D", "pDeviceRenderAreas", true, false, indents + 1, dump_json_VkRect2D); // JQA
+    dump_json_array<const VkRect2D>(object.pDeviceRenderAreas, object.deviceRenderAreaCount, settings, "const VkRect2D*", "const VkRect2D", "pDeviceRenderAreas", true, false, indents + 1, dump_json_VkRect2D);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkDeviceGroupCommandBufferBeginInfo(const VkDeviceGroupCommandBufferBeginInfo& object, const ApiDumpSettings& settings, int indents)
@@ -16264,15 +16264,15 @@ void dump_json_VkDeviceGroupSubmitInfo(const VkDeviceGroupSubmitInfo& object, co
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.waitSemaphoreCount, NULL, settings, "uint32_t", "waitSemaphoreCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pWaitSemaphoreDeviceIndices, object.waitSemaphoreCount, settings, "const uint32_t*", "const uint32_t", "pWaitSemaphoreDeviceIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pWaitSemaphoreDeviceIndices, object.waitSemaphoreCount, settings, "const uint32_t*", "const uint32_t", "pWaitSemaphoreDeviceIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.commandBufferCount, NULL, settings, "uint32_t", "commandBufferCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pCommandBufferDeviceMasks, object.commandBufferCount, settings, "const uint32_t*", "const uint32_t", "pCommandBufferDeviceMasks", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pCommandBufferDeviceMasks, object.commandBufferCount, settings, "const uint32_t*", "const uint32_t", "pCommandBufferDeviceMasks", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.signalSemaphoreCount, NULL, settings, "uint32_t", "signalSemaphoreCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pSignalSemaphoreDeviceIndices, object.signalSemaphoreCount, settings, "const uint32_t*", "const uint32_t", "pSignalSemaphoreDeviceIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pSignalSemaphoreDeviceIndices, object.signalSemaphoreCount, settings, "const uint32_t*", "const uint32_t", "pSignalSemaphoreDeviceIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkDeviceGroupBindSparseInfo(const VkDeviceGroupBindSparseInfo& object, const ApiDumpSettings& settings, int indents)
@@ -16304,7 +16304,7 @@ void dump_json_VkBindBufferMemoryDeviceGroupInfo(const VkBindBufferMemoryDeviceG
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.deviceIndexCount, NULL, settings, "uint32_t", "deviceIndexCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkBindImageMemoryDeviceGroupInfo(const VkBindImageMemoryDeviceGroupInfo& object, const ApiDumpSettings& settings, int indents)
@@ -16320,11 +16320,11 @@ void dump_json_VkBindImageMemoryDeviceGroupInfo(const VkBindImageMemoryDeviceGro
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.deviceIndexCount, NULL, settings, "uint32_t", "deviceIndexCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.splitInstanceBindRegionCount, NULL, settings, "uint32_t", "splitInstanceBindRegionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRect2D>(object.pSplitInstanceBindRegions, object.splitInstanceBindRegionCount, settings, "const VkRect2D*", "const VkRect2D", "pSplitInstanceBindRegions", true, false, indents + 1, dump_json_VkRect2D); // JQA
+    dump_json_array<const VkRect2D>(object.pSplitInstanceBindRegions, object.splitInstanceBindRegionCount, settings, "const VkRect2D*", "const VkRect2D", "pSplitInstanceBindRegions", true, false, indents + 1, dump_json_VkRect2D);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProperties& object, const ApiDumpSettings& settings, int indents)
@@ -16340,7 +16340,7 @@ void dump_json_VkPhysicalDeviceGroupProperties(const VkPhysicalDeviceGroupProper
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.physicalDeviceCount, NULL, settings, "uint32_t", "physicalDeviceCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", false, false, indents + 1, dump_json_VkPhysicalDevice); // JQA
+    dump_json_array<const VkPhysicalDevice>(object.physicalDevices, object.physicalDeviceCount, settings, "VkPhysicalDevice[VK_MAX_DEVICE_GROUP_SIZE]", "VkPhysicalDevice", "physicalDevices", false, false, indents + 1, dump_json_VkPhysicalDevice);
     settings.stream() << ",\n";
     dump_json_value<const VkBool32>(object.subsetAllocation, NULL, settings, "VkBool32", "subsetAllocation", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -16358,7 +16358,7 @@ void dump_json_VkDeviceGroupDeviceCreateInfo(const VkDeviceGroupDeviceCreateInfo
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.physicalDeviceCount, NULL, settings, "uint32_t", "physicalDeviceCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPhysicalDevice>(object.pPhysicalDevices, object.physicalDeviceCount, settings, "const VkPhysicalDevice*", "const VkPhysicalDevice", "pPhysicalDevices", false, false, indents + 1, dump_json_VkPhysicalDevice); // JQA
+    dump_json_array<const VkPhysicalDevice>(object.pPhysicalDevices, object.physicalDeviceCount, settings, "const VkPhysicalDevice*", "const VkPhysicalDevice", "pPhysicalDevices", false, false, indents + 1, dump_json_VkPhysicalDevice);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkBufferMemoryRequirementsInfo2(const VkBufferMemoryRequirementsInfo2& object, const ApiDumpSettings& settings, int indents)
@@ -16611,7 +16611,7 @@ void dump_json_VkRenderPassInputAttachmentAspectCreateInfo(const VkRenderPassInp
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.aspectReferenceCount, NULL, settings, "uint32_t", "aspectReferenceCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkInputAttachmentAspectReference>(object.pAspectReferences, object.aspectReferenceCount, settings, "const VkInputAttachmentAspectReference*", "const VkInputAttachmentAspectReference", "pAspectReferences", true, false, indents + 1, dump_json_VkInputAttachmentAspectReference); // JQA
+    dump_json_array<const VkInputAttachmentAspectReference>(object.pAspectReferences, object.aspectReferenceCount, settings, "const VkInputAttachmentAspectReference*", "const VkInputAttachmentAspectReference", "pAspectReferences", true, false, indents + 1, dump_json_VkInputAttachmentAspectReference);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageViewUsageCreateInfo(const VkImageViewUsageCreateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -16655,15 +16655,15 @@ void dump_json_VkRenderPassMultiviewCreateInfo(const VkRenderPassMultiviewCreate
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.subpassCount, NULL, settings, "uint32_t", "subpassCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pViewMasks, object.subpassCount, settings, "const uint32_t*", "const uint32_t", "pViewMasks", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pViewMasks, object.subpassCount, settings, "const uint32_t*", "const uint32_t", "pViewMasks", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.dependencyCount, NULL, settings, "uint32_t", "dependencyCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const int32_t>(object.pViewOffsets, object.dependencyCount, settings, "const int32_t*", "const int32_t", "pViewOffsets", false, false, indents + 1, dump_json_int32_t); // JQA
+    dump_json_array<const int32_t>(object.pViewOffsets, object.dependencyCount, settings, "const int32_t*", "const int32_t", "pViewOffsets", false, false, indents + 1, dump_json_int32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.correlationMaskCount, NULL, settings, "uint32_t", "correlationMaskCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pCorrelationMasks, object.correlationMaskCount, settings, "const uint32_t*", "const uint32_t", "pCorrelationMasks", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pCorrelationMasks, object.correlationMaskCount, settings, "const uint32_t*", "const uint32_t", "pCorrelationMasks", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceMultiviewFeatures(const VkPhysicalDeviceMultiviewFeatures& object, const ApiDumpSettings& settings, int indents)
@@ -16905,7 +16905,7 @@ void dump_json_VkDescriptorUpdateTemplateCreateInfo(const VkDescriptorUpdateTemp
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.descriptorUpdateEntryCount, NULL, settings, "uint32_t", "descriptorUpdateEntryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDescriptorUpdateTemplateEntry>(object.pDescriptorUpdateEntries, object.descriptorUpdateEntryCount, settings, "const VkDescriptorUpdateTemplateEntry*", "const VkDescriptorUpdateTemplateEntry", "pDescriptorUpdateEntries", true, false, indents + 1, dump_json_VkDescriptorUpdateTemplateEntry); // JQA
+    dump_json_array<const VkDescriptorUpdateTemplateEntry>(object.pDescriptorUpdateEntries, object.descriptorUpdateEntryCount, settings, "const VkDescriptorUpdateTemplateEntry*", "const VkDescriptorUpdateTemplateEntry", "pDescriptorUpdateEntries", true, false, indents + 1, dump_json_VkDescriptorUpdateTemplateEntry);
     settings.stream() << ",\n";
     dump_json_value<const VkDescriptorUpdateTemplateType>(object.templateType, NULL, settings, "VkDescriptorUpdateTemplateType", "templateType", false, false, indents + 1, dump_json_VkDescriptorUpdateTemplateType);
     settings.stream() << ",\n";
@@ -16999,11 +16999,11 @@ void dump_json_VkPhysicalDeviceIDProperties(const VkPhysicalDeviceIDProperties& 
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.deviceUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.deviceUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.driverUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.driverUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.deviceLUID, VK_LUID_SIZE, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.deviceLUID, VK_LUID_SIZE, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.deviceNodeMask, NULL, settings, "uint32_t", "deviceNodeMask", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -17235,11 +17235,11 @@ void dump_json_VkPhysicalDeviceVulkan11Properties(const VkPhysicalDeviceVulkan11
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.deviceUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.deviceUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "deviceUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.driverUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.driverUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "driverUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.deviceLUID, VK_LUID_SIZE, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.deviceLUID, VK_LUID_SIZE, settings, "uint8_t[VK_LUID_SIZE]", "uint8_t", "deviceLUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.deviceNodeMask, NULL, settings, "uint32_t", "deviceNodeMask", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -17513,7 +17513,7 @@ void dump_json_VkImageFormatListCreateInfo(const VkImageFormatListCreateInfo& ob
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.viewFormatCount, NULL, settings, "uint32_t", "viewFormatCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkFormat>(object.pViewFormats, object.viewFormatCount, settings, "const VkFormat*", "const VkFormat", "pViewFormats", false, false, indents + 1, dump_json_VkFormat); // JQA
+    dump_json_array<const VkFormat>(object.pViewFormats, object.viewFormatCount, settings, "const VkFormat*", "const VkFormat", "pViewFormats", false, false, indents + 1, dump_json_VkFormat);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkAttachmentDescription2(const VkAttachmentDescription2& object, const ApiDumpSettings& settings, int indents)
@@ -17583,19 +17583,19 @@ void dump_json_VkSubpassDescription2(const VkSubpassDescription2& object, const 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.inputAttachmentCount, NULL, settings, "uint32_t", "inputAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkAttachmentReference2>(object.pInputAttachments, object.inputAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pInputAttachments", true, false, indents + 1, dump_json_VkAttachmentReference2); // JQA
+    dump_json_array<const VkAttachmentReference2>(object.pInputAttachments, object.inputAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pInputAttachments", true, false, indents + 1, dump_json_VkAttachmentReference2);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.colorAttachmentCount, NULL, settings, "uint32_t", "colorAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkAttachmentReference2>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pColorAttachments", true, false, indents + 1, dump_json_VkAttachmentReference2); // JQA
+    dump_json_array<const VkAttachmentReference2>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pColorAttachments", true, false, indents + 1, dump_json_VkAttachmentReference2);
     settings.stream() << ",\n";
-    dump_json_array<const VkAttachmentReference2>(object.pResolveAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pResolveAttachments", true, false, indents + 1, dump_json_VkAttachmentReference2); // JQA
+    dump_json_array<const VkAttachmentReference2>(object.pResolveAttachments, object.colorAttachmentCount, settings, "const VkAttachmentReference2*", "const VkAttachmentReference2", "pResolveAttachments", true, false, indents + 1, dump_json_VkAttachmentReference2);
     settings.stream() << ",\n";
     dump_json_pointer<const VkAttachmentReference2>(object.pDepthStencilAttachment, settings, "const VkAttachmentReference2*", "pDepthStencilAttachment", true, false, indents + 1, dump_json_VkAttachmentReference2);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.preserveAttachmentCount, NULL, settings, "uint32_t", "preserveAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pPreserveAttachments, object.preserveAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pPreserveAttachments", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pPreserveAttachments, object.preserveAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pPreserveAttachments", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSubpassDependency2(const VkSubpassDependency2& object, const ApiDumpSettings& settings, int indents)
@@ -17641,19 +17641,19 @@ void dump_json_VkRenderPassCreateInfo2(const VkRenderPassCreateInfo2& object, co
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkAttachmentDescription2>(object.pAttachments, object.attachmentCount, settings, "const VkAttachmentDescription2*", "const VkAttachmentDescription2", "pAttachments", true, false, indents + 1, dump_json_VkAttachmentDescription2); // JQA
+    dump_json_array<const VkAttachmentDescription2>(object.pAttachments, object.attachmentCount, settings, "const VkAttachmentDescription2*", "const VkAttachmentDescription2", "pAttachments", true, false, indents + 1, dump_json_VkAttachmentDescription2);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.subpassCount, NULL, settings, "uint32_t", "subpassCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSubpassDescription2>(object.pSubpasses, object.subpassCount, settings, "const VkSubpassDescription2*", "const VkSubpassDescription2", "pSubpasses", true, false, indents + 1, dump_json_VkSubpassDescription2); // JQA
+    dump_json_array<const VkSubpassDescription2>(object.pSubpasses, object.subpassCount, settings, "const VkSubpassDescription2*", "const VkSubpassDescription2", "pSubpasses", true, false, indents + 1, dump_json_VkSubpassDescription2);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.dependencyCount, NULL, settings, "uint32_t", "dependencyCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSubpassDependency2>(object.pDependencies, object.dependencyCount, settings, "const VkSubpassDependency2*", "const VkSubpassDependency2", "pDependencies", true, false, indents + 1, dump_json_VkSubpassDependency2); // JQA
+    dump_json_array<const VkSubpassDependency2>(object.pDependencies, object.dependencyCount, settings, "const VkSubpassDependency2*", "const VkSubpassDependency2", "pDependencies", true, false, indents + 1, dump_json_VkSubpassDependency2);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.correlatedViewMaskCount, NULL, settings, "uint32_t", "correlatedViewMaskCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pCorrelatedViewMasks, object.correlatedViewMaskCount, settings, "const uint32_t*", "const uint32_t", "pCorrelatedViewMasks", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pCorrelatedViewMasks, object.correlatedViewMaskCount, settings, "const uint32_t*", "const uint32_t", "pCorrelatedViewMasks", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSubpassBeginInfo(const VkSubpassBeginInfo& object, const ApiDumpSettings& settings, int indents)
@@ -17811,7 +17811,7 @@ void dump_json_VkDescriptorSetLayoutBindingFlagsCreateInfo(const VkDescriptorSet
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.bindingCount, NULL, settings, "uint32_t", "bindingCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDescriptorBindingFlags>(object.pBindingFlags, object.bindingCount, settings, "const VkDescriptorBindingFlags*", "const VkDescriptorBindingFlags", "pBindingFlags", false, false, indents + 1, dump_json_VkDescriptorBindingFlags); // JQA
+    dump_json_array<const VkDescriptorBindingFlags>(object.pBindingFlags, object.bindingCount, settings, "const VkDescriptorBindingFlags*", "const VkDescriptorBindingFlags", "pBindingFlags", false, false, indents + 1, dump_json_VkDescriptorBindingFlags);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceDescriptorIndexingFeatures(const VkPhysicalDeviceDescriptorIndexingFeatures& object, const ApiDumpSettings& settings, int indents)
@@ -17937,7 +17937,7 @@ void dump_json_VkDescriptorSetVariableDescriptorCountAllocateInfo(const VkDescri
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.descriptorSetCount, NULL, settings, "uint32_t", "descriptorSetCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pDescriptorCounts, object.descriptorSetCount, settings, "const uint32_t*", "const uint32_t", "pDescriptorCounts", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pDescriptorCounts, object.descriptorSetCount, settings, "const uint32_t*", "const uint32_t", "pDescriptorCounts", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkDescriptorSetVariableDescriptorCountLayoutSupport(const VkDescriptorSetVariableDescriptorCountLayoutSupport& object, const ApiDumpSettings& settings, int indents)
@@ -18105,7 +18105,7 @@ void dump_json_VkFramebufferAttachmentImageInfo(const VkFramebufferAttachmentIma
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.viewFormatCount, NULL, settings, "uint32_t", "viewFormatCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkFormat>(object.pViewFormats, object.viewFormatCount, settings, "const VkFormat*", "const VkFormat", "pViewFormats", false, false, indents + 1, dump_json_VkFormat); // JQA
+    dump_json_array<const VkFormat>(object.pViewFormats, object.viewFormatCount, settings, "const VkFormat*", "const VkFormat", "pViewFormats", false, false, indents + 1, dump_json_VkFormat);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkFramebufferAttachmentsCreateInfo(const VkFramebufferAttachmentsCreateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -18121,7 +18121,7 @@ void dump_json_VkFramebufferAttachmentsCreateInfo(const VkFramebufferAttachments
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.attachmentImageInfoCount, NULL, settings, "uint32_t", "attachmentImageInfoCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkFramebufferAttachmentImageInfo>(object.pAttachmentImageInfos, object.attachmentImageInfoCount, settings, "const VkFramebufferAttachmentImageInfo*", "const VkFramebufferAttachmentImageInfo", "pAttachmentImageInfos", true, false, indents + 1, dump_json_VkFramebufferAttachmentImageInfo); // JQA
+    dump_json_array<const VkFramebufferAttachmentImageInfo>(object.pAttachmentImageInfos, object.attachmentImageInfoCount, settings, "const VkFramebufferAttachmentImageInfo*", "const VkFramebufferAttachmentImageInfo", "pAttachmentImageInfos", true, false, indents + 1, dump_json_VkFramebufferAttachmentImageInfo);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkRenderPassAttachmentBeginInfo(const VkRenderPassAttachmentBeginInfo& object, const ApiDumpSettings& settings, int indents)
@@ -18137,7 +18137,7 @@ void dump_json_VkRenderPassAttachmentBeginInfo(const VkRenderPassAttachmentBegin
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageView>(object.pAttachments, object.attachmentCount, settings, "const VkImageView*", "const VkImageView", "pAttachments", false, false, indents + 1, dump_json_VkImageView); // JQA
+    dump_json_array<const VkImageView>(object.pAttachments, object.attachmentCount, settings, "const VkImageView*", "const VkImageView", "pAttachments", false, false, indents + 1, dump_json_VkImageView);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceUniformBufferStandardLayoutFeatures(const VkPhysicalDeviceUniformBufferStandardLayoutFeatures& object, const ApiDumpSettings& settings, int indents)
@@ -18283,11 +18283,11 @@ void dump_json_VkTimelineSemaphoreSubmitInfo(const VkTimelineSemaphoreSubmitInfo
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.waitSemaphoreValueCount, NULL, settings, "uint32_t", "waitSemaphoreValueCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pWaitSemaphoreValues, object.waitSemaphoreValueCount, settings, "const uint64_t*", "const uint64_t", "pWaitSemaphoreValues", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pWaitSemaphoreValues, object.waitSemaphoreValueCount, settings, "const uint64_t*", "const uint64_t", "pWaitSemaphoreValues", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.signalSemaphoreValueCount, NULL, settings, "uint32_t", "signalSemaphoreValueCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pSignalSemaphoreValues, object.signalSemaphoreValueCount, settings, "const uint64_t*", "const uint64_t", "pSignalSemaphoreValues", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pSignalSemaphoreValues, object.signalSemaphoreValueCount, settings, "const uint64_t*", "const uint64_t", "pSignalSemaphoreValues", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSemaphoreWaitInfo(const VkSemaphoreWaitInfo& object, const ApiDumpSettings& settings, int indents)
@@ -18305,9 +18305,9 @@ void dump_json_VkSemaphoreWaitInfo(const VkSemaphoreWaitInfo& object, const ApiD
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.semaphoreCount, NULL, settings, "uint32_t", "semaphoreCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSemaphore>(object.pSemaphores, object.semaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSemaphores", false, false, indents + 1, dump_json_VkSemaphore); // JQA
+    dump_json_array<const VkSemaphore>(object.pSemaphores, object.semaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pSemaphores", false, false, indents + 1, dump_json_VkSemaphore);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pValues, object.semaphoreCount, settings, "const uint64_t*", "const uint64_t", "pValues", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pValues, object.semaphoreCount, settings, "const uint64_t*", "const uint64_t", "pValues", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSemaphoreSignalInfo(const VkSemaphoreSignalInfo& object, const ApiDumpSettings& settings, int indents)
@@ -18567,7 +18567,7 @@ void dump_json_VkPipelineCreationFeedbackCreateInfo(const VkPipelineCreationFeed
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.pipelineStageCreationFeedbackCount, NULL, settings, "uint32_t", "pipelineStageCreationFeedbackCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineCreationFeedback>(object.pPipelineStageCreationFeedbacks, object.pipelineStageCreationFeedbackCount, settings, "VkPipelineCreationFeedback*", "VkPipelineCreationFeedback", "pPipelineStageCreationFeedbacks", true, false, indents + 1, dump_json_VkPipelineCreationFeedback); // JQA
+    dump_json_array<const VkPipelineCreationFeedback>(object.pPipelineStageCreationFeedbacks, object.pipelineStageCreationFeedbackCount, settings, "VkPipelineCreationFeedback*", "VkPipelineCreationFeedback", "pPipelineStageCreationFeedbacks", true, false, indents + 1, dump_json_VkPipelineCreationFeedback);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceShaderTerminateInvocationFeatures(const VkPhysicalDeviceShaderTerminateInvocationFeatures& object, const ApiDumpSettings& settings, int indents)
@@ -18773,15 +18773,15 @@ void dump_json_VkDependencyInfo(const VkDependencyInfo& object, const ApiDumpSet
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.memoryBarrierCount, NULL, settings, "uint32_t", "memoryBarrierCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkMemoryBarrier2>(object.pMemoryBarriers, object.memoryBarrierCount, settings, "const VkMemoryBarrier2*", "const VkMemoryBarrier2", "pMemoryBarriers", true, false, indents + 1, dump_json_VkMemoryBarrier2); // JQA
+    dump_json_array<const VkMemoryBarrier2>(object.pMemoryBarriers, object.memoryBarrierCount, settings, "const VkMemoryBarrier2*", "const VkMemoryBarrier2", "pMemoryBarriers", true, false, indents + 1, dump_json_VkMemoryBarrier2);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.bufferMemoryBarrierCount, NULL, settings, "uint32_t", "bufferMemoryBarrierCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkBufferMemoryBarrier2>(object.pBufferMemoryBarriers, object.bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier2*", "const VkBufferMemoryBarrier2", "pBufferMemoryBarriers", true, false, indents + 1, dump_json_VkBufferMemoryBarrier2); // JQA
+    dump_json_array<const VkBufferMemoryBarrier2>(object.pBufferMemoryBarriers, object.bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier2*", "const VkBufferMemoryBarrier2", "pBufferMemoryBarriers", true, false, indents + 1, dump_json_VkBufferMemoryBarrier2);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.imageMemoryBarrierCount, NULL, settings, "uint32_t", "imageMemoryBarrierCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageMemoryBarrier2>(object.pImageMemoryBarriers, object.imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier2*", "const VkImageMemoryBarrier2", "pImageMemoryBarriers", true, false, indents + 1, dump_json_VkImageMemoryBarrier2); // JQA
+    dump_json_array<const VkImageMemoryBarrier2>(object.pImageMemoryBarriers, object.imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier2*", "const VkImageMemoryBarrier2", "pImageMemoryBarriers", true, false, indents + 1, dump_json_VkImageMemoryBarrier2);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSemaphoreSubmitInfo(const VkSemaphoreSubmitInfo& object, const ApiDumpSettings& settings, int indents)
@@ -18835,15 +18835,15 @@ void dump_json_VkSubmitInfo2(const VkSubmitInfo2& object, const ApiDumpSettings&
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.waitSemaphoreInfoCount, NULL, settings, "uint32_t", "waitSemaphoreInfoCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSemaphoreSubmitInfo>(object.pWaitSemaphoreInfos, object.waitSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pWaitSemaphoreInfos", true, false, indents + 1, dump_json_VkSemaphoreSubmitInfo); // JQA
+    dump_json_array<const VkSemaphoreSubmitInfo>(object.pWaitSemaphoreInfos, object.waitSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pWaitSemaphoreInfos", true, false, indents + 1, dump_json_VkSemaphoreSubmitInfo);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.commandBufferInfoCount, NULL, settings, "uint32_t", "commandBufferInfoCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkCommandBufferSubmitInfo>(object.pCommandBufferInfos, object.commandBufferInfoCount, settings, "const VkCommandBufferSubmitInfo*", "const VkCommandBufferSubmitInfo", "pCommandBufferInfos", true, false, indents + 1, dump_json_VkCommandBufferSubmitInfo); // JQA
+    dump_json_array<const VkCommandBufferSubmitInfo>(object.pCommandBufferInfos, object.commandBufferInfoCount, settings, "const VkCommandBufferSubmitInfo*", "const VkCommandBufferSubmitInfo", "pCommandBufferInfos", true, false, indents + 1, dump_json_VkCommandBufferSubmitInfo);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.signalSemaphoreInfoCount, NULL, settings, "uint32_t", "signalSemaphoreInfoCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSemaphoreSubmitInfo>(object.pSignalSemaphoreInfos, object.signalSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pSignalSemaphoreInfos", true, false, indents + 1, dump_json_VkSemaphoreSubmitInfo); // JQA
+    dump_json_array<const VkSemaphoreSubmitInfo>(object.pSignalSemaphoreInfos, object.signalSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pSignalSemaphoreInfos", true, false, indents + 1, dump_json_VkSemaphoreSubmitInfo);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceSynchronization2Features(const VkPhysicalDeviceSynchronization2Features& object, const ApiDumpSettings& settings, int indents)
@@ -18923,7 +18923,7 @@ void dump_json_VkCopyBufferInfo2(const VkCopyBufferInfo2& object, const ApiDumpS
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkBufferCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferCopy2*", "const VkBufferCopy2", "pRegions", true, false, indents + 1, dump_json_VkBufferCopy2); // JQA
+    dump_json_array<const VkBufferCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferCopy2*", "const VkBufferCopy2", "pRegions", true, false, indents + 1, dump_json_VkBufferCopy2);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageCopy2(const VkImageCopy2& object, const ApiDumpSettings& settings, int indents)
@@ -18969,7 +18969,7 @@ void dump_json_VkCopyImageInfo2(const VkCopyImageInfo2& object, const ApiDumpSet
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageCopy2>(object.pRegions, object.regionCount, settings, "const VkImageCopy2*", "const VkImageCopy2", "pRegions", true, false, indents + 1, dump_json_VkImageCopy2); // JQA
+    dump_json_array<const VkImageCopy2>(object.pRegions, object.regionCount, settings, "const VkImageCopy2*", "const VkImageCopy2", "pRegions", true, false, indents + 1, dump_json_VkImageCopy2);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkBufferImageCopy2(const VkBufferImageCopy2& object, const ApiDumpSettings& settings, int indents)
@@ -19015,7 +19015,7 @@ void dump_json_VkCopyBufferToImageInfo2(const VkCopyBufferToImageInfo2& object, 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkBufferImageCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferImageCopy2*", "const VkBufferImageCopy2", "pRegions", true, false, indents + 1, dump_json_VkBufferImageCopy2); // JQA
+    dump_json_array<const VkBufferImageCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferImageCopy2*", "const VkBufferImageCopy2", "pRegions", true, false, indents + 1, dump_json_VkBufferImageCopy2);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkCopyImageToBufferInfo2(const VkCopyImageToBufferInfo2& object, const ApiDumpSettings& settings, int indents)
@@ -19037,7 +19037,7 @@ void dump_json_VkCopyImageToBufferInfo2(const VkCopyImageToBufferInfo2& object, 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkBufferImageCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferImageCopy2*", "const VkBufferImageCopy2", "pRegions", true, false, indents + 1, dump_json_VkBufferImageCopy2); // JQA
+    dump_json_array<const VkBufferImageCopy2>(object.pRegions, object.regionCount, settings, "const VkBufferImageCopy2*", "const VkBufferImageCopy2", "pRegions", true, false, indents + 1, dump_json_VkBufferImageCopy2);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageBlit2(const VkImageBlit2& object, const ApiDumpSettings& settings, int indents)
@@ -19053,11 +19053,11 @@ void dump_json_VkImageBlit2(const VkImageBlit2& object, const ApiDumpSettings& s
     settings.stream() << ",\n";
     dump_json_value<const VkImageSubresourceLayers>(object.srcSubresource, NULL, settings, "VkImageSubresourceLayers", "srcSubresource", true, false, indents + 1, dump_json_VkImageSubresourceLayers);
     settings.stream() << ",\n";
-    dump_json_array<const VkOffset3D>(object.srcOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "srcOffsets", true, false, indents + 1, dump_json_VkOffset3D); // IQA
+    dump_json_array<const VkOffset3D>(object.srcOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "srcOffsets", true, false, indents + 1, dump_json_VkOffset3D);
     settings.stream() << ",\n";
     dump_json_value<const VkImageSubresourceLayers>(object.dstSubresource, NULL, settings, "VkImageSubresourceLayers", "dstSubresource", true, false, indents + 1, dump_json_VkImageSubresourceLayers);
     settings.stream() << ",\n";
-    dump_json_array<const VkOffset3D>(object.dstOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "dstOffsets", true, false, indents + 1, dump_json_VkOffset3D); // IQA
+    dump_json_array<const VkOffset3D>(object.dstOffsets, 2, settings, "VkOffset3D[2]", "VkOffset3D", "dstOffsets", true, false, indents + 1, dump_json_VkOffset3D);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkBlitImageInfo2(const VkBlitImageInfo2& object, const ApiDumpSettings& settings, int indents)
@@ -19081,7 +19081,7 @@ void dump_json_VkBlitImageInfo2(const VkBlitImageInfo2& object, const ApiDumpSet
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageBlit2>(object.pRegions, object.regionCount, settings, "const VkImageBlit2*", "const VkImageBlit2", "pRegions", true, false, indents + 1, dump_json_VkImageBlit2); // JQA
+    dump_json_array<const VkImageBlit2>(object.pRegions, object.regionCount, settings, "const VkImageBlit2*", "const VkImageBlit2", "pRegions", true, false, indents + 1, dump_json_VkImageBlit2);
     settings.stream() << ",\n";
     dump_json_value<const VkFilter>(object.filter, NULL, settings, "VkFilter", "filter", false, false, indents + 1, dump_json_VkFilter);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -19129,7 +19129,7 @@ void dump_json_VkResolveImageInfo2(const VkResolveImageInfo2& object, const ApiD
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageResolve2>(object.pRegions, object.regionCount, settings, "const VkImageResolve2*", "const VkImageResolve2", "pRegions", true, false, indents + 1, dump_json_VkImageResolve2); // JQA
+    dump_json_array<const VkImageResolve2>(object.pRegions, object.regionCount, settings, "const VkImageResolve2*", "const VkImageResolve2", "pRegions", true, false, indents + 1, dump_json_VkImageResolve2);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceSubgroupSizeControlFeatures(const VkPhysicalDeviceSubgroupSizeControlFeatures& object, const ApiDumpSettings& settings, int indents)
@@ -19313,7 +19313,7 @@ void dump_json_VkRenderingInfo(const VkRenderingInfo& object, const ApiDumpSetti
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.colorAttachmentCount, NULL, settings, "uint32_t", "colorAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRenderingAttachmentInfo>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkRenderingAttachmentInfo*", "const VkRenderingAttachmentInfo", "pColorAttachments", true, false, indents + 1, dump_json_VkRenderingAttachmentInfo); // JQA
+    dump_json_array<const VkRenderingAttachmentInfo>(object.pColorAttachments, object.colorAttachmentCount, settings, "const VkRenderingAttachmentInfo*", "const VkRenderingAttachmentInfo", "pColorAttachments", true, false, indents + 1, dump_json_VkRenderingAttachmentInfo);
     settings.stream() << ",\n";
     dump_json_pointer<const VkRenderingAttachmentInfo>(object.pDepthAttachment, settings, "const VkRenderingAttachmentInfo*", "pDepthAttachment", true, false, indents + 1, dump_json_VkRenderingAttachmentInfo);
     settings.stream() << ",\n";
@@ -19336,7 +19336,7 @@ void dump_json_VkPipelineRenderingCreateInfo(const VkPipelineRenderingCreateInfo
     dump_json_value<const uint32_t>(object.colorAttachmentCount, NULL, settings, "uint32_t", "colorAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     if(!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader())
-    dump_json_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", false, false, indents + 1, dump_json_VkFormat); // JQA
+    dump_json_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", false, false, indents + 1, dump_json_VkFormat);
     else
         dump_json_UNUSED(settings, "const VkFormat*", "pColorAttachmentFormats", indents + 1);
     settings.stream() << ",\n";
@@ -19382,7 +19382,7 @@ void dump_json_VkCommandBufferInheritanceRenderingInfo(const VkCommandBufferInhe
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.colorAttachmentCount, NULL, settings, "uint32_t", "colorAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", false, false, indents + 1, dump_json_VkFormat); // JQA
+    dump_json_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", false, false, indents + 1, dump_json_VkFormat);
     settings.stream() << ",\n";
     dump_json_value<const VkFormat>(object.depthAttachmentFormat, NULL, settings, "VkFormat", "depthAttachmentFormat", false, false, indents + 1, dump_json_VkFormat);
     settings.stream() << ",\n";
@@ -19678,13 +19678,13 @@ void dump_json_VkPhysicalDeviceVulkan14Properties(const VkPhysicalDeviceVulkan14
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.copySrcLayoutCount, NULL, settings, "uint32_t", "copySrcLayoutCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageLayout>(object.pCopySrcLayouts, object.copySrcLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopySrcLayouts", false, false, indents + 1, dump_json_VkImageLayout); // JQA
+    dump_json_array<const VkImageLayout>(object.pCopySrcLayouts, object.copySrcLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopySrcLayouts", false, false, indents + 1, dump_json_VkImageLayout);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.copyDstLayoutCount, NULL, settings, "uint32_t", "copyDstLayoutCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageLayout>(object.pCopyDstLayouts, object.copyDstLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopyDstLayouts", false, false, indents + 1, dump_json_VkImageLayout); // JQA
+    dump_json_array<const VkImageLayout>(object.pCopyDstLayouts, object.copyDstLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopyDstLayouts", false, false, indents + 1, dump_json_VkImageLayout);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.optimalTilingLayoutUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.optimalTilingLayoutUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
     dump_json_value<const VkBool32>(object.identicalMemoryTypeRequirements, NULL, settings, "VkBool32", "identicalMemoryTypeRequirements", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -19730,7 +19730,7 @@ void dump_json_VkQueueFamilyGlobalPriorityProperties(const VkQueueFamilyGlobalPr
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.priorityCount, NULL, settings, "uint32_t", "priorityCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkQueueGlobalPriority>(object.priorities, VK_MAX_GLOBAL_PRIORITY_SIZE, settings, "VkQueueGlobalPriority[VK_MAX_GLOBAL_PRIORITY_SIZE]", "VkQueueGlobalPriority", "priorities", false, false, indents + 1, dump_json_VkQueueGlobalPriority); // IQA
+    dump_json_array<const VkQueueGlobalPriority>(object.priorities, VK_MAX_GLOBAL_PRIORITY_SIZE, settings, "VkQueueGlobalPriority[VK_MAX_GLOBAL_PRIORITY_SIZE]", "VkQueueGlobalPriority", "priorities", false, false, indents + 1, dump_json_VkQueueGlobalPriority);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceShaderSubgroupRotateFeatures(const VkPhysicalDeviceShaderSubgroupRotateFeatures& object, const ApiDumpSettings& settings, int indents)
@@ -19872,7 +19872,7 @@ void dump_json_VkPipelineVertexInputDivisorStateCreateInfo(const VkPipelineVerte
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.vertexBindingDivisorCount, NULL, settings, "uint32_t", "vertexBindingDivisorCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkVertexInputBindingDivisorDescription>(object.pVertexBindingDivisors, object.vertexBindingDivisorCount, settings, "const VkVertexInputBindingDivisorDescription*", "const VkVertexInputBindingDivisorDescription", "pVertexBindingDivisors", true, false, indents + 1, dump_json_VkVertexInputBindingDivisorDescription); // JQA
+    dump_json_array<const VkVertexInputBindingDivisorDescription>(object.pVertexBindingDivisors, object.vertexBindingDivisorCount, settings, "const VkVertexInputBindingDivisorDescription*", "const VkVertexInputBindingDivisorDescription", "pVertexBindingDivisors", true, false, indents + 1, dump_json_VkVertexInputBindingDivisorDescription);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceVertexAttributeDivisorFeatures(const VkPhysicalDeviceVertexAttributeDivisorFeatures& object, const ApiDumpSettings& settings, int indents)
@@ -19994,7 +19994,7 @@ void dump_json_VkRenderingAreaInfo(const VkRenderingAreaInfo& object, const ApiD
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.colorAttachmentCount, NULL, settings, "uint32_t", "colorAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", false, false, indents + 1, dump_json_VkFormat); // JQA
+    dump_json_array<const VkFormat>(object.pColorAttachmentFormats, object.colorAttachmentCount, settings, "const VkFormat*", "const VkFormat", "pColorAttachmentFormats", false, false, indents + 1, dump_json_VkFormat);
     settings.stream() << ",\n";
     dump_json_value<const VkFormat>(object.depthAttachmentFormat, NULL, settings, "VkFormat", "depthAttachmentFormat", false, false, indents + 1, dump_json_VkFormat);
     settings.stream() << ",\n";
@@ -20114,7 +20114,7 @@ void dump_json_VkRenderingAttachmentLocationInfo(const VkRenderingAttachmentLoca
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.colorAttachmentCount, NULL, settings, "uint32_t", "colorAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pColorAttachmentLocations, object.colorAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pColorAttachmentLocations", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pColorAttachmentLocations, object.colorAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pColorAttachmentLocations", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkRenderingInputAttachmentIndexInfo(const VkRenderingInputAttachmentIndexInfo& object, const ApiDumpSettings& settings, int indents)
@@ -20130,7 +20130,7 @@ void dump_json_VkRenderingInputAttachmentIndexInfo(const VkRenderingInputAttachm
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.colorAttachmentCount, NULL, settings, "uint32_t", "colorAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pColorAttachmentInputIndices, object.colorAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pColorAttachmentInputIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pColorAttachmentInputIndices, object.colorAttachmentCount, settings, "const uint32_t*", "const uint32_t", "pColorAttachmentInputIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_pointer<const uint32_t>(object.pDepthInputAttachmentIndex, settings, "const uint32_t*", "pDepthInputAttachmentIndex", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -20202,11 +20202,11 @@ void dump_json_VkBindDescriptorSetsInfo(const VkBindDescriptorSetsInfo& object, 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.descriptorSetCount, NULL, settings, "uint32_t", "descriptorSetCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDescriptorSet>(object.pDescriptorSets, object.descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", false, false, indents + 1, dump_json_VkDescriptorSet); // JQA
+    dump_json_array<const VkDescriptorSet>(object.pDescriptorSets, object.descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", false, false, indents + 1, dump_json_VkDescriptorSet);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.dynamicOffsetCount, NULL, settings, "uint32_t", "dynamicOffsetCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pDynamicOffsets, object.dynamicOffsetCount, settings, "const uint32_t*", "const uint32_t", "pDynamicOffsets", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pDynamicOffsets, object.dynamicOffsetCount, settings, "const uint32_t*", "const uint32_t", "pDynamicOffsets", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPushConstantsInfo(const VkPushConstantsInfo& object, const ApiDumpSettings& settings, int indents)
@@ -20250,7 +20250,7 @@ void dump_json_VkPushDescriptorSetInfo(const VkPushDescriptorSetInfo& object, co
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.descriptorWriteCount, NULL, settings, "uint32_t", "descriptorWriteCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkWriteDescriptorSet>(object.pDescriptorWrites, object.descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", true, false, indents + 1, dump_json_VkWriteDescriptorSet); // JQA
+    dump_json_array<const VkWriteDescriptorSet>(object.pDescriptorWrites, object.descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", true, false, indents + 1, dump_json_VkWriteDescriptorSet);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPushDescriptorSetWithTemplateInfo(const VkPushDescriptorSetWithTemplateInfo& object, const ApiDumpSettings& settings, int indents)
@@ -20368,13 +20368,13 @@ void dump_json_VkPhysicalDeviceHostImageCopyProperties(const VkPhysicalDeviceHos
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.copySrcLayoutCount, NULL, settings, "uint32_t", "copySrcLayoutCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageLayout>(object.pCopySrcLayouts, object.copySrcLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopySrcLayouts", false, false, indents + 1, dump_json_VkImageLayout); // JQA
+    dump_json_array<const VkImageLayout>(object.pCopySrcLayouts, object.copySrcLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopySrcLayouts", false, false, indents + 1, dump_json_VkImageLayout);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.copyDstLayoutCount, NULL, settings, "uint32_t", "copyDstLayoutCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageLayout>(object.pCopyDstLayouts, object.copyDstLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopyDstLayouts", false, false, indents + 1, dump_json_VkImageLayout); // JQA
+    dump_json_array<const VkImageLayout>(object.pCopyDstLayouts, object.copyDstLayoutCount, settings, "VkImageLayout*", "VkImageLayout", "pCopyDstLayouts", false, false, indents + 1, dump_json_VkImageLayout);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.optimalTilingLayoutUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.optimalTilingLayoutUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "optimalTilingLayoutUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
     dump_json_value<const VkBool32>(object.identicalMemoryTypeRequirements, NULL, settings, "VkBool32", "identicalMemoryTypeRequirements", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -20446,7 +20446,7 @@ void dump_json_VkCopyMemoryToImageInfo(const VkCopyMemoryToImageInfo& object, co
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkMemoryToImageCopy>(object.pRegions, object.regionCount, settings, "const VkMemoryToImageCopy*", "const VkMemoryToImageCopy", "pRegions", true, false, indents + 1, dump_json_VkMemoryToImageCopy); // JQA
+    dump_json_array<const VkMemoryToImageCopy>(object.pRegions, object.regionCount, settings, "const VkMemoryToImageCopy*", "const VkMemoryToImageCopy", "pRegions", true, false, indents + 1, dump_json_VkMemoryToImageCopy);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkCopyImageToMemoryInfo(const VkCopyImageToMemoryInfo& object, const ApiDumpSettings& settings, int indents)
@@ -20468,7 +20468,7 @@ void dump_json_VkCopyImageToMemoryInfo(const VkCopyImageToMemoryInfo& object, co
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageToMemoryCopy>(object.pRegions, object.regionCount, settings, "const VkImageToMemoryCopy*", "const VkImageToMemoryCopy", "pRegions", true, false, indents + 1, dump_json_VkImageToMemoryCopy); // JQA
+    dump_json_array<const VkImageToMemoryCopy>(object.pRegions, object.regionCount, settings, "const VkImageToMemoryCopy*", "const VkImageToMemoryCopy", "pRegions", true, false, indents + 1, dump_json_VkImageToMemoryCopy);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkCopyImageToImageInfo(const VkCopyImageToImageInfo& object, const ApiDumpSettings& settings, int indents)
@@ -20494,7 +20494,7 @@ void dump_json_VkCopyImageToImageInfo(const VkCopyImageToImageInfo& object, cons
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageCopy2>(object.pRegions, object.regionCount, settings, "const VkImageCopy2*", "const VkImageCopy2", "pRegions", true, false, indents + 1, dump_json_VkImageCopy2); // JQA
+    dump_json_array<const VkImageCopy2>(object.pRegions, object.regionCount, settings, "const VkImageCopy2*", "const VkImageCopy2", "pRegions", true, false, indents + 1, dump_json_VkImageCopy2);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkHostImageLayoutTransitionInfo(const VkHostImageLayoutTransitionInfo& object, const ApiDumpSettings& settings, int indents)
@@ -20611,7 +20611,7 @@ void dump_json_VkSwapchainCreateInfoKHR(const VkSwapchainCreateInfoKHR& object, 
     dump_json_value<const uint32_t>(object.queueFamilyIndexCount, NULL, settings, "uint32_t", "queueFamilyIndexCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     if(object.imageSharingMode == VK_SHARING_MODE_CONCURRENT)
-    dump_json_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", false, false, indents + 1, dump_json_uint32_t);
     else
         dump_json_UNUSED(settings, "const uint32_t*", "pQueueFamilyIndices", indents + 1);
     settings.stream() << ",\n";
@@ -20639,15 +20639,15 @@ void dump_json_VkPresentInfoKHR(const VkPresentInfoKHR& object, const ApiDumpSet
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.waitSemaphoreCount, NULL, settings, "uint32_t", "waitSemaphoreCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", false, false, indents + 1, dump_json_VkSemaphore); // JQA
+    dump_json_array<const VkSemaphore>(object.pWaitSemaphores, object.waitSemaphoreCount, settings, "const VkSemaphore*", "const VkSemaphore", "pWaitSemaphores", false, false, indents + 1, dump_json_VkSemaphore);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.swapchainCount, NULL, settings, "uint32_t", "swapchainCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSwapchainKHR>(object.pSwapchains, object.swapchainCount, settings, "const VkSwapchainKHR*", "const VkSwapchainKHR", "pSwapchains", false, false, indents + 1, dump_json_VkSwapchainKHR); // JQA
+    dump_json_array<const VkSwapchainKHR>(object.pSwapchains, object.swapchainCount, settings, "const VkSwapchainKHR*", "const VkSwapchainKHR", "pSwapchains", false, false, indents + 1, dump_json_VkSwapchainKHR);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pImageIndices, object.swapchainCount, settings, "const uint32_t*", "const uint32_t", "pImageIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pImageIndices, object.swapchainCount, settings, "const uint32_t*", "const uint32_t", "pImageIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkResult>(object.pResults, object.swapchainCount, settings, "VkResult*", "VkResult", "pResults", false, false, indents + 1, dump_json_VkResult); // JQA
+    dump_json_array<const VkResult>(object.pResults, object.swapchainCount, settings, "VkResult*", "VkResult", "pResults", false, false, indents + 1, dump_json_VkResult);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageSwapchainCreateInfoKHR(const VkImageSwapchainCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -20713,7 +20713,7 @@ void dump_json_VkDeviceGroupPresentCapabilitiesKHR(const VkDeviceGroupPresentCap
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.presentMask, VK_MAX_DEVICE_GROUP_SIZE, settings, "uint32_t[VK_MAX_DEVICE_GROUP_SIZE]", "uint32_t", "presentMask", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.presentMask, VK_MAX_DEVICE_GROUP_SIZE, settings, "uint32_t[VK_MAX_DEVICE_GROUP_SIZE]", "uint32_t", "presentMask", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const VkDeviceGroupPresentModeFlagsKHR>(object.modes, NULL, settings, "VkDeviceGroupPresentModeFlagsKHR", "modes", false, false, indents + 1, dump_json_VkDeviceGroupPresentModeFlagsKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -20731,7 +20731,7 @@ void dump_json_VkDeviceGroupPresentInfoKHR(const VkDeviceGroupPresentInfoKHR& ob
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.swapchainCount, NULL, settings, "uint32_t", "swapchainCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pDeviceMasks, object.swapchainCount, settings, "const uint32_t*", "const uint32_t", "pDeviceMasks", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pDeviceMasks, object.swapchainCount, settings, "const uint32_t*", "const uint32_t", "pDeviceMasks", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const VkDeviceGroupPresentModeFlagBitsKHR>(object.mode, NULL, settings, "VkDeviceGroupPresentModeFlagBitsKHR", "mode", false, false, indents + 1, dump_json_VkDeviceGroupPresentModeFlagBitsKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -21035,7 +21035,7 @@ void dump_json_VkVideoProfileListInfoKHR(const VkVideoProfileListInfoKHR& object
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.profileCount, NULL, settings, "uint32_t", "profileCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkVideoProfileInfoKHR>(object.pProfiles, object.profileCount, settings, "const VkVideoProfileInfoKHR*", "const VkVideoProfileInfoKHR", "pProfiles", true, false, indents + 1, dump_json_VkVideoProfileInfoKHR); // JQA
+    dump_json_array<const VkVideoProfileInfoKHR>(object.pProfiles, object.profileCount, settings, "const VkVideoProfileInfoKHR*", "const VkVideoProfileInfoKHR", "pProfiles", true, false, indents + 1, dump_json_VkVideoProfileInfoKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoCapabilitiesKHR(const VkVideoCapabilitiesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -21259,7 +21259,7 @@ void dump_json_VkVideoBeginCodingInfoKHR(const VkVideoBeginCodingInfoKHR& object
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.referenceSlotCount, NULL, settings, "uint32_t", "referenceSlotCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", true, false, indents + 1, dump_json_VkVideoReferenceSlotInfoKHR); // JQA
+    dump_json_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", true, false, indents + 1, dump_json_VkVideoReferenceSlotInfoKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoEndCodingInfoKHR(const VkVideoEndCodingInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -21343,7 +21343,7 @@ void dump_json_VkVideoDecodeInfoKHR(const VkVideoDecodeInfoKHR& object, const Ap
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.referenceSlotCount, NULL, settings, "uint32_t", "referenceSlotCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", true, false, indents + 1, dump_json_VkVideoReferenceSlotInfoKHR); // JQA
+    dump_json_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", true, false, indents + 1, dump_json_VkVideoReferenceSlotInfoKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoEncodeH264CapabilitiesKHR(const VkVideoEncodeH264CapabilitiesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -21453,11 +21453,11 @@ void dump_json_VkVideoEncodeH264SessionParametersAddInfoKHR(const VkVideoEncodeH
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdSPSCount, NULL, settings, "uint32_t", "stdSPSCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoH264SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH264SequenceParameterSet*", "const StdVideoH264SequenceParameterSet", "pStdSPSs", false, false, indents + 1, dump_json_StdVideoH264SequenceParameterSet); // JQA
+    dump_json_array<const StdVideoH264SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH264SequenceParameterSet*", "const StdVideoH264SequenceParameterSet", "pStdSPSs", false, false, indents + 1, dump_json_StdVideoH264SequenceParameterSet);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdPPSCount, NULL, settings, "uint32_t", "stdPPSCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoH264PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH264PictureParameterSet*", "const StdVideoH264PictureParameterSet", "pStdPPSs", false, false, indents + 1, dump_json_StdVideoH264PictureParameterSet); // JQA
+    dump_json_array<const StdVideoH264PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH264PictureParameterSet*", "const StdVideoH264PictureParameterSet", "pStdPPSs", false, false, indents + 1, dump_json_StdVideoH264PictureParameterSet);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoEncodeH264SessionParametersCreateInfoKHR(const VkVideoEncodeH264SessionParametersCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -21543,7 +21543,7 @@ void dump_json_VkVideoEncodeH264PictureInfoKHR(const VkVideoEncodeH264PictureInf
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.naluSliceEntryCount, NULL, settings, "uint32_t", "naluSliceEntryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkVideoEncodeH264NaluSliceInfoKHR>(object.pNaluSliceEntries, object.naluSliceEntryCount, settings, "const VkVideoEncodeH264NaluSliceInfoKHR*", "const VkVideoEncodeH264NaluSliceInfoKHR", "pNaluSliceEntries", true, false, indents + 1, dump_json_VkVideoEncodeH264NaluSliceInfoKHR); // JQA
+    dump_json_array<const VkVideoEncodeH264NaluSliceInfoKHR>(object.pNaluSliceEntries, object.naluSliceEntryCount, settings, "const VkVideoEncodeH264NaluSliceInfoKHR*", "const VkVideoEncodeH264NaluSliceInfoKHR", "pNaluSliceEntries", true, false, indents + 1, dump_json_VkVideoEncodeH264NaluSliceInfoKHR);
     settings.stream() << ",\n";
     dump_json_pointer<const StdVideoEncodeH264PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoEncodeH264PictureInfo*", "pStdPictureInfo", false, false, indents + 1, dump_json_StdVideoEncodeH264PictureInfo);
     settings.stream() << ",\n";
@@ -21765,15 +21765,15 @@ void dump_json_VkVideoEncodeH265SessionParametersAddInfoKHR(const VkVideoEncodeH
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdVPSCount, NULL, settings, "uint32_t", "stdVPSCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoH265VideoParameterSet>(object.pStdVPSs, object.stdVPSCount, settings, "const StdVideoH265VideoParameterSet*", "const StdVideoH265VideoParameterSet", "pStdVPSs", false, false, indents + 1, dump_json_StdVideoH265VideoParameterSet); // JQA
+    dump_json_array<const StdVideoH265VideoParameterSet>(object.pStdVPSs, object.stdVPSCount, settings, "const StdVideoH265VideoParameterSet*", "const StdVideoH265VideoParameterSet", "pStdVPSs", false, false, indents + 1, dump_json_StdVideoH265VideoParameterSet);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdSPSCount, NULL, settings, "uint32_t", "stdSPSCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoH265SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH265SequenceParameterSet*", "const StdVideoH265SequenceParameterSet", "pStdSPSs", false, false, indents + 1, dump_json_StdVideoH265SequenceParameterSet); // JQA
+    dump_json_array<const StdVideoH265SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH265SequenceParameterSet*", "const StdVideoH265SequenceParameterSet", "pStdSPSs", false, false, indents + 1, dump_json_StdVideoH265SequenceParameterSet);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdPPSCount, NULL, settings, "uint32_t", "stdPPSCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoH265PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH265PictureParameterSet*", "const StdVideoH265PictureParameterSet", "pStdPPSs", false, false, indents + 1, dump_json_StdVideoH265PictureParameterSet); // JQA
+    dump_json_array<const StdVideoH265PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH265PictureParameterSet*", "const StdVideoH265PictureParameterSet", "pStdPPSs", false, false, indents + 1, dump_json_StdVideoH265PictureParameterSet);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoEncodeH265SessionParametersCreateInfoKHR(const VkVideoEncodeH265SessionParametersCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -21867,7 +21867,7 @@ void dump_json_VkVideoEncodeH265PictureInfoKHR(const VkVideoEncodeH265PictureInf
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.naluSliceSegmentEntryCount, NULL, settings, "uint32_t", "naluSliceSegmentEntryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkVideoEncodeH265NaluSliceSegmentInfoKHR>(object.pNaluSliceSegmentEntries, object.naluSliceSegmentEntryCount, settings, "const VkVideoEncodeH265NaluSliceSegmentInfoKHR*", "const VkVideoEncodeH265NaluSliceSegmentInfoKHR", "pNaluSliceSegmentEntries", true, false, indents + 1, dump_json_VkVideoEncodeH265NaluSliceSegmentInfoKHR); // JQA
+    dump_json_array<const VkVideoEncodeH265NaluSliceSegmentInfoKHR>(object.pNaluSliceSegmentEntries, object.naluSliceSegmentEntryCount, settings, "const VkVideoEncodeH265NaluSliceSegmentInfoKHR*", "const VkVideoEncodeH265NaluSliceSegmentInfoKHR", "pNaluSliceSegmentEntries", true, false, indents + 1, dump_json_VkVideoEncodeH265NaluSliceSegmentInfoKHR);
     settings.stream() << ",\n";
     dump_json_pointer<const StdVideoEncodeH265PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoEncodeH265PictureInfo*", "pStdPictureInfo", false, false, indents + 1, dump_json_StdVideoEncodeH265PictureInfo);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -22021,11 +22021,11 @@ void dump_json_VkVideoDecodeH264SessionParametersAddInfoKHR(const VkVideoDecodeH
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdSPSCount, NULL, settings, "uint32_t", "stdSPSCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoH264SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH264SequenceParameterSet*", "const StdVideoH264SequenceParameterSet", "pStdSPSs", false, false, indents + 1, dump_json_StdVideoH264SequenceParameterSet); // JQA
+    dump_json_array<const StdVideoH264SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH264SequenceParameterSet*", "const StdVideoH264SequenceParameterSet", "pStdSPSs", false, false, indents + 1, dump_json_StdVideoH264SequenceParameterSet);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdPPSCount, NULL, settings, "uint32_t", "stdPPSCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoH264PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH264PictureParameterSet*", "const StdVideoH264PictureParameterSet", "pStdPPSs", false, false, indents + 1, dump_json_StdVideoH264PictureParameterSet); // JQA
+    dump_json_array<const StdVideoH264PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH264PictureParameterSet*", "const StdVideoH264PictureParameterSet", "pStdPPSs", false, false, indents + 1, dump_json_StdVideoH264PictureParameterSet);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoDecodeH264SessionParametersCreateInfoKHR(const VkVideoDecodeH264SessionParametersCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -22061,7 +22061,7 @@ void dump_json_VkVideoDecodeH264PictureInfoKHR(const VkVideoDecodeH264PictureInf
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.sliceCount, NULL, settings, "uint32_t", "sliceCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pSliceOffsets, object.sliceCount, settings, "const uint32_t*", "const uint32_t", "pSliceOffsets", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pSliceOffsets, object.sliceCount, settings, "const uint32_t*", "const uint32_t", "pSliceOffsets", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoDecodeH264DpbSlotInfoKHR(const VkVideoDecodeH264DpbSlotInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -22212,17 +22212,17 @@ void dump_json_VkWin32KeyedMutexAcquireReleaseInfoKHR(const VkWin32KeyedMutexAcq
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.acquireCount, NULL, settings, "uint32_t", "acquireCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDeviceMemory>(object.pAcquireSyncs, object.acquireCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pAcquireSyncs", false, false, indents + 1, dump_json_VkDeviceMemory); // JQA
+    dump_json_array<const VkDeviceMemory>(object.pAcquireSyncs, object.acquireCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pAcquireSyncs", false, false, indents + 1, dump_json_VkDeviceMemory);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pAcquireKeys, object.acquireCount, settings, "const uint64_t*", "const uint64_t", "pAcquireKeys", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pAcquireKeys, object.acquireCount, settings, "const uint64_t*", "const uint64_t", "pAcquireKeys", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pAcquireTimeouts, object.acquireCount, settings, "const uint32_t*", "const uint32_t", "pAcquireTimeouts", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pAcquireTimeouts, object.acquireCount, settings, "const uint32_t*", "const uint32_t", "pAcquireTimeouts", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.releaseCount, NULL, settings, "uint32_t", "releaseCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDeviceMemory>(object.pReleaseSyncs, object.releaseCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pReleaseSyncs", false, false, indents + 1, dump_json_VkDeviceMemory); // JQA
+    dump_json_array<const VkDeviceMemory>(object.pReleaseSyncs, object.releaseCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pReleaseSyncs", false, false, indents + 1, dump_json_VkDeviceMemory);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pReleaseKeys, object.releaseCount, settings, "const uint64_t*", "const uint64_t", "pReleaseKeys", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pReleaseKeys, object.releaseCount, settings, "const uint64_t*", "const uint64_t", "pReleaseKeys", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
@@ -22284,11 +22284,11 @@ void dump_json_VkD3D12FenceSubmitInfoKHR(const VkD3D12FenceSubmitInfoKHR& object
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.waitSemaphoreValuesCount, NULL, settings, "uint32_t", "waitSemaphoreValuesCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pWaitSemaphoreValues, object.waitSemaphoreValuesCount, settings, "const uint64_t*", "const uint64_t", "pWaitSemaphoreValues", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pWaitSemaphoreValues, object.waitSemaphoreValuesCount, settings, "const uint64_t*", "const uint64_t", "pWaitSemaphoreValues", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.signalSemaphoreValuesCount, NULL, settings, "uint32_t", "signalSemaphoreValuesCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pSignalSemaphoreValues, object.signalSemaphoreValuesCount, settings, "const uint64_t*", "const uint64_t", "pSignalSemaphoreValues", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pSignalSemaphoreValues, object.signalSemaphoreValuesCount, settings, "const uint64_t*", "const uint64_t", "pSignalSemaphoreValues", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
@@ -22361,7 +22361,7 @@ void dump_json_VkPresentRegionKHR(const VkPresentRegionKHR& object, const ApiDum
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const uint32_t>(object.rectangleCount, NULL, settings, "uint32_t", "rectangleCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRectLayerKHR>(object.pRectangles, object.rectangleCount, settings, "const VkRectLayerKHR*", "const VkRectLayerKHR", "pRectangles", true, false, indents + 1, dump_json_VkRectLayerKHR); // JQA
+    dump_json_array<const VkRectLayerKHR>(object.pRectangles, object.rectangleCount, settings, "const VkRectLayerKHR*", "const VkRectLayerKHR", "pRectangles", true, false, indents + 1, dump_json_VkRectLayerKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPresentRegionsKHR(const VkPresentRegionsKHR& object, const ApiDumpSettings& settings, int indents)
@@ -22377,7 +22377,7 @@ void dump_json_VkPresentRegionsKHR(const VkPresentRegionsKHR& object, const ApiD
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.swapchainCount, NULL, settings, "uint32_t", "swapchainCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPresentRegionKHR>(object.pRegions, object.swapchainCount, settings, "const VkPresentRegionKHR*", "const VkPresentRegionKHR", "pRegions", true, false, indents + 1, dump_json_VkPresentRegionKHR); // JQA
+    dump_json_array<const VkPresentRegionKHR>(object.pRegions, object.swapchainCount, settings, "const VkPresentRegionKHR*", "const VkPresentRegionKHR", "pRegions", true, false, indents + 1, dump_json_VkPresentRegionKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSharedPresentSurfaceCapabilitiesKHR(const VkSharedPresentSurfaceCapabilitiesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -22539,7 +22539,7 @@ void dump_json_VkPerformanceCounterKHR(const VkPerformanceCounterKHR& object, co
     settings.stream() << ",\n";
     dump_json_value<const VkPerformanceCounterStorageKHR>(object.storage, NULL, settings, "VkPerformanceCounterStorageKHR", "storage", false, false, indents + 1, dump_json_VkPerformanceCounterStorageKHR);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.uuid, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "uuid", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.uuid, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "uuid", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPerformanceCounterDescriptionKHR(const VkPerformanceCounterDescriptionKHR& object, const ApiDumpSettings& settings, int indents)
@@ -22577,7 +22577,7 @@ void dump_json_VkQueryPoolPerformanceCreateInfoKHR(const VkQueryPoolPerformanceC
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.counterIndexCount, NULL, settings, "uint32_t", "counterIndexCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pCounterIndices, object.counterIndexCount, settings, "const uint32_t*", "const uint32_t", "pCounterIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pCounterIndices, object.counterIndexCount, settings, "const uint32_t*", "const uint32_t", "pCounterIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkAcquireProfilingLockInfoKHR(const VkAcquireProfilingLockInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -22859,15 +22859,15 @@ void dump_json_VkVideoDecodeH265SessionParametersAddInfoKHR(const VkVideoDecodeH
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdVPSCount, NULL, settings, "uint32_t", "stdVPSCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoH265VideoParameterSet>(object.pStdVPSs, object.stdVPSCount, settings, "const StdVideoH265VideoParameterSet*", "const StdVideoH265VideoParameterSet", "pStdVPSs", false, false, indents + 1, dump_json_StdVideoH265VideoParameterSet); // JQA
+    dump_json_array<const StdVideoH265VideoParameterSet>(object.pStdVPSs, object.stdVPSCount, settings, "const StdVideoH265VideoParameterSet*", "const StdVideoH265VideoParameterSet", "pStdVPSs", false, false, indents + 1, dump_json_StdVideoH265VideoParameterSet);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdSPSCount, NULL, settings, "uint32_t", "stdSPSCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoH265SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH265SequenceParameterSet*", "const StdVideoH265SequenceParameterSet", "pStdSPSs", false, false, indents + 1, dump_json_StdVideoH265SequenceParameterSet); // JQA
+    dump_json_array<const StdVideoH265SequenceParameterSet>(object.pStdSPSs, object.stdSPSCount, settings, "const StdVideoH265SequenceParameterSet*", "const StdVideoH265SequenceParameterSet", "pStdSPSs", false, false, indents + 1, dump_json_StdVideoH265SequenceParameterSet);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdPPSCount, NULL, settings, "uint32_t", "stdPPSCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoH265PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH265PictureParameterSet*", "const StdVideoH265PictureParameterSet", "pStdPPSs", false, false, indents + 1, dump_json_StdVideoH265PictureParameterSet); // JQA
+    dump_json_array<const StdVideoH265PictureParameterSet>(object.pStdPPSs, object.stdPPSCount, settings, "const StdVideoH265PictureParameterSet*", "const StdVideoH265PictureParameterSet", "pStdPPSs", false, false, indents + 1, dump_json_StdVideoH265PictureParameterSet);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoDecodeH265SessionParametersCreateInfoKHR(const VkVideoDecodeH265SessionParametersCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -22905,7 +22905,7 @@ void dump_json_VkVideoDecodeH265PictureInfoKHR(const VkVideoDecodeH265PictureInf
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.sliceSegmentCount, NULL, settings, "uint32_t", "sliceSegmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pSliceSegmentOffsets, object.sliceSegmentCount, settings, "const uint32_t*", "const uint32_t", "pSliceSegmentOffsets", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pSliceSegmentOffsets, object.sliceSegmentCount, settings, "const uint32_t*", "const uint32_t", "pSliceSegmentOffsets", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoDecodeH265DpbSlotInfoKHR(const VkVideoDecodeH265DpbSlotInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -22951,7 +22951,7 @@ void dump_json_VkPipelineFragmentShadingRateStateCreateInfoKHR(const VkPipelineF
     settings.stream() << ",\n";
     dump_json_value<const VkExtent2D>(object.fragmentSize, NULL, settings, "VkExtent2D", "fragmentSize", true, false, indents + 1, dump_json_VkExtent2D);
     settings.stream() << ",\n";
-    dump_json_array<const VkFragmentShadingRateCombinerOpKHR>(object.combinerOps, 2, settings, "VkFragmentShadingRateCombinerOpKHR[2]", "VkFragmentShadingRateCombinerOpKHR", "combinerOps", false, false, indents + 1, dump_json_VkFragmentShadingRateCombinerOpKHR); // IQA
+    dump_json_array<const VkFragmentShadingRateCombinerOpKHR>(object.combinerOps, 2, settings, "VkFragmentShadingRateCombinerOpKHR[2]", "VkFragmentShadingRateCombinerOpKHR", "combinerOps", false, false, indents + 1, dump_json_VkFragmentShadingRateCombinerOpKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceFragmentShadingRateFeaturesKHR(const VkPhysicalDeviceFragmentShadingRateFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -23213,7 +23213,7 @@ void dump_json_VkPipelineLibraryCreateInfoKHR(const VkPipelineLibraryCreateInfoK
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.libraryCount, NULL, settings, "uint32_t", "libraryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipeline>(object.pLibraries, object.libraryCount, settings, "const VkPipeline*", "const VkPipeline", "pLibraries", false, false, indents + 1, dump_json_VkPipeline); // JQA
+    dump_json_array<const VkPipeline>(object.pLibraries, object.libraryCount, settings, "const VkPipeline*", "const VkPipeline", "pLibraries", false, false, indents + 1, dump_json_VkPipeline);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPresentIdKHR(const VkPresentIdKHR& object, const ApiDumpSettings& settings, int indents)
@@ -23229,7 +23229,7 @@ void dump_json_VkPresentIdKHR(const VkPresentIdKHR& object, const ApiDumpSetting
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.swapchainCount, NULL, settings, "uint32_t", "swapchainCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pPresentIds, object.swapchainCount, settings, "const uint64_t*", "const uint64_t", "pPresentIds", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pPresentIds, object.swapchainCount, settings, "const uint64_t*", "const uint64_t", "pPresentIds", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDevicePresentIdFeaturesKHR(const VkPhysicalDevicePresentIdFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -23271,7 +23271,7 @@ void dump_json_VkVideoEncodeInfoKHR(const VkVideoEncodeInfoKHR& object, const Ap
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.referenceSlotCount, NULL, settings, "uint32_t", "referenceSlotCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", true, false, indents + 1, dump_json_VkVideoReferenceSlotInfoKHR); // JQA
+    dump_json_array<const VkVideoReferenceSlotInfoKHR>(object.pReferenceSlots, object.referenceSlotCount, settings, "const VkVideoReferenceSlotInfoKHR*", "const VkVideoReferenceSlotInfoKHR", "pReferenceSlots", true, false, indents + 1, dump_json_VkVideoReferenceSlotInfoKHR);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.precedingExternallyEncodedBytes, NULL, settings, "uint32_t", "precedingExternallyEncodedBytes", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -23371,7 +23371,7 @@ void dump_json_VkVideoEncodeRateControlInfoKHR(const VkVideoEncodeRateControlInf
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.layerCount, NULL, settings, "uint32_t", "layerCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkVideoEncodeRateControlLayerInfoKHR>(object.pLayers, object.layerCount, settings, "const VkVideoEncodeRateControlLayerInfoKHR*", "const VkVideoEncodeRateControlLayerInfoKHR", "pLayers", true, false, indents + 1, dump_json_VkVideoEncodeRateControlLayerInfoKHR); // JQA
+    dump_json_array<const VkVideoEncodeRateControlLayerInfoKHR>(object.pLayers, object.layerCount, settings, "const VkVideoEncodeRateControlLayerInfoKHR*", "const VkVideoEncodeRateControlLayerInfoKHR", "pLayers", true, false, indents + 1, dump_json_VkVideoEncodeRateControlLayerInfoKHR);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.virtualBufferSizeInMs, NULL, settings, "uint32_t", "virtualBufferSizeInMs", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -23603,7 +23603,7 @@ void dump_json_VkPresentId2KHR(const VkPresentId2KHR& object, const ApiDumpSetti
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.swapchainCount, NULL, settings, "uint32_t", "swapchainCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pPresentIds, object.swapchainCount, settings, "const uint64_t*", "const uint64_t", "pPresentIds", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pPresentIds, object.swapchainCount, settings, "const uint64_t*", "const uint64_t", "pPresentIds", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDevicePresentId2FeaturesKHR(const VkPhysicalDevicePresentId2FeaturesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -23741,7 +23741,7 @@ void dump_json_VkPipelineBinaryKeyKHR(const VkPipelineBinaryKeyKHR& object, cons
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.keySize, NULL, settings, "uint32_t", "keySize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.key, VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR, settings, "uint8_t[VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR]", "uint8_t", "key", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.key, VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR, settings, "uint8_t[VK_MAX_PIPELINE_BINARY_KEY_SIZE_KHR]", "uint8_t", "key", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPipelineBinaryDataKHR(const VkPipelineBinaryDataKHR& object, const ApiDumpSettings& settings, int indents)
@@ -23757,9 +23757,9 @@ void dump_json_VkPipelineBinaryKeysAndDataKHR(const VkPipelineBinaryKeysAndDataK
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const uint32_t>(object.binaryCount, NULL, settings, "uint32_t", "binaryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineBinaryKeyKHR>(object.pPipelineBinaryKeys, object.binaryCount, settings, "const VkPipelineBinaryKeyKHR*", "const VkPipelineBinaryKeyKHR", "pPipelineBinaryKeys", true, false, indents + 1, dump_json_VkPipelineBinaryKeyKHR); // JQA
+    dump_json_array<const VkPipelineBinaryKeyKHR>(object.pPipelineBinaryKeys, object.binaryCount, settings, "const VkPipelineBinaryKeyKHR*", "const VkPipelineBinaryKeyKHR", "pPipelineBinaryKeys", true, false, indents + 1, dump_json_VkPipelineBinaryKeyKHR);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineBinaryDataKHR>(object.pPipelineBinaryData, object.binaryCount, settings, "const VkPipelineBinaryDataKHR*", "const VkPipelineBinaryDataKHR", "pPipelineBinaryData", true, false, indents + 1, dump_json_VkPipelineBinaryDataKHR); // JQA
+    dump_json_array<const VkPipelineBinaryDataKHR>(object.pPipelineBinaryData, object.binaryCount, settings, "const VkPipelineBinaryDataKHR*", "const VkPipelineBinaryDataKHR", "pPipelineBinaryData", true, false, indents + 1, dump_json_VkPipelineBinaryDataKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPipelineCreateInfoKHR(const VkPipelineCreateInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -23805,7 +23805,7 @@ void dump_json_VkPipelineBinaryInfoKHR(const VkPipelineBinaryInfoKHR& object, co
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.binaryCount, NULL, settings, "uint32_t", "binaryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineBinaryKHR>(object.pPipelineBinaries, object.binaryCount, settings, "const VkPipelineBinaryKHR*", "const VkPipelineBinaryKHR", "pPipelineBinaries", false, false, indents + 1, dump_json_VkPipelineBinaryKHR); // JQA
+    dump_json_array<const VkPipelineBinaryKHR>(object.pPipelineBinaries, object.binaryCount, settings, "const VkPipelineBinaryKHR*", "const VkPipelineBinaryKHR", "pPipelineBinaries", false, false, indents + 1, dump_json_VkPipelineBinaryKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkReleaseCapturedPipelineDataInfoKHR(const VkReleaseCapturedPipelineDataInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -23849,7 +23849,7 @@ void dump_json_VkPipelineBinaryHandlesInfoKHR(const VkPipelineBinaryHandlesInfoK
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.pipelineBinaryCount, NULL, settings, "uint32_t", "pipelineBinaryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineBinaryKHR>(object.pPipelineBinaries, object.pipelineBinaryCount, settings, "VkPipelineBinaryKHR*", "VkPipelineBinaryKHR", "pPipelineBinaries", false, false, indents + 1, dump_json_VkPipelineBinaryKHR); // JQA
+    dump_json_array<const VkPipelineBinaryKHR>(object.pPipelineBinaries, object.pipelineBinaryCount, settings, "VkPipelineBinaryKHR*", "VkPipelineBinaryKHR", "pPipelineBinaries", false, false, indents + 1, dump_json_VkPipelineBinaryKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkCooperativeMatrixPropertiesKHR(const VkCooperativeMatrixPropertiesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -23999,15 +23999,15 @@ void dump_json_VkVideoDecodeAV1PictureInfoKHR(const VkVideoDecodeAV1PictureInfoK
     settings.stream() << ",\n";
     dump_json_pointer<const StdVideoDecodeAV1PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoDecodeAV1PictureInfo*", "pStdPictureInfo", false, false, indents + 1, dump_json_StdVideoDecodeAV1PictureInfo);
     settings.stream() << ",\n";
-    dump_json_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", false, false, indents + 1, dump_json_int32_t); // IQA
+    dump_json_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", false, false, indents + 1, dump_json_int32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.frameHeaderOffset, NULL, settings, "uint32_t", "frameHeaderOffset", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.tileCount, NULL, settings, "uint32_t", "tileCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pTileOffsets, object.tileCount, settings, "const uint32_t*", "const uint32_t", "pTileOffsets", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pTileOffsets, object.tileCount, settings, "const uint32_t*", "const uint32_t", "pTileOffsets", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pTileSizes, object.tileCount, settings, "const uint32_t*", "const uint32_t", "pTileSizes", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pTileSizes, object.tileCount, settings, "const uint32_t*", "const uint32_t", "pTileSizes", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoDecodeAV1DpbSlotInfoKHR(const VkVideoDecodeAV1DpbSlotInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -24183,7 +24183,7 @@ void dump_json_VkVideoEncodeAV1SessionParametersCreateInfoKHR(const VkVideoEncod
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stdOperatingPointCount, NULL, settings, "uint32_t", "stdOperatingPointCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const StdVideoEncodeAV1OperatingPointInfo>(object.pStdOperatingPoints, object.stdOperatingPointCount, settings, "const StdVideoEncodeAV1OperatingPointInfo*", "const StdVideoEncodeAV1OperatingPointInfo", "pStdOperatingPoints", false, false, indents + 1, dump_json_StdVideoEncodeAV1OperatingPointInfo); // JQA
+    dump_json_array<const StdVideoEncodeAV1OperatingPointInfo>(object.pStdOperatingPoints, object.stdOperatingPointCount, settings, "const StdVideoEncodeAV1OperatingPointInfo*", "const StdVideoEncodeAV1OperatingPointInfo", "pStdOperatingPoints", false, false, indents + 1, dump_json_StdVideoEncodeAV1OperatingPointInfo);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkVideoEncodeAV1PictureInfoKHR(const VkVideoEncodeAV1PictureInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -24205,7 +24205,7 @@ void dump_json_VkVideoEncodeAV1PictureInfoKHR(const VkVideoEncodeAV1PictureInfoK
     settings.stream() << ",\n";
     dump_json_pointer<const StdVideoEncodeAV1PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoEncodeAV1PictureInfo*", "pStdPictureInfo", false, false, indents + 1, dump_json_StdVideoEncodeAV1PictureInfo);
     settings.stream() << ",\n";
-    dump_json_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", false, false, indents + 1, dump_json_int32_t); // IQA
+    dump_json_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_AV1_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", false, false, indents + 1, dump_json_int32_t);
     settings.stream() << ",\n";
     dump_json_value<const VkBool32>(object.primaryReferenceCdfOnly, NULL, settings, "VkBool32", "primaryReferenceCdfOnly", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << ",\n";
@@ -24371,7 +24371,7 @@ void dump_json_VkVideoDecodeVP9PictureInfoKHR(const VkVideoDecodeVP9PictureInfoK
     settings.stream() << ",\n";
     dump_json_pointer<const StdVideoDecodeVP9PictureInfo>(object.pStdPictureInfo, settings, "const StdVideoDecodeVP9PictureInfo*", "pStdPictureInfo", false, false, indents + 1, dump_json_StdVideoDecodeVP9PictureInfo);
     settings.stream() << ",\n";
-    dump_json_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", false, false, indents + 1, dump_json_int32_t); // IQA
+    dump_json_array<const int32_t>(object.referenceNameSlotIndices, VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR, settings, "int32_t[VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR]", "int32_t", "referenceNameSlotIndices", false, false, indents + 1, dump_json_int32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.uncompressedHeaderOffset, NULL, settings, "uint32_t", "uncompressedHeaderOffset", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -24475,9 +24475,9 @@ void dump_json_VkSetDescriptorBufferOffsetsInfoEXT(const VkSetDescriptorBufferOf
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.setCount, NULL, settings, "uint32_t", "setCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pBufferIndices, object.setCount, settings, "const uint32_t*", "const uint32_t", "pBufferIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pBufferIndices, object.setCount, settings, "const uint32_t*", "const uint32_t", "pBufferIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDeviceSize>(object.pOffsets, object.setCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, indents + 1, dump_json_VkDeviceSize); // JQA
+    dump_json_array<const VkDeviceSize>(object.pOffsets, object.setCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, indents + 1, dump_json_VkDeviceSize);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkBindDescriptorBufferEmbeddedSamplersInfoEXT(const VkBindDescriptorBufferEmbeddedSamplersInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -24735,7 +24735,7 @@ void dump_json_VkPhysicalDeviceLayeredApiPropertiesListKHR(const VkPhysicalDevic
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.layeredApiCount, NULL, settings, "uint32_t", "layeredApiCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPhysicalDeviceLayeredApiPropertiesKHR>(object.pLayeredApis, object.layeredApiCount, settings, "VkPhysicalDeviceLayeredApiPropertiesKHR*", "VkPhysicalDeviceLayeredApiPropertiesKHR", "pLayeredApis", true, false, indents + 1, dump_json_VkPhysicalDeviceLayeredApiPropertiesKHR); // JQA
+    dump_json_array<const VkPhysicalDeviceLayeredApiPropertiesKHR>(object.pLayeredApis, object.layeredApiCount, settings, "VkPhysicalDeviceLayeredApiPropertiesKHR*", "VkPhysicalDeviceLayeredApiPropertiesKHR", "pLayeredApis", true, false, indents + 1, dump_json_VkPhysicalDeviceLayeredApiPropertiesKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR(const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -25021,7 +25021,7 @@ void dump_json_VkDebugMarkerMarkerInfoEXT(const VkDebugMarkerMarkerInfoEXT& obje
     settings.stream() << ",\n";
     dump_json_value<const char*>(object.pMarkerName, NULL, settings, "const char*", "pMarkerName", false, false, indents + 1, dump_json_cstring);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.color, 4, settings, "float[4]", "float", "color", false, false, indents + 1, dump_json_float); // IQA
+    dump_json_array<const float>(object.color, 4, settings, "float[4]", "float", "color", false, false, indents + 1, dump_json_float);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkDedicatedAllocationImageCreateInfoNV(const VkDedicatedAllocationImageCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
@@ -25207,11 +25207,11 @@ void dump_json_VkCuLaunchInfoNVX(const VkCuLaunchInfoNVX& object, const ApiDumpS
     settings.stream() << ",\n";
     dump_json_value<const size_t>(object.paramCount, NULL, settings, "size_t", "paramCount", false, false, indents + 1, dump_json_size_t);
     settings.stream() << ",\n";
-    dump_json_array<const void*>(object.pParams, object.paramCount, settings, "const void* const *", "const void* const ", "pParams", false, false, indents + 1, dump_json_void); // JQA
+    dump_json_array<const void*>(object.pParams, object.paramCount, settings, "const void* const *", "const void* const ", "pParams", false, false, indents + 1, dump_json_void);
     settings.stream() << ",\n";
     dump_json_value<const size_t>(object.extraCount, NULL, settings, "size_t", "extraCount", false, false, indents + 1, dump_json_size_t);
     settings.stream() << ",\n";
-    dump_json_array<const void*>(object.pExtras, object.extraCount, settings, "const void* const *", "const void* const ", "pExtras", false, false, indents + 1, dump_json_void); // JQA
+    dump_json_array<const void*>(object.pExtras, object.extraCount, settings, "const void* const *", "const void* const ", "pExtras", false, false, indents + 1, dump_json_void);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageViewHandleInfoNVX(const VkImageViewHandleInfoNVX& object, const ApiDumpSettings& settings, int indents)
@@ -25291,7 +25291,7 @@ void dump_json_VkShaderStatisticsInfoAMD(const VkShaderStatisticsInfoAMD& object
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.numAvailableSgprs, NULL, settings, "uint32_t", "numAvailableSgprs", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.computeWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "computeWorkGroupSize", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.computeWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "computeWorkGroupSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #if defined(VK_USE_PLATFORM_GGP)
@@ -25416,17 +25416,17 @@ void dump_json_VkWin32KeyedMutexAcquireReleaseInfoNV(const VkWin32KeyedMutexAcqu
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.acquireCount, NULL, settings, "uint32_t", "acquireCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDeviceMemory>(object.pAcquireSyncs, object.acquireCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pAcquireSyncs", false, false, indents + 1, dump_json_VkDeviceMemory); // JQA
+    dump_json_array<const VkDeviceMemory>(object.pAcquireSyncs, object.acquireCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pAcquireSyncs", false, false, indents + 1, dump_json_VkDeviceMemory);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pAcquireKeys, object.acquireCount, settings, "const uint64_t*", "const uint64_t", "pAcquireKeys", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pAcquireKeys, object.acquireCount, settings, "const uint64_t*", "const uint64_t", "pAcquireKeys", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pAcquireTimeoutMilliseconds, object.acquireCount, settings, "const uint32_t*", "const uint32_t", "pAcquireTimeoutMilliseconds", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pAcquireTimeoutMilliseconds, object.acquireCount, settings, "const uint32_t*", "const uint32_t", "pAcquireTimeoutMilliseconds", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.releaseCount, NULL, settings, "uint32_t", "releaseCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDeviceMemory>(object.pReleaseSyncs, object.releaseCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pReleaseSyncs", false, false, indents + 1, dump_json_VkDeviceMemory); // JQA
+    dump_json_array<const VkDeviceMemory>(object.pReleaseSyncs, object.releaseCount, settings, "const VkDeviceMemory*", "const VkDeviceMemory", "pReleaseSyncs", false, false, indents + 1, dump_json_VkDeviceMemory);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pReleaseKeys, object.releaseCount, settings, "const uint64_t*", "const uint64_t", "pReleaseKeys", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pReleaseKeys, object.releaseCount, settings, "const uint64_t*", "const uint64_t", "pReleaseKeys", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
@@ -25443,7 +25443,7 @@ void dump_json_VkValidationFlagsEXT(const VkValidationFlagsEXT& object, const Ap
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.disabledValidationCheckCount, NULL, settings, "uint32_t", "disabledValidationCheckCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkValidationCheckEXT>(object.pDisabledValidationChecks, object.disabledValidationCheckCount, settings, "const VkValidationCheckEXT*", "const VkValidationCheckEXT", "pDisabledValidationChecks", false, false, indents + 1, dump_json_VkValidationCheckEXT); // JQA
+    dump_json_array<const VkValidationCheckEXT>(object.pDisabledValidationChecks, object.disabledValidationCheckCount, settings, "const VkValidationCheckEXT*", "const VkValidationCheckEXT", "pDisabledValidationChecks", false, false, indents + 1, dump_json_VkValidationCheckEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #if defined(VK_USE_PLATFORM_VI_NN)
@@ -25563,7 +25563,7 @@ void dump_json_VkPipelineViewportWScalingStateCreateInfoNV(const VkPipelineViewp
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.viewportCount, NULL, settings, "uint32_t", "viewportCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkViewportWScalingNV>(object.pViewportWScalings, object.viewportCount, settings, "const VkViewportWScalingNV*", "const VkViewportWScalingNV", "pViewportWScalings", true, false, indents + 1, dump_json_VkViewportWScalingNV); // JQA
+    dump_json_array<const VkViewportWScalingNV>(object.pViewportWScalings, object.viewportCount, settings, "const VkViewportWScalingNV*", "const VkViewportWScalingNV", "pViewportWScalings", true, false, indents + 1, dump_json_VkViewportWScalingNV);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSurfaceCapabilities2EXT(const VkSurfaceCapabilities2EXT& object, const ApiDumpSettings& settings, int indents)
@@ -25697,7 +25697,7 @@ void dump_json_VkPresentTimesInfoGOOGLE(const VkPresentTimesInfoGOOGLE& object, 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.swapchainCount, NULL, settings, "uint32_t", "swapchainCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPresentTimeGOOGLE>(object.pTimes, object.swapchainCount, settings, "const VkPresentTimeGOOGLE*", "const VkPresentTimeGOOGLE", "pTimes", true, false, indents + 1, dump_json_VkPresentTimeGOOGLE); // JQA
+    dump_json_array<const VkPresentTimeGOOGLE>(object.pTimes, object.swapchainCount, settings, "const VkPresentTimeGOOGLE*", "const VkPresentTimeGOOGLE", "pTimes", true, false, indents + 1, dump_json_VkPresentTimeGOOGLE);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX(const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX& object, const ApiDumpSettings& settings, int indents)
@@ -25757,7 +25757,7 @@ void dump_json_VkPipelineViewportSwizzleStateCreateInfoNV(const VkPipelineViewpo
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.viewportCount, NULL, settings, "uint32_t", "viewportCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkViewportSwizzleNV>(object.pViewportSwizzles, object.viewportCount, settings, "const VkViewportSwizzleNV*", "const VkViewportSwizzleNV", "pViewportSwizzles", true, false, indents + 1, dump_json_VkViewportSwizzleNV); // JQA
+    dump_json_array<const VkViewportSwizzleNV>(object.pViewportSwizzles, object.viewportCount, settings, "const VkViewportSwizzleNV*", "const VkViewportSwizzleNV", "pViewportSwizzles", true, false, indents + 1, dump_json_VkViewportSwizzleNV);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceDiscardRectanglePropertiesEXT(const VkPhysicalDeviceDiscardRectanglePropertiesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -25791,7 +25791,7 @@ void dump_json_VkPipelineDiscardRectangleStateCreateInfoEXT(const VkPipelineDisc
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.discardRectangleCount, NULL, settings, "uint32_t", "discardRectangleCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRect2D>(object.pDiscardRectangles, object.discardRectangleCount, settings, "const VkRect2D*", "const VkRect2D", "pDiscardRectangles", true, false, indents + 1, dump_json_VkRect2D); // JQA
+    dump_json_array<const VkRect2D>(object.pDiscardRectangles, object.discardRectangleCount, settings, "const VkRect2D*", "const VkRect2D", "pDiscardRectangles", true, false, indents + 1, dump_json_VkRect2D);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceConservativeRasterizationPropertiesEXT(const VkPhysicalDeviceConservativeRasterizationPropertiesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -25971,7 +25971,7 @@ void dump_json_VkDebugUtilsLabelEXT(const VkDebugUtilsLabelEXT& object, const Ap
     settings.stream() << ",\n";
     dump_json_value<const char*>(object.pLabelName, NULL, settings, "const char*", "pLabelName", false, false, indents + 1, dump_json_cstring);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.color, 4, settings, "float[4]", "float", "color", false, false, indents + 1, dump_json_float); // IQA
+    dump_json_array<const float>(object.color, 4, settings, "float[4]", "float", "color", false, false, indents + 1, dump_json_float);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkDebugUtilsObjectNameInfoEXT(const VkDebugUtilsObjectNameInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -26013,15 +26013,15 @@ void dump_json_VkDebugUtilsMessengerCallbackDataEXT(const VkDebugUtilsMessengerC
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.queueLabelCount, NULL, settings, "uint32_t", "queueLabelCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDebugUtilsLabelEXT>(object.pQueueLabels, object.queueLabelCount, settings, "const VkDebugUtilsLabelEXT*", "const VkDebugUtilsLabelEXT", "pQueueLabels", true, false, indents + 1, dump_json_VkDebugUtilsLabelEXT); // JQA
+    dump_json_array<const VkDebugUtilsLabelEXT>(object.pQueueLabels, object.queueLabelCount, settings, "const VkDebugUtilsLabelEXT*", "const VkDebugUtilsLabelEXT", "pQueueLabels", true, false, indents + 1, dump_json_VkDebugUtilsLabelEXT);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.cmdBufLabelCount, NULL, settings, "uint32_t", "cmdBufLabelCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDebugUtilsLabelEXT>(object.pCmdBufLabels, object.cmdBufLabelCount, settings, "const VkDebugUtilsLabelEXT*", "const VkDebugUtilsLabelEXT", "pCmdBufLabels", true, false, indents + 1, dump_json_VkDebugUtilsLabelEXT); // JQA
+    dump_json_array<const VkDebugUtilsLabelEXT>(object.pCmdBufLabels, object.cmdBufLabelCount, settings, "const VkDebugUtilsLabelEXT*", "const VkDebugUtilsLabelEXT", "pCmdBufLabels", true, false, indents + 1, dump_json_VkDebugUtilsLabelEXT);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.objectCount, NULL, settings, "uint32_t", "objectCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDebugUtilsObjectNameInfoEXT>(object.pObjects, object.objectCount, settings, "const VkDebugUtilsObjectNameInfoEXT*", "const VkDebugUtilsObjectNameInfoEXT", "pObjects", true, false, indents + 1, dump_json_VkDebugUtilsObjectNameInfoEXT); // JQA
+    dump_json_array<const VkDebugUtilsObjectNameInfoEXT>(object.pObjects, object.objectCount, settings, "const VkDebugUtilsObjectNameInfoEXT*", "const VkDebugUtilsObjectNameInfoEXT", "pObjects", true, false, indents + 1, dump_json_VkDebugUtilsObjectNameInfoEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkDebugUtilsMessengerCreateInfoEXT(const VkDebugUtilsMessengerCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -26250,7 +26250,7 @@ void dump_json_VkPhysicalDeviceShaderEnqueuePropertiesAMDX(const VkPhysicalDevic
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.executionGraphDispatchAddressAlignment, NULL, settings, "uint32_t", "executionGraphDispatchAddressAlignment", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxExecutionGraphWorkgroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxExecutionGraphWorkgroupCount", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxExecutionGraphWorkgroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxExecutionGraphWorkgroupCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxExecutionGraphWorkgroups, NULL, settings, "uint32_t", "maxExecutionGraphWorkgroups", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -26292,7 +26292,7 @@ void dump_json_VkExecutionGraphPipelineCreateInfoAMDX(const VkExecutionGraphPipe
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stageCount, NULL, settings, "uint32_t", "stageCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", true, false, indents + 1, dump_json_VkPipelineShaderStageCreateInfo); // JQA
+    dump_json_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", true, false, indents + 1, dump_json_VkPipelineShaderStageCreateInfo);
     settings.stream() << ",\n";
     dump_json_pointer<const VkPipelineLibraryCreateInfoKHR>(object.pLibraryInfo, settings, "const VkPipelineLibraryCreateInfoKHR*", "pLibraryInfo", true, false, indents + 1, dump_json_VkPipelineLibraryCreateInfoKHR);
     settings.stream() << ",\n";
@@ -26361,7 +26361,7 @@ void dump_json_VkAttachmentSampleCountInfoAMD(const VkAttachmentSampleCountInfoA
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.colorAttachmentCount, NULL, settings, "uint32_t", "colorAttachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSampleCountFlagBits>(object.pColorAttachmentSamples, object.colorAttachmentCount, settings, "const VkSampleCountFlagBits*", "const VkSampleCountFlagBits", "pColorAttachmentSamples", false, false, indents + 1, dump_json_VkSampleCountFlagBits); // JQA
+    dump_json_array<const VkSampleCountFlagBits>(object.pColorAttachmentSamples, object.colorAttachmentCount, settings, "const VkSampleCountFlagBits*", "const VkSampleCountFlagBits", "pColorAttachmentSamples", false, false, indents + 1, dump_json_VkSampleCountFlagBits);
     settings.stream() << ",\n";
     dump_json_value<const VkSampleCountFlagBits>(object.depthStencilAttachmentSamples, NULL, settings, "VkSampleCountFlagBits", "depthStencilAttachmentSamples", false, false, indents + 1, dump_json_VkSampleCountFlagBits);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -26391,7 +26391,7 @@ void dump_json_VkSampleLocationsInfoEXT(const VkSampleLocationsInfoEXT& object, 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.sampleLocationsCount, NULL, settings, "uint32_t", "sampleLocationsCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSampleLocationEXT>(object.pSampleLocations, object.sampleLocationsCount, settings, "const VkSampleLocationEXT*", "const VkSampleLocationEXT", "pSampleLocations", true, false, indents + 1, dump_json_VkSampleLocationEXT); // JQA
+    dump_json_array<const VkSampleLocationEXT>(object.pSampleLocations, object.sampleLocationsCount, settings, "const VkSampleLocationEXT*", "const VkSampleLocationEXT", "pSampleLocations", true, false, indents + 1, dump_json_VkSampleLocationEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkAttachmentSampleLocationsEXT(const VkAttachmentSampleLocationsEXT& object, const ApiDumpSettings& settings, int indents)
@@ -26423,11 +26423,11 @@ void dump_json_VkRenderPassSampleLocationsBeginInfoEXT(const VkRenderPassSampleL
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.attachmentInitialSampleLocationsCount, NULL, settings, "uint32_t", "attachmentInitialSampleLocationsCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkAttachmentSampleLocationsEXT>(object.pAttachmentInitialSampleLocations, object.attachmentInitialSampleLocationsCount, settings, "const VkAttachmentSampleLocationsEXT*", "const VkAttachmentSampleLocationsEXT", "pAttachmentInitialSampleLocations", true, false, indents + 1, dump_json_VkAttachmentSampleLocationsEXT); // JQA
+    dump_json_array<const VkAttachmentSampleLocationsEXT>(object.pAttachmentInitialSampleLocations, object.attachmentInitialSampleLocationsCount, settings, "const VkAttachmentSampleLocationsEXT*", "const VkAttachmentSampleLocationsEXT", "pAttachmentInitialSampleLocations", true, false, indents + 1, dump_json_VkAttachmentSampleLocationsEXT);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.postSubpassSampleLocationsCount, NULL, settings, "uint32_t", "postSubpassSampleLocationsCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSubpassSampleLocationsEXT>(object.pPostSubpassSampleLocations, object.postSubpassSampleLocationsCount, settings, "const VkSubpassSampleLocationsEXT*", "const VkSubpassSampleLocationsEXT", "pPostSubpassSampleLocations", true, false, indents + 1, dump_json_VkSubpassSampleLocationsEXT); // JQA
+    dump_json_array<const VkSubpassSampleLocationsEXT>(object.pPostSubpassSampleLocations, object.postSubpassSampleLocationsCount, settings, "const VkSubpassSampleLocationsEXT*", "const VkSubpassSampleLocationsEXT", "pPostSubpassSampleLocations", true, false, indents + 1, dump_json_VkSubpassSampleLocationsEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPipelineSampleLocationsStateCreateInfoEXT(const VkPipelineSampleLocationsStateCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -26461,7 +26461,7 @@ void dump_json_VkPhysicalDeviceSampleLocationsPropertiesEXT(const VkPhysicalDevi
     settings.stream() << ",\n";
     dump_json_value<const VkExtent2D>(object.maxSampleLocationGridSize, NULL, settings, "VkExtent2D", "maxSampleLocationGridSize", true, false, indents + 1, dump_json_VkExtent2D);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.sampleLocationCoordinateRange, 2, settings, "float[2]", "float", "sampleLocationCoordinateRange", false, false, indents + 1, dump_json_float); // IQA
+    dump_json_array<const float>(object.sampleLocationCoordinateRange, 2, settings, "float[2]", "float", "sampleLocationCoordinateRange", false, false, indents + 1, dump_json_float);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.sampleLocationSubPixelBits, NULL, settings, "uint32_t", "sampleLocationSubPixelBits", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -26575,7 +26575,7 @@ void dump_json_VkPipelineCoverageModulationStateCreateInfoNV(const VkPipelineCov
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.coverageModulationTableCount, NULL, settings, "uint32_t", "coverageModulationTableCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.pCoverageModulationTable, object.coverageModulationTableCount, settings, "const float*", "const float", "pCoverageModulationTable", false, false, indents + 1, dump_json_float); // JQA
+    dump_json_array<const float>(object.pCoverageModulationTable, object.coverageModulationTableCount, settings, "const float*", "const float", "pCoverageModulationTable", false, false, indents + 1, dump_json_float);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV(const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV& object, const ApiDumpSettings& settings, int indents)
@@ -26631,7 +26631,7 @@ void dump_json_VkDrmFormatModifierPropertiesListEXT(const VkDrmFormatModifierPro
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.drmFormatModifierCount, NULL, settings, "uint32_t", "drmFormatModifierCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDrmFormatModifierPropertiesEXT>(object.pDrmFormatModifierProperties, object.drmFormatModifierCount, settings, "VkDrmFormatModifierPropertiesEXT*", "VkDrmFormatModifierPropertiesEXT", "pDrmFormatModifierProperties", true, false, indents + 1, dump_json_VkDrmFormatModifierPropertiesEXT); // JQA
+    dump_json_array<const VkDrmFormatModifierPropertiesEXT>(object.pDrmFormatModifierProperties, object.drmFormatModifierCount, settings, "VkDrmFormatModifierPropertiesEXT*", "VkDrmFormatModifierPropertiesEXT", "pDrmFormatModifierProperties", true, false, indents + 1, dump_json_VkDrmFormatModifierPropertiesEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceImageDrmFormatModifierInfoEXT(const VkPhysicalDeviceImageDrmFormatModifierInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -26651,7 +26651,7 @@ void dump_json_VkPhysicalDeviceImageDrmFormatModifierInfoEXT(const VkPhysicalDev
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.queueFamilyIndexCount, NULL, settings, "uint32_t", "queueFamilyIndexCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageDrmFormatModifierListCreateInfoEXT(const VkImageDrmFormatModifierListCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -26667,7 +26667,7 @@ void dump_json_VkImageDrmFormatModifierListCreateInfoEXT(const VkImageDrmFormatM
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.drmFormatModifierCount, NULL, settings, "uint32_t", "drmFormatModifierCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pDrmFormatModifiers, object.drmFormatModifierCount, settings, "const uint64_t*", "const uint64_t", "pDrmFormatModifiers", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pDrmFormatModifiers, object.drmFormatModifierCount, settings, "const uint64_t*", "const uint64_t", "pDrmFormatModifiers", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageDrmFormatModifierExplicitCreateInfoEXT(const VkImageDrmFormatModifierExplicitCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -26685,7 +26685,7 @@ void dump_json_VkImageDrmFormatModifierExplicitCreateInfoEXT(const VkImageDrmFor
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.drmFormatModifierPlaneCount, NULL, settings, "uint32_t", "drmFormatModifierPlaneCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSubresourceLayout>(object.pPlaneLayouts, object.drmFormatModifierPlaneCount, settings, "const VkSubresourceLayout*", "const VkSubresourceLayout", "pPlaneLayouts", true, false, indents + 1, dump_json_VkSubresourceLayout); // JQA
+    dump_json_array<const VkSubresourceLayout>(object.pPlaneLayouts, object.drmFormatModifierPlaneCount, settings, "const VkSubresourceLayout*", "const VkSubresourceLayout", "pPlaneLayouts", true, false, indents + 1, dump_json_VkSubresourceLayout);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageDrmFormatModifierPropertiesEXT(const VkImageDrmFormatModifierPropertiesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -26725,7 +26725,7 @@ void dump_json_VkDrmFormatModifierPropertiesList2EXT(const VkDrmFormatModifierPr
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.drmFormatModifierCount, NULL, settings, "uint32_t", "drmFormatModifierCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDrmFormatModifierProperties2EXT>(object.pDrmFormatModifierProperties, object.drmFormatModifierCount, settings, "VkDrmFormatModifierProperties2EXT*", "VkDrmFormatModifierProperties2EXT", "pDrmFormatModifierProperties", true, false, indents + 1, dump_json_VkDrmFormatModifierProperties2EXT); // JQA
+    dump_json_array<const VkDrmFormatModifierProperties2EXT>(object.pDrmFormatModifierProperties, object.drmFormatModifierCount, settings, "VkDrmFormatModifierProperties2EXT*", "VkDrmFormatModifierProperties2EXT", "pDrmFormatModifierProperties", true, false, indents + 1, dump_json_VkDrmFormatModifierProperties2EXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkValidationCacheCreateInfoEXT(const VkValidationCacheCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -26765,7 +26765,7 @@ void dump_json_VkShadingRatePaletteNV(const VkShadingRatePaletteNV& object, cons
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const uint32_t>(object.shadingRatePaletteEntryCount, NULL, settings, "uint32_t", "shadingRatePaletteEntryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkShadingRatePaletteEntryNV>(object.pShadingRatePaletteEntries, object.shadingRatePaletteEntryCount, settings, "const VkShadingRatePaletteEntryNV*", "const VkShadingRatePaletteEntryNV", "pShadingRatePaletteEntries", false, false, indents + 1, dump_json_VkShadingRatePaletteEntryNV); // JQA
+    dump_json_array<const VkShadingRatePaletteEntryNV>(object.pShadingRatePaletteEntries, object.shadingRatePaletteEntryCount, settings, "const VkShadingRatePaletteEntryNV*", "const VkShadingRatePaletteEntryNV", "pShadingRatePaletteEntries", false, false, indents + 1, dump_json_VkShadingRatePaletteEntryNV);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPipelineViewportShadingRateImageStateCreateInfoNV(const VkPipelineViewportShadingRateImageStateCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
@@ -26783,7 +26783,7 @@ void dump_json_VkPipelineViewportShadingRateImageStateCreateInfoNV(const VkPipel
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.viewportCount, NULL, settings, "uint32_t", "viewportCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkShadingRatePaletteNV>(object.pShadingRatePalettes, object.viewportCount, settings, "const VkShadingRatePaletteNV*", "const VkShadingRatePaletteNV", "pShadingRatePalettes", true, false, indents + 1, dump_json_VkShadingRatePaletteNV); // JQA
+    dump_json_array<const VkShadingRatePaletteNV>(object.pShadingRatePalettes, object.viewportCount, settings, "const VkShadingRatePaletteNV*", "const VkShadingRatePaletteNV", "pShadingRatePalettes", true, false, indents + 1, dump_json_VkShadingRatePaletteNV);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceShadingRateImageFeaturesNV(const VkPhysicalDeviceShadingRateImageFeaturesNV& object, const ApiDumpSettings& settings, int indents)
@@ -26839,7 +26839,7 @@ void dump_json_VkCoarseSampleOrderCustomNV(const VkCoarseSampleOrderCustomNV& ob
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.sampleLocationCount, NULL, settings, "uint32_t", "sampleLocationCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkCoarseSampleLocationNV>(object.pSampleLocations, object.sampleLocationCount, settings, "const VkCoarseSampleLocationNV*", "const VkCoarseSampleLocationNV", "pSampleLocations", true, false, indents + 1, dump_json_VkCoarseSampleLocationNV); // JQA
+    dump_json_array<const VkCoarseSampleLocationNV>(object.pSampleLocations, object.sampleLocationCount, settings, "const VkCoarseSampleLocationNV*", "const VkCoarseSampleLocationNV", "pSampleLocations", true, false, indents + 1, dump_json_VkCoarseSampleLocationNV);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV(const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
@@ -26857,7 +26857,7 @@ void dump_json_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV(const VkPipe
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.customSampleOrderCount, NULL, settings, "uint32_t", "customSampleOrderCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkCoarseSampleOrderCustomNV>(object.pCustomSampleOrders, object.customSampleOrderCount, settings, "const VkCoarseSampleOrderCustomNV*", "const VkCoarseSampleOrderCustomNV", "pCustomSampleOrders", true, false, indents + 1, dump_json_VkCoarseSampleOrderCustomNV); // JQA
+    dump_json_array<const VkCoarseSampleOrderCustomNV>(object.pCustomSampleOrders, object.customSampleOrderCount, settings, "const VkCoarseSampleOrderCustomNV*", "const VkCoarseSampleOrderCustomNV", "pCustomSampleOrders", true, false, indents + 1, dump_json_VkCoarseSampleOrderCustomNV);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkRayTracingShaderGroupCreateInfoNV(const VkRayTracingShaderGroupCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
@@ -26897,11 +26897,11 @@ void dump_json_VkRayTracingPipelineCreateInfoNV(const VkRayTracingPipelineCreate
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stageCount, NULL, settings, "uint32_t", "stageCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", true, false, indents + 1, dump_json_VkPipelineShaderStageCreateInfo); // JQA
+    dump_json_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", true, false, indents + 1, dump_json_VkPipelineShaderStageCreateInfo);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.groupCount, NULL, settings, "uint32_t", "groupCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRayTracingShaderGroupCreateInfoNV>(object.pGroups, object.groupCount, settings, "const VkRayTracingShaderGroupCreateInfoNV*", "const VkRayTracingShaderGroupCreateInfoNV", "pGroups", true, false, indents + 1, dump_json_VkRayTracingShaderGroupCreateInfoNV); // JQA
+    dump_json_array<const VkRayTracingShaderGroupCreateInfoNV>(object.pGroups, object.groupCount, settings, "const VkRayTracingShaderGroupCreateInfoNV*", "const VkRayTracingShaderGroupCreateInfoNV", "pGroups", true, false, indents + 1, dump_json_VkRayTracingShaderGroupCreateInfoNV);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxRecursionDepth, NULL, settings, "uint32_t", "maxRecursionDepth", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -27011,7 +27011,7 @@ void dump_json_VkAccelerationStructureInfoNV(const VkAccelerationStructureInfoNV
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.geometryCount, NULL, settings, "uint32_t", "geometryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkGeometryNV>(object.pGeometries, object.geometryCount, settings, "const VkGeometryNV*", "const VkGeometryNV", "pGeometries", true, false, indents + 1, dump_json_VkGeometryNV); // JQA
+    dump_json_array<const VkGeometryNV>(object.pGeometries, object.geometryCount, settings, "const VkGeometryNV*", "const VkGeometryNV", "pGeometries", true, false, indents + 1, dump_json_VkGeometryNV);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkAccelerationStructureCreateInfoNV(const VkAccelerationStructureCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
@@ -27049,7 +27049,7 @@ void dump_json_VkBindAccelerationStructureMemoryInfoNV(const VkBindAccelerationS
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.deviceIndexCount, NULL, settings, "uint32_t", "deviceIndexCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pDeviceIndices, object.deviceIndexCount, settings, "const uint32_t*", "const uint32_t", "pDeviceIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkWriteDescriptorSetAccelerationStructureNV(const VkWriteDescriptorSetAccelerationStructureNV& object, const ApiDumpSettings& settings, int indents)
@@ -27065,7 +27065,7 @@ void dump_json_VkWriteDescriptorSetAccelerationStructureNV(const VkWriteDescript
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.accelerationStructureCount, NULL, settings, "uint32_t", "accelerationStructureCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkAccelerationStructureNV>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkAccelerationStructureNV*", "const VkAccelerationStructureNV", "pAccelerationStructures", false, false, indents + 1, dump_json_VkAccelerationStructureNV); // JQA
+    dump_json_array<const VkAccelerationStructureNV>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkAccelerationStructureNV*", "const VkAccelerationStructureNV", "pAccelerationStructures", false, false, indents + 1, dump_json_VkAccelerationStructureNV);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkAccelerationStructureMemoryRequirementsInfoNV(const VkAccelerationStructureMemoryRequirementsInfoNV& object, const ApiDumpSettings& settings, int indents)
@@ -27115,7 +27115,7 @@ void dump_json_VkPhysicalDeviceRayTracingPropertiesNV(const VkPhysicalDeviceRayT
 void dump_json_VkTransformMatrixKHR(const VkTransformMatrixKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_array<const float>(object.matrix, 3*4, settings, "float[3][4]", "float[3]", "matrix", false, false, indents + 1, dump_json_float); // IQA
+    dump_json_array<const float>(object.matrix, 3*4, settings, "float[3][4]", "float[3]", "matrix", false, false, indents + 1, dump_json_float);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkAabbPositionsKHR(const VkAabbPositionsKHR& object, const ApiDumpSettings& settings, int indents)
@@ -27381,7 +27381,7 @@ void dump_json_VkPhysicalDeviceMeshShaderPropertiesNV(const VkPhysicalDeviceMesh
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxTaskWorkGroupInvocations, NULL, settings, "uint32_t", "maxTaskWorkGroupInvocations", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxTaskWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupSize", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxTaskWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxTaskTotalMemorySize, NULL, settings, "uint32_t", "maxTaskTotalMemorySize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -27389,7 +27389,7 @@ void dump_json_VkPhysicalDeviceMeshShaderPropertiesNV(const VkPhysicalDeviceMesh
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxMeshWorkGroupInvocations, NULL, settings, "uint32_t", "maxMeshWorkGroupInvocations", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxMeshWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupSize", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxMeshWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxMeshTotalMemorySize, NULL, settings, "uint32_t", "maxMeshTotalMemorySize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -27439,7 +27439,7 @@ void dump_json_VkPipelineViewportExclusiveScissorStateCreateInfoNV(const VkPipel
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.exclusiveScissorCount, NULL, settings, "uint32_t", "exclusiveScissorCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRect2D>(object.pExclusiveScissors, object.exclusiveScissorCount, settings, "const VkRect2D*", "const VkRect2D", "pExclusiveScissors", true, false, indents + 1, dump_json_VkRect2D); // JQA
+    dump_json_array<const VkRect2D>(object.pExclusiveScissors, object.exclusiveScissorCount, settings, "const VkRect2D*", "const VkRect2D", "pExclusiveScissors", true, false, indents + 1, dump_json_VkRect2D);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceExclusiveScissorFeaturesNV(const VkPhysicalDeviceExclusiveScissorFeaturesNV& object, const ApiDumpSettings& settings, int indents)
@@ -27833,9 +27833,9 @@ void dump_json_VkPhysicalDeviceMemoryBudgetPropertiesEXT(const VkPhysicalDeviceM
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_array<const VkDeviceSize>(object.heapBudget, ApiDumpInstance::current().getMemoryHeapCount(), settings, "VkDeviceSize[VK_MAX_MEMORY_HEAPS]", "VkDeviceSize", "heapBudget", false, false, indents + 1, dump_json_VkDeviceSize); // JQA
+    dump_json_array<const VkDeviceSize>(object.heapBudget, ApiDumpInstance::current().getMemoryHeapCount(), settings, "VkDeviceSize[VK_MAX_MEMORY_HEAPS]", "VkDeviceSize", "heapBudget", false, false, indents + 1, dump_json_VkDeviceSize);
     settings.stream() << ",\n";
-    dump_json_array<const VkDeviceSize>(object.heapUsage, ApiDumpInstance::current().getMemoryHeapCount(), settings, "VkDeviceSize[VK_MAX_MEMORY_HEAPS]", "VkDeviceSize", "heapUsage", false, false, indents + 1, dump_json_VkDeviceSize); // JQA
+    dump_json_array<const VkDeviceSize>(object.heapUsage, ApiDumpInstance::current().getMemoryHeapCount(), settings, "VkDeviceSize[VK_MAX_MEMORY_HEAPS]", "VkDeviceSize", "heapUsage", false, false, indents + 1, dump_json_VkDeviceSize);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceMemoryPriorityFeaturesEXT(const VkPhysicalDeviceMemoryPriorityFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -27925,11 +27925,11 @@ void dump_json_VkValidationFeaturesEXT(const VkValidationFeaturesEXT& object, co
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.enabledValidationFeatureCount, NULL, settings, "uint32_t", "enabledValidationFeatureCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkValidationFeatureEnableEXT>(object.pEnabledValidationFeatures, object.enabledValidationFeatureCount, settings, "const VkValidationFeatureEnableEXT*", "const VkValidationFeatureEnableEXT", "pEnabledValidationFeatures", false, false, indents + 1, dump_json_VkValidationFeatureEnableEXT); // JQA
+    dump_json_array<const VkValidationFeatureEnableEXT>(object.pEnabledValidationFeatures, object.enabledValidationFeatureCount, settings, "const VkValidationFeatureEnableEXT*", "const VkValidationFeatureEnableEXT", "pEnabledValidationFeatures", false, false, indents + 1, dump_json_VkValidationFeatureEnableEXT);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.disabledValidationFeatureCount, NULL, settings, "uint32_t", "disabledValidationFeatureCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkValidationFeatureDisableEXT>(object.pDisabledValidationFeatures, object.disabledValidationFeatureCount, settings, "const VkValidationFeatureDisableEXT*", "const VkValidationFeatureDisableEXT", "pDisabledValidationFeatures", false, false, indents + 1, dump_json_VkValidationFeatureDisableEXT); // JQA
+    dump_json_array<const VkValidationFeatureDisableEXT>(object.pDisabledValidationFeatures, object.disabledValidationFeatureCount, settings, "const VkValidationFeatureDisableEXT*", "const VkValidationFeatureDisableEXT", "pDisabledValidationFeatures", false, false, indents + 1, dump_json_VkValidationFeatureDisableEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkCooperativeMatrixPropertiesNV(const VkCooperativeMatrixPropertiesNV& object, const ApiDumpSettings& settings, int indents)
@@ -28361,7 +28361,7 @@ void dump_json_VkSurfacePresentModeCompatibilityEXT(const VkSurfacePresentModeCo
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.presentModeCount, NULL, settings, "uint32_t", "presentModeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", false, false, indents + 1, dump_json_VkPresentModeKHR); // JQA
+    dump_json_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", false, false, indents + 1, dump_json_VkPresentModeKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT(const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -28391,7 +28391,7 @@ void dump_json_VkSwapchainPresentFenceInfoEXT(const VkSwapchainPresentFenceInfoE
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.swapchainCount, NULL, settings, "uint32_t", "swapchainCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkFence>(object.pFences, object.swapchainCount, settings, "const VkFence*", "const VkFence", "pFences", false, false, indents + 1, dump_json_VkFence); // JQA
+    dump_json_array<const VkFence>(object.pFences, object.swapchainCount, settings, "const VkFence*", "const VkFence", "pFences", false, false, indents + 1, dump_json_VkFence);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSwapchainPresentModesCreateInfoEXT(const VkSwapchainPresentModesCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -28407,7 +28407,7 @@ void dump_json_VkSwapchainPresentModesCreateInfoEXT(const VkSwapchainPresentMode
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.presentModeCount, NULL, settings, "uint32_t", "presentModeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "const VkPresentModeKHR*", "const VkPresentModeKHR", "pPresentModes", false, false, indents + 1, dump_json_VkPresentModeKHR); // JQA
+    dump_json_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "const VkPresentModeKHR*", "const VkPresentModeKHR", "pPresentModes", false, false, indents + 1, dump_json_VkPresentModeKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSwapchainPresentModeInfoEXT(const VkSwapchainPresentModeInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -28423,7 +28423,7 @@ void dump_json_VkSwapchainPresentModeInfoEXT(const VkSwapchainPresentModeInfoEXT
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.swapchainCount, NULL, settings, "uint32_t", "swapchainCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPresentModeKHR>(object.pPresentModes, object.swapchainCount, settings, "const VkPresentModeKHR*", "const VkPresentModeKHR", "pPresentModes", false, false, indents + 1, dump_json_VkPresentModeKHR); // JQA
+    dump_json_array<const VkPresentModeKHR>(object.pPresentModes, object.swapchainCount, settings, "const VkPresentModeKHR*", "const VkPresentModeKHR", "pPresentModes", false, false, indents + 1, dump_json_VkPresentModeKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkSwapchainPresentScalingCreateInfoEXT(const VkSwapchainPresentScalingCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -28459,7 +28459,7 @@ void dump_json_VkReleaseSwapchainImagesInfoEXT(const VkReleaseSwapchainImagesInf
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.imageIndexCount, NULL, settings, "uint32_t", "imageIndexCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pImageIndices, object.imageIndexCount, settings, "const uint32_t*", "const uint32_t", "pImageIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pImageIndices, object.imageIndexCount, settings, "const uint32_t*", "const uint32_t", "pImageIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV(const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& object, const ApiDumpSettings& settings, int indents)
@@ -28519,7 +28519,7 @@ void dump_json_VkGraphicsShaderGroupCreateInfoNV(const VkGraphicsShaderGroupCrea
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stageCount, NULL, settings, "uint32_t", "stageCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", true, false, indents + 1, dump_json_VkPipelineShaderStageCreateInfo); // JQA
+    dump_json_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", true, false, indents + 1, dump_json_VkPipelineShaderStageCreateInfo);
     settings.stream() << ",\n";
     dump_json_pointer<const VkPipelineVertexInputStateCreateInfo>(object.pVertexInputState, settings, "const VkPipelineVertexInputStateCreateInfo*", "pVertexInputState", true, false, indents + 1, dump_json_VkPipelineVertexInputStateCreateInfo);
     settings.stream() << ",\n";
@@ -28539,11 +28539,11 @@ void dump_json_VkGraphicsPipelineShaderGroupsCreateInfoNV(const VkGraphicsPipeli
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.groupCount, NULL, settings, "uint32_t", "groupCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkGraphicsShaderGroupCreateInfoNV>(object.pGroups, object.groupCount, settings, "const VkGraphicsShaderGroupCreateInfoNV*", "const VkGraphicsShaderGroupCreateInfoNV", "pGroups", true, false, indents + 1, dump_json_VkGraphicsShaderGroupCreateInfoNV); // JQA
+    dump_json_array<const VkGraphicsShaderGroupCreateInfoNV>(object.pGroups, object.groupCount, settings, "const VkGraphicsShaderGroupCreateInfoNV*", "const VkGraphicsShaderGroupCreateInfoNV", "pGroups", true, false, indents + 1, dump_json_VkGraphicsShaderGroupCreateInfoNV);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.pipelineCount, NULL, settings, "uint32_t", "pipelineCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipeline>(object.pPipelines, object.pipelineCount, settings, "const VkPipeline*", "const VkPipeline", "pPipelines", false, false, indents + 1, dump_json_VkPipeline); // JQA
+    dump_json_array<const VkPipeline>(object.pPipelines, object.pipelineCount, settings, "const VkPipeline*", "const VkPipeline", "pPipelines", false, false, indents + 1, dump_json_VkPipeline);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkBindShaderGroupIndirectCommandNV(const VkBindShaderGroupIndirectCommandNV& object, const ApiDumpSettings& settings, int indents)
@@ -28619,9 +28619,9 @@ void dump_json_VkIndirectCommandsLayoutTokenNV(const VkIndirectCommandsLayoutTok
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.indexTypeCount, NULL, settings, "uint32_t", "indexTypeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkIndexType>(object.pIndexTypes, object.indexTypeCount, settings, "const VkIndexType*", "const VkIndexType", "pIndexTypes", false, false, indents + 1, dump_json_VkIndexType); // JQA
+    dump_json_array<const VkIndexType>(object.pIndexTypes, object.indexTypeCount, settings, "const VkIndexType*", "const VkIndexType", "pIndexTypes", false, false, indents + 1, dump_json_VkIndexType);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pIndexTypeValues, object.indexTypeCount, settings, "const uint32_t*", "const uint32_t", "pIndexTypeValues", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pIndexTypeValues, object.indexTypeCount, settings, "const uint32_t*", "const uint32_t", "pIndexTypeValues", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkIndirectCommandsLayoutCreateInfoNV(const VkIndirectCommandsLayoutCreateInfoNV& object, const ApiDumpSettings& settings, int indents)
@@ -28641,11 +28641,11 @@ void dump_json_VkIndirectCommandsLayoutCreateInfoNV(const VkIndirectCommandsLayo
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.tokenCount, NULL, settings, "uint32_t", "tokenCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkIndirectCommandsLayoutTokenNV>(object.pTokens, object.tokenCount, settings, "const VkIndirectCommandsLayoutTokenNV*", "const VkIndirectCommandsLayoutTokenNV", "pTokens", true, false, indents + 1, dump_json_VkIndirectCommandsLayoutTokenNV); // JQA
+    dump_json_array<const VkIndirectCommandsLayoutTokenNV>(object.pTokens, object.tokenCount, settings, "const VkIndirectCommandsLayoutTokenNV*", "const VkIndirectCommandsLayoutTokenNV", "pTokens", true, false, indents + 1, dump_json_VkIndirectCommandsLayoutTokenNV);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.streamCount, NULL, settings, "uint32_t", "streamCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pStreamStrides, object.streamCount, settings, "const uint32_t*", "const uint32_t", "pStreamStrides", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pStreamStrides, object.streamCount, settings, "const uint32_t*", "const uint32_t", "pStreamStrides", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkGeneratedCommandsInfoNV(const VkGeneratedCommandsInfoNV& object, const ApiDumpSettings& settings, int indents)
@@ -28667,7 +28667,7 @@ void dump_json_VkGeneratedCommandsInfoNV(const VkGeneratedCommandsInfoNV& object
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.streamCount, NULL, settings, "uint32_t", "streamCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkIndirectCommandsStreamNV>(object.pStreams, object.streamCount, settings, "const VkIndirectCommandsStreamNV*", "const VkIndirectCommandsStreamNV", "pStreams", true, false, indents + 1, dump_json_VkIndirectCommandsStreamNV); // JQA
+    dump_json_array<const VkIndirectCommandsStreamNV>(object.pStreams, object.streamCount, settings, "const VkIndirectCommandsStreamNV*", "const VkIndirectCommandsStreamNV", "pStreams", true, false, indents + 1, dump_json_VkIndirectCommandsStreamNV);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.sequencesCount, NULL, settings, "uint32_t", "sequencesCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -29076,11 +29076,11 @@ void dump_json_VkCudaLaunchInfoNV(const VkCudaLaunchInfoNV& object, const ApiDum
     settings.stream() << ",\n";
     dump_json_value<const size_t>(object.paramCount, NULL, settings, "size_t", "paramCount", false, false, indents + 1, dump_json_size_t);
     settings.stream() << ",\n";
-    dump_json_array<const void*>(object.pParams, object.paramCount, settings, "const void* const *", "const void* const ", "pParams", false, false, indents + 1, dump_json_void); // JQA
+    dump_json_array<const void*>(object.pParams, object.paramCount, settings, "const void* const *", "const void* const ", "pParams", false, false, indents + 1, dump_json_void);
     settings.stream() << ",\n";
     dump_json_value<const size_t>(object.extraCount, NULL, settings, "size_t", "extraCount", false, false, indents + 1, dump_json_size_t);
     settings.stream() << ",\n";
-    dump_json_array<const void*>(object.pExtras, object.extraCount, settings, "const void* const *", "const void* const ", "pExtras", false, false, indents + 1, dump_json_void); // JQA
+    dump_json_array<const void*>(object.pExtras, object.extraCount, settings, "const void* const *", "const void* const ", "pExtras", false, false, indents + 1, dump_json_void);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
@@ -29822,7 +29822,7 @@ void dump_json_VkPipelineFragmentShadingRateEnumStateCreateInfoNV(const VkPipeli
     settings.stream() << ",\n";
     dump_json_value<const VkFragmentShadingRateNV>(object.shadingRate, NULL, settings, "VkFragmentShadingRateNV", "shadingRate", false, false, indents + 1, dump_json_VkFragmentShadingRateNV);
     settings.stream() << ",\n";
-    dump_json_array<const VkFragmentShadingRateCombinerOpKHR>(object.combinerOps, 2, settings, "VkFragmentShadingRateCombinerOpKHR[2]", "VkFragmentShadingRateCombinerOpKHR", "combinerOps", false, false, indents + 1, dump_json_VkFragmentShadingRateCombinerOpKHR); // IQA
+    dump_json_array<const VkFragmentShadingRateCombinerOpKHR>(object.combinerOps, 2, settings, "VkFragmentShadingRateCombinerOpKHR[2]", "VkFragmentShadingRateCombinerOpKHR", "combinerOps", false, false, indents + 1, dump_json_VkFragmentShadingRateCombinerOpKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkAccelerationStructureGeometryMotionTrianglesDataNV(const VkAccelerationStructureGeometryMotionTrianglesDataNV& object, const ApiDumpSettings& settings, int indents)
@@ -30044,7 +30044,7 @@ void dump_json_VkImageCompressionControlEXT(const VkImageCompressionControlEXT& 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.compressionControlPlaneCount, NULL, settings, "uint32_t", "compressionControlPlaneCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageCompressionFixedRateFlagsEXT>(object.pFixedRateFlags, object.compressionControlPlaneCount, settings, "VkImageCompressionFixedRateFlagsEXT*", "VkImageCompressionFixedRateFlagsEXT", "pFixedRateFlags", false, false, indents + 1, dump_json_VkImageCompressionFixedRateFlagsEXT); // JQA
+    dump_json_array<const VkImageCompressionFixedRateFlagsEXT>(object.pFixedRateFlags, object.compressionControlPlaneCount, settings, "VkImageCompressionFixedRateFlagsEXT*", "VkImageCompressionFixedRateFlagsEXT", "pFixedRateFlags", false, false, indents + 1, dump_json_VkImageCompressionFixedRateFlagsEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkImageCompressionPropertiesEXT(const VkImageCompressionPropertiesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -30180,7 +30180,7 @@ void dump_json_VkDeviceFaultVendorBinaryHeaderVersionOneEXT(const VkDeviceFaultV
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.driverVersion, NULL, settings, "uint32_t", "driverVersion", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.pipelineCacheUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineCacheUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.applicationNameOffset, NULL, settings, "uint32_t", "applicationNameOffset", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -30264,7 +30264,7 @@ void dump_json_VkMutableDescriptorTypeListEXT(const VkMutableDescriptorTypeListE
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const uint32_t>(object.descriptorTypeCount, NULL, settings, "uint32_t", "descriptorTypeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDescriptorType>(object.pDescriptorTypes, object.descriptorTypeCount, settings, "const VkDescriptorType*", "const VkDescriptorType", "pDescriptorTypes", false, false, indents + 1, dump_json_VkDescriptorType); // JQA
+    dump_json_array<const VkDescriptorType>(object.pDescriptorTypes, object.descriptorTypeCount, settings, "const VkDescriptorType*", "const VkDescriptorType", "pDescriptorTypes", false, false, indents + 1, dump_json_VkDescriptorType);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkMutableDescriptorTypeCreateInfoEXT(const VkMutableDescriptorTypeCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -30280,7 +30280,7 @@ void dump_json_VkMutableDescriptorTypeCreateInfoEXT(const VkMutableDescriptorTyp
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.mutableDescriptorTypeListCount, NULL, settings, "uint32_t", "mutableDescriptorTypeListCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkMutableDescriptorTypeListEXT>(object.pMutableDescriptorTypeLists, object.mutableDescriptorTypeListCount, settings, "const VkMutableDescriptorTypeListEXT*", "const VkMutableDescriptorTypeListEXT", "pMutableDescriptorTypeLists", true, false, indents + 1, dump_json_VkMutableDescriptorTypeListEXT); // JQA
+    dump_json_array<const VkMutableDescriptorTypeListEXT>(object.pMutableDescriptorTypeLists, object.mutableDescriptorTypeListCount, settings, "const VkMutableDescriptorTypeListEXT*", "const VkMutableDescriptorTypeListEXT", "pMutableDescriptorTypeLists", true, false, indents + 1, dump_json_VkMutableDescriptorTypeListEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT(const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -30733,7 +30733,7 @@ void dump_json_VkImageFormatConstraintsInfoFUCHSIA(const VkImageFormatConstraint
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.colorSpaceCount, NULL, settings, "uint32_t", "colorSpaceCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSysmemColorSpaceFUCHSIA>(object.pColorSpaces, object.colorSpaceCount, settings, "const VkSysmemColorSpaceFUCHSIA*", "const VkSysmemColorSpaceFUCHSIA", "pColorSpaces", true, false, indents + 1, dump_json_VkSysmemColorSpaceFUCHSIA); // JQA
+    dump_json_array<const VkSysmemColorSpaceFUCHSIA>(object.pColorSpaces, object.colorSpaceCount, settings, "const VkSysmemColorSpaceFUCHSIA*", "const VkSysmemColorSpaceFUCHSIA", "pColorSpaces", true, false, indents + 1, dump_json_VkSysmemColorSpaceFUCHSIA);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
@@ -30751,7 +30751,7 @@ void dump_json_VkImageConstraintsInfoFUCHSIA(const VkImageConstraintsInfoFUCHSIA
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.formatConstraintsCount, NULL, settings, "uint32_t", "formatConstraintsCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImageFormatConstraintsInfoFUCHSIA>(object.pFormatConstraints, object.formatConstraintsCount, settings, "const VkImageFormatConstraintsInfoFUCHSIA*", "const VkImageFormatConstraintsInfoFUCHSIA", "pFormatConstraints", true, false, indents + 1, dump_json_VkImageFormatConstraintsInfoFUCHSIA); // JQA
+    dump_json_array<const VkImageFormatConstraintsInfoFUCHSIA>(object.pFormatConstraints, object.formatConstraintsCount, settings, "const VkImageFormatConstraintsInfoFUCHSIA*", "const VkImageFormatConstraintsInfoFUCHSIA", "pFormatConstraints", true, false, indents + 1, dump_json_VkImageFormatConstraintsInfoFUCHSIA);
     settings.stream() << ",\n";
     dump_json_value<const VkBufferCollectionConstraintsInfoFUCHSIA>(object.bufferCollectionConstraints, NULL, settings, "VkBufferCollectionConstraintsInfoFUCHSIA", "bufferCollectionConstraints", true, false, indents + 1, dump_json_VkBufferCollectionConstraintsInfoFUCHSIA);
     settings.stream() << ",\n";
@@ -30858,7 +30858,7 @@ void dump_json_VkPipelinePropertiesIdentifierEXT(const VkPipelinePropertiesIdent
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.pipelineIdentifier, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineIdentifier", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.pipelineIdentifier, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "pipelineIdentifier", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDevicePipelinePropertiesFeaturesEXT(const VkPhysicalDevicePipelinePropertiesFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -30906,11 +30906,11 @@ void dump_json_VkFrameBoundaryEXT(const VkFrameBoundaryEXT& object, const ApiDum
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.imageCount, NULL, settings, "uint32_t", "imageCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkImage>(object.pImages, object.imageCount, settings, "const VkImage*", "const VkImage", "pImages", false, false, indents + 1, dump_json_VkImage); // JQA
+    dump_json_array<const VkImage>(object.pImages, object.imageCount, settings, "const VkImage*", "const VkImage", "pImages", false, false, indents + 1, dump_json_VkImage);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.bufferCount, NULL, settings, "uint32_t", "bufferCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkBuffer>(object.pBuffers, object.bufferCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", false, false, indents + 1, dump_json_VkBuffer); // JQA
+    dump_json_array<const VkBuffer>(object.pBuffers, object.bufferCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", false, false, indents + 1, dump_json_VkBuffer);
     settings.stream() << ",\n";
     dump_json_value<const uint64_t>(object.tagName, NULL, settings, "uint64_t", "tagName", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << ",\n";
@@ -31028,7 +31028,7 @@ void dump_json_VkPipelineColorWriteCreateInfoEXT(const VkPipelineColorWriteCreat
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkBool32>(object.pColorWriteEnables, object.attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorWriteEnables", false, false, indents + 1, dump_json_VkBool32); // JQA
+    dump_json_array<const VkBool32>(object.pColorWriteEnables, object.attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorWriteEnables", false, false, indents + 1, dump_json_VkBool32);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT(const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -31206,9 +31206,9 @@ void dump_json_VkMicromapBuildInfoEXT(const VkMicromapBuildInfoEXT& object, cons
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.usageCountsCount, NULL, settings, "uint32_t", "usageCountsCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
+    dump_json_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT);
     settings.stream() << ",\n";
-    dump_json_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
+    dump_json_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT);
     settings.stream() << ",\n";
     dump_json_value<const VkDeviceOrHostAddressConstKHR>(object.data, NULL, settings, "VkDeviceOrHostAddressConstKHR", "data", false, true, indents + 1, dump_json_VkDeviceOrHostAddressConstKHR);
     settings.stream() << ",\n";
@@ -31288,7 +31288,7 @@ void dump_json_VkMicromapVersionInfoEXT(const VkMicromapVersionInfoEXT& object, 
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.pVersionData, 2*VK_UUID_SIZE, settings, "const uint8_t*", "const uint8_t", "pVersionData", false, false, indents + 1, dump_json_uint8_t); // JQA
+    dump_json_array<const uint8_t>(object.pVersionData, 2*VK_UUID_SIZE, settings, "const uint8_t*", "const uint8_t", "pVersionData", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkCopyMicromapToMemoryInfoEXT(const VkCopyMicromapToMemoryInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -31384,9 +31384,9 @@ void dump_json_VkAccelerationStructureTrianglesOpacityMicromapEXT(const VkAccele
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.usageCountsCount, NULL, settings, "uint32_t", "usageCountsCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
+    dump_json_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT);
     settings.stream() << ",\n";
-    dump_json_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
+    dump_json_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT);
     settings.stream() << ",\n";
     dump_json_value<const VkMicromapEXT>(object.micromap, NULL, settings, "VkMicromapEXT", "micromap", false, false, indents + 1, dump_json_VkMicromapEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -31471,9 +31471,9 @@ void dump_json_VkAccelerationStructureTrianglesDisplacementMicromapNV(const VkAc
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.usageCountsCount, NULL, settings, "uint32_t", "usageCountsCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
+    dump_json_array<const VkMicromapUsageEXT>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT*", "const VkMicromapUsageEXT", "pUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT);
     settings.stream() << ",\n";
-    dump_json_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT); // JQA
+    dump_json_array<const VkMicromapUsageEXT>(object.ppUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageEXT* const*", "const VkMicromapUsageEXT* const", "ppUsageCounts", true, false, indents + 1, dump_json_VkMicromapUsageEXT);
     settings.stream() << ",\n";
     dump_json_value<const VkMicromapEXT>(object.micromap, NULL, settings, "VkMicromapEXT", "micromap", false, false, indents + 1, dump_json_VkMicromapEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -31506,9 +31506,9 @@ void dump_json_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI(const VkPhys
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxWorkGroupCount", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxWorkGroupCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxWorkGroupSize", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxWorkGroupSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxOutputClusterCount, NULL, settings, "uint32_t", "maxOutputClusterCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -31782,7 +31782,7 @@ void dump_json_VkRenderPassStripeBeginInfoARM(const VkRenderPassStripeBeginInfoA
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stripeInfoCount, NULL, settings, "uint32_t", "stripeInfoCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRenderPassStripeInfoARM>(object.pStripeInfos, object.stripeInfoCount, settings, "const VkRenderPassStripeInfoARM*", "const VkRenderPassStripeInfoARM", "pStripeInfos", true, false, indents + 1, dump_json_VkRenderPassStripeInfoARM); // JQA
+    dump_json_array<const VkRenderPassStripeInfoARM>(object.pStripeInfos, object.stripeInfoCount, settings, "const VkRenderPassStripeInfoARM*", "const VkRenderPassStripeInfoARM", "pStripeInfos", true, false, indents + 1, dump_json_VkRenderPassStripeInfoARM);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkRenderPassStripeSubmitInfoARM(const VkRenderPassStripeSubmitInfoARM& object, const ApiDumpSettings& settings, int indents)
@@ -31798,7 +31798,7 @@ void dump_json_VkRenderPassStripeSubmitInfoARM(const VkRenderPassStripeSubmitInf
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stripeSemaphoreInfoCount, NULL, settings, "uint32_t", "stripeSemaphoreInfoCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkSemaphoreSubmitInfo>(object.pStripeSemaphoreInfos, object.stripeSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pStripeSemaphoreInfos", true, false, indents + 1, dump_json_VkSemaphoreSubmitInfo); // JQA
+    dump_json_array<const VkSemaphoreSubmitInfo>(object.pStripeSemaphoreInfos, object.stripeSemaphoreInfoCount, settings, "const VkSemaphoreSubmitInfo*", "const VkSemaphoreSubmitInfo", "pStripeSemaphoreInfos", true, false, indents + 1, dump_json_VkSemaphoreSubmitInfo);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT(const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -31842,7 +31842,7 @@ void dump_json_VkRenderPassFragmentDensityMapOffsetEndInfoEXT(const VkRenderPass
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.fragmentDensityOffsetCount, NULL, settings, "uint32_t", "fragmentDensityOffsetCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkOffset2D>(object.pFragmentDensityOffsets, object.fragmentDensityOffsetCount, settings, "const VkOffset2D*", "const VkOffset2D", "pFragmentDensityOffsets", true, false, indents + 1, dump_json_VkOffset2D); // JQA
+    dump_json_array<const VkOffset2D>(object.pFragmentDensityOffsets, object.fragmentDensityOffsetCount, settings, "const VkOffset2D*", "const VkOffset2D", "pFragmentDensityOffsets", true, false, indents + 1, dump_json_VkOffset2D);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkCopyMemoryIndirectCommandNV(const VkCopyMemoryIndirectCommandNV& object, const ApiDumpSettings& settings, int indents)
@@ -32432,7 +32432,7 @@ void dump_json_VkDirectDriverLoadingListLUNARG(const VkDirectDriverLoadingListLU
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.driverCount, NULL, settings, "uint32_t", "driverCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDirectDriverLoadingInfoLUNARG>(object.pDrivers, object.driverCount, settings, "const VkDirectDriverLoadingInfoLUNARG*", "const VkDirectDriverLoadingInfoLUNARG", "pDrivers", true, false, indents + 1, dump_json_VkDirectDriverLoadingInfoLUNARG); // JQA
+    dump_json_array<const VkDirectDriverLoadingInfoLUNARG>(object.pDrivers, object.driverCount, settings, "const VkDirectDriverLoadingInfoLUNARG*", "const VkDirectDriverLoadingInfoLUNARG", "pDrivers", true, false, indents + 1, dump_json_VkDirectDriverLoadingInfoLUNARG);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkTensorDescriptionARM(const VkTensorDescriptionARM& object, const ApiDumpSettings& settings, int indents)
@@ -32452,9 +32452,9 @@ void dump_json_VkTensorDescriptionARM(const VkTensorDescriptionARM& object, cons
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.dimensionCount, NULL, settings, "uint32_t", "dimensionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const int64_t>(object.pDimensions, object.dimensionCount, settings, "const int64_t*", "const int64_t", "pDimensions", false, false, indents + 1, dump_json_int64_t); // JQA
+    dump_json_array<const int64_t>(object.pDimensions, object.dimensionCount, settings, "const int64_t*", "const int64_t", "pDimensions", false, false, indents + 1, dump_json_int64_t);
     settings.stream() << ",\n";
-    dump_json_array<const int64_t>(object.pStrides, object.dimensionCount, settings, "const int64_t*", "const int64_t", "pStrides", false, false, indents + 1, dump_json_int64_t); // JQA
+    dump_json_array<const int64_t>(object.pStrides, object.dimensionCount, settings, "const int64_t*", "const int64_t", "pStrides", false, false, indents + 1, dump_json_int64_t);
     settings.stream() << ",\n";
     dump_json_value<const VkTensorUsageFlagsARM>(object.usage, NULL, settings, "VkTensorUsageFlagsARM", "usage", false, false, indents + 1, dump_json_VkTensorUsageFlagsARM);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -32478,7 +32478,7 @@ void dump_json_VkTensorCreateInfoARM(const VkTensorCreateInfoARM& object, const 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.queueFamilyIndexCount, NULL, settings, "uint32_t", "queueFamilyIndexCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", false, false, indents + 1, dump_json_uint32_t); // JQA
+    dump_json_array<const uint32_t>(object.pQueueFamilyIndices, object.queueFamilyIndexCount, settings, "const uint32_t*", "const uint32_t", "pQueueFamilyIndices", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkTensorViewCreateInfoARM(const VkTensorViewCreateInfoARM& object, const ApiDumpSettings& settings, int indents)
@@ -32544,7 +32544,7 @@ void dump_json_VkWriteDescriptorSetTensorARM(const VkWriteDescriptorSetTensorARM
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.tensorViewCount, NULL, settings, "uint32_t", "tensorViewCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkTensorViewARM>(object.pTensorViews, object.tensorViewCount, settings, "const VkTensorViewARM*", "const VkTensorViewARM", "pTensorViews", false, false, indents + 1, dump_json_VkTensorViewARM); // JQA
+    dump_json_array<const VkTensorViewARM>(object.pTensorViews, object.tensorViewCount, settings, "const VkTensorViewARM*", "const VkTensorViewARM", "pTensorViews", false, false, indents + 1, dump_json_VkTensorViewARM);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkTensorFormatPropertiesARM(const VkTensorFormatPropertiesARM& object, const ApiDumpSettings& settings, int indents)
@@ -32694,11 +32694,11 @@ void dump_json_VkTensorCopyARM(const VkTensorCopyARM& object, const ApiDumpSetti
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.dimensionCount, NULL, settings, "uint32_t", "dimensionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pSrcOffset, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pSrcOffset", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pSrcOffset, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pSrcOffset", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pDstOffset, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pDstOffset", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pDstOffset, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pDstOffset", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint64_t>(object.pExtent, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pExtent", false, false, indents + 1, dump_json_uint64_t); // JQA
+    dump_json_array<const uint64_t>(object.pExtent, object.dimensionCount, settings, "const uint64_t*", "const uint64_t", "pExtent", false, false, indents + 1, dump_json_uint64_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkCopyTensorInfoARM(const VkCopyTensorInfoARM& object, const ApiDumpSettings& settings, int indents)
@@ -32718,7 +32718,7 @@ void dump_json_VkCopyTensorInfoARM(const VkCopyTensorInfoARM& object, const ApiD
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkTensorCopyARM>(object.pRegions, object.regionCount, settings, "const VkTensorCopyARM*", "const VkTensorCopyARM", "pRegions", true, false, indents + 1, dump_json_VkTensorCopyARM); // JQA
+    dump_json_array<const VkTensorCopyARM>(object.pRegions, object.regionCount, settings, "const VkTensorCopyARM*", "const VkTensorCopyARM", "pRegions", true, false, indents + 1, dump_json_VkTensorCopyARM);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkMemoryDedicatedAllocateInfoTensorARM(const VkMemoryDedicatedAllocateInfoTensorARM& object, const ApiDumpSettings& settings, int indents)
@@ -32868,7 +32868,7 @@ void dump_json_VkFrameBoundaryTensorsARM(const VkFrameBoundaryTensorsARM& object
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.tensorCount, NULL, settings, "uint32_t", "tensorCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkTensorARM>(object.pTensors, object.tensorCount, settings, "const VkTensorARM*", "const VkTensorARM", "pTensors", false, false, indents + 1, dump_json_VkTensorARM); // JQA
+    dump_json_array<const VkTensorARM>(object.pTensors, object.tensorCount, settings, "const VkTensorARM*", "const VkTensorARM", "pTensors", false, false, indents + 1, dump_json_VkTensorARM);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT(const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -32896,7 +32896,7 @@ void dump_json_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT(const VkPhysi
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.shaderModuleIdentifierAlgorithmUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderModuleIdentifierAlgorithmUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.shaderModuleIdentifierAlgorithmUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderModuleIdentifierAlgorithmUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPipelineShaderStageModuleIdentifierCreateInfoEXT(const VkPipelineShaderStageModuleIdentifierCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -32912,7 +32912,7 @@ void dump_json_VkPipelineShaderStageModuleIdentifierCreateInfoEXT(const VkPipeli
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.identifierSize, NULL, settings, "uint32_t", "identifierSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.pIdentifier, object.identifierSize, settings, "const uint8_t*", "const uint8_t", "pIdentifier", false, false, indents + 1, dump_json_uint8_t); // JQA
+    dump_json_array<const uint8_t>(object.pIdentifier, object.identifierSize, settings, "const uint8_t*", "const uint8_t", "pIdentifier", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkShaderModuleIdentifierEXT(const VkShaderModuleIdentifierEXT& object, const ApiDumpSettings& settings, int indents)
@@ -32928,7 +32928,7 @@ void dump_json_VkShaderModuleIdentifierEXT(const VkShaderModuleIdentifierEXT& ob
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.identifierSize, NULL, settings, "uint32_t", "identifierSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.identifier, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT, settings, "uint8_t[VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT]", "uint8_t", "identifier", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.identifier, VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT, settings, "uint8_t[VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT]", "uint8_t", "identifier", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceOpticalFlowFeaturesNV(const VkPhysicalDeviceOpticalFlowFeaturesNV& object, const ApiDumpSettings& settings, int indents)
@@ -33070,7 +33070,7 @@ void dump_json_VkOpticalFlowExecuteInfoNV(const VkOpticalFlowExecuteInfoNV& obje
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.regionCount, NULL, settings, "uint32_t", "regionCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRect2D>(object.pRegions, object.regionCount, settings, "const VkRect2D*", "const VkRect2D", "pRegions", true, false, indents + 1, dump_json_VkRect2D); // JQA
+    dump_json_array<const VkRect2D>(object.pRegions, object.regionCount, settings, "const VkRect2D*", "const VkRect2D", "pRegions", true, false, indents + 1, dump_json_VkRect2D);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceLegacyDitheringFeaturesEXT(const VkPhysicalDeviceLegacyDitheringFeaturesEXT& object, const ApiDumpSettings& settings, int indents)
@@ -33212,7 +33212,7 @@ void dump_json_VkPhysicalDeviceShaderObjectPropertiesEXT(const VkPhysicalDeviceS
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.shaderBinaryUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderBinaryUUID", false, false, indents + 1, dump_json_uint8_t); // IQA
+    dump_json_array<const uint8_t>(object.shaderBinaryUUID, VK_UUID_SIZE, settings, "uint8_t[VK_UUID_SIZE]", "uint8_t", "shaderBinaryUUID", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.shaderBinaryVersion, NULL, settings, "uint32_t", "shaderBinaryVersion", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -33244,11 +33244,11 @@ void dump_json_VkShaderCreateInfoEXT(const VkShaderCreateInfoEXT& object, const 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.setLayoutCount, NULL, settings, "uint32_t", "setLayoutCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", false, false, indents + 1, dump_json_VkDescriptorSetLayout); // JQA
+    dump_json_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", false, false, indents + 1, dump_json_VkDescriptorSetLayout);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.pushConstantRangeCount, NULL, settings, "uint32_t", "pushConstantRangeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", true, false, indents + 1, dump_json_VkPushConstantRange); // JQA
+    dump_json_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", true, false, indents + 1, dump_json_VkPushConstantRange);
     settings.stream() << ",\n";
     dump_json_pointer<const VkSpecializationInfo>(object.pSpecializationInfo, settings, "const VkSpecializationInfo*", "pSpecializationInfo", true, false, indents + 1, dump_json_VkSpecializationInfo);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -33548,7 +33548,7 @@ void dump_json_VkLayerSettingsCreateInfoEXT(const VkLayerSettingsCreateInfoEXT& 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.settingCount, NULL, settings, "uint32_t", "settingCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkLayerSettingEXT>(object.pSettings, object.settingCount, settings, "const VkLayerSettingEXT*", "const VkLayerSettingEXT", "pSettings", true, false, indents + 1, dump_json_VkLayerSettingEXT); // JQA
+    dump_json_array<const VkLayerSettingEXT>(object.pSettings, object.settingCount, settings, "const VkLayerSettingEXT*", "const VkLayerSettingEXT", "pSettings", true, false, indents + 1, dump_json_VkLayerSettingEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM(const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM& object, const ApiDumpSettings& settings, int indents)
@@ -33714,7 +33714,7 @@ void dump_json_VkGetLatencyMarkerInfoNV(const VkGetLatencyMarkerInfoNV& object, 
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.timingCount, NULL, settings, "uint32_t", "timingCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkLatencyTimingsFrameReportNV>(object.pTimings, object.timingCount, settings, "VkLatencyTimingsFrameReportNV*", "VkLatencyTimingsFrameReportNV", "pTimings", true, false, indents + 1, dump_json_VkLatencyTimingsFrameReportNV); // JQA
+    dump_json_array<const VkLatencyTimingsFrameReportNV>(object.pTimings, object.timingCount, settings, "VkLatencyTimingsFrameReportNV*", "VkLatencyTimingsFrameReportNV", "pTimings", true, false, indents + 1, dump_json_VkLatencyTimingsFrameReportNV);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkLatencySubmissionPresentIdNV(const VkLatencySubmissionPresentIdNV& object, const ApiDumpSettings& settings, int indents)
@@ -33772,7 +33772,7 @@ void dump_json_VkLatencySurfaceCapabilitiesNV(const VkLatencySurfaceCapabilities
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.presentModeCount, NULL, settings, "uint32_t", "presentModeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", false, false, indents + 1, dump_json_VkPresentModeKHR); // JQA
+    dump_json_array<const VkPresentModeKHR>(object.pPresentModes, object.presentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", false, false, indents + 1, dump_json_VkPresentModeKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM(const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM& object, const ApiDumpSettings& settings, int indents)
@@ -33802,7 +33802,7 @@ void dump_json_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM(const VkMult
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.perViewRenderAreaCount, NULL, settings, "uint32_t", "perViewRenderAreaCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRect2D>(object.pPerViewRenderAreas, object.perViewRenderAreaCount, settings, "const VkRect2D*", "const VkRect2D", "pPerViewRenderAreas", true, false, indents + 1, dump_json_VkRect2D); // JQA
+    dump_json_array<const VkRect2D>(object.pPerViewRenderAreas, object.perViewRenderAreaCount, settings, "const VkRect2D*", "const VkRect2D", "pPerViewRenderAreas", true, false, indents + 1, dump_json_VkRect2D);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDevicePerStageDescriptorSetFeaturesNV(const VkPhysicalDevicePerStageDescriptorSetFeaturesNV& object, const ApiDumpSettings& settings, int indents)
@@ -34716,7 +34716,7 @@ void dump_json_VkPartitionedAccelerationStructureWriteInstanceDataNV(const VkPar
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const VkTransformMatrixKHR>(object.transform, NULL, settings, "VkTransformMatrixKHR", "transform", true, false, indents + 1, dump_json_VkTransformMatrixKHR);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.explicitAABB, 6, settings, "float[6]", "float", "explicitAABB", false, false, indents + 1, dump_json_float); // IQA
+    dump_json_array<const float>(object.explicitAABB, 6, settings, "float[6]", "float", "explicitAABB", false, false, indents + 1, dump_json_float);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.instanceID, NULL, settings, "uint32_t", "instanceID", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -34748,7 +34748,7 @@ void dump_json_VkPartitionedAccelerationStructureWritePartitionTranslationDataNV
     settings.stream() << settings.indentation(indents) << "[\n";
     dump_json_value<const uint32_t>(object.partitionIndex, NULL, settings, "uint32_t", "partitionIndex", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const float>(object.partitionTranslation, 3, settings, "float[3]", "float", "partitionTranslation", false, false, indents + 1, dump_json_float); // IQA
+    dump_json_array<const float>(object.partitionTranslation, 3, settings, "float[3]", "float", "partitionTranslation", false, false, indents + 1, dump_json_float);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkWriteDescriptorSetPartitionedAccelerationStructureNV(const VkWriteDescriptorSetPartitionedAccelerationStructureNV& object, const ApiDumpSettings& settings, int indents)
@@ -34764,7 +34764,7 @@ void dump_json_VkWriteDescriptorSetPartitionedAccelerationStructureNV(const VkWr
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.accelerationStructureCount, NULL, settings, "uint32_t", "accelerationStructureCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDeviceAddress>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkDeviceAddress*", "const VkDeviceAddress", "pAccelerationStructures", false, false, indents + 1, dump_json_VkDeviceAddress); // JQA
+    dump_json_array<const VkDeviceAddress>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkDeviceAddress*", "const VkDeviceAddress", "pAccelerationStructures", false, false, indents + 1, dump_json_VkDeviceAddress);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPartitionedAccelerationStructureInstancesInputNV(const VkPartitionedAccelerationStructureInstancesInputNV& object, const ApiDumpSettings& settings, int indents)
@@ -34914,7 +34914,7 @@ void dump_json_VkIndirectExecutionSetShaderLayoutInfoEXT(const VkIndirectExecuti
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.setLayoutCount, NULL, settings, "uint32_t", "setLayoutCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", false, false, indents + 1, dump_json_VkDescriptorSetLayout); // JQA
+    dump_json_array<const VkDescriptorSetLayout>(object.pSetLayouts, object.setLayoutCount, settings, "const VkDescriptorSetLayout*", "const VkDescriptorSetLayout", "pSetLayouts", false, false, indents + 1, dump_json_VkDescriptorSetLayout);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkIndirectExecutionSetShaderInfoEXT(const VkIndirectExecutionSetShaderInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -34930,15 +34930,15 @@ void dump_json_VkIndirectExecutionSetShaderInfoEXT(const VkIndirectExecutionSetS
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.shaderCount, NULL, settings, "uint32_t", "shaderCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkShaderEXT>(object.pInitialShaders, object.shaderCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pInitialShaders", false, false, indents + 1, dump_json_VkShaderEXT); // JQA
+    dump_json_array<const VkShaderEXT>(object.pInitialShaders, object.shaderCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pInitialShaders", false, false, indents + 1, dump_json_VkShaderEXT);
     settings.stream() << ",\n";
-    dump_json_array<const VkIndirectExecutionSetShaderLayoutInfoEXT>(object.pSetLayoutInfos, object.shaderCount, settings, "const VkIndirectExecutionSetShaderLayoutInfoEXT*", "const VkIndirectExecutionSetShaderLayoutInfoEXT", "pSetLayoutInfos", true, false, indents + 1, dump_json_VkIndirectExecutionSetShaderLayoutInfoEXT); // JQA
+    dump_json_array<const VkIndirectExecutionSetShaderLayoutInfoEXT>(object.pSetLayoutInfos, object.shaderCount, settings, "const VkIndirectExecutionSetShaderLayoutInfoEXT*", "const VkIndirectExecutionSetShaderLayoutInfoEXT", "pSetLayoutInfos", true, false, indents + 1, dump_json_VkIndirectExecutionSetShaderLayoutInfoEXT);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxShaderCount, NULL, settings, "uint32_t", "maxShaderCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.pushConstantRangeCount, NULL, settings, "uint32_t", "pushConstantRangeCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", true, false, indents + 1, dump_json_VkPushConstantRange); // JQA
+    dump_json_array<const VkPushConstantRange>(object.pPushConstantRanges, object.pushConstantRangeCount, settings, "const VkPushConstantRange*", "const VkPushConstantRange", "pPushConstantRanges", true, false, indents + 1, dump_json_VkPushConstantRange);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkIndirectExecutionSetCreateInfoEXT(const VkIndirectExecutionSetCreateInfoEXT& object, const ApiDumpSettings& settings, int indents)
@@ -35071,7 +35071,7 @@ void dump_json_VkIndirectCommandsLayoutCreateInfoEXT(const VkIndirectCommandsLay
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.tokenCount, NULL, settings, "uint32_t", "tokenCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkIndirectCommandsLayoutTokenEXT>(object.pTokens, object.tokenCount, settings, "const VkIndirectCommandsLayoutTokenEXT*", "const VkIndirectCommandsLayoutTokenEXT", "pTokens", true, false, indents + 1, dump_json_VkIndirectCommandsLayoutTokenEXT); // JQA
+    dump_json_array<const VkIndirectCommandsLayoutTokenEXT>(object.pTokens, object.tokenCount, settings, "const VkIndirectCommandsLayoutTokenEXT*", "const VkIndirectCommandsLayoutTokenEXT", "pTokens", true, false, indents + 1, dump_json_VkIndirectCommandsLayoutTokenEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkDrawIndirectCountIndirectCommandEXT(const VkDrawIndirectCountIndirectCommandEXT& object, const ApiDumpSettings& settings, int indents)
@@ -35131,7 +35131,7 @@ void dump_json_VkGeneratedCommandsShaderInfoEXT(const VkGeneratedCommandsShaderI
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.shaderCount, NULL, settings, "uint32_t", "shaderCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkShaderEXT>(object.pShaders, object.shaderCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pShaders", false, false, indents + 1, dump_json_VkShaderEXT); // JQA
+    dump_json_array<const VkShaderEXT>(object.pShaders, object.shaderCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pShaders", false, false, indents + 1, dump_json_VkShaderEXT);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkWriteIndirectExecutionSetShaderEXT(const VkWriteIndirectExecutionSetShaderEXT& object, const ApiDumpSettings& settings, int indents)
@@ -35653,9 +35653,9 @@ void dump_json_VkAccelerationStructureBuildGeometryInfoKHR(const VkAccelerationS
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.geometryCount, NULL, settings, "uint32_t", "geometryCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkAccelerationStructureGeometryKHR>(object.pGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR*", "const VkAccelerationStructureGeometryKHR", "pGeometries", true, false, indents + 1, dump_json_VkAccelerationStructureGeometryKHR); // JQA
+    dump_json_array<const VkAccelerationStructureGeometryKHR>(object.pGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR*", "const VkAccelerationStructureGeometryKHR", "pGeometries", true, false, indents + 1, dump_json_VkAccelerationStructureGeometryKHR);
     settings.stream() << ",\n";
-    dump_json_array<const VkAccelerationStructureGeometryKHR>(object.ppGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR* const*", "const VkAccelerationStructureGeometryKHR* const", "ppGeometries", true, false, indents + 1, dump_json_VkAccelerationStructureGeometryKHR); // JQA
+    dump_json_array<const VkAccelerationStructureGeometryKHR>(object.ppGeometries, object.geometryCount, settings, "const VkAccelerationStructureGeometryKHR* const*", "const VkAccelerationStructureGeometryKHR* const", "ppGeometries", true, false, indents + 1, dump_json_VkAccelerationStructureGeometryKHR);
     settings.stream() << ",\n";
     dump_json_value<const VkDeviceOrHostAddressKHR>(object.scratchData, NULL, settings, "VkDeviceOrHostAddressKHR", "scratchData", false, true, indents + 1, dump_json_VkDeviceOrHostAddressKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
@@ -35697,7 +35697,7 @@ void dump_json_VkWriteDescriptorSetAccelerationStructureKHR(const VkWriteDescrip
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.accelerationStructureCount, NULL, settings, "uint32_t", "accelerationStructureCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkAccelerationStructureKHR>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", false, false, indents + 1, dump_json_VkAccelerationStructureKHR); // JQA
+    dump_json_array<const VkAccelerationStructureKHR>(object.pAccelerationStructures, object.accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", false, false, indents + 1, dump_json_VkAccelerationStructureKHR);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkPhysicalDeviceAccelerationStructureFeaturesKHR(const VkPhysicalDeviceAccelerationStructureFeaturesKHR& object, const ApiDumpSettings& settings, int indents)
@@ -35775,7 +35775,7 @@ void dump_json_VkAccelerationStructureVersionInfoKHR(const VkAccelerationStructu
         dump_json_value<const void*>(object.pNext, object.pNext, settings, "const void*", "pNext", false, false, indents + 1, dump_json_void);
     }
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.pVersionData, 2*VK_UUID_SIZE, settings, "const uint8_t*", "const uint8_t", "pVersionData", false, false, indents + 1, dump_json_uint8_t); // JQA
+    dump_json_array<const uint8_t>(object.pVersionData, 2*VK_UUID_SIZE, settings, "const uint8_t*", "const uint8_t", "pVersionData", false, false, indents + 1, dump_json_uint8_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkCopyAccelerationStructureToMemoryInfoKHR(const VkCopyAccelerationStructureToMemoryInfoKHR& object, const ApiDumpSettings& settings, int indents)
@@ -35887,11 +35887,11 @@ void dump_json_VkRayTracingPipelineCreateInfoKHR(const VkRayTracingPipelineCreat
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.stageCount, NULL, settings, "uint32_t", "stageCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", true, false, indents + 1, dump_json_VkPipelineShaderStageCreateInfo); // JQA
+    dump_json_array<const VkPipelineShaderStageCreateInfo>(object.pStages, object.stageCount, settings, "const VkPipelineShaderStageCreateInfo*", "const VkPipelineShaderStageCreateInfo", "pStages", true, false, indents + 1, dump_json_VkPipelineShaderStageCreateInfo);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.groupCount, NULL, settings, "uint32_t", "groupCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const VkRayTracingShaderGroupCreateInfoKHR>(object.pGroups, object.groupCount, settings, "const VkRayTracingShaderGroupCreateInfoKHR*", "const VkRayTracingShaderGroupCreateInfoKHR", "pGroups", true, false, indents + 1, dump_json_VkRayTracingShaderGroupCreateInfoKHR); // JQA
+    dump_json_array<const VkRayTracingShaderGroupCreateInfoKHR>(object.pGroups, object.groupCount, settings, "const VkRayTracingShaderGroupCreateInfoKHR*", "const VkRayTracingShaderGroupCreateInfoKHR", "pGroups", true, false, indents + 1, dump_json_VkRayTracingShaderGroupCreateInfoKHR);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxPipelineRayRecursionDepth, NULL, settings, "uint32_t", "maxPipelineRayRecursionDepth", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -36017,11 +36017,11 @@ void dump_json_VkPhysicalDeviceMeshShaderPropertiesEXT(const VkPhysicalDeviceMes
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxTaskWorkGroupTotalCount, NULL, settings, "uint32_t", "maxTaskWorkGroupTotalCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxTaskWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupCount", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxTaskWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxTaskWorkGroupInvocations, NULL, settings, "uint32_t", "maxTaskWorkGroupInvocations", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxTaskWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupSize", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxTaskWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxTaskWorkGroupSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxTaskPayloadSize, NULL, settings, "uint32_t", "maxTaskPayloadSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -36031,11 +36031,11 @@ void dump_json_VkPhysicalDeviceMeshShaderPropertiesEXT(const VkPhysicalDeviceMes
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxMeshWorkGroupTotalCount, NULL, settings, "uint32_t", "maxMeshWorkGroupTotalCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxMeshWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupCount", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxMeshWorkGroupCount, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupCount", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxMeshWorkGroupInvocations, NULL, settings, "uint32_t", "maxMeshWorkGroupInvocations", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.maxMeshWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupSize", false, false, indents + 1, dump_json_uint32_t); // IQA
+    dump_json_array<const uint32_t>(object.maxMeshWorkGroupSize, 3, settings, "uint32_t[3]", "uint32_t", "maxMeshWorkGroupSize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
     dump_json_value<const uint32_t>(object.maxMeshSharedMemorySize, NULL, settings, "uint32_t", "maxMeshSharedMemorySize", false, false, indents + 1, dump_json_uint32_t);
     settings.stream() << ",\n";
@@ -36088,11 +36088,11 @@ void dump_json_VkDrawMeshTasksIndirectCommandEXT(const VkDrawMeshTasksIndirectCo
 void dump_json_VkClearColorValue(const VkClearColorValue& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_array<const float>(object.float32, 4, settings, "float[4]", "float", "float32", false, false, indents + 2, dump_json_float); // OQA
+    dump_json_array<const float>(object.float32, 4, settings, "float[4]", "float", "float32", false, false, indents + 2, dump_json_float);
     settings.stream() << ",\n"; // Only need commas when more than one field is printed
-    dump_json_array<const int32_t>(object.int32, 4, settings, "int32_t[4]", "int32_t", "int32", false, false, indents + 2, dump_json_int32_t); // OQA
+    dump_json_array<const int32_t>(object.int32, 4, settings, "int32_t[4]", "int32_t", "int32", false, false, indents + 2, dump_json_int32_t);
     settings.stream() << ",\n"; // Only need commas when more than one field is printed
-    dump_json_array<const uint32_t>(object.uint32, 4, settings, "uint32_t[4]", "uint32_t", "uint32", false, false, indents + 2, dump_json_uint32_t); // OQA
+    dump_json_array<const uint32_t>(object.uint32, 4, settings, "uint32_t[4]", "uint32_t", "uint32", false, false, indents + 2, dump_json_uint32_t);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 void dump_json_VkClearValue(const VkClearValue& object, const ApiDumpSettings& settings, int indents)
@@ -39709,7 +39709,7 @@ void dump_json_params_vkEnumeratePhysicalDevices(ApiDumpInstance& dump_inst, VkI
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPhysicalDeviceCount, settings, "uint32_t*", "pPhysicalDeviceCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPhysicalDevice>(pPhysicalDevices, *pPhysicalDeviceCount, settings, "VkPhysicalDevice*", "VkPhysicalDevice", "pPhysicalDevices", false, false, 4, dump_json_VkPhysicalDevice); // PQA
+        dump_json_array<const VkPhysicalDevice>(pPhysicalDevices, *pPhysicalDeviceCount, settings, "VkPhysicalDevice*", "VkPhysicalDevice", "pPhysicalDevices", false, false, 4, dump_json_VkPhysicalDevice);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -39798,7 +39798,7 @@ void dump_json_params_vkGetPhysicalDeviceQueueFamilyProperties(ApiDumpInstance& 
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pQueueFamilyPropertyCount, settings, "uint32_t*", "pQueueFamilyPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkQueueFamilyProperties>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties*", "VkQueueFamilyProperties", "pQueueFamilyProperties", true, false, 4, dump_json_VkQueueFamilyProperties); // PQA
+        dump_json_array<const VkQueueFamilyProperties>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties*", "VkQueueFamilyProperties", "pQueueFamilyProperties", true, false, 4, dump_json_VkQueueFamilyProperties);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -39864,7 +39864,7 @@ void dump_json_params_vkEnumerateInstanceExtensionProperties(ApiDumpInstance& du
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkExtensionProperties>(pProperties, *pPropertyCount, settings, "VkExtensionProperties*", "VkExtensionProperties", "pProperties", true, false, 4, dump_json_VkExtensionProperties); // PQA
+        dump_json_array<const VkExtensionProperties>(pProperties, *pPropertyCount, settings, "VkExtensionProperties*", "VkExtensionProperties", "pProperties", true, false, 4, dump_json_VkExtensionProperties);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -39883,7 +39883,7 @@ void dump_json_params_vkEnumerateDeviceExtensionProperties(ApiDumpInstance& dump
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkExtensionProperties>(pProperties, *pPropertyCount, settings, "VkExtensionProperties*", "VkExtensionProperties", "pProperties", true, false, 4, dump_json_VkExtensionProperties); // PQA
+        dump_json_array<const VkExtensionProperties>(pProperties, *pPropertyCount, settings, "VkExtensionProperties*", "VkExtensionProperties", "pProperties", true, false, 4, dump_json_VkExtensionProperties);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -39898,7 +39898,7 @@ void dump_json_params_vkEnumerateInstanceLayerProperties(ApiDumpInstance& dump_i
         settings.stream() << settings.indentation(3) << "[\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkLayerProperties>(pProperties, *pPropertyCount, settings, "VkLayerProperties*", "VkLayerProperties", "pProperties", true, false, 4, dump_json_VkLayerProperties); // PQA
+        dump_json_array<const VkLayerProperties>(pProperties, *pPropertyCount, settings, "VkLayerProperties*", "VkLayerProperties", "pProperties", true, false, 4, dump_json_VkLayerProperties);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -39915,7 +39915,7 @@ void dump_json_params_vkEnumerateDeviceLayerProperties(ApiDumpInstance& dump_ins
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkLayerProperties>(pProperties, *pPropertyCount, settings, "VkLayerProperties*", "VkLayerProperties", "pProperties", true, false, 4, dump_json_VkLayerProperties); // PQA
+        dump_json_array<const VkLayerProperties>(pProperties, *pPropertyCount, settings, "VkLayerProperties*", "VkLayerProperties", "pProperties", true, false, 4, dump_json_VkLayerProperties);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -39951,7 +39951,7 @@ void dump_json_params_vkQueueSubmit(ApiDumpInstance& dump_inst, VkQueue queue, u
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(submitCount, NULL, settings, "uint32_t", "submitCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSubmitInfo>(pSubmits, submitCount, settings, "const VkSubmitInfo*", "const VkSubmitInfo", "pSubmits", true, false, 4, dump_json_VkSubmitInfo); // PQA
+        dump_json_array<const VkSubmitInfo>(pSubmits, submitCount, settings, "const VkSubmitInfo*", "const VkSubmitInfo", "pSubmits", true, false, 4, dump_json_VkSubmitInfo);
         settings.stream() << ",\n";
         dump_json_value<const VkFence>(fence, NULL, settings, "VkFence", "fence", false, false, 4, dump_json_VkFence);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
@@ -40070,7 +40070,7 @@ void dump_json_params_vkFlushMappedMemoryRanges(ApiDumpInstance& dump_inst, VkDe
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(memoryRangeCount, NULL, settings, "uint32_t", "memoryRangeCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkMappedMemoryRange>(pMemoryRanges, memoryRangeCount, settings, "const VkMappedMemoryRange*", "const VkMappedMemoryRange", "pMemoryRanges", true, false, 4, dump_json_VkMappedMemoryRange); // PQA
+        dump_json_array<const VkMappedMemoryRange>(pMemoryRanges, memoryRangeCount, settings, "const VkMappedMemoryRange*", "const VkMappedMemoryRange", "pMemoryRanges", true, false, 4, dump_json_VkMappedMemoryRange);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -40087,7 +40087,7 @@ void dump_json_params_vkInvalidateMappedMemoryRanges(ApiDumpInstance& dump_inst,
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(memoryRangeCount, NULL, settings, "uint32_t", "memoryRangeCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkMappedMemoryRange>(pMemoryRanges, memoryRangeCount, settings, "const VkMappedMemoryRange*", "const VkMappedMemoryRange", "pMemoryRanges", true, false, 4, dump_json_VkMappedMemoryRange); // PQA
+        dump_json_array<const VkMappedMemoryRange>(pMemoryRanges, memoryRangeCount, settings, "const VkMappedMemoryRange*", "const VkMappedMemoryRange", "pMemoryRanges", true, false, 4, dump_json_VkMappedMemoryRange);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -40195,7 +40195,7 @@ void dump_json_params_vkGetImageSparseMemoryRequirements(ApiDumpInstance& dump_i
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pSparseMemoryRequirementCount, settings, "uint32_t*", "pSparseMemoryRequirementCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSparseImageMemoryRequirements>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements*", "VkSparseImageMemoryRequirements", "pSparseMemoryRequirements", true, false, 4, dump_json_VkSparseImageMemoryRequirements); // PQA
+        dump_json_array<const VkSparseImageMemoryRequirements>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements*", "VkSparseImageMemoryRequirements", "pSparseMemoryRequirements", true, false, 4, dump_json_VkSparseImageMemoryRequirements);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -40222,7 +40222,7 @@ void dump_json_params_vkGetPhysicalDeviceSparseImageFormatProperties(ApiDumpInst
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSparseImageFormatProperties>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties*", "VkSparseImageFormatProperties", "pProperties", true, false, 4, dump_json_VkSparseImageFormatProperties); // PQA
+        dump_json_array<const VkSparseImageFormatProperties>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties*", "VkSparseImageFormatProperties", "pProperties", true, false, 4, dump_json_VkSparseImageFormatProperties);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -40239,7 +40239,7 @@ void dump_json_params_vkQueueBindSparse(ApiDumpInstance& dump_inst, VkQueue queu
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindInfoCount, NULL, settings, "uint32_t", "bindInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBindSparseInfo>(pBindInfo, bindInfoCount, settings, "const VkBindSparseInfo*", "const VkBindSparseInfo", "pBindInfo", true, false, 4, dump_json_VkBindSparseInfo); // PQA
+        dump_json_array<const VkBindSparseInfo>(pBindInfo, bindInfoCount, settings, "const VkBindSparseInfo*", "const VkBindSparseInfo", "pBindInfo", true, false, 4, dump_json_VkBindSparseInfo);
         settings.stream() << ",\n";
         dump_json_value<const VkFence>(fence, NULL, settings, "VkFence", "fence", false, false, 4, dump_json_VkFence);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
@@ -40294,7 +40294,7 @@ void dump_json_params_vkResetFences(ApiDumpInstance& dump_inst, VkDevice device,
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(fenceCount, NULL, settings, "uint32_t", "fenceCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkFence>(pFences, fenceCount, settings, "const VkFence*", "const VkFence", "pFences", false, false, 4, dump_json_VkFence); // PQA
+        dump_json_array<const VkFence>(pFences, fenceCount, settings, "const VkFence*", "const VkFence", "pFences", false, false, 4, dump_json_VkFence);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -40326,7 +40326,7 @@ void dump_json_params_vkWaitForFences(ApiDumpInstance& dump_inst, VkDevice devic
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(fenceCount, NULL, settings, "uint32_t", "fenceCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkFence>(pFences, fenceCount, settings, "const VkFence*", "const VkFence", "pFences", false, false, 4, dump_json_VkFence); // PQA
+        dump_json_array<const VkFence>(pFences, fenceCount, settings, "const VkFence*", "const VkFence", "pFences", false, false, 4, dump_json_VkFence);
         settings.stream() << ",\n";
         dump_json_value<const VkBool32>(waitAll, NULL, settings, "VkBool32", "waitAll", false, false, 4, dump_json_VkBool32);
         settings.stream() << ",\n";
@@ -40783,7 +40783,7 @@ void dump_json_params_vkMergePipelineCaches(ApiDumpInstance& dump_inst, VkDevice
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(srcCacheCount, NULL, settings, "uint32_t", "srcCacheCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPipelineCache>(pSrcCaches, srcCacheCount, settings, "const VkPipelineCache*", "const VkPipelineCache", "pSrcCaches", false, false, 4, dump_json_VkPipelineCache); // PQA
+        dump_json_array<const VkPipelineCache>(pSrcCaches, srcCacheCount, settings, "const VkPipelineCache*", "const VkPipelineCache", "pSrcCaches", false, false, 4, dump_json_VkPipelineCache);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -40802,11 +40802,11 @@ void dump_json_params_vkCreateGraphicsPipelines(ApiDumpInstance& dump_inst, VkDe
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(createInfoCount, NULL, settings, "uint32_t", "createInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkGraphicsPipelineCreateInfo>(pCreateInfos, createInfoCount, settings, "const VkGraphicsPipelineCreateInfo*", "const VkGraphicsPipelineCreateInfo", "pCreateInfos", true, false, 4, dump_json_VkGraphicsPipelineCreateInfo); // PQA
+        dump_json_array<const VkGraphicsPipelineCreateInfo>(pCreateInfos, createInfoCount, settings, "const VkGraphicsPipelineCreateInfo*", "const VkGraphicsPipelineCreateInfo", "pCreateInfos", true, false, 4, dump_json_VkGraphicsPipelineCreateInfo);
         settings.stream() << ",\n";
         dump_json_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", true, false, 4, dump_json_VkAllocationCallbacks);
         settings.stream() << ",\n";
-        dump_json_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", false, false, 4, dump_json_VkPipeline); // PQA
+        dump_json_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", false, false, 4, dump_json_VkPipeline);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -40825,11 +40825,11 @@ void dump_json_params_vkCreateComputePipelines(ApiDumpInstance& dump_inst, VkDev
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(createInfoCount, NULL, settings, "uint32_t", "createInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkComputePipelineCreateInfo>(pCreateInfos, createInfoCount, settings, "const VkComputePipelineCreateInfo*", "const VkComputePipelineCreateInfo", "pCreateInfos", true, false, 4, dump_json_VkComputePipelineCreateInfo); // PQA
+        dump_json_array<const VkComputePipelineCreateInfo>(pCreateInfos, createInfoCount, settings, "const VkComputePipelineCreateInfo*", "const VkComputePipelineCreateInfo", "pCreateInfos", true, false, 4, dump_json_VkComputePipelineCreateInfo);
         settings.stream() << ",\n";
         dump_json_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", true, false, 4, dump_json_VkAllocationCallbacks);
         settings.stream() << ",\n";
-        dump_json_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", false, false, 4, dump_json_VkPipeline); // PQA
+        dump_json_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", false, false, 4, dump_json_VkPipeline);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41024,7 +41024,7 @@ void dump_json_params_vkAllocateDescriptorSets(ApiDumpInstance& dump_inst, VkDev
         settings.stream() << ",\n";
         dump_json_pointer<const VkDescriptorSetAllocateInfo>(pAllocateInfo, settings, "const VkDescriptorSetAllocateInfo*", "pAllocateInfo", true, false, 4, dump_json_VkDescriptorSetAllocateInfo);
         settings.stream() << ",\n";
-        dump_json_array<const VkDescriptorSet>(pDescriptorSets, pAllocateInfo->descriptorSetCount, settings, "VkDescriptorSet*", "VkDescriptorSet", "pDescriptorSets", false, false, 4, dump_json_VkDescriptorSet); // PQA
+        dump_json_array<const VkDescriptorSet>(pDescriptorSets, pAllocateInfo->descriptorSetCount, settings, "VkDescriptorSet*", "VkDescriptorSet", "pDescriptorSets", false, false, 4, dump_json_VkDescriptorSet);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41043,7 +41043,7 @@ void dump_json_params_vkFreeDescriptorSets(ApiDumpInstance& dump_inst, VkDevice 
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(descriptorSetCount, NULL, settings, "uint32_t", "descriptorSetCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDescriptorSet>(pDescriptorSets, descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", false, false, 4, dump_json_VkDescriptorSet); // PQA
+        dump_json_array<const VkDescriptorSet>(pDescriptorSets, descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", false, false, 4, dump_json_VkDescriptorSet);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41060,11 +41060,11 @@ void dump_json_params_vkUpdateDescriptorSets(ApiDumpInstance& dump_inst, VkDevic
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(descriptorWriteCount, NULL, settings, "uint32_t", "descriptorWriteCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", true, false, 4, dump_json_VkWriteDescriptorSet); // PQA
+        dump_json_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", true, false, 4, dump_json_VkWriteDescriptorSet);
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(descriptorCopyCount, NULL, settings, "uint32_t", "descriptorCopyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCopyDescriptorSet>(pDescriptorCopies, descriptorCopyCount, settings, "const VkCopyDescriptorSet*", "const VkCopyDescriptorSet", "pDescriptorCopies", true, false, 4, dump_json_VkCopyDescriptorSet); // PQA
+        dump_json_array<const VkCopyDescriptorSet>(pDescriptorCopies, descriptorCopyCount, settings, "const VkCopyDescriptorSet*", "const VkCopyDescriptorSet", "pDescriptorCopies", true, false, 4, dump_json_VkCopyDescriptorSet);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41223,7 +41223,7 @@ void dump_json_params_vkAllocateCommandBuffers(ApiDumpInstance& dump_inst, VkDev
         settings.stream() << ",\n";
         dump_json_pointer<const VkCommandBufferAllocateInfo>(pAllocateInfo, settings, "const VkCommandBufferAllocateInfo*", "pAllocateInfo", true, false, 4, dump_json_VkCommandBufferAllocateInfo);
         settings.stream() << ",\n";
-        dump_json_array<const VkCommandBuffer>(pCommandBuffers, pAllocateInfo->commandBufferCount, settings, "VkCommandBuffer*", "VkCommandBuffer", "pCommandBuffers", false, false, 4, dump_json_VkCommandBuffer); // PQA
+        dump_json_array<const VkCommandBuffer>(pCommandBuffers, pAllocateInfo->commandBufferCount, settings, "VkCommandBuffer*", "VkCommandBuffer", "pCommandBuffers", false, false, 4, dump_json_VkCommandBuffer);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41242,7 +41242,7 @@ void dump_json_params_vkFreeCommandBuffers(ApiDumpInstance& dump_inst, VkDevice 
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(commandBufferCount, NULL, settings, "uint32_t", "commandBufferCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCommandBuffer>(pCommandBuffers, commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", false, false, 4, dump_json_VkCommandBuffer); // PQA
+        dump_json_array<const VkCommandBuffer>(pCommandBuffers, commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", false, false, 4, dump_json_VkCommandBuffer);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41322,7 +41322,7 @@ void dump_json_params_vkCmdSetViewport(ApiDumpInstance& dump_inst, VkCommandBuff
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(viewportCount, NULL, settings, "uint32_t", "viewportCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", true, false, 4, dump_json_VkViewport); // PQA
+        dump_json_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", true, false, 4, dump_json_VkViewport);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41341,7 +41341,7 @@ void dump_json_params_vkCmdSetScissor(ApiDumpInstance& dump_inst, VkCommandBuffe
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(scissorCount, NULL, settings, "uint32_t", "scissorCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", true, false, 4, dump_json_VkRect2D); // PQA
+        dump_json_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", true, false, 4, dump_json_VkRect2D);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41390,7 +41390,7 @@ void dump_json_params_vkCmdSetBlendConstants(ApiDumpInstance& dump_inst, VkComma
         settings.stream() << settings.indentation(3) << "[\n";
         dump_json_value<const VkCommandBuffer>(commandBuffer, NULL, settings, "VkCommandBuffer", "commandBuffer", false, false, 4, dump_json_VkCommandBuffer);
         settings.stream() << ",\n";
-        dump_json_array<const float>(blendConstants, 4, settings, "const float[4]", "const float", "blendConstants", false, false, 4, dump_json_float); // PQA
+        dump_json_array<const float>(blendConstants, 4, settings, "const float[4]", "const float", "blendConstants", false, false, 4, dump_json_float);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41481,11 +41481,11 @@ void dump_json_params_vkCmdBindDescriptorSets(ApiDumpInstance& dump_inst, VkComm
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(descriptorSetCount, NULL, settings, "uint32_t", "descriptorSetCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDescriptorSet>(pDescriptorSets, descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", false, false, 4, dump_json_VkDescriptorSet); // PQA
+        dump_json_array<const VkDescriptorSet>(pDescriptorSets, descriptorSetCount, settings, "const VkDescriptorSet*", "const VkDescriptorSet", "pDescriptorSets", false, false, 4, dump_json_VkDescriptorSet);
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(dynamicOffsetCount, NULL, settings, "uint32_t", "dynamicOffsetCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const uint32_t>(pDynamicOffsets, dynamicOffsetCount, settings, "const uint32_t*", "const uint32_t", "pDynamicOffsets", false, false, 4, dump_json_uint32_t); // PQA
+        dump_json_array<const uint32_t>(pDynamicOffsets, dynamicOffsetCount, settings, "const uint32_t*", "const uint32_t", "pDynamicOffsets", false, false, 4, dump_json_uint32_t);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41523,9 +41523,9 @@ void dump_json_params_vkCmdBindVertexBuffers(ApiDumpInstance& dump_inst, VkComma
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindingCount, NULL, settings, "uint32_t", "bindingCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", false, false, 4, dump_json_VkBuffer); // PQA
+        dump_json_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", false, false, 4, dump_json_VkBuffer);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41668,7 +41668,7 @@ void dump_json_params_vkCmdCopyBuffer(ApiDumpInstance& dump_inst, VkCommandBuffe
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(regionCount, NULL, settings, "uint32_t", "regionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBufferCopy>(pRegions, regionCount, settings, "const VkBufferCopy*", "const VkBufferCopy", "pRegions", true, false, 4, dump_json_VkBufferCopy); // PQA
+        dump_json_array<const VkBufferCopy>(pRegions, regionCount, settings, "const VkBufferCopy*", "const VkBufferCopy", "pRegions", true, false, 4, dump_json_VkBufferCopy);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41693,7 +41693,7 @@ void dump_json_params_vkCmdCopyImage(ApiDumpInstance& dump_inst, VkCommandBuffer
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(regionCount, NULL, settings, "uint32_t", "regionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkImageCopy>(pRegions, regionCount, settings, "const VkImageCopy*", "const VkImageCopy", "pRegions", true, false, 4, dump_json_VkImageCopy); // PQA
+        dump_json_array<const VkImageCopy>(pRegions, regionCount, settings, "const VkImageCopy*", "const VkImageCopy", "pRegions", true, false, 4, dump_json_VkImageCopy);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41718,7 +41718,7 @@ void dump_json_params_vkCmdBlitImage(ApiDumpInstance& dump_inst, VkCommandBuffer
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(regionCount, NULL, settings, "uint32_t", "regionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkImageBlit>(pRegions, regionCount, settings, "const VkImageBlit*", "const VkImageBlit", "pRegions", true, false, 4, dump_json_VkImageBlit); // PQA
+        dump_json_array<const VkImageBlit>(pRegions, regionCount, settings, "const VkImageBlit*", "const VkImageBlit", "pRegions", true, false, 4, dump_json_VkImageBlit);
         settings.stream() << ",\n";
         dump_json_value<const VkFilter>(filter, NULL, settings, "VkFilter", "filter", false, false, 4, dump_json_VkFilter);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
@@ -41743,7 +41743,7 @@ void dump_json_params_vkCmdCopyBufferToImage(ApiDumpInstance& dump_inst, VkComma
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(regionCount, NULL, settings, "uint32_t", "regionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBufferImageCopy>(pRegions, regionCount, settings, "const VkBufferImageCopy*", "const VkBufferImageCopy", "pRegions", true, false, 4, dump_json_VkBufferImageCopy); // PQA
+        dump_json_array<const VkBufferImageCopy>(pRegions, regionCount, settings, "const VkBufferImageCopy*", "const VkBufferImageCopy", "pRegions", true, false, 4, dump_json_VkBufferImageCopy);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41766,7 +41766,7 @@ void dump_json_params_vkCmdCopyImageToBuffer(ApiDumpInstance& dump_inst, VkComma
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(regionCount, NULL, settings, "uint32_t", "regionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBufferImageCopy>(pRegions, regionCount, settings, "const VkBufferImageCopy*", "const VkBufferImageCopy", "pRegions", true, false, 4, dump_json_VkBufferImageCopy); // PQA
+        dump_json_array<const VkBufferImageCopy>(pRegions, regionCount, settings, "const VkBufferImageCopy*", "const VkBufferImageCopy", "pRegions", true, false, 4, dump_json_VkBufferImageCopy);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41831,7 +41831,7 @@ void dump_json_params_vkCmdClearColorImage(ApiDumpInstance& dump_inst, VkCommand
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(rangeCount, NULL, settings, "uint32_t", "rangeCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkImageSubresourceRange>(pRanges, rangeCount, settings, "const VkImageSubresourceRange*", "const VkImageSubresourceRange", "pRanges", true, false, 4, dump_json_VkImageSubresourceRange); // PQA
+        dump_json_array<const VkImageSubresourceRange>(pRanges, rangeCount, settings, "const VkImageSubresourceRange*", "const VkImageSubresourceRange", "pRanges", true, false, 4, dump_json_VkImageSubresourceRange);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41854,7 +41854,7 @@ void dump_json_params_vkCmdClearDepthStencilImage(ApiDumpInstance& dump_inst, Vk
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(rangeCount, NULL, settings, "uint32_t", "rangeCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkImageSubresourceRange>(pRanges, rangeCount, settings, "const VkImageSubresourceRange*", "const VkImageSubresourceRange", "pRanges", true, false, 4, dump_json_VkImageSubresourceRange); // PQA
+        dump_json_array<const VkImageSubresourceRange>(pRanges, rangeCount, settings, "const VkImageSubresourceRange*", "const VkImageSubresourceRange", "pRanges", true, false, 4, dump_json_VkImageSubresourceRange);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41871,11 +41871,11 @@ void dump_json_params_vkCmdClearAttachments(ApiDumpInstance& dump_inst, VkComman
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkClearAttachment>(pAttachments, attachmentCount, settings, "const VkClearAttachment*", "const VkClearAttachment", "pAttachments", true, false, 4, dump_json_VkClearAttachment); // PQA
+        dump_json_array<const VkClearAttachment>(pAttachments, attachmentCount, settings, "const VkClearAttachment*", "const VkClearAttachment", "pAttachments", true, false, 4, dump_json_VkClearAttachment);
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(rectCount, NULL, settings, "uint32_t", "rectCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkClearRect>(pRects, rectCount, settings, "const VkClearRect*", "const VkClearRect", "pRects", true, false, 4, dump_json_VkClearRect); // PQA
+        dump_json_array<const VkClearRect>(pRects, rectCount, settings, "const VkClearRect*", "const VkClearRect", "pRects", true, false, 4, dump_json_VkClearRect);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41900,7 +41900,7 @@ void dump_json_params_vkCmdResolveImage(ApiDumpInstance& dump_inst, VkCommandBuf
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(regionCount, NULL, settings, "uint32_t", "regionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkImageResolve>(pRegions, regionCount, settings, "const VkImageResolve*", "const VkImageResolve", "pRegions", true, false, 4, dump_json_VkImageResolve); // PQA
+        dump_json_array<const VkImageResolve>(pRegions, regionCount, settings, "const VkImageResolve*", "const VkImageResolve", "pRegions", true, false, 4, dump_json_VkImageResolve);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41951,7 +41951,7 @@ void dump_json_params_vkCmdWaitEvents(ApiDumpInstance& dump_inst, VkCommandBuffe
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(eventCount, NULL, settings, "uint32_t", "eventCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", false, false, 4, dump_json_VkEvent); // PQA
+        dump_json_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", false, false, 4, dump_json_VkEvent);
         settings.stream() << ",\n";
         dump_json_value<const VkPipelineStageFlags>(srcStageMask, NULL, settings, "VkPipelineStageFlags", "srcStageMask", false, false, 4, dump_json_VkPipelineStageFlags);
         settings.stream() << ",\n";
@@ -41959,15 +41959,15 @@ void dump_json_params_vkCmdWaitEvents(ApiDumpInstance& dump_inst, VkCommandBuffe
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(memoryBarrierCount, NULL, settings, "uint32_t", "memoryBarrierCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkMemoryBarrier>(pMemoryBarriers, memoryBarrierCount, settings, "const VkMemoryBarrier*", "const VkMemoryBarrier", "pMemoryBarriers", true, false, 4, dump_json_VkMemoryBarrier); // PQA
+        dump_json_array<const VkMemoryBarrier>(pMemoryBarriers, memoryBarrierCount, settings, "const VkMemoryBarrier*", "const VkMemoryBarrier", "pMemoryBarriers", true, false, 4, dump_json_VkMemoryBarrier);
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bufferMemoryBarrierCount, NULL, settings, "uint32_t", "bufferMemoryBarrierCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBufferMemoryBarrier>(pBufferMemoryBarriers, bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier*", "const VkBufferMemoryBarrier", "pBufferMemoryBarriers", true, false, 4, dump_json_VkBufferMemoryBarrier); // PQA
+        dump_json_array<const VkBufferMemoryBarrier>(pBufferMemoryBarriers, bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier*", "const VkBufferMemoryBarrier", "pBufferMemoryBarriers", true, false, 4, dump_json_VkBufferMemoryBarrier);
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(imageMemoryBarrierCount, NULL, settings, "uint32_t", "imageMemoryBarrierCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkImageMemoryBarrier>(pImageMemoryBarriers, imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier*", "const VkImageMemoryBarrier", "pImageMemoryBarriers", true, false, 4, dump_json_VkImageMemoryBarrier); // PQA
+        dump_json_array<const VkImageMemoryBarrier>(pImageMemoryBarriers, imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier*", "const VkImageMemoryBarrier", "pImageMemoryBarriers", true, false, 4, dump_json_VkImageMemoryBarrier);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -41990,15 +41990,15 @@ void dump_json_params_vkCmdPipelineBarrier(ApiDumpInstance& dump_inst, VkCommand
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(memoryBarrierCount, NULL, settings, "uint32_t", "memoryBarrierCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkMemoryBarrier>(pMemoryBarriers, memoryBarrierCount, settings, "const VkMemoryBarrier*", "const VkMemoryBarrier", "pMemoryBarriers", true, false, 4, dump_json_VkMemoryBarrier); // PQA
+        dump_json_array<const VkMemoryBarrier>(pMemoryBarriers, memoryBarrierCount, settings, "const VkMemoryBarrier*", "const VkMemoryBarrier", "pMemoryBarriers", true, false, 4, dump_json_VkMemoryBarrier);
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bufferMemoryBarrierCount, NULL, settings, "uint32_t", "bufferMemoryBarrierCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBufferMemoryBarrier>(pBufferMemoryBarriers, bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier*", "const VkBufferMemoryBarrier", "pBufferMemoryBarriers", true, false, 4, dump_json_VkBufferMemoryBarrier); // PQA
+        dump_json_array<const VkBufferMemoryBarrier>(pBufferMemoryBarriers, bufferMemoryBarrierCount, settings, "const VkBufferMemoryBarrier*", "const VkBufferMemoryBarrier", "pBufferMemoryBarriers", true, false, 4, dump_json_VkBufferMemoryBarrier);
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(imageMemoryBarrierCount, NULL, settings, "uint32_t", "imageMemoryBarrierCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkImageMemoryBarrier>(pImageMemoryBarriers, imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier*", "const VkImageMemoryBarrier", "pImageMemoryBarriers", true, false, 4, dump_json_VkImageMemoryBarrier); // PQA
+        dump_json_array<const VkImageMemoryBarrier>(pImageMemoryBarriers, imageMemoryBarrierCount, settings, "const VkImageMemoryBarrier*", "const VkImageMemoryBarrier", "pImageMemoryBarriers", true, false, 4, dump_json_VkImageMemoryBarrier);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -42184,7 +42184,7 @@ void dump_json_params_vkCmdExecuteCommands(ApiDumpInstance& dump_inst, VkCommand
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(commandBufferCount, NULL, settings, "uint32_t", "commandBufferCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCommandBuffer>(pCommandBuffers, commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", false, false, 4, dump_json_VkCommandBuffer); // PQA
+        dump_json_array<const VkCommandBuffer>(pCommandBuffers, commandBufferCount, settings, "const VkCommandBuffer*", "const VkCommandBuffer", "pCommandBuffers", false, false, 4, dump_json_VkCommandBuffer);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -42201,7 +42201,7 @@ void dump_json_params_vkBindBufferMemory2(ApiDumpInstance& dump_inst, VkDevice d
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindInfoCount, NULL, settings, "uint32_t", "bindInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBindBufferMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindBufferMemoryInfo*", "const VkBindBufferMemoryInfo", "pBindInfos", true, false, 4, dump_json_VkBindBufferMemoryInfo); // PQA
+        dump_json_array<const VkBindBufferMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindBufferMemoryInfo*", "const VkBindBufferMemoryInfo", "pBindInfos", true, false, 4, dump_json_VkBindBufferMemoryInfo);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -42218,7 +42218,7 @@ void dump_json_params_vkBindImageMemory2(ApiDumpInstance& dump_inst, VkDevice de
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindInfoCount, NULL, settings, "uint32_t", "bindInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBindImageMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindImageMemoryInfo*", "const VkBindImageMemoryInfo", "pBindInfos", true, false, 4, dump_json_VkBindImageMemoryInfo); // PQA
+        dump_json_array<const VkBindImageMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindImageMemoryInfo*", "const VkBindImageMemoryInfo", "pBindInfos", true, false, 4, dump_json_VkBindImageMemoryInfo);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -42296,7 +42296,7 @@ void dump_json_params_vkEnumeratePhysicalDeviceGroups(ApiDumpInstance& dump_inst
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPhysicalDeviceGroupCount, settings, "uint32_t*", "pPhysicalDeviceGroupCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties, *pPhysicalDeviceGroupCount, settings, "VkPhysicalDeviceGroupProperties*", "VkPhysicalDeviceGroupProperties", "pPhysicalDeviceGroupProperties", true, false, 4, dump_json_VkPhysicalDeviceGroupProperties); // PQA
+        dump_json_array<const VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties, *pPhysicalDeviceGroupCount, settings, "VkPhysicalDeviceGroupProperties*", "VkPhysicalDeviceGroupProperties", "pPhysicalDeviceGroupProperties", true, false, 4, dump_json_VkPhysicalDeviceGroupProperties);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -42349,7 +42349,7 @@ void dump_json_params_vkGetImageSparseMemoryRequirements2(ApiDumpInstance& dump_
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pSparseMemoryRequirementCount, settings, "uint32_t*", "pSparseMemoryRequirementCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", true, false, 4, dump_json_VkSparseImageMemoryRequirements2); // PQA
+        dump_json_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", true, false, 4, dump_json_VkSparseImageMemoryRequirements2);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -42430,7 +42430,7 @@ void dump_json_params_vkGetPhysicalDeviceQueueFamilyProperties2(ApiDumpInstance&
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pQueueFamilyPropertyCount, settings, "uint32_t*", "pQueueFamilyPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkQueueFamilyProperties2>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties2*", "VkQueueFamilyProperties2", "pQueueFamilyProperties", true, false, 4, dump_json_VkQueueFamilyProperties2); // PQA
+        dump_json_array<const VkQueueFamilyProperties2>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties2*", "VkQueueFamilyProperties2", "pQueueFamilyProperties", true, false, 4, dump_json_VkQueueFamilyProperties2);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -42464,7 +42464,7 @@ void dump_json_params_vkGetPhysicalDeviceSparseImageFormatProperties2(ApiDumpIns
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSparseImageFormatProperties2>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties2*", "VkSparseImageFormatProperties2", "pProperties", true, false, 4, dump_json_VkSparseImageFormatProperties2); // PQA
+        dump_json_array<const VkSparseImageFormatProperties2>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties2*", "VkSparseImageFormatProperties2", "pProperties", true, false, 4, dump_json_VkSparseImageFormatProperties2);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -42905,7 +42905,7 @@ void dump_json_params_vkGetPhysicalDeviceToolProperties(ApiDumpInstance& dump_in
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pToolCount, settings, "uint32_t*", "pToolCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPhysicalDeviceToolProperties>(pToolProperties, *pToolCount, settings, "VkPhysicalDeviceToolProperties*", "VkPhysicalDeviceToolProperties", "pToolProperties", true, false, 4, dump_json_VkPhysicalDeviceToolProperties); // PQA
+        dump_json_array<const VkPhysicalDeviceToolProperties>(pToolProperties, *pToolCount, settings, "VkPhysicalDeviceToolProperties*", "VkPhysicalDeviceToolProperties", "pToolProperties", true, false, 4, dump_json_VkPhysicalDeviceToolProperties);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -43034,9 +43034,9 @@ void dump_json_params_vkCmdWaitEvents2(ApiDumpInstance& dump_inst, VkCommandBuff
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(eventCount, NULL, settings, "uint32_t", "eventCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", false, false, 4, dump_json_VkEvent); // PQA
+        dump_json_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", false, false, 4, dump_json_VkEvent);
         settings.stream() << ",\n";
-        dump_json_array<const VkDependencyInfo>(pDependencyInfos, eventCount, settings, "const VkDependencyInfo*", "const VkDependencyInfo", "pDependencyInfos", true, false, 4, dump_json_VkDependencyInfo); // PQA
+        dump_json_array<const VkDependencyInfo>(pDependencyInfos, eventCount, settings, "const VkDependencyInfo*", "const VkDependencyInfo", "pDependencyInfos", true, false, 4, dump_json_VkDependencyInfo);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -43087,7 +43087,7 @@ void dump_json_params_vkQueueSubmit2(ApiDumpInstance& dump_inst, VkQueue queue, 
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(submitCount, NULL, settings, "uint32_t", "submitCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSubmitInfo2>(pSubmits, submitCount, settings, "const VkSubmitInfo2*", "const VkSubmitInfo2", "pSubmits", true, false, 4, dump_json_VkSubmitInfo2); // PQA
+        dump_json_array<const VkSubmitInfo2>(pSubmits, submitCount, settings, "const VkSubmitInfo2*", "const VkSubmitInfo2", "pSubmits", true, false, 4, dump_json_VkSubmitInfo2);
         settings.stream() << ",\n";
         dump_json_value<const VkFence>(fence, NULL, settings, "VkFence", "fence", false, false, 4, dump_json_VkFence);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
@@ -43269,7 +43269,7 @@ void dump_json_params_vkCmdSetViewportWithCount(ApiDumpInstance& dump_inst, VkCo
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(viewportCount, NULL, settings, "uint32_t", "viewportCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", true, false, 4, dump_json_VkViewport); // PQA
+        dump_json_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", true, false, 4, dump_json_VkViewport);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -43286,7 +43286,7 @@ void dump_json_params_vkCmdSetScissorWithCount(ApiDumpInstance& dump_inst, VkCom
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(scissorCount, NULL, settings, "uint32_t", "scissorCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", true, false, 4, dump_json_VkRect2D); // PQA
+        dump_json_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", true, false, 4, dump_json_VkRect2D);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -43305,13 +43305,13 @@ void dump_json_params_vkCmdBindVertexBuffers2(ApiDumpInstance& dump_inst, VkComm
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindingCount, NULL, settings, "uint32_t", "bindingCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", false, false, 4, dump_json_VkBuffer); // PQA
+        dump_json_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", false, false, 4, dump_json_VkBuffer);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pStrides, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pStrides", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pStrides, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pStrides", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -43507,7 +43507,7 @@ void dump_json_params_vkGetDeviceImageSparseMemoryRequirements(ApiDumpInstance& 
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pSparseMemoryRequirementCount, settings, "uint32_t*", "pSparseMemoryRequirementCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", true, false, 4, dump_json_VkSparseImageMemoryRequirements2); // PQA
+        dump_json_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", true, false, 4, dump_json_VkSparseImageMemoryRequirements2);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -43653,7 +43653,7 @@ void dump_json_params_vkCmdPushDescriptorSet(ApiDumpInstance& dump_inst, VkComma
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(descriptorWriteCount, NULL, settings, "uint32_t", "descriptorWriteCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", true, false, 4, dump_json_VkWriteDescriptorSet); // PQA
+        dump_json_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", true, false, 4, dump_json_VkWriteDescriptorSet);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -43826,7 +43826,7 @@ void dump_json_params_vkTransitionImageLayout(ApiDumpInstance& dump_inst, VkDevi
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(transitionCount, NULL, settings, "uint32_t", "transitionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkHostImageLayoutTransitionInfo>(pTransitions, transitionCount, settings, "const VkHostImageLayoutTransitionInfo*", "const VkHostImageLayoutTransitionInfo", "pTransitions", true, false, 4, dump_json_VkHostImageLayoutTransitionInfo); // PQA
+        dump_json_array<const VkHostImageLayoutTransitionInfo>(pTransitions, transitionCount, settings, "const VkHostImageLayoutTransitionInfo*", "const VkHostImageLayoutTransitionInfo", "pTransitions", true, false, 4, dump_json_VkHostImageLayoutTransitionInfo);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -43898,7 +43898,7 @@ void dump_json_params_vkGetPhysicalDeviceSurfaceFormatsKHR(ApiDumpInstance& dump
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pSurfaceFormatCount, settings, "uint32_t*", "pSurfaceFormatCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSurfaceFormatKHR>(pSurfaceFormats, *pSurfaceFormatCount, settings, "VkSurfaceFormatKHR*", "VkSurfaceFormatKHR", "pSurfaceFormats", true, false, 4, dump_json_VkSurfaceFormatKHR); // PQA
+        dump_json_array<const VkSurfaceFormatKHR>(pSurfaceFormats, *pSurfaceFormatCount, settings, "VkSurfaceFormatKHR*", "VkSurfaceFormatKHR", "pSurfaceFormats", true, false, 4, dump_json_VkSurfaceFormatKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -43917,7 +43917,7 @@ void dump_json_params_vkGetPhysicalDeviceSurfacePresentModesKHR(ApiDumpInstance&
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPresentModeCount, settings, "uint32_t*", "pPresentModeCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPresentModeKHR>(pPresentModes, *pPresentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", false, false, 4, dump_json_VkPresentModeKHR); // PQA
+        dump_json_array<const VkPresentModeKHR>(pPresentModes, *pPresentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", false, false, 4, dump_json_VkPresentModeKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -43972,7 +43972,7 @@ void dump_json_params_vkGetSwapchainImagesKHR(ApiDumpInstance& dump_inst, VkDevi
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pSwapchainImageCount, settings, "uint32_t*", "pSwapchainImageCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkImage>(pSwapchainImages, *pSwapchainImageCount, settings, "VkImage*", "VkImage", "pSwapchainImages", false, false, 4, dump_json_VkImage); // PQA
+        dump_json_array<const VkImage>(pSwapchainImages, *pSwapchainImageCount, settings, "VkImage*", "VkImage", "pSwapchainImages", false, false, 4, dump_json_VkImage);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44061,7 +44061,7 @@ void dump_json_params_vkGetPhysicalDevicePresentRectanglesKHR(ApiDumpInstance& d
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pRectCount, settings, "uint32_t*", "pRectCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkRect2D>(pRects, *pRectCount, settings, "VkRect2D*", "VkRect2D", "pRects", true, false, 4, dump_json_VkRect2D); // PQA
+        dump_json_array<const VkRect2D>(pRects, *pRectCount, settings, "VkRect2D*", "VkRect2D", "pRects", true, false, 4, dump_json_VkRect2D);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44095,7 +44095,7 @@ void dump_json_params_vkGetPhysicalDeviceDisplayPropertiesKHR(ApiDumpInstance& d
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDisplayPropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayPropertiesKHR*", "VkDisplayPropertiesKHR", "pProperties", true, false, 4, dump_json_VkDisplayPropertiesKHR); // PQA
+        dump_json_array<const VkDisplayPropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayPropertiesKHR*", "VkDisplayPropertiesKHR", "pProperties", true, false, 4, dump_json_VkDisplayPropertiesKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44112,7 +44112,7 @@ void dump_json_params_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(ApiDumpInstan
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDisplayPlanePropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayPlanePropertiesKHR*", "VkDisplayPlanePropertiesKHR", "pProperties", true, false, 4, dump_json_VkDisplayPlanePropertiesKHR); // PQA
+        dump_json_array<const VkDisplayPlanePropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayPlanePropertiesKHR*", "VkDisplayPlanePropertiesKHR", "pProperties", true, false, 4, dump_json_VkDisplayPlanePropertiesKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44131,7 +44131,7 @@ void dump_json_params_vkGetDisplayPlaneSupportedDisplaysKHR(ApiDumpInstance& dum
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pDisplayCount, settings, "uint32_t*", "pDisplayCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDisplayKHR>(pDisplays, *pDisplayCount, settings, "VkDisplayKHR*", "VkDisplayKHR", "pDisplays", false, false, 4, dump_json_VkDisplayKHR); // PQA
+        dump_json_array<const VkDisplayKHR>(pDisplays, *pDisplayCount, settings, "VkDisplayKHR*", "VkDisplayKHR", "pDisplays", false, false, 4, dump_json_VkDisplayKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44150,7 +44150,7 @@ void dump_json_params_vkGetDisplayModePropertiesKHR(ApiDumpInstance& dump_inst, 
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDisplayModePropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayModePropertiesKHR*", "VkDisplayModePropertiesKHR", "pProperties", true, false, 4, dump_json_VkDisplayModePropertiesKHR); // PQA
+        dump_json_array<const VkDisplayModePropertiesKHR>(pProperties, *pPropertyCount, settings, "VkDisplayModePropertiesKHR*", "VkDisplayModePropertiesKHR", "pProperties", true, false, 4, dump_json_VkDisplayModePropertiesKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44226,11 +44226,11 @@ void dump_json_params_vkCreateSharedSwapchainsKHR(ApiDumpInstance& dump_inst, Vk
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(swapchainCount, NULL, settings, "uint32_t", "swapchainCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSwapchainCreateInfoKHR>(pCreateInfos, swapchainCount, settings, "const VkSwapchainCreateInfoKHR*", "const VkSwapchainCreateInfoKHR", "pCreateInfos", true, false, 4, dump_json_VkSwapchainCreateInfoKHR); // PQA
+        dump_json_array<const VkSwapchainCreateInfoKHR>(pCreateInfos, swapchainCount, settings, "const VkSwapchainCreateInfoKHR*", "const VkSwapchainCreateInfoKHR", "pCreateInfos", true, false, 4, dump_json_VkSwapchainCreateInfoKHR);
         settings.stream() << ",\n";
         dump_json_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", true, false, 4, dump_json_VkAllocationCallbacks);
         settings.stream() << ",\n";
-        dump_json_array<const VkSwapchainKHR>(pSwapchains, swapchainCount, settings, "VkSwapchainKHR*", "VkSwapchainKHR", "pSwapchains", false, false, 4, dump_json_VkSwapchainKHR); // PQA
+        dump_json_array<const VkSwapchainKHR>(pSwapchains, swapchainCount, settings, "VkSwapchainKHR*", "VkSwapchainKHR", "pSwapchains", false, false, 4, dump_json_VkSwapchainKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44449,7 +44449,7 @@ void dump_json_params_vkGetPhysicalDeviceVideoFormatPropertiesKHR(ApiDumpInstanc
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pVideoFormatPropertyCount, settings, "uint32_t*", "pVideoFormatPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkVideoFormatPropertiesKHR>(pVideoFormatProperties, *pVideoFormatPropertyCount, settings, "VkVideoFormatPropertiesKHR*", "VkVideoFormatPropertiesKHR", "pVideoFormatProperties", true, false, 4, dump_json_VkVideoFormatPropertiesKHR); // PQA
+        dump_json_array<const VkVideoFormatPropertiesKHR>(pVideoFormatProperties, *pVideoFormatPropertyCount, settings, "VkVideoFormatPropertiesKHR*", "VkVideoFormatPropertiesKHR", "pVideoFormatProperties", true, false, 4, dump_json_VkVideoFormatPropertiesKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44504,7 +44504,7 @@ void dump_json_params_vkGetVideoSessionMemoryRequirementsKHR(ApiDumpInstance& du
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pMemoryRequirementsCount, settings, "uint32_t*", "pMemoryRequirementsCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkVideoSessionMemoryRequirementsKHR>(pMemoryRequirements, *pMemoryRequirementsCount, settings, "VkVideoSessionMemoryRequirementsKHR*", "VkVideoSessionMemoryRequirementsKHR", "pMemoryRequirements", true, false, 4, dump_json_VkVideoSessionMemoryRequirementsKHR); // PQA
+        dump_json_array<const VkVideoSessionMemoryRequirementsKHR>(pMemoryRequirements, *pMemoryRequirementsCount, settings, "VkVideoSessionMemoryRequirementsKHR*", "VkVideoSessionMemoryRequirementsKHR", "pMemoryRequirements", true, false, 4, dump_json_VkVideoSessionMemoryRequirementsKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44523,7 +44523,7 @@ void dump_json_params_vkBindVideoSessionMemoryKHR(ApiDumpInstance& dump_inst, Vk
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindSessionMemoryInfoCount, NULL, settings, "uint32_t", "bindSessionMemoryInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBindVideoSessionMemoryInfoKHR>(pBindSessionMemoryInfos, bindSessionMemoryInfoCount, settings, "const VkBindVideoSessionMemoryInfoKHR*", "const VkBindVideoSessionMemoryInfoKHR", "pBindSessionMemoryInfos", true, false, 4, dump_json_VkBindVideoSessionMemoryInfoKHR); // PQA
+        dump_json_array<const VkBindVideoSessionMemoryInfoKHR>(pBindSessionMemoryInfos, bindSessionMemoryInfoCount, settings, "const VkBindVideoSessionMemoryInfoKHR*", "const VkBindVideoSessionMemoryInfoKHR", "pBindSessionMemoryInfos", true, false, 4, dump_json_VkBindVideoSessionMemoryInfoKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44745,7 +44745,7 @@ void dump_json_params_vkGetPhysicalDeviceQueueFamilyProperties2KHR(ApiDumpInstan
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pQueueFamilyPropertyCount, settings, "uint32_t*", "pQueueFamilyPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkQueueFamilyProperties2>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties2*", "VkQueueFamilyProperties2", "pQueueFamilyProperties", true, false, 4, dump_json_VkQueueFamilyProperties2); // PQA
+        dump_json_array<const VkQueueFamilyProperties2>(pQueueFamilyProperties, *pQueueFamilyPropertyCount, settings, "VkQueueFamilyProperties2*", "VkQueueFamilyProperties2", "pQueueFamilyProperties", true, false, 4, dump_json_VkQueueFamilyProperties2);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44779,7 +44779,7 @@ void dump_json_params_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(ApiDump
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSparseImageFormatProperties2>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties2*", "VkSparseImageFormatProperties2", "pProperties", true, false, 4, dump_json_VkSparseImageFormatProperties2); // PQA
+        dump_json_array<const VkSparseImageFormatProperties2>(pProperties, *pPropertyCount, settings, "VkSparseImageFormatProperties2*", "VkSparseImageFormatProperties2", "pProperties", true, false, 4, dump_json_VkSparseImageFormatProperties2);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -44874,7 +44874,7 @@ void dump_json_params_vkEnumeratePhysicalDeviceGroupsKHR(ApiDumpInstance& dump_i
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPhysicalDeviceGroupCount, settings, "uint32_t*", "pPhysicalDeviceGroupCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties, *pPhysicalDeviceGroupCount, settings, "VkPhysicalDeviceGroupProperties*", "VkPhysicalDeviceGroupProperties", "pPhysicalDeviceGroupProperties", true, false, 4, dump_json_VkPhysicalDeviceGroupProperties); // PQA
+        dump_json_array<const VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties, *pPhysicalDeviceGroupCount, settings, "VkPhysicalDeviceGroupProperties*", "VkPhysicalDeviceGroupProperties", "pPhysicalDeviceGroupProperties", true, false, 4, dump_json_VkPhysicalDeviceGroupProperties);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45075,7 +45075,7 @@ void dump_json_params_vkCmdPushDescriptorSetKHR(ApiDumpInstance& dump_inst, VkCo
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(descriptorWriteCount, NULL, settings, "uint32_t", "descriptorWriteCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", true, false, 4, dump_json_VkWriteDescriptorSet); // PQA
+        dump_json_array<const VkWriteDescriptorSet>(pDescriptorWrites, descriptorWriteCount, settings, "const VkWriteDescriptorSet*", "const VkWriteDescriptorSet", "pDescriptorWrites", true, false, 4, dump_json_VkWriteDescriptorSet);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45338,9 +45338,9 @@ void dump_json_params_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCounte
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pCounterCount, settings, "uint32_t*", "pCounterCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPerformanceCounterKHR>(pCounters, *pCounterCount, settings, "VkPerformanceCounterKHR*", "VkPerformanceCounterKHR", "pCounters", true, false, 4, dump_json_VkPerformanceCounterKHR); // PQA
+        dump_json_array<const VkPerformanceCounterKHR>(pCounters, *pCounterCount, settings, "VkPerformanceCounterKHR*", "VkPerformanceCounterKHR", "pCounters", true, false, 4, dump_json_VkPerformanceCounterKHR);
         settings.stream() << ",\n";
-        dump_json_array<const VkPerformanceCounterDescriptionKHR>(pCounterDescriptions, *pCounterCount, settings, "VkPerformanceCounterDescriptionKHR*", "VkPerformanceCounterDescriptionKHR", "pCounterDescriptions", true, false, 4, dump_json_VkPerformanceCounterDescriptionKHR); // PQA
+        dump_json_array<const VkPerformanceCounterDescriptionKHR>(pCounterDescriptions, *pCounterCount, settings, "VkPerformanceCounterDescriptionKHR*", "VkPerformanceCounterDescriptionKHR", "pCounterDescriptions", true, false, 4, dump_json_VkPerformanceCounterDescriptionKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45421,7 +45421,7 @@ void dump_json_params_vkGetPhysicalDeviceSurfaceFormats2KHR(ApiDumpInstance& dum
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pSurfaceFormatCount, settings, "uint32_t*", "pSurfaceFormatCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSurfaceFormat2KHR>(pSurfaceFormats, *pSurfaceFormatCount, settings, "VkSurfaceFormat2KHR*", "VkSurfaceFormat2KHR", "pSurfaceFormats", true, false, 4, dump_json_VkSurfaceFormat2KHR); // PQA
+        dump_json_array<const VkSurfaceFormat2KHR>(pSurfaceFormats, *pSurfaceFormatCount, settings, "VkSurfaceFormat2KHR*", "VkSurfaceFormat2KHR", "pSurfaceFormats", true, false, 4, dump_json_VkSurfaceFormat2KHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45438,7 +45438,7 @@ void dump_json_params_vkGetPhysicalDeviceDisplayProperties2KHR(ApiDumpInstance& 
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDisplayProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayProperties2KHR*", "VkDisplayProperties2KHR", "pProperties", true, false, 4, dump_json_VkDisplayProperties2KHR); // PQA
+        dump_json_array<const VkDisplayProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayProperties2KHR*", "VkDisplayProperties2KHR", "pProperties", true, false, 4, dump_json_VkDisplayProperties2KHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45455,7 +45455,7 @@ void dump_json_params_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(ApiDumpInsta
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDisplayPlaneProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayPlaneProperties2KHR*", "VkDisplayPlaneProperties2KHR", "pProperties", true, false, 4, dump_json_VkDisplayPlaneProperties2KHR); // PQA
+        dump_json_array<const VkDisplayPlaneProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayPlaneProperties2KHR*", "VkDisplayPlaneProperties2KHR", "pProperties", true, false, 4, dump_json_VkDisplayPlaneProperties2KHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45474,7 +45474,7 @@ void dump_json_params_vkGetDisplayModeProperties2KHR(ApiDumpInstance& dump_inst,
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDisplayModeProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayModeProperties2KHR*", "VkDisplayModeProperties2KHR", "pProperties", true, false, 4, dump_json_VkDisplayModeProperties2KHR); // PQA
+        dump_json_array<const VkDisplayModeProperties2KHR>(pProperties, *pPropertyCount, settings, "VkDisplayModeProperties2KHR*", "VkDisplayModeProperties2KHR", "pProperties", true, false, 4, dump_json_VkDisplayModeProperties2KHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45544,7 +45544,7 @@ void dump_json_params_vkGetImageSparseMemoryRequirements2KHR(ApiDumpInstance& du
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pSparseMemoryRequirementCount, settings, "uint32_t*", "pSparseMemoryRequirementCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", true, false, 4, dump_json_VkSparseImageMemoryRequirements2); // PQA
+        dump_json_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", true, false, 4, dump_json_VkSparseImageMemoryRequirements2);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45597,7 +45597,7 @@ void dump_json_params_vkBindBufferMemory2KHR(ApiDumpInstance& dump_inst, VkDevic
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindInfoCount, NULL, settings, "uint32_t", "bindInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBindBufferMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindBufferMemoryInfo*", "const VkBindBufferMemoryInfo", "pBindInfos", true, false, 4, dump_json_VkBindBufferMemoryInfo); // PQA
+        dump_json_array<const VkBindBufferMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindBufferMemoryInfo*", "const VkBindBufferMemoryInfo", "pBindInfos", true, false, 4, dump_json_VkBindBufferMemoryInfo);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45614,7 +45614,7 @@ void dump_json_params_vkBindImageMemory2KHR(ApiDumpInstance& dump_inst, VkDevice
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindInfoCount, NULL, settings, "uint32_t", "bindInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBindImageMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindImageMemoryInfo*", "const VkBindImageMemoryInfo", "pBindInfos", true, false, 4, dump_json_VkBindImageMemoryInfo); // PQA
+        dump_json_array<const VkBindImageMemoryInfo>(pBindInfos, bindInfoCount, settings, "const VkBindImageMemoryInfo*", "const VkBindImageMemoryInfo", "pBindInfos", true, false, 4, dump_json_VkBindImageMemoryInfo);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45747,7 +45747,7 @@ void dump_json_params_vkGetPhysicalDeviceFragmentShadingRatesKHR(ApiDumpInstance
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pFragmentShadingRateCount, settings, "uint32_t*", "pFragmentShadingRateCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPhysicalDeviceFragmentShadingRateKHR>(pFragmentShadingRates, *pFragmentShadingRateCount, settings, "VkPhysicalDeviceFragmentShadingRateKHR*", "VkPhysicalDeviceFragmentShadingRateKHR", "pFragmentShadingRates", true, false, 4, dump_json_VkPhysicalDeviceFragmentShadingRateKHR); // PQA
+        dump_json_array<const VkPhysicalDeviceFragmentShadingRateKHR>(pFragmentShadingRates, *pFragmentShadingRateCount, settings, "VkPhysicalDeviceFragmentShadingRateKHR*", "VkPhysicalDeviceFragmentShadingRateKHR", "pFragmentShadingRates", true, false, 4, dump_json_VkPhysicalDeviceFragmentShadingRateKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45764,7 +45764,7 @@ void dump_json_params_vkCmdSetFragmentShadingRateKHR(ApiDumpInstance& dump_inst,
         settings.stream() << ",\n";
         dump_json_pointer<const VkExtent2D>(pFragmentSize, settings, "const VkExtent2D*", "pFragmentSize", true, false, 4, dump_json_VkExtent2D);
         settings.stream() << ",\n";
-        dump_json_array<const VkFragmentShadingRateCombinerOpKHR>(combinerOps, 2, settings, "const VkFragmentShadingRateCombinerOpKHR[2]", "const VkFragmentShadingRateCombinerOpKHR", "combinerOps", false, false, 4, dump_json_VkFragmentShadingRateCombinerOpKHR); // PQA
+        dump_json_array<const VkFragmentShadingRateCombinerOpKHR>(combinerOps, 2, settings, "const VkFragmentShadingRateCombinerOpKHR[2]", "const VkFragmentShadingRateCombinerOpKHR", "combinerOps", false, false, 4, dump_json_VkFragmentShadingRateCombinerOpKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45956,7 +45956,7 @@ void dump_json_params_vkGetPipelineExecutablePropertiesKHR(ApiDumpInstance& dump
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pExecutableCount, settings, "uint32_t*", "pExecutableCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPipelineExecutablePropertiesKHR>(pProperties, *pExecutableCount, settings, "VkPipelineExecutablePropertiesKHR*", "VkPipelineExecutablePropertiesKHR", "pProperties", true, false, 4, dump_json_VkPipelineExecutablePropertiesKHR); // PQA
+        dump_json_array<const VkPipelineExecutablePropertiesKHR>(pProperties, *pExecutableCount, settings, "VkPipelineExecutablePropertiesKHR*", "VkPipelineExecutablePropertiesKHR", "pProperties", true, false, 4, dump_json_VkPipelineExecutablePropertiesKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45975,7 +45975,7 @@ void dump_json_params_vkGetPipelineExecutableStatisticsKHR(ApiDumpInstance& dump
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pStatisticCount, settings, "uint32_t*", "pStatisticCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPipelineExecutableStatisticKHR>(pStatistics, *pStatisticCount, settings, "VkPipelineExecutableStatisticKHR*", "VkPipelineExecutableStatisticKHR", "pStatistics", true, false, 4, dump_json_VkPipelineExecutableStatisticKHR); // PQA
+        dump_json_array<const VkPipelineExecutableStatisticKHR>(pStatistics, *pStatisticCount, settings, "VkPipelineExecutableStatisticKHR*", "VkPipelineExecutableStatisticKHR", "pStatistics", true, false, 4, dump_json_VkPipelineExecutableStatisticKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -45994,7 +45994,7 @@ void dump_json_params_vkGetPipelineExecutableInternalRepresentationsKHR(ApiDumpI
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pInternalRepresentationCount, settings, "uint32_t*", "pInternalRepresentationCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPipelineExecutableInternalRepresentationKHR>(pInternalRepresentations, *pInternalRepresentationCount, settings, "VkPipelineExecutableInternalRepresentationKHR*", "VkPipelineExecutableInternalRepresentationKHR", "pInternalRepresentations", true, false, 4, dump_json_VkPipelineExecutableInternalRepresentationKHR); // PQA
+        dump_json_array<const VkPipelineExecutableInternalRepresentationKHR>(pInternalRepresentations, *pInternalRepresentationCount, settings, "VkPipelineExecutableInternalRepresentationKHR*", "VkPipelineExecutableInternalRepresentationKHR", "pInternalRepresentations", true, false, 4, dump_json_VkPipelineExecutableInternalRepresentationKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -46130,9 +46130,9 @@ void dump_json_params_vkCmdWaitEvents2KHR(ApiDumpInstance& dump_inst, VkCommandB
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(eventCount, NULL, settings, "uint32_t", "eventCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", false, false, 4, dump_json_VkEvent); // PQA
+        dump_json_array<const VkEvent>(pEvents, eventCount, settings, "const VkEvent*", "const VkEvent", "pEvents", false, false, 4, dump_json_VkEvent);
         settings.stream() << ",\n";
-        dump_json_array<const VkDependencyInfo>(pDependencyInfos, eventCount, settings, "const VkDependencyInfo*", "const VkDependencyInfo", "pDependencyInfos", true, false, 4, dump_json_VkDependencyInfo); // PQA
+        dump_json_array<const VkDependencyInfo>(pDependencyInfos, eventCount, settings, "const VkDependencyInfo*", "const VkDependencyInfo", "pDependencyInfos", true, false, 4, dump_json_VkDependencyInfo);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -46183,7 +46183,7 @@ void dump_json_params_vkQueueSubmit2KHR(ApiDumpInstance& dump_inst, VkQueue queu
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(submitCount, NULL, settings, "uint32_t", "submitCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSubmitInfo2>(pSubmits, submitCount, settings, "const VkSubmitInfo2*", "const VkSubmitInfo2", "pSubmits", true, false, 4, dump_json_VkSubmitInfo2); // PQA
+        dump_json_array<const VkSubmitInfo2>(pSubmits, submitCount, settings, "const VkSubmitInfo2*", "const VkSubmitInfo2", "pSubmits", true, false, 4, dump_json_VkSubmitInfo2);
         settings.stream() << ",\n";
         dump_json_value<const VkFence>(fence, NULL, settings, "VkFence", "fence", false, false, 4, dump_json_VkFence);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
@@ -46343,7 +46343,7 @@ void dump_json_params_vkGetDeviceImageSparseMemoryRequirementsKHR(ApiDumpInstanc
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pSparseMemoryRequirementCount, settings, "uint32_t*", "pSparseMemoryRequirementCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", true, false, 4, dump_json_VkSparseImageMemoryRequirements2); // PQA
+        dump_json_array<const VkSparseImageMemoryRequirements2>(pSparseMemoryRequirements, *pSparseMemoryRequirementCount, settings, "VkSparseImageMemoryRequirements2*", "VkSparseImageMemoryRequirements2", "pSparseMemoryRequirements", true, false, 4, dump_json_VkSparseImageMemoryRequirements2);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -46542,7 +46542,7 @@ void dump_json_params_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(ApiDumpI
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCooperativeMatrixPropertiesKHR>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixPropertiesKHR*", "VkCooperativeMatrixPropertiesKHR", "pProperties", true, false, 4, dump_json_VkCooperativeMatrixPropertiesKHR); // PQA
+        dump_json_array<const VkCooperativeMatrixPropertiesKHR>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixPropertiesKHR*", "VkCooperativeMatrixPropertiesKHR", "pProperties", true, false, 4, dump_json_VkCooperativeMatrixPropertiesKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -46576,7 +46576,7 @@ void dump_json_params_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(ApiDumpInst
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pTimeDomainCount, settings, "uint32_t*", "pTimeDomainCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkTimeDomainKHR>(pTimeDomains, *pTimeDomainCount, settings, "VkTimeDomainKHR*", "VkTimeDomainKHR", "pTimeDomains", false, false, 4, dump_json_VkTimeDomainKHR); // PQA
+        dump_json_array<const VkTimeDomainKHR>(pTimeDomains, *pTimeDomainCount, settings, "VkTimeDomainKHR*", "VkTimeDomainKHR", "pTimeDomains", false, false, 4, dump_json_VkTimeDomainKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -46593,9 +46593,9 @@ void dump_json_params_vkGetCalibratedTimestampsKHR(ApiDumpInstance& dump_inst, V
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(timestampCount, NULL, settings, "uint32_t", "timestampCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCalibratedTimestampInfoKHR>(pTimestampInfos, timestampCount, settings, "const VkCalibratedTimestampInfoKHR*", "const VkCalibratedTimestampInfoKHR", "pTimestampInfos", true, false, 4, dump_json_VkCalibratedTimestampInfoKHR); // PQA
+        dump_json_array<const VkCalibratedTimestampInfoKHR>(pTimestampInfos, timestampCount, settings, "const VkCalibratedTimestampInfoKHR*", "const VkCalibratedTimestampInfoKHR", "pTimestampInfos", true, false, 4, dump_json_VkCalibratedTimestampInfoKHR);
         settings.stream() << ",\n";
-        dump_json_array<const uint64_t>(pTimestamps, timestampCount, settings, "uint64_t*", "uint64_t", "pTimestamps", false, false, 4, dump_json_uint64_t); // PQA
+        dump_json_array<const uint64_t>(pTimestamps, timestampCount, settings, "uint64_t*", "uint64_t", "pTimestamps", false, false, 4, dump_json_uint64_t);
         settings.stream() << ",\n";
         dump_json_pointer<const uint64_t>(pMaxDeviation, settings, "uint64_t*", "pMaxDeviation", false, false, 4, dump_json_uint64_t);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
@@ -46842,11 +46842,11 @@ void dump_json_params_vkCmdBindTransformFeedbackBuffersEXT(ApiDumpInstance& dump
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindingCount, NULL, settings, "uint32_t", "bindingCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", false, false, 4, dump_json_VkBuffer); // PQA
+        dump_json_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", false, false, 4, dump_json_VkBuffer);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -46865,9 +46865,9 @@ void dump_json_params_vkCmdBeginTransformFeedbackEXT(ApiDumpInstance& dump_inst,
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(counterBufferCount, NULL, settings, "uint32_t", "counterBufferCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBuffer>(pCounterBuffers, counterBufferCount, settings, "const VkBuffer*", "const VkBuffer", "pCounterBuffers", false, false, 4, dump_json_VkBuffer); // PQA
+        dump_json_array<const VkBuffer>(pCounterBuffers, counterBufferCount, settings, "const VkBuffer*", "const VkBuffer", "pCounterBuffers", false, false, 4, dump_json_VkBuffer);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pCounterBufferOffsets, counterBufferCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pCounterBufferOffsets", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pCounterBufferOffsets, counterBufferCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pCounterBufferOffsets", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -46886,9 +46886,9 @@ void dump_json_params_vkCmdEndTransformFeedbackEXT(ApiDumpInstance& dump_inst, V
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(counterBufferCount, NULL, settings, "uint32_t", "counterBufferCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBuffer>(pCounterBuffers, counterBufferCount, settings, "const VkBuffer*", "const VkBuffer", "pCounterBuffers", false, false, 4, dump_json_VkBuffer); // PQA
+        dump_json_array<const VkBuffer>(pCounterBuffers, counterBufferCount, settings, "const VkBuffer*", "const VkBuffer", "pCounterBuffers", false, false, 4, dump_json_VkBuffer);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pCounterBufferOffsets, counterBufferCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pCounterBufferOffsets", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pCounterBufferOffsets, counterBufferCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pCounterBufferOffsets", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -47297,7 +47297,7 @@ void dump_json_params_vkCmdSetViewportWScalingNV(ApiDumpInstance& dump_inst, VkC
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(viewportCount, NULL, settings, "uint32_t", "viewportCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkViewportWScalingNV>(pViewportWScalings, viewportCount, settings, "const VkViewportWScalingNV*", "const VkViewportWScalingNV", "pViewportWScalings", true, false, 4, dump_json_VkViewportWScalingNV); // PQA
+        dump_json_array<const VkViewportWScalingNV>(pViewportWScalings, viewportCount, settings, "const VkViewportWScalingNV*", "const VkViewportWScalingNV", "pViewportWScalings", true, false, 4, dump_json_VkViewportWScalingNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -47481,7 +47481,7 @@ void dump_json_params_vkGetPastPresentationTimingGOOGLE(ApiDumpInstance& dump_in
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPresentationTimingCount, settings, "uint32_t*", "pPresentationTimingCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPastPresentationTimingGOOGLE>(pPresentationTimings, *pPresentationTimingCount, settings, "VkPastPresentationTimingGOOGLE*", "VkPastPresentationTimingGOOGLE", "pPresentationTimings", true, false, 4, dump_json_VkPastPresentationTimingGOOGLE); // PQA
+        dump_json_array<const VkPastPresentationTimingGOOGLE>(pPresentationTimings, *pPresentationTimingCount, settings, "VkPastPresentationTimingGOOGLE*", "VkPastPresentationTimingGOOGLE", "pPresentationTimings", true, false, 4, dump_json_VkPastPresentationTimingGOOGLE);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -47500,7 +47500,7 @@ void dump_json_params_vkCmdSetDiscardRectangleEXT(ApiDumpInstance& dump_inst, Vk
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(discardRectangleCount, NULL, settings, "uint32_t", "discardRectangleCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkRect2D>(pDiscardRectangles, discardRectangleCount, settings, "const VkRect2D*", "const VkRect2D", "pDiscardRectangles", true, false, 4, dump_json_VkRect2D); // PQA
+        dump_json_array<const VkRect2D>(pDiscardRectangles, discardRectangleCount, settings, "const VkRect2D*", "const VkRect2D", "pDiscardRectangles", true, false, 4, dump_json_VkRect2D);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -47547,9 +47547,9 @@ void dump_json_params_vkSetHdrMetadataEXT(ApiDumpInstance& dump_inst, VkDevice d
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(swapchainCount, NULL, settings, "uint32_t", "swapchainCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkSwapchainKHR>(pSwapchains, swapchainCount, settings, "const VkSwapchainKHR*", "const VkSwapchainKHR", "pSwapchains", false, false, 4, dump_json_VkSwapchainKHR); // PQA
+        dump_json_array<const VkSwapchainKHR>(pSwapchains, swapchainCount, settings, "const VkSwapchainKHR*", "const VkSwapchainKHR", "pSwapchains", false, false, 4, dump_json_VkSwapchainKHR);
         settings.stream() << ",\n";
-        dump_json_array<const VkHdrMetadataEXT>(pMetadata, swapchainCount, settings, "const VkHdrMetadataEXT*", "const VkHdrMetadataEXT", "pMetadata", true, false, 4, dump_json_VkHdrMetadataEXT); // PQA
+        dump_json_array<const VkHdrMetadataEXT>(pMetadata, swapchainCount, settings, "const VkHdrMetadataEXT*", "const VkHdrMetadataEXT", "pMetadata", true, false, 4, dump_json_VkHdrMetadataEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -47820,11 +47820,11 @@ void dump_json_params_vkCreateExecutionGraphPipelinesAMDX(ApiDumpInstance& dump_
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(createInfoCount, NULL, settings, "uint32_t", "createInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkExecutionGraphPipelineCreateInfoAMDX>(pCreateInfos, createInfoCount, settings, "const VkExecutionGraphPipelineCreateInfoAMDX*", "const VkExecutionGraphPipelineCreateInfoAMDX", "pCreateInfos", true, false, 4, dump_json_VkExecutionGraphPipelineCreateInfoAMDX); // PQA
+        dump_json_array<const VkExecutionGraphPipelineCreateInfoAMDX>(pCreateInfos, createInfoCount, settings, "const VkExecutionGraphPipelineCreateInfoAMDX*", "const VkExecutionGraphPipelineCreateInfoAMDX", "pCreateInfos", true, false, 4, dump_json_VkExecutionGraphPipelineCreateInfoAMDX);
         settings.stream() << ",\n";
         dump_json_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", true, false, 4, dump_json_VkAllocationCallbacks);
         settings.stream() << ",\n";
-        dump_json_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", false, false, 4, dump_json_VkPipeline); // PQA
+        dump_json_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", false, false, 4, dump_json_VkPipeline);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48053,7 +48053,7 @@ void dump_json_params_vkMergeValidationCachesEXT(ApiDumpInstance& dump_inst, VkD
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(srcCacheCount, NULL, settings, "uint32_t", "srcCacheCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkValidationCacheEXT>(pSrcCaches, srcCacheCount, settings, "const VkValidationCacheEXT*", "const VkValidationCacheEXT", "pSrcCaches", false, false, 4, dump_json_VkValidationCacheEXT); // PQA
+        dump_json_array<const VkValidationCacheEXT>(pSrcCaches, srcCacheCount, settings, "const VkValidationCacheEXT*", "const VkValidationCacheEXT", "pSrcCaches", false, false, 4, dump_json_VkValidationCacheEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48108,7 +48108,7 @@ void dump_json_params_vkCmdSetViewportShadingRatePaletteNV(ApiDumpInstance& dump
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(viewportCount, NULL, settings, "uint32_t", "viewportCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkShadingRatePaletteNV>(pShadingRatePalettes, viewportCount, settings, "const VkShadingRatePaletteNV*", "const VkShadingRatePaletteNV", "pShadingRatePalettes", true, false, 4, dump_json_VkShadingRatePaletteNV); // PQA
+        dump_json_array<const VkShadingRatePaletteNV>(pShadingRatePalettes, viewportCount, settings, "const VkShadingRatePaletteNV*", "const VkShadingRatePaletteNV", "pShadingRatePalettes", true, false, 4, dump_json_VkShadingRatePaletteNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48127,7 +48127,7 @@ void dump_json_params_vkCmdSetCoarseSampleOrderNV(ApiDumpInstance& dump_inst, Vk
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(customSampleOrderCount, NULL, settings, "uint32_t", "customSampleOrderCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCoarseSampleOrderCustomNV>(pCustomSampleOrders, customSampleOrderCount, settings, "const VkCoarseSampleOrderCustomNV*", "const VkCoarseSampleOrderCustomNV", "pCustomSampleOrders", true, false, 4, dump_json_VkCoarseSampleOrderCustomNV); // PQA
+        dump_json_array<const VkCoarseSampleOrderCustomNV>(pCustomSampleOrders, customSampleOrderCount, settings, "const VkCoarseSampleOrderCustomNV*", "const VkCoarseSampleOrderCustomNV", "pCustomSampleOrders", true, false, 4, dump_json_VkCoarseSampleOrderCustomNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48197,7 +48197,7 @@ void dump_json_params_vkBindAccelerationStructureMemoryNV(ApiDumpInstance& dump_
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindInfoCount, NULL, settings, "uint32_t", "bindInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBindAccelerationStructureMemoryInfoNV>(pBindInfos, bindInfoCount, settings, "const VkBindAccelerationStructureMemoryInfoNV*", "const VkBindAccelerationStructureMemoryInfoNV", "pBindInfos", true, false, 4, dump_json_VkBindAccelerationStructureMemoryInfoNV); // PQA
+        dump_json_array<const VkBindAccelerationStructureMemoryInfoNV>(pBindInfos, bindInfoCount, settings, "const VkBindAccelerationStructureMemoryInfoNV*", "const VkBindAccelerationStructureMemoryInfoNV", "pBindInfos", true, false, 4, dump_json_VkBindAccelerationStructureMemoryInfoNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48305,11 +48305,11 @@ void dump_json_params_vkCreateRayTracingPipelinesNV(ApiDumpInstance& dump_inst, 
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(createInfoCount, NULL, settings, "uint32_t", "createInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkRayTracingPipelineCreateInfoNV>(pCreateInfos, createInfoCount, settings, "const VkRayTracingPipelineCreateInfoNV*", "const VkRayTracingPipelineCreateInfoNV", "pCreateInfos", true, false, 4, dump_json_VkRayTracingPipelineCreateInfoNV); // PQA
+        dump_json_array<const VkRayTracingPipelineCreateInfoNV>(pCreateInfos, createInfoCount, settings, "const VkRayTracingPipelineCreateInfoNV*", "const VkRayTracingPipelineCreateInfoNV", "pCreateInfos", true, false, 4, dump_json_VkRayTracingPipelineCreateInfoNV);
         settings.stream() << ",\n";
         dump_json_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", true, false, 4, dump_json_VkAllocationCallbacks);
         settings.stream() << ",\n";
-        dump_json_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", false, false, 4, dump_json_VkPipeline); // PQA
+        dump_json_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", false, false, 4, dump_json_VkPipeline);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48391,7 +48391,7 @@ void dump_json_params_vkCmdWriteAccelerationStructuresPropertiesNV(ApiDumpInstan
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(accelerationStructureCount, NULL, settings, "uint32_t", "accelerationStructureCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkAccelerationStructureNV>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureNV*", "const VkAccelerationStructureNV", "pAccelerationStructures", false, false, 4, dump_json_VkAccelerationStructureNV); // PQA
+        dump_json_array<const VkAccelerationStructureNV>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureNV*", "const VkAccelerationStructureNV", "pAccelerationStructures", false, false, 4, dump_json_VkAccelerationStructureNV);
         settings.stream() << ",\n";
         dump_json_value<const VkQueryType>(queryType, NULL, settings, "VkQueryType", "queryType", false, false, 4, dump_json_VkQueryType);
         settings.stream() << ",\n";
@@ -48492,7 +48492,7 @@ void dump_json_params_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(ApiDumpInst
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pTimeDomainCount, settings, "uint32_t*", "pTimeDomainCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkTimeDomainKHR>(pTimeDomains, *pTimeDomainCount, settings, "VkTimeDomainKHR*", "VkTimeDomainKHR", "pTimeDomains", false, false, 4, dump_json_VkTimeDomainKHR); // PQA
+        dump_json_array<const VkTimeDomainKHR>(pTimeDomains, *pTimeDomainCount, settings, "VkTimeDomainKHR*", "VkTimeDomainKHR", "pTimeDomains", false, false, 4, dump_json_VkTimeDomainKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48509,9 +48509,9 @@ void dump_json_params_vkGetCalibratedTimestampsEXT(ApiDumpInstance& dump_inst, V
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(timestampCount, NULL, settings, "uint32_t", "timestampCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCalibratedTimestampInfoKHR>(pTimestampInfos, timestampCount, settings, "const VkCalibratedTimestampInfoKHR*", "const VkCalibratedTimestampInfoKHR", "pTimestampInfos", true, false, 4, dump_json_VkCalibratedTimestampInfoKHR); // PQA
+        dump_json_array<const VkCalibratedTimestampInfoKHR>(pTimestampInfos, timestampCount, settings, "const VkCalibratedTimestampInfoKHR*", "const VkCalibratedTimestampInfoKHR", "pTimestampInfos", true, false, 4, dump_json_VkCalibratedTimestampInfoKHR);
         settings.stream() << ",\n";
-        dump_json_array<const uint64_t>(pTimestamps, timestampCount, settings, "uint64_t*", "uint64_t", "pTimestamps", false, false, 4, dump_json_uint64_t); // PQA
+        dump_json_array<const uint64_t>(pTimestamps, timestampCount, settings, "uint64_t*", "uint64_t", "pTimestamps", false, false, 4, dump_json_uint64_t);
         settings.stream() << ",\n";
         dump_json_pointer<const uint64_t>(pMaxDeviation, settings, "uint64_t*", "pMaxDeviation", false, false, 4, dump_json_uint64_t);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
@@ -48595,7 +48595,7 @@ void dump_json_params_vkCmdSetExclusiveScissorEnableNV(ApiDumpInstance& dump_ins
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(exclusiveScissorCount, NULL, settings, "uint32_t", "exclusiveScissorCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBool32>(pExclusiveScissorEnables, exclusiveScissorCount, settings, "const VkBool32*", "const VkBool32", "pExclusiveScissorEnables", false, false, 4, dump_json_VkBool32); // PQA
+        dump_json_array<const VkBool32>(pExclusiveScissorEnables, exclusiveScissorCount, settings, "const VkBool32*", "const VkBool32", "pExclusiveScissorEnables", false, false, 4, dump_json_VkBool32);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48614,7 +48614,7 @@ void dump_json_params_vkCmdSetExclusiveScissorNV(ApiDumpInstance& dump_inst, VkC
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(exclusiveScissorCount, NULL, settings, "uint32_t", "exclusiveScissorCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkRect2D>(pExclusiveScissors, exclusiveScissorCount, settings, "const VkRect2D*", "const VkRect2D", "pExclusiveScissors", true, false, 4, dump_json_VkRect2D); // PQA
+        dump_json_array<const VkRect2D>(pExclusiveScissors, exclusiveScissorCount, settings, "const VkRect2D*", "const VkRect2D", "pExclusiveScissors", true, false, 4, dump_json_VkRect2D);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48646,7 +48646,7 @@ void dump_json_params_vkGetQueueCheckpointDataNV(ApiDumpInstance& dump_inst, VkQ
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pCheckpointDataCount, settings, "uint32_t*", "pCheckpointDataCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCheckpointDataNV>(pCheckpointData, *pCheckpointDataCount, settings, "VkCheckpointDataNV*", "VkCheckpointDataNV", "pCheckpointData", true, false, 4, dump_json_VkCheckpointDataNV); // PQA
+        dump_json_array<const VkCheckpointDataNV>(pCheckpointData, *pCheckpointDataCount, settings, "VkCheckpointDataNV*", "VkCheckpointDataNV", "pCheckpointData", true, false, 4, dump_json_VkCheckpointDataNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48663,7 +48663,7 @@ void dump_json_params_vkGetQueueCheckpointData2NV(ApiDumpInstance& dump_inst, Vk
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pCheckpointDataCount, settings, "uint32_t*", "pCheckpointDataCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCheckpointData2NV>(pCheckpointData, *pCheckpointDataCount, settings, "VkCheckpointData2NV*", "VkCheckpointData2NV", "pCheckpointData", true, false, 4, dump_json_VkCheckpointData2NV); // PQA
+        dump_json_array<const VkCheckpointData2NV>(pCheckpointData, *pCheckpointDataCount, settings, "VkCheckpointData2NV*", "VkCheckpointData2NV", "pCheckpointData", true, false, 4, dump_json_VkCheckpointData2NV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48891,7 +48891,7 @@ void dump_json_params_vkGetPhysicalDeviceToolPropertiesEXT(ApiDumpInstance& dump
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pToolCount, settings, "uint32_t*", "pToolCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPhysicalDeviceToolProperties>(pToolProperties, *pToolCount, settings, "VkPhysicalDeviceToolProperties*", "VkPhysicalDeviceToolProperties", "pToolProperties", true, false, 4, dump_json_VkPhysicalDeviceToolProperties); // PQA
+        dump_json_array<const VkPhysicalDeviceToolProperties>(pToolProperties, *pToolCount, settings, "VkPhysicalDeviceToolProperties*", "VkPhysicalDeviceToolProperties", "pToolProperties", true, false, 4, dump_json_VkPhysicalDeviceToolProperties);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48908,7 +48908,7 @@ void dump_json_params_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(ApiDumpIn
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCooperativeMatrixPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixPropertiesNV*", "VkCooperativeMatrixPropertiesNV", "pProperties", true, false, 4, dump_json_VkCooperativeMatrixPropertiesNV); // PQA
+        dump_json_array<const VkCooperativeMatrixPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixPropertiesNV*", "VkCooperativeMatrixPropertiesNV", "pProperties", true, false, 4, dump_json_VkCooperativeMatrixPropertiesNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48925,7 +48925,7 @@ void dump_json_params_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombina
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pCombinationCount, settings, "uint32_t*", "pCombinationCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkFramebufferMixedSamplesCombinationNV>(pCombinations, *pCombinationCount, settings, "VkFramebufferMixedSamplesCombinationNV*", "VkFramebufferMixedSamplesCombinationNV", "pCombinations", true, false, 4, dump_json_VkFramebufferMixedSamplesCombinationNV); // PQA
+        dump_json_array<const VkFramebufferMixedSamplesCombinationNV>(pCombinations, *pCombinationCount, settings, "VkFramebufferMixedSamplesCombinationNV*", "VkFramebufferMixedSamplesCombinationNV", "pCombinations", true, false, 4, dump_json_VkFramebufferMixedSamplesCombinationNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -48945,7 +48945,7 @@ void dump_json_params_vkGetPhysicalDeviceSurfacePresentModes2EXT(ApiDumpInstance
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPresentModeCount, settings, "uint32_t*", "pPresentModeCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkPresentModeKHR>(pPresentModes, *pPresentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", false, false, 4, dump_json_VkPresentModeKHR); // PQA
+        dump_json_array<const VkPresentModeKHR>(pPresentModes, *pPresentModeCount, settings, "VkPresentModeKHR*", "VkPresentModeKHR", "pPresentModes", false, false, 4, dump_json_VkPresentModeKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -49116,7 +49116,7 @@ void dump_json_params_vkCmdSetViewportWithCountEXT(ApiDumpInstance& dump_inst, V
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(viewportCount, NULL, settings, "uint32_t", "viewportCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", true, false, 4, dump_json_VkViewport); // PQA
+        dump_json_array<const VkViewport>(pViewports, viewportCount, settings, "const VkViewport*", "const VkViewport", "pViewports", true, false, 4, dump_json_VkViewport);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -49133,7 +49133,7 @@ void dump_json_params_vkCmdSetScissorWithCountEXT(ApiDumpInstance& dump_inst, Vk
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(scissorCount, NULL, settings, "uint32_t", "scissorCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", true, false, 4, dump_json_VkRect2D); // PQA
+        dump_json_array<const VkRect2D>(pScissors, scissorCount, settings, "const VkRect2D*", "const VkRect2D", "pScissors", true, false, 4, dump_json_VkRect2D);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -49152,13 +49152,13 @@ void dump_json_params_vkCmdBindVertexBuffers2EXT(ApiDumpInstance& dump_inst, VkC
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindingCount, NULL, settings, "uint32_t", "bindingCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", false, false, 4, dump_json_VkBuffer); // PQA
+        dump_json_array<const VkBuffer>(pBuffers, bindingCount, settings, "const VkBuffer*", "const VkBuffer", "pBuffers", false, false, 4, dump_json_VkBuffer);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pOffsets, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pSizes, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pSizes", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pStrides, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pStrides", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pStrides, bindingCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pStrides", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -49318,7 +49318,7 @@ void dump_json_params_vkTransitionImageLayoutEXT(ApiDumpInstance& dump_inst, VkD
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(transitionCount, NULL, settings, "uint32_t", "transitionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkHostImageLayoutTransitionInfo>(pTransitions, transitionCount, settings, "const VkHostImageLayoutTransitionInfo*", "const VkHostImageLayoutTransitionInfo", "pTransitions", true, false, 4, dump_json_VkHostImageLayoutTransitionInfo); // PQA
+        dump_json_array<const VkHostImageLayoutTransitionInfo>(pTransitions, transitionCount, settings, "const VkHostImageLayoutTransitionInfo*", "const VkHostImageLayoutTransitionInfo", "pTransitions", true, false, 4, dump_json_VkHostImageLayoutTransitionInfo);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -49837,7 +49837,7 @@ void dump_json_params_vkCmdBindDescriptorBuffersEXT(ApiDumpInstance& dump_inst, 
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bufferCount, NULL, settings, "uint32_t", "bufferCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDescriptorBufferBindingInfoEXT>(pBindingInfos, bufferCount, settings, "const VkDescriptorBufferBindingInfoEXT*", "const VkDescriptorBufferBindingInfoEXT", "pBindingInfos", true, false, 4, dump_json_VkDescriptorBufferBindingInfoEXT); // PQA
+        dump_json_array<const VkDescriptorBufferBindingInfoEXT>(pBindingInfos, bufferCount, settings, "const VkDescriptorBufferBindingInfoEXT*", "const VkDescriptorBufferBindingInfoEXT", "pBindingInfos", true, false, 4, dump_json_VkDescriptorBufferBindingInfoEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -49860,9 +49860,9 @@ void dump_json_params_vkCmdSetDescriptorBufferOffsetsEXT(ApiDumpInstance& dump_i
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(setCount, NULL, settings, "uint32_t", "setCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const uint32_t>(pBufferIndices, setCount, settings, "const uint32_t*", "const uint32_t", "pBufferIndices", false, false, 4, dump_json_uint32_t); // PQA
+        dump_json_array<const uint32_t>(pBufferIndices, setCount, settings, "const uint32_t*", "const uint32_t", "pBufferIndices", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceSize>(pOffsets, setCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, 4, dump_json_VkDeviceSize); // PQA
+        dump_json_array<const VkDeviceSize>(pOffsets, setCount, settings, "const VkDeviceSize*", "const VkDeviceSize", "pOffsets", false, false, 4, dump_json_VkDeviceSize);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -49983,7 +49983,7 @@ void dump_json_params_vkCmdSetFragmentShadingRateEnumNV(ApiDumpInstance& dump_in
         settings.stream() << ",\n";
         dump_json_value<const VkFragmentShadingRateNV>(shadingRate, NULL, settings, "VkFragmentShadingRateNV", "shadingRate", false, false, 4, dump_json_VkFragmentShadingRateNV);
         settings.stream() << ",\n";
-        dump_json_array<const VkFragmentShadingRateCombinerOpKHR>(combinerOps, 2, settings, "const VkFragmentShadingRateCombinerOpKHR[2]", "const VkFragmentShadingRateCombinerOpKHR", "combinerOps", false, false, 4, dump_json_VkFragmentShadingRateCombinerOpKHR); // PQA
+        dump_json_array<const VkFragmentShadingRateCombinerOpKHR>(combinerOps, 2, settings, "const VkFragmentShadingRateCombinerOpKHR[2]", "const VkFragmentShadingRateCombinerOpKHR", "combinerOps", false, false, 4, dump_json_VkFragmentShadingRateCombinerOpKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -50093,11 +50093,11 @@ void dump_json_params_vkCmdSetVertexInputEXT(ApiDumpInstance& dump_inst, VkComma
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(vertexBindingDescriptionCount, NULL, settings, "uint32_t", "vertexBindingDescriptionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkVertexInputBindingDescription2EXT>(pVertexBindingDescriptions, vertexBindingDescriptionCount, settings, "const VkVertexInputBindingDescription2EXT*", "const VkVertexInputBindingDescription2EXT", "pVertexBindingDescriptions", true, false, 4, dump_json_VkVertexInputBindingDescription2EXT); // PQA
+        dump_json_array<const VkVertexInputBindingDescription2EXT>(pVertexBindingDescriptions, vertexBindingDescriptionCount, settings, "const VkVertexInputBindingDescription2EXT*", "const VkVertexInputBindingDescription2EXT", "pVertexBindingDescriptions", true, false, 4, dump_json_VkVertexInputBindingDescription2EXT);
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(vertexAttributeDescriptionCount, NULL, settings, "uint32_t", "vertexAttributeDescriptionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkVertexInputAttributeDescription2EXT>(pVertexAttributeDescriptions, vertexAttributeDescriptionCount, settings, "const VkVertexInputAttributeDescription2EXT*", "const VkVertexInputAttributeDescription2EXT", "pVertexAttributeDescriptions", true, false, 4, dump_json_VkVertexInputAttributeDescription2EXT); // PQA
+        dump_json_array<const VkVertexInputAttributeDescription2EXT>(pVertexAttributeDescriptions, vertexAttributeDescriptionCount, settings, "const VkVertexInputAttributeDescription2EXT*", "const VkVertexInputAttributeDescription2EXT", "pVertexAttributeDescriptions", true, false, 4, dump_json_VkVertexInputAttributeDescription2EXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -50287,7 +50287,7 @@ void dump_json_params_vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI(ApiDumpIns
         settings.stream() << ",\n";
         dump_json_value<const VkRenderPass>(renderpass, NULL, settings, "VkRenderPass", "renderpass", false, false, 4, dump_json_VkRenderPass);
         settings.stream() << ",\n";
-        dump_json_array<const VkExtent2D>(pMaxWorkgroupSize, 1, settings, "VkExtent2D*", "VkExtent2D", "pMaxWorkgroupSize", true, false, 4, dump_json_VkExtent2D); // PQA
+        dump_json_array<const VkExtent2D>(pMaxWorkgroupSize, 1, settings, "VkExtent2D*", "VkExtent2D", "pMaxWorkgroupSize", true, false, 4, dump_json_VkExtent2D);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -50483,7 +50483,7 @@ void dump_json_params_vkCmdSetColorWriteEnableEXT(ApiDumpInstance& dump_inst, Vk
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBool32>(pColorWriteEnables, attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorWriteEnables", false, false, 4, dump_json_VkBool32); // PQA
+        dump_json_array<const VkBool32>(pColorWriteEnables, attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorWriteEnables", false, false, 4, dump_json_VkBool32);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -50500,7 +50500,7 @@ void dump_json_params_vkCmdDrawMultiEXT(ApiDumpInstance& dump_inst, VkCommandBuf
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(drawCount, NULL, settings, "uint32_t", "drawCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkMultiDrawInfoEXT>(pVertexInfo, drawCount, settings, "const VkMultiDrawInfoEXT*", "const VkMultiDrawInfoEXT", "pVertexInfo", true, false, 4, dump_json_VkMultiDrawInfoEXT); // PQA
+        dump_json_array<const VkMultiDrawInfoEXT>(pVertexInfo, drawCount, settings, "const VkMultiDrawInfoEXT*", "const VkMultiDrawInfoEXT", "pVertexInfo", true, false, 4, dump_json_VkMultiDrawInfoEXT);
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(instanceCount, NULL, settings, "uint32_t", "instanceCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
@@ -50523,7 +50523,7 @@ void dump_json_params_vkCmdDrawMultiIndexedEXT(ApiDumpInstance& dump_inst, VkCom
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(drawCount, NULL, settings, "uint32_t", "drawCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkMultiDrawIndexedInfoEXT>(pIndexInfo, drawCount, settings, "const VkMultiDrawIndexedInfoEXT*", "const VkMultiDrawIndexedInfoEXT", "pIndexInfo", true, false, 4, dump_json_VkMultiDrawIndexedInfoEXT); // PQA
+        dump_json_array<const VkMultiDrawIndexedInfoEXT>(pIndexInfo, drawCount, settings, "const VkMultiDrawIndexedInfoEXT*", "const VkMultiDrawIndexedInfoEXT", "pIndexInfo", true, false, 4, dump_json_VkMultiDrawIndexedInfoEXT);
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(instanceCount, NULL, settings, "uint32_t", "instanceCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
@@ -50584,7 +50584,7 @@ void dump_json_params_vkCmdBuildMicromapsEXT(ApiDumpInstance& dump_inst, VkComma
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(infoCount, NULL, settings, "uint32_t", "infoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkMicromapBuildInfoEXT>(pInfos, infoCount, settings, "const VkMicromapBuildInfoEXT*", "const VkMicromapBuildInfoEXT", "pInfos", true, false, 4, dump_json_VkMicromapBuildInfoEXT); // PQA
+        dump_json_array<const VkMicromapBuildInfoEXT>(pInfos, infoCount, settings, "const VkMicromapBuildInfoEXT*", "const VkMicromapBuildInfoEXT", "pInfos", true, false, 4, dump_json_VkMicromapBuildInfoEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -50603,7 +50603,7 @@ void dump_json_params_vkBuildMicromapsEXT(ApiDumpInstance& dump_inst, VkDevice d
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(infoCount, NULL, settings, "uint32_t", "infoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkMicromapBuildInfoEXT>(pInfos, infoCount, settings, "const VkMicromapBuildInfoEXT*", "const VkMicromapBuildInfoEXT", "pInfos", true, false, 4, dump_json_VkMicromapBuildInfoEXT); // PQA
+        dump_json_array<const VkMicromapBuildInfoEXT>(pInfos, infoCount, settings, "const VkMicromapBuildInfoEXT*", "const VkMicromapBuildInfoEXT", "pInfos", true, false, 4, dump_json_VkMicromapBuildInfoEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -50671,7 +50671,7 @@ void dump_json_params_vkWriteMicromapsPropertiesEXT(ApiDumpInstance& dump_inst, 
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(micromapCount, NULL, settings, "uint32_t", "micromapCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkMicromapEXT>(pMicromaps, micromapCount, settings, "const VkMicromapEXT*", "const VkMicromapEXT", "pMicromaps", false, false, 4, dump_json_VkMicromapEXT); // PQA
+        dump_json_array<const VkMicromapEXT>(pMicromaps, micromapCount, settings, "const VkMicromapEXT*", "const VkMicromapEXT", "pMicromaps", false, false, 4, dump_json_VkMicromapEXT);
         settings.stream() << ",\n";
         dump_json_value<const VkQueryType>(queryType, NULL, settings, "VkQueryType", "queryType", false, false, 4, dump_json_VkQueryType);
         settings.stream() << ",\n";
@@ -50741,7 +50741,7 @@ void dump_json_params_vkCmdWriteMicromapsPropertiesEXT(ApiDumpInstance& dump_ins
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(micromapCount, NULL, settings, "uint32_t", "micromapCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkMicromapEXT>(pMicromaps, micromapCount, settings, "const VkMicromapEXT*", "const VkMicromapEXT", "pMicromaps", false, false, 4, dump_json_VkMicromapEXT); // PQA
+        dump_json_array<const VkMicromapEXT>(pMicromaps, micromapCount, settings, "const VkMicromapEXT*", "const VkMicromapEXT", "pMicromaps", false, false, 4, dump_json_VkMicromapEXT);
         settings.stream() << ",\n";
         dump_json_value<const VkQueryType>(queryType, NULL, settings, "VkQueryType", "queryType", false, false, 4, dump_json_VkQueryType);
         settings.stream() << ",\n";
@@ -50914,7 +50914,7 @@ void dump_json_params_vkCmdCopyMemoryToImageIndirectNV(ApiDumpInstance& dump_ins
         settings.stream() << ",\n";
         dump_json_value<const VkImageLayout>(dstImageLayout, NULL, settings, "VkImageLayout", "dstImageLayout", false, false, 4, dump_json_VkImageLayout);
         settings.stream() << ",\n";
-        dump_json_array<const VkImageSubresourceLayers>(pImageSubresources, copyCount, settings, "const VkImageSubresourceLayers*", "const VkImageSubresourceLayers", "pImageSubresources", true, false, 4, dump_json_VkImageSubresourceLayers); // PQA
+        dump_json_array<const VkImageSubresourceLayers>(pImageSubresources, copyCount, settings, "const VkImageSubresourceLayers*", "const VkImageSubresourceLayers", "pImageSubresources", true, false, 4, dump_json_VkImageSubresourceLayers);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -50931,7 +50931,7 @@ void dump_json_params_vkCmdDecompressMemoryNV(ApiDumpInstance& dump_inst, VkComm
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(decompressRegionCount, NULL, settings, "uint32_t", "decompressRegionCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkDecompressMemoryRegionNV>(pDecompressMemoryRegions, decompressRegionCount, settings, "const VkDecompressMemoryRegionNV*", "const VkDecompressMemoryRegionNV", "pDecompressMemoryRegions", true, false, 4, dump_json_VkDecompressMemoryRegionNV); // PQA
+        dump_json_array<const VkDecompressMemoryRegionNV>(pDecompressMemoryRegions, decompressRegionCount, settings, "const VkDecompressMemoryRegionNV*", "const VkDecompressMemoryRegionNV", "pDecompressMemoryRegions", true, false, 4, dump_json_VkDecompressMemoryRegionNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51061,7 +51061,7 @@ void dump_json_params_vkCmdSetSampleMaskEXT(ApiDumpInstance& dump_inst, VkComman
         settings.stream() << ",\n";
         dump_json_value<const VkSampleCountFlagBits>(samples, NULL, settings, "VkSampleCountFlagBits", "samples", false, false, 4, dump_json_VkSampleCountFlagBits);
         settings.stream() << ",\n";
-        dump_json_array<const VkSampleMask>(pSampleMask, (samples + 31) / 32, settings, "const VkSampleMask*", "const VkSampleMask", "pSampleMask", false, false, 4, dump_json_VkSampleMask); // PQA
+        dump_json_array<const VkSampleMask>(pSampleMask, (samples + 31) / 32, settings, "const VkSampleMask*", "const VkSampleMask", "pSampleMask", false, false, 4, dump_json_VkSampleMask);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51125,7 +51125,7 @@ void dump_json_params_vkCmdSetColorBlendEnableEXT(ApiDumpInstance& dump_inst, Vk
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBool32>(pColorBlendEnables, attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorBlendEnables", false, false, 4, dump_json_VkBool32); // PQA
+        dump_json_array<const VkBool32>(pColorBlendEnables, attachmentCount, settings, "const VkBool32*", "const VkBool32", "pColorBlendEnables", false, false, 4, dump_json_VkBool32);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51144,7 +51144,7 @@ void dump_json_params_vkCmdSetColorBlendEquationEXT(ApiDumpInstance& dump_inst, 
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkColorBlendEquationEXT>(pColorBlendEquations, attachmentCount, settings, "const VkColorBlendEquationEXT*", "const VkColorBlendEquationEXT", "pColorBlendEquations", true, false, 4, dump_json_VkColorBlendEquationEXT); // PQA
+        dump_json_array<const VkColorBlendEquationEXT>(pColorBlendEquations, attachmentCount, settings, "const VkColorBlendEquationEXT*", "const VkColorBlendEquationEXT", "pColorBlendEquations", true, false, 4, dump_json_VkColorBlendEquationEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51163,7 +51163,7 @@ void dump_json_params_vkCmdSetColorWriteMaskEXT(ApiDumpInstance& dump_inst, VkCo
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkColorComponentFlags>(pColorWriteMasks, attachmentCount, settings, "const VkColorComponentFlags*", "const VkColorComponentFlags", "pColorWriteMasks", false, false, 4, dump_json_VkColorComponentFlags); // PQA
+        dump_json_array<const VkColorComponentFlags>(pColorWriteMasks, attachmentCount, settings, "const VkColorComponentFlags*", "const VkColorComponentFlags", "pColorWriteMasks", false, false, 4, dump_json_VkColorComponentFlags);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51272,7 +51272,7 @@ void dump_json_params_vkCmdSetColorBlendAdvancedEXT(ApiDumpInstance& dump_inst, 
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(attachmentCount, NULL, settings, "uint32_t", "attachmentCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkColorBlendAdvancedEXT>(pColorBlendAdvanced, attachmentCount, settings, "const VkColorBlendAdvancedEXT*", "const VkColorBlendAdvancedEXT", "pColorBlendAdvanced", true, false, 4, dump_json_VkColorBlendAdvancedEXT); // PQA
+        dump_json_array<const VkColorBlendAdvancedEXT>(pColorBlendAdvanced, attachmentCount, settings, "const VkColorBlendAdvancedEXT*", "const VkColorBlendAdvancedEXT", "pColorBlendAdvanced", true, false, 4, dump_json_VkColorBlendAdvancedEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51366,7 +51366,7 @@ void dump_json_params_vkCmdSetViewportSwizzleNV(ApiDumpInstance& dump_inst, VkCo
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(viewportCount, NULL, settings, "uint32_t", "viewportCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkViewportSwizzleNV>(pViewportSwizzles, viewportCount, settings, "const VkViewportSwizzleNV*", "const VkViewportSwizzleNV", "pViewportSwizzles", true, false, 4, dump_json_VkViewportSwizzleNV); // PQA
+        dump_json_array<const VkViewportSwizzleNV>(pViewportSwizzles, viewportCount, settings, "const VkViewportSwizzleNV*", "const VkViewportSwizzleNV", "pViewportSwizzles", true, false, 4, dump_json_VkViewportSwizzleNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51443,7 +51443,7 @@ void dump_json_params_vkCmdSetCoverageModulationTableNV(ApiDumpInstance& dump_in
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(coverageModulationTableCount, NULL, settings, "uint32_t", "coverageModulationTableCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const float>(pCoverageModulationTable, coverageModulationTableCount, settings, "const float*", "const float", "pCoverageModulationTable", false, false, 4, dump_json_float); // PQA
+        dump_json_array<const float>(pCoverageModulationTable, coverageModulationTableCount, settings, "const float*", "const float", "pCoverageModulationTable", false, false, 4, dump_json_float);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51594,7 +51594,7 @@ void dump_json_params_vkBindTensorMemoryARM(ApiDumpInstance& dump_inst, VkDevice
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(bindInfoCount, NULL, settings, "uint32_t", "bindInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkBindTensorMemoryInfoARM>(pBindInfos, bindInfoCount, settings, "const VkBindTensorMemoryInfoARM*", "const VkBindTensorMemoryInfoARM", "pBindInfos", true, false, 4, dump_json_VkBindTensorMemoryInfoARM); // PQA
+        dump_json_array<const VkBindTensorMemoryInfoARM>(pBindInfos, bindInfoCount, settings, "const VkBindTensorMemoryInfoARM*", "const VkBindTensorMemoryInfoARM", "pBindInfos", true, false, 4, dump_json_VkBindTensorMemoryInfoARM);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51730,7 +51730,7 @@ void dump_json_params_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(ApiDumpInstan
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pFormatCount, settings, "uint32_t*", "pFormatCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkOpticalFlowImageFormatPropertiesNV>(pImageFormatProperties, *pFormatCount, settings, "VkOpticalFlowImageFormatPropertiesNV*", "VkOpticalFlowImageFormatPropertiesNV", "pImageFormatProperties", true, false, 4, dump_json_VkOpticalFlowImageFormatPropertiesNV); // PQA
+        dump_json_array<const VkOpticalFlowImageFormatPropertiesNV>(pImageFormatProperties, *pFormatCount, settings, "VkOpticalFlowImageFormatPropertiesNV*", "VkOpticalFlowImageFormatPropertiesNV", "pImageFormatProperties", true, false, 4, dump_json_VkOpticalFlowImageFormatPropertiesNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51836,11 +51836,11 @@ void dump_json_params_vkCreateShadersEXT(ApiDumpInstance& dump_inst, VkDevice de
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(createInfoCount, NULL, settings, "uint32_t", "createInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkShaderCreateInfoEXT>(pCreateInfos, createInfoCount, settings, "const VkShaderCreateInfoEXT*", "const VkShaderCreateInfoEXT", "pCreateInfos", true, false, 4, dump_json_VkShaderCreateInfoEXT); // PQA
+        dump_json_array<const VkShaderCreateInfoEXT>(pCreateInfos, createInfoCount, settings, "const VkShaderCreateInfoEXT*", "const VkShaderCreateInfoEXT", "pCreateInfos", true, false, 4, dump_json_VkShaderCreateInfoEXT);
         settings.stream() << ",\n";
         dump_json_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", true, false, 4, dump_json_VkAllocationCallbacks);
         settings.stream() << ",\n";
-        dump_json_array<const VkShaderEXT>(pShaders, createInfoCount, settings, "VkShaderEXT*", "VkShaderEXT", "pShaders", false, false, 4, dump_json_VkShaderEXT); // PQA
+        dump_json_array<const VkShaderEXT>(pShaders, createInfoCount, settings, "VkShaderEXT*", "VkShaderEXT", "pShaders", false, false, 4, dump_json_VkShaderEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51893,9 +51893,9 @@ void dump_json_params_vkCmdBindShadersEXT(ApiDumpInstance& dump_inst, VkCommandB
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(stageCount, NULL, settings, "uint32_t", "stageCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkShaderStageFlagBits>(pStages, stageCount, settings, "const VkShaderStageFlagBits*", "const VkShaderStageFlagBits", "pStages", false, false, 4, dump_json_VkShaderStageFlagBits); // PQA
+        dump_json_array<const VkShaderStageFlagBits>(pStages, stageCount, settings, "const VkShaderStageFlagBits*", "const VkShaderStageFlagBits", "pStages", false, false, 4, dump_json_VkShaderStageFlagBits);
         settings.stream() << ",\n";
-        dump_json_array<const VkShaderEXT>(pShaders, stageCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pShaders", false, false, 4, dump_json_VkShaderEXT); // PQA
+        dump_json_array<const VkShaderEXT>(pShaders, stageCount, settings, "const VkShaderEXT*", "const VkShaderEXT", "pShaders", false, false, 4, dump_json_VkShaderEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51931,7 +51931,7 @@ void dump_json_params_vkGetFramebufferTilePropertiesQCOM(ApiDumpInstance& dump_i
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertiesCount, settings, "uint32_t*", "pPropertiesCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkTilePropertiesQCOM>(pProperties, *pPropertiesCount, settings, "VkTilePropertiesQCOM*", "VkTilePropertiesQCOM", "pProperties", true, false, 4, dump_json_VkTilePropertiesQCOM); // PQA
+        dump_json_array<const VkTilePropertiesQCOM>(pProperties, *pPropertiesCount, settings, "VkTilePropertiesQCOM*", "VkTilePropertiesQCOM", "pProperties", true, false, 4, dump_json_VkTilePropertiesQCOM);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51965,7 +51965,7 @@ void dump_json_params_vkGetPhysicalDeviceCooperativeVectorPropertiesNV(ApiDumpIn
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCooperativeVectorPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeVectorPropertiesNV*", "VkCooperativeVectorPropertiesNV", "pProperties", true, false, 4, dump_json_VkCooperativeVectorPropertiesNV); // PQA
+        dump_json_array<const VkCooperativeVectorPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeVectorPropertiesNV*", "VkCooperativeVectorPropertiesNV", "pProperties", true, false, 4, dump_json_VkCooperativeVectorPropertiesNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -51997,7 +51997,7 @@ void dump_json_params_vkCmdConvertCooperativeVectorMatrixNV(ApiDumpInstance& dum
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(infoCount, NULL, settings, "uint32_t", "infoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkConvertCooperativeVectorMatrixInfoNV>(pInfos, infoCount, settings, "const VkConvertCooperativeVectorMatrixInfoNV*", "const VkConvertCooperativeVectorMatrixInfoNV", "pInfos", true, false, 4, dump_json_VkConvertCooperativeVectorMatrixInfoNV); // PQA
+        dump_json_array<const VkConvertCooperativeVectorMatrixInfoNV>(pInfos, infoCount, settings, "const VkConvertCooperativeVectorMatrixInfoNV*", "const VkConvertCooperativeVectorMatrixInfoNV", "pInfos", true, false, 4, dump_json_VkConvertCooperativeVectorMatrixInfoNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -52388,7 +52388,7 @@ void dump_json_params_vkUpdateIndirectExecutionSetPipelineEXT(ApiDumpInstance& d
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(executionSetWriteCount, NULL, settings, "uint32_t", "executionSetWriteCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkWriteIndirectExecutionSetPipelineEXT>(pExecutionSetWrites, executionSetWriteCount, settings, "const VkWriteIndirectExecutionSetPipelineEXT*", "const VkWriteIndirectExecutionSetPipelineEXT", "pExecutionSetWrites", true, false, 4, dump_json_VkWriteIndirectExecutionSetPipelineEXT); // PQA
+        dump_json_array<const VkWriteIndirectExecutionSetPipelineEXT>(pExecutionSetWrites, executionSetWriteCount, settings, "const VkWriteIndirectExecutionSetPipelineEXT*", "const VkWriteIndirectExecutionSetPipelineEXT", "pExecutionSetWrites", true, false, 4, dump_json_VkWriteIndirectExecutionSetPipelineEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -52407,7 +52407,7 @@ void dump_json_params_vkUpdateIndirectExecutionSetShaderEXT(ApiDumpInstance& dum
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(executionSetWriteCount, NULL, settings, "uint32_t", "executionSetWriteCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkWriteIndirectExecutionSetShaderEXT>(pExecutionSetWrites, executionSetWriteCount, settings, "const VkWriteIndirectExecutionSetShaderEXT*", "const VkWriteIndirectExecutionSetShaderEXT", "pExecutionSetWrites", true, false, 4, dump_json_VkWriteIndirectExecutionSetShaderEXT); // PQA
+        dump_json_array<const VkWriteIndirectExecutionSetShaderEXT>(pExecutionSetWrites, executionSetWriteCount, settings, "const VkWriteIndirectExecutionSetShaderEXT*", "const VkWriteIndirectExecutionSetShaderEXT", "pExecutionSetWrites", true, false, 4, dump_json_VkWriteIndirectExecutionSetShaderEXT);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -52445,7 +52445,7 @@ void dump_json_params_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsProp
         settings.stream() << ",\n";
         dump_json_pointer<const uint32_t>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixFlexibleDimensionsPropertiesNV*", "VkCooperativeMatrixFlexibleDimensionsPropertiesNV", "pProperties", true, false, 4, dump_json_VkCooperativeMatrixFlexibleDimensionsPropertiesNV); // PQA
+        dump_json_array<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixFlexibleDimensionsPropertiesNV*", "VkCooperativeMatrixFlexibleDimensionsPropertiesNV", "pProperties", true, false, 4, dump_json_VkCooperativeMatrixFlexibleDimensionsPropertiesNV);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
@@ -52553,7 +52553,7 @@ void dump_json_params_vkCmdBuildAccelerationStructuresKHR(ApiDumpInstance& dump_
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(infoCount, NULL, settings, "uint32_t", "infoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", true, false, 4, dump_json_VkAccelerationStructureBuildGeometryInfoKHR); // PQA
+        dump_json_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", true, false, 4, dump_json_VkAccelerationStructureBuildGeometryInfoKHR);
         settings.stream() << ",\n";
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
@@ -52571,11 +52571,11 @@ void dump_json_params_vkCmdBuildAccelerationStructuresIndirectKHR(ApiDumpInstanc
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(infoCount, NULL, settings, "uint32_t", "infoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", true, false, 4, dump_json_VkAccelerationStructureBuildGeometryInfoKHR); // PQA
+        dump_json_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", true, false, 4, dump_json_VkAccelerationStructureBuildGeometryInfoKHR);
         settings.stream() << ",\n";
-        dump_json_array<const VkDeviceAddress>(pIndirectDeviceAddresses, infoCount, settings, "const VkDeviceAddress*", "const VkDeviceAddress", "pIndirectDeviceAddresses", false, false, 4, dump_json_VkDeviceAddress); // PQA
+        dump_json_array<const VkDeviceAddress>(pIndirectDeviceAddresses, infoCount, settings, "const VkDeviceAddress*", "const VkDeviceAddress", "pIndirectDeviceAddresses", false, false, 4, dump_json_VkDeviceAddress);
         settings.stream() << ",\n";
-        dump_json_array<const uint32_t>(pIndirectStrides, infoCount, settings, "const uint32_t*", "const uint32_t", "pIndirectStrides", false, false, 4, dump_json_uint32_t); // PQA
+        dump_json_array<const uint32_t>(pIndirectStrides, infoCount, settings, "const uint32_t*", "const uint32_t", "pIndirectStrides", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
@@ -52595,7 +52595,7 @@ void dump_json_params_vkBuildAccelerationStructuresKHR(ApiDumpInstance& dump_ins
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(infoCount, NULL, settings, "uint32_t", "infoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", true, false, 4, dump_json_VkAccelerationStructureBuildGeometryInfoKHR); // PQA
+        dump_json_array<const VkAccelerationStructureBuildGeometryInfoKHR>(pInfos, infoCount, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "const VkAccelerationStructureBuildGeometryInfoKHR", "pInfos", true, false, 4, dump_json_VkAccelerationStructureBuildGeometryInfoKHR);
         settings.stream() << ",\n";
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
@@ -52664,7 +52664,7 @@ void dump_json_params_vkWriteAccelerationStructuresPropertiesKHR(ApiDumpInstance
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(accelerationStructureCount, NULL, settings, "uint32_t", "accelerationStructureCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", false, false, 4, dump_json_VkAccelerationStructureKHR); // PQA
+        dump_json_array<const VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", false, false, 4, dump_json_VkAccelerationStructureKHR);
         settings.stream() << ",\n";
         dump_json_value<const VkQueryType>(queryType, NULL, settings, "VkQueryType", "queryType", false, false, 4, dump_json_VkQueryType);
         settings.stream() << ",\n";
@@ -52749,7 +52749,7 @@ void dump_json_params_vkCmdWriteAccelerationStructuresPropertiesKHR(ApiDumpInsta
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(accelerationStructureCount, NULL, settings, "uint32_t", "accelerationStructureCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", false, false, 4, dump_json_VkAccelerationStructureKHR); // PQA
+        dump_json_array<const VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, settings, "const VkAccelerationStructureKHR*", "const VkAccelerationStructureKHR", "pAccelerationStructures", false, false, 4, dump_json_VkAccelerationStructureKHR);
         settings.stream() << ",\n";
         dump_json_value<const VkQueryType>(queryType, NULL, settings, "VkQueryType", "queryType", false, false, 4, dump_json_VkQueryType);
         settings.stream() << ",\n";
@@ -52791,7 +52791,7 @@ void dump_json_params_vkGetAccelerationStructureBuildSizesKHR(ApiDumpInstance& d
         settings.stream() << ",\n";
         dump_json_pointer<const VkAccelerationStructureBuildGeometryInfoKHR>(pBuildInfo, settings, "const VkAccelerationStructureBuildGeometryInfoKHR*", "pBuildInfo", true, false, 4, dump_json_VkAccelerationStructureBuildGeometryInfoKHR);
         settings.stream() << ",\n";
-        dump_json_array<const uint32_t>(pMaxPrimitiveCounts, pBuildInfo->geometryCount, settings, "const uint32_t*", "const uint32_t", "pMaxPrimitiveCounts", false, false, 4, dump_json_uint32_t); // PQA
+        dump_json_array<const uint32_t>(pMaxPrimitiveCounts, pBuildInfo->geometryCount, settings, "const uint32_t*", "const uint32_t", "pMaxPrimitiveCounts", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
         dump_json_pointer<const VkAccelerationStructureBuildSizesInfoKHR>(pSizeInfo, settings, "VkAccelerationStructureBuildSizesInfoKHR*", "pSizeInfo", true, false, 4, dump_json_VkAccelerationStructureBuildSizesInfoKHR);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
@@ -52841,11 +52841,11 @@ void dump_json_params_vkCreateRayTracingPipelinesKHR(ApiDumpInstance& dump_inst,
         settings.stream() << ",\n";
         dump_json_value<const uint32_t>(createInfoCount, NULL, settings, "uint32_t", "createInfoCount", false, false, 4, dump_json_uint32_t);
         settings.stream() << ",\n";
-        dump_json_array<const VkRayTracingPipelineCreateInfoKHR>(pCreateInfos, createInfoCount, settings, "const VkRayTracingPipelineCreateInfoKHR*", "const VkRayTracingPipelineCreateInfoKHR", "pCreateInfos", true, false, 4, dump_json_VkRayTracingPipelineCreateInfoKHR); // PQA
+        dump_json_array<const VkRayTracingPipelineCreateInfoKHR>(pCreateInfos, createInfoCount, settings, "const VkRayTracingPipelineCreateInfoKHR*", "const VkRayTracingPipelineCreateInfoKHR", "pCreateInfos", true, false, 4, dump_json_VkRayTracingPipelineCreateInfoKHR);
         settings.stream() << ",\n";
         dump_json_pointer<const VkAllocationCallbacks>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", true, false, 4, dump_json_VkAllocationCallbacks);
         settings.stream() << ",\n";
-        dump_json_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", false, false, 4, dump_json_VkPipeline); // PQA
+        dump_json_array<const VkPipeline>(pPipelines, createInfoCount, settings, "VkPipeline*", "VkPipeline", "pPipelines", false, false, 4, dump_json_VkPipeline);
         settings.stream() << "\n" << settings.indentation(3) << "]\n";
     }
     if (settings.shouldFlush()) settings.stream().flush();
