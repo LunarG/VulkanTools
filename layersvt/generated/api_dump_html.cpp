@@ -27,37 +27,37 @@
 
 //=========================== Type Implementations ==========================//
 
-void dump_html_uint64_t(uint64_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_uint64_t(const uint64_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     settings.stream() << "</div></summary>";
 }
-void dump_html_size_t(size_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_size_t(const size_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     settings.stream() << "</div></summary>";
 }
-void dump_html_char(char object, const ApiDumpSettings& settings, int indents)
+void dump_html_char(const char &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     settings.stream() << "</div></summary>";
 }
-void dump_html_float(float object, const ApiDumpSettings& settings, int indents)
+void dump_html_float(const float &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     settings.stream() << "</div></summary>";
 }
-void dump_html_int64_t(int64_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_int64_t(const int64_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     settings.stream() << "</div></summary>";
 }
-void dump_html_double(double object, const ApiDumpSettings& settings, int indents)
+void dump_html_double(const double &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
@@ -66,27 +66,27 @@ void dump_html_double(double object, const ApiDumpSettings& settings, int indent
 
 //========================= Basetype Implementations ========================//
 
-void dump_html_VkBool32(VkBool32 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBool32(const VkBool32& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
-void dump_html_VkDeviceAddress(VkDeviceAddress object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceAddress(const VkDeviceAddress& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
-void dump_html_VkDeviceSize(VkDeviceSize object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceSize(const VkDeviceSize& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
-void dump_html_VkFlags(VkFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFlags(const VkFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
-void dump_html_VkSampleMask(VkSampleMask object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSampleMask(const VkSampleMask& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
-void dump_html_VkFlags64(VkFlags64 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFlags64(const VkFlags64& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
@@ -103,53 +103,53 @@ void dump_html_AHardwareBuffer(const AHardwareBuffer* object, const ApiDumpSetti
 }
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_CAMetalLayer(CAMetalLayer object, const ApiDumpSettings& settings, int indents)
+void dump_html_CAMetalLayer(const CAMetalLayer& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_MTLDevice_id(MTLDevice_id object, const ApiDumpSettings& settings, int indents)
+void dump_html_MTLDevice_id(const MTLDevice_id& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_MTLCommandQueue_id(MTLCommandQueue_id object, const ApiDumpSettings& settings, int indents)
+void dump_html_MTLCommandQueue_id(const MTLCommandQueue_id& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_MTLBuffer_id(MTLBuffer_id object, const ApiDumpSettings& settings, int indents)
+void dump_html_MTLBuffer_id(const MTLBuffer_id& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_MTLTexture_id(MTLTexture_id object, const ApiDumpSettings& settings, int indents)
+void dump_html_MTLTexture_id(const MTLTexture_id& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_IOSurfaceRef(IOSurfaceRef object, const ApiDumpSettings& settings, int indents)
+void dump_html_IOSurfaceRef(const IOSurfaceRef& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_MTLSharedEvent_id(MTLSharedEvent_id object, const ApiDumpSettings& settings, int indents)
+void dump_html_MTLSharedEvent_id(const MTLSharedEvent_id& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
-void dump_html_VkRemoteAddressNV(VkRemoteAddressNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRemoteAddressNV(const VkRemoteAddressNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_OHOS)
-void dump_html_OHNativeWindow(OHNativeWindow object, const ApiDumpSettings& settings, int indents)
+void dump_html_OHNativeWindow(const OHNativeWindow& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>" << object << "</div></summary>";
 }
@@ -158,7 +158,7 @@ void dump_html_OHNativeWindow(OHNativeWindow object, const ApiDumpSettings& sett
 //======================= System Type Implementations =======================//
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_html_DWORD(const DWORD object, const ApiDumpSettings& settings, int indents)
+void dump_html_DWORD(DWORD const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -167,7 +167,7 @@ void dump_html_DWORD(const DWORD object, const ApiDumpSettings& settings, int in
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-void dump_html_Display(const Display* object, const ApiDumpSettings& settings, int indents)
+void dump_html_Display(Display const * const & object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     OutputAddress(settings, object);
@@ -175,7 +175,7 @@ void dump_html_Display(const Display* object, const ApiDumpSettings& settings, i
 }
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_GGP)
-void dump_html_GgpFrameToken(const GgpFrameToken object, const ApiDumpSettings& settings, int indents)
+void dump_html_GgpFrameToken(GgpFrameToken const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -184,7 +184,7 @@ void dump_html_GgpFrameToken(const GgpFrameToken object, const ApiDumpSettings& 
 }
 #endif // VK_USE_PLATFORM_GGP
 #if defined(VK_USE_PLATFORM_GGP)
-void dump_html_GgpStreamDescriptor(const GgpStreamDescriptor object, const ApiDumpSettings& settings, int indents)
+void dump_html_GgpStreamDescriptor(GgpStreamDescriptor const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -193,7 +193,7 @@ void dump_html_GgpStreamDescriptor(const GgpStreamDescriptor object, const ApiDu
 }
 #endif // VK_USE_PLATFORM_GGP
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_html_HANDLE(const HANDLE object, const ApiDumpSettings& settings, int indents)
+void dump_html_HANDLE(HANDLE const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -202,7 +202,7 @@ void dump_html_HANDLE(const HANDLE object, const ApiDumpSettings& settings, int 
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_html_HINSTANCE(const HINSTANCE object, const ApiDumpSettings& settings, int indents)
+void dump_html_HINSTANCE(HINSTANCE const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -211,7 +211,7 @@ void dump_html_HINSTANCE(const HINSTANCE object, const ApiDumpSettings& settings
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_html_HMONITOR(const HMONITOR object, const ApiDumpSettings& settings, int indents)
+void dump_html_HMONITOR(HMONITOR const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -220,7 +220,7 @@ void dump_html_HMONITOR(const HMONITOR object, const ApiDumpSettings& settings, 
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_html_HWND(const HWND object, const ApiDumpSettings& settings, int indents)
+void dump_html_HWND(HWND const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -229,7 +229,7 @@ void dump_html_HWND(const HWND object, const ApiDumpSettings& settings, int inde
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-void dump_html_IDirectFB(const IDirectFB object, const ApiDumpSettings& settings, int indents)
+void dump_html_IDirectFB(IDirectFB const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -238,7 +238,7 @@ void dump_html_IDirectFB(const IDirectFB object, const ApiDumpSettings& settings
 }
 #endif // VK_USE_PLATFORM_DIRECTFB_EXT
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-void dump_html_IDirectFBSurface(const IDirectFBSurface object, const ApiDumpSettings& settings, int indents)
+void dump_html_IDirectFBSurface(IDirectFBSurface const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -247,7 +247,7 @@ void dump_html_IDirectFBSurface(const IDirectFBSurface object, const ApiDumpSett
 }
 #endif // VK_USE_PLATFORM_DIRECTFB_EXT
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_html_LPCWSTR(const LPCWSTR object, const ApiDumpSettings& settings, int indents)
+void dump_html_LPCWSTR(LPCWSTR const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -256,7 +256,7 @@ void dump_html_LPCWSTR(const LPCWSTR object, const ApiDumpSettings& settings, in
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-void dump_html_RROutput(const RROutput object, const ApiDumpSettings& settings, int indents)
+void dump_html_RROutput(RROutput const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -265,7 +265,7 @@ void dump_html_RROutput(const RROutput object, const ApiDumpSettings& settings, 
 }
 #endif // VK_USE_PLATFORM_XLIB_XRANDR_EXT
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_html_SECURITY_ATTRIBUTES(const SECURITY_ATTRIBUTES* object, const ApiDumpSettings& settings, int indents)
+void dump_html_SECURITY_ATTRIBUTES(SECURITY_ATTRIBUTES const * const & object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     OutputAddress(settings, object);
@@ -273,7 +273,7 @@ void dump_html_SECURITY_ATTRIBUTES(const SECURITY_ATTRIBUTES* object, const ApiD
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-void dump_html_VisualID(const VisualID object, const ApiDumpSettings& settings, int indents)
+void dump_html_VisualID(VisualID const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -282,7 +282,7 @@ void dump_html_VisualID(const VisualID object, const ApiDumpSettings& settings, 
 }
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-void dump_html_Window(const Window object, const ApiDumpSettings& settings, int indents)
+void dump_html_Window(Window const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -291,7 +291,7 @@ void dump_html_Window(const Window object, const ApiDumpSettings& settings, int 
 }
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-void dump_html__screen_buffer(const _screen_buffer* object, const ApiDumpSettings& settings, int indents)
+void dump_html__screen_buffer(_screen_buffer const * const & object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     OutputAddress(settings, object);
@@ -299,7 +299,7 @@ void dump_html__screen_buffer(const _screen_buffer* object, const ApiDumpSetting
 }
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-void dump_html__screen_context(const _screen_context* object, const ApiDumpSettings& settings, int indents)
+void dump_html__screen_context(_screen_context const * const & object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     OutputAddress(settings, object);
@@ -307,7 +307,7 @@ void dump_html__screen_context(const _screen_context* object, const ApiDumpSetti
 }
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-void dump_html__screen_window(const _screen_window* object, const ApiDumpSettings& settings, int indents)
+void dump_html__screen_window(_screen_window const * const & object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     OutputAddress(settings, object);
@@ -315,7 +315,7 @@ void dump_html__screen_window(const _screen_window* object, const ApiDumpSetting
 }
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-void dump_html_wl_display(const wl_display* object, const ApiDumpSettings& settings, int indents)
+void dump_html_wl_display(wl_display const * const & object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     OutputAddress(settings, object);
@@ -323,7 +323,7 @@ void dump_html_wl_display(const wl_display* object, const ApiDumpSettings& setti
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-void dump_html_wl_surface(const wl_surface* object, const ApiDumpSettings& settings, int indents)
+void dump_html_wl_surface(wl_surface const * const & object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     OutputAddress(settings, object);
@@ -331,7 +331,7 @@ void dump_html_wl_surface(const wl_surface* object, const ApiDumpSettings& setti
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-void dump_html_xcb_connection_t(const xcb_connection_t* object, const ApiDumpSettings& settings, int indents)
+void dump_html_xcb_connection_t(xcb_connection_t const * const & object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     OutputAddress(settings, object);
@@ -339,7 +339,7 @@ void dump_html_xcb_connection_t(const xcb_connection_t* object, const ApiDumpSet
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-void dump_html_xcb_visualid_t(const xcb_visualid_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_xcb_visualid_t(xcb_visualid_t const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -348,7 +348,7 @@ void dump_html_xcb_visualid_t(const xcb_visualid_t object, const ApiDumpSettings
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-void dump_html_xcb_window_t(const xcb_window_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_xcb_window_t(xcb_window_t const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -357,7 +357,7 @@ void dump_html_xcb_window_t(const xcb_window_t object, const ApiDumpSettings& se
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_html_zx_handle_t(const zx_handle_t object, const ApiDumpSettings& settings, int indents)
+void dump_html_zx_handle_t(zx_handle_t const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "<div class='val'>" << object << "</div></summary>";
@@ -368,7 +368,7 @@ void dump_html_zx_handle_t(const zx_handle_t object, const ApiDumpSettings& sett
 
 //========================== Handle Implementations =========================//
 
-void dump_html_VkBuffer(const VkBuffer object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBuffer(const VkBuffer& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -383,7 +383,7 @@ void dump_html_VkBuffer(const VkBuffer object, const ApiDumpSettings& settings, 
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkImage(const VkImage object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImage(const VkImage& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -398,7 +398,7 @@ void dump_html_VkImage(const VkImage object, const ApiDumpSettings& settings, in
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkInstance(const VkInstance object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkInstance(const VkInstance& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -413,7 +413,7 @@ void dump_html_VkInstance(const VkInstance object, const ApiDumpSettings& settin
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPhysicalDevice(const VkPhysicalDevice object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPhysicalDevice(const VkPhysicalDevice& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -428,7 +428,7 @@ void dump_html_VkPhysicalDevice(const VkPhysicalDevice object, const ApiDumpSett
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDevice(const VkDevice object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDevice(const VkDevice& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -443,7 +443,7 @@ void dump_html_VkDevice(const VkDevice object, const ApiDumpSettings& settings, 
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkQueue(const VkQueue object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueue(const VkQueue& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -458,7 +458,7 @@ void dump_html_VkQueue(const VkQueue object, const ApiDumpSettings& settings, in
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSemaphore(const VkSemaphore object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSemaphore(const VkSemaphore& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -473,7 +473,7 @@ void dump_html_VkSemaphore(const VkSemaphore object, const ApiDumpSettings& sett
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkCommandBuffer(const VkCommandBuffer object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandBuffer(const VkCommandBuffer& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -488,7 +488,7 @@ void dump_html_VkCommandBuffer(const VkCommandBuffer object, const ApiDumpSettin
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkFence(const VkFence object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFence(const VkFence& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -503,7 +503,7 @@ void dump_html_VkFence(const VkFence object, const ApiDumpSettings& settings, in
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDeviceMemory(const VkDeviceMemory object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceMemory(const VkDeviceMemory& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -518,7 +518,7 @@ void dump_html_VkDeviceMemory(const VkDeviceMemory object, const ApiDumpSettings
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkEvent(const VkEvent object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkEvent(const VkEvent& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -533,7 +533,7 @@ void dump_html_VkEvent(const VkEvent object, const ApiDumpSettings& settings, in
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkQueryPool(const VkQueryPool object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryPool(const VkQueryPool& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -548,7 +548,7 @@ void dump_html_VkQueryPool(const VkQueryPool object, const ApiDumpSettings& sett
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkBufferView(const VkBufferView object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBufferView(const VkBufferView& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -563,7 +563,7 @@ void dump_html_VkBufferView(const VkBufferView object, const ApiDumpSettings& se
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkImageView(const VkImageView object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageView(const VkImageView& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -578,7 +578,7 @@ void dump_html_VkImageView(const VkImageView object, const ApiDumpSettings& sett
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkShaderModule(const VkShaderModule object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderModule(const VkShaderModule& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -593,7 +593,7 @@ void dump_html_VkShaderModule(const VkShaderModule object, const ApiDumpSettings
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineCache(const VkPipelineCache object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCache(const VkPipelineCache& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -608,7 +608,7 @@ void dump_html_VkPipelineCache(const VkPipelineCache object, const ApiDumpSettin
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineLayout(const VkPipelineLayout object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineLayout(const VkPipelineLayout& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -623,7 +623,7 @@ void dump_html_VkPipelineLayout(const VkPipelineLayout object, const ApiDumpSett
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipeline(const VkPipeline object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipeline(const VkPipeline& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -638,7 +638,7 @@ void dump_html_VkPipeline(const VkPipeline object, const ApiDumpSettings& settin
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkRenderPass(const VkRenderPass object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRenderPass(const VkRenderPass& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -653,7 +653,7 @@ void dump_html_VkRenderPass(const VkRenderPass object, const ApiDumpSettings& se
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDescriptorSetLayout(const VkDescriptorSetLayout object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorSetLayout(const VkDescriptorSetLayout& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -668,7 +668,7 @@ void dump_html_VkDescriptorSetLayout(const VkDescriptorSetLayout object, const A
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSampler(const VkSampler object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSampler(const VkSampler& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -683,7 +683,7 @@ void dump_html_VkSampler(const VkSampler object, const ApiDumpSettings& settings
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDescriptorSet(const VkDescriptorSet object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorSet(const VkDescriptorSet& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -698,7 +698,7 @@ void dump_html_VkDescriptorSet(const VkDescriptorSet object, const ApiDumpSettin
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDescriptorPool(const VkDescriptorPool object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorPool(const VkDescriptorPool& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -713,7 +713,7 @@ void dump_html_VkDescriptorPool(const VkDescriptorPool object, const ApiDumpSett
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkFramebuffer(const VkFramebuffer object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFramebuffer(const VkFramebuffer& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -728,7 +728,7 @@ void dump_html_VkFramebuffer(const VkFramebuffer object, const ApiDumpSettings& 
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkCommandPool(const VkCommandPool object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandPool(const VkCommandPool& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -743,7 +743,7 @@ void dump_html_VkCommandPool(const VkCommandPool object, const ApiDumpSettings& 
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSamplerYcbcrConversion(const VkSamplerYcbcrConversion object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSamplerYcbcrConversion(const VkSamplerYcbcrConversion& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -758,7 +758,7 @@ void dump_html_VkSamplerYcbcrConversion(const VkSamplerYcbcrConversion object, c
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDescriptorUpdateTemplate(const VkDescriptorUpdateTemplate object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorUpdateTemplate(const VkDescriptorUpdateTemplate& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -773,7 +773,7 @@ void dump_html_VkDescriptorUpdateTemplate(const VkDescriptorUpdateTemplate objec
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPrivateDataSlot(const VkPrivateDataSlot object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPrivateDataSlot(const VkPrivateDataSlot& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -788,7 +788,7 @@ void dump_html_VkPrivateDataSlot(const VkPrivateDataSlot object, const ApiDumpSe
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSurfaceKHR(const VkSurfaceKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSurfaceKHR(const VkSurfaceKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -803,7 +803,7 @@ void dump_html_VkSurfaceKHR(const VkSurfaceKHR object, const ApiDumpSettings& se
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSwapchainKHR(const VkSwapchainKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSwapchainKHR(const VkSwapchainKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -818,7 +818,7 @@ void dump_html_VkSwapchainKHR(const VkSwapchainKHR object, const ApiDumpSettings
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDisplayKHR(const VkDisplayKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDisplayKHR(const VkDisplayKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -833,7 +833,7 @@ void dump_html_VkDisplayKHR(const VkDisplayKHR object, const ApiDumpSettings& se
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDisplayModeKHR(const VkDisplayModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDisplayModeKHR(const VkDisplayModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -848,7 +848,7 @@ void dump_html_VkDisplayModeKHR(const VkDisplayModeKHR object, const ApiDumpSett
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoSessionKHR(const VkVideoSessionKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoSessionKHR(const VkVideoSessionKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -863,7 +863,7 @@ void dump_html_VkVideoSessionKHR(const VkVideoSessionKHR object, const ApiDumpSe
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoSessionParametersKHR(const VkVideoSessionParametersKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoSessionParametersKHR(const VkVideoSessionParametersKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -878,7 +878,7 @@ void dump_html_VkVideoSessionParametersKHR(const VkVideoSessionParametersKHR obj
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDeferredOperationKHR(const VkDeferredOperationKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeferredOperationKHR(const VkDeferredOperationKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -893,7 +893,7 @@ void dump_html_VkDeferredOperationKHR(const VkDeferredOperationKHR object, const
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineBinaryKHR(const VkPipelineBinaryKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineBinaryKHR(const VkPipelineBinaryKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -908,7 +908,7 @@ void dump_html_VkPipelineBinaryKHR(const VkPipelineBinaryKHR object, const ApiDu
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDebugReportCallbackEXT(const VkDebugReportCallbackEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugReportCallbackEXT(const VkDebugReportCallbackEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -923,7 +923,7 @@ void dump_html_VkDebugReportCallbackEXT(const VkDebugReportCallbackEXT object, c
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkCuModuleNVX(const VkCuModuleNVX object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCuModuleNVX(const VkCuModuleNVX& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -938,7 +938,7 @@ void dump_html_VkCuModuleNVX(const VkCuModuleNVX object, const ApiDumpSettings& 
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkCuFunctionNVX(const VkCuFunctionNVX object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCuFunctionNVX(const VkCuFunctionNVX& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -953,7 +953,7 @@ void dump_html_VkCuFunctionNVX(const VkCuFunctionNVX object, const ApiDumpSettin
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDebugUtilsMessengerEXT(const VkDebugUtilsMessengerEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugUtilsMessengerEXT(const VkDebugUtilsMessengerEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -968,7 +968,7 @@ void dump_html_VkDebugUtilsMessengerEXT(const VkDebugUtilsMessengerEXT object, c
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkValidationCacheEXT(const VkValidationCacheEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkValidationCacheEXT(const VkValidationCacheEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -983,7 +983,7 @@ void dump_html_VkValidationCacheEXT(const VkValidationCacheEXT object, const Api
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkAccelerationStructureNV(const VkAccelerationStructureNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureNV(const VkAccelerationStructureNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -998,7 +998,7 @@ void dump_html_VkAccelerationStructureNV(const VkAccelerationStructureNV object,
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPerformanceConfigurationINTEL(const VkPerformanceConfigurationINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPerformanceConfigurationINTEL(const VkPerformanceConfigurationINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1013,7 +1013,7 @@ void dump_html_VkPerformanceConfigurationINTEL(const VkPerformanceConfigurationI
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkIndirectCommandsLayoutNV(const VkIndirectCommandsLayoutNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectCommandsLayoutNV(const VkIndirectCommandsLayoutNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1029,7 +1029,7 @@ void dump_html_VkIndirectCommandsLayoutNV(const VkIndirectCommandsLayoutNV objec
     settings.stream() << "</div></summary>";
 }
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_html_VkCudaModuleNV(const VkCudaModuleNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCudaModuleNV(const VkCudaModuleNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1046,7 +1046,7 @@ void dump_html_VkCudaModuleNV(const VkCudaModuleNV object, const ApiDumpSettings
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_html_VkCudaFunctionNV(const VkCudaFunctionNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCudaFunctionNV(const VkCudaFunctionNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1062,7 +1062,7 @@ void dump_html_VkCudaFunctionNV(const VkCudaFunctionNV object, const ApiDumpSett
     settings.stream() << "</div></summary>";
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
-void dump_html_VkAccelerationStructureKHR(const VkAccelerationStructureKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureKHR(const VkAccelerationStructureKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1078,7 +1078,7 @@ void dump_html_VkAccelerationStructureKHR(const VkAccelerationStructureKHR objec
     settings.stream() << "</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_html_VkBufferCollectionFUCHSIA(const VkBufferCollectionFUCHSIA object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBufferCollectionFUCHSIA(const VkBufferCollectionFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1094,7 +1094,7 @@ void dump_html_VkBufferCollectionFUCHSIA(const VkBufferCollectionFUCHSIA object,
     settings.stream() << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
-void dump_html_VkMicromapEXT(const VkMicromapEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMicromapEXT(const VkMicromapEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1109,7 +1109,7 @@ void dump_html_VkMicromapEXT(const VkMicromapEXT object, const ApiDumpSettings& 
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkTensorARM(const VkTensorARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTensorARM(const VkTensorARM& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1124,7 +1124,7 @@ void dump_html_VkTensorARM(const VkTensorARM object, const ApiDumpSettings& sett
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkTensorViewARM(const VkTensorViewARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTensorViewARM(const VkTensorViewARM& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1139,7 +1139,7 @@ void dump_html_VkTensorViewARM(const VkTensorViewARM object, const ApiDumpSettin
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkOpticalFlowSessionNV(const VkOpticalFlowSessionNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowSessionNV(const VkOpticalFlowSessionNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1154,7 +1154,7 @@ void dump_html_VkOpticalFlowSessionNV(const VkOpticalFlowSessionNV object, const
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkShaderEXT(const VkShaderEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderEXT(const VkShaderEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1169,7 +1169,7 @@ void dump_html_VkShaderEXT(const VkShaderEXT object, const ApiDumpSettings& sett
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkExternalComputeQueueNV(const VkExternalComputeQueueNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalComputeQueueNV(const VkExternalComputeQueueNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1184,7 +1184,7 @@ void dump_html_VkExternalComputeQueueNV(const VkExternalComputeQueueNV object, c
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkIndirectExecutionSetEXT(const VkIndirectExecutionSetEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectExecutionSetEXT(const VkIndirectExecutionSetEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1199,7 +1199,7 @@ void dump_html_VkIndirectExecutionSetEXT(const VkIndirectExecutionSetEXT object,
     }
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkIndirectCommandsLayoutEXT(const VkIndirectCommandsLayoutEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectCommandsLayoutEXT(const VkIndirectCommandsLayoutEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress()) {
@@ -1217,7 +1217,7 @@ void dump_html_VkIndirectCommandsLayoutEXT(const VkIndirectCommandsLayoutEXT obj
 
 //=========================== Enum Implementations ==========================//
 
-void dump_html_VkResult(VkResult object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkResult(const VkResult& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -1374,7 +1374,7 @@ void dump_html_VkResult(VkResult object, const ApiDumpSettings& settings, int in
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkStructureType(VkStructureType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkStructureType(const VkStructureType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -4582,7 +4582,7 @@ void dump_html_VkStructureType(VkStructureType object, const ApiDumpSettings& se
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPipelineCacheHeaderVersion(VkPipelineCacheHeaderVersion object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCacheHeaderVersion(const VkPipelineCacheHeaderVersion& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -4595,7 +4595,7 @@ void dump_html_VkPipelineCacheHeaderVersion(VkPipelineCacheHeaderVersion object,
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkImageLayout(VkImageLayout object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageLayout(const VkImageLayout& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -4701,7 +4701,7 @@ void dump_html_VkImageLayout(VkImageLayout object, const ApiDumpSettings& settin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkObjectType(VkObjectType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkObjectType(const VkObjectType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -4882,7 +4882,7 @@ void dump_html_VkObjectType(VkObjectType object, const ApiDumpSettings& settings
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkVendorId(VkVendorId object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVendorId(const VkVendorId& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -4916,7 +4916,7 @@ void dump_html_VkVendorId(VkVendorId object, const ApiDumpSettings& settings, in
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkSystemAllocationScope(VkSystemAllocationScope object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSystemAllocationScope(const VkSystemAllocationScope& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -4941,7 +4941,7 @@ void dump_html_VkSystemAllocationScope(VkSystemAllocationScope object, const Api
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkInternalAllocationType(VkInternalAllocationType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkInternalAllocationType(const VkInternalAllocationType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -4954,7 +4954,7 @@ void dump_html_VkInternalAllocationType(VkInternalAllocationType object, const A
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkFormat(VkFormat object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFormat(const VkFormat& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -5759,7 +5759,7 @@ void dump_html_VkFormat(VkFormat object, const ApiDumpSettings& settings, int in
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkImageTiling(VkImageTiling object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageTiling(const VkImageTiling& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -5778,7 +5778,7 @@ void dump_html_VkImageTiling(VkImageTiling object, const ApiDumpSettings& settin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkImageType(VkImageType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageType(const VkImageType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -5797,7 +5797,7 @@ void dump_html_VkImageType(VkImageType object, const ApiDumpSettings& settings, 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPhysicalDeviceType(VkPhysicalDeviceType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPhysicalDeviceType(const VkPhysicalDeviceType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -5822,7 +5822,7 @@ void dump_html_VkPhysicalDeviceType(VkPhysicalDeviceType object, const ApiDumpSe
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkQueryType(VkQueryType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryType(const VkQueryType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -5883,7 +5883,7 @@ void dump_html_VkQueryType(VkQueryType object, const ApiDumpSettings& settings, 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkSharingMode(VkSharingMode object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSharingMode(const VkSharingMode& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -5899,7 +5899,7 @@ void dump_html_VkSharingMode(VkSharingMode object, const ApiDumpSettings& settin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkComponentSwizzle(VkComponentSwizzle object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkComponentSwizzle(const VkComponentSwizzle& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -5930,7 +5930,7 @@ void dump_html_VkComponentSwizzle(VkComponentSwizzle object, const ApiDumpSettin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkImageViewType(VkImageViewType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageViewType(const VkImageViewType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -5961,7 +5961,7 @@ void dump_html_VkImageViewType(VkImageViewType object, const ApiDumpSettings& se
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkBlendFactor(VkBlendFactor object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBlendFactor(const VkBlendFactor& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6028,7 +6028,7 @@ void dump_html_VkBlendFactor(VkBlendFactor object, const ApiDumpSettings& settin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkBlendOp(VkBlendOp object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBlendOp(const VkBlendOp& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6191,7 +6191,7 @@ void dump_html_VkBlendOp(VkBlendOp object, const ApiDumpSettings& settings, int 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkCompareOp(VkCompareOp object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCompareOp(const VkCompareOp& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6225,7 +6225,7 @@ void dump_html_VkCompareOp(VkCompareOp object, const ApiDumpSettings& settings, 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDynamicState(VkDynamicState object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDynamicState(const VkDynamicState& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6454,7 +6454,7 @@ void dump_html_VkDynamicState(VkDynamicState object, const ApiDumpSettings& sett
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkFrontFace(VkFrontFace object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFrontFace(const VkFrontFace& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6470,7 +6470,7 @@ void dump_html_VkFrontFace(VkFrontFace object, const ApiDumpSettings& settings, 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkVertexInputRate(VkVertexInputRate object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVertexInputRate(const VkVertexInputRate& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6486,7 +6486,7 @@ void dump_html_VkVertexInputRate(VkVertexInputRate object, const ApiDumpSettings
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPrimitiveTopology(VkPrimitiveTopology object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPrimitiveTopology(const VkPrimitiveTopology& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6529,7 +6529,7 @@ void dump_html_VkPrimitiveTopology(VkPrimitiveTopology object, const ApiDumpSett
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPolygonMode(VkPolygonMode object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPolygonMode(const VkPolygonMode& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6551,7 +6551,7 @@ void dump_html_VkPolygonMode(VkPolygonMode object, const ApiDumpSettings& settin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkStencilOp(VkStencilOp object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkStencilOp(const VkStencilOp& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6585,7 +6585,7 @@ void dump_html_VkStencilOp(VkStencilOp object, const ApiDumpSettings& settings, 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkLogicOp(VkLogicOp object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkLogicOp(const VkLogicOp& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6643,7 +6643,7 @@ void dump_html_VkLogicOp(VkLogicOp object, const ApiDumpSettings& settings, int 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkBorderColor(VkBorderColor object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBorderColor(const VkBorderColor& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6677,7 +6677,7 @@ void dump_html_VkBorderColor(VkBorderColor object, const ApiDumpSettings& settin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkFilter(VkFilter object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFilter(const VkFilter& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6696,7 +6696,7 @@ void dump_html_VkFilter(VkFilter object, const ApiDumpSettings& settings, int in
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkSamplerAddressMode(VkSamplerAddressMode object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSamplerAddressMode(const VkSamplerAddressMode& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6721,7 +6721,7 @@ void dump_html_VkSamplerAddressMode(VkSamplerAddressMode object, const ApiDumpSe
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkSamplerMipmapMode(VkSamplerMipmapMode object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSamplerMipmapMode(const VkSamplerMipmapMode& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6737,7 +6737,7 @@ void dump_html_VkSamplerMipmapMode(VkSamplerMipmapMode object, const ApiDumpSett
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDescriptorType(VkDescriptorType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorType(const VkDescriptorType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6804,7 +6804,7 @@ void dump_html_VkDescriptorType(VkDescriptorType object, const ApiDumpSettings& 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkAttachmentLoadOp(VkAttachmentLoadOp object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAttachmentLoadOp(const VkAttachmentLoadOp& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6826,7 +6826,7 @@ void dump_html_VkAttachmentLoadOp(VkAttachmentLoadOp object, const ApiDumpSettin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkAttachmentStoreOp(VkAttachmentStoreOp object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAttachmentStoreOp(const VkAttachmentStoreOp& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6845,7 +6845,7 @@ void dump_html_VkAttachmentStoreOp(VkAttachmentStoreOp object, const ApiDumpSett
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPipelineBindPoint(VkPipelineBindPoint object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineBindPoint(const VkPipelineBindPoint& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6870,7 +6870,7 @@ void dump_html_VkPipelineBindPoint(VkPipelineBindPoint object, const ApiDumpSett
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkCommandBufferLevel(VkCommandBufferLevel object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandBufferLevel(const VkCommandBufferLevel& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6886,7 +6886,7 @@ void dump_html_VkCommandBufferLevel(VkCommandBufferLevel object, const ApiDumpSe
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkIndexType(VkIndexType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndexType(const VkIndexType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6908,7 +6908,7 @@ void dump_html_VkIndexType(VkIndexType object, const ApiDumpSettings& settings, 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkSubpassContents(VkSubpassContents object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSubpassContents(const VkSubpassContents& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6927,7 +6927,7 @@ void dump_html_VkSubpassContents(VkSubpassContents object, const ApiDumpSettings
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPointClippingBehavior(VkPointClippingBehavior object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPointClippingBehavior(const VkPointClippingBehavior& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6943,7 +6943,7 @@ void dump_html_VkPointClippingBehavior(VkPointClippingBehavior object, const Api
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkTessellationDomainOrigin(VkTessellationDomainOrigin object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTessellationDomainOrigin(const VkTessellationDomainOrigin& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6959,7 +6959,7 @@ void dump_html_VkTessellationDomainOrigin(VkTessellationDomainOrigin object, con
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkSamplerYcbcrModelConversion(VkSamplerYcbcrModelConversion object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSamplerYcbcrModelConversion(const VkSamplerYcbcrModelConversion& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -6984,7 +6984,7 @@ void dump_html_VkSamplerYcbcrModelConversion(VkSamplerYcbcrModelConversion objec
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkSamplerYcbcrRange(VkSamplerYcbcrRange object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSamplerYcbcrRange(const VkSamplerYcbcrRange& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7000,7 +7000,7 @@ void dump_html_VkSamplerYcbcrRange(VkSamplerYcbcrRange object, const ApiDumpSett
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkChromaLocation(VkChromaLocation object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkChromaLocation(const VkChromaLocation& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7016,7 +7016,7 @@ void dump_html_VkChromaLocation(VkChromaLocation object, const ApiDumpSettings& 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDescriptorUpdateTemplateType(VkDescriptorUpdateTemplateType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorUpdateTemplateType(const VkDescriptorUpdateTemplateType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7032,7 +7032,7 @@ void dump_html_VkDescriptorUpdateTemplateType(VkDescriptorUpdateTemplateType obj
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDriverId(VkDriverId object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDriverId(const VkDriverId& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7123,7 +7123,7 @@ void dump_html_VkDriverId(VkDriverId object, const ApiDumpSettings& settings, in
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkShaderFloatControlsIndependence(VkShaderFloatControlsIndependence object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderFloatControlsIndependence(const VkShaderFloatControlsIndependence& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7142,7 +7142,7 @@ void dump_html_VkShaderFloatControlsIndependence(VkShaderFloatControlsIndependen
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkSamplerReductionMode(VkSamplerReductionMode object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSamplerReductionMode(const VkSamplerReductionMode& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7164,7 +7164,7 @@ void dump_html_VkSamplerReductionMode(VkSamplerReductionMode object, const ApiDu
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkSemaphoreType(VkSemaphoreType object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSemaphoreType(const VkSemaphoreType& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7180,7 +7180,7 @@ void dump_html_VkSemaphoreType(VkSemaphoreType object, const ApiDumpSettings& se
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPipelineRobustnessBufferBehavior(VkPipelineRobustnessBufferBehavior object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineRobustnessBufferBehavior(const VkPipelineRobustnessBufferBehavior& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7202,7 +7202,7 @@ void dump_html_VkPipelineRobustnessBufferBehavior(VkPipelineRobustnessBufferBeha
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPipelineRobustnessImageBehavior(VkPipelineRobustnessImageBehavior object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineRobustnessImageBehavior(const VkPipelineRobustnessImageBehavior& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7224,7 +7224,7 @@ void dump_html_VkPipelineRobustnessImageBehavior(VkPipelineRobustnessImageBehavi
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkQueueGlobalPriority(VkQueueGlobalPriority object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueueGlobalPriority(const VkQueueGlobalPriority& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7246,7 +7246,7 @@ void dump_html_VkQueueGlobalPriority(VkQueueGlobalPriority object, const ApiDump
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkLineRasterizationMode(VkLineRasterizationMode object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkLineRasterizationMode(const VkLineRasterizationMode& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7268,7 +7268,7 @@ void dump_html_VkLineRasterizationMode(VkLineRasterizationMode object, const Api
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPresentModeKHR(VkPresentModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPresentModeKHR(const VkPresentModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7299,7 +7299,7 @@ void dump_html_VkPresentModeKHR(VkPresentModeKHR object, const ApiDumpSettings& 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkColorSpaceKHR(VkColorSpaceKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkColorSpaceKHR(const VkColorSpaceKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7357,7 +7357,7 @@ void dump_html_VkColorSpaceKHR(VkColorSpaceKHR object, const ApiDumpSettings& se
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkQueryResultStatusKHR(VkQueryResultStatusKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryResultStatusKHR(const VkQueryResultStatusKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7379,7 +7379,7 @@ void dump_html_VkQueryResultStatusKHR(VkQueryResultStatusKHR object, const ApiDu
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPerformanceCounterUnitKHR(VkPerformanceCounterUnitKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPerformanceCounterUnitKHR(const VkPerformanceCounterUnitKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7422,7 +7422,7 @@ void dump_html_VkPerformanceCounterUnitKHR(VkPerformanceCounterUnitKHR object, c
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPerformanceCounterScopeKHR(VkPerformanceCounterScopeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPerformanceCounterScopeKHR(const VkPerformanceCounterScopeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7441,7 +7441,7 @@ void dump_html_VkPerformanceCounterScopeKHR(VkPerformanceCounterScopeKHR object,
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPerformanceCounterStorageKHR(VkPerformanceCounterStorageKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPerformanceCounterStorageKHR(const VkPerformanceCounterStorageKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7469,7 +7469,7 @@ void dump_html_VkPerformanceCounterStorageKHR(VkPerformanceCounterStorageKHR obj
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkFragmentShadingRateCombinerOpKHR(VkFragmentShadingRateCombinerOpKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFragmentShadingRateCombinerOpKHR(const VkFragmentShadingRateCombinerOpKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7494,7 +7494,7 @@ void dump_html_VkFragmentShadingRateCombinerOpKHR(VkFragmentShadingRateCombinerO
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPipelineExecutableStatisticFormatKHR(VkPipelineExecutableStatisticFormatKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineExecutableStatisticFormatKHR(const VkPipelineExecutableStatisticFormatKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7516,7 +7516,7 @@ void dump_html_VkPipelineExecutableStatisticFormatKHR(VkPipelineExecutableStatis
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkVideoEncodeTuningModeKHR(VkVideoEncodeTuningModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeTuningModeKHR(const VkVideoEncodeTuningModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7541,7 +7541,7 @@ void dump_html_VkVideoEncodeTuningModeKHR(VkVideoEncodeTuningModeKHR object, con
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkComponentTypeKHR(VkComponentTypeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkComponentTypeKHR(const VkComponentTypeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7599,7 +7599,7 @@ void dump_html_VkComponentTypeKHR(VkComponentTypeKHR object, const ApiDumpSettin
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkScopeKHR(VkScopeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkScopeKHR(const VkScopeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7621,7 +7621,7 @@ void dump_html_VkScopeKHR(VkScopeKHR object, const ApiDumpSettings& settings, in
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkVideoEncodeAV1PredictionModeKHR(VkVideoEncodeAV1PredictionModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeAV1PredictionModeKHR(const VkVideoEncodeAV1PredictionModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7643,7 +7643,7 @@ void dump_html_VkVideoEncodeAV1PredictionModeKHR(VkVideoEncodeAV1PredictionModeK
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkVideoEncodeAV1RateControlGroupKHR(VkVideoEncodeAV1RateControlGroupKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeAV1RateControlGroupKHR(const VkVideoEncodeAV1RateControlGroupKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7662,7 +7662,7 @@ void dump_html_VkVideoEncodeAV1RateControlGroupKHR(VkVideoEncodeAV1RateControlGr
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkTimeDomainKHR(VkTimeDomainKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTimeDomainKHR(const VkTimeDomainKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7684,7 +7684,7 @@ void dump_html_VkTimeDomainKHR(VkTimeDomainKHR object, const ApiDumpSettings& se
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPhysicalDeviceLayeredApiKHR(VkPhysicalDeviceLayeredApiKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPhysicalDeviceLayeredApiKHR(const VkPhysicalDeviceLayeredApiKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7709,7 +7709,7 @@ void dump_html_VkPhysicalDeviceLayeredApiKHR(VkPhysicalDeviceLayeredApiKHR objec
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDefaultVertexAttributeValueKHR(VkDefaultVertexAttributeValueKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDefaultVertexAttributeValueKHR(const VkDefaultVertexAttributeValueKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7725,7 +7725,7 @@ void dump_html_VkDefaultVertexAttributeValueKHR(VkDefaultVertexAttributeValueKHR
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDebugReportObjectTypeEXT(VkDebugReportObjectTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugReportObjectTypeEXT(const VkDebugReportObjectTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7858,7 +7858,7 @@ void dump_html_VkDebugReportObjectTypeEXT(VkDebugReportObjectTypeEXT object, con
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkRasterizationOrderAMD(VkRasterizationOrderAMD object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRasterizationOrderAMD(const VkRasterizationOrderAMD& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7874,7 +7874,7 @@ void dump_html_VkRasterizationOrderAMD(VkRasterizationOrderAMD object, const Api
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkShaderInfoTypeAMD(VkShaderInfoTypeAMD object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderInfoTypeAMD(const VkShaderInfoTypeAMD& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7893,7 +7893,7 @@ void dump_html_VkShaderInfoTypeAMD(VkShaderInfoTypeAMD object, const ApiDumpSett
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkValidationCheckEXT(VkValidationCheckEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkValidationCheckEXT(const VkValidationCheckEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7909,7 +7909,7 @@ void dump_html_VkValidationCheckEXT(VkValidationCheckEXT object, const ApiDumpSe
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDisplayPowerStateEXT(VkDisplayPowerStateEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDisplayPowerStateEXT(const VkDisplayPowerStateEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7928,7 +7928,7 @@ void dump_html_VkDisplayPowerStateEXT(VkDisplayPowerStateEXT object, const ApiDu
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDeviceEventTypeEXT(VkDeviceEventTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceEventTypeEXT(const VkDeviceEventTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7941,7 +7941,7 @@ void dump_html_VkDeviceEventTypeEXT(VkDeviceEventTypeEXT object, const ApiDumpSe
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDisplayEventTypeEXT(VkDisplayEventTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDisplayEventTypeEXT(const VkDisplayEventTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7954,7 +7954,7 @@ void dump_html_VkDisplayEventTypeEXT(VkDisplayEventTypeEXT object, const ApiDump
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkViewportCoordinateSwizzleNV(VkViewportCoordinateSwizzleNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkViewportCoordinateSwizzleNV(const VkViewportCoordinateSwizzleNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -7988,7 +7988,7 @@ void dump_html_VkViewportCoordinateSwizzleNV(VkViewportCoordinateSwizzleNV objec
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDiscardRectangleModeEXT(VkDiscardRectangleModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDiscardRectangleModeEXT(const VkDiscardRectangleModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8004,7 +8004,7 @@ void dump_html_VkDiscardRectangleModeEXT(VkDiscardRectangleModeEXT object, const
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkConservativeRasterizationModeEXT(VkConservativeRasterizationModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkConservativeRasterizationModeEXT(const VkConservativeRasterizationModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8023,7 +8023,7 @@ void dump_html_VkConservativeRasterizationModeEXT(VkConservativeRasterizationMod
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkBlendOverlapEXT(VkBlendOverlapEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBlendOverlapEXT(const VkBlendOverlapEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8042,7 +8042,7 @@ void dump_html_VkBlendOverlapEXT(VkBlendOverlapEXT object, const ApiDumpSettings
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkCoverageModulationModeNV(VkCoverageModulationModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCoverageModulationModeNV(const VkCoverageModulationModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8064,7 +8064,7 @@ void dump_html_VkCoverageModulationModeNV(VkCoverageModulationModeNV object, con
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkValidationCacheHeaderVersionEXT(VkValidationCacheHeaderVersionEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkValidationCacheHeaderVersionEXT(const VkValidationCacheHeaderVersionEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8077,7 +8077,7 @@ void dump_html_VkValidationCacheHeaderVersionEXT(VkValidationCacheHeaderVersionE
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkShadingRatePaletteEntryNV(VkShadingRatePaletteEntryNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShadingRatePaletteEntryNV(const VkShadingRatePaletteEntryNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8123,7 +8123,7 @@ void dump_html_VkShadingRatePaletteEntryNV(VkShadingRatePaletteEntryNV object, c
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkCoarseSampleOrderTypeNV(VkCoarseSampleOrderTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCoarseSampleOrderTypeNV(const VkCoarseSampleOrderTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8145,7 +8145,7 @@ void dump_html_VkCoarseSampleOrderTypeNV(VkCoarseSampleOrderTypeNV object, const
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkRayTracingShaderGroupTypeKHR(VkRayTracingShaderGroupTypeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRayTracingShaderGroupTypeKHR(const VkRayTracingShaderGroupTypeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8164,7 +8164,7 @@ void dump_html_VkRayTracingShaderGroupTypeKHR(VkRayTracingShaderGroupTypeKHR obj
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkGeometryTypeKHR(VkGeometryTypeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkGeometryTypeKHR(const VkGeometryTypeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8189,7 +8189,7 @@ void dump_html_VkGeometryTypeKHR(VkGeometryTypeKHR object, const ApiDumpSettings
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureTypeKHR(const VkAccelerationStructureTypeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8208,7 +8208,7 @@ void dump_html_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR obj
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkCopyAccelerationStructureModeKHR(VkCopyAccelerationStructureModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCopyAccelerationStructureModeKHR(const VkCopyAccelerationStructureModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8230,7 +8230,7 @@ void dump_html_VkCopyAccelerationStructureModeKHR(VkCopyAccelerationStructureMod
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkAccelerationStructureMemoryRequirementsTypeNV(VkAccelerationStructureMemoryRequirementsTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureMemoryRequirementsTypeNV(const VkAccelerationStructureMemoryRequirementsTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8249,7 +8249,7 @@ void dump_html_VkAccelerationStructureMemoryRequirementsTypeNV(VkAccelerationStr
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkMemoryOverallocationBehaviorAMD(VkMemoryOverallocationBehaviorAMD object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryOverallocationBehaviorAMD(const VkMemoryOverallocationBehaviorAMD& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8268,7 +8268,7 @@ void dump_html_VkMemoryOverallocationBehaviorAMD(VkMemoryOverallocationBehaviorA
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPerformanceConfigurationTypeINTEL(VkPerformanceConfigurationTypeINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPerformanceConfigurationTypeINTEL(const VkPerformanceConfigurationTypeINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8281,7 +8281,7 @@ void dump_html_VkPerformanceConfigurationTypeINTEL(VkPerformanceConfigurationTyp
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkQueryPoolSamplingModeINTEL(VkQueryPoolSamplingModeINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryPoolSamplingModeINTEL(const VkQueryPoolSamplingModeINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8294,7 +8294,7 @@ void dump_html_VkQueryPoolSamplingModeINTEL(VkQueryPoolSamplingModeINTEL object,
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPerformanceOverrideTypeINTEL(VkPerformanceOverrideTypeINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPerformanceOverrideTypeINTEL(const VkPerformanceOverrideTypeINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8310,7 +8310,7 @@ void dump_html_VkPerformanceOverrideTypeINTEL(VkPerformanceOverrideTypeINTEL obj
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPerformanceParameterTypeINTEL(VkPerformanceParameterTypeINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPerformanceParameterTypeINTEL(const VkPerformanceParameterTypeINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8326,7 +8326,7 @@ void dump_html_VkPerformanceParameterTypeINTEL(VkPerformanceParameterTypeINTEL o
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPerformanceValueTypeINTEL(VkPerformanceValueTypeINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPerformanceValueTypeINTEL(const VkPerformanceValueTypeINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8351,7 +8351,7 @@ void dump_html_VkPerformanceValueTypeINTEL(VkPerformanceValueTypeINTEL object, c
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkValidationFeatureEnableEXT(VkValidationFeatureEnableEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkValidationFeatureEnableEXT(const VkValidationFeatureEnableEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8376,7 +8376,7 @@ void dump_html_VkValidationFeatureEnableEXT(VkValidationFeatureEnableEXT object,
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkValidationFeatureDisableEXT(VkValidationFeatureDisableEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkValidationFeatureDisableEXT(const VkValidationFeatureDisableEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8410,7 +8410,7 @@ void dump_html_VkValidationFeatureDisableEXT(VkValidationFeatureDisableEXT objec
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkCoverageReductionModeNV(VkCoverageReductionModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCoverageReductionModeNV(const VkCoverageReductionModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8426,7 +8426,7 @@ void dump_html_VkCoverageReductionModeNV(VkCoverageReductionModeNV object, const
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkProvokingVertexModeEXT(VkProvokingVertexModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkProvokingVertexModeEXT(const VkProvokingVertexModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8443,7 +8443,7 @@ void dump_html_VkProvokingVertexModeEXT(VkProvokingVertexModeEXT object, const A
     settings.stream() << object << ")</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_html_VkFullScreenExclusiveEXT(VkFullScreenExclusiveEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFullScreenExclusiveEXT(const VkFullScreenExclusiveEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8466,7 +8466,7 @@ void dump_html_VkFullScreenExclusiveEXT(VkFullScreenExclusiveEXT object, const A
     settings.stream() << object << ")</div></summary>";
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
-void dump_html_VkIndirectCommandsTokenTypeNV(VkIndirectCommandsTokenTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectCommandsTokenTypeNV(const VkIndirectCommandsTokenTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8509,7 +8509,7 @@ void dump_html_VkIndirectCommandsTokenTypeNV(VkIndirectCommandsTokenTypeNV objec
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDepthBiasRepresentationEXT(VkDepthBiasRepresentationEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDepthBiasRepresentationEXT(const VkDepthBiasRepresentationEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8528,7 +8528,7 @@ void dump_html_VkDepthBiasRepresentationEXT(VkDepthBiasRepresentationEXT object,
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDeviceMemoryReportEventTypeEXT(VkDeviceMemoryReportEventTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceMemoryReportEventTypeEXT(const VkDeviceMemoryReportEventTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8553,7 +8553,7 @@ void dump_html_VkDeviceMemoryReportEventTypeEXT(VkDeviceMemoryReportEventTypeEXT
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkFragmentShadingRateTypeNV(VkFragmentShadingRateTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFragmentShadingRateTypeNV(const VkFragmentShadingRateTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8569,7 +8569,7 @@ void dump_html_VkFragmentShadingRateTypeNV(VkFragmentShadingRateTypeNV object, c
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkFragmentShadingRateNV(VkFragmentShadingRateNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFragmentShadingRateNV(const VkFragmentShadingRateNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8615,7 +8615,7 @@ void dump_html_VkFragmentShadingRateNV(VkFragmentShadingRateNV object, const Api
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkAccelerationStructureMotionInstanceTypeNV(VkAccelerationStructureMotionInstanceTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureMotionInstanceTypeNV(const VkAccelerationStructureMotionInstanceTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8634,7 +8634,7 @@ void dump_html_VkAccelerationStructureMotionInstanceTypeNV(VkAccelerationStructu
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDeviceFaultAddressTypeEXT(VkDeviceFaultAddressTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceFaultAddressTypeEXT(const VkDeviceFaultAddressTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8665,7 +8665,7 @@ void dump_html_VkDeviceFaultAddressTypeEXT(VkDeviceFaultAddressTypeEXT object, c
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDeviceFaultVendorBinaryHeaderVersionEXT(VkDeviceFaultVendorBinaryHeaderVersionEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceFaultVendorBinaryHeaderVersionEXT(const VkDeviceFaultVendorBinaryHeaderVersionEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8678,7 +8678,7 @@ void dump_html_VkDeviceFaultVendorBinaryHeaderVersionEXT(VkDeviceFaultVendorBina
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDeviceAddressBindingTypeEXT(VkDeviceAddressBindingTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceAddressBindingTypeEXT(const VkDeviceAddressBindingTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8694,7 +8694,7 @@ void dump_html_VkDeviceAddressBindingTypeEXT(VkDeviceAddressBindingTypeEXT objec
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkMicromapTypeEXT(VkMicromapTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMicromapTypeEXT(const VkMicromapTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8710,7 +8710,7 @@ void dump_html_VkMicromapTypeEXT(VkMicromapTypeEXT object, const ApiDumpSettings
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkBuildMicromapModeEXT(VkBuildMicromapModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBuildMicromapModeEXT(const VkBuildMicromapModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8723,7 +8723,7 @@ void dump_html_VkBuildMicromapModeEXT(VkBuildMicromapModeEXT object, const ApiDu
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkCopyMicromapModeEXT(VkCopyMicromapModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCopyMicromapModeEXT(const VkCopyMicromapModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8745,7 +8745,7 @@ void dump_html_VkCopyMicromapModeEXT(VkCopyMicromapModeEXT object, const ApiDump
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkOpacityMicromapFormatEXT(VkOpacityMicromapFormatEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpacityMicromapFormatEXT(const VkOpacityMicromapFormatEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8761,7 +8761,7 @@ void dump_html_VkOpacityMicromapFormatEXT(VkOpacityMicromapFormatEXT object, con
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkOpacityMicromapSpecialIndexEXT(VkOpacityMicromapSpecialIndexEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpacityMicromapSpecialIndexEXT(const VkOpacityMicromapSpecialIndexEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8786,7 +8786,7 @@ void dump_html_VkOpacityMicromapSpecialIndexEXT(VkOpacityMicromapSpecialIndexEXT
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkAccelerationStructureCompatibilityKHR(VkAccelerationStructureCompatibilityKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureCompatibilityKHR(const VkAccelerationStructureCompatibilityKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8802,7 +8802,7 @@ void dump_html_VkAccelerationStructureCompatibilityKHR(VkAccelerationStructureCo
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkAccelerationStructureBuildTypeKHR(VkAccelerationStructureBuildTypeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureBuildTypeKHR(const VkAccelerationStructureBuildTypeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8822,7 +8822,7 @@ void dump_html_VkAccelerationStructureBuildTypeKHR(VkAccelerationStructureBuildT
     settings.stream() << object << ")</div></summary>";
 }
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_html_VkDisplacementMicromapFormatNV(VkDisplacementMicromapFormatNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDisplacementMicromapFormatNV(const VkDisplacementMicromapFormatNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8842,7 +8842,7 @@ void dump_html_VkDisplacementMicromapFormatNV(VkDisplacementMicromapFormatNV obj
     settings.stream() << object << ")</div></summary>";
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
-void dump_html_VkRayTracingLssIndexingModeNV(VkRayTracingLssIndexingModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRayTracingLssIndexingModeNV(const VkRayTracingLssIndexingModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8858,7 +8858,7 @@ void dump_html_VkRayTracingLssIndexingModeNV(VkRayTracingLssIndexingModeNV objec
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkRayTracingLssPrimitiveEndCapsModeNV(VkRayTracingLssPrimitiveEndCapsModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRayTracingLssPrimitiveEndCapsModeNV(const VkRayTracingLssPrimitiveEndCapsModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8874,7 +8874,7 @@ void dump_html_VkRayTracingLssPrimitiveEndCapsModeNV(VkRayTracingLssPrimitiveEnd
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkSubpassMergeStatusEXT(VkSubpassMergeStatusEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSubpassMergeStatusEXT(const VkSubpassMergeStatusEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8926,7 +8926,7 @@ void dump_html_VkSubpassMergeStatusEXT(VkSubpassMergeStatusEXT object, const Api
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDirectDriverLoadingModeLUNARG(VkDirectDriverLoadingModeLUNARG object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDirectDriverLoadingModeLUNARG(const VkDirectDriverLoadingModeLUNARG& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8942,7 +8942,7 @@ void dump_html_VkDirectDriverLoadingModeLUNARG(VkDirectDriverLoadingModeLUNARG o
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkTensorTilingARM(VkTensorTilingARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTensorTilingARM(const VkTensorTilingARM& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8958,7 +8958,7 @@ void dump_html_VkTensorTilingARM(VkTensorTilingARM object, const ApiDumpSettings
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkOpticalFlowPerformanceLevelNV(VkOpticalFlowPerformanceLevelNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowPerformanceLevelNV(const VkOpticalFlowPerformanceLevelNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -8980,7 +8980,7 @@ void dump_html_VkOpticalFlowPerformanceLevelNV(VkOpticalFlowPerformanceLevelNV o
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkOpticalFlowSessionBindingPointNV(VkOpticalFlowSessionBindingPointNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowSessionBindingPointNV(const VkOpticalFlowSessionBindingPointNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9017,7 +9017,7 @@ void dump_html_VkOpticalFlowSessionBindingPointNV(VkOpticalFlowSessionBindingPoi
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkAntiLagModeAMD(VkAntiLagModeAMD object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAntiLagModeAMD(const VkAntiLagModeAMD& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9036,7 +9036,7 @@ void dump_html_VkAntiLagModeAMD(VkAntiLagModeAMD object, const ApiDumpSettings& 
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkAntiLagStageAMD(VkAntiLagStageAMD object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAntiLagStageAMD(const VkAntiLagStageAMD& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9052,7 +9052,7 @@ void dump_html_VkAntiLagStageAMD(VkAntiLagStageAMD object, const ApiDumpSettings
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkShaderCodeTypeEXT(VkShaderCodeTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderCodeTypeEXT(const VkShaderCodeTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9068,7 +9068,7 @@ void dump_html_VkShaderCodeTypeEXT(VkShaderCodeTypeEXT object, const ApiDumpSett
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDepthClampModeEXT(VkDepthClampModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDepthClampModeEXT(const VkDepthClampModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9084,7 +9084,7 @@ void dump_html_VkDepthClampModeEXT(VkDepthClampModeEXT object, const ApiDumpSett
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkRayTracingInvocationReorderModeNV(VkRayTracingInvocationReorderModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRayTracingInvocationReorderModeNV(const VkRayTracingInvocationReorderModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9100,7 +9100,7 @@ void dump_html_VkRayTracingInvocationReorderModeNV(VkRayTracingInvocationReorder
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkCooperativeVectorMatrixLayoutNV(VkCooperativeVectorMatrixLayoutNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCooperativeVectorMatrixLayoutNV(const VkCooperativeVectorMatrixLayoutNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9122,7 +9122,7 @@ void dump_html_VkCooperativeVectorMatrixLayoutNV(VkCooperativeVectorMatrixLayout
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkLayerSettingTypeEXT(VkLayerSettingTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkLayerSettingTypeEXT(const VkLayerSettingTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9156,7 +9156,7 @@ void dump_html_VkLayerSettingTypeEXT(VkLayerSettingTypeEXT object, const ApiDump
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkLatencyMarkerNV(VkLatencyMarkerNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkLatencyMarkerNV(const VkLatencyMarkerNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9202,7 +9202,7 @@ void dump_html_VkLatencyMarkerNV(VkLatencyMarkerNV object, const ApiDumpSettings
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkOutOfBandQueueTypeNV(VkOutOfBandQueueTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOutOfBandQueueTypeNV(const VkOutOfBandQueueTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9218,7 +9218,7 @@ void dump_html_VkOutOfBandQueueTypeNV(VkOutOfBandQueueTypeNV object, const ApiDu
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkBlockMatchWindowCompareModeQCOM(VkBlockMatchWindowCompareModeQCOM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBlockMatchWindowCompareModeQCOM(const VkBlockMatchWindowCompareModeQCOM& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9234,7 +9234,7 @@ void dump_html_VkBlockMatchWindowCompareModeQCOM(VkBlockMatchWindowCompareModeQC
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkCubicFilterWeightsQCOM(VkCubicFilterWeightsQCOM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCubicFilterWeightsQCOM(const VkCubicFilterWeightsQCOM& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9256,7 +9256,7 @@ void dump_html_VkCubicFilterWeightsQCOM(VkCubicFilterWeightsQCOM object, const A
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkLayeredDriverUnderlyingApiMSFT(VkLayeredDriverUnderlyingApiMSFT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkLayeredDriverUnderlyingApiMSFT(const VkLayeredDriverUnderlyingApiMSFT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9272,7 +9272,7 @@ void dump_html_VkLayeredDriverUnderlyingApiMSFT(VkLayeredDriverUnderlyingApiMSFT
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkDisplaySurfaceStereoTypeNV(VkDisplaySurfaceStereoTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDisplaySurfaceStereoTypeNV(const VkDisplaySurfaceStereoTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9294,7 +9294,7 @@ void dump_html_VkDisplaySurfaceStereoTypeNV(VkDisplaySurfaceStereoTypeNV object,
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkClusterAccelerationStructureTypeNV(VkClusterAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureTypeNV(const VkClusterAccelerationStructureTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9313,7 +9313,7 @@ void dump_html_VkClusterAccelerationStructureTypeNV(VkClusterAccelerationStructu
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkClusterAccelerationStructureOpTypeNV(VkClusterAccelerationStructureOpTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureOpTypeNV(const VkClusterAccelerationStructureOpTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9338,7 +9338,7 @@ void dump_html_VkClusterAccelerationStructureOpTypeNV(VkClusterAccelerationStruc
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkClusterAccelerationStructureOpModeNV(VkClusterAccelerationStructureOpModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureOpModeNV(const VkClusterAccelerationStructureOpModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9357,7 +9357,7 @@ void dump_html_VkClusterAccelerationStructureOpModeNV(VkClusterAccelerationStruc
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkPartitionedAccelerationStructureOpTypeNV(VkPartitionedAccelerationStructureOpTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPartitionedAccelerationStructureOpTypeNV(const VkPartitionedAccelerationStructureOpTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9376,7 +9376,7 @@ void dump_html_VkPartitionedAccelerationStructureOpTypeNV(VkPartitionedAccelerat
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkIndirectExecutionSetInfoTypeEXT(VkIndirectExecutionSetInfoTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectExecutionSetInfoTypeEXT(const VkIndirectExecutionSetInfoTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9392,7 +9392,7 @@ void dump_html_VkIndirectExecutionSetInfoTypeEXT(VkIndirectExecutionSetInfoTypeE
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkIndirectCommandsTokenTypeEXT(VkIndirectCommandsTokenTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectCommandsTokenTypeEXT(const VkIndirectCommandsTokenTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9447,7 +9447,7 @@ void dump_html_VkIndirectCommandsTokenTypeEXT(VkIndirectCommandsTokenTypeEXT obj
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkBuildAccelerationStructureModeKHR(VkBuildAccelerationStructureModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBuildAccelerationStructureModeKHR(const VkBuildAccelerationStructureModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9463,7 +9463,7 @@ void dump_html_VkBuildAccelerationStructureModeKHR(VkBuildAccelerationStructureM
     }
     settings.stream() << object << ")</div></summary>";
 }
-void dump_html_VkShaderGroupShaderKHR(VkShaderGroupShaderKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderGroupShaderKHR(const VkShaderGroupShaderKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     switch((int64_t) object)
@@ -9488,7 +9488,7 @@ void dump_html_VkShaderGroupShaderKHR(VkShaderGroupShaderKHR object, const ApiDu
 
 //========================= Bitmask Implementations =========================//
 
-void dump_html_VkAccessFlagBits(VkAccessFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccessFlagBits(const VkAccessFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -9584,7 +9584,7 @@ void dump_html_VkAccessFlagBits(VkAccessFlagBits object, const ApiDumpSettings& 
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkImageAspectFlagBits(VkImageAspectFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageAspectFlagBits(const VkImageAspectFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -9629,7 +9629,7 @@ void dump_html_VkImageAspectFlagBits(VkImageAspectFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkFormatFeatureFlagBits(VkFormatFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFormatFeatureFlagBits(const VkFormatFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -9731,7 +9731,7 @@ void dump_html_VkFormatFeatureFlagBits(VkFormatFeatureFlagBits object, const Api
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkImageCreateFlagBits(VkImageCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageCreateFlagBits(const VkImageCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -9800,7 +9800,7 @@ void dump_html_VkImageCreateFlagBits(VkImageCreateFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSampleCountFlagBits(VkSampleCountFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSampleCountFlagBits(const VkSampleCountFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -9830,7 +9830,7 @@ void dump_html_VkSampleCountFlagBits(VkSampleCountFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkImageUsageFlagBits(VkImageUsageFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageUsageFlagBits(const VkImageUsageFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -9914,7 +9914,7 @@ void dump_html_VkImageUsageFlagBits(VkImageUsageFlagBits object, const ApiDumpSe
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkInstanceCreateFlagBits(VkInstanceCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkInstanceCreateFlagBits(const VkInstanceCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -9926,7 +9926,7 @@ void dump_html_VkInstanceCreateFlagBits(VkInstanceCreateFlagBits object, const A
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkMemoryHeapFlagBits(VkMemoryHeapFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryHeapFlagBits(const VkMemoryHeapFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -9944,7 +9944,7 @@ void dump_html_VkMemoryHeapFlagBits(VkMemoryHeapFlagBits object, const ApiDumpSe
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkMemoryPropertyFlagBits(VkMemoryPropertyFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryPropertyFlagBits(const VkMemoryPropertyFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -9980,7 +9980,7 @@ void dump_html_VkMemoryPropertyFlagBits(VkMemoryPropertyFlagBits object, const A
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkQueueFlagBits(VkQueueFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueueFlagBits(const VkQueueFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10013,7 +10013,7 @@ void dump_html_VkQueueFlagBits(VkQueueFlagBits object, const ApiDumpSettings& se
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDeviceQueueCreateFlagBits(VkDeviceQueueCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceQueueCreateFlagBits(const VkDeviceQueueCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10025,7 +10025,7 @@ void dump_html_VkDeviceQueueCreateFlagBits(VkDeviceQueueCreateFlagBits object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineStageFlagBits(VkPipelineStageFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineStageFlagBits(const VkPipelineStageFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10115,7 +10115,7 @@ void dump_html_VkPipelineStageFlagBits(VkPipelineStageFlagBits object, const Api
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkMemoryMapFlagBits(VkMemoryMapFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryMapFlagBits(const VkMemoryMapFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10127,7 +10127,7 @@ void dump_html_VkMemoryMapFlagBits(VkMemoryMapFlagBits object, const ApiDumpSett
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSparseMemoryBindFlagBits(VkSparseMemoryBindFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSparseMemoryBindFlagBits(const VkSparseMemoryBindFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10139,7 +10139,7 @@ void dump_html_VkSparseMemoryBindFlagBits(VkSparseMemoryBindFlagBits object, con
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSparseImageFormatFlagBits(VkSparseImageFormatFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSparseImageFormatFlagBits(const VkSparseImageFormatFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10157,7 +10157,7 @@ void dump_html_VkSparseImageFormatFlagBits(VkSparseImageFormatFlagBits object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkFenceCreateFlagBits(VkFenceCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFenceCreateFlagBits(const VkFenceCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10169,7 +10169,7 @@ void dump_html_VkFenceCreateFlagBits(VkFenceCreateFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkEventCreateFlagBits(VkEventCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkEventCreateFlagBits(const VkEventCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10181,7 +10181,7 @@ void dump_html_VkEventCreateFlagBits(VkEventCreateFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkQueryPipelineStatisticFlagBits(VkQueryPipelineStatisticFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryPipelineStatisticFlagBits(const VkQueryPipelineStatisticFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10232,7 +10232,7 @@ void dump_html_VkQueryPipelineStatisticFlagBits(VkQueryPipelineStatisticFlagBits
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkQueryPoolCreateFlagBits(VkQueryPoolCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryPoolCreateFlagBits(const VkQueryPoolCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10244,7 +10244,7 @@ void dump_html_VkQueryPoolCreateFlagBits(VkQueryPoolCreateFlagBits object, const
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkQueryResultFlagBits(VkQueryResultFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryResultFlagBits(const VkQueryResultFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10268,7 +10268,7 @@ void dump_html_VkQueryResultFlagBits(VkQueryResultFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkBufferCreateFlagBits(VkBufferCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBufferCreateFlagBits(const VkBufferCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10298,7 +10298,7 @@ void dump_html_VkBufferCreateFlagBits(VkBufferCreateFlagBits object, const ApiDu
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkBufferUsageFlagBits(VkBufferUsageFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBufferUsageFlagBits(const VkBufferUsageFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10388,7 +10388,7 @@ void dump_html_VkBufferUsageFlagBits(VkBufferUsageFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkImageViewCreateFlagBits(VkImageViewCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageViewCreateFlagBits(const VkImageViewCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10406,7 +10406,7 @@ void dump_html_VkImageViewCreateFlagBits(VkImageViewCreateFlagBits object, const
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineCacheCreateFlagBits(VkPipelineCacheCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCacheCreateFlagBits(const VkPipelineCacheCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10421,7 +10421,7 @@ void dump_html_VkPipelineCacheCreateFlagBits(VkPipelineCacheCreateFlagBits objec
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkColorComponentFlagBits(VkColorComponentFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkColorComponentFlagBits(const VkColorComponentFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10442,7 +10442,7 @@ void dump_html_VkColorComponentFlagBits(VkColorComponentFlagBits object, const A
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineCreateFlagBits(VkPipelineCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCreateFlagBits(const VkPipelineCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10544,7 +10544,7 @@ void dump_html_VkPipelineCreateFlagBits(VkPipelineCreateFlagBits object, const A
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineShaderStageCreateFlagBits(VkPipelineShaderStageCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineShaderStageCreateFlagBits(const VkPipelineShaderStageCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10559,7 +10559,7 @@ void dump_html_VkPipelineShaderStageCreateFlagBits(VkPipelineShaderStageCreateFl
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkShaderStageFlagBits(VkShaderStageFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderStageFlagBits(const VkShaderStageFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10622,7 +10622,7 @@ void dump_html_VkShaderStageFlagBits(VkShaderStageFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkCullModeFlagBits(VkCullModeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCullModeFlagBits(const VkCullModeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10643,7 +10643,7 @@ void dump_html_VkCullModeFlagBits(VkCullModeFlagBits object, const ApiDumpSettin
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineDepthStencilStateCreateFlagBits(VkPipelineDepthStencilStateCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineDepthStencilStateCreateFlagBits(const VkPipelineDepthStencilStateCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10658,7 +10658,7 @@ void dump_html_VkPipelineDepthStencilStateCreateFlagBits(VkPipelineDepthStencilS
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineColorBlendStateCreateFlagBits(VkPipelineColorBlendStateCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineColorBlendStateCreateFlagBits(const VkPipelineColorBlendStateCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10670,7 +10670,7 @@ void dump_html_VkPipelineColorBlendStateCreateFlagBits(VkPipelineColorBlendState
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineLayoutCreateFlagBits(VkPipelineLayoutCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineLayoutCreateFlagBits(const VkPipelineLayoutCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10682,7 +10682,7 @@ void dump_html_VkPipelineLayoutCreateFlagBits(VkPipelineLayoutCreateFlagBits obj
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSamplerCreateFlagBits(VkSamplerCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSamplerCreateFlagBits(const VkSamplerCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10706,7 +10706,7 @@ void dump_html_VkSamplerCreateFlagBits(VkSamplerCreateFlagBits object, const Api
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDescriptorPoolCreateFlagBits(VkDescriptorPoolCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorPoolCreateFlagBits(const VkDescriptorPoolCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10730,7 +10730,7 @@ void dump_html_VkDescriptorPoolCreateFlagBits(VkDescriptorPoolCreateFlagBits obj
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDescriptorSetLayoutCreateFlagBits(VkDescriptorSetLayoutCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorSetLayoutCreateFlagBits(const VkDescriptorSetLayoutCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10760,7 +10760,7 @@ void dump_html_VkDescriptorSetLayoutCreateFlagBits(VkDescriptorSetLayoutCreateFl
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkAttachmentDescriptionFlagBits(VkAttachmentDescriptionFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAttachmentDescriptionFlagBits(const VkAttachmentDescriptionFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10772,7 +10772,7 @@ void dump_html_VkAttachmentDescriptionFlagBits(VkAttachmentDescriptionFlagBits o
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDependencyFlagBits(VkDependencyFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDependencyFlagBits(const VkDependencyFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10799,7 +10799,7 @@ void dump_html_VkDependencyFlagBits(VkDependencyFlagBits object, const ApiDumpSe
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkFramebufferCreateFlagBits(VkFramebufferCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFramebufferCreateFlagBits(const VkFramebufferCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10811,7 +10811,7 @@ void dump_html_VkFramebufferCreateFlagBits(VkFramebufferCreateFlagBits object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkRenderPassCreateFlagBits(VkRenderPassCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRenderPassCreateFlagBits(const VkRenderPassCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10826,7 +10826,7 @@ void dump_html_VkRenderPassCreateFlagBits(VkRenderPassCreateFlagBits object, con
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSubpassDescriptionFlagBits(VkSubpassDescriptionFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSubpassDescriptionFlagBits(const VkSubpassDescriptionFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10862,7 +10862,7 @@ void dump_html_VkSubpassDescriptionFlagBits(VkSubpassDescriptionFlagBits object,
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkCommandPoolCreateFlagBits(VkCommandPoolCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandPoolCreateFlagBits(const VkCommandPoolCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10880,7 +10880,7 @@ void dump_html_VkCommandPoolCreateFlagBits(VkCommandPoolCreateFlagBits object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkCommandPoolResetFlagBits(VkCommandPoolResetFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandPoolResetFlagBits(const VkCommandPoolResetFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10892,7 +10892,7 @@ void dump_html_VkCommandPoolResetFlagBits(VkCommandPoolResetFlagBits object, con
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkCommandBufferUsageFlagBits(VkCommandBufferUsageFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandBufferUsageFlagBits(const VkCommandBufferUsageFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10910,7 +10910,7 @@ void dump_html_VkCommandBufferUsageFlagBits(VkCommandBufferUsageFlagBits object,
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkQueryControlFlagBits(VkQueryControlFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryControlFlagBits(const VkQueryControlFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10922,7 +10922,7 @@ void dump_html_VkQueryControlFlagBits(VkQueryControlFlagBits object, const ApiDu
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkCommandBufferResetFlagBits(VkCommandBufferResetFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandBufferResetFlagBits(const VkCommandBufferResetFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10934,7 +10934,7 @@ void dump_html_VkCommandBufferResetFlagBits(VkCommandBufferResetFlagBits object,
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkStencilFaceFlagBits(VkStencilFaceFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkStencilFaceFlagBits(const VkStencilFaceFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10952,7 +10952,7 @@ void dump_html_VkStencilFaceFlagBits(VkStencilFaceFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSubgroupFeatureFlagBits(VkSubgroupFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSubgroupFeatureFlagBits(const VkSubgroupFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -10994,7 +10994,7 @@ void dump_html_VkSubgroupFeatureFlagBits(VkSubgroupFeatureFlagBits object, const
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPeerMemoryFeatureFlagBits(VkPeerMemoryFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPeerMemoryFeatureFlagBits(const VkPeerMemoryFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11015,7 +11015,7 @@ void dump_html_VkPeerMemoryFeatureFlagBits(VkPeerMemoryFeatureFlagBits object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkMemoryAllocateFlagBits(VkMemoryAllocateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryAllocateFlagBits(const VkMemoryAllocateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11036,7 +11036,7 @@ void dump_html_VkMemoryAllocateFlagBits(VkMemoryAllocateFlagBits object, const A
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkExternalMemoryHandleTypeFlagBits(VkExternalMemoryHandleTypeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalMemoryHandleTypeFlagBits(const VkExternalMemoryHandleTypeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11096,7 +11096,7 @@ void dump_html_VkExternalMemoryHandleTypeFlagBits(VkExternalMemoryHandleTypeFlag
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkExternalMemoryFeatureFlagBits(VkExternalMemoryFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalMemoryFeatureFlagBits(const VkExternalMemoryFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11114,7 +11114,7 @@ void dump_html_VkExternalMemoryFeatureFlagBits(VkExternalMemoryFeatureFlagBits o
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkExternalFenceHandleTypeFlagBits(VkExternalFenceHandleTypeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalFenceHandleTypeFlagBits(const VkExternalFenceHandleTypeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11135,7 +11135,7 @@ void dump_html_VkExternalFenceHandleTypeFlagBits(VkExternalFenceHandleTypeFlagBi
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkExternalFenceFeatureFlagBits(VkExternalFenceFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalFenceFeatureFlagBits(const VkExternalFenceFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11150,7 +11150,7 @@ void dump_html_VkExternalFenceFeatureFlagBits(VkExternalFenceFeatureFlagBits obj
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkFenceImportFlagBits(VkFenceImportFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFenceImportFlagBits(const VkFenceImportFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11162,7 +11162,7 @@ void dump_html_VkFenceImportFlagBits(VkFenceImportFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSemaphoreImportFlagBits(VkSemaphoreImportFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSemaphoreImportFlagBits(const VkSemaphoreImportFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11174,7 +11174,7 @@ void dump_html_VkSemaphoreImportFlagBits(VkSemaphoreImportFlagBits object, const
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkExternalSemaphoreHandleTypeFlagBits(VkExternalSemaphoreHandleTypeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalSemaphoreHandleTypeFlagBits(const VkExternalSemaphoreHandleTypeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11201,7 +11201,7 @@ void dump_html_VkExternalSemaphoreHandleTypeFlagBits(VkExternalSemaphoreHandleTy
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkExternalSemaphoreFeatureFlagBits(VkExternalSemaphoreFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalSemaphoreFeatureFlagBits(const VkExternalSemaphoreFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11216,7 +11216,7 @@ void dump_html_VkExternalSemaphoreFeatureFlagBits(VkExternalSemaphoreFeatureFlag
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkResolveModeFlagBits(VkResolveModeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkResolveModeFlagBits(const VkResolveModeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11243,7 +11243,7 @@ void dump_html_VkResolveModeFlagBits(VkResolveModeFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDescriptorBindingFlagBits(VkDescriptorBindingFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorBindingFlagBits(const VkDescriptorBindingFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11264,7 +11264,7 @@ void dump_html_VkDescriptorBindingFlagBits(VkDescriptorBindingFlagBits object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSemaphoreWaitFlagBits(VkSemaphoreWaitFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSemaphoreWaitFlagBits(const VkSemaphoreWaitFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11276,7 +11276,7 @@ void dump_html_VkSemaphoreWaitFlagBits(VkSemaphoreWaitFlagBits object, const Api
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineCreationFeedbackFlagBits(VkPipelineCreationFeedbackFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCreationFeedbackFlagBits(const VkPipelineCreationFeedbackFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11294,7 +11294,7 @@ void dump_html_VkPipelineCreationFeedbackFlagBits(VkPipelineCreationFeedbackFlag
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkToolPurposeFlagBits(VkToolPurposeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkToolPurposeFlagBits(const VkToolPurposeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11324,7 +11324,7 @@ void dump_html_VkToolPurposeFlagBits(VkToolPurposeFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineStageFlagBits2(VkPipelineStageFlagBits2 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineStageFlagBits2(const VkPipelineStageFlagBits2& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11462,7 +11462,7 @@ void dump_html_VkPipelineStageFlagBits2(VkPipelineStageFlagBits2 object, const A
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkAccessFlagBits2(VkAccessFlagBits2 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccessFlagBits2(const VkAccessFlagBits2& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11606,7 +11606,7 @@ void dump_html_VkAccessFlagBits2(VkAccessFlagBits2 object, const ApiDumpSettings
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSubmitFlagBits(VkSubmitFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSubmitFlagBits(const VkSubmitFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11618,7 +11618,7 @@ void dump_html_VkSubmitFlagBits(VkSubmitFlagBits object, const ApiDumpSettings& 
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkRenderingFlagBits(VkRenderingFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRenderingFlagBits(const VkRenderingFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11645,7 +11645,7 @@ void dump_html_VkRenderingFlagBits(VkRenderingFlagBits object, const ApiDumpSett
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkFormatFeatureFlagBits2(VkFormatFeatureFlagBits2 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFormatFeatureFlagBits2(const VkFormatFeatureFlagBits2& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11798,7 +11798,7 @@ void dump_html_VkFormatFeatureFlagBits2(VkFormatFeatureFlagBits2 object, const A
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkMemoryUnmapFlagBits(VkMemoryUnmapFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryUnmapFlagBits(const VkMemoryUnmapFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11810,7 +11810,7 @@ void dump_html_VkMemoryUnmapFlagBits(VkMemoryUnmapFlagBits object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineCreateFlagBits2(VkPipelineCreateFlagBits2 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCreateFlagBits2(const VkPipelineCreateFlagBits2& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -11933,7 +11933,7 @@ void dump_html_VkPipelineCreateFlagBits2(VkPipelineCreateFlagBits2 object, const
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkBufferUsageFlagBits2(VkBufferUsageFlagBits2 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBufferUsageFlagBits2(const VkBufferUsageFlagBits2& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12026,7 +12026,7 @@ void dump_html_VkBufferUsageFlagBits2(VkBufferUsageFlagBits2 object, const ApiDu
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkHostImageCopyFlagBits(VkHostImageCopyFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkHostImageCopyFlagBits(const VkHostImageCopyFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12038,7 +12038,7 @@ void dump_html_VkHostImageCopyFlagBits(VkHostImageCopyFlagBits object, const Api
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSurfaceTransformFlagBitsKHR(VkSurfaceTransformFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSurfaceTransformFlagBitsKHR(const VkSurfaceTransformFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12074,7 +12074,7 @@ void dump_html_VkSurfaceTransformFlagBitsKHR(VkSurfaceTransformFlagBitsKHR objec
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkCompositeAlphaFlagBitsKHR(VkCompositeAlphaFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCompositeAlphaFlagBitsKHR(const VkCompositeAlphaFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12095,7 +12095,7 @@ void dump_html_VkCompositeAlphaFlagBitsKHR(VkCompositeAlphaFlagBitsKHR object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSwapchainCreateFlagBitsKHR(VkSwapchainCreateFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSwapchainCreateFlagBitsKHR(const VkSwapchainCreateFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12122,7 +12122,7 @@ void dump_html_VkSwapchainCreateFlagBitsKHR(VkSwapchainCreateFlagBitsKHR object,
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDeviceGroupPresentModeFlagBitsKHR(VkDeviceGroupPresentModeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceGroupPresentModeFlagBitsKHR(const VkDeviceGroupPresentModeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12143,7 +12143,7 @@ void dump_html_VkDeviceGroupPresentModeFlagBitsKHR(VkDeviceGroupPresentModeFlagB
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDisplayPlaneAlphaFlagBitsKHR(VkDisplayPlaneAlphaFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDisplayPlaneAlphaFlagBitsKHR(const VkDisplayPlaneAlphaFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12164,7 +12164,7 @@ void dump_html_VkDisplayPlaneAlphaFlagBitsKHR(VkDisplayPlaneAlphaFlagBitsKHR obj
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoCodecOperationFlagBitsKHR(VkVideoCodecOperationFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoCodecOperationFlagBitsKHR(const VkVideoCodecOperationFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12197,7 +12197,7 @@ void dump_html_VkVideoCodecOperationFlagBitsKHR(VkVideoCodecOperationFlagBitsKHR
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoChromaSubsamplingFlagBitsKHR(VkVideoChromaSubsamplingFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoChromaSubsamplingFlagBitsKHR(const VkVideoChromaSubsamplingFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12221,7 +12221,7 @@ void dump_html_VkVideoChromaSubsamplingFlagBitsKHR(VkVideoChromaSubsamplingFlagB
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoComponentBitDepthFlagBitsKHR(VkVideoComponentBitDepthFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoComponentBitDepthFlagBitsKHR(const VkVideoComponentBitDepthFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12242,7 +12242,7 @@ void dump_html_VkVideoComponentBitDepthFlagBitsKHR(VkVideoComponentBitDepthFlagB
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoCapabilityFlagBitsKHR(VkVideoCapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoCapabilityFlagBitsKHR(const VkVideoCapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12257,7 +12257,7 @@ void dump_html_VkVideoCapabilityFlagBitsKHR(VkVideoCapabilityFlagBitsKHR object,
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoSessionCreateFlagBitsKHR(VkVideoSessionCreateFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoSessionCreateFlagBitsKHR(const VkVideoSessionCreateFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12284,7 +12284,7 @@ void dump_html_VkVideoSessionCreateFlagBitsKHR(VkVideoSessionCreateFlagBitsKHR o
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoSessionParametersCreateFlagBitsKHR(VkVideoSessionParametersCreateFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoSessionParametersCreateFlagBitsKHR(const VkVideoSessionParametersCreateFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12296,7 +12296,7 @@ void dump_html_VkVideoSessionParametersCreateFlagBitsKHR(VkVideoSessionParameter
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoCodingControlFlagBitsKHR(VkVideoCodingControlFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoCodingControlFlagBitsKHR(const VkVideoCodingControlFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12314,7 +12314,7 @@ void dump_html_VkVideoCodingControlFlagBitsKHR(VkVideoCodingControlFlagBitsKHR o
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoDecodeCapabilityFlagBitsKHR(VkVideoDecodeCapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoDecodeCapabilityFlagBitsKHR(const VkVideoDecodeCapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12329,7 +12329,7 @@ void dump_html_VkVideoDecodeCapabilityFlagBitsKHR(VkVideoDecodeCapabilityFlagBit
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoDecodeUsageFlagBitsKHR(VkVideoDecodeUsageFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoDecodeUsageFlagBitsKHR(const VkVideoDecodeUsageFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12350,7 +12350,7 @@ void dump_html_VkVideoDecodeUsageFlagBitsKHR(VkVideoDecodeUsageFlagBitsKHR objec
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeH264CapabilityFlagBitsKHR(VkVideoEncodeH264CapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH264CapabilityFlagBitsKHR(const VkVideoEncodeH264CapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12389,7 +12389,7 @@ void dump_html_VkVideoEncodeH264CapabilityFlagBitsKHR(VkVideoEncodeH264Capabilit
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeH264StdFlagBitsKHR(VkVideoEncodeH264StdFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH264StdFlagBitsKHR(const VkVideoEncodeH264StdFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12458,7 +12458,7 @@ void dump_html_VkVideoEncodeH264StdFlagBitsKHR(VkVideoEncodeH264StdFlagBitsKHR o
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeH264RateControlFlagBitsKHR(VkVideoEncodeH264RateControlFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH264RateControlFlagBitsKHR(const VkVideoEncodeH264RateControlFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12482,7 +12482,7 @@ void dump_html_VkVideoEncodeH264RateControlFlagBitsKHR(VkVideoEncodeH264RateCont
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeH265CapabilityFlagBitsKHR(VkVideoEncodeH265CapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH265CapabilityFlagBitsKHR(const VkVideoEncodeH265CapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12524,7 +12524,7 @@ void dump_html_VkVideoEncodeH265CapabilityFlagBitsKHR(VkVideoEncodeH265Capabilit
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeH265StdFlagBitsKHR(VkVideoEncodeH265StdFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH265StdFlagBitsKHR(const VkVideoEncodeH265StdFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12596,7 +12596,7 @@ void dump_html_VkVideoEncodeH265StdFlagBitsKHR(VkVideoEncodeH265StdFlagBitsKHR o
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeH265CtbSizeFlagBitsKHR(VkVideoEncodeH265CtbSizeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH265CtbSizeFlagBitsKHR(const VkVideoEncodeH265CtbSizeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12614,7 +12614,7 @@ void dump_html_VkVideoEncodeH265CtbSizeFlagBitsKHR(VkVideoEncodeH265CtbSizeFlagB
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeH265TransformBlockSizeFlagBitsKHR(VkVideoEncodeH265TransformBlockSizeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH265TransformBlockSizeFlagBitsKHR(const VkVideoEncodeH265TransformBlockSizeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12635,7 +12635,7 @@ void dump_html_VkVideoEncodeH265TransformBlockSizeFlagBitsKHR(VkVideoEncodeH265T
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeH265RateControlFlagBitsKHR(VkVideoEncodeH265RateControlFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH265RateControlFlagBitsKHR(const VkVideoEncodeH265RateControlFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12659,7 +12659,7 @@ void dump_html_VkVideoEncodeH265RateControlFlagBitsKHR(VkVideoEncodeH265RateCont
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoDecodeH264PictureLayoutFlagBitsKHR(VkVideoDecodeH264PictureLayoutFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoDecodeH264PictureLayoutFlagBitsKHR(const VkVideoDecodeH264PictureLayoutFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12677,7 +12677,7 @@ void dump_html_VkVideoDecodeH264PictureLayoutFlagBitsKHR(VkVideoDecodeH264Pictur
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPerformanceCounterDescriptionFlagBitsKHR(VkPerformanceCounterDescriptionFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPerformanceCounterDescriptionFlagBitsKHR(const VkPerformanceCounterDescriptionFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12692,7 +12692,7 @@ void dump_html_VkPerformanceCounterDescriptionFlagBitsKHR(VkPerformanceCounterDe
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkAcquireProfilingLockFlagBitsKHR(VkAcquireProfilingLockFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAcquireProfilingLockFlagBitsKHR(const VkAcquireProfilingLockFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12701,7 +12701,7 @@ void dump_html_VkAcquireProfilingLockFlagBitsKHR(VkAcquireProfilingLockFlagBitsK
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeFlagBitsKHR(VkVideoEncodeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeFlagBitsKHR(const VkVideoEncodeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12716,7 +12716,7 @@ void dump_html_VkVideoEncodeFlagBitsKHR(VkVideoEncodeFlagBitsKHR object, const A
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeCapabilityFlagBitsKHR(VkVideoEncodeCapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeCapabilityFlagBitsKHR(const VkVideoEncodeCapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12737,7 +12737,7 @@ void dump_html_VkVideoEncodeCapabilityFlagBitsKHR(VkVideoEncodeCapabilityFlagBit
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeRateControlModeFlagBitsKHR(VkVideoEncodeRateControlModeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeRateControlModeFlagBitsKHR(const VkVideoEncodeRateControlModeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12758,7 +12758,7 @@ void dump_html_VkVideoEncodeRateControlModeFlagBitsKHR(VkVideoEncodeRateControlM
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeFeedbackFlagBitsKHR(VkVideoEncodeFeedbackFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeFeedbackFlagBitsKHR(const VkVideoEncodeFeedbackFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12776,7 +12776,7 @@ void dump_html_VkVideoEncodeFeedbackFlagBitsKHR(VkVideoEncodeFeedbackFlagBitsKHR
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeUsageFlagBitsKHR(VkVideoEncodeUsageFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeUsageFlagBitsKHR(const VkVideoEncodeUsageFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12800,7 +12800,7 @@ void dump_html_VkVideoEncodeUsageFlagBitsKHR(VkVideoEncodeUsageFlagBitsKHR objec
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeContentFlagBitsKHR(VkVideoEncodeContentFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeContentFlagBitsKHR(const VkVideoEncodeContentFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12821,7 +12821,7 @@ void dump_html_VkVideoEncodeContentFlagBitsKHR(VkVideoEncodeContentFlagBitsKHR o
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeAV1CapabilityFlagBitsKHR(VkVideoEncodeAV1CapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeAV1CapabilityFlagBitsKHR(const VkVideoEncodeAV1CapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12845,7 +12845,7 @@ void dump_html_VkVideoEncodeAV1CapabilityFlagBitsKHR(VkVideoEncodeAV1CapabilityF
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeAV1StdFlagBitsKHR(VkVideoEncodeAV1StdFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeAV1StdFlagBitsKHR(const VkVideoEncodeAV1StdFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12866,7 +12866,7 @@ void dump_html_VkVideoEncodeAV1StdFlagBitsKHR(VkVideoEncodeAV1StdFlagBitsKHR obj
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeAV1SuperblockSizeFlagBitsKHR(VkVideoEncodeAV1SuperblockSizeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeAV1SuperblockSizeFlagBitsKHR(const VkVideoEncodeAV1SuperblockSizeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12881,7 +12881,7 @@ void dump_html_VkVideoEncodeAV1SuperblockSizeFlagBitsKHR(VkVideoEncodeAV1Superbl
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkVideoEncodeAV1RateControlFlagBitsKHR(VkVideoEncodeAV1RateControlFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeAV1RateControlFlagBitsKHR(const VkVideoEncodeAV1RateControlFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12902,7 +12902,7 @@ void dump_html_VkVideoEncodeAV1RateControlFlagBitsKHR(VkVideoEncodeAV1RateContro
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkAccessFlagBits3KHR(VkAccessFlagBits3KHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccessFlagBits3KHR(const VkAccessFlagBits3KHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12914,7 +12914,7 @@ void dump_html_VkAccessFlagBits3KHR(VkAccessFlagBits3KHR object, const ApiDumpSe
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDebugReportFlagBitsEXT(VkDebugReportFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugReportFlagBitsEXT(const VkDebugReportFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12938,7 +12938,7 @@ void dump_html_VkDebugReportFlagBitsEXT(VkDebugReportFlagBitsEXT object, const A
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkExternalMemoryHandleTypeFlagBitsNV(VkExternalMemoryHandleTypeFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalMemoryHandleTypeFlagBitsNV(const VkExternalMemoryHandleTypeFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12959,7 +12959,7 @@ void dump_html_VkExternalMemoryHandleTypeFlagBitsNV(VkExternalMemoryHandleTypeFl
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkExternalMemoryFeatureFlagBitsNV(VkExternalMemoryFeatureFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalMemoryFeatureFlagBitsNV(const VkExternalMemoryFeatureFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12977,7 +12977,7 @@ void dump_html_VkExternalMemoryFeatureFlagBitsNV(VkExternalMemoryFeatureFlagBits
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkConditionalRenderingFlagBitsEXT(VkConditionalRenderingFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkConditionalRenderingFlagBitsEXT(const VkConditionalRenderingFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -12989,7 +12989,7 @@ void dump_html_VkConditionalRenderingFlagBitsEXT(VkConditionalRenderingFlagBitsE
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkSurfaceCounterFlagBitsEXT(VkSurfaceCounterFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSurfaceCounterFlagBitsEXT(const VkSurfaceCounterFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13001,7 +13001,7 @@ void dump_html_VkSurfaceCounterFlagBitsEXT(VkSurfaceCounterFlagBitsEXT object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDebugUtilsMessageSeverityFlagBitsEXT(VkDebugUtilsMessageSeverityFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugUtilsMessageSeverityFlagBitsEXT(const VkDebugUtilsMessageSeverityFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13022,7 +13022,7 @@ void dump_html_VkDebugUtilsMessageSeverityFlagBitsEXT(VkDebugUtilsMessageSeverit
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDebugUtilsMessageTypeFlagBitsEXT(VkDebugUtilsMessageTypeFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugUtilsMessageTypeFlagBitsEXT(const VkDebugUtilsMessageTypeFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13043,7 +13043,7 @@ void dump_html_VkDebugUtilsMessageTypeFlagBitsEXT(VkDebugUtilsMessageTypeFlagBit
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkGeometryFlagBitsKHR(VkGeometryFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkGeometryFlagBitsKHR(const VkGeometryFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13058,7 +13058,7 @@ void dump_html_VkGeometryFlagBitsKHR(VkGeometryFlagBitsKHR object, const ApiDump
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkGeometryInstanceFlagBitsKHR(VkGeometryInstanceFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkGeometryInstanceFlagBitsKHR(const VkGeometryInstanceFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13085,7 +13085,7 @@ void dump_html_VkGeometryInstanceFlagBitsKHR(VkGeometryInstanceFlagBitsKHR objec
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkBuildAccelerationStructureFlagBitsKHR(VkBuildAccelerationStructureFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBuildAccelerationStructureFlagBitsKHR(const VkBuildAccelerationStructureFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13127,7 +13127,7 @@ void dump_html_VkBuildAccelerationStructureFlagBitsKHR(VkBuildAccelerationStruct
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPipelineCompilerControlFlagBitsAMD(VkPipelineCompilerControlFlagBitsAMD object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCompilerControlFlagBitsAMD(const VkPipelineCompilerControlFlagBitsAMD& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13136,7 +13136,7 @@ void dump_html_VkPipelineCompilerControlFlagBitsAMD(VkPipelineCompilerControlFla
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkShaderCorePropertiesFlagBitsAMD(VkShaderCorePropertiesFlagBitsAMD object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderCorePropertiesFlagBitsAMD(const VkShaderCorePropertiesFlagBitsAMD& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13145,7 +13145,7 @@ void dump_html_VkShaderCorePropertiesFlagBitsAMD(VkShaderCorePropertiesFlagBitsA
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPresentScalingFlagBitsEXT(VkPresentScalingFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPresentScalingFlagBitsEXT(const VkPresentScalingFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13163,7 +13163,7 @@ void dump_html_VkPresentScalingFlagBitsEXT(VkPresentScalingFlagBitsEXT object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPresentGravityFlagBitsEXT(VkPresentGravityFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPresentGravityFlagBitsEXT(const VkPresentGravityFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13181,7 +13181,7 @@ void dump_html_VkPresentGravityFlagBitsEXT(VkPresentGravityFlagBitsEXT object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkIndirectStateFlagBitsNV(VkIndirectStateFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectStateFlagBitsNV(const VkIndirectStateFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13193,7 +13193,7 @@ void dump_html_VkIndirectStateFlagBitsNV(VkIndirectStateFlagBitsNV object, const
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkIndirectCommandsLayoutUsageFlagBitsNV(VkIndirectCommandsLayoutUsageFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectCommandsLayoutUsageFlagBitsNV(const VkIndirectCommandsLayoutUsageFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13211,7 +13211,7 @@ void dump_html_VkIndirectCommandsLayoutUsageFlagBitsNV(VkIndirectCommandsLayoutU
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDeviceDiagnosticsConfigFlagBitsNV(VkDeviceDiagnosticsConfigFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceDiagnosticsConfigFlagBitsNV(const VkDeviceDiagnosticsConfigFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13232,7 +13232,7 @@ void dump_html_VkDeviceDiagnosticsConfigFlagBitsNV(VkDeviceDiagnosticsConfigFlag
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkTileShadingRenderPassFlagBitsQCOM(VkTileShadingRenderPassFlagBitsQCOM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTileShadingRenderPassFlagBitsQCOM(const VkTileShadingRenderPassFlagBitsQCOM& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13248,7 +13248,7 @@ void dump_html_VkTileShadingRenderPassFlagBitsQCOM(VkTileShadingRenderPassFlagBi
     settings.stream() << "</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_VkExportMetalObjectTypeFlagBitsEXT(VkExportMetalObjectTypeFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExportMetalObjectTypeFlagBitsEXT(const VkExportMetalObjectTypeFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13276,7 +13276,7 @@ void dump_html_VkExportMetalObjectTypeFlagBitsEXT(VkExportMetalObjectTypeFlagBit
     settings.stream() << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
-void dump_html_VkGraphicsPipelineLibraryFlagBitsEXT(VkGraphicsPipelineLibraryFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkGraphicsPipelineLibraryFlagBitsEXT(const VkGraphicsPipelineLibraryFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13297,7 +13297,7 @@ void dump_html_VkGraphicsPipelineLibraryFlagBitsEXT(VkGraphicsPipelineLibraryFla
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkImageCompressionFlagBitsEXT(VkImageCompressionFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageCompressionFlagBitsEXT(const VkImageCompressionFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13318,7 +13318,7 @@ void dump_html_VkImageCompressionFlagBitsEXT(VkImageCompressionFlagBitsEXT objec
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkImageCompressionFixedRateFlagBitsEXT(VkImageCompressionFixedRateFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageCompressionFixedRateFlagBitsEXT(const VkImageCompressionFixedRateFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13402,7 +13402,7 @@ void dump_html_VkImageCompressionFixedRateFlagBitsEXT(VkImageCompressionFixedRat
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkDeviceAddressBindingFlagBitsEXT(VkDeviceAddressBindingFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceAddressBindingFlagBitsEXT(const VkDeviceAddressBindingFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13415,7 +13415,7 @@ void dump_html_VkDeviceAddressBindingFlagBitsEXT(VkDeviceAddressBindingFlagBitsE
     settings.stream() << "</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_html_VkImageConstraintsInfoFlagBitsFUCHSIA(VkImageConstraintsInfoFlagBitsFUCHSIA object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageConstraintsInfoFlagBitsFUCHSIA(const VkImageConstraintsInfoFlagBitsFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13440,7 +13440,7 @@ void dump_html_VkImageConstraintsInfoFlagBitsFUCHSIA(VkImageConstraintsInfoFlagB
     settings.stream() << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
-void dump_html_VkFrameBoundaryFlagBitsEXT(VkFrameBoundaryFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFrameBoundaryFlagBitsEXT(const VkFrameBoundaryFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13452,7 +13452,7 @@ void dump_html_VkFrameBoundaryFlagBitsEXT(VkFrameBoundaryFlagBitsEXT object, con
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkBuildMicromapFlagBitsEXT(VkBuildMicromapFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBuildMicromapFlagBitsEXT(const VkBuildMicromapFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13470,7 +13470,7 @@ void dump_html_VkBuildMicromapFlagBitsEXT(VkBuildMicromapFlagBitsEXT object, con
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkMicromapCreateFlagBitsEXT(VkMicromapCreateFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMicromapCreateFlagBitsEXT(const VkMicromapCreateFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13482,7 +13482,7 @@ void dump_html_VkMicromapCreateFlagBitsEXT(VkMicromapCreateFlagBitsEXT object, c
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPhysicalDeviceSchedulingControlsFlagBitsARM(VkPhysicalDeviceSchedulingControlsFlagBitsARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPhysicalDeviceSchedulingControlsFlagBitsARM(const VkPhysicalDeviceSchedulingControlsFlagBitsARM& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13494,7 +13494,7 @@ void dump_html_VkPhysicalDeviceSchedulingControlsFlagBitsARM(VkPhysicalDeviceSch
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkMemoryDecompressionMethodFlagBitsNV(VkMemoryDecompressionMethodFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryDecompressionMethodFlagBitsNV(const VkMemoryDecompressionMethodFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13506,7 +13506,7 @@ void dump_html_VkMemoryDecompressionMethodFlagBitsNV(VkMemoryDecompressionMethod
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkTensorCreateFlagBitsARM(VkTensorCreateFlagBitsARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTensorCreateFlagBitsARM(const VkTensorCreateFlagBitsARM& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13524,7 +13524,7 @@ void dump_html_VkTensorCreateFlagBitsARM(VkTensorCreateFlagBitsARM object, const
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkTensorViewCreateFlagBitsARM(VkTensorViewCreateFlagBitsARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTensorViewCreateFlagBitsARM(const VkTensorViewCreateFlagBitsARM& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13536,7 +13536,7 @@ void dump_html_VkTensorViewCreateFlagBitsARM(VkTensorViewCreateFlagBitsARM objec
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkTensorUsageFlagBitsARM(VkTensorUsageFlagBitsARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTensorUsageFlagBitsARM(const VkTensorUsageFlagBitsARM& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13557,7 +13557,7 @@ void dump_html_VkTensorUsageFlagBitsARM(VkTensorUsageFlagBitsARM object, const A
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkOpticalFlowGridSizeFlagBitsNV(VkOpticalFlowGridSizeFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowGridSizeFlagBitsNV(const VkOpticalFlowGridSizeFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13581,7 +13581,7 @@ void dump_html_VkOpticalFlowGridSizeFlagBitsNV(VkOpticalFlowGridSizeFlagBitsNV o
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkOpticalFlowUsageFlagBitsNV(VkOpticalFlowUsageFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowUsageFlagBitsNV(const VkOpticalFlowUsageFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13608,7 +13608,7 @@ void dump_html_VkOpticalFlowUsageFlagBitsNV(VkOpticalFlowUsageFlagBitsNV object,
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkOpticalFlowSessionCreateFlagBitsNV(VkOpticalFlowSessionCreateFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowSessionCreateFlagBitsNV(const VkOpticalFlowSessionCreateFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13632,7 +13632,7 @@ void dump_html_VkOpticalFlowSessionCreateFlagBitsNV(VkOpticalFlowSessionCreateFl
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkOpticalFlowExecuteFlagBitsNV(VkOpticalFlowExecuteFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowExecuteFlagBitsNV(const VkOpticalFlowExecuteFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13644,7 +13644,7 @@ void dump_html_VkOpticalFlowExecuteFlagBitsNV(VkOpticalFlowExecuteFlagBitsNV obj
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkShaderCreateFlagBitsEXT(VkShaderCreateFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderCreateFlagBitsEXT(const VkShaderCreateFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13677,7 +13677,7 @@ void dump_html_VkShaderCreateFlagBitsEXT(VkShaderCreateFlagBitsEXT object, const
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkClusterAccelerationStructureAddressResolutionFlagBitsNV(VkClusterAccelerationStructureAddressResolutionFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureAddressResolutionFlagBitsNV(const VkClusterAccelerationStructureAddressResolutionFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13704,7 +13704,7 @@ void dump_html_VkClusterAccelerationStructureAddressResolutionFlagBitsNV(VkClust
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkClusterAccelerationStructureClusterFlagBitsNV(VkClusterAccelerationStructureClusterFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureClusterFlagBitsNV(const VkClusterAccelerationStructureClusterFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13716,7 +13716,7 @@ void dump_html_VkClusterAccelerationStructureClusterFlagBitsNV(VkClusterAccelera
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkClusterAccelerationStructureGeometryFlagBitsNV(VkClusterAccelerationStructureGeometryFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureGeometryFlagBitsNV(const VkClusterAccelerationStructureGeometryFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13734,7 +13734,7 @@ void dump_html_VkClusterAccelerationStructureGeometryFlagBitsNV(VkClusterAcceler
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkClusterAccelerationStructureIndexFormatFlagBitsNV(VkClusterAccelerationStructureIndexFormatFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureIndexFormatFlagBitsNV(const VkClusterAccelerationStructureIndexFormatFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13752,7 +13752,7 @@ void dump_html_VkClusterAccelerationStructureIndexFormatFlagBitsNV(VkClusterAcce
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkPartitionedAccelerationStructureInstanceFlagBitsNV(VkPartitionedAccelerationStructureInstanceFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPartitionedAccelerationStructureInstanceFlagBitsNV(const VkPartitionedAccelerationStructureInstanceFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13776,7 +13776,7 @@ void dump_html_VkPartitionedAccelerationStructureInstanceFlagBitsNV(VkPartitione
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkIndirectCommandsInputModeFlagBitsEXT(VkIndirectCommandsInputModeFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectCommandsInputModeFlagBitsEXT(const VkIndirectCommandsInputModeFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13791,7 +13791,7 @@ void dump_html_VkIndirectCommandsInputModeFlagBitsEXT(VkIndirectCommandsInputMod
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkIndirectCommandsLayoutUsageFlagBitsEXT(VkIndirectCommandsLayoutUsageFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectCommandsLayoutUsageFlagBitsEXT(const VkIndirectCommandsLayoutUsageFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13806,7 +13806,7 @@ void dump_html_VkIndirectCommandsLayoutUsageFlagBitsEXT(VkIndirectCommandsLayout
         settings.stream() << ")";
     settings.stream() << "</div></summary>";
 }
-void dump_html_VkAccelerationStructureCreateFlagBitsKHR(VkAccelerationStructureCreateFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureCreateFlagBitsKHR(const VkAccelerationStructureCreateFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     bool is_first = true;
@@ -13827,905 +13827,905 @@ void dump_html_VkAccelerationStructureCreateFlagBitsKHR(VkAccelerationStructureC
 
 //=========================== Flag Implementations ==========================//
 
-void dump_html_VkAccessFlags(VkAccessFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccessFlags(const VkAccessFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkAccessFlagBits((VkAccessFlagBits) object, settings, indents);
 }
-void dump_html_VkImageAspectFlags(VkImageAspectFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageAspectFlags(const VkImageAspectFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkImageAspectFlagBits((VkImageAspectFlagBits) object, settings, indents);
 }
-void dump_html_VkFormatFeatureFlags(VkFormatFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFormatFeatureFlags(const VkFormatFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkFormatFeatureFlagBits((VkFormatFeatureFlagBits) object, settings, indents);
 }
-void dump_html_VkImageCreateFlags(VkImageCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageCreateFlags(const VkImageCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkImageCreateFlagBits((VkImageCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkSampleCountFlags(VkSampleCountFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSampleCountFlags(const VkSampleCountFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSampleCountFlagBits((VkSampleCountFlagBits) object, settings, indents);
 }
-void dump_html_VkImageUsageFlags(VkImageUsageFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageUsageFlags(const VkImageUsageFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkImageUsageFlagBits((VkImageUsageFlagBits) object, settings, indents);
 }
-void dump_html_VkInstanceCreateFlags(VkInstanceCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkInstanceCreateFlags(const VkInstanceCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkInstanceCreateFlagBits((VkInstanceCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkMemoryHeapFlags(VkMemoryHeapFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryHeapFlags(const VkMemoryHeapFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkMemoryHeapFlagBits((VkMemoryHeapFlagBits) object, settings, indents);
 }
-void dump_html_VkMemoryPropertyFlags(VkMemoryPropertyFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryPropertyFlags(const VkMemoryPropertyFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkMemoryPropertyFlagBits((VkMemoryPropertyFlagBits) object, settings, indents);
 }
-void dump_html_VkQueueFlags(VkQueueFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueueFlags(const VkQueueFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkQueueFlagBits((VkQueueFlagBits) object, settings, indents);
 }
-void dump_html_VkDeviceQueueCreateFlags(VkDeviceQueueCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceQueueCreateFlags(const VkDeviceQueueCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDeviceQueueCreateFlagBits((VkDeviceQueueCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkPipelineStageFlags(VkPipelineStageFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineStageFlags(const VkPipelineStageFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineStageFlagBits((VkPipelineStageFlagBits) object, settings, indents);
 }
-void dump_html_VkMemoryMapFlags(VkMemoryMapFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryMapFlags(const VkMemoryMapFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkMemoryMapFlagBits((VkMemoryMapFlagBits) object, settings, indents);
 }
-void dump_html_VkSparseMemoryBindFlags(VkSparseMemoryBindFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSparseMemoryBindFlags(const VkSparseMemoryBindFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSparseMemoryBindFlagBits((VkSparseMemoryBindFlagBits) object, settings, indents);
 }
-void dump_html_VkSparseImageFormatFlags(VkSparseImageFormatFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSparseImageFormatFlags(const VkSparseImageFormatFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSparseImageFormatFlagBits((VkSparseImageFormatFlagBits) object, settings, indents);
 }
-void dump_html_VkFenceCreateFlags(VkFenceCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFenceCreateFlags(const VkFenceCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkFenceCreateFlagBits((VkFenceCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkEventCreateFlags(VkEventCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkEventCreateFlags(const VkEventCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkEventCreateFlagBits((VkEventCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkQueryPipelineStatisticFlags(VkQueryPipelineStatisticFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryPipelineStatisticFlags(const VkQueryPipelineStatisticFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkQueryPipelineStatisticFlagBits((VkQueryPipelineStatisticFlagBits) object, settings, indents);
 }
-void dump_html_VkQueryPoolCreateFlags(VkQueryPoolCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryPoolCreateFlags(const VkQueryPoolCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkQueryPoolCreateFlagBits((VkQueryPoolCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkQueryResultFlags(VkQueryResultFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryResultFlags(const VkQueryResultFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkQueryResultFlagBits((VkQueryResultFlagBits) object, settings, indents);
 }
-void dump_html_VkBufferCreateFlags(VkBufferCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBufferCreateFlags(const VkBufferCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkBufferCreateFlagBits((VkBufferCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkBufferUsageFlags(VkBufferUsageFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBufferUsageFlags(const VkBufferUsageFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkBufferUsageFlagBits((VkBufferUsageFlagBits) object, settings, indents);
 }
-void dump_html_VkImageViewCreateFlags(VkImageViewCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageViewCreateFlags(const VkImageViewCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkImageViewCreateFlagBits((VkImageViewCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkPipelineCacheCreateFlags(VkPipelineCacheCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCacheCreateFlags(const VkPipelineCacheCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineCacheCreateFlagBits((VkPipelineCacheCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkColorComponentFlags(VkColorComponentFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkColorComponentFlags(const VkColorComponentFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkColorComponentFlagBits((VkColorComponentFlagBits) object, settings, indents);
 }
-void dump_html_VkPipelineCreateFlags(VkPipelineCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCreateFlags(const VkPipelineCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineCreateFlagBits((VkPipelineCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkPipelineShaderStageCreateFlags(VkPipelineShaderStageCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineShaderStageCreateFlags(const VkPipelineShaderStageCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineShaderStageCreateFlagBits((VkPipelineShaderStageCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkShaderStageFlags(VkShaderStageFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderStageFlags(const VkShaderStageFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkShaderStageFlagBits((VkShaderStageFlagBits) object, settings, indents);
 }
-void dump_html_VkCullModeFlags(VkCullModeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCullModeFlags(const VkCullModeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkCullModeFlagBits((VkCullModeFlagBits) object, settings, indents);
 }
-void dump_html_VkPipelineDepthStencilStateCreateFlags(VkPipelineDepthStencilStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineDepthStencilStateCreateFlags(const VkPipelineDepthStencilStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineDepthStencilStateCreateFlagBits((VkPipelineDepthStencilStateCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkPipelineColorBlendStateCreateFlags(VkPipelineColorBlendStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineColorBlendStateCreateFlags(const VkPipelineColorBlendStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineColorBlendStateCreateFlagBits((VkPipelineColorBlendStateCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkPipelineLayoutCreateFlags(VkPipelineLayoutCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineLayoutCreateFlags(const VkPipelineLayoutCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineLayoutCreateFlagBits((VkPipelineLayoutCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkSamplerCreateFlags(VkSamplerCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSamplerCreateFlags(const VkSamplerCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSamplerCreateFlagBits((VkSamplerCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkDescriptorPoolCreateFlags(VkDescriptorPoolCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorPoolCreateFlags(const VkDescriptorPoolCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDescriptorPoolCreateFlagBits((VkDescriptorPoolCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkDescriptorSetLayoutCreateFlags(VkDescriptorSetLayoutCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorSetLayoutCreateFlags(const VkDescriptorSetLayoutCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDescriptorSetLayoutCreateFlagBits((VkDescriptorSetLayoutCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkAttachmentDescriptionFlags(VkAttachmentDescriptionFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAttachmentDescriptionFlags(const VkAttachmentDescriptionFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkAttachmentDescriptionFlagBits((VkAttachmentDescriptionFlagBits) object, settings, indents);
 }
-void dump_html_VkDependencyFlags(VkDependencyFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDependencyFlags(const VkDependencyFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDependencyFlagBits((VkDependencyFlagBits) object, settings, indents);
 }
-void dump_html_VkFramebufferCreateFlags(VkFramebufferCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFramebufferCreateFlags(const VkFramebufferCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkFramebufferCreateFlagBits((VkFramebufferCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkRenderPassCreateFlags(VkRenderPassCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRenderPassCreateFlags(const VkRenderPassCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkRenderPassCreateFlagBits((VkRenderPassCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkSubpassDescriptionFlags(VkSubpassDescriptionFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSubpassDescriptionFlags(const VkSubpassDescriptionFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSubpassDescriptionFlagBits((VkSubpassDescriptionFlagBits) object, settings, indents);
 }
-void dump_html_VkCommandPoolCreateFlags(VkCommandPoolCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandPoolCreateFlags(const VkCommandPoolCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkCommandPoolCreateFlagBits((VkCommandPoolCreateFlagBits) object, settings, indents);
 }
-void dump_html_VkCommandPoolResetFlags(VkCommandPoolResetFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandPoolResetFlags(const VkCommandPoolResetFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkCommandPoolResetFlagBits((VkCommandPoolResetFlagBits) object, settings, indents);
 }
-void dump_html_VkCommandBufferUsageFlags(VkCommandBufferUsageFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandBufferUsageFlags(const VkCommandBufferUsageFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkCommandBufferUsageFlagBits((VkCommandBufferUsageFlagBits) object, settings, indents);
 }
-void dump_html_VkQueryControlFlags(VkQueryControlFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkQueryControlFlags(const VkQueryControlFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkQueryControlFlagBits((VkQueryControlFlagBits) object, settings, indents);
 }
-void dump_html_VkCommandBufferResetFlags(VkCommandBufferResetFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandBufferResetFlags(const VkCommandBufferResetFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkCommandBufferResetFlagBits((VkCommandBufferResetFlagBits) object, settings, indents);
 }
-void dump_html_VkStencilFaceFlags(VkStencilFaceFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkStencilFaceFlags(const VkStencilFaceFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkStencilFaceFlagBits((VkStencilFaceFlagBits) object, settings, indents);
 }
-void dump_html_VkSubgroupFeatureFlags(VkSubgroupFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSubgroupFeatureFlags(const VkSubgroupFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSubgroupFeatureFlagBits((VkSubgroupFeatureFlagBits) object, settings, indents);
 }
-void dump_html_VkPeerMemoryFeatureFlags(VkPeerMemoryFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPeerMemoryFeatureFlags(const VkPeerMemoryFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPeerMemoryFeatureFlagBits((VkPeerMemoryFeatureFlagBits) object, settings, indents);
 }
-void dump_html_VkMemoryAllocateFlags(VkMemoryAllocateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryAllocateFlags(const VkMemoryAllocateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkMemoryAllocateFlagBits((VkMemoryAllocateFlagBits) object, settings, indents);
 }
-void dump_html_VkExternalMemoryHandleTypeFlags(VkExternalMemoryHandleTypeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalMemoryHandleTypeFlags(const VkExternalMemoryHandleTypeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkExternalMemoryHandleTypeFlagBits((VkExternalMemoryHandleTypeFlagBits) object, settings, indents);
 }
-void dump_html_VkExternalMemoryFeatureFlags(VkExternalMemoryFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalMemoryFeatureFlags(const VkExternalMemoryFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkExternalMemoryFeatureFlagBits((VkExternalMemoryFeatureFlagBits) object, settings, indents);
 }
-void dump_html_VkExternalFenceHandleTypeFlags(VkExternalFenceHandleTypeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalFenceHandleTypeFlags(const VkExternalFenceHandleTypeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkExternalFenceHandleTypeFlagBits((VkExternalFenceHandleTypeFlagBits) object, settings, indents);
 }
-void dump_html_VkExternalFenceFeatureFlags(VkExternalFenceFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalFenceFeatureFlags(const VkExternalFenceFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkExternalFenceFeatureFlagBits((VkExternalFenceFeatureFlagBits) object, settings, indents);
 }
-void dump_html_VkFenceImportFlags(VkFenceImportFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFenceImportFlags(const VkFenceImportFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkFenceImportFlagBits((VkFenceImportFlagBits) object, settings, indents);
 }
-void dump_html_VkSemaphoreImportFlags(VkSemaphoreImportFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSemaphoreImportFlags(const VkSemaphoreImportFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSemaphoreImportFlagBits((VkSemaphoreImportFlagBits) object, settings, indents);
 }
-void dump_html_VkExternalSemaphoreHandleTypeFlags(VkExternalSemaphoreHandleTypeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalSemaphoreHandleTypeFlags(const VkExternalSemaphoreHandleTypeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkExternalSemaphoreHandleTypeFlagBits((VkExternalSemaphoreHandleTypeFlagBits) object, settings, indents);
 }
-void dump_html_VkExternalSemaphoreFeatureFlags(VkExternalSemaphoreFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalSemaphoreFeatureFlags(const VkExternalSemaphoreFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkExternalSemaphoreFeatureFlagBits((VkExternalSemaphoreFeatureFlagBits) object, settings, indents);
 }
-void dump_html_VkResolveModeFlags(VkResolveModeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkResolveModeFlags(const VkResolveModeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkResolveModeFlagBits((VkResolveModeFlagBits) object, settings, indents);
 }
-void dump_html_VkDescriptorBindingFlags(VkDescriptorBindingFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorBindingFlags(const VkDescriptorBindingFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDescriptorBindingFlagBits((VkDescriptorBindingFlagBits) object, settings, indents);
 }
-void dump_html_VkSemaphoreWaitFlags(VkSemaphoreWaitFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSemaphoreWaitFlags(const VkSemaphoreWaitFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSemaphoreWaitFlagBits((VkSemaphoreWaitFlagBits) object, settings, indents);
 }
-void dump_html_VkPipelineCreationFeedbackFlags(VkPipelineCreationFeedbackFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCreationFeedbackFlags(const VkPipelineCreationFeedbackFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineCreationFeedbackFlagBits((VkPipelineCreationFeedbackFlagBits) object, settings, indents);
 }
-void dump_html_VkToolPurposeFlags(VkToolPurposeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkToolPurposeFlags(const VkToolPurposeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkToolPurposeFlagBits((VkToolPurposeFlagBits) object, settings, indents);
 }
-void dump_html_VkPipelineStageFlags2(VkPipelineStageFlags2 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineStageFlags2(const VkPipelineStageFlags2& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineStageFlagBits2((VkPipelineStageFlagBits2) object, settings, indents);
 }
-void dump_html_VkAccessFlags2(VkAccessFlags2 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccessFlags2(const VkAccessFlags2& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkAccessFlagBits2((VkAccessFlagBits2) object, settings, indents);
 }
-void dump_html_VkSubmitFlags(VkSubmitFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSubmitFlags(const VkSubmitFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSubmitFlagBits((VkSubmitFlagBits) object, settings, indents);
 }
-void dump_html_VkRenderingFlags(VkRenderingFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkRenderingFlags(const VkRenderingFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkRenderingFlagBits((VkRenderingFlagBits) object, settings, indents);
 }
-void dump_html_VkFormatFeatureFlags2(VkFormatFeatureFlags2 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFormatFeatureFlags2(const VkFormatFeatureFlags2& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkFormatFeatureFlagBits2((VkFormatFeatureFlagBits2) object, settings, indents);
 }
-void dump_html_VkMemoryUnmapFlags(VkMemoryUnmapFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryUnmapFlags(const VkMemoryUnmapFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkMemoryUnmapFlagBits((VkMemoryUnmapFlagBits) object, settings, indents);
 }
-void dump_html_VkPipelineCreateFlags2(VkPipelineCreateFlags2 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCreateFlags2(const VkPipelineCreateFlags2& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineCreateFlagBits2((VkPipelineCreateFlagBits2) object, settings, indents);
 }
-void dump_html_VkBufferUsageFlags2(VkBufferUsageFlags2 object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBufferUsageFlags2(const VkBufferUsageFlags2& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkBufferUsageFlagBits2((VkBufferUsageFlagBits2) object, settings, indents);
 }
-void dump_html_VkHostImageCopyFlags(VkHostImageCopyFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkHostImageCopyFlags(const VkHostImageCopyFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkHostImageCopyFlagBits((VkHostImageCopyFlagBits) object, settings, indents);
 }
-void dump_html_VkSurfaceTransformFlagsKHR(VkSurfaceTransformFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSurfaceTransformFlagsKHR(const VkSurfaceTransformFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSurfaceTransformFlagBitsKHR((VkSurfaceTransformFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkCompositeAlphaFlagsKHR(VkCompositeAlphaFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCompositeAlphaFlagsKHR(const VkCompositeAlphaFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkCompositeAlphaFlagBitsKHR((VkCompositeAlphaFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkSwapchainCreateFlagsKHR(VkSwapchainCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSwapchainCreateFlagsKHR(const VkSwapchainCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSwapchainCreateFlagBitsKHR((VkSwapchainCreateFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkDeviceGroupPresentModeFlagsKHR(VkDeviceGroupPresentModeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceGroupPresentModeFlagsKHR(const VkDeviceGroupPresentModeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDeviceGroupPresentModeFlagBitsKHR((VkDeviceGroupPresentModeFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkDisplayPlaneAlphaFlagsKHR(VkDisplayPlaneAlphaFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDisplayPlaneAlphaFlagsKHR(const VkDisplayPlaneAlphaFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDisplayPlaneAlphaFlagBitsKHR((VkDisplayPlaneAlphaFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoCodecOperationFlagsKHR(VkVideoCodecOperationFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoCodecOperationFlagsKHR(const VkVideoCodecOperationFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoCodecOperationFlagBitsKHR((VkVideoCodecOperationFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoChromaSubsamplingFlagsKHR(VkVideoChromaSubsamplingFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoChromaSubsamplingFlagsKHR(const VkVideoChromaSubsamplingFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoChromaSubsamplingFlagBitsKHR((VkVideoChromaSubsamplingFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoComponentBitDepthFlagsKHR(VkVideoComponentBitDepthFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoComponentBitDepthFlagsKHR(const VkVideoComponentBitDepthFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoComponentBitDepthFlagBitsKHR((VkVideoComponentBitDepthFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoCapabilityFlagsKHR(VkVideoCapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoCapabilityFlagsKHR(const VkVideoCapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoCapabilityFlagBitsKHR((VkVideoCapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoSessionCreateFlagsKHR(VkVideoSessionCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoSessionCreateFlagsKHR(const VkVideoSessionCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoSessionCreateFlagBitsKHR((VkVideoSessionCreateFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoSessionParametersCreateFlagsKHR(VkVideoSessionParametersCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoSessionParametersCreateFlagsKHR(const VkVideoSessionParametersCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoSessionParametersCreateFlagBitsKHR((VkVideoSessionParametersCreateFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoCodingControlFlagsKHR(VkVideoCodingControlFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoCodingControlFlagsKHR(const VkVideoCodingControlFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoCodingControlFlagBitsKHR((VkVideoCodingControlFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoDecodeCapabilityFlagsKHR(VkVideoDecodeCapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoDecodeCapabilityFlagsKHR(const VkVideoDecodeCapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoDecodeCapabilityFlagBitsKHR((VkVideoDecodeCapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoDecodeUsageFlagsKHR(VkVideoDecodeUsageFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoDecodeUsageFlagsKHR(const VkVideoDecodeUsageFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoDecodeUsageFlagBitsKHR((VkVideoDecodeUsageFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeH264CapabilityFlagsKHR(VkVideoEncodeH264CapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH264CapabilityFlagsKHR(const VkVideoEncodeH264CapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeH264CapabilityFlagBitsKHR((VkVideoEncodeH264CapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeH264StdFlagsKHR(VkVideoEncodeH264StdFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH264StdFlagsKHR(const VkVideoEncodeH264StdFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeH264StdFlagBitsKHR((VkVideoEncodeH264StdFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeH264RateControlFlagsKHR(VkVideoEncodeH264RateControlFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH264RateControlFlagsKHR(const VkVideoEncodeH264RateControlFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeH264RateControlFlagBitsKHR((VkVideoEncodeH264RateControlFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeH265CapabilityFlagsKHR(VkVideoEncodeH265CapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH265CapabilityFlagsKHR(const VkVideoEncodeH265CapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeH265CapabilityFlagBitsKHR((VkVideoEncodeH265CapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeH265StdFlagsKHR(VkVideoEncodeH265StdFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH265StdFlagsKHR(const VkVideoEncodeH265StdFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeH265StdFlagBitsKHR((VkVideoEncodeH265StdFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeH265CtbSizeFlagsKHR(VkVideoEncodeH265CtbSizeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH265CtbSizeFlagsKHR(const VkVideoEncodeH265CtbSizeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeH265CtbSizeFlagBitsKHR((VkVideoEncodeH265CtbSizeFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeH265TransformBlockSizeFlagsKHR(VkVideoEncodeH265TransformBlockSizeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH265TransformBlockSizeFlagsKHR(const VkVideoEncodeH265TransformBlockSizeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeH265TransformBlockSizeFlagBitsKHR((VkVideoEncodeH265TransformBlockSizeFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeH265RateControlFlagsKHR(VkVideoEncodeH265RateControlFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeH265RateControlFlagsKHR(const VkVideoEncodeH265RateControlFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeH265RateControlFlagBitsKHR((VkVideoEncodeH265RateControlFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoDecodeH264PictureLayoutFlagsKHR(VkVideoDecodeH264PictureLayoutFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoDecodeH264PictureLayoutFlagsKHR(const VkVideoDecodeH264PictureLayoutFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoDecodeH264PictureLayoutFlagBitsKHR((VkVideoDecodeH264PictureLayoutFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkPerformanceCounterDescriptionFlagsKHR(VkPerformanceCounterDescriptionFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPerformanceCounterDescriptionFlagsKHR(const VkPerformanceCounterDescriptionFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPerformanceCounterDescriptionFlagBitsKHR((VkPerformanceCounterDescriptionFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkAcquireProfilingLockFlagsKHR(VkAcquireProfilingLockFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAcquireProfilingLockFlagsKHR(const VkAcquireProfilingLockFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkAcquireProfilingLockFlagBitsKHR((VkAcquireProfilingLockFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeFlagsKHR(VkVideoEncodeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeFlagsKHR(const VkVideoEncodeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeFlagBitsKHR((VkVideoEncodeFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeCapabilityFlagsKHR(VkVideoEncodeCapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeCapabilityFlagsKHR(const VkVideoEncodeCapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeCapabilityFlagBitsKHR((VkVideoEncodeCapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeRateControlModeFlagsKHR(VkVideoEncodeRateControlModeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeRateControlModeFlagsKHR(const VkVideoEncodeRateControlModeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeRateControlModeFlagBitsKHR((VkVideoEncodeRateControlModeFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeFeedbackFlagsKHR(VkVideoEncodeFeedbackFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeFeedbackFlagsKHR(const VkVideoEncodeFeedbackFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeFeedbackFlagBitsKHR((VkVideoEncodeFeedbackFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeUsageFlagsKHR(VkVideoEncodeUsageFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeUsageFlagsKHR(const VkVideoEncodeUsageFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeUsageFlagBitsKHR((VkVideoEncodeUsageFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeContentFlagsKHR(VkVideoEncodeContentFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeContentFlagsKHR(const VkVideoEncodeContentFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeContentFlagBitsKHR((VkVideoEncodeContentFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeAV1CapabilityFlagsKHR(VkVideoEncodeAV1CapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeAV1CapabilityFlagsKHR(const VkVideoEncodeAV1CapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeAV1CapabilityFlagBitsKHR((VkVideoEncodeAV1CapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeAV1StdFlagsKHR(VkVideoEncodeAV1StdFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeAV1StdFlagsKHR(const VkVideoEncodeAV1StdFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeAV1StdFlagBitsKHR((VkVideoEncodeAV1StdFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeAV1SuperblockSizeFlagsKHR(VkVideoEncodeAV1SuperblockSizeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeAV1SuperblockSizeFlagsKHR(const VkVideoEncodeAV1SuperblockSizeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeAV1SuperblockSizeFlagBitsKHR((VkVideoEncodeAV1SuperblockSizeFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkVideoEncodeAV1RateControlFlagsKHR(VkVideoEncodeAV1RateControlFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeAV1RateControlFlagsKHR(const VkVideoEncodeAV1RateControlFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkVideoEncodeAV1RateControlFlagBitsKHR((VkVideoEncodeAV1RateControlFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkAccessFlags3KHR(VkAccessFlags3KHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccessFlags3KHR(const VkAccessFlags3KHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkAccessFlagBits3KHR((VkAccessFlagBits3KHR) object, settings, indents);
 }
-void dump_html_VkDebugReportFlagsEXT(VkDebugReportFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugReportFlagsEXT(const VkDebugReportFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDebugReportFlagBitsEXT((VkDebugReportFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkExternalMemoryHandleTypeFlagsNV(VkExternalMemoryHandleTypeFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalMemoryHandleTypeFlagsNV(const VkExternalMemoryHandleTypeFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkExternalMemoryHandleTypeFlagBitsNV((VkExternalMemoryHandleTypeFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkExternalMemoryFeatureFlagsNV(VkExternalMemoryFeatureFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExternalMemoryFeatureFlagsNV(const VkExternalMemoryFeatureFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkExternalMemoryFeatureFlagBitsNV((VkExternalMemoryFeatureFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkConditionalRenderingFlagsEXT(VkConditionalRenderingFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkConditionalRenderingFlagsEXT(const VkConditionalRenderingFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkConditionalRenderingFlagBitsEXT((VkConditionalRenderingFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkSurfaceCounterFlagsEXT(VkSurfaceCounterFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSurfaceCounterFlagsEXT(const VkSurfaceCounterFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkSurfaceCounterFlagBitsEXT((VkSurfaceCounterFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkDebugUtilsMessageSeverityFlagsEXT(VkDebugUtilsMessageSeverityFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugUtilsMessageSeverityFlagsEXT(const VkDebugUtilsMessageSeverityFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDebugUtilsMessageSeverityFlagBitsEXT((VkDebugUtilsMessageSeverityFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkDebugUtilsMessageTypeFlagsEXT(VkDebugUtilsMessageTypeFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugUtilsMessageTypeFlagsEXT(const VkDebugUtilsMessageTypeFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDebugUtilsMessageTypeFlagBitsEXT((VkDebugUtilsMessageTypeFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkGeometryFlagsKHR(VkGeometryFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkGeometryFlagsKHR(const VkGeometryFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkGeometryFlagBitsKHR((VkGeometryFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkGeometryInstanceFlagsKHR(VkGeometryInstanceFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkGeometryInstanceFlagsKHR(const VkGeometryInstanceFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkGeometryInstanceFlagBitsKHR((VkGeometryInstanceFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBuildAccelerationStructureFlagsKHR(const VkBuildAccelerationStructureFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkBuildAccelerationStructureFlagBitsKHR((VkBuildAccelerationStructureFlagBitsKHR) object, settings, indents);
 }
-void dump_html_VkPipelineCompilerControlFlagsAMD(VkPipelineCompilerControlFlagsAMD object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCompilerControlFlagsAMD(const VkPipelineCompilerControlFlagsAMD& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPipelineCompilerControlFlagBitsAMD((VkPipelineCompilerControlFlagBitsAMD) object, settings, indents);
 }
-void dump_html_VkShaderCorePropertiesFlagsAMD(VkShaderCorePropertiesFlagsAMD object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderCorePropertiesFlagsAMD(const VkShaderCorePropertiesFlagsAMD& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkShaderCorePropertiesFlagBitsAMD((VkShaderCorePropertiesFlagBitsAMD) object, settings, indents);
 }
-void dump_html_VkPresentScalingFlagsEXT(VkPresentScalingFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPresentScalingFlagsEXT(const VkPresentScalingFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPresentScalingFlagBitsEXT((VkPresentScalingFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkPresentGravityFlagsEXT(VkPresentGravityFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPresentGravityFlagsEXT(const VkPresentGravityFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPresentGravityFlagBitsEXT((VkPresentGravityFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkIndirectStateFlagsNV(VkIndirectStateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectStateFlagsNV(const VkIndirectStateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkIndirectStateFlagBitsNV((VkIndirectStateFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkIndirectCommandsLayoutUsageFlagsNV(VkIndirectCommandsLayoutUsageFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectCommandsLayoutUsageFlagsNV(const VkIndirectCommandsLayoutUsageFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkIndirectCommandsLayoutUsageFlagBitsNV((VkIndirectCommandsLayoutUsageFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkDeviceDiagnosticsConfigFlagsNV(VkDeviceDiagnosticsConfigFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceDiagnosticsConfigFlagsNV(const VkDeviceDiagnosticsConfigFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDeviceDiagnosticsConfigFlagBitsNV((VkDeviceDiagnosticsConfigFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkTileShadingRenderPassFlagsQCOM(VkTileShadingRenderPassFlagsQCOM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTileShadingRenderPassFlagsQCOM(const VkTileShadingRenderPassFlagsQCOM& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkTileShadingRenderPassFlagBitsQCOM((VkTileShadingRenderPassFlagBitsQCOM) object, settings, indents);
 }
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_VkExportMetalObjectTypeFlagsEXT(VkExportMetalObjectTypeFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkExportMetalObjectTypeFlagsEXT(const VkExportMetalObjectTypeFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkExportMetalObjectTypeFlagBitsEXT((VkExportMetalObjectTypeFlagBitsEXT) object, settings, indents);
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
-void dump_html_VkGraphicsPipelineLibraryFlagsEXT(VkGraphicsPipelineLibraryFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkGraphicsPipelineLibraryFlagsEXT(const VkGraphicsPipelineLibraryFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkGraphicsPipelineLibraryFlagBitsEXT((VkGraphicsPipelineLibraryFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkImageCompressionFlagsEXT(VkImageCompressionFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageCompressionFlagsEXT(const VkImageCompressionFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkImageCompressionFlagBitsEXT((VkImageCompressionFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkImageCompressionFixedRateFlagsEXT(VkImageCompressionFixedRateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageCompressionFixedRateFlagsEXT(const VkImageCompressionFixedRateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkImageCompressionFixedRateFlagBitsEXT((VkImageCompressionFixedRateFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkDeviceAddressBindingFlagsEXT(VkDeviceAddressBindingFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceAddressBindingFlagsEXT(const VkDeviceAddressBindingFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkDeviceAddressBindingFlagBitsEXT((VkDeviceAddressBindingFlagBitsEXT) object, settings, indents);
 }
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_html_VkImageConstraintsInfoFlagsFUCHSIA(VkImageConstraintsInfoFlagsFUCHSIA object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageConstraintsInfoFlagsFUCHSIA(const VkImageConstraintsInfoFlagsFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkImageConstraintsInfoFlagBitsFUCHSIA((VkImageConstraintsInfoFlagBitsFUCHSIA) object, settings, indents);
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
-void dump_html_VkFrameBoundaryFlagsEXT(VkFrameBoundaryFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkFrameBoundaryFlagsEXT(const VkFrameBoundaryFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkFrameBoundaryFlagBitsEXT((VkFrameBoundaryFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkBuildMicromapFlagsEXT(VkBuildMicromapFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBuildMicromapFlagsEXT(const VkBuildMicromapFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkBuildMicromapFlagBitsEXT((VkBuildMicromapFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkMicromapCreateFlagsEXT(VkMicromapCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMicromapCreateFlagsEXT(const VkMicromapCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkMicromapCreateFlagBitsEXT((VkMicromapCreateFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkPhysicalDeviceSchedulingControlsFlagsARM(VkPhysicalDeviceSchedulingControlsFlagsARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPhysicalDeviceSchedulingControlsFlagsARM(const VkPhysicalDeviceSchedulingControlsFlagsARM& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPhysicalDeviceSchedulingControlsFlagBitsARM((VkPhysicalDeviceSchedulingControlsFlagBitsARM) object, settings, indents);
 }
-void dump_html_VkMemoryDecompressionMethodFlagsNV(VkMemoryDecompressionMethodFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMemoryDecompressionMethodFlagsNV(const VkMemoryDecompressionMethodFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkMemoryDecompressionMethodFlagBitsNV((VkMemoryDecompressionMethodFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkTensorCreateFlagsARM(VkTensorCreateFlagsARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTensorCreateFlagsARM(const VkTensorCreateFlagsARM& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkTensorCreateFlagBitsARM((VkTensorCreateFlagBitsARM) object, settings, indents);
 }
-void dump_html_VkTensorViewCreateFlagsARM(VkTensorViewCreateFlagsARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTensorViewCreateFlagsARM(const VkTensorViewCreateFlagsARM& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkTensorViewCreateFlagBitsARM((VkTensorViewCreateFlagBitsARM) object, settings, indents);
 }
-void dump_html_VkTensorUsageFlagsARM(VkTensorUsageFlagsARM object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkTensorUsageFlagsARM(const VkTensorUsageFlagsARM& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkTensorUsageFlagBitsARM((VkTensorUsageFlagBitsARM) object, settings, indents);
 }
-void dump_html_VkOpticalFlowGridSizeFlagsNV(VkOpticalFlowGridSizeFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowGridSizeFlagsNV(const VkOpticalFlowGridSizeFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkOpticalFlowGridSizeFlagBitsNV((VkOpticalFlowGridSizeFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkOpticalFlowUsageFlagsNV(VkOpticalFlowUsageFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowUsageFlagsNV(const VkOpticalFlowUsageFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkOpticalFlowUsageFlagBitsNV((VkOpticalFlowUsageFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkOpticalFlowSessionCreateFlagsNV(VkOpticalFlowSessionCreateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowSessionCreateFlagsNV(const VkOpticalFlowSessionCreateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkOpticalFlowSessionCreateFlagBitsNV((VkOpticalFlowSessionCreateFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkOpticalFlowExecuteFlagsNV(VkOpticalFlowExecuteFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkOpticalFlowExecuteFlagsNV(const VkOpticalFlowExecuteFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkOpticalFlowExecuteFlagBitsNV((VkOpticalFlowExecuteFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkShaderCreateFlagsEXT(VkShaderCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderCreateFlagsEXT(const VkShaderCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkShaderCreateFlagBitsEXT((VkShaderCreateFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkClusterAccelerationStructureAddressResolutionFlagsNV(VkClusterAccelerationStructureAddressResolutionFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureAddressResolutionFlagsNV(const VkClusterAccelerationStructureAddressResolutionFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkClusterAccelerationStructureAddressResolutionFlagBitsNV((VkClusterAccelerationStructureAddressResolutionFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkClusterAccelerationStructureClusterFlagsNV(VkClusterAccelerationStructureClusterFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureClusterFlagsNV(const VkClusterAccelerationStructureClusterFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkClusterAccelerationStructureClusterFlagBitsNV((VkClusterAccelerationStructureClusterFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkClusterAccelerationStructureGeometryFlagsNV(VkClusterAccelerationStructureGeometryFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureGeometryFlagsNV(const VkClusterAccelerationStructureGeometryFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkClusterAccelerationStructureGeometryFlagBitsNV((VkClusterAccelerationStructureGeometryFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkClusterAccelerationStructureIndexFormatFlagsNV(VkClusterAccelerationStructureIndexFormatFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkClusterAccelerationStructureIndexFormatFlagsNV(const VkClusterAccelerationStructureIndexFormatFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkClusterAccelerationStructureIndexFormatFlagBitsNV((VkClusterAccelerationStructureIndexFormatFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkPartitionedAccelerationStructureInstanceFlagsNV(VkPartitionedAccelerationStructureInstanceFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPartitionedAccelerationStructureInstanceFlagsNV(const VkPartitionedAccelerationStructureInstanceFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkPartitionedAccelerationStructureInstanceFlagBitsNV((VkPartitionedAccelerationStructureInstanceFlagBitsNV) object, settings, indents);
 }
-void dump_html_VkIndirectCommandsInputModeFlagsEXT(VkIndirectCommandsInputModeFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectCommandsInputModeFlagsEXT(const VkIndirectCommandsInputModeFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkIndirectCommandsInputModeFlagBitsEXT((VkIndirectCommandsInputModeFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkIndirectCommandsLayoutUsageFlagsEXT(VkIndirectCommandsLayoutUsageFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIndirectCommandsLayoutUsageFlagsEXT(const VkIndirectCommandsLayoutUsageFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkIndirectCommandsLayoutUsageFlagBitsEXT((VkIndirectCommandsLayoutUsageFlagBitsEXT) object, settings, indents);
 }
-void dump_html_VkAccelerationStructureCreateFlagsKHR(VkAccelerationStructureCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureCreateFlagsKHR(const VkAccelerationStructureCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_html_VkAccelerationStructureCreateFlagBitsKHR((VkAccelerationStructureCreateFlagBitsKHR) object, settings, indents);
 }
 
 
-void dump_html_VkDeviceCreateFlags(VkDeviceCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceCreateFlags(const VkDeviceCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkSemaphoreCreateFlags(VkSemaphoreCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSemaphoreCreateFlags(const VkSemaphoreCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkBufferViewCreateFlags(VkBufferViewCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkBufferViewCreateFlags(const VkBufferViewCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkShaderModuleCreateFlags(VkShaderModuleCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkShaderModuleCreateFlags(const VkShaderModuleCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineVertexInputStateCreateFlags(VkPipelineVertexInputStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineVertexInputStateCreateFlags(const VkPipelineVertexInputStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineInputAssemblyStateCreateFlags(VkPipelineInputAssemblyStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineInputAssemblyStateCreateFlags(const VkPipelineInputAssemblyStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineTessellationStateCreateFlags(VkPipelineTessellationStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineTessellationStateCreateFlags(const VkPipelineTessellationStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineViewportStateCreateFlags(VkPipelineViewportStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineViewportStateCreateFlags(const VkPipelineViewportStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineRasterizationStateCreateFlags(VkPipelineRasterizationStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineRasterizationStateCreateFlags(const VkPipelineRasterizationStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineMultisampleStateCreateFlags(VkPipelineMultisampleStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineMultisampleStateCreateFlags(const VkPipelineMultisampleStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineDynamicStateCreateFlags(VkPipelineDynamicStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineDynamicStateCreateFlags(const VkPipelineDynamicStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkDescriptorPoolResetFlags(VkDescriptorPoolResetFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorPoolResetFlags(const VkDescriptorPoolResetFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkCommandPoolTrimFlags(VkCommandPoolTrimFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkCommandPoolTrimFlags(const VkCommandPoolTrimFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkDescriptorUpdateTemplateCreateFlags(VkDescriptorUpdateTemplateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDescriptorUpdateTemplateCreateFlags(const VkDescriptorUpdateTemplateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPrivateDataSlotCreateFlags(VkPrivateDataSlotCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPrivateDataSlotCreateFlags(const VkPrivateDataSlotCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkDisplayModeCreateFlagsKHR(VkDisplayModeCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDisplayModeCreateFlagsKHR(const VkDisplayModeCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkDisplaySurfaceCreateFlagsKHR(VkDisplaySurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDisplaySurfaceCreateFlagsKHR(const VkDisplaySurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-void dump_html_VkXlibSurfaceCreateFlagsKHR(VkXlibSurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkXlibSurfaceCreateFlagsKHR(const VkXlibSurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-void dump_html_VkXcbSurfaceCreateFlagsKHR(VkXcbSurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkXcbSurfaceCreateFlagsKHR(const VkXcbSurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-void dump_html_VkWaylandSurfaceCreateFlagsKHR(VkWaylandSurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkWaylandSurfaceCreateFlagsKHR(const VkWaylandSurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-void dump_html_VkAndroidSurfaceCreateFlagsKHR(VkAndroidSurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAndroidSurfaceCreateFlagsKHR(const VkAndroidSurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_html_VkWin32SurfaceCreateFlagsKHR(VkWin32SurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkWin32SurfaceCreateFlagsKHR(const VkWin32SurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
-void dump_html_VkVideoBeginCodingFlagsKHR(VkVideoBeginCodingFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoBeginCodingFlagsKHR(const VkVideoBeginCodingFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkVideoEndCodingFlagsKHR(VkVideoEndCodingFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEndCodingFlagsKHR(const VkVideoEndCodingFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkVideoDecodeFlagsKHR(VkVideoDecodeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoDecodeFlagsKHR(const VkVideoDecodeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkVideoEncodeRateControlFlagsKHR(VkVideoEncodeRateControlFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkVideoEncodeRateControlFlagsKHR(const VkVideoEncodeRateControlFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineRasterizationStateStreamCreateFlagsEXT(VkPipelineRasterizationStateStreamCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineRasterizationStateStreamCreateFlagsEXT(const VkPipelineRasterizationStateStreamCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_GGP)
-void dump_html_VkStreamDescriptorSurfaceCreateFlagsGGP(VkStreamDescriptorSurfaceCreateFlagsGGP object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkStreamDescriptorSurfaceCreateFlagsGGP(const VkStreamDescriptorSurfaceCreateFlagsGGP& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_GGP
 #if defined(VK_USE_PLATFORM_VI_NN)
-void dump_html_VkViSurfaceCreateFlagsNN(VkViSurfaceCreateFlagsNN object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkViSurfaceCreateFlagsNN(const VkViSurfaceCreateFlagsNN& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_VI_NN
-void dump_html_VkPipelineViewportSwizzleStateCreateFlagsNV(VkPipelineViewportSwizzleStateCreateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineViewportSwizzleStateCreateFlagsNV(const VkPipelineViewportSwizzleStateCreateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineDiscardRectangleStateCreateFlagsEXT(VkPipelineDiscardRectangleStateCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineDiscardRectangleStateCreateFlagsEXT(const VkPipelineDiscardRectangleStateCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineRasterizationConservativeStateCreateFlagsEXT(VkPipelineRasterizationConservativeStateCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineRasterizationConservativeStateCreateFlagsEXT(const VkPipelineRasterizationConservativeStateCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineRasterizationDepthClipStateCreateFlagsEXT(VkPipelineRasterizationDepthClipStateCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineRasterizationDepthClipStateCreateFlagsEXT(const VkPipelineRasterizationDepthClipStateCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_IOS_MVK)
-void dump_html_VkIOSSurfaceCreateFlagsMVK(VkIOSSurfaceCreateFlagsMVK object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkIOSSurfaceCreateFlagsMVK(const VkIOSSurfaceCreateFlagsMVK& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_IOS_MVK
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
-void dump_html_VkMacOSSurfaceCreateFlagsMVK(VkMacOSSurfaceCreateFlagsMVK object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMacOSSurfaceCreateFlagsMVK(const VkMacOSSurfaceCreateFlagsMVK& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_MACOS_MVK
-void dump_html_VkDebugUtilsMessengerCallbackDataFlagsEXT(VkDebugUtilsMessengerCallbackDataFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugUtilsMessengerCallbackDataFlagsEXT(const VkDebugUtilsMessengerCallbackDataFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkDebugUtilsMessengerCreateFlagsEXT(VkDebugUtilsMessengerCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDebugUtilsMessengerCreateFlagsEXT(const VkDebugUtilsMessengerCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineCoverageToColorStateCreateFlagsNV(VkPipelineCoverageToColorStateCreateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCoverageToColorStateCreateFlagsNV(const VkPipelineCoverageToColorStateCreateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkPipelineCoverageModulationStateCreateFlagsNV(VkPipelineCoverageModulationStateCreateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCoverageModulationStateCreateFlagsNV(const VkPipelineCoverageModulationStateCreateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkValidationCacheCreateFlagsEXT(VkValidationCacheCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkValidationCacheCreateFlagsEXT(const VkValidationCacheCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_html_VkImagePipeSurfaceCreateFlagsFUCHSIA(VkImagePipeSurfaceCreateFlagsFUCHSIA object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImagePipeSurfaceCreateFlagsFUCHSIA(const VkImagePipeSurfaceCreateFlagsFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_html_VkMetalSurfaceCreateFlagsEXT(VkMetalSurfaceCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkMetalSurfaceCreateFlagsEXT(const VkMetalSurfaceCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
-void dump_html_VkPipelineCoverageReductionStateCreateFlagsNV(VkPipelineCoverageReductionStateCreateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkPipelineCoverageReductionStateCreateFlagsNV(const VkPipelineCoverageReductionStateCreateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkHeadlessSurfaceCreateFlagsEXT(VkHeadlessSurfaceCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkHeadlessSurfaceCreateFlagsEXT(const VkHeadlessSurfaceCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkDeviceMemoryReportFlagsEXT(VkDeviceMemoryReportFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDeviceMemoryReportFlagsEXT(const VkDeviceMemoryReportFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkAccelerationStructureMotionInfoFlagsNV(VkAccelerationStructureMotionInfoFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureMotionInfoFlagsNV(const VkAccelerationStructureMotionInfoFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
-void dump_html_VkAccelerationStructureMotionInstanceFlagsNV(VkAccelerationStructureMotionInstanceFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkAccelerationStructureMotionInstanceFlagsNV(const VkAccelerationStructureMotionInstanceFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-void dump_html_VkDirectFBSurfaceCreateFlagsEXT(VkDirectFBSurfaceCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDirectFBSurfaceCreateFlagsEXT(const VkDirectFBSurfaceCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_DIRECTFB_EXT
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_html_VkImageFormatConstraintsFlagsFUCHSIA(VkImageFormatConstraintsFlagsFUCHSIA object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkImageFormatConstraintsFlagsFUCHSIA(const VkImageFormatConstraintsFlagsFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-void dump_html_VkScreenSurfaceCreateFlagsQNX(VkScreenSurfaceCreateFlagsQNX object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkScreenSurfaceCreateFlagsQNX(const VkScreenSurfaceCreateFlagsQNX& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #endif // VK_USE_PLATFORM_SCREEN_QNX
-void dump_html_VkDirectDriverLoadingFlagsLUNARG(VkDirectDriverLoadingFlagsLUNARG object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkDirectDriverLoadingFlagsLUNARG(const VkDirectDriverLoadingFlagsLUNARG& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
 }
 #if defined(VK_USE_PLATFORM_OHOS)
-void dump_html_VkSurfaceCreateFlagsOHOS(VkSurfaceCreateFlagsOHOS object, const ApiDumpSettings& settings, int indents)
+void dump_html_VkSurfaceCreateFlagsOHOS(const VkSurfaceCreateFlagsOHOS& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>"
                              << object << "</div></summary>";
@@ -14734,7 +14734,7 @@ void dump_html_VkSurfaceCreateFlagsOHOS(VkSurfaceCreateFlagsOHOS object, const A
 
 //======================= Func Pointer Implementations ======================//
 
-void dump_html_PFN_vkAllocationFunction(PFN_vkAllocationFunction object, const ApiDumpSettings& settings, int indents)
+void dump_html_PFN_vkAllocationFunction(const PFN_vkAllocationFunction& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -14743,7 +14743,7 @@ void dump_html_PFN_vkAllocationFunction(PFN_vkAllocationFunction object, const A
         settings.stream() << "address";
     settings.stream() << "</div></summary>";
 }
-void dump_html_PFN_vkFreeFunction(PFN_vkFreeFunction object, const ApiDumpSettings& settings, int indents)
+void dump_html_PFN_vkFreeFunction(const PFN_vkFreeFunction& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -14752,7 +14752,7 @@ void dump_html_PFN_vkFreeFunction(PFN_vkFreeFunction object, const ApiDumpSettin
         settings.stream() << "address";
     settings.stream() << "</div></summary>";
 }
-void dump_html_PFN_vkInternalAllocationNotification(PFN_vkInternalAllocationNotification object, const ApiDumpSettings& settings, int indents)
+void dump_html_PFN_vkInternalAllocationNotification(const PFN_vkInternalAllocationNotification& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -14761,7 +14761,7 @@ void dump_html_PFN_vkInternalAllocationNotification(PFN_vkInternalAllocationNoti
         settings.stream() << "address";
     settings.stream() << "</div></summary>";
 }
-void dump_html_PFN_vkInternalFreeNotification(PFN_vkInternalFreeNotification object, const ApiDumpSettings& settings, int indents)
+void dump_html_PFN_vkInternalFreeNotification(const PFN_vkInternalFreeNotification& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -14770,7 +14770,7 @@ void dump_html_PFN_vkInternalFreeNotification(PFN_vkInternalFreeNotification obj
         settings.stream() << "address";
     settings.stream() << "</div></summary>";
 }
-void dump_html_PFN_vkReallocationFunction(PFN_vkReallocationFunction object, const ApiDumpSettings& settings, int indents)
+void dump_html_PFN_vkReallocationFunction(const PFN_vkReallocationFunction& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -14779,7 +14779,7 @@ void dump_html_PFN_vkReallocationFunction(PFN_vkReallocationFunction object, con
         settings.stream() << "address";
     settings.stream() << "</div></summary>";
 }
-void dump_html_PFN_vkVoidFunction(PFN_vkVoidFunction object, const ApiDumpSettings& settings, int indents)
+void dump_html_PFN_vkVoidFunction(const PFN_vkVoidFunction& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -14788,7 +14788,7 @@ void dump_html_PFN_vkVoidFunction(PFN_vkVoidFunction object, const ApiDumpSettin
         settings.stream() << "address";
     settings.stream() << "</div></summary>";
 }
-void dump_html_PFN_vkDebugReportCallbackEXT(PFN_vkDebugReportCallbackEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_PFN_vkDebugReportCallbackEXT(const PFN_vkDebugReportCallbackEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -14797,7 +14797,7 @@ void dump_html_PFN_vkDebugReportCallbackEXT(PFN_vkDebugReportCallbackEXT object,
         settings.stream() << "address";
     settings.stream() << "</div></summary>";
 }
-void dump_html_PFN_vkDebugUtilsMessengerCallbackEXT(PFN_vkDebugUtilsMessengerCallbackEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_PFN_vkDebugUtilsMessengerCallbackEXT(const PFN_vkDebugUtilsMessengerCallbackEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -14806,7 +14806,7 @@ void dump_html_PFN_vkDebugUtilsMessengerCallbackEXT(PFN_vkDebugUtilsMessengerCal
         settings.stream() << "address";
     settings.stream() << "</div></summary>";
 }
-void dump_html_PFN_vkDeviceMemoryReportCallbackEXT(PFN_vkDeviceMemoryReportCallbackEXT object, const ApiDumpSettings& settings, int indents)
+void dump_html_PFN_vkDeviceMemoryReportCallbackEXT(const PFN_vkDeviceMemoryReportCallbackEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())
@@ -14815,7 +14815,7 @@ void dump_html_PFN_vkDeviceMemoryReportCallbackEXT(PFN_vkDeviceMemoryReportCallb
         settings.stream() << "address";
     settings.stream() << "</div></summary>";
 }
-void dump_html_PFN_vkGetInstanceProcAddrLUNARG(PFN_vkGetInstanceProcAddrLUNARG object, const ApiDumpSettings& settings, int indents)
+void dump_html_PFN_vkGetInstanceProcAddrLUNARG(const PFN_vkGetInstanceProcAddrLUNARG& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "<div class='val'>";
     if(settings.showAddress())

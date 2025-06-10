@@ -27,54 +27,54 @@
 
 //=========================== Type Implementations ==========================//
 
-void dump_json_uint64_t(uint64_t object, const ApiDumpSettings& settings, int indents)
+void dump_json_uint64_t(const uint64_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
-void dump_json_size_t(size_t object, const ApiDumpSettings& settings, int indents)
+void dump_json_size_t(const size_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
-void dump_json_char(char object, const ApiDumpSettings& settings, int indents)
+void dump_json_char(const char &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
-void dump_json_float(float object, const ApiDumpSettings& settings, int indents)
+void dump_json_float(const float &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
-void dump_json_int64_t(int64_t object, const ApiDumpSettings& settings, int indents)
+void dump_json_int64_t(const int64_t &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
-void dump_json_double(double object, const ApiDumpSettings& settings, int indents)
+void dump_json_double(const double &object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
 
 //========================= Basetype Implementations ========================//
 
-void dump_json_VkBool32(VkBool32 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBool32(const VkBool32& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
-void dump_json_VkDeviceAddress(VkDeviceAddress object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceAddress(const VkDeviceAddress& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
-void dump_json_VkDeviceSize(VkDeviceSize object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceSize(const VkDeviceSize& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
-void dump_json_VkFlags(VkFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFlags(const VkFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
-void dump_json_VkSampleMask(VkSampleMask object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSampleMask(const VkSampleMask& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
-void dump_json_VkFlags64(VkFlags64 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFlags64(const VkFlags64& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
@@ -91,53 +91,53 @@ void dump_json_AHardwareBuffer(const AHardwareBuffer* object, const ApiDumpSetti
 }
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_json_CAMetalLayer(CAMetalLayer object, const ApiDumpSettings& settings, int indents)
+void dump_json_CAMetalLayer(const CAMetalLayer& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_json_MTLDevice_id(MTLDevice_id object, const ApiDumpSettings& settings, int indents)
+void dump_json_MTLDevice_id(const MTLDevice_id& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_json_MTLCommandQueue_id(MTLCommandQueue_id object, const ApiDumpSettings& settings, int indents)
+void dump_json_MTLCommandQueue_id(const MTLCommandQueue_id& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_json_MTLBuffer_id(MTLBuffer_id object, const ApiDumpSettings& settings, int indents)
+void dump_json_MTLBuffer_id(const MTLBuffer_id& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_json_MTLTexture_id(MTLTexture_id object, const ApiDumpSettings& settings, int indents)
+void dump_json_MTLTexture_id(const MTLTexture_id& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_json_IOSurfaceRef(IOSurfaceRef object, const ApiDumpSettings& settings, int indents)
+void dump_json_IOSurfaceRef(const IOSurfaceRef& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_json_MTLSharedEvent_id(MTLSharedEvent_id object, const ApiDumpSettings& settings, int indents)
+void dump_json_MTLSharedEvent_id(const MTLSharedEvent_id& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
-void dump_json_VkRemoteAddressNV(VkRemoteAddressNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRemoteAddressNV(const VkRemoteAddressNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
 #if defined(VK_USE_PLATFORM_OHOS)
-void dump_json_OHNativeWindow(OHNativeWindow object, const ApiDumpSettings& settings, int indents)
+void dump_json_OHNativeWindow(const OHNativeWindow& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << "\"" << object << "\"";
 }
@@ -146,7 +146,7 @@ void dump_json_OHNativeWindow(OHNativeWindow object, const ApiDumpSettings& sett
 //======================= System Type Implementations =======================//
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_json_DWORD(const DWORD object, const ApiDumpSettings& settings, int indents)
+void dump_json_DWORD(DWORD const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -155,14 +155,14 @@ void dump_json_DWORD(const DWORD object, const ApiDumpSettings& settings, int in
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-void dump_json_Display(const Display* object, const ApiDumpSettings& settings, int indents)
+void dump_json_Display(Display const * const & object, const ApiDumpSettings& settings, int indents)
 {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_GGP)
-void dump_json_GgpFrameToken(const GgpFrameToken object, const ApiDumpSettings& settings, int indents)
+void dump_json_GgpFrameToken(GgpFrameToken const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -171,7 +171,7 @@ void dump_json_GgpFrameToken(const GgpFrameToken object, const ApiDumpSettings& 
 }
 #endif // VK_USE_PLATFORM_GGP
 #if defined(VK_USE_PLATFORM_GGP)
-void dump_json_GgpStreamDescriptor(const GgpStreamDescriptor object, const ApiDumpSettings& settings, int indents)
+void dump_json_GgpStreamDescriptor(GgpStreamDescriptor const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -180,7 +180,7 @@ void dump_json_GgpStreamDescriptor(const GgpStreamDescriptor object, const ApiDu
 }
 #endif // VK_USE_PLATFORM_GGP
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_json_HANDLE(const HANDLE object, const ApiDumpSettings& settings, int indents)
+void dump_json_HANDLE(HANDLE const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -189,7 +189,7 @@ void dump_json_HANDLE(const HANDLE object, const ApiDumpSettings& settings, int 
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_json_HINSTANCE(const HINSTANCE object, const ApiDumpSettings& settings, int indents)
+void dump_json_HINSTANCE(HINSTANCE const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -198,7 +198,7 @@ void dump_json_HINSTANCE(const HINSTANCE object, const ApiDumpSettings& settings
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_json_HMONITOR(const HMONITOR object, const ApiDumpSettings& settings, int indents)
+void dump_json_HMONITOR(HMONITOR const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -207,7 +207,7 @@ void dump_json_HMONITOR(const HMONITOR object, const ApiDumpSettings& settings, 
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_json_HWND(const HWND object, const ApiDumpSettings& settings, int indents)
+void dump_json_HWND(HWND const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -216,7 +216,7 @@ void dump_json_HWND(const HWND object, const ApiDumpSettings& settings, int inde
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-void dump_json_IDirectFB(const IDirectFB object, const ApiDumpSettings& settings, int indents)
+void dump_json_IDirectFB(IDirectFB const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -225,7 +225,7 @@ void dump_json_IDirectFB(const IDirectFB object, const ApiDumpSettings& settings
 }
 #endif // VK_USE_PLATFORM_DIRECTFB_EXT
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-void dump_json_IDirectFBSurface(const IDirectFBSurface object, const ApiDumpSettings& settings, int indents)
+void dump_json_IDirectFBSurface(IDirectFBSurface const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -234,7 +234,7 @@ void dump_json_IDirectFBSurface(const IDirectFBSurface object, const ApiDumpSett
 }
 #endif // VK_USE_PLATFORM_DIRECTFB_EXT
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_json_LPCWSTR(const LPCWSTR object, const ApiDumpSettings& settings, int indents)
+void dump_json_LPCWSTR(LPCWSTR const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -243,7 +243,7 @@ void dump_json_LPCWSTR(const LPCWSTR object, const ApiDumpSettings& settings, in
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
-void dump_json_RROutput(const RROutput object, const ApiDumpSettings& settings, int indents)
+void dump_json_RROutput(RROutput const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -252,14 +252,14 @@ void dump_json_RROutput(const RROutput object, const ApiDumpSettings& settings, 
 }
 #endif // VK_USE_PLATFORM_XLIB_XRANDR_EXT
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_json_SECURITY_ATTRIBUTES(const SECURITY_ATTRIBUTES* object, const ApiDumpSettings& settings, int indents)
+void dump_json_SECURITY_ATTRIBUTES(SECURITY_ATTRIBUTES const * const & object, const ApiDumpSettings& settings, int indents)
 {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-void dump_json_VisualID(const VisualID object, const ApiDumpSettings& settings, int indents)
+void dump_json_VisualID(VisualID const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -268,7 +268,7 @@ void dump_json_VisualID(const VisualID object, const ApiDumpSettings& settings, 
 }
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-void dump_json_Window(const Window object, const ApiDumpSettings& settings, int indents)
+void dump_json_Window(Window const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -277,49 +277,49 @@ void dump_json_Window(const Window object, const ApiDumpSettings& settings, int 
 }
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-void dump_json__screen_buffer(const _screen_buffer* object, const ApiDumpSettings& settings, int indents)
+void dump_json__screen_buffer(_screen_buffer const * const & object, const ApiDumpSettings& settings, int indents)
 {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-void dump_json__screen_context(const _screen_context* object, const ApiDumpSettings& settings, int indents)
+void dump_json__screen_context(_screen_context const * const & object, const ApiDumpSettings& settings, int indents)
 {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-void dump_json__screen_window(const _screen_window* object, const ApiDumpSettings& settings, int indents)
+void dump_json__screen_window(_screen_window const * const & object, const ApiDumpSettings& settings, int indents)
 {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-void dump_json_wl_display(const wl_display* object, const ApiDumpSettings& settings, int indents)
+void dump_json_wl_display(wl_display const * const & object, const ApiDumpSettings& settings, int indents)
 {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-void dump_json_wl_surface(const wl_surface* object, const ApiDumpSettings& settings, int indents)
+void dump_json_wl_surface(wl_surface const * const & object, const ApiDumpSettings& settings, int indents)
 {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-void dump_json_xcb_connection_t(const xcb_connection_t* object, const ApiDumpSettings& settings, int indents)
+void dump_json_xcb_connection_t(xcb_connection_t const * const & object, const ApiDumpSettings& settings, int indents)
 {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-void dump_json_xcb_visualid_t(const xcb_visualid_t object, const ApiDumpSettings& settings, int indents)
+void dump_json_xcb_visualid_t(xcb_visualid_t const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -328,7 +328,7 @@ void dump_json_xcb_visualid_t(const xcb_visualid_t object, const ApiDumpSettings
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-void dump_json_xcb_window_t(const xcb_window_t object, const ApiDumpSettings& settings, int indents)
+void dump_json_xcb_window_t(xcb_window_t const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -337,7 +337,7 @@ void dump_json_xcb_window_t(const xcb_window_t object, const ApiDumpSettings& se
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_json_zx_handle_t(const zx_handle_t object, const ApiDumpSettings& settings, int indents)
+void dump_json_zx_handle_t(zx_handle_t const & object, const ApiDumpSettings& settings, int indents)
 {
     if (settings.showAddress())
         settings.stream() << "\"" << object << "\"";
@@ -348,7 +348,7 @@ void dump_json_zx_handle_t(const zx_handle_t object, const ApiDumpSettings& sett
 
 //========================== Handle Implementations =========================//
 
-void dump_json_VkBuffer(const VkBuffer object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBuffer(const VkBuffer& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -356,7 +356,7 @@ void dump_json_VkBuffer(const VkBuffer object, const ApiDumpSettings& settings, 
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkImage(const VkImage object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImage(const VkImage& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -364,7 +364,7 @@ void dump_json_VkImage(const VkImage object, const ApiDumpSettings& settings, in
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkInstance(const VkInstance object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkInstance(const VkInstance& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -372,7 +372,7 @@ void dump_json_VkInstance(const VkInstance object, const ApiDumpSettings& settin
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkPhysicalDevice(const VkPhysicalDevice object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPhysicalDevice(const VkPhysicalDevice& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -380,7 +380,7 @@ void dump_json_VkPhysicalDevice(const VkPhysicalDevice object, const ApiDumpSett
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDevice(const VkDevice object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDevice(const VkDevice& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -388,7 +388,7 @@ void dump_json_VkDevice(const VkDevice object, const ApiDumpSettings& settings, 
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkQueue(const VkQueue object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueue(const VkQueue& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -396,7 +396,7 @@ void dump_json_VkQueue(const VkQueue object, const ApiDumpSettings& settings, in
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkSemaphore(const VkSemaphore object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSemaphore(const VkSemaphore& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -404,7 +404,7 @@ void dump_json_VkSemaphore(const VkSemaphore object, const ApiDumpSettings& sett
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkCommandBuffer(const VkCommandBuffer object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandBuffer(const VkCommandBuffer& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -412,7 +412,7 @@ void dump_json_VkCommandBuffer(const VkCommandBuffer object, const ApiDumpSettin
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkFence(const VkFence object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFence(const VkFence& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -420,7 +420,7 @@ void dump_json_VkFence(const VkFence object, const ApiDumpSettings& settings, in
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDeviceMemory(const VkDeviceMemory object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceMemory(const VkDeviceMemory& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -428,7 +428,7 @@ void dump_json_VkDeviceMemory(const VkDeviceMemory object, const ApiDumpSettings
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkEvent(const VkEvent object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkEvent(const VkEvent& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -436,7 +436,7 @@ void dump_json_VkEvent(const VkEvent object, const ApiDumpSettings& settings, in
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkQueryPool(const VkQueryPool object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryPool(const VkQueryPool& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -444,7 +444,7 @@ void dump_json_VkQueryPool(const VkQueryPool object, const ApiDumpSettings& sett
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkBufferView(const VkBufferView object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBufferView(const VkBufferView& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -452,7 +452,7 @@ void dump_json_VkBufferView(const VkBufferView object, const ApiDumpSettings& se
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkImageView(const VkImageView object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageView(const VkImageView& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -460,7 +460,7 @@ void dump_json_VkImageView(const VkImageView object, const ApiDumpSettings& sett
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkShaderModule(const VkShaderModule object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderModule(const VkShaderModule& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -468,7 +468,7 @@ void dump_json_VkShaderModule(const VkShaderModule object, const ApiDumpSettings
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkPipelineCache(const VkPipelineCache object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCache(const VkPipelineCache& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -476,7 +476,7 @@ void dump_json_VkPipelineCache(const VkPipelineCache object, const ApiDumpSettin
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkPipelineLayout(const VkPipelineLayout object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineLayout(const VkPipelineLayout& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -484,7 +484,7 @@ void dump_json_VkPipelineLayout(const VkPipelineLayout object, const ApiDumpSett
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkPipeline(const VkPipeline object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipeline(const VkPipeline& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -492,7 +492,7 @@ void dump_json_VkPipeline(const VkPipeline object, const ApiDumpSettings& settin
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkRenderPass(const VkRenderPass object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRenderPass(const VkRenderPass& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -500,7 +500,7 @@ void dump_json_VkRenderPass(const VkRenderPass object, const ApiDumpSettings& se
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDescriptorSetLayout(const VkDescriptorSetLayout object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorSetLayout(const VkDescriptorSetLayout& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -508,7 +508,7 @@ void dump_json_VkDescriptorSetLayout(const VkDescriptorSetLayout object, const A
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkSampler(const VkSampler object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSampler(const VkSampler& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -516,7 +516,7 @@ void dump_json_VkSampler(const VkSampler object, const ApiDumpSettings& settings
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDescriptorSet(const VkDescriptorSet object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorSet(const VkDescriptorSet& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -524,7 +524,7 @@ void dump_json_VkDescriptorSet(const VkDescriptorSet object, const ApiDumpSettin
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDescriptorPool(const VkDescriptorPool object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorPool(const VkDescriptorPool& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -532,7 +532,7 @@ void dump_json_VkDescriptorPool(const VkDescriptorPool object, const ApiDumpSett
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkFramebuffer(const VkFramebuffer object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFramebuffer(const VkFramebuffer& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -540,7 +540,7 @@ void dump_json_VkFramebuffer(const VkFramebuffer object, const ApiDumpSettings& 
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkCommandPool(const VkCommandPool object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandPool(const VkCommandPool& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -548,7 +548,7 @@ void dump_json_VkCommandPool(const VkCommandPool object, const ApiDumpSettings& 
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkSamplerYcbcrConversion(const VkSamplerYcbcrConversion object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSamplerYcbcrConversion(const VkSamplerYcbcrConversion& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -556,7 +556,7 @@ void dump_json_VkSamplerYcbcrConversion(const VkSamplerYcbcrConversion object, c
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDescriptorUpdateTemplate(const VkDescriptorUpdateTemplate object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorUpdateTemplate(const VkDescriptorUpdateTemplate& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -564,7 +564,7 @@ void dump_json_VkDescriptorUpdateTemplate(const VkDescriptorUpdateTemplate objec
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkPrivateDataSlot(const VkPrivateDataSlot object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPrivateDataSlot(const VkPrivateDataSlot& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -572,7 +572,7 @@ void dump_json_VkPrivateDataSlot(const VkPrivateDataSlot object, const ApiDumpSe
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkSurfaceKHR(const VkSurfaceKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSurfaceKHR(const VkSurfaceKHR& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -580,7 +580,7 @@ void dump_json_VkSurfaceKHR(const VkSurfaceKHR object, const ApiDumpSettings& se
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkSwapchainKHR(const VkSwapchainKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSwapchainKHR(const VkSwapchainKHR& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -588,7 +588,7 @@ void dump_json_VkSwapchainKHR(const VkSwapchainKHR object, const ApiDumpSettings
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDisplayKHR(const VkDisplayKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDisplayKHR(const VkDisplayKHR& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -596,7 +596,7 @@ void dump_json_VkDisplayKHR(const VkDisplayKHR object, const ApiDumpSettings& se
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDisplayModeKHR(const VkDisplayModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDisplayModeKHR(const VkDisplayModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -604,7 +604,7 @@ void dump_json_VkDisplayModeKHR(const VkDisplayModeKHR object, const ApiDumpSett
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkVideoSessionKHR(const VkVideoSessionKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoSessionKHR(const VkVideoSessionKHR& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -612,7 +612,7 @@ void dump_json_VkVideoSessionKHR(const VkVideoSessionKHR object, const ApiDumpSe
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkVideoSessionParametersKHR(const VkVideoSessionParametersKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoSessionParametersKHR(const VkVideoSessionParametersKHR& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -620,7 +620,7 @@ void dump_json_VkVideoSessionParametersKHR(const VkVideoSessionParametersKHR obj
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDeferredOperationKHR(const VkDeferredOperationKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeferredOperationKHR(const VkDeferredOperationKHR& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -628,7 +628,7 @@ void dump_json_VkDeferredOperationKHR(const VkDeferredOperationKHR object, const
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkPipelineBinaryKHR(const VkPipelineBinaryKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineBinaryKHR(const VkPipelineBinaryKHR& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -636,7 +636,7 @@ void dump_json_VkPipelineBinaryKHR(const VkPipelineBinaryKHR object, const ApiDu
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDebugReportCallbackEXT(const VkDebugReportCallbackEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugReportCallbackEXT(const VkDebugReportCallbackEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -644,7 +644,7 @@ void dump_json_VkDebugReportCallbackEXT(const VkDebugReportCallbackEXT object, c
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkCuModuleNVX(const VkCuModuleNVX object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCuModuleNVX(const VkCuModuleNVX& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -652,7 +652,7 @@ void dump_json_VkCuModuleNVX(const VkCuModuleNVX object, const ApiDumpSettings& 
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkCuFunctionNVX(const VkCuFunctionNVX object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCuFunctionNVX(const VkCuFunctionNVX& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -660,7 +660,7 @@ void dump_json_VkCuFunctionNVX(const VkCuFunctionNVX object, const ApiDumpSettin
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkDebugUtilsMessengerEXT(const VkDebugUtilsMessengerEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugUtilsMessengerEXT(const VkDebugUtilsMessengerEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -668,7 +668,7 @@ void dump_json_VkDebugUtilsMessengerEXT(const VkDebugUtilsMessengerEXT object, c
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkValidationCacheEXT(const VkValidationCacheEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkValidationCacheEXT(const VkValidationCacheEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -676,7 +676,7 @@ void dump_json_VkValidationCacheEXT(const VkValidationCacheEXT object, const Api
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkAccelerationStructureNV(const VkAccelerationStructureNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureNV(const VkAccelerationStructureNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -684,7 +684,7 @@ void dump_json_VkAccelerationStructureNV(const VkAccelerationStructureNV object,
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkPerformanceConfigurationINTEL(const VkPerformanceConfigurationINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPerformanceConfigurationINTEL(const VkPerformanceConfigurationINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -692,7 +692,7 @@ void dump_json_VkPerformanceConfigurationINTEL(const VkPerformanceConfigurationI
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkIndirectCommandsLayoutNV(const VkIndirectCommandsLayoutNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectCommandsLayoutNV(const VkIndirectCommandsLayoutNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -701,7 +701,7 @@ void dump_json_VkIndirectCommandsLayoutNV(const VkIndirectCommandsLayoutNV objec
     }
 }
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_json_VkCudaModuleNV(const VkCudaModuleNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCudaModuleNV(const VkCudaModuleNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -711,7 +711,7 @@ void dump_json_VkCudaModuleNV(const VkCudaModuleNV object, const ApiDumpSettings
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_json_VkCudaFunctionNV(const VkCudaFunctionNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCudaFunctionNV(const VkCudaFunctionNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -720,7 +720,7 @@ void dump_json_VkCudaFunctionNV(const VkCudaFunctionNV object, const ApiDumpSett
     }
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
-void dump_json_VkAccelerationStructureKHR(const VkAccelerationStructureKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureKHR(const VkAccelerationStructureKHR& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -729,7 +729,7 @@ void dump_json_VkAccelerationStructureKHR(const VkAccelerationStructureKHR objec
     }
 }
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_json_VkBufferCollectionFUCHSIA(const VkBufferCollectionFUCHSIA object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBufferCollectionFUCHSIA(const VkBufferCollectionFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -738,7 +738,7 @@ void dump_json_VkBufferCollectionFUCHSIA(const VkBufferCollectionFUCHSIA object,
     }
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
-void dump_json_VkMicromapEXT(const VkMicromapEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMicromapEXT(const VkMicromapEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -746,7 +746,7 @@ void dump_json_VkMicromapEXT(const VkMicromapEXT object, const ApiDumpSettings& 
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkTensorARM(const VkTensorARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTensorARM(const VkTensorARM& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -754,7 +754,7 @@ void dump_json_VkTensorARM(const VkTensorARM object, const ApiDumpSettings& sett
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkTensorViewARM(const VkTensorViewARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTensorViewARM(const VkTensorViewARM& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -762,7 +762,7 @@ void dump_json_VkTensorViewARM(const VkTensorViewARM object, const ApiDumpSettin
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkOpticalFlowSessionNV(const VkOpticalFlowSessionNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowSessionNV(const VkOpticalFlowSessionNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -770,7 +770,7 @@ void dump_json_VkOpticalFlowSessionNV(const VkOpticalFlowSessionNV object, const
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkShaderEXT(const VkShaderEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderEXT(const VkShaderEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -778,7 +778,7 @@ void dump_json_VkShaderEXT(const VkShaderEXT object, const ApiDumpSettings& sett
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkExternalComputeQueueNV(const VkExternalComputeQueueNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalComputeQueueNV(const VkExternalComputeQueueNV& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -786,7 +786,7 @@ void dump_json_VkExternalComputeQueueNV(const VkExternalComputeQueueNV object, c
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkIndirectExecutionSetEXT(const VkIndirectExecutionSetEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectExecutionSetEXT(const VkIndirectExecutionSetEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -794,7 +794,7 @@ void dump_json_VkIndirectExecutionSetEXT(const VkIndirectExecutionSetEXT object,
         settings.stream() << "\"address\"";
     }
 }
-void dump_json_VkIndirectCommandsLayoutEXT(const VkIndirectCommandsLayoutEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectCommandsLayoutEXT(const VkIndirectCommandsLayoutEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress()) {
         settings.stream() << "\"" << object << "\"";
@@ -805,7 +805,7 @@ void dump_json_VkIndirectCommandsLayoutEXT(const VkIndirectCommandsLayoutEXT obj
 
 //=========================== Enum Implementations ==========================//
 
-void dump_json_VkResult(VkResult object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkResult(const VkResult& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -960,7 +960,7 @@ void dump_json_VkResult(VkResult object, const ApiDumpSettings& settings, int in
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkStructureType(const VkStructureType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -4166,7 +4166,7 @@ void dump_json_VkStructureType(VkStructureType object, const ApiDumpSettings& se
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPipelineCacheHeaderVersion(VkPipelineCacheHeaderVersion object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCacheHeaderVersion(const VkPipelineCacheHeaderVersion& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -4177,7 +4177,7 @@ void dump_json_VkPipelineCacheHeaderVersion(VkPipelineCacheHeaderVersion object,
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkImageLayout(VkImageLayout object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageLayout(const VkImageLayout& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -4281,7 +4281,7 @@ void dump_json_VkImageLayout(VkImageLayout object, const ApiDumpSettings& settin
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkObjectType(VkObjectType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkObjectType(const VkObjectType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -4460,7 +4460,7 @@ void dump_json_VkObjectType(VkObjectType object, const ApiDumpSettings& settings
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkVendorId(VkVendorId object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVendorId(const VkVendorId& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -4492,7 +4492,7 @@ void dump_json_VkVendorId(VkVendorId object, const ApiDumpSettings& settings, in
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkSystemAllocationScope(VkSystemAllocationScope object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSystemAllocationScope(const VkSystemAllocationScope& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -4515,7 +4515,7 @@ void dump_json_VkSystemAllocationScope(VkSystemAllocationScope object, const Api
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkInternalAllocationType(VkInternalAllocationType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkInternalAllocationType(const VkInternalAllocationType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -4526,7 +4526,7 @@ void dump_json_VkInternalAllocationType(VkInternalAllocationType object, const A
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkFormat(VkFormat object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFormat(const VkFormat& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5329,7 +5329,7 @@ void dump_json_VkFormat(VkFormat object, const ApiDumpSettings& settings, int in
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkImageTiling(VkImageTiling object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageTiling(const VkImageTiling& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5346,7 +5346,7 @@ void dump_json_VkImageTiling(VkImageTiling object, const ApiDumpSettings& settin
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkImageType(VkImageType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageType(const VkImageType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5363,7 +5363,7 @@ void dump_json_VkImageType(VkImageType object, const ApiDumpSettings& settings, 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPhysicalDeviceType(VkPhysicalDeviceType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPhysicalDeviceType(const VkPhysicalDeviceType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5386,7 +5386,7 @@ void dump_json_VkPhysicalDeviceType(VkPhysicalDeviceType object, const ApiDumpSe
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkQueryType(VkQueryType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryType(const VkQueryType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5445,7 +5445,7 @@ void dump_json_VkQueryType(VkQueryType object, const ApiDumpSettings& settings, 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkSharingMode(VkSharingMode object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSharingMode(const VkSharingMode& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5459,7 +5459,7 @@ void dump_json_VkSharingMode(VkSharingMode object, const ApiDumpSettings& settin
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkComponentSwizzle(VkComponentSwizzle object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkComponentSwizzle(const VkComponentSwizzle& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5488,7 +5488,7 @@ void dump_json_VkComponentSwizzle(VkComponentSwizzle object, const ApiDumpSettin
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkImageViewType(VkImageViewType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageViewType(const VkImageViewType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5517,7 +5517,7 @@ void dump_json_VkImageViewType(VkImageViewType object, const ApiDumpSettings& se
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkBlendFactor(VkBlendFactor object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBlendFactor(const VkBlendFactor& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5582,7 +5582,7 @@ void dump_json_VkBlendFactor(VkBlendFactor object, const ApiDumpSettings& settin
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkBlendOp(VkBlendOp object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBlendOp(const VkBlendOp& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5743,7 +5743,7 @@ void dump_json_VkBlendOp(VkBlendOp object, const ApiDumpSettings& settings, int 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkCompareOp(VkCompareOp object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCompareOp(const VkCompareOp& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -5775,7 +5775,7 @@ void dump_json_VkCompareOp(VkCompareOp object, const ApiDumpSettings& settings, 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDynamicState(VkDynamicState object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDynamicState(const VkDynamicState& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6002,7 +6002,7 @@ void dump_json_VkDynamicState(VkDynamicState object, const ApiDumpSettings& sett
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkFrontFace(VkFrontFace object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFrontFace(const VkFrontFace& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6016,7 +6016,7 @@ void dump_json_VkFrontFace(VkFrontFace object, const ApiDumpSettings& settings, 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkVertexInputRate(VkVertexInputRate object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVertexInputRate(const VkVertexInputRate& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6030,7 +6030,7 @@ void dump_json_VkVertexInputRate(VkVertexInputRate object, const ApiDumpSettings
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPrimitiveTopology(VkPrimitiveTopology object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPrimitiveTopology(const VkPrimitiveTopology& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6071,7 +6071,7 @@ void dump_json_VkPrimitiveTopology(VkPrimitiveTopology object, const ApiDumpSett
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPolygonMode(VkPolygonMode object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPolygonMode(const VkPolygonMode& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6091,7 +6091,7 @@ void dump_json_VkPolygonMode(VkPolygonMode object, const ApiDumpSettings& settin
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkStencilOp(VkStencilOp object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkStencilOp(const VkStencilOp& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6123,7 +6123,7 @@ void dump_json_VkStencilOp(VkStencilOp object, const ApiDumpSettings& settings, 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkLogicOp(VkLogicOp object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkLogicOp(const VkLogicOp& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6179,7 +6179,7 @@ void dump_json_VkLogicOp(VkLogicOp object, const ApiDumpSettings& settings, int 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkBorderColor(VkBorderColor object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBorderColor(const VkBorderColor& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6211,7 +6211,7 @@ void dump_json_VkBorderColor(VkBorderColor object, const ApiDumpSettings& settin
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkFilter(VkFilter object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFilter(const VkFilter& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6228,7 +6228,7 @@ void dump_json_VkFilter(VkFilter object, const ApiDumpSettings& settings, int in
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkSamplerAddressMode(VkSamplerAddressMode object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSamplerAddressMode(const VkSamplerAddressMode& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6251,7 +6251,7 @@ void dump_json_VkSamplerAddressMode(VkSamplerAddressMode object, const ApiDumpSe
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkSamplerMipmapMode(VkSamplerMipmapMode object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSamplerMipmapMode(const VkSamplerMipmapMode& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6265,7 +6265,7 @@ void dump_json_VkSamplerMipmapMode(VkSamplerMipmapMode object, const ApiDumpSett
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDescriptorType(VkDescriptorType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorType(const VkDescriptorType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6330,7 +6330,7 @@ void dump_json_VkDescriptorType(VkDescriptorType object, const ApiDumpSettings& 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkAttachmentLoadOp(VkAttachmentLoadOp object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAttachmentLoadOp(const VkAttachmentLoadOp& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6350,7 +6350,7 @@ void dump_json_VkAttachmentLoadOp(VkAttachmentLoadOp object, const ApiDumpSettin
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkAttachmentStoreOp(VkAttachmentStoreOp object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAttachmentStoreOp(const VkAttachmentStoreOp& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6367,7 +6367,7 @@ void dump_json_VkAttachmentStoreOp(VkAttachmentStoreOp object, const ApiDumpSett
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPipelineBindPoint(VkPipelineBindPoint object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineBindPoint(const VkPipelineBindPoint& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6390,7 +6390,7 @@ void dump_json_VkPipelineBindPoint(VkPipelineBindPoint object, const ApiDumpSett
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkCommandBufferLevel(VkCommandBufferLevel object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandBufferLevel(const VkCommandBufferLevel& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6404,7 +6404,7 @@ void dump_json_VkCommandBufferLevel(VkCommandBufferLevel object, const ApiDumpSe
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkIndexType(VkIndexType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndexType(const VkIndexType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6424,7 +6424,7 @@ void dump_json_VkIndexType(VkIndexType object, const ApiDumpSettings& settings, 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkSubpassContents(VkSubpassContents object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSubpassContents(const VkSubpassContents& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6441,7 +6441,7 @@ void dump_json_VkSubpassContents(VkSubpassContents object, const ApiDumpSettings
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPointClippingBehavior(VkPointClippingBehavior object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPointClippingBehavior(const VkPointClippingBehavior& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6455,7 +6455,7 @@ void dump_json_VkPointClippingBehavior(VkPointClippingBehavior object, const Api
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkTessellationDomainOrigin(VkTessellationDomainOrigin object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTessellationDomainOrigin(const VkTessellationDomainOrigin& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6469,7 +6469,7 @@ void dump_json_VkTessellationDomainOrigin(VkTessellationDomainOrigin object, con
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkSamplerYcbcrModelConversion(VkSamplerYcbcrModelConversion object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSamplerYcbcrModelConversion(const VkSamplerYcbcrModelConversion& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6492,7 +6492,7 @@ void dump_json_VkSamplerYcbcrModelConversion(VkSamplerYcbcrModelConversion objec
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkSamplerYcbcrRange(VkSamplerYcbcrRange object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSamplerYcbcrRange(const VkSamplerYcbcrRange& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6506,7 +6506,7 @@ void dump_json_VkSamplerYcbcrRange(VkSamplerYcbcrRange object, const ApiDumpSett
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkChromaLocation(VkChromaLocation object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkChromaLocation(const VkChromaLocation& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6520,7 +6520,7 @@ void dump_json_VkChromaLocation(VkChromaLocation object, const ApiDumpSettings& 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDescriptorUpdateTemplateType(VkDescriptorUpdateTemplateType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorUpdateTemplateType(const VkDescriptorUpdateTemplateType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6534,7 +6534,7 @@ void dump_json_VkDescriptorUpdateTemplateType(VkDescriptorUpdateTemplateType obj
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDriverId(VkDriverId object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDriverId(const VkDriverId& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6623,7 +6623,7 @@ void dump_json_VkDriverId(VkDriverId object, const ApiDumpSettings& settings, in
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkShaderFloatControlsIndependence(VkShaderFloatControlsIndependence object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderFloatControlsIndependence(const VkShaderFloatControlsIndependence& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6640,7 +6640,7 @@ void dump_json_VkShaderFloatControlsIndependence(VkShaderFloatControlsIndependen
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkSamplerReductionMode(VkSamplerReductionMode object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSamplerReductionMode(const VkSamplerReductionMode& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6660,7 +6660,7 @@ void dump_json_VkSamplerReductionMode(VkSamplerReductionMode object, const ApiDu
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkSemaphoreType(VkSemaphoreType object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSemaphoreType(const VkSemaphoreType& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6674,7 +6674,7 @@ void dump_json_VkSemaphoreType(VkSemaphoreType object, const ApiDumpSettings& se
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPipelineRobustnessBufferBehavior(VkPipelineRobustnessBufferBehavior object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineRobustnessBufferBehavior(const VkPipelineRobustnessBufferBehavior& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6694,7 +6694,7 @@ void dump_json_VkPipelineRobustnessBufferBehavior(VkPipelineRobustnessBufferBeha
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPipelineRobustnessImageBehavior(VkPipelineRobustnessImageBehavior object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineRobustnessImageBehavior(const VkPipelineRobustnessImageBehavior& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6714,7 +6714,7 @@ void dump_json_VkPipelineRobustnessImageBehavior(VkPipelineRobustnessImageBehavi
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkQueueGlobalPriority(VkQueueGlobalPriority object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueueGlobalPriority(const VkQueueGlobalPriority& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6734,7 +6734,7 @@ void dump_json_VkQueueGlobalPriority(VkQueueGlobalPriority object, const ApiDump
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkLineRasterizationMode(VkLineRasterizationMode object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkLineRasterizationMode(const VkLineRasterizationMode& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6754,7 +6754,7 @@ void dump_json_VkLineRasterizationMode(VkLineRasterizationMode object, const Api
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPresentModeKHR(VkPresentModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPresentModeKHR(const VkPresentModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6783,7 +6783,7 @@ void dump_json_VkPresentModeKHR(VkPresentModeKHR object, const ApiDumpSettings& 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkColorSpaceKHR(VkColorSpaceKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkColorSpaceKHR(const VkColorSpaceKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6839,7 +6839,7 @@ void dump_json_VkColorSpaceKHR(VkColorSpaceKHR object, const ApiDumpSettings& se
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkQueryResultStatusKHR(VkQueryResultStatusKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryResultStatusKHR(const VkQueryResultStatusKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6859,7 +6859,7 @@ void dump_json_VkQueryResultStatusKHR(VkQueryResultStatusKHR object, const ApiDu
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPerformanceCounterUnitKHR(VkPerformanceCounterUnitKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPerformanceCounterUnitKHR(const VkPerformanceCounterUnitKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6900,7 +6900,7 @@ void dump_json_VkPerformanceCounterUnitKHR(VkPerformanceCounterUnitKHR object, c
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPerformanceCounterScopeKHR(VkPerformanceCounterScopeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPerformanceCounterScopeKHR(const VkPerformanceCounterScopeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6917,7 +6917,7 @@ void dump_json_VkPerformanceCounterScopeKHR(VkPerformanceCounterScopeKHR object,
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPerformanceCounterStorageKHR(VkPerformanceCounterStorageKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPerformanceCounterStorageKHR(const VkPerformanceCounterStorageKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6943,7 +6943,7 @@ void dump_json_VkPerformanceCounterStorageKHR(VkPerformanceCounterStorageKHR obj
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkFragmentShadingRateCombinerOpKHR(VkFragmentShadingRateCombinerOpKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFragmentShadingRateCombinerOpKHR(const VkFragmentShadingRateCombinerOpKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6966,7 +6966,7 @@ void dump_json_VkFragmentShadingRateCombinerOpKHR(VkFragmentShadingRateCombinerO
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPipelineExecutableStatisticFormatKHR(VkPipelineExecutableStatisticFormatKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineExecutableStatisticFormatKHR(const VkPipelineExecutableStatisticFormatKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -6986,7 +6986,7 @@ void dump_json_VkPipelineExecutableStatisticFormatKHR(VkPipelineExecutableStatis
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkVideoEncodeTuningModeKHR(VkVideoEncodeTuningModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeTuningModeKHR(const VkVideoEncodeTuningModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7009,7 +7009,7 @@ void dump_json_VkVideoEncodeTuningModeKHR(VkVideoEncodeTuningModeKHR object, con
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkComponentTypeKHR(VkComponentTypeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkComponentTypeKHR(const VkComponentTypeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7065,7 +7065,7 @@ void dump_json_VkComponentTypeKHR(VkComponentTypeKHR object, const ApiDumpSettin
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkScopeKHR(VkScopeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkScopeKHR(const VkScopeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7085,7 +7085,7 @@ void dump_json_VkScopeKHR(VkScopeKHR object, const ApiDumpSettings& settings, in
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkVideoEncodeAV1PredictionModeKHR(VkVideoEncodeAV1PredictionModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeAV1PredictionModeKHR(const VkVideoEncodeAV1PredictionModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7105,7 +7105,7 @@ void dump_json_VkVideoEncodeAV1PredictionModeKHR(VkVideoEncodeAV1PredictionModeK
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkVideoEncodeAV1RateControlGroupKHR(VkVideoEncodeAV1RateControlGroupKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeAV1RateControlGroupKHR(const VkVideoEncodeAV1RateControlGroupKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7122,7 +7122,7 @@ void dump_json_VkVideoEncodeAV1RateControlGroupKHR(VkVideoEncodeAV1RateControlGr
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkTimeDomainKHR(VkTimeDomainKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTimeDomainKHR(const VkTimeDomainKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7142,7 +7142,7 @@ void dump_json_VkTimeDomainKHR(VkTimeDomainKHR object, const ApiDumpSettings& se
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPhysicalDeviceLayeredApiKHR(VkPhysicalDeviceLayeredApiKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPhysicalDeviceLayeredApiKHR(const VkPhysicalDeviceLayeredApiKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7165,7 +7165,7 @@ void dump_json_VkPhysicalDeviceLayeredApiKHR(VkPhysicalDeviceLayeredApiKHR objec
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDefaultVertexAttributeValueKHR(VkDefaultVertexAttributeValueKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDefaultVertexAttributeValueKHR(const VkDefaultVertexAttributeValueKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7179,7 +7179,7 @@ void dump_json_VkDefaultVertexAttributeValueKHR(VkDefaultVertexAttributeValueKHR
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDebugReportObjectTypeEXT(VkDebugReportObjectTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugReportObjectTypeEXT(const VkDebugReportObjectTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7310,7 +7310,7 @@ void dump_json_VkDebugReportObjectTypeEXT(VkDebugReportObjectTypeEXT object, con
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkRasterizationOrderAMD(VkRasterizationOrderAMD object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRasterizationOrderAMD(const VkRasterizationOrderAMD& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7324,7 +7324,7 @@ void dump_json_VkRasterizationOrderAMD(VkRasterizationOrderAMD object, const Api
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkShaderInfoTypeAMD(VkShaderInfoTypeAMD object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderInfoTypeAMD(const VkShaderInfoTypeAMD& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7341,7 +7341,7 @@ void dump_json_VkShaderInfoTypeAMD(VkShaderInfoTypeAMD object, const ApiDumpSett
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkValidationCheckEXT(VkValidationCheckEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkValidationCheckEXT(const VkValidationCheckEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7355,7 +7355,7 @@ void dump_json_VkValidationCheckEXT(VkValidationCheckEXT object, const ApiDumpSe
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDisplayPowerStateEXT(VkDisplayPowerStateEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDisplayPowerStateEXT(const VkDisplayPowerStateEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7372,7 +7372,7 @@ void dump_json_VkDisplayPowerStateEXT(VkDisplayPowerStateEXT object, const ApiDu
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDeviceEventTypeEXT(VkDeviceEventTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceEventTypeEXT(const VkDeviceEventTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7383,7 +7383,7 @@ void dump_json_VkDeviceEventTypeEXT(VkDeviceEventTypeEXT object, const ApiDumpSe
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDisplayEventTypeEXT(VkDisplayEventTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDisplayEventTypeEXT(const VkDisplayEventTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7394,7 +7394,7 @@ void dump_json_VkDisplayEventTypeEXT(VkDisplayEventTypeEXT object, const ApiDump
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkViewportCoordinateSwizzleNV(VkViewportCoordinateSwizzleNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkViewportCoordinateSwizzleNV(const VkViewportCoordinateSwizzleNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7426,7 +7426,7 @@ void dump_json_VkViewportCoordinateSwizzleNV(VkViewportCoordinateSwizzleNV objec
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDiscardRectangleModeEXT(VkDiscardRectangleModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDiscardRectangleModeEXT(const VkDiscardRectangleModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7440,7 +7440,7 @@ void dump_json_VkDiscardRectangleModeEXT(VkDiscardRectangleModeEXT object, const
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkConservativeRasterizationModeEXT(VkConservativeRasterizationModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkConservativeRasterizationModeEXT(const VkConservativeRasterizationModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7457,7 +7457,7 @@ void dump_json_VkConservativeRasterizationModeEXT(VkConservativeRasterizationMod
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkBlendOverlapEXT(VkBlendOverlapEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBlendOverlapEXT(const VkBlendOverlapEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7474,7 +7474,7 @@ void dump_json_VkBlendOverlapEXT(VkBlendOverlapEXT object, const ApiDumpSettings
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkCoverageModulationModeNV(VkCoverageModulationModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCoverageModulationModeNV(const VkCoverageModulationModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7494,7 +7494,7 @@ void dump_json_VkCoverageModulationModeNV(VkCoverageModulationModeNV object, con
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkValidationCacheHeaderVersionEXT(VkValidationCacheHeaderVersionEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkValidationCacheHeaderVersionEXT(const VkValidationCacheHeaderVersionEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7505,7 +7505,7 @@ void dump_json_VkValidationCacheHeaderVersionEXT(VkValidationCacheHeaderVersionE
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkShadingRatePaletteEntryNV(VkShadingRatePaletteEntryNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShadingRatePaletteEntryNV(const VkShadingRatePaletteEntryNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7549,7 +7549,7 @@ void dump_json_VkShadingRatePaletteEntryNV(VkShadingRatePaletteEntryNV object, c
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkCoarseSampleOrderTypeNV(VkCoarseSampleOrderTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCoarseSampleOrderTypeNV(const VkCoarseSampleOrderTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7569,7 +7569,7 @@ void dump_json_VkCoarseSampleOrderTypeNV(VkCoarseSampleOrderTypeNV object, const
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkRayTracingShaderGroupTypeKHR(VkRayTracingShaderGroupTypeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRayTracingShaderGroupTypeKHR(const VkRayTracingShaderGroupTypeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7586,7 +7586,7 @@ void dump_json_VkRayTracingShaderGroupTypeKHR(VkRayTracingShaderGroupTypeKHR obj
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkGeometryTypeKHR(VkGeometryTypeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkGeometryTypeKHR(const VkGeometryTypeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7609,7 +7609,7 @@ void dump_json_VkGeometryTypeKHR(VkGeometryTypeKHR object, const ApiDumpSettings
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureTypeKHR(const VkAccelerationStructureTypeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7626,7 +7626,7 @@ void dump_json_VkAccelerationStructureTypeKHR(VkAccelerationStructureTypeKHR obj
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkCopyAccelerationStructureModeKHR(VkCopyAccelerationStructureModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCopyAccelerationStructureModeKHR(const VkCopyAccelerationStructureModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7646,7 +7646,7 @@ void dump_json_VkCopyAccelerationStructureModeKHR(VkCopyAccelerationStructureMod
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkAccelerationStructureMemoryRequirementsTypeNV(VkAccelerationStructureMemoryRequirementsTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureMemoryRequirementsTypeNV(const VkAccelerationStructureMemoryRequirementsTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7663,7 +7663,7 @@ void dump_json_VkAccelerationStructureMemoryRequirementsTypeNV(VkAccelerationStr
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkMemoryOverallocationBehaviorAMD(VkMemoryOverallocationBehaviorAMD object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryOverallocationBehaviorAMD(const VkMemoryOverallocationBehaviorAMD& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7680,7 +7680,7 @@ void dump_json_VkMemoryOverallocationBehaviorAMD(VkMemoryOverallocationBehaviorA
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPerformanceConfigurationTypeINTEL(VkPerformanceConfigurationTypeINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPerformanceConfigurationTypeINTEL(const VkPerformanceConfigurationTypeINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7691,7 +7691,7 @@ void dump_json_VkPerformanceConfigurationTypeINTEL(VkPerformanceConfigurationTyp
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkQueryPoolSamplingModeINTEL(VkQueryPoolSamplingModeINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryPoolSamplingModeINTEL(const VkQueryPoolSamplingModeINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7702,7 +7702,7 @@ void dump_json_VkQueryPoolSamplingModeINTEL(VkQueryPoolSamplingModeINTEL object,
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPerformanceOverrideTypeINTEL(VkPerformanceOverrideTypeINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPerformanceOverrideTypeINTEL(const VkPerformanceOverrideTypeINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7716,7 +7716,7 @@ void dump_json_VkPerformanceOverrideTypeINTEL(VkPerformanceOverrideTypeINTEL obj
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPerformanceParameterTypeINTEL(VkPerformanceParameterTypeINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPerformanceParameterTypeINTEL(const VkPerformanceParameterTypeINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7730,7 +7730,7 @@ void dump_json_VkPerformanceParameterTypeINTEL(VkPerformanceParameterTypeINTEL o
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPerformanceValueTypeINTEL(VkPerformanceValueTypeINTEL object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPerformanceValueTypeINTEL(const VkPerformanceValueTypeINTEL& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7753,7 +7753,7 @@ void dump_json_VkPerformanceValueTypeINTEL(VkPerformanceValueTypeINTEL object, c
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkValidationFeatureEnableEXT(VkValidationFeatureEnableEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkValidationFeatureEnableEXT(const VkValidationFeatureEnableEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7776,7 +7776,7 @@ void dump_json_VkValidationFeatureEnableEXT(VkValidationFeatureEnableEXT object,
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkValidationFeatureDisableEXT(VkValidationFeatureDisableEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkValidationFeatureDisableEXT(const VkValidationFeatureDisableEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7808,7 +7808,7 @@ void dump_json_VkValidationFeatureDisableEXT(VkValidationFeatureDisableEXT objec
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkCoverageReductionModeNV(VkCoverageReductionModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCoverageReductionModeNV(const VkCoverageReductionModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7822,7 +7822,7 @@ void dump_json_VkCoverageReductionModeNV(VkCoverageReductionModeNV object, const
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkProvokingVertexModeEXT(VkProvokingVertexModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkProvokingVertexModeEXT(const VkProvokingVertexModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7837,7 +7837,7 @@ void dump_json_VkProvokingVertexModeEXT(VkProvokingVertexModeEXT object, const A
     }
 }
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_json_VkFullScreenExclusiveEXT(VkFullScreenExclusiveEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFullScreenExclusiveEXT(const VkFullScreenExclusiveEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7858,7 +7858,7 @@ void dump_json_VkFullScreenExclusiveEXT(VkFullScreenExclusiveEXT object, const A
     }
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
-void dump_json_VkIndirectCommandsTokenTypeNV(VkIndirectCommandsTokenTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectCommandsTokenTypeNV(const VkIndirectCommandsTokenTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7899,7 +7899,7 @@ void dump_json_VkIndirectCommandsTokenTypeNV(VkIndirectCommandsTokenTypeNV objec
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDepthBiasRepresentationEXT(VkDepthBiasRepresentationEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDepthBiasRepresentationEXT(const VkDepthBiasRepresentationEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7916,7 +7916,7 @@ void dump_json_VkDepthBiasRepresentationEXT(VkDepthBiasRepresentationEXT object,
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDeviceMemoryReportEventTypeEXT(VkDeviceMemoryReportEventTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceMemoryReportEventTypeEXT(const VkDeviceMemoryReportEventTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7939,7 +7939,7 @@ void dump_json_VkDeviceMemoryReportEventTypeEXT(VkDeviceMemoryReportEventTypeEXT
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkFragmentShadingRateTypeNV(VkFragmentShadingRateTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFragmentShadingRateTypeNV(const VkFragmentShadingRateTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7953,7 +7953,7 @@ void dump_json_VkFragmentShadingRateTypeNV(VkFragmentShadingRateTypeNV object, c
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkFragmentShadingRateNV(VkFragmentShadingRateNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFragmentShadingRateNV(const VkFragmentShadingRateNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -7997,7 +7997,7 @@ void dump_json_VkFragmentShadingRateNV(VkFragmentShadingRateNV object, const Api
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkAccelerationStructureMotionInstanceTypeNV(VkAccelerationStructureMotionInstanceTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureMotionInstanceTypeNV(const VkAccelerationStructureMotionInstanceTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8014,7 +8014,7 @@ void dump_json_VkAccelerationStructureMotionInstanceTypeNV(VkAccelerationStructu
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDeviceFaultAddressTypeEXT(VkDeviceFaultAddressTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceFaultAddressTypeEXT(const VkDeviceFaultAddressTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8043,7 +8043,7 @@ void dump_json_VkDeviceFaultAddressTypeEXT(VkDeviceFaultAddressTypeEXT object, c
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDeviceFaultVendorBinaryHeaderVersionEXT(VkDeviceFaultVendorBinaryHeaderVersionEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceFaultVendorBinaryHeaderVersionEXT(const VkDeviceFaultVendorBinaryHeaderVersionEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8054,7 +8054,7 @@ void dump_json_VkDeviceFaultVendorBinaryHeaderVersionEXT(VkDeviceFaultVendorBina
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDeviceAddressBindingTypeEXT(VkDeviceAddressBindingTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceAddressBindingTypeEXT(const VkDeviceAddressBindingTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8068,7 +8068,7 @@ void dump_json_VkDeviceAddressBindingTypeEXT(VkDeviceAddressBindingTypeEXT objec
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkMicromapTypeEXT(VkMicromapTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMicromapTypeEXT(const VkMicromapTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8082,7 +8082,7 @@ void dump_json_VkMicromapTypeEXT(VkMicromapTypeEXT object, const ApiDumpSettings
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkBuildMicromapModeEXT(VkBuildMicromapModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBuildMicromapModeEXT(const VkBuildMicromapModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8093,7 +8093,7 @@ void dump_json_VkBuildMicromapModeEXT(VkBuildMicromapModeEXT object, const ApiDu
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkCopyMicromapModeEXT(VkCopyMicromapModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCopyMicromapModeEXT(const VkCopyMicromapModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8113,7 +8113,7 @@ void dump_json_VkCopyMicromapModeEXT(VkCopyMicromapModeEXT object, const ApiDump
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkOpacityMicromapFormatEXT(VkOpacityMicromapFormatEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpacityMicromapFormatEXT(const VkOpacityMicromapFormatEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8127,7 +8127,7 @@ void dump_json_VkOpacityMicromapFormatEXT(VkOpacityMicromapFormatEXT object, con
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkOpacityMicromapSpecialIndexEXT(VkOpacityMicromapSpecialIndexEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpacityMicromapSpecialIndexEXT(const VkOpacityMicromapSpecialIndexEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8150,7 +8150,7 @@ void dump_json_VkOpacityMicromapSpecialIndexEXT(VkOpacityMicromapSpecialIndexEXT
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkAccelerationStructureCompatibilityKHR(VkAccelerationStructureCompatibilityKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureCompatibilityKHR(const VkAccelerationStructureCompatibilityKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8164,7 +8164,7 @@ void dump_json_VkAccelerationStructureCompatibilityKHR(VkAccelerationStructureCo
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkAccelerationStructureBuildTypeKHR(VkAccelerationStructureBuildTypeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureBuildTypeKHR(const VkAccelerationStructureBuildTypeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8182,7 +8182,7 @@ void dump_json_VkAccelerationStructureBuildTypeKHR(VkAccelerationStructureBuildT
     }
 }
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
-void dump_json_VkDisplacementMicromapFormatNV(VkDisplacementMicromapFormatNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDisplacementMicromapFormatNV(const VkDisplacementMicromapFormatNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8200,7 +8200,7 @@ void dump_json_VkDisplacementMicromapFormatNV(VkDisplacementMicromapFormatNV obj
     }
 }
 #endif // VK_ENABLE_BETA_EXTENSIONS
-void dump_json_VkRayTracingLssIndexingModeNV(VkRayTracingLssIndexingModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRayTracingLssIndexingModeNV(const VkRayTracingLssIndexingModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8214,7 +8214,7 @@ void dump_json_VkRayTracingLssIndexingModeNV(VkRayTracingLssIndexingModeNV objec
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkRayTracingLssPrimitiveEndCapsModeNV(VkRayTracingLssPrimitiveEndCapsModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRayTracingLssPrimitiveEndCapsModeNV(const VkRayTracingLssPrimitiveEndCapsModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8228,7 +8228,7 @@ void dump_json_VkRayTracingLssPrimitiveEndCapsModeNV(VkRayTracingLssPrimitiveEnd
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkSubpassMergeStatusEXT(VkSubpassMergeStatusEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSubpassMergeStatusEXT(const VkSubpassMergeStatusEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8278,7 +8278,7 @@ void dump_json_VkSubpassMergeStatusEXT(VkSubpassMergeStatusEXT object, const Api
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDirectDriverLoadingModeLUNARG(VkDirectDriverLoadingModeLUNARG object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDirectDriverLoadingModeLUNARG(const VkDirectDriverLoadingModeLUNARG& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8292,7 +8292,7 @@ void dump_json_VkDirectDriverLoadingModeLUNARG(VkDirectDriverLoadingModeLUNARG o
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkTensorTilingARM(VkTensorTilingARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTensorTilingARM(const VkTensorTilingARM& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8306,7 +8306,7 @@ void dump_json_VkTensorTilingARM(VkTensorTilingARM object, const ApiDumpSettings
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkOpticalFlowPerformanceLevelNV(VkOpticalFlowPerformanceLevelNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowPerformanceLevelNV(const VkOpticalFlowPerformanceLevelNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8326,7 +8326,7 @@ void dump_json_VkOpticalFlowPerformanceLevelNV(VkOpticalFlowPerformanceLevelNV o
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkOpticalFlowSessionBindingPointNV(VkOpticalFlowSessionBindingPointNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowSessionBindingPointNV(const VkOpticalFlowSessionBindingPointNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8361,7 +8361,7 @@ void dump_json_VkOpticalFlowSessionBindingPointNV(VkOpticalFlowSessionBindingPoi
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkAntiLagModeAMD(VkAntiLagModeAMD object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAntiLagModeAMD(const VkAntiLagModeAMD& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8378,7 +8378,7 @@ void dump_json_VkAntiLagModeAMD(VkAntiLagModeAMD object, const ApiDumpSettings& 
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkAntiLagStageAMD(VkAntiLagStageAMD object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAntiLagStageAMD(const VkAntiLagStageAMD& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8392,7 +8392,7 @@ void dump_json_VkAntiLagStageAMD(VkAntiLagStageAMD object, const ApiDumpSettings
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkShaderCodeTypeEXT(VkShaderCodeTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderCodeTypeEXT(const VkShaderCodeTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8406,7 +8406,7 @@ void dump_json_VkShaderCodeTypeEXT(VkShaderCodeTypeEXT object, const ApiDumpSett
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDepthClampModeEXT(VkDepthClampModeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDepthClampModeEXT(const VkDepthClampModeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8420,7 +8420,7 @@ void dump_json_VkDepthClampModeEXT(VkDepthClampModeEXT object, const ApiDumpSett
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkRayTracingInvocationReorderModeNV(VkRayTracingInvocationReorderModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRayTracingInvocationReorderModeNV(const VkRayTracingInvocationReorderModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8434,7 +8434,7 @@ void dump_json_VkRayTracingInvocationReorderModeNV(VkRayTracingInvocationReorder
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkCooperativeVectorMatrixLayoutNV(VkCooperativeVectorMatrixLayoutNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCooperativeVectorMatrixLayoutNV(const VkCooperativeVectorMatrixLayoutNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8454,7 +8454,7 @@ void dump_json_VkCooperativeVectorMatrixLayoutNV(VkCooperativeVectorMatrixLayout
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkLayerSettingTypeEXT(VkLayerSettingTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkLayerSettingTypeEXT(const VkLayerSettingTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8486,7 +8486,7 @@ void dump_json_VkLayerSettingTypeEXT(VkLayerSettingTypeEXT object, const ApiDump
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkLatencyMarkerNV(VkLatencyMarkerNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkLatencyMarkerNV(const VkLatencyMarkerNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8530,7 +8530,7 @@ void dump_json_VkLatencyMarkerNV(VkLatencyMarkerNV object, const ApiDumpSettings
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkOutOfBandQueueTypeNV(VkOutOfBandQueueTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOutOfBandQueueTypeNV(const VkOutOfBandQueueTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8544,7 +8544,7 @@ void dump_json_VkOutOfBandQueueTypeNV(VkOutOfBandQueueTypeNV object, const ApiDu
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkBlockMatchWindowCompareModeQCOM(VkBlockMatchWindowCompareModeQCOM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBlockMatchWindowCompareModeQCOM(const VkBlockMatchWindowCompareModeQCOM& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8558,7 +8558,7 @@ void dump_json_VkBlockMatchWindowCompareModeQCOM(VkBlockMatchWindowCompareModeQC
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkCubicFilterWeightsQCOM(VkCubicFilterWeightsQCOM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCubicFilterWeightsQCOM(const VkCubicFilterWeightsQCOM& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8578,7 +8578,7 @@ void dump_json_VkCubicFilterWeightsQCOM(VkCubicFilterWeightsQCOM object, const A
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkLayeredDriverUnderlyingApiMSFT(VkLayeredDriverUnderlyingApiMSFT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkLayeredDriverUnderlyingApiMSFT(const VkLayeredDriverUnderlyingApiMSFT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8592,7 +8592,7 @@ void dump_json_VkLayeredDriverUnderlyingApiMSFT(VkLayeredDriverUnderlyingApiMSFT
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkDisplaySurfaceStereoTypeNV(VkDisplaySurfaceStereoTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDisplaySurfaceStereoTypeNV(const VkDisplaySurfaceStereoTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8612,7 +8612,7 @@ void dump_json_VkDisplaySurfaceStereoTypeNV(VkDisplaySurfaceStereoTypeNV object,
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkClusterAccelerationStructureTypeNV(VkClusterAccelerationStructureTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureTypeNV(const VkClusterAccelerationStructureTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8629,7 +8629,7 @@ void dump_json_VkClusterAccelerationStructureTypeNV(VkClusterAccelerationStructu
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkClusterAccelerationStructureOpTypeNV(VkClusterAccelerationStructureOpTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureOpTypeNV(const VkClusterAccelerationStructureOpTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8652,7 +8652,7 @@ void dump_json_VkClusterAccelerationStructureOpTypeNV(VkClusterAccelerationStruc
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkClusterAccelerationStructureOpModeNV(VkClusterAccelerationStructureOpModeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureOpModeNV(const VkClusterAccelerationStructureOpModeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8669,7 +8669,7 @@ void dump_json_VkClusterAccelerationStructureOpModeNV(VkClusterAccelerationStruc
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkPartitionedAccelerationStructureOpTypeNV(VkPartitionedAccelerationStructureOpTypeNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPartitionedAccelerationStructureOpTypeNV(const VkPartitionedAccelerationStructureOpTypeNV& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8686,7 +8686,7 @@ void dump_json_VkPartitionedAccelerationStructureOpTypeNV(VkPartitionedAccelerat
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkIndirectExecutionSetInfoTypeEXT(VkIndirectExecutionSetInfoTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectExecutionSetInfoTypeEXT(const VkIndirectExecutionSetInfoTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8700,7 +8700,7 @@ void dump_json_VkIndirectExecutionSetInfoTypeEXT(VkIndirectExecutionSetInfoTypeE
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkIndirectCommandsTokenTypeEXT(VkIndirectCommandsTokenTypeEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectCommandsTokenTypeEXT(const VkIndirectCommandsTokenTypeEXT& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8753,7 +8753,7 @@ void dump_json_VkIndirectCommandsTokenTypeEXT(VkIndirectCommandsTokenTypeEXT obj
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkBuildAccelerationStructureModeKHR(VkBuildAccelerationStructureModeKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBuildAccelerationStructureModeKHR(const VkBuildAccelerationStructureModeKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8767,7 +8767,7 @@ void dump_json_VkBuildAccelerationStructureModeKHR(VkBuildAccelerationStructureM
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
-void dump_json_VkShaderGroupShaderKHR(VkShaderGroupShaderKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderGroupShaderKHR(const VkShaderGroupShaderKHR& object, const ApiDumpSettings& settings, int indents)
 {
     switch((int64_t) object)
     {
@@ -8790,7 +8790,7 @@ void dump_json_VkShaderGroupShaderKHR(VkShaderGroupShaderKHR object, const ApiDu
 
 //========================= Bitmask Implementations =========================//
 
-void dump_json_VkAccessFlagBits(VkAccessFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccessFlagBits(const VkAccessFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -8885,7 +8885,7 @@ void dump_json_VkAccessFlagBits(VkAccessFlagBits object, const ApiDumpSettings& 
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkImageAspectFlagBits(VkImageAspectFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageAspectFlagBits(const VkImageAspectFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -8929,7 +8929,7 @@ void dump_json_VkImageAspectFlagBits(VkImageAspectFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkFormatFeatureFlagBits(VkFormatFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFormatFeatureFlagBits(const VkFormatFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9030,7 +9030,7 @@ void dump_json_VkFormatFeatureFlagBits(VkFormatFeatureFlagBits object, const Api
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkImageCreateFlagBits(VkImageCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageCreateFlagBits(const VkImageCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9098,7 +9098,7 @@ void dump_json_VkImageCreateFlagBits(VkImageCreateFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSampleCountFlagBits(VkSampleCountFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSampleCountFlagBits(const VkSampleCountFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9127,7 +9127,7 @@ void dump_json_VkSampleCountFlagBits(VkSampleCountFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkImageUsageFlagBits(VkImageUsageFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageUsageFlagBits(const VkImageUsageFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9210,7 +9210,7 @@ void dump_json_VkImageUsageFlagBits(VkImageUsageFlagBits object, const ApiDumpSe
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkInstanceCreateFlagBits(VkInstanceCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkInstanceCreateFlagBits(const VkInstanceCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9221,7 +9221,7 @@ void dump_json_VkInstanceCreateFlagBits(VkInstanceCreateFlagBits object, const A
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkMemoryHeapFlagBits(VkMemoryHeapFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryHeapFlagBits(const VkMemoryHeapFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9238,7 +9238,7 @@ void dump_json_VkMemoryHeapFlagBits(VkMemoryHeapFlagBits object, const ApiDumpSe
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkMemoryPropertyFlagBits(VkMemoryPropertyFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryPropertyFlagBits(const VkMemoryPropertyFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9273,7 +9273,7 @@ void dump_json_VkMemoryPropertyFlagBits(VkMemoryPropertyFlagBits object, const A
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkQueueFlagBits(VkQueueFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueueFlagBits(const VkQueueFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9305,7 +9305,7 @@ void dump_json_VkQueueFlagBits(VkQueueFlagBits object, const ApiDumpSettings& se
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDeviceQueueCreateFlagBits(VkDeviceQueueCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceQueueCreateFlagBits(const VkDeviceQueueCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9316,7 +9316,7 @@ void dump_json_VkDeviceQueueCreateFlagBits(VkDeviceQueueCreateFlagBits object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineStageFlagBits(VkPipelineStageFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineStageFlagBits(const VkPipelineStageFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9405,7 +9405,7 @@ void dump_json_VkPipelineStageFlagBits(VkPipelineStageFlagBits object, const Api
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkMemoryMapFlagBits(VkMemoryMapFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryMapFlagBits(const VkMemoryMapFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9416,7 +9416,7 @@ void dump_json_VkMemoryMapFlagBits(VkMemoryMapFlagBits object, const ApiDumpSett
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSparseMemoryBindFlagBits(VkSparseMemoryBindFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSparseMemoryBindFlagBits(const VkSparseMemoryBindFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9427,7 +9427,7 @@ void dump_json_VkSparseMemoryBindFlagBits(VkSparseMemoryBindFlagBits object, con
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSparseImageFormatFlagBits(VkSparseImageFormatFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSparseImageFormatFlagBits(const VkSparseImageFormatFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9444,7 +9444,7 @@ void dump_json_VkSparseImageFormatFlagBits(VkSparseImageFormatFlagBits object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkFenceCreateFlagBits(VkFenceCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFenceCreateFlagBits(const VkFenceCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9455,7 +9455,7 @@ void dump_json_VkFenceCreateFlagBits(VkFenceCreateFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkEventCreateFlagBits(VkEventCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkEventCreateFlagBits(const VkEventCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9466,7 +9466,7 @@ void dump_json_VkEventCreateFlagBits(VkEventCreateFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkQueryPipelineStatisticFlagBits(VkQueryPipelineStatisticFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryPipelineStatisticFlagBits(const VkQueryPipelineStatisticFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9516,7 +9516,7 @@ void dump_json_VkQueryPipelineStatisticFlagBits(VkQueryPipelineStatisticFlagBits
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkQueryPoolCreateFlagBits(VkQueryPoolCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryPoolCreateFlagBits(const VkQueryPoolCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9527,7 +9527,7 @@ void dump_json_VkQueryPoolCreateFlagBits(VkQueryPoolCreateFlagBits object, const
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkQueryResultFlagBits(VkQueryResultFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryResultFlagBits(const VkQueryResultFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9550,7 +9550,7 @@ void dump_json_VkQueryResultFlagBits(VkQueryResultFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkBufferCreateFlagBits(VkBufferCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBufferCreateFlagBits(const VkBufferCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9579,7 +9579,7 @@ void dump_json_VkBufferCreateFlagBits(VkBufferCreateFlagBits object, const ApiDu
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkBufferUsageFlagBits(VkBufferUsageFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBufferUsageFlagBits(const VkBufferUsageFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9668,7 +9668,7 @@ void dump_json_VkBufferUsageFlagBits(VkBufferUsageFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkImageViewCreateFlagBits(VkImageViewCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageViewCreateFlagBits(const VkImageViewCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9685,7 +9685,7 @@ void dump_json_VkImageViewCreateFlagBits(VkImageViewCreateFlagBits object, const
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineCacheCreateFlagBits(VkPipelineCacheCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCacheCreateFlagBits(const VkPipelineCacheCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9699,7 +9699,7 @@ void dump_json_VkPipelineCacheCreateFlagBits(VkPipelineCacheCreateFlagBits objec
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkColorComponentFlagBits(VkColorComponentFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkColorComponentFlagBits(const VkColorComponentFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9719,7 +9719,7 @@ void dump_json_VkColorComponentFlagBits(VkColorComponentFlagBits object, const A
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineCreateFlagBits(VkPipelineCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCreateFlagBits(const VkPipelineCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9820,7 +9820,7 @@ void dump_json_VkPipelineCreateFlagBits(VkPipelineCreateFlagBits object, const A
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineShaderStageCreateFlagBits(VkPipelineShaderStageCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineShaderStageCreateFlagBits(const VkPipelineShaderStageCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9834,7 +9834,7 @@ void dump_json_VkPipelineShaderStageCreateFlagBits(VkPipelineShaderStageCreateFl
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkShaderStageFlagBits(VkShaderStageFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderStageFlagBits(const VkShaderStageFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9896,7 +9896,7 @@ void dump_json_VkShaderStageFlagBits(VkShaderStageFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkCullModeFlagBits(VkCullModeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCullModeFlagBits(const VkCullModeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9916,7 +9916,7 @@ void dump_json_VkCullModeFlagBits(VkCullModeFlagBits object, const ApiDumpSettin
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineDepthStencilStateCreateFlagBits(VkPipelineDepthStencilStateCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineDepthStencilStateCreateFlagBits(const VkPipelineDepthStencilStateCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9930,7 +9930,7 @@ void dump_json_VkPipelineDepthStencilStateCreateFlagBits(VkPipelineDepthStencilS
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineColorBlendStateCreateFlagBits(VkPipelineColorBlendStateCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineColorBlendStateCreateFlagBits(const VkPipelineColorBlendStateCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9941,7 +9941,7 @@ void dump_json_VkPipelineColorBlendStateCreateFlagBits(VkPipelineColorBlendState
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineLayoutCreateFlagBits(VkPipelineLayoutCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineLayoutCreateFlagBits(const VkPipelineLayoutCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9952,7 +9952,7 @@ void dump_json_VkPipelineLayoutCreateFlagBits(VkPipelineLayoutCreateFlagBits obj
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSamplerCreateFlagBits(VkSamplerCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSamplerCreateFlagBits(const VkSamplerCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9975,7 +9975,7 @@ void dump_json_VkSamplerCreateFlagBits(VkSamplerCreateFlagBits object, const Api
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDescriptorPoolCreateFlagBits(VkDescriptorPoolCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorPoolCreateFlagBits(const VkDescriptorPoolCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -9998,7 +9998,7 @@ void dump_json_VkDescriptorPoolCreateFlagBits(VkDescriptorPoolCreateFlagBits obj
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDescriptorSetLayoutCreateFlagBits(VkDescriptorSetLayoutCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorSetLayoutCreateFlagBits(const VkDescriptorSetLayoutCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10027,7 +10027,7 @@ void dump_json_VkDescriptorSetLayoutCreateFlagBits(VkDescriptorSetLayoutCreateFl
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkAttachmentDescriptionFlagBits(VkAttachmentDescriptionFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAttachmentDescriptionFlagBits(const VkAttachmentDescriptionFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10038,7 +10038,7 @@ void dump_json_VkAttachmentDescriptionFlagBits(VkAttachmentDescriptionFlagBits o
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDependencyFlagBits(VkDependencyFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDependencyFlagBits(const VkDependencyFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10064,7 +10064,7 @@ void dump_json_VkDependencyFlagBits(VkDependencyFlagBits object, const ApiDumpSe
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkFramebufferCreateFlagBits(VkFramebufferCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFramebufferCreateFlagBits(const VkFramebufferCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10075,7 +10075,7 @@ void dump_json_VkFramebufferCreateFlagBits(VkFramebufferCreateFlagBits object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkRenderPassCreateFlagBits(VkRenderPassCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRenderPassCreateFlagBits(const VkRenderPassCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10089,7 +10089,7 @@ void dump_json_VkRenderPassCreateFlagBits(VkRenderPassCreateFlagBits object, con
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSubpassDescriptionFlagBits(VkSubpassDescriptionFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSubpassDescriptionFlagBits(const VkSubpassDescriptionFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10124,7 +10124,7 @@ void dump_json_VkSubpassDescriptionFlagBits(VkSubpassDescriptionFlagBits object,
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkCommandPoolCreateFlagBits(VkCommandPoolCreateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandPoolCreateFlagBits(const VkCommandPoolCreateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10141,7 +10141,7 @@ void dump_json_VkCommandPoolCreateFlagBits(VkCommandPoolCreateFlagBits object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkCommandPoolResetFlagBits(VkCommandPoolResetFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandPoolResetFlagBits(const VkCommandPoolResetFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10152,7 +10152,7 @@ void dump_json_VkCommandPoolResetFlagBits(VkCommandPoolResetFlagBits object, con
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkCommandBufferUsageFlagBits(VkCommandBufferUsageFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandBufferUsageFlagBits(const VkCommandBufferUsageFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10169,7 +10169,7 @@ void dump_json_VkCommandBufferUsageFlagBits(VkCommandBufferUsageFlagBits object,
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkQueryControlFlagBits(VkQueryControlFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryControlFlagBits(const VkQueryControlFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10180,7 +10180,7 @@ void dump_json_VkQueryControlFlagBits(VkQueryControlFlagBits object, const ApiDu
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkCommandBufferResetFlagBits(VkCommandBufferResetFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandBufferResetFlagBits(const VkCommandBufferResetFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10191,7 +10191,7 @@ void dump_json_VkCommandBufferResetFlagBits(VkCommandBufferResetFlagBits object,
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkStencilFaceFlagBits(VkStencilFaceFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkStencilFaceFlagBits(const VkStencilFaceFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10208,7 +10208,7 @@ void dump_json_VkStencilFaceFlagBits(VkStencilFaceFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSubgroupFeatureFlagBits(VkSubgroupFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSubgroupFeatureFlagBits(const VkSubgroupFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10249,7 +10249,7 @@ void dump_json_VkSubgroupFeatureFlagBits(VkSubgroupFeatureFlagBits object, const
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPeerMemoryFeatureFlagBits(VkPeerMemoryFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPeerMemoryFeatureFlagBits(const VkPeerMemoryFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10269,7 +10269,7 @@ void dump_json_VkPeerMemoryFeatureFlagBits(VkPeerMemoryFeatureFlagBits object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkMemoryAllocateFlagBits(VkMemoryAllocateFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryAllocateFlagBits(const VkMemoryAllocateFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10289,7 +10289,7 @@ void dump_json_VkMemoryAllocateFlagBits(VkMemoryAllocateFlagBits object, const A
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkExternalMemoryHandleTypeFlagBits(VkExternalMemoryHandleTypeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalMemoryHandleTypeFlagBits(const VkExternalMemoryHandleTypeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10348,7 +10348,7 @@ void dump_json_VkExternalMemoryHandleTypeFlagBits(VkExternalMemoryHandleTypeFlag
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkExternalMemoryFeatureFlagBits(VkExternalMemoryFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalMemoryFeatureFlagBits(const VkExternalMemoryFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10365,7 +10365,7 @@ void dump_json_VkExternalMemoryFeatureFlagBits(VkExternalMemoryFeatureFlagBits o
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkExternalFenceHandleTypeFlagBits(VkExternalFenceHandleTypeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalFenceHandleTypeFlagBits(const VkExternalFenceHandleTypeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10385,7 +10385,7 @@ void dump_json_VkExternalFenceHandleTypeFlagBits(VkExternalFenceHandleTypeFlagBi
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkExternalFenceFeatureFlagBits(VkExternalFenceFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalFenceFeatureFlagBits(const VkExternalFenceFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10399,7 +10399,7 @@ void dump_json_VkExternalFenceFeatureFlagBits(VkExternalFenceFeatureFlagBits obj
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkFenceImportFlagBits(VkFenceImportFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFenceImportFlagBits(const VkFenceImportFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10410,7 +10410,7 @@ void dump_json_VkFenceImportFlagBits(VkFenceImportFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSemaphoreImportFlagBits(VkSemaphoreImportFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSemaphoreImportFlagBits(const VkSemaphoreImportFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10421,7 +10421,7 @@ void dump_json_VkSemaphoreImportFlagBits(VkSemaphoreImportFlagBits object, const
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkExternalSemaphoreHandleTypeFlagBits(VkExternalSemaphoreHandleTypeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalSemaphoreHandleTypeFlagBits(const VkExternalSemaphoreHandleTypeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10447,7 +10447,7 @@ void dump_json_VkExternalSemaphoreHandleTypeFlagBits(VkExternalSemaphoreHandleTy
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkExternalSemaphoreFeatureFlagBits(VkExternalSemaphoreFeatureFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalSemaphoreFeatureFlagBits(const VkExternalSemaphoreFeatureFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10461,7 +10461,7 @@ void dump_json_VkExternalSemaphoreFeatureFlagBits(VkExternalSemaphoreFeatureFlag
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkResolveModeFlagBits(VkResolveModeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkResolveModeFlagBits(const VkResolveModeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10487,7 +10487,7 @@ void dump_json_VkResolveModeFlagBits(VkResolveModeFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDescriptorBindingFlagBits(VkDescriptorBindingFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorBindingFlagBits(const VkDescriptorBindingFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10507,7 +10507,7 @@ void dump_json_VkDescriptorBindingFlagBits(VkDescriptorBindingFlagBits object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSemaphoreWaitFlagBits(VkSemaphoreWaitFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSemaphoreWaitFlagBits(const VkSemaphoreWaitFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10518,7 +10518,7 @@ void dump_json_VkSemaphoreWaitFlagBits(VkSemaphoreWaitFlagBits object, const Api
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineCreationFeedbackFlagBits(VkPipelineCreationFeedbackFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCreationFeedbackFlagBits(const VkPipelineCreationFeedbackFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10535,7 +10535,7 @@ void dump_json_VkPipelineCreationFeedbackFlagBits(VkPipelineCreationFeedbackFlag
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkToolPurposeFlagBits(VkToolPurposeFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkToolPurposeFlagBits(const VkToolPurposeFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10564,7 +10564,7 @@ void dump_json_VkToolPurposeFlagBits(VkToolPurposeFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineStageFlagBits2(VkPipelineStageFlagBits2 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineStageFlagBits2(const VkPipelineStageFlagBits2& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10701,7 +10701,7 @@ void dump_json_VkPipelineStageFlagBits2(VkPipelineStageFlagBits2 object, const A
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkAccessFlagBits2(VkAccessFlagBits2 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccessFlagBits2(const VkAccessFlagBits2& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10844,7 +10844,7 @@ void dump_json_VkAccessFlagBits2(VkAccessFlagBits2 object, const ApiDumpSettings
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSubmitFlagBits(VkSubmitFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSubmitFlagBits(const VkSubmitFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10855,7 +10855,7 @@ void dump_json_VkSubmitFlagBits(VkSubmitFlagBits object, const ApiDumpSettings& 
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkRenderingFlagBits(VkRenderingFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRenderingFlagBits(const VkRenderingFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -10881,7 +10881,7 @@ void dump_json_VkRenderingFlagBits(VkRenderingFlagBits object, const ApiDumpSett
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkFormatFeatureFlagBits2(VkFormatFeatureFlagBits2 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFormatFeatureFlagBits2(const VkFormatFeatureFlagBits2& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11033,7 +11033,7 @@ void dump_json_VkFormatFeatureFlagBits2(VkFormatFeatureFlagBits2 object, const A
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkMemoryUnmapFlagBits(VkMemoryUnmapFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryUnmapFlagBits(const VkMemoryUnmapFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11044,7 +11044,7 @@ void dump_json_VkMemoryUnmapFlagBits(VkMemoryUnmapFlagBits object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineCreateFlagBits2(VkPipelineCreateFlagBits2 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCreateFlagBits2(const VkPipelineCreateFlagBits2& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11166,7 +11166,7 @@ void dump_json_VkPipelineCreateFlagBits2(VkPipelineCreateFlagBits2 object, const
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkBufferUsageFlagBits2(VkBufferUsageFlagBits2 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBufferUsageFlagBits2(const VkBufferUsageFlagBits2& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11258,7 +11258,7 @@ void dump_json_VkBufferUsageFlagBits2(VkBufferUsageFlagBits2 object, const ApiDu
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkHostImageCopyFlagBits(VkHostImageCopyFlagBits object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkHostImageCopyFlagBits(const VkHostImageCopyFlagBits& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11269,7 +11269,7 @@ void dump_json_VkHostImageCopyFlagBits(VkHostImageCopyFlagBits object, const Api
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSurfaceTransformFlagBitsKHR(VkSurfaceTransformFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSurfaceTransformFlagBitsKHR(const VkSurfaceTransformFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11304,7 +11304,7 @@ void dump_json_VkSurfaceTransformFlagBitsKHR(VkSurfaceTransformFlagBitsKHR objec
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkCompositeAlphaFlagBitsKHR(VkCompositeAlphaFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCompositeAlphaFlagBitsKHR(const VkCompositeAlphaFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11324,7 +11324,7 @@ void dump_json_VkCompositeAlphaFlagBitsKHR(VkCompositeAlphaFlagBitsKHR object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSwapchainCreateFlagBitsKHR(VkSwapchainCreateFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSwapchainCreateFlagBitsKHR(const VkSwapchainCreateFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11350,7 +11350,7 @@ void dump_json_VkSwapchainCreateFlagBitsKHR(VkSwapchainCreateFlagBitsKHR object,
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDeviceGroupPresentModeFlagBitsKHR(VkDeviceGroupPresentModeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceGroupPresentModeFlagBitsKHR(const VkDeviceGroupPresentModeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11370,7 +11370,7 @@ void dump_json_VkDeviceGroupPresentModeFlagBitsKHR(VkDeviceGroupPresentModeFlagB
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDisplayPlaneAlphaFlagBitsKHR(VkDisplayPlaneAlphaFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDisplayPlaneAlphaFlagBitsKHR(const VkDisplayPlaneAlphaFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11390,7 +11390,7 @@ void dump_json_VkDisplayPlaneAlphaFlagBitsKHR(VkDisplayPlaneAlphaFlagBitsKHR obj
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoCodecOperationFlagBitsKHR(VkVideoCodecOperationFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoCodecOperationFlagBitsKHR(const VkVideoCodecOperationFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11422,7 +11422,7 @@ void dump_json_VkVideoCodecOperationFlagBitsKHR(VkVideoCodecOperationFlagBitsKHR
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoChromaSubsamplingFlagBitsKHR(VkVideoChromaSubsamplingFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoChromaSubsamplingFlagBitsKHR(const VkVideoChromaSubsamplingFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11445,7 +11445,7 @@ void dump_json_VkVideoChromaSubsamplingFlagBitsKHR(VkVideoChromaSubsamplingFlagB
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoComponentBitDepthFlagBitsKHR(VkVideoComponentBitDepthFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoComponentBitDepthFlagBitsKHR(const VkVideoComponentBitDepthFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11465,7 +11465,7 @@ void dump_json_VkVideoComponentBitDepthFlagBitsKHR(VkVideoComponentBitDepthFlagB
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoCapabilityFlagBitsKHR(VkVideoCapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoCapabilityFlagBitsKHR(const VkVideoCapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11479,7 +11479,7 @@ void dump_json_VkVideoCapabilityFlagBitsKHR(VkVideoCapabilityFlagBitsKHR object,
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoSessionCreateFlagBitsKHR(VkVideoSessionCreateFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoSessionCreateFlagBitsKHR(const VkVideoSessionCreateFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11505,7 +11505,7 @@ void dump_json_VkVideoSessionCreateFlagBitsKHR(VkVideoSessionCreateFlagBitsKHR o
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoSessionParametersCreateFlagBitsKHR(VkVideoSessionParametersCreateFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoSessionParametersCreateFlagBitsKHR(const VkVideoSessionParametersCreateFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11516,7 +11516,7 @@ void dump_json_VkVideoSessionParametersCreateFlagBitsKHR(VkVideoSessionParameter
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoCodingControlFlagBitsKHR(VkVideoCodingControlFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoCodingControlFlagBitsKHR(const VkVideoCodingControlFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11533,7 +11533,7 @@ void dump_json_VkVideoCodingControlFlagBitsKHR(VkVideoCodingControlFlagBitsKHR o
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoDecodeCapabilityFlagBitsKHR(VkVideoDecodeCapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoDecodeCapabilityFlagBitsKHR(const VkVideoDecodeCapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11547,7 +11547,7 @@ void dump_json_VkVideoDecodeCapabilityFlagBitsKHR(VkVideoDecodeCapabilityFlagBit
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoDecodeUsageFlagBitsKHR(VkVideoDecodeUsageFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoDecodeUsageFlagBitsKHR(const VkVideoDecodeUsageFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11567,7 +11567,7 @@ void dump_json_VkVideoDecodeUsageFlagBitsKHR(VkVideoDecodeUsageFlagBitsKHR objec
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeH264CapabilityFlagBitsKHR(VkVideoEncodeH264CapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH264CapabilityFlagBitsKHR(const VkVideoEncodeH264CapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11605,7 +11605,7 @@ void dump_json_VkVideoEncodeH264CapabilityFlagBitsKHR(VkVideoEncodeH264Capabilit
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeH264StdFlagBitsKHR(VkVideoEncodeH264StdFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH264StdFlagBitsKHR(const VkVideoEncodeH264StdFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11673,7 +11673,7 @@ void dump_json_VkVideoEncodeH264StdFlagBitsKHR(VkVideoEncodeH264StdFlagBitsKHR o
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeH264RateControlFlagBitsKHR(VkVideoEncodeH264RateControlFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH264RateControlFlagBitsKHR(const VkVideoEncodeH264RateControlFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11696,7 +11696,7 @@ void dump_json_VkVideoEncodeH264RateControlFlagBitsKHR(VkVideoEncodeH264RateCont
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeH265CapabilityFlagBitsKHR(VkVideoEncodeH265CapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH265CapabilityFlagBitsKHR(const VkVideoEncodeH265CapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11737,7 +11737,7 @@ void dump_json_VkVideoEncodeH265CapabilityFlagBitsKHR(VkVideoEncodeH265Capabilit
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeH265StdFlagBitsKHR(VkVideoEncodeH265StdFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH265StdFlagBitsKHR(const VkVideoEncodeH265StdFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11808,7 +11808,7 @@ void dump_json_VkVideoEncodeH265StdFlagBitsKHR(VkVideoEncodeH265StdFlagBitsKHR o
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeH265CtbSizeFlagBitsKHR(VkVideoEncodeH265CtbSizeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH265CtbSizeFlagBitsKHR(const VkVideoEncodeH265CtbSizeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11825,7 +11825,7 @@ void dump_json_VkVideoEncodeH265CtbSizeFlagBitsKHR(VkVideoEncodeH265CtbSizeFlagB
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeH265TransformBlockSizeFlagBitsKHR(VkVideoEncodeH265TransformBlockSizeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH265TransformBlockSizeFlagBitsKHR(const VkVideoEncodeH265TransformBlockSizeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11845,7 +11845,7 @@ void dump_json_VkVideoEncodeH265TransformBlockSizeFlagBitsKHR(VkVideoEncodeH265T
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeH265RateControlFlagBitsKHR(VkVideoEncodeH265RateControlFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH265RateControlFlagBitsKHR(const VkVideoEncodeH265RateControlFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11868,7 +11868,7 @@ void dump_json_VkVideoEncodeH265RateControlFlagBitsKHR(VkVideoEncodeH265RateCont
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoDecodeH264PictureLayoutFlagBitsKHR(VkVideoDecodeH264PictureLayoutFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoDecodeH264PictureLayoutFlagBitsKHR(const VkVideoDecodeH264PictureLayoutFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11885,7 +11885,7 @@ void dump_json_VkVideoDecodeH264PictureLayoutFlagBitsKHR(VkVideoDecodeH264Pictur
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPerformanceCounterDescriptionFlagBitsKHR(VkPerformanceCounterDescriptionFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPerformanceCounterDescriptionFlagBitsKHR(const VkPerformanceCounterDescriptionFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11899,7 +11899,7 @@ void dump_json_VkPerformanceCounterDescriptionFlagBitsKHR(VkPerformanceCounterDe
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkAcquireProfilingLockFlagBitsKHR(VkAcquireProfilingLockFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAcquireProfilingLockFlagBitsKHR(const VkAcquireProfilingLockFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11907,7 +11907,7 @@ void dump_json_VkAcquireProfilingLockFlagBitsKHR(VkAcquireProfilingLockFlagBitsK
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeFlagBitsKHR(VkVideoEncodeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeFlagBitsKHR(const VkVideoEncodeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11921,7 +11921,7 @@ void dump_json_VkVideoEncodeFlagBitsKHR(VkVideoEncodeFlagBitsKHR object, const A
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeCapabilityFlagBitsKHR(VkVideoEncodeCapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeCapabilityFlagBitsKHR(const VkVideoEncodeCapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11941,7 +11941,7 @@ void dump_json_VkVideoEncodeCapabilityFlagBitsKHR(VkVideoEncodeCapabilityFlagBit
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeRateControlModeFlagBitsKHR(VkVideoEncodeRateControlModeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeRateControlModeFlagBitsKHR(const VkVideoEncodeRateControlModeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11961,7 +11961,7 @@ void dump_json_VkVideoEncodeRateControlModeFlagBitsKHR(VkVideoEncodeRateControlM
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeFeedbackFlagBitsKHR(VkVideoEncodeFeedbackFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeFeedbackFlagBitsKHR(const VkVideoEncodeFeedbackFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -11978,7 +11978,7 @@ void dump_json_VkVideoEncodeFeedbackFlagBitsKHR(VkVideoEncodeFeedbackFlagBitsKHR
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeUsageFlagBitsKHR(VkVideoEncodeUsageFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeUsageFlagBitsKHR(const VkVideoEncodeUsageFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12001,7 +12001,7 @@ void dump_json_VkVideoEncodeUsageFlagBitsKHR(VkVideoEncodeUsageFlagBitsKHR objec
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeContentFlagBitsKHR(VkVideoEncodeContentFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeContentFlagBitsKHR(const VkVideoEncodeContentFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12021,7 +12021,7 @@ void dump_json_VkVideoEncodeContentFlagBitsKHR(VkVideoEncodeContentFlagBitsKHR o
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeAV1CapabilityFlagBitsKHR(VkVideoEncodeAV1CapabilityFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeAV1CapabilityFlagBitsKHR(const VkVideoEncodeAV1CapabilityFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12044,7 +12044,7 @@ void dump_json_VkVideoEncodeAV1CapabilityFlagBitsKHR(VkVideoEncodeAV1CapabilityF
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeAV1StdFlagBitsKHR(VkVideoEncodeAV1StdFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeAV1StdFlagBitsKHR(const VkVideoEncodeAV1StdFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12064,7 +12064,7 @@ void dump_json_VkVideoEncodeAV1StdFlagBitsKHR(VkVideoEncodeAV1StdFlagBitsKHR obj
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeAV1SuperblockSizeFlagBitsKHR(VkVideoEncodeAV1SuperblockSizeFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeAV1SuperblockSizeFlagBitsKHR(const VkVideoEncodeAV1SuperblockSizeFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12078,7 +12078,7 @@ void dump_json_VkVideoEncodeAV1SuperblockSizeFlagBitsKHR(VkVideoEncodeAV1Superbl
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkVideoEncodeAV1RateControlFlagBitsKHR(VkVideoEncodeAV1RateControlFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeAV1RateControlFlagBitsKHR(const VkVideoEncodeAV1RateControlFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12098,7 +12098,7 @@ void dump_json_VkVideoEncodeAV1RateControlFlagBitsKHR(VkVideoEncodeAV1RateContro
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkAccessFlagBits3KHR(VkAccessFlagBits3KHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccessFlagBits3KHR(const VkAccessFlagBits3KHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12109,7 +12109,7 @@ void dump_json_VkAccessFlagBits3KHR(VkAccessFlagBits3KHR object, const ApiDumpSe
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDebugReportFlagBitsEXT(VkDebugReportFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugReportFlagBitsEXT(const VkDebugReportFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12132,7 +12132,7 @@ void dump_json_VkDebugReportFlagBitsEXT(VkDebugReportFlagBitsEXT object, const A
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkExternalMemoryHandleTypeFlagBitsNV(VkExternalMemoryHandleTypeFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalMemoryHandleTypeFlagBitsNV(const VkExternalMemoryHandleTypeFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12152,7 +12152,7 @@ void dump_json_VkExternalMemoryHandleTypeFlagBitsNV(VkExternalMemoryHandleTypeFl
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkExternalMemoryFeatureFlagBitsNV(VkExternalMemoryFeatureFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalMemoryFeatureFlagBitsNV(const VkExternalMemoryFeatureFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12169,7 +12169,7 @@ void dump_json_VkExternalMemoryFeatureFlagBitsNV(VkExternalMemoryFeatureFlagBits
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkConditionalRenderingFlagBitsEXT(VkConditionalRenderingFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkConditionalRenderingFlagBitsEXT(const VkConditionalRenderingFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12180,7 +12180,7 @@ void dump_json_VkConditionalRenderingFlagBitsEXT(VkConditionalRenderingFlagBitsE
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkSurfaceCounterFlagBitsEXT(VkSurfaceCounterFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSurfaceCounterFlagBitsEXT(const VkSurfaceCounterFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12191,7 +12191,7 @@ void dump_json_VkSurfaceCounterFlagBitsEXT(VkSurfaceCounterFlagBitsEXT object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDebugUtilsMessageSeverityFlagBitsEXT(VkDebugUtilsMessageSeverityFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugUtilsMessageSeverityFlagBitsEXT(const VkDebugUtilsMessageSeverityFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12211,7 +12211,7 @@ void dump_json_VkDebugUtilsMessageSeverityFlagBitsEXT(VkDebugUtilsMessageSeverit
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDebugUtilsMessageTypeFlagBitsEXT(VkDebugUtilsMessageTypeFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugUtilsMessageTypeFlagBitsEXT(const VkDebugUtilsMessageTypeFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12231,7 +12231,7 @@ void dump_json_VkDebugUtilsMessageTypeFlagBitsEXT(VkDebugUtilsMessageTypeFlagBit
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkGeometryFlagBitsKHR(VkGeometryFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkGeometryFlagBitsKHR(const VkGeometryFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12245,7 +12245,7 @@ void dump_json_VkGeometryFlagBitsKHR(VkGeometryFlagBitsKHR object, const ApiDump
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkGeometryInstanceFlagBitsKHR(VkGeometryInstanceFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkGeometryInstanceFlagBitsKHR(const VkGeometryInstanceFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12271,7 +12271,7 @@ void dump_json_VkGeometryInstanceFlagBitsKHR(VkGeometryInstanceFlagBitsKHR objec
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkBuildAccelerationStructureFlagBitsKHR(VkBuildAccelerationStructureFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBuildAccelerationStructureFlagBitsKHR(const VkBuildAccelerationStructureFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12312,7 +12312,7 @@ void dump_json_VkBuildAccelerationStructureFlagBitsKHR(VkBuildAccelerationStruct
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPipelineCompilerControlFlagBitsAMD(VkPipelineCompilerControlFlagBitsAMD object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCompilerControlFlagBitsAMD(const VkPipelineCompilerControlFlagBitsAMD& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12320,7 +12320,7 @@ void dump_json_VkPipelineCompilerControlFlagBitsAMD(VkPipelineCompilerControlFla
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkShaderCorePropertiesFlagBitsAMD(VkShaderCorePropertiesFlagBitsAMD object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderCorePropertiesFlagBitsAMD(const VkShaderCorePropertiesFlagBitsAMD& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12328,7 +12328,7 @@ void dump_json_VkShaderCorePropertiesFlagBitsAMD(VkShaderCorePropertiesFlagBitsA
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPresentScalingFlagBitsEXT(VkPresentScalingFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPresentScalingFlagBitsEXT(const VkPresentScalingFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12345,7 +12345,7 @@ void dump_json_VkPresentScalingFlagBitsEXT(VkPresentScalingFlagBitsEXT object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPresentGravityFlagBitsEXT(VkPresentGravityFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPresentGravityFlagBitsEXT(const VkPresentGravityFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12362,7 +12362,7 @@ void dump_json_VkPresentGravityFlagBitsEXT(VkPresentGravityFlagBitsEXT object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkIndirectStateFlagBitsNV(VkIndirectStateFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectStateFlagBitsNV(const VkIndirectStateFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12373,7 +12373,7 @@ void dump_json_VkIndirectStateFlagBitsNV(VkIndirectStateFlagBitsNV object, const
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkIndirectCommandsLayoutUsageFlagBitsNV(VkIndirectCommandsLayoutUsageFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectCommandsLayoutUsageFlagBitsNV(const VkIndirectCommandsLayoutUsageFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12390,7 +12390,7 @@ void dump_json_VkIndirectCommandsLayoutUsageFlagBitsNV(VkIndirectCommandsLayoutU
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDeviceDiagnosticsConfigFlagBitsNV(VkDeviceDiagnosticsConfigFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceDiagnosticsConfigFlagBitsNV(const VkDeviceDiagnosticsConfigFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12410,7 +12410,7 @@ void dump_json_VkDeviceDiagnosticsConfigFlagBitsNV(VkDeviceDiagnosticsConfigFlag
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkTileShadingRenderPassFlagBitsQCOM(VkTileShadingRenderPassFlagBitsQCOM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTileShadingRenderPassFlagBitsQCOM(const VkTileShadingRenderPassFlagBitsQCOM& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12425,7 +12425,7 @@ void dump_json_VkTileShadingRenderPassFlagBitsQCOM(VkTileShadingRenderPassFlagBi
     settings.stream() << "\"";
 }
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_json_VkExportMetalObjectTypeFlagBitsEXT(VkExportMetalObjectTypeFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExportMetalObjectTypeFlagBitsEXT(const VkExportMetalObjectTypeFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12452,7 +12452,7 @@ void dump_json_VkExportMetalObjectTypeFlagBitsEXT(VkExportMetalObjectTypeFlagBit
     settings.stream() << "\"";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
-void dump_json_VkGraphicsPipelineLibraryFlagBitsEXT(VkGraphicsPipelineLibraryFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkGraphicsPipelineLibraryFlagBitsEXT(const VkGraphicsPipelineLibraryFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12472,7 +12472,7 @@ void dump_json_VkGraphicsPipelineLibraryFlagBitsEXT(VkGraphicsPipelineLibraryFla
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkImageCompressionFlagBitsEXT(VkImageCompressionFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageCompressionFlagBitsEXT(const VkImageCompressionFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12492,7 +12492,7 @@ void dump_json_VkImageCompressionFlagBitsEXT(VkImageCompressionFlagBitsEXT objec
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkImageCompressionFixedRateFlagBitsEXT(VkImageCompressionFixedRateFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageCompressionFixedRateFlagBitsEXT(const VkImageCompressionFixedRateFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12575,7 +12575,7 @@ void dump_json_VkImageCompressionFixedRateFlagBitsEXT(VkImageCompressionFixedRat
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkDeviceAddressBindingFlagBitsEXT(VkDeviceAddressBindingFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceAddressBindingFlagBitsEXT(const VkDeviceAddressBindingFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12587,7 +12587,7 @@ void dump_json_VkDeviceAddressBindingFlagBitsEXT(VkDeviceAddressBindingFlagBitsE
     settings.stream() << "\"";
 }
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_json_VkImageConstraintsInfoFlagBitsFUCHSIA(VkImageConstraintsInfoFlagBitsFUCHSIA object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageConstraintsInfoFlagBitsFUCHSIA(const VkImageConstraintsInfoFlagBitsFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12611,7 +12611,7 @@ void dump_json_VkImageConstraintsInfoFlagBitsFUCHSIA(VkImageConstraintsInfoFlagB
     settings.stream() << "\"";
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
-void dump_json_VkFrameBoundaryFlagBitsEXT(VkFrameBoundaryFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFrameBoundaryFlagBitsEXT(const VkFrameBoundaryFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12622,7 +12622,7 @@ void dump_json_VkFrameBoundaryFlagBitsEXT(VkFrameBoundaryFlagBitsEXT object, con
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkBuildMicromapFlagBitsEXT(VkBuildMicromapFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBuildMicromapFlagBitsEXT(const VkBuildMicromapFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12639,7 +12639,7 @@ void dump_json_VkBuildMicromapFlagBitsEXT(VkBuildMicromapFlagBitsEXT object, con
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkMicromapCreateFlagBitsEXT(VkMicromapCreateFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMicromapCreateFlagBitsEXT(const VkMicromapCreateFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12650,7 +12650,7 @@ void dump_json_VkMicromapCreateFlagBitsEXT(VkMicromapCreateFlagBitsEXT object, c
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPhysicalDeviceSchedulingControlsFlagBitsARM(VkPhysicalDeviceSchedulingControlsFlagBitsARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPhysicalDeviceSchedulingControlsFlagBitsARM(const VkPhysicalDeviceSchedulingControlsFlagBitsARM& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12661,7 +12661,7 @@ void dump_json_VkPhysicalDeviceSchedulingControlsFlagBitsARM(VkPhysicalDeviceSch
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkMemoryDecompressionMethodFlagBitsNV(VkMemoryDecompressionMethodFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryDecompressionMethodFlagBitsNV(const VkMemoryDecompressionMethodFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12672,7 +12672,7 @@ void dump_json_VkMemoryDecompressionMethodFlagBitsNV(VkMemoryDecompressionMethod
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkTensorCreateFlagBitsARM(VkTensorCreateFlagBitsARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTensorCreateFlagBitsARM(const VkTensorCreateFlagBitsARM& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12689,7 +12689,7 @@ void dump_json_VkTensorCreateFlagBitsARM(VkTensorCreateFlagBitsARM object, const
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkTensorViewCreateFlagBitsARM(VkTensorViewCreateFlagBitsARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTensorViewCreateFlagBitsARM(const VkTensorViewCreateFlagBitsARM& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12700,7 +12700,7 @@ void dump_json_VkTensorViewCreateFlagBitsARM(VkTensorViewCreateFlagBitsARM objec
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkTensorUsageFlagBitsARM(VkTensorUsageFlagBitsARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTensorUsageFlagBitsARM(const VkTensorUsageFlagBitsARM& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12720,7 +12720,7 @@ void dump_json_VkTensorUsageFlagBitsARM(VkTensorUsageFlagBitsARM object, const A
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkOpticalFlowGridSizeFlagBitsNV(VkOpticalFlowGridSizeFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowGridSizeFlagBitsNV(const VkOpticalFlowGridSizeFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12743,7 +12743,7 @@ void dump_json_VkOpticalFlowGridSizeFlagBitsNV(VkOpticalFlowGridSizeFlagBitsNV o
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkOpticalFlowUsageFlagBitsNV(VkOpticalFlowUsageFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowUsageFlagBitsNV(const VkOpticalFlowUsageFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12769,7 +12769,7 @@ void dump_json_VkOpticalFlowUsageFlagBitsNV(VkOpticalFlowUsageFlagBitsNV object,
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkOpticalFlowSessionCreateFlagBitsNV(VkOpticalFlowSessionCreateFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowSessionCreateFlagBitsNV(const VkOpticalFlowSessionCreateFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12792,7 +12792,7 @@ void dump_json_VkOpticalFlowSessionCreateFlagBitsNV(VkOpticalFlowSessionCreateFl
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkOpticalFlowExecuteFlagBitsNV(VkOpticalFlowExecuteFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowExecuteFlagBitsNV(const VkOpticalFlowExecuteFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12803,7 +12803,7 @@ void dump_json_VkOpticalFlowExecuteFlagBitsNV(VkOpticalFlowExecuteFlagBitsNV obj
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkShaderCreateFlagBitsEXT(VkShaderCreateFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderCreateFlagBitsEXT(const VkShaderCreateFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12835,7 +12835,7 @@ void dump_json_VkShaderCreateFlagBitsEXT(VkShaderCreateFlagBitsEXT object, const
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkClusterAccelerationStructureAddressResolutionFlagBitsNV(VkClusterAccelerationStructureAddressResolutionFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureAddressResolutionFlagBitsNV(const VkClusterAccelerationStructureAddressResolutionFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12861,7 +12861,7 @@ void dump_json_VkClusterAccelerationStructureAddressResolutionFlagBitsNV(VkClust
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkClusterAccelerationStructureClusterFlagBitsNV(VkClusterAccelerationStructureClusterFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureClusterFlagBitsNV(const VkClusterAccelerationStructureClusterFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12872,7 +12872,7 @@ void dump_json_VkClusterAccelerationStructureClusterFlagBitsNV(VkClusterAccelera
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkClusterAccelerationStructureGeometryFlagBitsNV(VkClusterAccelerationStructureGeometryFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureGeometryFlagBitsNV(const VkClusterAccelerationStructureGeometryFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12889,7 +12889,7 @@ void dump_json_VkClusterAccelerationStructureGeometryFlagBitsNV(VkClusterAcceler
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkClusterAccelerationStructureIndexFormatFlagBitsNV(VkClusterAccelerationStructureIndexFormatFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureIndexFormatFlagBitsNV(const VkClusterAccelerationStructureIndexFormatFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12906,7 +12906,7 @@ void dump_json_VkClusterAccelerationStructureIndexFormatFlagBitsNV(VkClusterAcce
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkPartitionedAccelerationStructureInstanceFlagBitsNV(VkPartitionedAccelerationStructureInstanceFlagBitsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPartitionedAccelerationStructureInstanceFlagBitsNV(const VkPartitionedAccelerationStructureInstanceFlagBitsNV& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12929,7 +12929,7 @@ void dump_json_VkPartitionedAccelerationStructureInstanceFlagBitsNV(VkPartitione
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkIndirectCommandsInputModeFlagBitsEXT(VkIndirectCommandsInputModeFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectCommandsInputModeFlagBitsEXT(const VkIndirectCommandsInputModeFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12943,7 +12943,7 @@ void dump_json_VkIndirectCommandsInputModeFlagBitsEXT(VkIndirectCommandsInputMod
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkIndirectCommandsLayoutUsageFlagBitsEXT(VkIndirectCommandsLayoutUsageFlagBitsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectCommandsLayoutUsageFlagBitsEXT(const VkIndirectCommandsLayoutUsageFlagBitsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12957,7 +12957,7 @@ void dump_json_VkIndirectCommandsLayoutUsageFlagBitsEXT(VkIndirectCommandsLayout
         settings.stream() << ')';
     settings.stream() << "\"";
 }
-void dump_json_VkAccelerationStructureCreateFlagBitsKHR(VkAccelerationStructureCreateFlagBitsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureCreateFlagBitsKHR(const VkAccelerationStructureCreateFlagBitsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     bool is_first = true;
     settings.stream() << '"' << object;
@@ -12977,854 +12977,854 @@ void dump_json_VkAccelerationStructureCreateFlagBitsKHR(VkAccelerationStructureC
 
 //=========================== Flag Implementations ==========================//
 
-void dump_json_VkAccessFlags(VkAccessFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccessFlags(const VkAccessFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkAccessFlagBits((VkAccessFlagBits) object, settings, indents);
 }
-void dump_json_VkImageAspectFlags(VkImageAspectFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageAspectFlags(const VkImageAspectFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkImageAspectFlagBits((VkImageAspectFlagBits) object, settings, indents);
 }
-void dump_json_VkFormatFeatureFlags(VkFormatFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFormatFeatureFlags(const VkFormatFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkFormatFeatureFlagBits((VkFormatFeatureFlagBits) object, settings, indents);
 }
-void dump_json_VkImageCreateFlags(VkImageCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageCreateFlags(const VkImageCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkImageCreateFlagBits((VkImageCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkSampleCountFlags(VkSampleCountFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSampleCountFlags(const VkSampleCountFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSampleCountFlagBits((VkSampleCountFlagBits) object, settings, indents);
 }
-void dump_json_VkImageUsageFlags(VkImageUsageFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageUsageFlags(const VkImageUsageFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkImageUsageFlagBits((VkImageUsageFlagBits) object, settings, indents);
 }
-void dump_json_VkInstanceCreateFlags(VkInstanceCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkInstanceCreateFlags(const VkInstanceCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkInstanceCreateFlagBits((VkInstanceCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkMemoryHeapFlags(VkMemoryHeapFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryHeapFlags(const VkMemoryHeapFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkMemoryHeapFlagBits((VkMemoryHeapFlagBits) object, settings, indents);
 }
-void dump_json_VkMemoryPropertyFlags(VkMemoryPropertyFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryPropertyFlags(const VkMemoryPropertyFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkMemoryPropertyFlagBits((VkMemoryPropertyFlagBits) object, settings, indents);
 }
-void dump_json_VkQueueFlags(VkQueueFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueueFlags(const VkQueueFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkQueueFlagBits((VkQueueFlagBits) object, settings, indents);
 }
-void dump_json_VkDeviceQueueCreateFlags(VkDeviceQueueCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceQueueCreateFlags(const VkDeviceQueueCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDeviceQueueCreateFlagBits((VkDeviceQueueCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkPipelineStageFlags(VkPipelineStageFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineStageFlags(const VkPipelineStageFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineStageFlagBits((VkPipelineStageFlagBits) object, settings, indents);
 }
-void dump_json_VkMemoryMapFlags(VkMemoryMapFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryMapFlags(const VkMemoryMapFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkMemoryMapFlagBits((VkMemoryMapFlagBits) object, settings, indents);
 }
-void dump_json_VkSparseMemoryBindFlags(VkSparseMemoryBindFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSparseMemoryBindFlags(const VkSparseMemoryBindFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSparseMemoryBindFlagBits((VkSparseMemoryBindFlagBits) object, settings, indents);
 }
-void dump_json_VkSparseImageFormatFlags(VkSparseImageFormatFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSparseImageFormatFlags(const VkSparseImageFormatFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSparseImageFormatFlagBits((VkSparseImageFormatFlagBits) object, settings, indents);
 }
-void dump_json_VkFenceCreateFlags(VkFenceCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFenceCreateFlags(const VkFenceCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkFenceCreateFlagBits((VkFenceCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkEventCreateFlags(VkEventCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkEventCreateFlags(const VkEventCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkEventCreateFlagBits((VkEventCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkQueryPipelineStatisticFlags(VkQueryPipelineStatisticFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryPipelineStatisticFlags(const VkQueryPipelineStatisticFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkQueryPipelineStatisticFlagBits((VkQueryPipelineStatisticFlagBits) object, settings, indents);
 }
-void dump_json_VkQueryPoolCreateFlags(VkQueryPoolCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryPoolCreateFlags(const VkQueryPoolCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkQueryPoolCreateFlagBits((VkQueryPoolCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkQueryResultFlags(VkQueryResultFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryResultFlags(const VkQueryResultFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkQueryResultFlagBits((VkQueryResultFlagBits) object, settings, indents);
 }
-void dump_json_VkBufferCreateFlags(VkBufferCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBufferCreateFlags(const VkBufferCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkBufferCreateFlagBits((VkBufferCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkBufferUsageFlags(VkBufferUsageFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBufferUsageFlags(const VkBufferUsageFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkBufferUsageFlagBits((VkBufferUsageFlagBits) object, settings, indents);
 }
-void dump_json_VkImageViewCreateFlags(VkImageViewCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageViewCreateFlags(const VkImageViewCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkImageViewCreateFlagBits((VkImageViewCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkPipelineCacheCreateFlags(VkPipelineCacheCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCacheCreateFlags(const VkPipelineCacheCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineCacheCreateFlagBits((VkPipelineCacheCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkColorComponentFlags(VkColorComponentFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkColorComponentFlags(const VkColorComponentFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkColorComponentFlagBits((VkColorComponentFlagBits) object, settings, indents);
 }
-void dump_json_VkPipelineCreateFlags(VkPipelineCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCreateFlags(const VkPipelineCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineCreateFlagBits((VkPipelineCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkPipelineShaderStageCreateFlags(VkPipelineShaderStageCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineShaderStageCreateFlags(const VkPipelineShaderStageCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineShaderStageCreateFlagBits((VkPipelineShaderStageCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkShaderStageFlags(VkShaderStageFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderStageFlags(const VkShaderStageFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkShaderStageFlagBits((VkShaderStageFlagBits) object, settings, indents);
 }
-void dump_json_VkCullModeFlags(VkCullModeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCullModeFlags(const VkCullModeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkCullModeFlagBits((VkCullModeFlagBits) object, settings, indents);
 }
-void dump_json_VkPipelineDepthStencilStateCreateFlags(VkPipelineDepthStencilStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineDepthStencilStateCreateFlags(const VkPipelineDepthStencilStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineDepthStencilStateCreateFlagBits((VkPipelineDepthStencilStateCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkPipelineColorBlendStateCreateFlags(VkPipelineColorBlendStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineColorBlendStateCreateFlags(const VkPipelineColorBlendStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineColorBlendStateCreateFlagBits((VkPipelineColorBlendStateCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkPipelineLayoutCreateFlags(VkPipelineLayoutCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineLayoutCreateFlags(const VkPipelineLayoutCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineLayoutCreateFlagBits((VkPipelineLayoutCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkSamplerCreateFlags(VkSamplerCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSamplerCreateFlags(const VkSamplerCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSamplerCreateFlagBits((VkSamplerCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkDescriptorPoolCreateFlags(VkDescriptorPoolCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorPoolCreateFlags(const VkDescriptorPoolCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDescriptorPoolCreateFlagBits((VkDescriptorPoolCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkDescriptorSetLayoutCreateFlags(VkDescriptorSetLayoutCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorSetLayoutCreateFlags(const VkDescriptorSetLayoutCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDescriptorSetLayoutCreateFlagBits((VkDescriptorSetLayoutCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkAttachmentDescriptionFlags(VkAttachmentDescriptionFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAttachmentDescriptionFlags(const VkAttachmentDescriptionFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkAttachmentDescriptionFlagBits((VkAttachmentDescriptionFlagBits) object, settings, indents);
 }
-void dump_json_VkDependencyFlags(VkDependencyFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDependencyFlags(const VkDependencyFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDependencyFlagBits((VkDependencyFlagBits) object, settings, indents);
 }
-void dump_json_VkFramebufferCreateFlags(VkFramebufferCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFramebufferCreateFlags(const VkFramebufferCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkFramebufferCreateFlagBits((VkFramebufferCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkRenderPassCreateFlags(VkRenderPassCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRenderPassCreateFlags(const VkRenderPassCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkRenderPassCreateFlagBits((VkRenderPassCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkSubpassDescriptionFlags(VkSubpassDescriptionFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSubpassDescriptionFlags(const VkSubpassDescriptionFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSubpassDescriptionFlagBits((VkSubpassDescriptionFlagBits) object, settings, indents);
 }
-void dump_json_VkCommandPoolCreateFlags(VkCommandPoolCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandPoolCreateFlags(const VkCommandPoolCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkCommandPoolCreateFlagBits((VkCommandPoolCreateFlagBits) object, settings, indents);
 }
-void dump_json_VkCommandPoolResetFlags(VkCommandPoolResetFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandPoolResetFlags(const VkCommandPoolResetFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkCommandPoolResetFlagBits((VkCommandPoolResetFlagBits) object, settings, indents);
 }
-void dump_json_VkCommandBufferUsageFlags(VkCommandBufferUsageFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandBufferUsageFlags(const VkCommandBufferUsageFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkCommandBufferUsageFlagBits((VkCommandBufferUsageFlagBits) object, settings, indents);
 }
-void dump_json_VkQueryControlFlags(VkQueryControlFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkQueryControlFlags(const VkQueryControlFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkQueryControlFlagBits((VkQueryControlFlagBits) object, settings, indents);
 }
-void dump_json_VkCommandBufferResetFlags(VkCommandBufferResetFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandBufferResetFlags(const VkCommandBufferResetFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkCommandBufferResetFlagBits((VkCommandBufferResetFlagBits) object, settings, indents);
 }
-void dump_json_VkStencilFaceFlags(VkStencilFaceFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkStencilFaceFlags(const VkStencilFaceFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkStencilFaceFlagBits((VkStencilFaceFlagBits) object, settings, indents);
 }
-void dump_json_VkSubgroupFeatureFlags(VkSubgroupFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSubgroupFeatureFlags(const VkSubgroupFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSubgroupFeatureFlagBits((VkSubgroupFeatureFlagBits) object, settings, indents);
 }
-void dump_json_VkPeerMemoryFeatureFlags(VkPeerMemoryFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPeerMemoryFeatureFlags(const VkPeerMemoryFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPeerMemoryFeatureFlagBits((VkPeerMemoryFeatureFlagBits) object, settings, indents);
 }
-void dump_json_VkMemoryAllocateFlags(VkMemoryAllocateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryAllocateFlags(const VkMemoryAllocateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkMemoryAllocateFlagBits((VkMemoryAllocateFlagBits) object, settings, indents);
 }
-void dump_json_VkExternalMemoryHandleTypeFlags(VkExternalMemoryHandleTypeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalMemoryHandleTypeFlags(const VkExternalMemoryHandleTypeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkExternalMemoryHandleTypeFlagBits((VkExternalMemoryHandleTypeFlagBits) object, settings, indents);
 }
-void dump_json_VkExternalMemoryFeatureFlags(VkExternalMemoryFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalMemoryFeatureFlags(const VkExternalMemoryFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkExternalMemoryFeatureFlagBits((VkExternalMemoryFeatureFlagBits) object, settings, indents);
 }
-void dump_json_VkExternalFenceHandleTypeFlags(VkExternalFenceHandleTypeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalFenceHandleTypeFlags(const VkExternalFenceHandleTypeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkExternalFenceHandleTypeFlagBits((VkExternalFenceHandleTypeFlagBits) object, settings, indents);
 }
-void dump_json_VkExternalFenceFeatureFlags(VkExternalFenceFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalFenceFeatureFlags(const VkExternalFenceFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkExternalFenceFeatureFlagBits((VkExternalFenceFeatureFlagBits) object, settings, indents);
 }
-void dump_json_VkFenceImportFlags(VkFenceImportFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFenceImportFlags(const VkFenceImportFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkFenceImportFlagBits((VkFenceImportFlagBits) object, settings, indents);
 }
-void dump_json_VkSemaphoreImportFlags(VkSemaphoreImportFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSemaphoreImportFlags(const VkSemaphoreImportFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSemaphoreImportFlagBits((VkSemaphoreImportFlagBits) object, settings, indents);
 }
-void dump_json_VkExternalSemaphoreHandleTypeFlags(VkExternalSemaphoreHandleTypeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalSemaphoreHandleTypeFlags(const VkExternalSemaphoreHandleTypeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkExternalSemaphoreHandleTypeFlagBits((VkExternalSemaphoreHandleTypeFlagBits) object, settings, indents);
 }
-void dump_json_VkExternalSemaphoreFeatureFlags(VkExternalSemaphoreFeatureFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalSemaphoreFeatureFlags(const VkExternalSemaphoreFeatureFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkExternalSemaphoreFeatureFlagBits((VkExternalSemaphoreFeatureFlagBits) object, settings, indents);
 }
-void dump_json_VkResolveModeFlags(VkResolveModeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkResolveModeFlags(const VkResolveModeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkResolveModeFlagBits((VkResolveModeFlagBits) object, settings, indents);
 }
-void dump_json_VkDescriptorBindingFlags(VkDescriptorBindingFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorBindingFlags(const VkDescriptorBindingFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDescriptorBindingFlagBits((VkDescriptorBindingFlagBits) object, settings, indents);
 }
-void dump_json_VkSemaphoreWaitFlags(VkSemaphoreWaitFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSemaphoreWaitFlags(const VkSemaphoreWaitFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSemaphoreWaitFlagBits((VkSemaphoreWaitFlagBits) object, settings, indents);
 }
-void dump_json_VkPipelineCreationFeedbackFlags(VkPipelineCreationFeedbackFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCreationFeedbackFlags(const VkPipelineCreationFeedbackFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineCreationFeedbackFlagBits((VkPipelineCreationFeedbackFlagBits) object, settings, indents);
 }
-void dump_json_VkToolPurposeFlags(VkToolPurposeFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkToolPurposeFlags(const VkToolPurposeFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkToolPurposeFlagBits((VkToolPurposeFlagBits) object, settings, indents);
 }
-void dump_json_VkPipelineStageFlags2(VkPipelineStageFlags2 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineStageFlags2(const VkPipelineStageFlags2& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineStageFlagBits2((VkPipelineStageFlagBits2) object, settings, indents);
 }
-void dump_json_VkAccessFlags2(VkAccessFlags2 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccessFlags2(const VkAccessFlags2& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkAccessFlagBits2((VkAccessFlagBits2) object, settings, indents);
 }
-void dump_json_VkSubmitFlags(VkSubmitFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSubmitFlags(const VkSubmitFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSubmitFlagBits((VkSubmitFlagBits) object, settings, indents);
 }
-void dump_json_VkRenderingFlags(VkRenderingFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkRenderingFlags(const VkRenderingFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkRenderingFlagBits((VkRenderingFlagBits) object, settings, indents);
 }
-void dump_json_VkFormatFeatureFlags2(VkFormatFeatureFlags2 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFormatFeatureFlags2(const VkFormatFeatureFlags2& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkFormatFeatureFlagBits2((VkFormatFeatureFlagBits2) object, settings, indents);
 }
-void dump_json_VkMemoryUnmapFlags(VkMemoryUnmapFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryUnmapFlags(const VkMemoryUnmapFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkMemoryUnmapFlagBits((VkMemoryUnmapFlagBits) object, settings, indents);
 }
-void dump_json_VkPipelineCreateFlags2(VkPipelineCreateFlags2 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCreateFlags2(const VkPipelineCreateFlags2& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineCreateFlagBits2((VkPipelineCreateFlagBits2) object, settings, indents);
 }
-void dump_json_VkBufferUsageFlags2(VkBufferUsageFlags2 object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBufferUsageFlags2(const VkBufferUsageFlags2& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkBufferUsageFlagBits2((VkBufferUsageFlagBits2) object, settings, indents);
 }
-void dump_json_VkHostImageCopyFlags(VkHostImageCopyFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkHostImageCopyFlags(const VkHostImageCopyFlags& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkHostImageCopyFlagBits((VkHostImageCopyFlagBits) object, settings, indents);
 }
-void dump_json_VkSurfaceTransformFlagsKHR(VkSurfaceTransformFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSurfaceTransformFlagsKHR(const VkSurfaceTransformFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSurfaceTransformFlagBitsKHR((VkSurfaceTransformFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkCompositeAlphaFlagsKHR(VkCompositeAlphaFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCompositeAlphaFlagsKHR(const VkCompositeAlphaFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkCompositeAlphaFlagBitsKHR((VkCompositeAlphaFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkSwapchainCreateFlagsKHR(VkSwapchainCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSwapchainCreateFlagsKHR(const VkSwapchainCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSwapchainCreateFlagBitsKHR((VkSwapchainCreateFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkDeviceGroupPresentModeFlagsKHR(VkDeviceGroupPresentModeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceGroupPresentModeFlagsKHR(const VkDeviceGroupPresentModeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDeviceGroupPresentModeFlagBitsKHR((VkDeviceGroupPresentModeFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkDisplayPlaneAlphaFlagsKHR(VkDisplayPlaneAlphaFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDisplayPlaneAlphaFlagsKHR(const VkDisplayPlaneAlphaFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDisplayPlaneAlphaFlagBitsKHR((VkDisplayPlaneAlphaFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoCodecOperationFlagsKHR(VkVideoCodecOperationFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoCodecOperationFlagsKHR(const VkVideoCodecOperationFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoCodecOperationFlagBitsKHR((VkVideoCodecOperationFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoChromaSubsamplingFlagsKHR(VkVideoChromaSubsamplingFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoChromaSubsamplingFlagsKHR(const VkVideoChromaSubsamplingFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoChromaSubsamplingFlagBitsKHR((VkVideoChromaSubsamplingFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoComponentBitDepthFlagsKHR(VkVideoComponentBitDepthFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoComponentBitDepthFlagsKHR(const VkVideoComponentBitDepthFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoComponentBitDepthFlagBitsKHR((VkVideoComponentBitDepthFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoCapabilityFlagsKHR(VkVideoCapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoCapabilityFlagsKHR(const VkVideoCapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoCapabilityFlagBitsKHR((VkVideoCapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoSessionCreateFlagsKHR(VkVideoSessionCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoSessionCreateFlagsKHR(const VkVideoSessionCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoSessionCreateFlagBitsKHR((VkVideoSessionCreateFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoSessionParametersCreateFlagsKHR(VkVideoSessionParametersCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoSessionParametersCreateFlagsKHR(const VkVideoSessionParametersCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoSessionParametersCreateFlagBitsKHR((VkVideoSessionParametersCreateFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoCodingControlFlagsKHR(VkVideoCodingControlFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoCodingControlFlagsKHR(const VkVideoCodingControlFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoCodingControlFlagBitsKHR((VkVideoCodingControlFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoDecodeCapabilityFlagsKHR(VkVideoDecodeCapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoDecodeCapabilityFlagsKHR(const VkVideoDecodeCapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoDecodeCapabilityFlagBitsKHR((VkVideoDecodeCapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoDecodeUsageFlagsKHR(VkVideoDecodeUsageFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoDecodeUsageFlagsKHR(const VkVideoDecodeUsageFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoDecodeUsageFlagBitsKHR((VkVideoDecodeUsageFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeH264CapabilityFlagsKHR(VkVideoEncodeH264CapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH264CapabilityFlagsKHR(const VkVideoEncodeH264CapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeH264CapabilityFlagBitsKHR((VkVideoEncodeH264CapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeH264StdFlagsKHR(VkVideoEncodeH264StdFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH264StdFlagsKHR(const VkVideoEncodeH264StdFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeH264StdFlagBitsKHR((VkVideoEncodeH264StdFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeH264RateControlFlagsKHR(VkVideoEncodeH264RateControlFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH264RateControlFlagsKHR(const VkVideoEncodeH264RateControlFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeH264RateControlFlagBitsKHR((VkVideoEncodeH264RateControlFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeH265CapabilityFlagsKHR(VkVideoEncodeH265CapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH265CapabilityFlagsKHR(const VkVideoEncodeH265CapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeH265CapabilityFlagBitsKHR((VkVideoEncodeH265CapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeH265StdFlagsKHR(VkVideoEncodeH265StdFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH265StdFlagsKHR(const VkVideoEncodeH265StdFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeH265StdFlagBitsKHR((VkVideoEncodeH265StdFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeH265CtbSizeFlagsKHR(VkVideoEncodeH265CtbSizeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH265CtbSizeFlagsKHR(const VkVideoEncodeH265CtbSizeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeH265CtbSizeFlagBitsKHR((VkVideoEncodeH265CtbSizeFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeH265TransformBlockSizeFlagsKHR(VkVideoEncodeH265TransformBlockSizeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH265TransformBlockSizeFlagsKHR(const VkVideoEncodeH265TransformBlockSizeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeH265TransformBlockSizeFlagBitsKHR((VkVideoEncodeH265TransformBlockSizeFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeH265RateControlFlagsKHR(VkVideoEncodeH265RateControlFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeH265RateControlFlagsKHR(const VkVideoEncodeH265RateControlFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeH265RateControlFlagBitsKHR((VkVideoEncodeH265RateControlFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoDecodeH264PictureLayoutFlagsKHR(VkVideoDecodeH264PictureLayoutFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoDecodeH264PictureLayoutFlagsKHR(const VkVideoDecodeH264PictureLayoutFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoDecodeH264PictureLayoutFlagBitsKHR((VkVideoDecodeH264PictureLayoutFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkPerformanceCounterDescriptionFlagsKHR(VkPerformanceCounterDescriptionFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPerformanceCounterDescriptionFlagsKHR(const VkPerformanceCounterDescriptionFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPerformanceCounterDescriptionFlagBitsKHR((VkPerformanceCounterDescriptionFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkAcquireProfilingLockFlagsKHR(VkAcquireProfilingLockFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAcquireProfilingLockFlagsKHR(const VkAcquireProfilingLockFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkAcquireProfilingLockFlagBitsKHR((VkAcquireProfilingLockFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeFlagsKHR(VkVideoEncodeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeFlagsKHR(const VkVideoEncodeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeFlagBitsKHR((VkVideoEncodeFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeCapabilityFlagsKHR(VkVideoEncodeCapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeCapabilityFlagsKHR(const VkVideoEncodeCapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeCapabilityFlagBitsKHR((VkVideoEncodeCapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeRateControlModeFlagsKHR(VkVideoEncodeRateControlModeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeRateControlModeFlagsKHR(const VkVideoEncodeRateControlModeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeRateControlModeFlagBitsKHR((VkVideoEncodeRateControlModeFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeFeedbackFlagsKHR(VkVideoEncodeFeedbackFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeFeedbackFlagsKHR(const VkVideoEncodeFeedbackFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeFeedbackFlagBitsKHR((VkVideoEncodeFeedbackFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeUsageFlagsKHR(VkVideoEncodeUsageFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeUsageFlagsKHR(const VkVideoEncodeUsageFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeUsageFlagBitsKHR((VkVideoEncodeUsageFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeContentFlagsKHR(VkVideoEncodeContentFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeContentFlagsKHR(const VkVideoEncodeContentFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeContentFlagBitsKHR((VkVideoEncodeContentFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeAV1CapabilityFlagsKHR(VkVideoEncodeAV1CapabilityFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeAV1CapabilityFlagsKHR(const VkVideoEncodeAV1CapabilityFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeAV1CapabilityFlagBitsKHR((VkVideoEncodeAV1CapabilityFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeAV1StdFlagsKHR(VkVideoEncodeAV1StdFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeAV1StdFlagsKHR(const VkVideoEncodeAV1StdFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeAV1StdFlagBitsKHR((VkVideoEncodeAV1StdFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeAV1SuperblockSizeFlagsKHR(VkVideoEncodeAV1SuperblockSizeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeAV1SuperblockSizeFlagsKHR(const VkVideoEncodeAV1SuperblockSizeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeAV1SuperblockSizeFlagBitsKHR((VkVideoEncodeAV1SuperblockSizeFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkVideoEncodeAV1RateControlFlagsKHR(VkVideoEncodeAV1RateControlFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeAV1RateControlFlagsKHR(const VkVideoEncodeAV1RateControlFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkVideoEncodeAV1RateControlFlagBitsKHR((VkVideoEncodeAV1RateControlFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkAccessFlags3KHR(VkAccessFlags3KHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccessFlags3KHR(const VkAccessFlags3KHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkAccessFlagBits3KHR((VkAccessFlagBits3KHR) object, settings, indents);
 }
-void dump_json_VkDebugReportFlagsEXT(VkDebugReportFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugReportFlagsEXT(const VkDebugReportFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDebugReportFlagBitsEXT((VkDebugReportFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkExternalMemoryHandleTypeFlagsNV(VkExternalMemoryHandleTypeFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalMemoryHandleTypeFlagsNV(const VkExternalMemoryHandleTypeFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkExternalMemoryHandleTypeFlagBitsNV((VkExternalMemoryHandleTypeFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkExternalMemoryFeatureFlagsNV(VkExternalMemoryFeatureFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExternalMemoryFeatureFlagsNV(const VkExternalMemoryFeatureFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkExternalMemoryFeatureFlagBitsNV((VkExternalMemoryFeatureFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkConditionalRenderingFlagsEXT(VkConditionalRenderingFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkConditionalRenderingFlagsEXT(const VkConditionalRenderingFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkConditionalRenderingFlagBitsEXT((VkConditionalRenderingFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkSurfaceCounterFlagsEXT(VkSurfaceCounterFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSurfaceCounterFlagsEXT(const VkSurfaceCounterFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkSurfaceCounterFlagBitsEXT((VkSurfaceCounterFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkDebugUtilsMessageSeverityFlagsEXT(VkDebugUtilsMessageSeverityFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugUtilsMessageSeverityFlagsEXT(const VkDebugUtilsMessageSeverityFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDebugUtilsMessageSeverityFlagBitsEXT((VkDebugUtilsMessageSeverityFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkDebugUtilsMessageTypeFlagsEXT(VkDebugUtilsMessageTypeFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugUtilsMessageTypeFlagsEXT(const VkDebugUtilsMessageTypeFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDebugUtilsMessageTypeFlagBitsEXT((VkDebugUtilsMessageTypeFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkGeometryFlagsKHR(VkGeometryFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkGeometryFlagsKHR(const VkGeometryFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkGeometryFlagBitsKHR((VkGeometryFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkGeometryInstanceFlagsKHR(VkGeometryInstanceFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkGeometryInstanceFlagsKHR(const VkGeometryInstanceFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkGeometryInstanceFlagBitsKHR((VkGeometryInstanceFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkBuildAccelerationStructureFlagsKHR(VkBuildAccelerationStructureFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBuildAccelerationStructureFlagsKHR(const VkBuildAccelerationStructureFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkBuildAccelerationStructureFlagBitsKHR((VkBuildAccelerationStructureFlagBitsKHR) object, settings, indents);
 }
-void dump_json_VkPipelineCompilerControlFlagsAMD(VkPipelineCompilerControlFlagsAMD object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCompilerControlFlagsAMD(const VkPipelineCompilerControlFlagsAMD& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPipelineCompilerControlFlagBitsAMD((VkPipelineCompilerControlFlagBitsAMD) object, settings, indents);
 }
-void dump_json_VkShaderCorePropertiesFlagsAMD(VkShaderCorePropertiesFlagsAMD object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderCorePropertiesFlagsAMD(const VkShaderCorePropertiesFlagsAMD& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkShaderCorePropertiesFlagBitsAMD((VkShaderCorePropertiesFlagBitsAMD) object, settings, indents);
 }
-void dump_json_VkPresentScalingFlagsEXT(VkPresentScalingFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPresentScalingFlagsEXT(const VkPresentScalingFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPresentScalingFlagBitsEXT((VkPresentScalingFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkPresentGravityFlagsEXT(VkPresentGravityFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPresentGravityFlagsEXT(const VkPresentGravityFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPresentGravityFlagBitsEXT((VkPresentGravityFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkIndirectStateFlagsNV(VkIndirectStateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectStateFlagsNV(const VkIndirectStateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkIndirectStateFlagBitsNV((VkIndirectStateFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkIndirectCommandsLayoutUsageFlagsNV(VkIndirectCommandsLayoutUsageFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectCommandsLayoutUsageFlagsNV(const VkIndirectCommandsLayoutUsageFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkIndirectCommandsLayoutUsageFlagBitsNV((VkIndirectCommandsLayoutUsageFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkDeviceDiagnosticsConfigFlagsNV(VkDeviceDiagnosticsConfigFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceDiagnosticsConfigFlagsNV(const VkDeviceDiagnosticsConfigFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDeviceDiagnosticsConfigFlagBitsNV((VkDeviceDiagnosticsConfigFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkTileShadingRenderPassFlagsQCOM(VkTileShadingRenderPassFlagsQCOM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTileShadingRenderPassFlagsQCOM(const VkTileShadingRenderPassFlagsQCOM& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkTileShadingRenderPassFlagBitsQCOM((VkTileShadingRenderPassFlagBitsQCOM) object, settings, indents);
 }
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_json_VkExportMetalObjectTypeFlagsEXT(VkExportMetalObjectTypeFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkExportMetalObjectTypeFlagsEXT(const VkExportMetalObjectTypeFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkExportMetalObjectTypeFlagBitsEXT((VkExportMetalObjectTypeFlagBitsEXT) object, settings, indents);
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
-void dump_json_VkGraphicsPipelineLibraryFlagsEXT(VkGraphicsPipelineLibraryFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkGraphicsPipelineLibraryFlagsEXT(const VkGraphicsPipelineLibraryFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkGraphicsPipelineLibraryFlagBitsEXT((VkGraphicsPipelineLibraryFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkImageCompressionFlagsEXT(VkImageCompressionFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageCompressionFlagsEXT(const VkImageCompressionFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkImageCompressionFlagBitsEXT((VkImageCompressionFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkImageCompressionFixedRateFlagsEXT(VkImageCompressionFixedRateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageCompressionFixedRateFlagsEXT(const VkImageCompressionFixedRateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkImageCompressionFixedRateFlagBitsEXT((VkImageCompressionFixedRateFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkDeviceAddressBindingFlagsEXT(VkDeviceAddressBindingFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceAddressBindingFlagsEXT(const VkDeviceAddressBindingFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkDeviceAddressBindingFlagBitsEXT((VkDeviceAddressBindingFlagBitsEXT) object, settings, indents);
 }
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_json_VkImageConstraintsInfoFlagsFUCHSIA(VkImageConstraintsInfoFlagsFUCHSIA object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageConstraintsInfoFlagsFUCHSIA(const VkImageConstraintsInfoFlagsFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkImageConstraintsInfoFlagBitsFUCHSIA((VkImageConstraintsInfoFlagBitsFUCHSIA) object, settings, indents);
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
-void dump_json_VkFrameBoundaryFlagsEXT(VkFrameBoundaryFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkFrameBoundaryFlagsEXT(const VkFrameBoundaryFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkFrameBoundaryFlagBitsEXT((VkFrameBoundaryFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkBuildMicromapFlagsEXT(VkBuildMicromapFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBuildMicromapFlagsEXT(const VkBuildMicromapFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkBuildMicromapFlagBitsEXT((VkBuildMicromapFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkMicromapCreateFlagsEXT(VkMicromapCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMicromapCreateFlagsEXT(const VkMicromapCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkMicromapCreateFlagBitsEXT((VkMicromapCreateFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkPhysicalDeviceSchedulingControlsFlagsARM(VkPhysicalDeviceSchedulingControlsFlagsARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPhysicalDeviceSchedulingControlsFlagsARM(const VkPhysicalDeviceSchedulingControlsFlagsARM& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPhysicalDeviceSchedulingControlsFlagBitsARM((VkPhysicalDeviceSchedulingControlsFlagBitsARM) object, settings, indents);
 }
-void dump_json_VkMemoryDecompressionMethodFlagsNV(VkMemoryDecompressionMethodFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMemoryDecompressionMethodFlagsNV(const VkMemoryDecompressionMethodFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkMemoryDecompressionMethodFlagBitsNV((VkMemoryDecompressionMethodFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkTensorCreateFlagsARM(VkTensorCreateFlagsARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTensorCreateFlagsARM(const VkTensorCreateFlagsARM& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkTensorCreateFlagBitsARM((VkTensorCreateFlagBitsARM) object, settings, indents);
 }
-void dump_json_VkTensorViewCreateFlagsARM(VkTensorViewCreateFlagsARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTensorViewCreateFlagsARM(const VkTensorViewCreateFlagsARM& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkTensorViewCreateFlagBitsARM((VkTensorViewCreateFlagBitsARM) object, settings, indents);
 }
-void dump_json_VkTensorUsageFlagsARM(VkTensorUsageFlagsARM object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkTensorUsageFlagsARM(const VkTensorUsageFlagsARM& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkTensorUsageFlagBitsARM((VkTensorUsageFlagBitsARM) object, settings, indents);
 }
-void dump_json_VkOpticalFlowGridSizeFlagsNV(VkOpticalFlowGridSizeFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowGridSizeFlagsNV(const VkOpticalFlowGridSizeFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkOpticalFlowGridSizeFlagBitsNV((VkOpticalFlowGridSizeFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkOpticalFlowUsageFlagsNV(VkOpticalFlowUsageFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowUsageFlagsNV(const VkOpticalFlowUsageFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkOpticalFlowUsageFlagBitsNV((VkOpticalFlowUsageFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkOpticalFlowSessionCreateFlagsNV(VkOpticalFlowSessionCreateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowSessionCreateFlagsNV(const VkOpticalFlowSessionCreateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkOpticalFlowSessionCreateFlagBitsNV((VkOpticalFlowSessionCreateFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkOpticalFlowExecuteFlagsNV(VkOpticalFlowExecuteFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkOpticalFlowExecuteFlagsNV(const VkOpticalFlowExecuteFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkOpticalFlowExecuteFlagBitsNV((VkOpticalFlowExecuteFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkShaderCreateFlagsEXT(VkShaderCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderCreateFlagsEXT(const VkShaderCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkShaderCreateFlagBitsEXT((VkShaderCreateFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkClusterAccelerationStructureAddressResolutionFlagsNV(VkClusterAccelerationStructureAddressResolutionFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureAddressResolutionFlagsNV(const VkClusterAccelerationStructureAddressResolutionFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkClusterAccelerationStructureAddressResolutionFlagBitsNV((VkClusterAccelerationStructureAddressResolutionFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkClusterAccelerationStructureClusterFlagsNV(VkClusterAccelerationStructureClusterFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureClusterFlagsNV(const VkClusterAccelerationStructureClusterFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkClusterAccelerationStructureClusterFlagBitsNV((VkClusterAccelerationStructureClusterFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkClusterAccelerationStructureGeometryFlagsNV(VkClusterAccelerationStructureGeometryFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureGeometryFlagsNV(const VkClusterAccelerationStructureGeometryFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkClusterAccelerationStructureGeometryFlagBitsNV((VkClusterAccelerationStructureGeometryFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkClusterAccelerationStructureIndexFormatFlagsNV(VkClusterAccelerationStructureIndexFormatFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkClusterAccelerationStructureIndexFormatFlagsNV(const VkClusterAccelerationStructureIndexFormatFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkClusterAccelerationStructureIndexFormatFlagBitsNV((VkClusterAccelerationStructureIndexFormatFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkPartitionedAccelerationStructureInstanceFlagsNV(VkPartitionedAccelerationStructureInstanceFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPartitionedAccelerationStructureInstanceFlagsNV(const VkPartitionedAccelerationStructureInstanceFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkPartitionedAccelerationStructureInstanceFlagBitsNV((VkPartitionedAccelerationStructureInstanceFlagBitsNV) object, settings, indents);
 }
-void dump_json_VkIndirectCommandsInputModeFlagsEXT(VkIndirectCommandsInputModeFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectCommandsInputModeFlagsEXT(const VkIndirectCommandsInputModeFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkIndirectCommandsInputModeFlagBitsEXT((VkIndirectCommandsInputModeFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkIndirectCommandsLayoutUsageFlagsEXT(VkIndirectCommandsLayoutUsageFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIndirectCommandsLayoutUsageFlagsEXT(const VkIndirectCommandsLayoutUsageFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkIndirectCommandsLayoutUsageFlagBitsEXT((VkIndirectCommandsLayoutUsageFlagBitsEXT) object, settings, indents);
 }
-void dump_json_VkAccelerationStructureCreateFlagsKHR(VkAccelerationStructureCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureCreateFlagsKHR(const VkAccelerationStructureCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     dump_json_VkAccelerationStructureCreateFlagBitsKHR((VkAccelerationStructureCreateFlagBitsKHR) object, settings, indents);
 }
 
 
-void dump_json_VkDeviceCreateFlags(VkDeviceCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceCreateFlags(const VkDeviceCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkSemaphoreCreateFlags(VkSemaphoreCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSemaphoreCreateFlags(const VkSemaphoreCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkBufferViewCreateFlags(VkBufferViewCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkBufferViewCreateFlags(const VkBufferViewCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkShaderModuleCreateFlags(VkShaderModuleCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkShaderModuleCreateFlags(const VkShaderModuleCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineVertexInputStateCreateFlags(VkPipelineVertexInputStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineVertexInputStateCreateFlags(const VkPipelineVertexInputStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineInputAssemblyStateCreateFlags(VkPipelineInputAssemblyStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineInputAssemblyStateCreateFlags(const VkPipelineInputAssemblyStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineTessellationStateCreateFlags(VkPipelineTessellationStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineTessellationStateCreateFlags(const VkPipelineTessellationStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineViewportStateCreateFlags(VkPipelineViewportStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineViewportStateCreateFlags(const VkPipelineViewportStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineRasterizationStateCreateFlags(VkPipelineRasterizationStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineRasterizationStateCreateFlags(const VkPipelineRasterizationStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineMultisampleStateCreateFlags(VkPipelineMultisampleStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineMultisampleStateCreateFlags(const VkPipelineMultisampleStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineDynamicStateCreateFlags(VkPipelineDynamicStateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineDynamicStateCreateFlags(const VkPipelineDynamicStateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkDescriptorPoolResetFlags(VkDescriptorPoolResetFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorPoolResetFlags(const VkDescriptorPoolResetFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkCommandPoolTrimFlags(VkCommandPoolTrimFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkCommandPoolTrimFlags(const VkCommandPoolTrimFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkDescriptorUpdateTemplateCreateFlags(VkDescriptorUpdateTemplateCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDescriptorUpdateTemplateCreateFlags(const VkDescriptorUpdateTemplateCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPrivateDataSlotCreateFlags(VkPrivateDataSlotCreateFlags object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPrivateDataSlotCreateFlags(const VkPrivateDataSlotCreateFlags& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkDisplayModeCreateFlagsKHR(VkDisplayModeCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDisplayModeCreateFlagsKHR(const VkDisplayModeCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkDisplaySurfaceCreateFlagsKHR(VkDisplaySurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDisplaySurfaceCreateFlagsKHR(const VkDisplaySurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-void dump_json_VkXlibSurfaceCreateFlagsKHR(VkXlibSurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkXlibSurfaceCreateFlagsKHR(const VkXlibSurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-void dump_json_VkXcbSurfaceCreateFlagsKHR(VkXcbSurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkXcbSurfaceCreateFlagsKHR(const VkXcbSurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-void dump_json_VkWaylandSurfaceCreateFlagsKHR(VkWaylandSurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkWaylandSurfaceCreateFlagsKHR(const VkWaylandSurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-void dump_json_VkAndroidSurfaceCreateFlagsKHR(VkAndroidSurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAndroidSurfaceCreateFlagsKHR(const VkAndroidSurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-void dump_json_VkWin32SurfaceCreateFlagsKHR(VkWin32SurfaceCreateFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkWin32SurfaceCreateFlagsKHR(const VkWin32SurfaceCreateFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
-void dump_json_VkVideoBeginCodingFlagsKHR(VkVideoBeginCodingFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoBeginCodingFlagsKHR(const VkVideoBeginCodingFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkVideoEndCodingFlagsKHR(VkVideoEndCodingFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEndCodingFlagsKHR(const VkVideoEndCodingFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkVideoDecodeFlagsKHR(VkVideoDecodeFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoDecodeFlagsKHR(const VkVideoDecodeFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkVideoEncodeRateControlFlagsKHR(VkVideoEncodeRateControlFlagsKHR object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkVideoEncodeRateControlFlagsKHR(const VkVideoEncodeRateControlFlagsKHR& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineRasterizationStateStreamCreateFlagsEXT(VkPipelineRasterizationStateStreamCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineRasterizationStateStreamCreateFlagsEXT(const VkPipelineRasterizationStateStreamCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #if defined(VK_USE_PLATFORM_GGP)
-void dump_json_VkStreamDescriptorSurfaceCreateFlagsGGP(VkStreamDescriptorSurfaceCreateFlagsGGP object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkStreamDescriptorSurfaceCreateFlagsGGP(const VkStreamDescriptorSurfaceCreateFlagsGGP& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_GGP
 #if defined(VK_USE_PLATFORM_VI_NN)
-void dump_json_VkViSurfaceCreateFlagsNN(VkViSurfaceCreateFlagsNN object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkViSurfaceCreateFlagsNN(const VkViSurfaceCreateFlagsNN& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_VI_NN
-void dump_json_VkPipelineViewportSwizzleStateCreateFlagsNV(VkPipelineViewportSwizzleStateCreateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineViewportSwizzleStateCreateFlagsNV(const VkPipelineViewportSwizzleStateCreateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineDiscardRectangleStateCreateFlagsEXT(VkPipelineDiscardRectangleStateCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineDiscardRectangleStateCreateFlagsEXT(const VkPipelineDiscardRectangleStateCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineRasterizationConservativeStateCreateFlagsEXT(VkPipelineRasterizationConservativeStateCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineRasterizationConservativeStateCreateFlagsEXT(const VkPipelineRasterizationConservativeStateCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineRasterizationDepthClipStateCreateFlagsEXT(VkPipelineRasterizationDepthClipStateCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineRasterizationDepthClipStateCreateFlagsEXT(const VkPipelineRasterizationDepthClipStateCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #if defined(VK_USE_PLATFORM_IOS_MVK)
-void dump_json_VkIOSSurfaceCreateFlagsMVK(VkIOSSurfaceCreateFlagsMVK object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkIOSSurfaceCreateFlagsMVK(const VkIOSSurfaceCreateFlagsMVK& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_IOS_MVK
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
-void dump_json_VkMacOSSurfaceCreateFlagsMVK(VkMacOSSurfaceCreateFlagsMVK object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMacOSSurfaceCreateFlagsMVK(const VkMacOSSurfaceCreateFlagsMVK& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_MACOS_MVK
-void dump_json_VkDebugUtilsMessengerCallbackDataFlagsEXT(VkDebugUtilsMessengerCallbackDataFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugUtilsMessengerCallbackDataFlagsEXT(const VkDebugUtilsMessengerCallbackDataFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkDebugUtilsMessengerCreateFlagsEXT(VkDebugUtilsMessengerCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDebugUtilsMessengerCreateFlagsEXT(const VkDebugUtilsMessengerCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineCoverageToColorStateCreateFlagsNV(VkPipelineCoverageToColorStateCreateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCoverageToColorStateCreateFlagsNV(const VkPipelineCoverageToColorStateCreateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkPipelineCoverageModulationStateCreateFlagsNV(VkPipelineCoverageModulationStateCreateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCoverageModulationStateCreateFlagsNV(const VkPipelineCoverageModulationStateCreateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkValidationCacheCreateFlagsEXT(VkValidationCacheCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkValidationCacheCreateFlagsEXT(const VkValidationCacheCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_json_VkImagePipeSurfaceCreateFlagsFUCHSIA(VkImagePipeSurfaceCreateFlagsFUCHSIA object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImagePipeSurfaceCreateFlagsFUCHSIA(const VkImagePipeSurfaceCreateFlagsFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-void dump_json_VkMetalSurfaceCreateFlagsEXT(VkMetalSurfaceCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkMetalSurfaceCreateFlagsEXT(const VkMetalSurfaceCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
-void dump_json_VkPipelineCoverageReductionStateCreateFlagsNV(VkPipelineCoverageReductionStateCreateFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkPipelineCoverageReductionStateCreateFlagsNV(const VkPipelineCoverageReductionStateCreateFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkHeadlessSurfaceCreateFlagsEXT(VkHeadlessSurfaceCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkHeadlessSurfaceCreateFlagsEXT(const VkHeadlessSurfaceCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkDeviceMemoryReportFlagsEXT(VkDeviceMemoryReportFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDeviceMemoryReportFlagsEXT(const VkDeviceMemoryReportFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkAccelerationStructureMotionInfoFlagsNV(VkAccelerationStructureMotionInfoFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureMotionInfoFlagsNV(const VkAccelerationStructureMotionInfoFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
-void dump_json_VkAccelerationStructureMotionInstanceFlagsNV(VkAccelerationStructureMotionInstanceFlagsNV object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkAccelerationStructureMotionInstanceFlagsNV(const VkAccelerationStructureMotionInstanceFlagsNV& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
-void dump_json_VkDirectFBSurfaceCreateFlagsEXT(VkDirectFBSurfaceCreateFlagsEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDirectFBSurfaceCreateFlagsEXT(const VkDirectFBSurfaceCreateFlagsEXT& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_DIRECTFB_EXT
 #if defined(VK_USE_PLATFORM_FUCHSIA)
-void dump_json_VkImageFormatConstraintsFlagsFUCHSIA(VkImageFormatConstraintsFlagsFUCHSIA object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkImageFormatConstraintsFlagsFUCHSIA(const VkImageFormatConstraintsFlagsFUCHSIA& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
-void dump_json_VkScreenSurfaceCreateFlagsQNX(VkScreenSurfaceCreateFlagsQNX object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkScreenSurfaceCreateFlagsQNX(const VkScreenSurfaceCreateFlagsQNX& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #endif // VK_USE_PLATFORM_SCREEN_QNX
-void dump_json_VkDirectDriverLoadingFlagsLUNARG(VkDirectDriverLoadingFlagsLUNARG object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkDirectDriverLoadingFlagsLUNARG(const VkDirectDriverLoadingFlagsLUNARG& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
 #if defined(VK_USE_PLATFORM_OHOS)
-void dump_json_VkSurfaceCreateFlagsOHOS(VkSurfaceCreateFlagsOHOS object, const ApiDumpSettings& settings, int indents)
+void dump_json_VkSurfaceCreateFlagsOHOS(const VkSurfaceCreateFlagsOHOS& object, const ApiDumpSettings& settings, int indents)
 {
     settings.stream() << '"' << object << "\"";
 }
@@ -13832,70 +13832,70 @@ void dump_json_VkSurfaceCreateFlagsOHOS(VkSurfaceCreateFlagsOHOS object, const A
 
 //======================= Func Pointer Implementations ======================//
 
-void dump_json_PFN_vkAllocationFunction(PFN_vkAllocationFunction object, const ApiDumpSettings& settings, int indents)
+void dump_json_PFN_vkAllocationFunction(const PFN_vkAllocationFunction& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
        settings.stream() << "\"" << object << "\"";
     else
         settings.stream() << "\"address\"";
 }
-void dump_json_PFN_vkFreeFunction(PFN_vkFreeFunction object, const ApiDumpSettings& settings, int indents)
+void dump_json_PFN_vkFreeFunction(const PFN_vkFreeFunction& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
        settings.stream() << "\"" << object << "\"";
     else
         settings.stream() << "\"address\"";
 }
-void dump_json_PFN_vkInternalAllocationNotification(PFN_vkInternalAllocationNotification object, const ApiDumpSettings& settings, int indents)
+void dump_json_PFN_vkInternalAllocationNotification(const PFN_vkInternalAllocationNotification& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
        settings.stream() << "\"" << object << "\"";
     else
         settings.stream() << "\"address\"";
 }
-void dump_json_PFN_vkInternalFreeNotification(PFN_vkInternalFreeNotification object, const ApiDumpSettings& settings, int indents)
+void dump_json_PFN_vkInternalFreeNotification(const PFN_vkInternalFreeNotification& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
        settings.stream() << "\"" << object << "\"";
     else
         settings.stream() << "\"address\"";
 }
-void dump_json_PFN_vkReallocationFunction(PFN_vkReallocationFunction object, const ApiDumpSettings& settings, int indents)
+void dump_json_PFN_vkReallocationFunction(const PFN_vkReallocationFunction& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
        settings.stream() << "\"" << object << "\"";
     else
         settings.stream() << "\"address\"";
 }
-void dump_json_PFN_vkVoidFunction(PFN_vkVoidFunction object, const ApiDumpSettings& settings, int indents)
+void dump_json_PFN_vkVoidFunction(const PFN_vkVoidFunction& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
        settings.stream() << "\"" << object << "\"";
     else
         settings.stream() << "\"address\"";
 }
-void dump_json_PFN_vkDebugReportCallbackEXT(PFN_vkDebugReportCallbackEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_PFN_vkDebugReportCallbackEXT(const PFN_vkDebugReportCallbackEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
        settings.stream() << "\"" << object << "\"";
     else
         settings.stream() << "\"address\"";
 }
-void dump_json_PFN_vkDebugUtilsMessengerCallbackEXT(PFN_vkDebugUtilsMessengerCallbackEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_PFN_vkDebugUtilsMessengerCallbackEXT(const PFN_vkDebugUtilsMessengerCallbackEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
        settings.stream() << "\"" << object << "\"";
     else
         settings.stream() << "\"address\"";
 }
-void dump_json_PFN_vkDeviceMemoryReportCallbackEXT(PFN_vkDeviceMemoryReportCallbackEXT object, const ApiDumpSettings& settings, int indents)
+void dump_json_PFN_vkDeviceMemoryReportCallbackEXT(const PFN_vkDeviceMemoryReportCallbackEXT& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
        settings.stream() << "\"" << object << "\"";
     else
         settings.stream() << "\"address\"";
 }
-void dump_json_PFN_vkGetInstanceProcAddrLUNARG(PFN_vkGetInstanceProcAddrLUNARG object, const ApiDumpSettings& settings, int indents)
+void dump_json_PFN_vkGetInstanceProcAddrLUNARG(const PFN_vkGetInstanceProcAddrLUNARG& object, const ApiDumpSettings& settings, int indents)
 {
     if(settings.showAddress())
        settings.stream() << "\"" << object << "\"";

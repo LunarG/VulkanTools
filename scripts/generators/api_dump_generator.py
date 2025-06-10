@@ -647,7 +647,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for t in [x for x in self.vk.platformTypes.values() if x.requires in ['vk_platform', 'stdint']]:
             if t.name in ['void'] or (not video and t.name in DUPLICATE_TYPES_IN_VIDEO_HEADER):
                 continue
-            self.write(f'void dump_{output_format}_{t.name}({t.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{t.name}(const {t.name} &object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
             cast = ''
             if t.name == 'uint8_t':
@@ -677,7 +677,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             if basetype.name in ['ANativeWindow', 'AHardwareBuffer']:
                 self.write(f'void dump_{output_format}_{basetype.name}(const {basetype.name}* object, const ApiDumpSettings& settings, int indents)')
             else:
-                self.write(f'void dump_{output_format}_{basetype.name}({basetype.name} object, const ApiDumpSettings& settings, int indents)')
+                self.write(f'void dump_{output_format}_{basetype.name}(const {basetype.name}& object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
             if output_format == 'text':
                 self.write('    settings.stream() << object;')
@@ -696,7 +696,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 continue
             if sys.protect:
                 self.write(f'#if defined({sys.protect})')
-            self.write(f'void dump_{output_format}_{sys.name}(const {sys.name}{"*" if sys.name in POINTER_TYPES else ""} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{sys.name}({sys.name} {"const * " if sys.name in POINTER_TYPES else ""}const & object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
             if output_format == 'text':
                 if sys.name in POINTER_TYPES:
@@ -739,7 +739,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for handle in self.vk.handles.values():
             if handle.protect:
                 self.write(f'#if defined({handle.protect})')
-            self.write(f'void dump_{output_format}_{handle.name}(const {handle.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{handle.name}(const {handle.name}& object, const ApiDumpSettings& settings, int indents)')
 
             if output_format == 'text':
                 self.write('''{
@@ -786,7 +786,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for enum in self.vk.enums.values():
             if enum.protect:
                 self.write(f'#if defined({enum.protect})')
-            self.write(f'void dump_{output_format}_{enum.name}({enum.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{enum.name}(const {enum.name}& object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
             if output_format == 'html':
                 self.write('    settings.stream() << "<div class=\'val\'>";')
@@ -822,7 +822,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 if bitmask.bitWidth == 64:
                     self.write('// 64 bit bitmasks don\'t have an enum of bit values.')
                     self.write(f'typedef VkFlags64 {bitmask.name};')
-            self.write(f'void dump_{output_format}_{bitmask.name}({bitmask.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{bitmask.name}(const {bitmask.name}& object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
             if output_format == 'html':
                 self.write('    settings.stream() << "<div class=\'val\'>";')
@@ -852,7 +852,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for bitmask in self.vk.bitmasks.values():
             if bitmask.protect:
                 self.write(f'#if defined({bitmask.protect})')
-            self.write(f'void dump_{output_format}_{bitmask.flagName}({bitmask.flagName} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{bitmask.flagName}(const {bitmask.flagName}& object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
             self.write(f'    dump_{output_format}_{bitmask.name}(({bitmask.name}) object, settings, indents);')
             self.write('}')
@@ -865,7 +865,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 continue
             if flag.protect:
                 self.write(f'#if defined({flag.protect})')
-            self.write(f'void dump_{output_format}_{flag.name}({flag.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{flag.name}(const {flag.name}& object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
             if output_format == 'text':
                 self.write('    settings.stream() << object;')
@@ -881,7 +881,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         self.write('\n//======================= Func Pointer Implementations ======================//\n')
 
         for funcpointer in self.vk.funcPointers.values():
-            self.write(f'void dump_{output_format}_{funcpointer.name}({funcpointer.name} object, const ApiDumpSettings& settings, int indents)')
+            self.write(f'void dump_{output_format}_{funcpointer.name}(const {funcpointer.name}& object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
             if output_format == 'html':
                 self.write('    settings.stream() << "<div class=\'val\'>";')

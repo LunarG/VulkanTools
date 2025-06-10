@@ -1062,19 +1062,19 @@ inline void OutputAddressJSON(const ApiDumpSettings &settings, const void *addr)
     settings.stream() << "\"";
 }
 
-inline void OutputApiVersionTEXT(uint32_t version, const ApiDumpSettings &settings, int indents) {
+inline void OutputApiVersionTEXT(uint32_t const &version, const ApiDumpSettings &settings, int indents) {
     settings.stream() << version << " (" << VK_API_VERSION_MAJOR(version) << "." << VK_API_VERSION_MINOR(version) << "."
                       << VK_API_VERSION_PATCH(version) << ")";
 }
 
-inline void OutputApiVersionHTML(uint32_t version, const ApiDumpSettings &settings, int indents) {
+inline void OutputApiVersionHTML(uint32_t const &version, const ApiDumpSettings &settings, int indents) {
     settings.stream() << "<div class='val'>";
     settings.stream() << version << " (" << VK_API_VERSION_MAJOR(version) << "." << VK_API_VERSION_MINOR(version) << "."
                       << VK_API_VERSION_PATCH(version) << ")";
     settings.stream() << "</div></summary>";
 }
 
-inline void OutputApiVersionJSON(uint32_t version, const ApiDumpSettings &settings, int indents) {
+inline void OutputApiVersionJSON(uint32_t const &version, const ApiDumpSettings &settings, int indents) {
     settings.stream() << "\"" << version << " (" << VK_API_VERSION_MAJOR(version) << "." << VK_API_VERSION_MINOR(version) << "."
                       << VK_API_VERSION_PATCH(version) << ")\"";
 }
@@ -1130,24 +1130,6 @@ inline void dump_text_return_preamble(ApiDumpInstance &dump_inst, const char *fu
 
 template <typename T>
 void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
-                     const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
-    settings.formatNameType(indents, name, type_string);
-    if (array == NULL) {
-        settings.stream() << "NULL\n";
-        return;
-    }
-    OutputAddress(settings, array);
-    settings.stream() << "\n";
-    for (size_t i = 0; i < len && array != NULL; ++i) {
-        std::stringstream stream;
-        stream << name << '[' << i << ']';
-        std::string indexName = stream.str();
-        dump_text_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump);
-    }
-}
-
-template <typename T>
-void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
                      const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
     settings.formatNameType(indents, name, type_string);
     if (array == NULL) {
@@ -1167,35 +1149,14 @@ void dump_text_array(const T *array, size_t len, const ApiDumpSettings &settings
 // Handle multidimentional arrays by just converting the first type from T[][] to T*
 template <typename T, size_t N>
 void dump_text_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string,
-                     const char *child_type, const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
-    dump_text_array(array, len, settings, type_string, child_type, name, indents, dump);
-}
-template <typename T, size_t N>
-void dump_text_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string,
                      const char *child_type, const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
     dump_text_array(array, len, settings, type_string, child_type, name, indents, dump);
 }
 // Handle double pointers by dereferencing the first pointer
 template <typename T>
-void dump_text_array(const T* const* array, size_t len, const ApiDumpSettings &settings, const char *type_string,
-                     const char *child_type, const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
-    dump_text_array(*array, len, settings, type_string, child_type, name, indents, dump);
-}
-template <typename T>
-void dump_text_array(const T* const* array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+void dump_text_array(const T *const *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
                      const char *child_type, const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
     dump_text_array(*array, len, settings, type_string, child_type, name, indents, dump);
-}
-
-template <typename T>
-void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
-                       void (*dump)(const T, const ApiDumpSettings &, int)) {
-    if (pointer == NULL) {
-        settings.formatNameType(indents, name, type_string);
-        settings.stream() << "NULL\n";
-    } else {
-        dump_text_value(*pointer, settings, type_string, name, indents, dump);
-    }
 }
 
 template <typename T>
@@ -1210,34 +1171,27 @@ void dump_text_pointer(const T *pointer, const ApiDumpSettings &settings, const 
 }
 
 template <typename T>
-void dump_text_value(const T object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
-                     void (*dump)(const T, const ApiDumpSettings &, int)) {
+void dump_text_value(const T &object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
+                     void (*dump)(const T &, const ApiDumpSettings &, int)) {
     settings.formatNameType(indents, name, type_string);
     dump(object, settings, indents);
     settings.stream() << "\n";
 }
 
-template <typename T>
-void dump_text_value(const T &object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
-                     void (*dump)(const T &, const ApiDumpSettings &, int)) {
-    settings.formatNameType(indents, name, type_string);
-    dump(object, settings, indents);
-}
-
-inline void dump_text_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name,
+inline void dump_text_special(const char *const &text, const ApiDumpSettings &settings, const char *type_string, const char *name,
                               int indents) {
     settings.formatNameType(indents, name, type_string);
     settings.stream() << text << "\n";
 }
 
-inline void dump_text_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_text_cstring(const char *const &object, const ApiDumpSettings &settings, int indents) {
     if (object == NULL)
         settings.stream() << "NULL";
     else
         settings.stream() << "\"" << object << "\"";
 }
 
-inline void dump_text_void(const void *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_text_void(const void *const &object, const ApiDumpSettings &settings, int indents) {
     if (object == NULL) {
         settings.stream() << "NULL";
         return;
@@ -1245,7 +1199,7 @@ inline void dump_text_void(const void *object, const ApiDumpSettings &settings, 
     OutputAddress(settings, object);
 }
 
-inline void dump_text_int(int object, const ApiDumpSettings &settings, int indents) { settings.stream() << object; }
+inline void dump_text_int(int const &object, const ApiDumpSettings &settings, int indents) { settings.stream() << object; }
 
 template <typename T>
 void dump_text_pNext(const T *object, const ApiDumpSettings &settings, const char *type_string, int indents,
@@ -1305,30 +1259,6 @@ inline void dump_html_return_preamble(ApiDumpInstance &dump_inst, const char *fu
 
 template <typename T>
 void dump_html_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
-                     const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
-    if (array == NULL) {
-        settings.stream() << "<details class='data'><summary>";
-        dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
-        settings.stream() << "<div class='val'>NULL</div></summary></details>";
-        return;
-    }
-    settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
-    settings.stream() << "<div class='val'>";
-    OutputAddress(settings, array);
-    settings.stream() << "\n";
-    settings.stream() << "</div></summary>";
-    for (size_t i = 0; i < len && array != NULL; ++i) {
-        std::stringstream stream;
-        stream << name << '[' << i << ']';
-        std::string indexName = stream.str();
-        dump_html_value(array[i], settings, child_type, indexName.c_str(), indents + 1, dump);
-    }
-    settings.stream() << "</details>";
-}
-
-template <typename T>
-void dump_html_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
                      const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
     if (array == NULL) {
         settings.stream() << "<details class='data'><summary>";
@@ -1354,38 +1284,15 @@ void dump_html_array(const T *array, size_t len, const ApiDumpSettings &settings
 // Handle multidimentional arrays by just converting the first type from T[][] to T*
 template <typename T, size_t N>
 void dump_html_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string,
-                     const char *child_type, const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
-    dump_html_array(array, len, settings, type_string, child_type, name, indents, dump);
-}
-template <typename T, size_t N>
-void dump_html_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string,
                      const char *child_type, const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
     dump_html_array(array, len, settings, type_string, child_type, name, indents, dump);
 }
 
 // Handle double pointers by dereferencing the first pointer
 template <typename T>
-void dump_html_array(const T*const* array, size_t len, const ApiDumpSettings &settings, const char *type_string,
-                     const char *child_type, const char *name, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
-    dump_html_array(*array, len, settings, type_string, child_type, name, indents, dump);
-}
-template <typename T>
-void dump_html_array(const T*const* array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+void dump_html_array(const T *const *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
                      const char *child_type, const char *name, int indents, void (*dump)(const T &, const ApiDumpSettings &, int)) {
     dump_html_array(*array, len, settings, type_string, child_type, name, indents, dump);
-}
-
-
-template <typename T>
-void dump_html_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
-                       void (*dump)(const T, const ApiDumpSettings &, int)) {
-    if (pointer == NULL) {
-        settings.stream() << "<details class='data'><summary>";
-        dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
-        settings.stream() << "<div class='val'>NULL</div></summary></details>";
-    } else {
-        dump_html_value(*pointer, settings, type_string, name, indents, dump);
-    }
 }
 
 template <typename T>
@@ -1401,15 +1308,6 @@ void dump_html_pointer(const T *pointer, const ApiDumpSettings &settings, const 
 }
 
 template <typename T>
-void dump_html_value(const T object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
-                     void (*dump)(const T, const ApiDumpSettings &, int)) {
-    settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
-    dump(object, settings, indents);
-    settings.stream() << "</details>";
-}
-
-template <typename T>
 void dump_html_value(const T &object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
                      void (*dump)(const T &, const ApiDumpSettings &, int)) {
     settings.stream() << "<details class='data'><summary>";
@@ -1418,14 +1316,14 @@ void dump_html_value(const T &object, const ApiDumpSettings &settings, const cha
     settings.stream() << "</details>";
 }
 
-inline void dump_html_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name,
+inline void dump_html_special(const char *const &text, const ApiDumpSettings &settings, const char *type_string, const char *name,
                               int indents) {
     settings.stream() << "<details class='data'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
     settings.stream() << "<div class='val'>" << text << "</div></summary></details>";
 }
 
-inline void dump_html_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_html_cstring(const char *const &object, const ApiDumpSettings &settings, int indents) {
     settings.stream() << "<div class='val'>";
     if (object == NULL)
         settings.stream() << "NULL";
@@ -1434,13 +1332,13 @@ inline void dump_html_cstring(const char *object, const ApiDumpSettings &setting
     settings.stream() << "</div>";
 }
 
-inline void dump_html_void(const void *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_html_void(const void *const &object, const ApiDumpSettings &settings, int indents) {
     settings.stream() << "<div class='val'>";
     OutputAddress(settings, object);
     settings.stream() << "</div>";
 }
 
-inline void dump_html_int(int object, const ApiDumpSettings &settings, int indents) {
+inline void dump_html_int(int const &object, const ApiDumpSettings &settings, int indents) {
     settings.stream() << "<div class='val'>";
     settings.stream() << object;
     settings.stream() << "</div>";
@@ -1529,43 +1427,6 @@ inline void dump_json_return_preamble(ApiDumpInstance &dump_inst, const char *fu
 template <typename T>
 void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
                      const char *name, bool is_struct, bool is_union, int indents,
-                     void (*dump)(const T, const ApiDumpSettings &, int)) {
-    if (len == 0 || array == NULL) {
-        settings.stream() << settings.indentation(indents) << "{\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddressJSON(settings, array);
-        settings.stream() << "\n";
-        settings.stream() << settings.indentation(indents) << "}";
-        return;
-    }
-    settings.stream() << settings.indentation(indents) << "{\n";
-
-    if (len > 0 && array != NULL) {
-        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddressJSON(settings, array);
-        settings.stream() << ",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"elements\" :\n";
-        settings.stream() << settings.indentation(indents + 1) << "[\n";
-        for (size_t i = 0; i < len && array != NULL; ++i) {
-            std::stringstream stream;
-            stream << "[" << i << "]";
-            std::string indexName = stream.str();
-            dump_json_value(array[i], &array[i], settings, child_type, indexName.c_str(), is_struct, is_union, indents + 2, dump);
-            if (i < len - 1) settings.stream() << ',';
-            settings.stream() << "\n";
-        }
-        settings.stream() << settings.indentation(indents + 1) << "]";
-    }
-    settings.stream() << "\n" << settings.indentation(indents) << "}";
-}
-
-template <typename T>
-void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
-                     const char *name, bool is_struct, bool is_union, int indents,
                      void (*dump)(const T &, const ApiDumpSettings &, int)) {
     if (len == 0 || array == NULL) {
         settings.stream() << settings.indentation(indents) << "{\n";
@@ -1601,44 +1462,18 @@ void dump_json_array(const T *array, size_t len, const ApiDumpSettings &settings
 
 // Handle multidimentional arrays by just converting the first type from T[][] to T*
 template <typename T, size_t N>
-void dump_json_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
-                     const char *name, bool is_struct, bool is_union, int indents,
-                     void (*dump)(const T, const ApiDumpSettings &, int)) {
-    dump_json_array(array, len, settings, type_string, child_type, name, is_struct, is_union, indents, dump);
-}
-template <typename T, size_t N>
-void dump_json_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
-                     const char *name, bool is_struct, bool is_union, int indents,
+void dump_json_array(const T array[][N], size_t len, const ApiDumpSettings &settings, const char *type_string,
+                     const char *child_type, const char *name, bool is_struct, bool is_union, int indents,
                      void (*dump)(const T &, const ApiDumpSettings &, int)) {
     dump_json_array(array, len, settings, type_string, child_type, name, is_struct, is_union, indents, dump);
 }
 
 // Handle double pointers by dereferencing the first pointer
 template <typename T>
-void dump_json_array(const T*const* array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
-                     const char *name, bool is_struct, bool is_union, int indents,
-                     void (*dump)(const T, const ApiDumpSettings &, int)) {
-    dump_json_array(*array, len, settings, type_string, child_type, name, is_struct, is_union, indents, dump);
-}
-template <typename T>
-void dump_json_array(const T *const* array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *child_type,
-                     const char *name, bool is_struct, bool is_union, int indents,
+void dump_json_array(const T *const *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                     const char *child_type, const char *name, bool is_struct, bool is_union, int indents,
                      void (*dump)(const T &, const ApiDumpSettings &, int)) {
     dump_json_array(*array, len, settings, type_string, child_type, name, is_struct, is_union, indents, dump);
-}
-template <typename T>
-void dump_json_pointer(const T *pointer, const ApiDumpSettings &settings, const char *type_string, const char *name, bool is_struct,
-                       bool is_union, int indents, void (*dump)(const T, const ApiDumpSettings &, int)) {
-    if (pointer == NULL) {
-        settings.stream() << settings.indentation(indents) << "{\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\",\n";
-        settings.stream() << settings.indentation(indents + 1) << "\"address\" : ";
-        settings.stream() << (settings.showAddress() ? "\"NULL\"" : "\"address\"") << "\n";
-        settings.stream() << settings.indentation(indents) << "}";
-    } else {
-        dump_json_value(*pointer, pointer, settings, type_string, name, is_struct, is_union, indents, dump);
-    }
 }
 
 template <typename T>
@@ -1654,35 +1489,6 @@ void dump_json_pointer(const T *pointer, const ApiDumpSettings &settings, const 
     } else {
         dump_json_value(*pointer, pointer, settings, type_string, name, is_struct, is_union, indents, dump);
     }
-}
-
-template <typename T>
-void dump_json_value(const T object, const void *pObject, const ApiDumpSettings &settings, const char *type_string,
-                     const char *name, bool is_struct, bool is_union, int indents,
-                     void (*dump)(const T, const ApiDumpSettings &, int)) {
-    bool isPnext = !strcmp(name, "pNext") || !strcmp(name, "pUserData");
-    const char *star = (isPnext && !strstr(type_string, "void")) ? "*" : "";
-    settings.stream() << settings.indentation(indents) << "{\n";
-    if (is_union)
-        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << star << " (Union)\",\n";
-    else
-        settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << star << "\",\n";
-    settings.stream() << settings.indentation(indents + 1) << "\"name\" : \"" << name << "\"";
-    if (isPnext || (strchr(type_string, '*') && strcmp(type_string, "const char*") && strcmp(type_string, "const char* const"))) {
-        // Print pointers, except for char string pointers
-        settings.stream() << ",\n" << settings.indentation(indents + 1) << "\"address\" : ";
-        OutputAddressJSON(settings, pObject);
-    }
-    if (!isPnext || (isPnext && pObject != nullptr)) {
-        settings.stream() << ",\n";
-        if (is_struct || is_union)
-            settings.stream() << settings.indentation(indents + 1) << "\"members\" :\n";
-        else
-            settings.stream() << settings.indentation(indents + 1) << "\"value\" : ";
-        dump(object, settings, indents + 1);
-    }
-    settings.stream() << "\n";
-    settings.stream() << settings.indentation(indents) << "}";
 }
 
 template <typename T>
@@ -1714,7 +1520,7 @@ void dump_json_value(const T &object, const void *pObject, const ApiDumpSettings
     settings.stream() << settings.indentation(indents) << "}";
 }
 
-inline void dump_json_special(const char *text, const ApiDumpSettings &settings, const char *type_string, const char *name,
+inline void dump_json_special(const char *const &text, const ApiDumpSettings &settings, const char *type_string, const char *name,
                               int indents) {
     settings.stream() << settings.indentation(indents) << "{\n";
     settings.stream() << settings.indentation(indents + 1) << "\"type\" : \"" << type_string << "\",\n";
@@ -1736,19 +1542,19 @@ inline void dump_json_UNUSED(const ApiDumpSettings &settings, const char *type_s
     settings.stream() << settings.indentation(indents) << "}";
 }
 
-inline void dump_json_cstring(const char *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_json_cstring(const char *const &object, const ApiDumpSettings &settings, int indents) {
     if (object == NULL)
         settings.stream() << "\"\"";
     else
         settings.stream() << "\"" << object << "\"";
 }
 
-inline void dump_json_void(const void *object, const ApiDumpSettings &settings, int indents) {
+inline void dump_json_void(const void *const &object, const ApiDumpSettings &settings, int indents) {
     OutputAddressJSON(settings, object);
     settings.stream() << "\n";
 }
 
-inline void dump_json_int(int object, const ApiDumpSettings &settings, int indents) {
+inline void dump_json_int(int const &object, const ApiDumpSettings &settings, int indents) {
     settings.stream() << settings.indentation(indents) << "\"value\" : " << '"' << object << "\"";
     settings.stream() << '"' << object << "\"";
 }
