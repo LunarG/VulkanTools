@@ -968,8 +968,9 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
             self.write('void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
-            self.write('    const auto* base_struct = reinterpret_cast<const VkBaseInStructure*>(object);')
-            self.write('    switch(base_struct->sType) {')
+            self.write('    VkBaseInStructure base_struct{};')
+            self.write('    memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
+            self.write('    switch(base_struct.sType) {')
             for struct in [ x for x in self.vk.structs.values() if not x.union ]:
                 if struct.protect:
                     self.write(f'#if defined({struct.protect})')
@@ -982,8 +983,8 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write('')
             self.write('    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47')
             self.write('    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
-            self.write('        if(base_struct->pNext != nullptr){')
-            self.write('            dump_text_pNext_trampoline(reinterpret_cast<const void*>(base_struct->pNext), settings, indents);')
+            self.write('        if(base_struct.pNext != nullptr){')
+            self.write('            dump_text_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, indents);')
             self.write('        } else {')
             self.write('            settings.formatNameType(indents, "pNext", "const void*");')
             self.write('            settings.stream() << "NULL\\n";')
@@ -991,7 +992,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write('        break;')
             self.write('    default:')
             self.write('        settings.formatNameType(indents, "pNext", "const void*");')
-            self.write('        settings.stream() << "UNKNOWN (" << (int64_t) (base_struct->sType) << ")\\n";')
+            self.write('        settings.stream() << "UNKNOWN (" << (int64_t) (base_struct.sType) << ")\\n";')
             self.write('    }')
             self.write('}')
 
@@ -1311,21 +1312,23 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         if not video:
             self.write('void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
-            self.write('    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {')
+            self.write('    VkBaseInStructure base_struct{};')
+            self.write('    memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
+            self.write('    switch(base_struct.sType) {')
             for struct in [ x for x in self.vk.structs.values() if not x.union ]:
                 if struct.protect:
                     self.write(f'#if defined({struct.protect})')
                 if struct.sType is not None:
                     self.write(f'    case {struct.sType}:')
-                    self.write(f'        dump_html_pNext<const {struct.name}>(static_cast<const {struct.name}*>(object), settings, "{struct.name}", indents, dump_html_{struct.name});')
+                    self.write(f'        dump_html_pNext<const {struct.name}>(reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}", indents, dump_html_{struct.name});')
                     self.write('        break;')
                 if struct.protect:
                     self.write(f'#endif // {struct.protect}')
             self.write('')
             self.write('    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47')
             self.write('    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
-            self.write('        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){')
-            self.write('            dump_html_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);')
+            self.write('        if(base_struct.pNext != nullptr){')
+            self.write('            dump_html_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, indents);')
             self.write('        } else {')
             self.write('            settings.stream() << "<details class=\'data\'><summary>";')
             self.write('            dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");')
@@ -1335,7 +1338,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write('    default:')
             self.write('        settings.stream() << "<details class=\'data\'><summary>";')
             self.write('        dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");')
-            self.write('        settings.stream() << "<div class=\'val\'>UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) <<")</div></summary></details>";')
+            self.write('        settings.stream() << "<div class=\'val\'>UNKNOWN (" << (int64_t) (base_struct.sType) <<")</div></summary></details>";')
             self.write('    }')
             self.write('}')
 
@@ -1638,21 +1641,23 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         if not video:
             self.write('void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)')
             self.write('{')
-            self.write('    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {')
+            self.write('    VkBaseInStructure base_struct{};')
+            self.write('    memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
+            self.write('    switch(base_struct.sType) {')
             for struct in [ x for x in self.vk.structs.values() if not x.union ]:
                 if struct.protect:
                     self.write(f'#if defined({struct.protect})')
                 if struct.sType is not None:
                     self.write(f'    case {struct.sType}:')
-                    self.write(f'        dump_json_pNext<const {struct.name}>(static_cast<const {struct.name}*>(object), settings, "{struct.name}", indents, dump_json_{struct.name});')
+                    self.write(f'        dump_json_pNext<const {struct.name}>(reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}", indents, dump_json_{struct.name});')
                     self.write('        break;')
                 if struct.protect:
                     self.write(f'#endif // {struct.protect}')
             self.write('')
             self.write('    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47')
             self.write('    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
-            self.write('        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){')
-            self.write('            dump_json_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);')
+            self.write('        if(base_struct.pNext != nullptr){')
+            self.write('            dump_json_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, indents);')
             self.write('        } else {')
             self.write('            settings.stream() << settings.indentation(indents) << "{\\n";')
             self.write('            settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";')
@@ -1665,7 +1670,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write('        settings.stream() << settings.indentation(indents) << "{\\n";')
             self.write('        settings.stream() << settings.indentation(indents + 1) << "\\"type\\" : \\"const void*\\",\\n";')
             self.write('        settings.stream() << settings.indentation(indents + 1) << "\\"name\\" : \\"pNext\\",\\n";')
-            self.write('        settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) << ")\\"\\n";')
+            self.write('        settings.stream() << settings.indentation(indents + 1) << "\\"value\\" : \\"UNKNOWN (" << (int64_t) (base_struct.sType) << ")\\"\\n";')
             self.write('        settings.stream() << settings.indentation(indents) << "}";')
             self.write('    }')
             self.write('}')

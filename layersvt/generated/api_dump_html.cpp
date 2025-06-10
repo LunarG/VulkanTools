@@ -36939,1759 +36939,1761 @@ void dump_html_VkAccelerationStructureGeometryDataKHR(const VkAccelerationStruct
 
 void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents)
 {
-    switch((int64_t) (static_cast<const VkBaseInStructure*>(object)->sType)) {
+    VkBaseInStructure base_struct{};
+    memcpy(&base_struct, object, sizeof(VkBaseInStructure));
+    switch(base_struct.sType) {
     case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
-        dump_html_pNext<const VkBufferMemoryBarrier>(static_cast<const VkBufferMemoryBarrier*>(object), settings, "VkBufferMemoryBarrier", indents, dump_html_VkBufferMemoryBarrier);
+        dump_html_pNext<const VkBufferMemoryBarrier>(reinterpret_cast<const VkBufferMemoryBarrier*>(object), settings, "VkBufferMemoryBarrier", indents, dump_html_VkBufferMemoryBarrier);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER:
-        dump_html_pNext<const VkImageMemoryBarrier>(static_cast<const VkImageMemoryBarrier*>(object), settings, "VkImageMemoryBarrier", indents, dump_html_VkImageMemoryBarrier);
+        dump_html_pNext<const VkImageMemoryBarrier>(reinterpret_cast<const VkImageMemoryBarrier*>(object), settings, "VkImageMemoryBarrier", indents, dump_html_VkImageMemoryBarrier);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_BARRIER:
-        dump_html_pNext<const VkMemoryBarrier>(static_cast<const VkMemoryBarrier*>(object), settings, "VkMemoryBarrier", indents, dump_html_VkMemoryBarrier);
+        dump_html_pNext<const VkMemoryBarrier>(reinterpret_cast<const VkMemoryBarrier*>(object), settings, "VkMemoryBarrier", indents, dump_html_VkMemoryBarrier);
         break;
     case VK_STRUCTURE_TYPE_APPLICATION_INFO:
-        dump_html_pNext<const VkApplicationInfo>(static_cast<const VkApplicationInfo*>(object), settings, "VkApplicationInfo", indents, dump_html_VkApplicationInfo);
+        dump_html_pNext<const VkApplicationInfo>(reinterpret_cast<const VkApplicationInfo*>(object), settings, "VkApplicationInfo", indents, dump_html_VkApplicationInfo);
         break;
     case VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO:
-        dump_html_pNext<const VkInstanceCreateInfo>(static_cast<const VkInstanceCreateInfo*>(object), settings, "VkInstanceCreateInfo", indents, dump_html_VkInstanceCreateInfo);
+        dump_html_pNext<const VkInstanceCreateInfo>(reinterpret_cast<const VkInstanceCreateInfo*>(object), settings, "VkInstanceCreateInfo", indents, dump_html_VkInstanceCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO:
-        dump_html_pNext<const VkDeviceQueueCreateInfo>(static_cast<const VkDeviceQueueCreateInfo*>(object), settings, "VkDeviceQueueCreateInfo", indents, dump_html_VkDeviceQueueCreateInfo);
+        dump_html_pNext<const VkDeviceQueueCreateInfo>(reinterpret_cast<const VkDeviceQueueCreateInfo*>(object), settings, "VkDeviceQueueCreateInfo", indents, dump_html_VkDeviceQueueCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO:
-        dump_html_pNext<const VkDeviceCreateInfo>(static_cast<const VkDeviceCreateInfo*>(object), settings, "VkDeviceCreateInfo", indents, dump_html_VkDeviceCreateInfo);
+        dump_html_pNext<const VkDeviceCreateInfo>(reinterpret_cast<const VkDeviceCreateInfo*>(object), settings, "VkDeviceCreateInfo", indents, dump_html_VkDeviceCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_SUBMIT_INFO:
-        dump_html_pNext<const VkSubmitInfo>(static_cast<const VkSubmitInfo*>(object), settings, "VkSubmitInfo", indents, dump_html_VkSubmitInfo);
+        dump_html_pNext<const VkSubmitInfo>(reinterpret_cast<const VkSubmitInfo*>(object), settings, "VkSubmitInfo", indents, dump_html_VkSubmitInfo);
         break;
     case VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE:
-        dump_html_pNext<const VkMappedMemoryRange>(static_cast<const VkMappedMemoryRange*>(object), settings, "VkMappedMemoryRange", indents, dump_html_VkMappedMemoryRange);
+        dump_html_pNext<const VkMappedMemoryRange>(reinterpret_cast<const VkMappedMemoryRange*>(object), settings, "VkMappedMemoryRange", indents, dump_html_VkMappedMemoryRange);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO:
-        dump_html_pNext<const VkMemoryAllocateInfo>(static_cast<const VkMemoryAllocateInfo*>(object), settings, "VkMemoryAllocateInfo", indents, dump_html_VkMemoryAllocateInfo);
+        dump_html_pNext<const VkMemoryAllocateInfo>(reinterpret_cast<const VkMemoryAllocateInfo*>(object), settings, "VkMemoryAllocateInfo", indents, dump_html_VkMemoryAllocateInfo);
         break;
     case VK_STRUCTURE_TYPE_BIND_SPARSE_INFO:
-        dump_html_pNext<const VkBindSparseInfo>(static_cast<const VkBindSparseInfo*>(object), settings, "VkBindSparseInfo", indents, dump_html_VkBindSparseInfo);
+        dump_html_pNext<const VkBindSparseInfo>(reinterpret_cast<const VkBindSparseInfo*>(object), settings, "VkBindSparseInfo", indents, dump_html_VkBindSparseInfo);
         break;
     case VK_STRUCTURE_TYPE_FENCE_CREATE_INFO:
-        dump_html_pNext<const VkFenceCreateInfo>(static_cast<const VkFenceCreateInfo*>(object), settings, "VkFenceCreateInfo", indents, dump_html_VkFenceCreateInfo);
+        dump_html_pNext<const VkFenceCreateInfo>(reinterpret_cast<const VkFenceCreateInfo*>(object), settings, "VkFenceCreateInfo", indents, dump_html_VkFenceCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO:
-        dump_html_pNext<const VkSemaphoreCreateInfo>(static_cast<const VkSemaphoreCreateInfo*>(object), settings, "VkSemaphoreCreateInfo", indents, dump_html_VkSemaphoreCreateInfo);
+        dump_html_pNext<const VkSemaphoreCreateInfo>(reinterpret_cast<const VkSemaphoreCreateInfo*>(object), settings, "VkSemaphoreCreateInfo", indents, dump_html_VkSemaphoreCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_EVENT_CREATE_INFO:
-        dump_html_pNext<const VkEventCreateInfo>(static_cast<const VkEventCreateInfo*>(object), settings, "VkEventCreateInfo", indents, dump_html_VkEventCreateInfo);
+        dump_html_pNext<const VkEventCreateInfo>(reinterpret_cast<const VkEventCreateInfo*>(object), settings, "VkEventCreateInfo", indents, dump_html_VkEventCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO:
-        dump_html_pNext<const VkQueryPoolCreateInfo>(static_cast<const VkQueryPoolCreateInfo*>(object), settings, "VkQueryPoolCreateInfo", indents, dump_html_VkQueryPoolCreateInfo);
+        dump_html_pNext<const VkQueryPoolCreateInfo>(reinterpret_cast<const VkQueryPoolCreateInfo*>(object), settings, "VkQueryPoolCreateInfo", indents, dump_html_VkQueryPoolCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO:
-        dump_html_pNext<const VkBufferCreateInfo>(static_cast<const VkBufferCreateInfo*>(object), settings, "VkBufferCreateInfo", indents, dump_html_VkBufferCreateInfo);
+        dump_html_pNext<const VkBufferCreateInfo>(reinterpret_cast<const VkBufferCreateInfo*>(object), settings, "VkBufferCreateInfo", indents, dump_html_VkBufferCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO:
-        dump_html_pNext<const VkBufferViewCreateInfo>(static_cast<const VkBufferViewCreateInfo*>(object), settings, "VkBufferViewCreateInfo", indents, dump_html_VkBufferViewCreateInfo);
+        dump_html_pNext<const VkBufferViewCreateInfo>(reinterpret_cast<const VkBufferViewCreateInfo*>(object), settings, "VkBufferViewCreateInfo", indents, dump_html_VkBufferViewCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO:
-        dump_html_pNext<const VkImageCreateInfo>(static_cast<const VkImageCreateInfo*>(object), settings, "VkImageCreateInfo", indents, dump_html_VkImageCreateInfo);
+        dump_html_pNext<const VkImageCreateInfo>(reinterpret_cast<const VkImageCreateInfo*>(object), settings, "VkImageCreateInfo", indents, dump_html_VkImageCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO:
-        dump_html_pNext<const VkImageViewCreateInfo>(static_cast<const VkImageViewCreateInfo*>(object), settings, "VkImageViewCreateInfo", indents, dump_html_VkImageViewCreateInfo);
+        dump_html_pNext<const VkImageViewCreateInfo>(reinterpret_cast<const VkImageViewCreateInfo*>(object), settings, "VkImageViewCreateInfo", indents, dump_html_VkImageViewCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
-        dump_html_pNext<const VkShaderModuleCreateInfo>(static_cast<const VkShaderModuleCreateInfo*>(object), settings, "VkShaderModuleCreateInfo", indents, dump_html_VkShaderModuleCreateInfo);
+        dump_html_pNext<const VkShaderModuleCreateInfo>(reinterpret_cast<const VkShaderModuleCreateInfo*>(object), settings, "VkShaderModuleCreateInfo", indents, dump_html_VkShaderModuleCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineCacheCreateInfo>(static_cast<const VkPipelineCacheCreateInfo*>(object), settings, "VkPipelineCacheCreateInfo", indents, dump_html_VkPipelineCacheCreateInfo);
+        dump_html_pNext<const VkPipelineCacheCreateInfo>(reinterpret_cast<const VkPipelineCacheCreateInfo*>(object), settings, "VkPipelineCacheCreateInfo", indents, dump_html_VkPipelineCacheCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineShaderStageCreateInfo>(static_cast<const VkPipelineShaderStageCreateInfo*>(object), settings, "VkPipelineShaderStageCreateInfo", indents, dump_html_VkPipelineShaderStageCreateInfo);
+        dump_html_pNext<const VkPipelineShaderStageCreateInfo>(reinterpret_cast<const VkPipelineShaderStageCreateInfo*>(object), settings, "VkPipelineShaderStageCreateInfo", indents, dump_html_VkPipelineShaderStageCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
-        dump_html_pNext<const VkComputePipelineCreateInfo>(static_cast<const VkComputePipelineCreateInfo*>(object), settings, "VkComputePipelineCreateInfo", indents, dump_html_VkComputePipelineCreateInfo);
+        dump_html_pNext<const VkComputePipelineCreateInfo>(reinterpret_cast<const VkComputePipelineCreateInfo*>(object), settings, "VkComputePipelineCreateInfo", indents, dump_html_VkComputePipelineCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineVertexInputStateCreateInfo>(static_cast<const VkPipelineVertexInputStateCreateInfo*>(object), settings, "VkPipelineVertexInputStateCreateInfo", indents, dump_html_VkPipelineVertexInputStateCreateInfo);
+        dump_html_pNext<const VkPipelineVertexInputStateCreateInfo>(reinterpret_cast<const VkPipelineVertexInputStateCreateInfo*>(object), settings, "VkPipelineVertexInputStateCreateInfo", indents, dump_html_VkPipelineVertexInputStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineInputAssemblyStateCreateInfo>(static_cast<const VkPipelineInputAssemblyStateCreateInfo*>(object), settings, "VkPipelineInputAssemblyStateCreateInfo", indents, dump_html_VkPipelineInputAssemblyStateCreateInfo);
+        dump_html_pNext<const VkPipelineInputAssemblyStateCreateInfo>(reinterpret_cast<const VkPipelineInputAssemblyStateCreateInfo*>(object), settings, "VkPipelineInputAssemblyStateCreateInfo", indents, dump_html_VkPipelineInputAssemblyStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineTessellationStateCreateInfo>(static_cast<const VkPipelineTessellationStateCreateInfo*>(object), settings, "VkPipelineTessellationStateCreateInfo", indents, dump_html_VkPipelineTessellationStateCreateInfo);
+        dump_html_pNext<const VkPipelineTessellationStateCreateInfo>(reinterpret_cast<const VkPipelineTessellationStateCreateInfo*>(object), settings, "VkPipelineTessellationStateCreateInfo", indents, dump_html_VkPipelineTessellationStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineViewportStateCreateInfo>(static_cast<const VkPipelineViewportStateCreateInfo*>(object), settings, "VkPipelineViewportStateCreateInfo", indents, dump_html_VkPipelineViewportStateCreateInfo);
+        dump_html_pNext<const VkPipelineViewportStateCreateInfo>(reinterpret_cast<const VkPipelineViewportStateCreateInfo*>(object), settings, "VkPipelineViewportStateCreateInfo", indents, dump_html_VkPipelineViewportStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineRasterizationStateCreateInfo>(static_cast<const VkPipelineRasterizationStateCreateInfo*>(object), settings, "VkPipelineRasterizationStateCreateInfo", indents, dump_html_VkPipelineRasterizationStateCreateInfo);
+        dump_html_pNext<const VkPipelineRasterizationStateCreateInfo>(reinterpret_cast<const VkPipelineRasterizationStateCreateInfo*>(object), settings, "VkPipelineRasterizationStateCreateInfo", indents, dump_html_VkPipelineRasterizationStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineMultisampleStateCreateInfo>(static_cast<const VkPipelineMultisampleStateCreateInfo*>(object), settings, "VkPipelineMultisampleStateCreateInfo", indents, dump_html_VkPipelineMultisampleStateCreateInfo);
+        dump_html_pNext<const VkPipelineMultisampleStateCreateInfo>(reinterpret_cast<const VkPipelineMultisampleStateCreateInfo*>(object), settings, "VkPipelineMultisampleStateCreateInfo", indents, dump_html_VkPipelineMultisampleStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineDepthStencilStateCreateInfo>(static_cast<const VkPipelineDepthStencilStateCreateInfo*>(object), settings, "VkPipelineDepthStencilStateCreateInfo", indents, dump_html_VkPipelineDepthStencilStateCreateInfo);
+        dump_html_pNext<const VkPipelineDepthStencilStateCreateInfo>(reinterpret_cast<const VkPipelineDepthStencilStateCreateInfo*>(object), settings, "VkPipelineDepthStencilStateCreateInfo", indents, dump_html_VkPipelineDepthStencilStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineColorBlendStateCreateInfo>(static_cast<const VkPipelineColorBlendStateCreateInfo*>(object), settings, "VkPipelineColorBlendStateCreateInfo", indents, dump_html_VkPipelineColorBlendStateCreateInfo);
+        dump_html_pNext<const VkPipelineColorBlendStateCreateInfo>(reinterpret_cast<const VkPipelineColorBlendStateCreateInfo*>(object), settings, "VkPipelineColorBlendStateCreateInfo", indents, dump_html_VkPipelineColorBlendStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineDynamicStateCreateInfo>(static_cast<const VkPipelineDynamicStateCreateInfo*>(object), settings, "VkPipelineDynamicStateCreateInfo", indents, dump_html_VkPipelineDynamicStateCreateInfo);
+        dump_html_pNext<const VkPipelineDynamicStateCreateInfo>(reinterpret_cast<const VkPipelineDynamicStateCreateInfo*>(object), settings, "VkPipelineDynamicStateCreateInfo", indents, dump_html_VkPipelineDynamicStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
-        dump_html_pNext<const VkGraphicsPipelineCreateInfo>(static_cast<const VkGraphicsPipelineCreateInfo*>(object), settings, "VkGraphicsPipelineCreateInfo", indents, dump_html_VkGraphicsPipelineCreateInfo);
+        dump_html_pNext<const VkGraphicsPipelineCreateInfo>(reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(object), settings, "VkGraphicsPipelineCreateInfo", indents, dump_html_VkGraphicsPipelineCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
-        dump_html_pNext<const VkPipelineLayoutCreateInfo>(static_cast<const VkPipelineLayoutCreateInfo*>(object), settings, "VkPipelineLayoutCreateInfo", indents, dump_html_VkPipelineLayoutCreateInfo);
+        dump_html_pNext<const VkPipelineLayoutCreateInfo>(reinterpret_cast<const VkPipelineLayoutCreateInfo*>(object), settings, "VkPipelineLayoutCreateInfo", indents, dump_html_VkPipelineLayoutCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO:
-        dump_html_pNext<const VkSamplerCreateInfo>(static_cast<const VkSamplerCreateInfo*>(object), settings, "VkSamplerCreateInfo", indents, dump_html_VkSamplerCreateInfo);
+        dump_html_pNext<const VkSamplerCreateInfo>(reinterpret_cast<const VkSamplerCreateInfo*>(object), settings, "VkSamplerCreateInfo", indents, dump_html_VkSamplerCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET:
-        dump_html_pNext<const VkCopyDescriptorSet>(static_cast<const VkCopyDescriptorSet*>(object), settings, "VkCopyDescriptorSet", indents, dump_html_VkCopyDescriptorSet);
+        dump_html_pNext<const VkCopyDescriptorSet>(reinterpret_cast<const VkCopyDescriptorSet*>(object), settings, "VkCopyDescriptorSet", indents, dump_html_VkCopyDescriptorSet);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO:
-        dump_html_pNext<const VkDescriptorPoolCreateInfo>(static_cast<const VkDescriptorPoolCreateInfo*>(object), settings, "VkDescriptorPoolCreateInfo", indents, dump_html_VkDescriptorPoolCreateInfo);
+        dump_html_pNext<const VkDescriptorPoolCreateInfo>(reinterpret_cast<const VkDescriptorPoolCreateInfo*>(object), settings, "VkDescriptorPoolCreateInfo", indents, dump_html_VkDescriptorPoolCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO:
-        dump_html_pNext<const VkDescriptorSetAllocateInfo>(static_cast<const VkDescriptorSetAllocateInfo*>(object), settings, "VkDescriptorSetAllocateInfo", indents, dump_html_VkDescriptorSetAllocateInfo);
+        dump_html_pNext<const VkDescriptorSetAllocateInfo>(reinterpret_cast<const VkDescriptorSetAllocateInfo*>(object), settings, "VkDescriptorSetAllocateInfo", indents, dump_html_VkDescriptorSetAllocateInfo);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO:
-        dump_html_pNext<const VkDescriptorSetLayoutCreateInfo>(static_cast<const VkDescriptorSetLayoutCreateInfo*>(object), settings, "VkDescriptorSetLayoutCreateInfo", indents, dump_html_VkDescriptorSetLayoutCreateInfo);
+        dump_html_pNext<const VkDescriptorSetLayoutCreateInfo>(reinterpret_cast<const VkDescriptorSetLayoutCreateInfo*>(object), settings, "VkDescriptorSetLayoutCreateInfo", indents, dump_html_VkDescriptorSetLayoutCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET:
-        dump_html_pNext<const VkWriteDescriptorSet>(static_cast<const VkWriteDescriptorSet*>(object), settings, "VkWriteDescriptorSet", indents, dump_html_VkWriteDescriptorSet);
+        dump_html_pNext<const VkWriteDescriptorSet>(reinterpret_cast<const VkWriteDescriptorSet*>(object), settings, "VkWriteDescriptorSet", indents, dump_html_VkWriteDescriptorSet);
         break;
     case VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO:
-        dump_html_pNext<const VkFramebufferCreateInfo>(static_cast<const VkFramebufferCreateInfo*>(object), settings, "VkFramebufferCreateInfo", indents, dump_html_VkFramebufferCreateInfo);
+        dump_html_pNext<const VkFramebufferCreateInfo>(reinterpret_cast<const VkFramebufferCreateInfo*>(object), settings, "VkFramebufferCreateInfo", indents, dump_html_VkFramebufferCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO:
-        dump_html_pNext<const VkRenderPassCreateInfo>(static_cast<const VkRenderPassCreateInfo*>(object), settings, "VkRenderPassCreateInfo", indents, dump_html_VkRenderPassCreateInfo);
+        dump_html_pNext<const VkRenderPassCreateInfo>(reinterpret_cast<const VkRenderPassCreateInfo*>(object), settings, "VkRenderPassCreateInfo", indents, dump_html_VkRenderPassCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO:
-        dump_html_pNext<const VkCommandPoolCreateInfo>(static_cast<const VkCommandPoolCreateInfo*>(object), settings, "VkCommandPoolCreateInfo", indents, dump_html_VkCommandPoolCreateInfo);
+        dump_html_pNext<const VkCommandPoolCreateInfo>(reinterpret_cast<const VkCommandPoolCreateInfo*>(object), settings, "VkCommandPoolCreateInfo", indents, dump_html_VkCommandPoolCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO:
-        dump_html_pNext<const VkCommandBufferAllocateInfo>(static_cast<const VkCommandBufferAllocateInfo*>(object), settings, "VkCommandBufferAllocateInfo", indents, dump_html_VkCommandBufferAllocateInfo);
+        dump_html_pNext<const VkCommandBufferAllocateInfo>(reinterpret_cast<const VkCommandBufferAllocateInfo*>(object), settings, "VkCommandBufferAllocateInfo", indents, dump_html_VkCommandBufferAllocateInfo);
         break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO:
-        dump_html_pNext<const VkCommandBufferInheritanceInfo>(static_cast<const VkCommandBufferInheritanceInfo*>(object), settings, "VkCommandBufferInheritanceInfo", indents, dump_html_VkCommandBufferInheritanceInfo);
+        dump_html_pNext<const VkCommandBufferInheritanceInfo>(reinterpret_cast<const VkCommandBufferInheritanceInfo*>(object), settings, "VkCommandBufferInheritanceInfo", indents, dump_html_VkCommandBufferInheritanceInfo);
         break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO:
-        dump_html_pNext<const VkCommandBufferBeginInfo>(static_cast<const VkCommandBufferBeginInfo*>(object), settings, "VkCommandBufferBeginInfo", indents, dump_html_VkCommandBufferBeginInfo);
+        dump_html_pNext<const VkCommandBufferBeginInfo>(reinterpret_cast<const VkCommandBufferBeginInfo*>(object), settings, "VkCommandBufferBeginInfo", indents, dump_html_VkCommandBufferBeginInfo);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO:
-        dump_html_pNext<const VkRenderPassBeginInfo>(static_cast<const VkRenderPassBeginInfo*>(object), settings, "VkRenderPassBeginInfo", indents, dump_html_VkRenderPassBeginInfo);
+        dump_html_pNext<const VkRenderPassBeginInfo>(reinterpret_cast<const VkRenderPassBeginInfo*>(object), settings, "VkRenderPassBeginInfo", indents, dump_html_VkRenderPassBeginInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceSubgroupProperties>(static_cast<const VkPhysicalDeviceSubgroupProperties*>(object), settings, "VkPhysicalDeviceSubgroupProperties", indents, dump_html_VkPhysicalDeviceSubgroupProperties);
+        dump_html_pNext<const VkPhysicalDeviceSubgroupProperties>(reinterpret_cast<const VkPhysicalDeviceSubgroupProperties*>(object), settings, "VkPhysicalDeviceSubgroupProperties", indents, dump_html_VkPhysicalDeviceSubgroupProperties);
         break;
     case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO:
-        dump_html_pNext<const VkBindBufferMemoryInfo>(static_cast<const VkBindBufferMemoryInfo*>(object), settings, "VkBindBufferMemoryInfo", indents, dump_html_VkBindBufferMemoryInfo);
+        dump_html_pNext<const VkBindBufferMemoryInfo>(reinterpret_cast<const VkBindBufferMemoryInfo*>(object), settings, "VkBindBufferMemoryInfo", indents, dump_html_VkBindBufferMemoryInfo);
         break;
     case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO:
-        dump_html_pNext<const VkBindImageMemoryInfo>(static_cast<const VkBindImageMemoryInfo*>(object), settings, "VkBindImageMemoryInfo", indents, dump_html_VkBindImageMemoryInfo);
+        dump_html_pNext<const VkBindImageMemoryInfo>(reinterpret_cast<const VkBindImageMemoryInfo*>(object), settings, "VkBindImageMemoryInfo", indents, dump_html_VkBindImageMemoryInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES:
-        dump_html_pNext<const VkPhysicalDevice16BitStorageFeatures>(static_cast<const VkPhysicalDevice16BitStorageFeatures*>(object), settings, "VkPhysicalDevice16BitStorageFeatures", indents, dump_html_VkPhysicalDevice16BitStorageFeatures);
+        dump_html_pNext<const VkPhysicalDevice16BitStorageFeatures>(reinterpret_cast<const VkPhysicalDevice16BitStorageFeatures*>(object), settings, "VkPhysicalDevice16BitStorageFeatures", indents, dump_html_VkPhysicalDevice16BitStorageFeatures);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS:
-        dump_html_pNext<const VkMemoryDedicatedRequirements>(static_cast<const VkMemoryDedicatedRequirements*>(object), settings, "VkMemoryDedicatedRequirements", indents, dump_html_VkMemoryDedicatedRequirements);
+        dump_html_pNext<const VkMemoryDedicatedRequirements>(reinterpret_cast<const VkMemoryDedicatedRequirements*>(object), settings, "VkMemoryDedicatedRequirements", indents, dump_html_VkMemoryDedicatedRequirements);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
-        dump_html_pNext<const VkMemoryDedicatedAllocateInfo>(static_cast<const VkMemoryDedicatedAllocateInfo*>(object), settings, "VkMemoryDedicatedAllocateInfo", indents, dump_html_VkMemoryDedicatedAllocateInfo);
+        dump_html_pNext<const VkMemoryDedicatedAllocateInfo>(reinterpret_cast<const VkMemoryDedicatedAllocateInfo*>(object), settings, "VkMemoryDedicatedAllocateInfo", indents, dump_html_VkMemoryDedicatedAllocateInfo);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO:
-        dump_html_pNext<const VkMemoryAllocateFlagsInfo>(static_cast<const VkMemoryAllocateFlagsInfo*>(object), settings, "VkMemoryAllocateFlagsInfo", indents, dump_html_VkMemoryAllocateFlagsInfo);
+        dump_html_pNext<const VkMemoryAllocateFlagsInfo>(reinterpret_cast<const VkMemoryAllocateFlagsInfo*>(object), settings, "VkMemoryAllocateFlagsInfo", indents, dump_html_VkMemoryAllocateFlagsInfo);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
-        dump_html_pNext<const VkDeviceGroupRenderPassBeginInfo>(static_cast<const VkDeviceGroupRenderPassBeginInfo*>(object), settings, "VkDeviceGroupRenderPassBeginInfo", indents, dump_html_VkDeviceGroupRenderPassBeginInfo);
+        dump_html_pNext<const VkDeviceGroupRenderPassBeginInfo>(reinterpret_cast<const VkDeviceGroupRenderPassBeginInfo*>(object), settings, "VkDeviceGroupRenderPassBeginInfo", indents, dump_html_VkDeviceGroupRenderPassBeginInfo);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO:
-        dump_html_pNext<const VkDeviceGroupCommandBufferBeginInfo>(static_cast<const VkDeviceGroupCommandBufferBeginInfo*>(object), settings, "VkDeviceGroupCommandBufferBeginInfo", indents, dump_html_VkDeviceGroupCommandBufferBeginInfo);
+        dump_html_pNext<const VkDeviceGroupCommandBufferBeginInfo>(reinterpret_cast<const VkDeviceGroupCommandBufferBeginInfo*>(object), settings, "VkDeviceGroupCommandBufferBeginInfo", indents, dump_html_VkDeviceGroupCommandBufferBeginInfo);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO:
-        dump_html_pNext<const VkDeviceGroupSubmitInfo>(static_cast<const VkDeviceGroupSubmitInfo*>(object), settings, "VkDeviceGroupSubmitInfo", indents, dump_html_VkDeviceGroupSubmitInfo);
+        dump_html_pNext<const VkDeviceGroupSubmitInfo>(reinterpret_cast<const VkDeviceGroupSubmitInfo*>(object), settings, "VkDeviceGroupSubmitInfo", indents, dump_html_VkDeviceGroupSubmitInfo);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO:
-        dump_html_pNext<const VkDeviceGroupBindSparseInfo>(static_cast<const VkDeviceGroupBindSparseInfo*>(object), settings, "VkDeviceGroupBindSparseInfo", indents, dump_html_VkDeviceGroupBindSparseInfo);
+        dump_html_pNext<const VkDeviceGroupBindSparseInfo>(reinterpret_cast<const VkDeviceGroupBindSparseInfo*>(object), settings, "VkDeviceGroupBindSparseInfo", indents, dump_html_VkDeviceGroupBindSparseInfo);
         break;
     case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO:
-        dump_html_pNext<const VkBindBufferMemoryDeviceGroupInfo>(static_cast<const VkBindBufferMemoryDeviceGroupInfo*>(object), settings, "VkBindBufferMemoryDeviceGroupInfo", indents, dump_html_VkBindBufferMemoryDeviceGroupInfo);
+        dump_html_pNext<const VkBindBufferMemoryDeviceGroupInfo>(reinterpret_cast<const VkBindBufferMemoryDeviceGroupInfo*>(object), settings, "VkBindBufferMemoryDeviceGroupInfo", indents, dump_html_VkBindBufferMemoryDeviceGroupInfo);
         break;
     case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
-        dump_html_pNext<const VkBindImageMemoryDeviceGroupInfo>(static_cast<const VkBindImageMemoryDeviceGroupInfo*>(object), settings, "VkBindImageMemoryDeviceGroupInfo", indents, dump_html_VkBindImageMemoryDeviceGroupInfo);
+        dump_html_pNext<const VkBindImageMemoryDeviceGroupInfo>(reinterpret_cast<const VkBindImageMemoryDeviceGroupInfo*>(object), settings, "VkBindImageMemoryDeviceGroupInfo", indents, dump_html_VkBindImageMemoryDeviceGroupInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceGroupProperties>(static_cast<const VkPhysicalDeviceGroupProperties*>(object), settings, "VkPhysicalDeviceGroupProperties", indents, dump_html_VkPhysicalDeviceGroupProperties);
+        dump_html_pNext<const VkPhysicalDeviceGroupProperties>(reinterpret_cast<const VkPhysicalDeviceGroupProperties*>(object), settings, "VkPhysicalDeviceGroupProperties", indents, dump_html_VkPhysicalDeviceGroupProperties);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
-        dump_html_pNext<const VkDeviceGroupDeviceCreateInfo>(static_cast<const VkDeviceGroupDeviceCreateInfo*>(object), settings, "VkDeviceGroupDeviceCreateInfo", indents, dump_html_VkDeviceGroupDeviceCreateInfo);
+        dump_html_pNext<const VkDeviceGroupDeviceCreateInfo>(reinterpret_cast<const VkDeviceGroupDeviceCreateInfo*>(object), settings, "VkDeviceGroupDeviceCreateInfo", indents, dump_html_VkDeviceGroupDeviceCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2:
-        dump_html_pNext<const VkBufferMemoryRequirementsInfo2>(static_cast<const VkBufferMemoryRequirementsInfo2*>(object), settings, "VkBufferMemoryRequirementsInfo2", indents, dump_html_VkBufferMemoryRequirementsInfo2);
+        dump_html_pNext<const VkBufferMemoryRequirementsInfo2>(reinterpret_cast<const VkBufferMemoryRequirementsInfo2*>(object), settings, "VkBufferMemoryRequirementsInfo2", indents, dump_html_VkBufferMemoryRequirementsInfo2);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2:
-        dump_html_pNext<const VkImageMemoryRequirementsInfo2>(static_cast<const VkImageMemoryRequirementsInfo2*>(object), settings, "VkImageMemoryRequirementsInfo2", indents, dump_html_VkImageMemoryRequirementsInfo2);
+        dump_html_pNext<const VkImageMemoryRequirementsInfo2>(reinterpret_cast<const VkImageMemoryRequirementsInfo2*>(object), settings, "VkImageMemoryRequirementsInfo2", indents, dump_html_VkImageMemoryRequirementsInfo2);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2:
-        dump_html_pNext<const VkImageSparseMemoryRequirementsInfo2>(static_cast<const VkImageSparseMemoryRequirementsInfo2*>(object), settings, "VkImageSparseMemoryRequirementsInfo2", indents, dump_html_VkImageSparseMemoryRequirementsInfo2);
+        dump_html_pNext<const VkImageSparseMemoryRequirementsInfo2>(reinterpret_cast<const VkImageSparseMemoryRequirementsInfo2*>(object), settings, "VkImageSparseMemoryRequirementsInfo2", indents, dump_html_VkImageSparseMemoryRequirementsInfo2);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2:
-        dump_html_pNext<const VkMemoryRequirements2>(static_cast<const VkMemoryRequirements2*>(object), settings, "VkMemoryRequirements2", indents, dump_html_VkMemoryRequirements2);
+        dump_html_pNext<const VkMemoryRequirements2>(reinterpret_cast<const VkMemoryRequirements2*>(object), settings, "VkMemoryRequirements2", indents, dump_html_VkMemoryRequirements2);
         break;
     case VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2:
-        dump_html_pNext<const VkSparseImageMemoryRequirements2>(static_cast<const VkSparseImageMemoryRequirements2*>(object), settings, "VkSparseImageMemoryRequirements2", indents, dump_html_VkSparseImageMemoryRequirements2);
+        dump_html_pNext<const VkSparseImageMemoryRequirements2>(reinterpret_cast<const VkSparseImageMemoryRequirements2*>(object), settings, "VkSparseImageMemoryRequirements2", indents, dump_html_VkSparseImageMemoryRequirements2);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2:
-        dump_html_pNext<const VkPhysicalDeviceFeatures2>(static_cast<const VkPhysicalDeviceFeatures2*>(object), settings, "VkPhysicalDeviceFeatures2", indents, dump_html_VkPhysicalDeviceFeatures2);
+        dump_html_pNext<const VkPhysicalDeviceFeatures2>(reinterpret_cast<const VkPhysicalDeviceFeatures2*>(object), settings, "VkPhysicalDeviceFeatures2", indents, dump_html_VkPhysicalDeviceFeatures2);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2:
-        dump_html_pNext<const VkPhysicalDeviceProperties2>(static_cast<const VkPhysicalDeviceProperties2*>(object), settings, "VkPhysicalDeviceProperties2", indents, dump_html_VkPhysicalDeviceProperties2);
+        dump_html_pNext<const VkPhysicalDeviceProperties2>(reinterpret_cast<const VkPhysicalDeviceProperties2*>(object), settings, "VkPhysicalDeviceProperties2", indents, dump_html_VkPhysicalDeviceProperties2);
         break;
     case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2:
-        dump_html_pNext<const VkFormatProperties2>(static_cast<const VkFormatProperties2*>(object), settings, "VkFormatProperties2", indents, dump_html_VkFormatProperties2);
+        dump_html_pNext<const VkFormatProperties2>(reinterpret_cast<const VkFormatProperties2*>(object), settings, "VkFormatProperties2", indents, dump_html_VkFormatProperties2);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2:
-        dump_html_pNext<const VkImageFormatProperties2>(static_cast<const VkImageFormatProperties2*>(object), settings, "VkImageFormatProperties2", indents, dump_html_VkImageFormatProperties2);
+        dump_html_pNext<const VkImageFormatProperties2>(reinterpret_cast<const VkImageFormatProperties2*>(object), settings, "VkImageFormatProperties2", indents, dump_html_VkImageFormatProperties2);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2:
-        dump_html_pNext<const VkPhysicalDeviceImageFormatInfo2>(static_cast<const VkPhysicalDeviceImageFormatInfo2*>(object), settings, "VkPhysicalDeviceImageFormatInfo2", indents, dump_html_VkPhysicalDeviceImageFormatInfo2);
+        dump_html_pNext<const VkPhysicalDeviceImageFormatInfo2>(reinterpret_cast<const VkPhysicalDeviceImageFormatInfo2*>(object), settings, "VkPhysicalDeviceImageFormatInfo2", indents, dump_html_VkPhysicalDeviceImageFormatInfo2);
         break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2:
-        dump_html_pNext<const VkQueueFamilyProperties2>(static_cast<const VkQueueFamilyProperties2*>(object), settings, "VkQueueFamilyProperties2", indents, dump_html_VkQueueFamilyProperties2);
+        dump_html_pNext<const VkQueueFamilyProperties2>(reinterpret_cast<const VkQueueFamilyProperties2*>(object), settings, "VkQueueFamilyProperties2", indents, dump_html_VkQueueFamilyProperties2);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2:
-        dump_html_pNext<const VkPhysicalDeviceMemoryProperties2>(static_cast<const VkPhysicalDeviceMemoryProperties2*>(object), settings, "VkPhysicalDeviceMemoryProperties2", indents, dump_html_VkPhysicalDeviceMemoryProperties2);
+        dump_html_pNext<const VkPhysicalDeviceMemoryProperties2>(reinterpret_cast<const VkPhysicalDeviceMemoryProperties2*>(object), settings, "VkPhysicalDeviceMemoryProperties2", indents, dump_html_VkPhysicalDeviceMemoryProperties2);
         break;
     case VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2:
-        dump_html_pNext<const VkSparseImageFormatProperties2>(static_cast<const VkSparseImageFormatProperties2*>(object), settings, "VkSparseImageFormatProperties2", indents, dump_html_VkSparseImageFormatProperties2);
+        dump_html_pNext<const VkSparseImageFormatProperties2>(reinterpret_cast<const VkSparseImageFormatProperties2*>(object), settings, "VkSparseImageFormatProperties2", indents, dump_html_VkSparseImageFormatProperties2);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2:
-        dump_html_pNext<const VkPhysicalDeviceSparseImageFormatInfo2>(static_cast<const VkPhysicalDeviceSparseImageFormatInfo2*>(object), settings, "VkPhysicalDeviceSparseImageFormatInfo2", indents, dump_html_VkPhysicalDeviceSparseImageFormatInfo2);
+        dump_html_pNext<const VkPhysicalDeviceSparseImageFormatInfo2>(reinterpret_cast<const VkPhysicalDeviceSparseImageFormatInfo2*>(object), settings, "VkPhysicalDeviceSparseImageFormatInfo2", indents, dump_html_VkPhysicalDeviceSparseImageFormatInfo2);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDevicePointClippingProperties>(static_cast<const VkPhysicalDevicePointClippingProperties*>(object), settings, "VkPhysicalDevicePointClippingProperties", indents, dump_html_VkPhysicalDevicePointClippingProperties);
+        dump_html_pNext<const VkPhysicalDevicePointClippingProperties>(reinterpret_cast<const VkPhysicalDevicePointClippingProperties*>(object), settings, "VkPhysicalDevicePointClippingProperties", indents, dump_html_VkPhysicalDevicePointClippingProperties);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO:
-        dump_html_pNext<const VkRenderPassInputAttachmentAspectCreateInfo>(static_cast<const VkRenderPassInputAttachmentAspectCreateInfo*>(object), settings, "VkRenderPassInputAttachmentAspectCreateInfo", indents, dump_html_VkRenderPassInputAttachmentAspectCreateInfo);
+        dump_html_pNext<const VkRenderPassInputAttachmentAspectCreateInfo>(reinterpret_cast<const VkRenderPassInputAttachmentAspectCreateInfo*>(object), settings, "VkRenderPassInputAttachmentAspectCreateInfo", indents, dump_html_VkRenderPassInputAttachmentAspectCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO:
-        dump_html_pNext<const VkImageViewUsageCreateInfo>(static_cast<const VkImageViewUsageCreateInfo*>(object), settings, "VkImageViewUsageCreateInfo", indents, dump_html_VkImageViewUsageCreateInfo);
+        dump_html_pNext<const VkImageViewUsageCreateInfo>(reinterpret_cast<const VkImageViewUsageCreateInfo*>(object), settings, "VkImageViewUsageCreateInfo", indents, dump_html_VkImageViewUsageCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineTessellationDomainOriginStateCreateInfo>(static_cast<const VkPipelineTessellationDomainOriginStateCreateInfo*>(object), settings, "VkPipelineTessellationDomainOriginStateCreateInfo", indents, dump_html_VkPipelineTessellationDomainOriginStateCreateInfo);
+        dump_html_pNext<const VkPipelineTessellationDomainOriginStateCreateInfo>(reinterpret_cast<const VkPipelineTessellationDomainOriginStateCreateInfo*>(object), settings, "VkPipelineTessellationDomainOriginStateCreateInfo", indents, dump_html_VkPipelineTessellationDomainOriginStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO:
-        dump_html_pNext<const VkRenderPassMultiviewCreateInfo>(static_cast<const VkRenderPassMultiviewCreateInfo*>(object), settings, "VkRenderPassMultiviewCreateInfo", indents, dump_html_VkRenderPassMultiviewCreateInfo);
+        dump_html_pNext<const VkRenderPassMultiviewCreateInfo>(reinterpret_cast<const VkRenderPassMultiviewCreateInfo*>(object), settings, "VkRenderPassMultiviewCreateInfo", indents, dump_html_VkRenderPassMultiviewCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceMultiviewFeatures>(static_cast<const VkPhysicalDeviceMultiviewFeatures*>(object), settings, "VkPhysicalDeviceMultiviewFeatures", indents, dump_html_VkPhysicalDeviceMultiviewFeatures);
+        dump_html_pNext<const VkPhysicalDeviceMultiviewFeatures>(reinterpret_cast<const VkPhysicalDeviceMultiviewFeatures*>(object), settings, "VkPhysicalDeviceMultiviewFeatures", indents, dump_html_VkPhysicalDeviceMultiviewFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceMultiviewProperties>(static_cast<const VkPhysicalDeviceMultiviewProperties*>(object), settings, "VkPhysicalDeviceMultiviewProperties", indents, dump_html_VkPhysicalDeviceMultiviewProperties);
+        dump_html_pNext<const VkPhysicalDeviceMultiviewProperties>(reinterpret_cast<const VkPhysicalDeviceMultiviewProperties*>(object), settings, "VkPhysicalDeviceMultiviewProperties", indents, dump_html_VkPhysicalDeviceMultiviewProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceVariablePointersFeatures>(static_cast<const VkPhysicalDeviceVariablePointersFeatures*>(object), settings, "VkPhysicalDeviceVariablePointersFeatures", indents, dump_html_VkPhysicalDeviceVariablePointersFeatures);
+        dump_html_pNext<const VkPhysicalDeviceVariablePointersFeatures>(reinterpret_cast<const VkPhysicalDeviceVariablePointersFeatures*>(object), settings, "VkPhysicalDeviceVariablePointersFeatures", indents, dump_html_VkPhysicalDeviceVariablePointersFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceProtectedMemoryFeatures>(static_cast<const VkPhysicalDeviceProtectedMemoryFeatures*>(object), settings, "VkPhysicalDeviceProtectedMemoryFeatures", indents, dump_html_VkPhysicalDeviceProtectedMemoryFeatures);
+        dump_html_pNext<const VkPhysicalDeviceProtectedMemoryFeatures>(reinterpret_cast<const VkPhysicalDeviceProtectedMemoryFeatures*>(object), settings, "VkPhysicalDeviceProtectedMemoryFeatures", indents, dump_html_VkPhysicalDeviceProtectedMemoryFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceProtectedMemoryProperties>(static_cast<const VkPhysicalDeviceProtectedMemoryProperties*>(object), settings, "VkPhysicalDeviceProtectedMemoryProperties", indents, dump_html_VkPhysicalDeviceProtectedMemoryProperties);
+        dump_html_pNext<const VkPhysicalDeviceProtectedMemoryProperties>(reinterpret_cast<const VkPhysicalDeviceProtectedMemoryProperties*>(object), settings, "VkPhysicalDeviceProtectedMemoryProperties", indents, dump_html_VkPhysicalDeviceProtectedMemoryProperties);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2:
-        dump_html_pNext<const VkDeviceQueueInfo2>(static_cast<const VkDeviceQueueInfo2*>(object), settings, "VkDeviceQueueInfo2", indents, dump_html_VkDeviceQueueInfo2);
+        dump_html_pNext<const VkDeviceQueueInfo2>(reinterpret_cast<const VkDeviceQueueInfo2*>(object), settings, "VkDeviceQueueInfo2", indents, dump_html_VkDeviceQueueInfo2);
         break;
     case VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO:
-        dump_html_pNext<const VkProtectedSubmitInfo>(static_cast<const VkProtectedSubmitInfo*>(object), settings, "VkProtectedSubmitInfo", indents, dump_html_VkProtectedSubmitInfo);
+        dump_html_pNext<const VkProtectedSubmitInfo>(reinterpret_cast<const VkProtectedSubmitInfo*>(object), settings, "VkProtectedSubmitInfo", indents, dump_html_VkProtectedSubmitInfo);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO:
-        dump_html_pNext<const VkSamplerYcbcrConversionCreateInfo>(static_cast<const VkSamplerYcbcrConversionCreateInfo*>(object), settings, "VkSamplerYcbcrConversionCreateInfo", indents, dump_html_VkSamplerYcbcrConversionCreateInfo);
+        dump_html_pNext<const VkSamplerYcbcrConversionCreateInfo>(reinterpret_cast<const VkSamplerYcbcrConversionCreateInfo*>(object), settings, "VkSamplerYcbcrConversionCreateInfo", indents, dump_html_VkSamplerYcbcrConversionCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
-        dump_html_pNext<const VkSamplerYcbcrConversionInfo>(static_cast<const VkSamplerYcbcrConversionInfo*>(object), settings, "VkSamplerYcbcrConversionInfo", indents, dump_html_VkSamplerYcbcrConversionInfo);
+        dump_html_pNext<const VkSamplerYcbcrConversionInfo>(reinterpret_cast<const VkSamplerYcbcrConversionInfo*>(object), settings, "VkSamplerYcbcrConversionInfo", indents, dump_html_VkSamplerYcbcrConversionInfo);
         break;
     case VK_STRUCTURE_TYPE_BIND_IMAGE_PLANE_MEMORY_INFO:
-        dump_html_pNext<const VkBindImagePlaneMemoryInfo>(static_cast<const VkBindImagePlaneMemoryInfo*>(object), settings, "VkBindImagePlaneMemoryInfo", indents, dump_html_VkBindImagePlaneMemoryInfo);
+        dump_html_pNext<const VkBindImagePlaneMemoryInfo>(reinterpret_cast<const VkBindImagePlaneMemoryInfo*>(object), settings, "VkBindImagePlaneMemoryInfo", indents, dump_html_VkBindImagePlaneMemoryInfo);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO:
-        dump_html_pNext<const VkImagePlaneMemoryRequirementsInfo>(static_cast<const VkImagePlaneMemoryRequirementsInfo*>(object), settings, "VkImagePlaneMemoryRequirementsInfo", indents, dump_html_VkImagePlaneMemoryRequirementsInfo);
+        dump_html_pNext<const VkImagePlaneMemoryRequirementsInfo>(reinterpret_cast<const VkImagePlaneMemoryRequirementsInfo*>(object), settings, "VkImagePlaneMemoryRequirementsInfo", indents, dump_html_VkImagePlaneMemoryRequirementsInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceSamplerYcbcrConversionFeatures>(static_cast<const VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(object), settings, "VkPhysicalDeviceSamplerYcbcrConversionFeatures", indents, dump_html_VkPhysicalDeviceSamplerYcbcrConversionFeatures);
+        dump_html_pNext<const VkPhysicalDeviceSamplerYcbcrConversionFeatures>(reinterpret_cast<const VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(object), settings, "VkPhysicalDeviceSamplerYcbcrConversionFeatures", indents, dump_html_VkPhysicalDeviceSamplerYcbcrConversionFeatures);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES:
-        dump_html_pNext<const VkSamplerYcbcrConversionImageFormatProperties>(static_cast<const VkSamplerYcbcrConversionImageFormatProperties*>(object), settings, "VkSamplerYcbcrConversionImageFormatProperties", indents, dump_html_VkSamplerYcbcrConversionImageFormatProperties);
+        dump_html_pNext<const VkSamplerYcbcrConversionImageFormatProperties>(reinterpret_cast<const VkSamplerYcbcrConversionImageFormatProperties*>(object), settings, "VkSamplerYcbcrConversionImageFormatProperties", indents, dump_html_VkSamplerYcbcrConversionImageFormatProperties);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO:
-        dump_html_pNext<const VkDescriptorUpdateTemplateCreateInfo>(static_cast<const VkDescriptorUpdateTemplateCreateInfo*>(object), settings, "VkDescriptorUpdateTemplateCreateInfo", indents, dump_html_VkDescriptorUpdateTemplateCreateInfo);
+        dump_html_pNext<const VkDescriptorUpdateTemplateCreateInfo>(reinterpret_cast<const VkDescriptorUpdateTemplateCreateInfo*>(object), settings, "VkDescriptorUpdateTemplateCreateInfo", indents, dump_html_VkDescriptorUpdateTemplateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO:
-        dump_html_pNext<const VkPhysicalDeviceExternalImageFormatInfo>(static_cast<const VkPhysicalDeviceExternalImageFormatInfo*>(object), settings, "VkPhysicalDeviceExternalImageFormatInfo", indents, dump_html_VkPhysicalDeviceExternalImageFormatInfo);
+        dump_html_pNext<const VkPhysicalDeviceExternalImageFormatInfo>(reinterpret_cast<const VkPhysicalDeviceExternalImageFormatInfo*>(object), settings, "VkPhysicalDeviceExternalImageFormatInfo", indents, dump_html_VkPhysicalDeviceExternalImageFormatInfo);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES:
-        dump_html_pNext<const VkExternalImageFormatProperties>(static_cast<const VkExternalImageFormatProperties*>(object), settings, "VkExternalImageFormatProperties", indents, dump_html_VkExternalImageFormatProperties);
+        dump_html_pNext<const VkExternalImageFormatProperties>(reinterpret_cast<const VkExternalImageFormatProperties*>(object), settings, "VkExternalImageFormatProperties", indents, dump_html_VkExternalImageFormatProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO:
-        dump_html_pNext<const VkPhysicalDeviceExternalBufferInfo>(static_cast<const VkPhysicalDeviceExternalBufferInfo*>(object), settings, "VkPhysicalDeviceExternalBufferInfo", indents, dump_html_VkPhysicalDeviceExternalBufferInfo);
+        dump_html_pNext<const VkPhysicalDeviceExternalBufferInfo>(reinterpret_cast<const VkPhysicalDeviceExternalBufferInfo*>(object), settings, "VkPhysicalDeviceExternalBufferInfo", indents, dump_html_VkPhysicalDeviceExternalBufferInfo);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES:
-        dump_html_pNext<const VkExternalBufferProperties>(static_cast<const VkExternalBufferProperties*>(object), settings, "VkExternalBufferProperties", indents, dump_html_VkExternalBufferProperties);
+        dump_html_pNext<const VkExternalBufferProperties>(reinterpret_cast<const VkExternalBufferProperties*>(object), settings, "VkExternalBufferProperties", indents, dump_html_VkExternalBufferProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceIDProperties>(static_cast<const VkPhysicalDeviceIDProperties*>(object), settings, "VkPhysicalDeviceIDProperties", indents, dump_html_VkPhysicalDeviceIDProperties);
+        dump_html_pNext<const VkPhysicalDeviceIDProperties>(reinterpret_cast<const VkPhysicalDeviceIDProperties*>(object), settings, "VkPhysicalDeviceIDProperties", indents, dump_html_VkPhysicalDeviceIDProperties);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO:
-        dump_html_pNext<const VkExternalMemoryImageCreateInfo>(static_cast<const VkExternalMemoryImageCreateInfo*>(object), settings, "VkExternalMemoryImageCreateInfo", indents, dump_html_VkExternalMemoryImageCreateInfo);
+        dump_html_pNext<const VkExternalMemoryImageCreateInfo>(reinterpret_cast<const VkExternalMemoryImageCreateInfo*>(object), settings, "VkExternalMemoryImageCreateInfo", indents, dump_html_VkExternalMemoryImageCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO:
-        dump_html_pNext<const VkExternalMemoryBufferCreateInfo>(static_cast<const VkExternalMemoryBufferCreateInfo*>(object), settings, "VkExternalMemoryBufferCreateInfo", indents, dump_html_VkExternalMemoryBufferCreateInfo);
+        dump_html_pNext<const VkExternalMemoryBufferCreateInfo>(reinterpret_cast<const VkExternalMemoryBufferCreateInfo*>(object), settings, "VkExternalMemoryBufferCreateInfo", indents, dump_html_VkExternalMemoryBufferCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO:
-        dump_html_pNext<const VkExportMemoryAllocateInfo>(static_cast<const VkExportMemoryAllocateInfo*>(object), settings, "VkExportMemoryAllocateInfo", indents, dump_html_VkExportMemoryAllocateInfo);
+        dump_html_pNext<const VkExportMemoryAllocateInfo>(reinterpret_cast<const VkExportMemoryAllocateInfo*>(object), settings, "VkExportMemoryAllocateInfo", indents, dump_html_VkExportMemoryAllocateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO:
-        dump_html_pNext<const VkPhysicalDeviceExternalFenceInfo>(static_cast<const VkPhysicalDeviceExternalFenceInfo*>(object), settings, "VkPhysicalDeviceExternalFenceInfo", indents, dump_html_VkPhysicalDeviceExternalFenceInfo);
+        dump_html_pNext<const VkPhysicalDeviceExternalFenceInfo>(reinterpret_cast<const VkPhysicalDeviceExternalFenceInfo*>(object), settings, "VkPhysicalDeviceExternalFenceInfo", indents, dump_html_VkPhysicalDeviceExternalFenceInfo);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES:
-        dump_html_pNext<const VkExternalFenceProperties>(static_cast<const VkExternalFenceProperties*>(object), settings, "VkExternalFenceProperties", indents, dump_html_VkExternalFenceProperties);
+        dump_html_pNext<const VkExternalFenceProperties>(reinterpret_cast<const VkExternalFenceProperties*>(object), settings, "VkExternalFenceProperties", indents, dump_html_VkExternalFenceProperties);
         break;
     case VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO:
-        dump_html_pNext<const VkExportFenceCreateInfo>(static_cast<const VkExportFenceCreateInfo*>(object), settings, "VkExportFenceCreateInfo", indents, dump_html_VkExportFenceCreateInfo);
+        dump_html_pNext<const VkExportFenceCreateInfo>(reinterpret_cast<const VkExportFenceCreateInfo*>(object), settings, "VkExportFenceCreateInfo", indents, dump_html_VkExportFenceCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO:
-        dump_html_pNext<const VkExportSemaphoreCreateInfo>(static_cast<const VkExportSemaphoreCreateInfo*>(object), settings, "VkExportSemaphoreCreateInfo", indents, dump_html_VkExportSemaphoreCreateInfo);
+        dump_html_pNext<const VkExportSemaphoreCreateInfo>(reinterpret_cast<const VkExportSemaphoreCreateInfo*>(object), settings, "VkExportSemaphoreCreateInfo", indents, dump_html_VkExportSemaphoreCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO:
-        dump_html_pNext<const VkPhysicalDeviceExternalSemaphoreInfo>(static_cast<const VkPhysicalDeviceExternalSemaphoreInfo*>(object), settings, "VkPhysicalDeviceExternalSemaphoreInfo", indents, dump_html_VkPhysicalDeviceExternalSemaphoreInfo);
+        dump_html_pNext<const VkPhysicalDeviceExternalSemaphoreInfo>(reinterpret_cast<const VkPhysicalDeviceExternalSemaphoreInfo*>(object), settings, "VkPhysicalDeviceExternalSemaphoreInfo", indents, dump_html_VkPhysicalDeviceExternalSemaphoreInfo);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES:
-        dump_html_pNext<const VkExternalSemaphoreProperties>(static_cast<const VkExternalSemaphoreProperties*>(object), settings, "VkExternalSemaphoreProperties", indents, dump_html_VkExternalSemaphoreProperties);
+        dump_html_pNext<const VkExternalSemaphoreProperties>(reinterpret_cast<const VkExternalSemaphoreProperties*>(object), settings, "VkExternalSemaphoreProperties", indents, dump_html_VkExternalSemaphoreProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance3Properties>(static_cast<const VkPhysicalDeviceMaintenance3Properties*>(object), settings, "VkPhysicalDeviceMaintenance3Properties", indents, dump_html_VkPhysicalDeviceMaintenance3Properties);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance3Properties>(reinterpret_cast<const VkPhysicalDeviceMaintenance3Properties*>(object), settings, "VkPhysicalDeviceMaintenance3Properties", indents, dump_html_VkPhysicalDeviceMaintenance3Properties);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_SUPPORT:
-        dump_html_pNext<const VkDescriptorSetLayoutSupport>(static_cast<const VkDescriptorSetLayoutSupport*>(object), settings, "VkDescriptorSetLayoutSupport", indents, dump_html_VkDescriptorSetLayoutSupport);
+        dump_html_pNext<const VkDescriptorSetLayoutSupport>(reinterpret_cast<const VkDescriptorSetLayoutSupport*>(object), settings, "VkDescriptorSetLayoutSupport", indents, dump_html_VkDescriptorSetLayoutSupport);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceShaderDrawParametersFeatures>(static_cast<const VkPhysicalDeviceShaderDrawParametersFeatures*>(object), settings, "VkPhysicalDeviceShaderDrawParametersFeatures", indents, dump_html_VkPhysicalDeviceShaderDrawParametersFeatures);
+        dump_html_pNext<const VkPhysicalDeviceShaderDrawParametersFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderDrawParametersFeatures*>(object), settings, "VkPhysicalDeviceShaderDrawParametersFeatures", indents, dump_html_VkPhysicalDeviceShaderDrawParametersFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceVulkan11Features>(static_cast<const VkPhysicalDeviceVulkan11Features*>(object), settings, "VkPhysicalDeviceVulkan11Features", indents, dump_html_VkPhysicalDeviceVulkan11Features);
+        dump_html_pNext<const VkPhysicalDeviceVulkan11Features>(reinterpret_cast<const VkPhysicalDeviceVulkan11Features*>(object), settings, "VkPhysicalDeviceVulkan11Features", indents, dump_html_VkPhysicalDeviceVulkan11Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceVulkan11Properties>(static_cast<const VkPhysicalDeviceVulkan11Properties*>(object), settings, "VkPhysicalDeviceVulkan11Properties", indents, dump_html_VkPhysicalDeviceVulkan11Properties);
+        dump_html_pNext<const VkPhysicalDeviceVulkan11Properties>(reinterpret_cast<const VkPhysicalDeviceVulkan11Properties*>(object), settings, "VkPhysicalDeviceVulkan11Properties", indents, dump_html_VkPhysicalDeviceVulkan11Properties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceVulkan12Features>(static_cast<const VkPhysicalDeviceVulkan12Features*>(object), settings, "VkPhysicalDeviceVulkan12Features", indents, dump_html_VkPhysicalDeviceVulkan12Features);
+        dump_html_pNext<const VkPhysicalDeviceVulkan12Features>(reinterpret_cast<const VkPhysicalDeviceVulkan12Features*>(object), settings, "VkPhysicalDeviceVulkan12Features", indents, dump_html_VkPhysicalDeviceVulkan12Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceVulkan12Properties>(static_cast<const VkPhysicalDeviceVulkan12Properties*>(object), settings, "VkPhysicalDeviceVulkan12Properties", indents, dump_html_VkPhysicalDeviceVulkan12Properties);
+        dump_html_pNext<const VkPhysicalDeviceVulkan12Properties>(reinterpret_cast<const VkPhysicalDeviceVulkan12Properties*>(object), settings, "VkPhysicalDeviceVulkan12Properties", indents, dump_html_VkPhysicalDeviceVulkan12Properties);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO:
-        dump_html_pNext<const VkImageFormatListCreateInfo>(static_cast<const VkImageFormatListCreateInfo*>(object), settings, "VkImageFormatListCreateInfo", indents, dump_html_VkImageFormatListCreateInfo);
+        dump_html_pNext<const VkImageFormatListCreateInfo>(reinterpret_cast<const VkImageFormatListCreateInfo*>(object), settings, "VkImageFormatListCreateInfo", indents, dump_html_VkImageFormatListCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2:
-        dump_html_pNext<const VkAttachmentDescription2>(static_cast<const VkAttachmentDescription2*>(object), settings, "VkAttachmentDescription2", indents, dump_html_VkAttachmentDescription2);
+        dump_html_pNext<const VkAttachmentDescription2>(reinterpret_cast<const VkAttachmentDescription2*>(object), settings, "VkAttachmentDescription2", indents, dump_html_VkAttachmentDescription2);
         break;
     case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2:
-        dump_html_pNext<const VkAttachmentReference2>(static_cast<const VkAttachmentReference2*>(object), settings, "VkAttachmentReference2", indents, dump_html_VkAttachmentReference2);
+        dump_html_pNext<const VkAttachmentReference2>(reinterpret_cast<const VkAttachmentReference2*>(object), settings, "VkAttachmentReference2", indents, dump_html_VkAttachmentReference2);
         break;
     case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2:
-        dump_html_pNext<const VkSubpassDescription2>(static_cast<const VkSubpassDescription2*>(object), settings, "VkSubpassDescription2", indents, dump_html_VkSubpassDescription2);
+        dump_html_pNext<const VkSubpassDescription2>(reinterpret_cast<const VkSubpassDescription2*>(object), settings, "VkSubpassDescription2", indents, dump_html_VkSubpassDescription2);
         break;
     case VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2:
-        dump_html_pNext<const VkSubpassDependency2>(static_cast<const VkSubpassDependency2*>(object), settings, "VkSubpassDependency2", indents, dump_html_VkSubpassDependency2);
+        dump_html_pNext<const VkSubpassDependency2>(reinterpret_cast<const VkSubpassDependency2*>(object), settings, "VkSubpassDependency2", indents, dump_html_VkSubpassDependency2);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2:
-        dump_html_pNext<const VkRenderPassCreateInfo2>(static_cast<const VkRenderPassCreateInfo2*>(object), settings, "VkRenderPassCreateInfo2", indents, dump_html_VkRenderPassCreateInfo2);
+        dump_html_pNext<const VkRenderPassCreateInfo2>(reinterpret_cast<const VkRenderPassCreateInfo2*>(object), settings, "VkRenderPassCreateInfo2", indents, dump_html_VkRenderPassCreateInfo2);
         break;
     case VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO:
-        dump_html_pNext<const VkSubpassBeginInfo>(static_cast<const VkSubpassBeginInfo*>(object), settings, "VkSubpassBeginInfo", indents, dump_html_VkSubpassBeginInfo);
+        dump_html_pNext<const VkSubpassBeginInfo>(reinterpret_cast<const VkSubpassBeginInfo*>(object), settings, "VkSubpassBeginInfo", indents, dump_html_VkSubpassBeginInfo);
         break;
     case VK_STRUCTURE_TYPE_SUBPASS_END_INFO:
-        dump_html_pNext<const VkSubpassEndInfo>(static_cast<const VkSubpassEndInfo*>(object), settings, "VkSubpassEndInfo", indents, dump_html_VkSubpassEndInfo);
+        dump_html_pNext<const VkSubpassEndInfo>(reinterpret_cast<const VkSubpassEndInfo*>(object), settings, "VkSubpassEndInfo", indents, dump_html_VkSubpassEndInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES:
-        dump_html_pNext<const VkPhysicalDevice8BitStorageFeatures>(static_cast<const VkPhysicalDevice8BitStorageFeatures*>(object), settings, "VkPhysicalDevice8BitStorageFeatures", indents, dump_html_VkPhysicalDevice8BitStorageFeatures);
+        dump_html_pNext<const VkPhysicalDevice8BitStorageFeatures>(reinterpret_cast<const VkPhysicalDevice8BitStorageFeatures*>(object), settings, "VkPhysicalDevice8BitStorageFeatures", indents, dump_html_VkPhysicalDevice8BitStorageFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceDriverProperties>(static_cast<const VkPhysicalDeviceDriverProperties*>(object), settings, "VkPhysicalDeviceDriverProperties", indents, dump_html_VkPhysicalDeviceDriverProperties);
+        dump_html_pNext<const VkPhysicalDeviceDriverProperties>(reinterpret_cast<const VkPhysicalDeviceDriverProperties*>(object), settings, "VkPhysicalDeviceDriverProperties", indents, dump_html_VkPhysicalDeviceDriverProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceShaderAtomicInt64Features>(static_cast<const VkPhysicalDeviceShaderAtomicInt64Features*>(object), settings, "VkPhysicalDeviceShaderAtomicInt64Features", indents, dump_html_VkPhysicalDeviceShaderAtomicInt64Features);
+        dump_html_pNext<const VkPhysicalDeviceShaderAtomicInt64Features>(reinterpret_cast<const VkPhysicalDeviceShaderAtomicInt64Features*>(object), settings, "VkPhysicalDeviceShaderAtomicInt64Features", indents, dump_html_VkPhysicalDeviceShaderAtomicInt64Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceShaderFloat16Int8Features>(static_cast<const VkPhysicalDeviceShaderFloat16Int8Features*>(object), settings, "VkPhysicalDeviceShaderFloat16Int8Features", indents, dump_html_VkPhysicalDeviceShaderFloat16Int8Features);
+        dump_html_pNext<const VkPhysicalDeviceShaderFloat16Int8Features>(reinterpret_cast<const VkPhysicalDeviceShaderFloat16Int8Features*>(object), settings, "VkPhysicalDeviceShaderFloat16Int8Features", indents, dump_html_VkPhysicalDeviceShaderFloat16Int8Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceFloatControlsProperties>(static_cast<const VkPhysicalDeviceFloatControlsProperties*>(object), settings, "VkPhysicalDeviceFloatControlsProperties", indents, dump_html_VkPhysicalDeviceFloatControlsProperties);
+        dump_html_pNext<const VkPhysicalDeviceFloatControlsProperties>(reinterpret_cast<const VkPhysicalDeviceFloatControlsProperties*>(object), settings, "VkPhysicalDeviceFloatControlsProperties", indents, dump_html_VkPhysicalDeviceFloatControlsProperties);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO:
-        dump_html_pNext<const VkDescriptorSetLayoutBindingFlagsCreateInfo>(static_cast<const VkDescriptorSetLayoutBindingFlagsCreateInfo*>(object), settings, "VkDescriptorSetLayoutBindingFlagsCreateInfo", indents, dump_html_VkDescriptorSetLayoutBindingFlagsCreateInfo);
+        dump_html_pNext<const VkDescriptorSetLayoutBindingFlagsCreateInfo>(reinterpret_cast<const VkDescriptorSetLayoutBindingFlagsCreateInfo*>(object), settings, "VkDescriptorSetLayoutBindingFlagsCreateInfo", indents, dump_html_VkDescriptorSetLayoutBindingFlagsCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceDescriptorIndexingFeatures>(static_cast<const VkPhysicalDeviceDescriptorIndexingFeatures*>(object), settings, "VkPhysicalDeviceDescriptorIndexingFeatures", indents, dump_html_VkPhysicalDeviceDescriptorIndexingFeatures);
+        dump_html_pNext<const VkPhysicalDeviceDescriptorIndexingFeatures>(reinterpret_cast<const VkPhysicalDeviceDescriptorIndexingFeatures*>(object), settings, "VkPhysicalDeviceDescriptorIndexingFeatures", indents, dump_html_VkPhysicalDeviceDescriptorIndexingFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceDescriptorIndexingProperties>(static_cast<const VkPhysicalDeviceDescriptorIndexingProperties*>(object), settings, "VkPhysicalDeviceDescriptorIndexingProperties", indents, dump_html_VkPhysicalDeviceDescriptorIndexingProperties);
+        dump_html_pNext<const VkPhysicalDeviceDescriptorIndexingProperties>(reinterpret_cast<const VkPhysicalDeviceDescriptorIndexingProperties*>(object), settings, "VkPhysicalDeviceDescriptorIndexingProperties", indents, dump_html_VkPhysicalDeviceDescriptorIndexingProperties);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO:
-        dump_html_pNext<const VkDescriptorSetVariableDescriptorCountAllocateInfo>(static_cast<const VkDescriptorSetVariableDescriptorCountAllocateInfo*>(object), settings, "VkDescriptorSetVariableDescriptorCountAllocateInfo", indents, dump_html_VkDescriptorSetVariableDescriptorCountAllocateInfo);
+        dump_html_pNext<const VkDescriptorSetVariableDescriptorCountAllocateInfo>(reinterpret_cast<const VkDescriptorSetVariableDescriptorCountAllocateInfo*>(object), settings, "VkDescriptorSetVariableDescriptorCountAllocateInfo", indents, dump_html_VkDescriptorSetVariableDescriptorCountAllocateInfo);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT:
-        dump_html_pNext<const VkDescriptorSetVariableDescriptorCountLayoutSupport>(static_cast<const VkDescriptorSetVariableDescriptorCountLayoutSupport*>(object), settings, "VkDescriptorSetVariableDescriptorCountLayoutSupport", indents, dump_html_VkDescriptorSetVariableDescriptorCountLayoutSupport);
+        dump_html_pNext<const VkDescriptorSetVariableDescriptorCountLayoutSupport>(reinterpret_cast<const VkDescriptorSetVariableDescriptorCountLayoutSupport*>(object), settings, "VkDescriptorSetVariableDescriptorCountLayoutSupport", indents, dump_html_VkDescriptorSetVariableDescriptorCountLayoutSupport);
         break;
     case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE:
-        dump_html_pNext<const VkSubpassDescriptionDepthStencilResolve>(static_cast<const VkSubpassDescriptionDepthStencilResolve*>(object), settings, "VkSubpassDescriptionDepthStencilResolve", indents, dump_html_VkSubpassDescriptionDepthStencilResolve);
+        dump_html_pNext<const VkSubpassDescriptionDepthStencilResolve>(reinterpret_cast<const VkSubpassDescriptionDepthStencilResolve*>(object), settings, "VkSubpassDescriptionDepthStencilResolve", indents, dump_html_VkSubpassDescriptionDepthStencilResolve);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceDepthStencilResolveProperties>(static_cast<const VkPhysicalDeviceDepthStencilResolveProperties*>(object), settings, "VkPhysicalDeviceDepthStencilResolveProperties", indents, dump_html_VkPhysicalDeviceDepthStencilResolveProperties);
+        dump_html_pNext<const VkPhysicalDeviceDepthStencilResolveProperties>(reinterpret_cast<const VkPhysicalDeviceDepthStencilResolveProperties*>(object), settings, "VkPhysicalDeviceDepthStencilResolveProperties", indents, dump_html_VkPhysicalDeviceDepthStencilResolveProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceScalarBlockLayoutFeatures>(static_cast<const VkPhysicalDeviceScalarBlockLayoutFeatures*>(object), settings, "VkPhysicalDeviceScalarBlockLayoutFeatures", indents, dump_html_VkPhysicalDeviceScalarBlockLayoutFeatures);
+        dump_html_pNext<const VkPhysicalDeviceScalarBlockLayoutFeatures>(reinterpret_cast<const VkPhysicalDeviceScalarBlockLayoutFeatures*>(object), settings, "VkPhysicalDeviceScalarBlockLayoutFeatures", indents, dump_html_VkPhysicalDeviceScalarBlockLayoutFeatures);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO:
-        dump_html_pNext<const VkImageStencilUsageCreateInfo>(static_cast<const VkImageStencilUsageCreateInfo*>(object), settings, "VkImageStencilUsageCreateInfo", indents, dump_html_VkImageStencilUsageCreateInfo);
+        dump_html_pNext<const VkImageStencilUsageCreateInfo>(reinterpret_cast<const VkImageStencilUsageCreateInfo*>(object), settings, "VkImageStencilUsageCreateInfo", indents, dump_html_VkImageStencilUsageCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO:
-        dump_html_pNext<const VkSamplerReductionModeCreateInfo>(static_cast<const VkSamplerReductionModeCreateInfo*>(object), settings, "VkSamplerReductionModeCreateInfo", indents, dump_html_VkSamplerReductionModeCreateInfo);
+        dump_html_pNext<const VkSamplerReductionModeCreateInfo>(reinterpret_cast<const VkSamplerReductionModeCreateInfo*>(object), settings, "VkSamplerReductionModeCreateInfo", indents, dump_html_VkSamplerReductionModeCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceSamplerFilterMinmaxProperties>(static_cast<const VkPhysicalDeviceSamplerFilterMinmaxProperties*>(object), settings, "VkPhysicalDeviceSamplerFilterMinmaxProperties", indents, dump_html_VkPhysicalDeviceSamplerFilterMinmaxProperties);
+        dump_html_pNext<const VkPhysicalDeviceSamplerFilterMinmaxProperties>(reinterpret_cast<const VkPhysicalDeviceSamplerFilterMinmaxProperties*>(object), settings, "VkPhysicalDeviceSamplerFilterMinmaxProperties", indents, dump_html_VkPhysicalDeviceSamplerFilterMinmaxProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceVulkanMemoryModelFeatures>(static_cast<const VkPhysicalDeviceVulkanMemoryModelFeatures*>(object), settings, "VkPhysicalDeviceVulkanMemoryModelFeatures", indents, dump_html_VkPhysicalDeviceVulkanMemoryModelFeatures);
+        dump_html_pNext<const VkPhysicalDeviceVulkanMemoryModelFeatures>(reinterpret_cast<const VkPhysicalDeviceVulkanMemoryModelFeatures*>(object), settings, "VkPhysicalDeviceVulkanMemoryModelFeatures", indents, dump_html_VkPhysicalDeviceVulkanMemoryModelFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceImagelessFramebufferFeatures>(static_cast<const VkPhysicalDeviceImagelessFramebufferFeatures*>(object), settings, "VkPhysicalDeviceImagelessFramebufferFeatures", indents, dump_html_VkPhysicalDeviceImagelessFramebufferFeatures);
+        dump_html_pNext<const VkPhysicalDeviceImagelessFramebufferFeatures>(reinterpret_cast<const VkPhysicalDeviceImagelessFramebufferFeatures*>(object), settings, "VkPhysicalDeviceImagelessFramebufferFeatures", indents, dump_html_VkPhysicalDeviceImagelessFramebufferFeatures);
         break;
     case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENT_IMAGE_INFO:
-        dump_html_pNext<const VkFramebufferAttachmentImageInfo>(static_cast<const VkFramebufferAttachmentImageInfo*>(object), settings, "VkFramebufferAttachmentImageInfo", indents, dump_html_VkFramebufferAttachmentImageInfo);
+        dump_html_pNext<const VkFramebufferAttachmentImageInfo>(reinterpret_cast<const VkFramebufferAttachmentImageInfo*>(object), settings, "VkFramebufferAttachmentImageInfo", indents, dump_html_VkFramebufferAttachmentImageInfo);
         break;
     case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO:
-        dump_html_pNext<const VkFramebufferAttachmentsCreateInfo>(static_cast<const VkFramebufferAttachmentsCreateInfo*>(object), settings, "VkFramebufferAttachmentsCreateInfo", indents, dump_html_VkFramebufferAttachmentsCreateInfo);
+        dump_html_pNext<const VkFramebufferAttachmentsCreateInfo>(reinterpret_cast<const VkFramebufferAttachmentsCreateInfo*>(object), settings, "VkFramebufferAttachmentsCreateInfo", indents, dump_html_VkFramebufferAttachmentsCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
-        dump_html_pNext<const VkRenderPassAttachmentBeginInfo>(static_cast<const VkRenderPassAttachmentBeginInfo*>(object), settings, "VkRenderPassAttachmentBeginInfo", indents, dump_html_VkRenderPassAttachmentBeginInfo);
+        dump_html_pNext<const VkRenderPassAttachmentBeginInfo>(reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(object), settings, "VkRenderPassAttachmentBeginInfo", indents, dump_html_VkRenderPassAttachmentBeginInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFORM_BUFFER_STANDARD_LAYOUT_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceUniformBufferStandardLayoutFeatures>(static_cast<const VkPhysicalDeviceUniformBufferStandardLayoutFeatures*>(object), settings, "VkPhysicalDeviceUniformBufferStandardLayoutFeatures", indents, dump_html_VkPhysicalDeviceUniformBufferStandardLayoutFeatures);
+        dump_html_pNext<const VkPhysicalDeviceUniformBufferStandardLayoutFeatures>(reinterpret_cast<const VkPhysicalDeviceUniformBufferStandardLayoutFeatures*>(object), settings, "VkPhysicalDeviceUniformBufferStandardLayoutFeatures", indents, dump_html_VkPhysicalDeviceUniformBufferStandardLayoutFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures>(static_cast<const VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures*>(object), settings, "VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures", indents, dump_html_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures);
+        dump_html_pNext<const VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures*>(object), settings, "VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures", indents, dump_html_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures>(static_cast<const VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures*>(object), settings, "VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures", indents, dump_html_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures);
+        dump_html_pNext<const VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures>(reinterpret_cast<const VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures*>(object), settings, "VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures", indents, dump_html_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures);
         break;
     case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT:
-        dump_html_pNext<const VkAttachmentReferenceStencilLayout>(static_cast<const VkAttachmentReferenceStencilLayout*>(object), settings, "VkAttachmentReferenceStencilLayout", indents, dump_html_VkAttachmentReferenceStencilLayout);
+        dump_html_pNext<const VkAttachmentReferenceStencilLayout>(reinterpret_cast<const VkAttachmentReferenceStencilLayout*>(object), settings, "VkAttachmentReferenceStencilLayout", indents, dump_html_VkAttachmentReferenceStencilLayout);
         break;
     case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_STENCIL_LAYOUT:
-        dump_html_pNext<const VkAttachmentDescriptionStencilLayout>(static_cast<const VkAttachmentDescriptionStencilLayout*>(object), settings, "VkAttachmentDescriptionStencilLayout", indents, dump_html_VkAttachmentDescriptionStencilLayout);
+        dump_html_pNext<const VkAttachmentDescriptionStencilLayout>(reinterpret_cast<const VkAttachmentDescriptionStencilLayout*>(object), settings, "VkAttachmentDescriptionStencilLayout", indents, dump_html_VkAttachmentDescriptionStencilLayout);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceHostQueryResetFeatures>(static_cast<const VkPhysicalDeviceHostQueryResetFeatures*>(object), settings, "VkPhysicalDeviceHostQueryResetFeatures", indents, dump_html_VkPhysicalDeviceHostQueryResetFeatures);
+        dump_html_pNext<const VkPhysicalDeviceHostQueryResetFeatures>(reinterpret_cast<const VkPhysicalDeviceHostQueryResetFeatures*>(object), settings, "VkPhysicalDeviceHostQueryResetFeatures", indents, dump_html_VkPhysicalDeviceHostQueryResetFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceTimelineSemaphoreFeatures>(static_cast<const VkPhysicalDeviceTimelineSemaphoreFeatures*>(object), settings, "VkPhysicalDeviceTimelineSemaphoreFeatures", indents, dump_html_VkPhysicalDeviceTimelineSemaphoreFeatures);
+        dump_html_pNext<const VkPhysicalDeviceTimelineSemaphoreFeatures>(reinterpret_cast<const VkPhysicalDeviceTimelineSemaphoreFeatures*>(object), settings, "VkPhysicalDeviceTimelineSemaphoreFeatures", indents, dump_html_VkPhysicalDeviceTimelineSemaphoreFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceTimelineSemaphoreProperties>(static_cast<const VkPhysicalDeviceTimelineSemaphoreProperties*>(object), settings, "VkPhysicalDeviceTimelineSemaphoreProperties", indents, dump_html_VkPhysicalDeviceTimelineSemaphoreProperties);
+        dump_html_pNext<const VkPhysicalDeviceTimelineSemaphoreProperties>(reinterpret_cast<const VkPhysicalDeviceTimelineSemaphoreProperties*>(object), settings, "VkPhysicalDeviceTimelineSemaphoreProperties", indents, dump_html_VkPhysicalDeviceTimelineSemaphoreProperties);
         break;
     case VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO:
-        dump_html_pNext<const VkSemaphoreTypeCreateInfo>(static_cast<const VkSemaphoreTypeCreateInfo*>(object), settings, "VkSemaphoreTypeCreateInfo", indents, dump_html_VkSemaphoreTypeCreateInfo);
+        dump_html_pNext<const VkSemaphoreTypeCreateInfo>(reinterpret_cast<const VkSemaphoreTypeCreateInfo*>(object), settings, "VkSemaphoreTypeCreateInfo", indents, dump_html_VkSemaphoreTypeCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO:
-        dump_html_pNext<const VkTimelineSemaphoreSubmitInfo>(static_cast<const VkTimelineSemaphoreSubmitInfo*>(object), settings, "VkTimelineSemaphoreSubmitInfo", indents, dump_html_VkTimelineSemaphoreSubmitInfo);
+        dump_html_pNext<const VkTimelineSemaphoreSubmitInfo>(reinterpret_cast<const VkTimelineSemaphoreSubmitInfo*>(object), settings, "VkTimelineSemaphoreSubmitInfo", indents, dump_html_VkTimelineSemaphoreSubmitInfo);
         break;
     case VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO:
-        dump_html_pNext<const VkSemaphoreWaitInfo>(static_cast<const VkSemaphoreWaitInfo*>(object), settings, "VkSemaphoreWaitInfo", indents, dump_html_VkSemaphoreWaitInfo);
+        dump_html_pNext<const VkSemaphoreWaitInfo>(reinterpret_cast<const VkSemaphoreWaitInfo*>(object), settings, "VkSemaphoreWaitInfo", indents, dump_html_VkSemaphoreWaitInfo);
         break;
     case VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO:
-        dump_html_pNext<const VkSemaphoreSignalInfo>(static_cast<const VkSemaphoreSignalInfo*>(object), settings, "VkSemaphoreSignalInfo", indents, dump_html_VkSemaphoreSignalInfo);
+        dump_html_pNext<const VkSemaphoreSignalInfo>(reinterpret_cast<const VkSemaphoreSignalInfo*>(object), settings, "VkSemaphoreSignalInfo", indents, dump_html_VkSemaphoreSignalInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceBufferDeviceAddressFeatures>(static_cast<const VkPhysicalDeviceBufferDeviceAddressFeatures*>(object), settings, "VkPhysicalDeviceBufferDeviceAddressFeatures", indents, dump_html_VkPhysicalDeviceBufferDeviceAddressFeatures);
+        dump_html_pNext<const VkPhysicalDeviceBufferDeviceAddressFeatures>(reinterpret_cast<const VkPhysicalDeviceBufferDeviceAddressFeatures*>(object), settings, "VkPhysicalDeviceBufferDeviceAddressFeatures", indents, dump_html_VkPhysicalDeviceBufferDeviceAddressFeatures);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO:
-        dump_html_pNext<const VkBufferDeviceAddressInfo>(static_cast<const VkBufferDeviceAddressInfo*>(object), settings, "VkBufferDeviceAddressInfo", indents, dump_html_VkBufferDeviceAddressInfo);
+        dump_html_pNext<const VkBufferDeviceAddressInfo>(reinterpret_cast<const VkBufferDeviceAddressInfo*>(object), settings, "VkBufferDeviceAddressInfo", indents, dump_html_VkBufferDeviceAddressInfo);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO:
-        dump_html_pNext<const VkBufferOpaqueCaptureAddressCreateInfo>(static_cast<const VkBufferOpaqueCaptureAddressCreateInfo*>(object), settings, "VkBufferOpaqueCaptureAddressCreateInfo", indents, dump_html_VkBufferOpaqueCaptureAddressCreateInfo);
+        dump_html_pNext<const VkBufferOpaqueCaptureAddressCreateInfo>(reinterpret_cast<const VkBufferOpaqueCaptureAddressCreateInfo*>(object), settings, "VkBufferOpaqueCaptureAddressCreateInfo", indents, dump_html_VkBufferOpaqueCaptureAddressCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO:
-        dump_html_pNext<const VkMemoryOpaqueCaptureAddressAllocateInfo>(static_cast<const VkMemoryOpaqueCaptureAddressAllocateInfo*>(object), settings, "VkMemoryOpaqueCaptureAddressAllocateInfo", indents, dump_html_VkMemoryOpaqueCaptureAddressAllocateInfo);
+        dump_html_pNext<const VkMemoryOpaqueCaptureAddressAllocateInfo>(reinterpret_cast<const VkMemoryOpaqueCaptureAddressAllocateInfo*>(object), settings, "VkMemoryOpaqueCaptureAddressAllocateInfo", indents, dump_html_VkMemoryOpaqueCaptureAddressAllocateInfo);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO:
-        dump_html_pNext<const VkDeviceMemoryOpaqueCaptureAddressInfo>(static_cast<const VkDeviceMemoryOpaqueCaptureAddressInfo*>(object), settings, "VkDeviceMemoryOpaqueCaptureAddressInfo", indents, dump_html_VkDeviceMemoryOpaqueCaptureAddressInfo);
+        dump_html_pNext<const VkDeviceMemoryOpaqueCaptureAddressInfo>(reinterpret_cast<const VkDeviceMemoryOpaqueCaptureAddressInfo*>(object), settings, "VkDeviceMemoryOpaqueCaptureAddressInfo", indents, dump_html_VkDeviceMemoryOpaqueCaptureAddressInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceVulkan13Features>(static_cast<const VkPhysicalDeviceVulkan13Features*>(object), settings, "VkPhysicalDeviceVulkan13Features", indents, dump_html_VkPhysicalDeviceVulkan13Features);
+        dump_html_pNext<const VkPhysicalDeviceVulkan13Features>(reinterpret_cast<const VkPhysicalDeviceVulkan13Features*>(object), settings, "VkPhysicalDeviceVulkan13Features", indents, dump_html_VkPhysicalDeviceVulkan13Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceVulkan13Properties>(static_cast<const VkPhysicalDeviceVulkan13Properties*>(object), settings, "VkPhysicalDeviceVulkan13Properties", indents, dump_html_VkPhysicalDeviceVulkan13Properties);
+        dump_html_pNext<const VkPhysicalDeviceVulkan13Properties>(reinterpret_cast<const VkPhysicalDeviceVulkan13Properties*>(object), settings, "VkPhysicalDeviceVulkan13Properties", indents, dump_html_VkPhysicalDeviceVulkan13Properties);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO:
-        dump_html_pNext<const VkPipelineCreationFeedbackCreateInfo>(static_cast<const VkPipelineCreationFeedbackCreateInfo*>(object), settings, "VkPipelineCreationFeedbackCreateInfo", indents, dump_html_VkPipelineCreationFeedbackCreateInfo);
+        dump_html_pNext<const VkPipelineCreationFeedbackCreateInfo>(reinterpret_cast<const VkPipelineCreationFeedbackCreateInfo*>(object), settings, "VkPipelineCreationFeedbackCreateInfo", indents, dump_html_VkPipelineCreationFeedbackCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceShaderTerminateInvocationFeatures>(static_cast<const VkPhysicalDeviceShaderTerminateInvocationFeatures*>(object), settings, "VkPhysicalDeviceShaderTerminateInvocationFeatures", indents, dump_html_VkPhysicalDeviceShaderTerminateInvocationFeatures);
+        dump_html_pNext<const VkPhysicalDeviceShaderTerminateInvocationFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderTerminateInvocationFeatures*>(object), settings, "VkPhysicalDeviceShaderTerminateInvocationFeatures", indents, dump_html_VkPhysicalDeviceShaderTerminateInvocationFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceToolProperties>(static_cast<const VkPhysicalDeviceToolProperties*>(object), settings, "VkPhysicalDeviceToolProperties", indents, dump_html_VkPhysicalDeviceToolProperties);
+        dump_html_pNext<const VkPhysicalDeviceToolProperties>(reinterpret_cast<const VkPhysicalDeviceToolProperties*>(object), settings, "VkPhysicalDeviceToolProperties", indents, dump_html_VkPhysicalDeviceToolProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures>(static_cast<const VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures*>(object), settings, "VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures", indents, dump_html_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures);
+        dump_html_pNext<const VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures*>(object), settings, "VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures", indents, dump_html_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES:
-        dump_html_pNext<const VkPhysicalDevicePrivateDataFeatures>(static_cast<const VkPhysicalDevicePrivateDataFeatures*>(object), settings, "VkPhysicalDevicePrivateDataFeatures", indents, dump_html_VkPhysicalDevicePrivateDataFeatures);
+        dump_html_pNext<const VkPhysicalDevicePrivateDataFeatures>(reinterpret_cast<const VkPhysicalDevicePrivateDataFeatures*>(object), settings, "VkPhysicalDevicePrivateDataFeatures", indents, dump_html_VkPhysicalDevicePrivateDataFeatures);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO:
-        dump_html_pNext<const VkDevicePrivateDataCreateInfo>(static_cast<const VkDevicePrivateDataCreateInfo*>(object), settings, "VkDevicePrivateDataCreateInfo", indents, dump_html_VkDevicePrivateDataCreateInfo);
+        dump_html_pNext<const VkDevicePrivateDataCreateInfo>(reinterpret_cast<const VkDevicePrivateDataCreateInfo*>(object), settings, "VkDevicePrivateDataCreateInfo", indents, dump_html_VkDevicePrivateDataCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PRIVATE_DATA_SLOT_CREATE_INFO:
-        dump_html_pNext<const VkPrivateDataSlotCreateInfo>(static_cast<const VkPrivateDataSlotCreateInfo*>(object), settings, "VkPrivateDataSlotCreateInfo", indents, dump_html_VkPrivateDataSlotCreateInfo);
+        dump_html_pNext<const VkPrivateDataSlotCreateInfo>(reinterpret_cast<const VkPrivateDataSlotCreateInfo*>(object), settings, "VkPrivateDataSlotCreateInfo", indents, dump_html_VkPrivateDataSlotCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES:
-        dump_html_pNext<const VkPhysicalDevicePipelineCreationCacheControlFeatures>(static_cast<const VkPhysicalDevicePipelineCreationCacheControlFeatures*>(object), settings, "VkPhysicalDevicePipelineCreationCacheControlFeatures", indents, dump_html_VkPhysicalDevicePipelineCreationCacheControlFeatures);
+        dump_html_pNext<const VkPhysicalDevicePipelineCreationCacheControlFeatures>(reinterpret_cast<const VkPhysicalDevicePipelineCreationCacheControlFeatures*>(object), settings, "VkPhysicalDevicePipelineCreationCacheControlFeatures", indents, dump_html_VkPhysicalDevicePipelineCreationCacheControlFeatures);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_BARRIER_2:
-        dump_html_pNext<const VkMemoryBarrier2>(static_cast<const VkMemoryBarrier2*>(object), settings, "VkMemoryBarrier2", indents, dump_html_VkMemoryBarrier2);
+        dump_html_pNext<const VkMemoryBarrier2>(reinterpret_cast<const VkMemoryBarrier2*>(object), settings, "VkMemoryBarrier2", indents, dump_html_VkMemoryBarrier2);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2:
-        dump_html_pNext<const VkBufferMemoryBarrier2>(static_cast<const VkBufferMemoryBarrier2*>(object), settings, "VkBufferMemoryBarrier2", indents, dump_html_VkBufferMemoryBarrier2);
+        dump_html_pNext<const VkBufferMemoryBarrier2>(reinterpret_cast<const VkBufferMemoryBarrier2*>(object), settings, "VkBufferMemoryBarrier2", indents, dump_html_VkBufferMemoryBarrier2);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2:
-        dump_html_pNext<const VkImageMemoryBarrier2>(static_cast<const VkImageMemoryBarrier2*>(object), settings, "VkImageMemoryBarrier2", indents, dump_html_VkImageMemoryBarrier2);
+        dump_html_pNext<const VkImageMemoryBarrier2>(reinterpret_cast<const VkImageMemoryBarrier2*>(object), settings, "VkImageMemoryBarrier2", indents, dump_html_VkImageMemoryBarrier2);
         break;
     case VK_STRUCTURE_TYPE_DEPENDENCY_INFO:
-        dump_html_pNext<const VkDependencyInfo>(static_cast<const VkDependencyInfo*>(object), settings, "VkDependencyInfo", indents, dump_html_VkDependencyInfo);
+        dump_html_pNext<const VkDependencyInfo>(reinterpret_cast<const VkDependencyInfo*>(object), settings, "VkDependencyInfo", indents, dump_html_VkDependencyInfo);
         break;
     case VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO:
-        dump_html_pNext<const VkSemaphoreSubmitInfo>(static_cast<const VkSemaphoreSubmitInfo*>(object), settings, "VkSemaphoreSubmitInfo", indents, dump_html_VkSemaphoreSubmitInfo);
+        dump_html_pNext<const VkSemaphoreSubmitInfo>(reinterpret_cast<const VkSemaphoreSubmitInfo*>(object), settings, "VkSemaphoreSubmitInfo", indents, dump_html_VkSemaphoreSubmitInfo);
         break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO:
-        dump_html_pNext<const VkCommandBufferSubmitInfo>(static_cast<const VkCommandBufferSubmitInfo*>(object), settings, "VkCommandBufferSubmitInfo", indents, dump_html_VkCommandBufferSubmitInfo);
+        dump_html_pNext<const VkCommandBufferSubmitInfo>(reinterpret_cast<const VkCommandBufferSubmitInfo*>(object), settings, "VkCommandBufferSubmitInfo", indents, dump_html_VkCommandBufferSubmitInfo);
         break;
     case VK_STRUCTURE_TYPE_SUBMIT_INFO_2:
-        dump_html_pNext<const VkSubmitInfo2>(static_cast<const VkSubmitInfo2*>(object), settings, "VkSubmitInfo2", indents, dump_html_VkSubmitInfo2);
+        dump_html_pNext<const VkSubmitInfo2>(reinterpret_cast<const VkSubmitInfo2*>(object), settings, "VkSubmitInfo2", indents, dump_html_VkSubmitInfo2);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceSynchronization2Features>(static_cast<const VkPhysicalDeviceSynchronization2Features*>(object), settings, "VkPhysicalDeviceSynchronization2Features", indents, dump_html_VkPhysicalDeviceSynchronization2Features);
+        dump_html_pNext<const VkPhysicalDeviceSynchronization2Features>(reinterpret_cast<const VkPhysicalDeviceSynchronization2Features*>(object), settings, "VkPhysicalDeviceSynchronization2Features", indents, dump_html_VkPhysicalDeviceSynchronization2Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures>(static_cast<const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures*>(object), settings, "VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures", indents, dump_html_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures);
+        dump_html_pNext<const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures>(reinterpret_cast<const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures*>(object), settings, "VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures", indents, dump_html_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceImageRobustnessFeatures>(static_cast<const VkPhysicalDeviceImageRobustnessFeatures*>(object), settings, "VkPhysicalDeviceImageRobustnessFeatures", indents, dump_html_VkPhysicalDeviceImageRobustnessFeatures);
+        dump_html_pNext<const VkPhysicalDeviceImageRobustnessFeatures>(reinterpret_cast<const VkPhysicalDeviceImageRobustnessFeatures*>(object), settings, "VkPhysicalDeviceImageRobustnessFeatures", indents, dump_html_VkPhysicalDeviceImageRobustnessFeatures);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_COPY_2:
-        dump_html_pNext<const VkBufferCopy2>(static_cast<const VkBufferCopy2*>(object), settings, "VkBufferCopy2", indents, dump_html_VkBufferCopy2);
+        dump_html_pNext<const VkBufferCopy2>(reinterpret_cast<const VkBufferCopy2*>(object), settings, "VkBufferCopy2", indents, dump_html_VkBufferCopy2);
         break;
     case VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2:
-        dump_html_pNext<const VkCopyBufferInfo2>(static_cast<const VkCopyBufferInfo2*>(object), settings, "VkCopyBufferInfo2", indents, dump_html_VkCopyBufferInfo2);
+        dump_html_pNext<const VkCopyBufferInfo2>(reinterpret_cast<const VkCopyBufferInfo2*>(object), settings, "VkCopyBufferInfo2", indents, dump_html_VkCopyBufferInfo2);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_COPY_2:
-        dump_html_pNext<const VkImageCopy2>(static_cast<const VkImageCopy2*>(object), settings, "VkImageCopy2", indents, dump_html_VkImageCopy2);
+        dump_html_pNext<const VkImageCopy2>(reinterpret_cast<const VkImageCopy2*>(object), settings, "VkImageCopy2", indents, dump_html_VkImageCopy2);
         break;
     case VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2:
-        dump_html_pNext<const VkCopyImageInfo2>(static_cast<const VkCopyImageInfo2*>(object), settings, "VkCopyImageInfo2", indents, dump_html_VkCopyImageInfo2);
+        dump_html_pNext<const VkCopyImageInfo2>(reinterpret_cast<const VkCopyImageInfo2*>(object), settings, "VkCopyImageInfo2", indents, dump_html_VkCopyImageInfo2);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2:
-        dump_html_pNext<const VkBufferImageCopy2>(static_cast<const VkBufferImageCopy2*>(object), settings, "VkBufferImageCopy2", indents, dump_html_VkBufferImageCopy2);
+        dump_html_pNext<const VkBufferImageCopy2>(reinterpret_cast<const VkBufferImageCopy2*>(object), settings, "VkBufferImageCopy2", indents, dump_html_VkBufferImageCopy2);
         break;
     case VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2:
-        dump_html_pNext<const VkCopyBufferToImageInfo2>(static_cast<const VkCopyBufferToImageInfo2*>(object), settings, "VkCopyBufferToImageInfo2", indents, dump_html_VkCopyBufferToImageInfo2);
+        dump_html_pNext<const VkCopyBufferToImageInfo2>(reinterpret_cast<const VkCopyBufferToImageInfo2*>(object), settings, "VkCopyBufferToImageInfo2", indents, dump_html_VkCopyBufferToImageInfo2);
         break;
     case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2:
-        dump_html_pNext<const VkCopyImageToBufferInfo2>(static_cast<const VkCopyImageToBufferInfo2*>(object), settings, "VkCopyImageToBufferInfo2", indents, dump_html_VkCopyImageToBufferInfo2);
+        dump_html_pNext<const VkCopyImageToBufferInfo2>(reinterpret_cast<const VkCopyImageToBufferInfo2*>(object), settings, "VkCopyImageToBufferInfo2", indents, dump_html_VkCopyImageToBufferInfo2);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_BLIT_2:
-        dump_html_pNext<const VkImageBlit2>(static_cast<const VkImageBlit2*>(object), settings, "VkImageBlit2", indents, dump_html_VkImageBlit2);
+        dump_html_pNext<const VkImageBlit2>(reinterpret_cast<const VkImageBlit2*>(object), settings, "VkImageBlit2", indents, dump_html_VkImageBlit2);
         break;
     case VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2:
-        dump_html_pNext<const VkBlitImageInfo2>(static_cast<const VkBlitImageInfo2*>(object), settings, "VkBlitImageInfo2", indents, dump_html_VkBlitImageInfo2);
+        dump_html_pNext<const VkBlitImageInfo2>(reinterpret_cast<const VkBlitImageInfo2*>(object), settings, "VkBlitImageInfo2", indents, dump_html_VkBlitImageInfo2);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2:
-        dump_html_pNext<const VkImageResolve2>(static_cast<const VkImageResolve2*>(object), settings, "VkImageResolve2", indents, dump_html_VkImageResolve2);
+        dump_html_pNext<const VkImageResolve2>(reinterpret_cast<const VkImageResolve2*>(object), settings, "VkImageResolve2", indents, dump_html_VkImageResolve2);
         break;
     case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2:
-        dump_html_pNext<const VkResolveImageInfo2>(static_cast<const VkResolveImageInfo2*>(object), settings, "VkResolveImageInfo2", indents, dump_html_VkResolveImageInfo2);
+        dump_html_pNext<const VkResolveImageInfo2>(reinterpret_cast<const VkResolveImageInfo2*>(object), settings, "VkResolveImageInfo2", indents, dump_html_VkResolveImageInfo2);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceSubgroupSizeControlFeatures>(static_cast<const VkPhysicalDeviceSubgroupSizeControlFeatures*>(object), settings, "VkPhysicalDeviceSubgroupSizeControlFeatures", indents, dump_html_VkPhysicalDeviceSubgroupSizeControlFeatures);
+        dump_html_pNext<const VkPhysicalDeviceSubgroupSizeControlFeatures>(reinterpret_cast<const VkPhysicalDeviceSubgroupSizeControlFeatures*>(object), settings, "VkPhysicalDeviceSubgroupSizeControlFeatures", indents, dump_html_VkPhysicalDeviceSubgroupSizeControlFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceSubgroupSizeControlProperties>(static_cast<const VkPhysicalDeviceSubgroupSizeControlProperties*>(object), settings, "VkPhysicalDeviceSubgroupSizeControlProperties", indents, dump_html_VkPhysicalDeviceSubgroupSizeControlProperties);
+        dump_html_pNext<const VkPhysicalDeviceSubgroupSizeControlProperties>(reinterpret_cast<const VkPhysicalDeviceSubgroupSizeControlProperties*>(object), settings, "VkPhysicalDeviceSubgroupSizeControlProperties", indents, dump_html_VkPhysicalDeviceSubgroupSizeControlProperties);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineShaderStageRequiredSubgroupSizeCreateInfo>(static_cast<const VkPipelineShaderStageRequiredSubgroupSizeCreateInfo*>(object), settings, "VkPipelineShaderStageRequiredSubgroupSizeCreateInfo", indents, dump_html_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo);
+        dump_html_pNext<const VkPipelineShaderStageRequiredSubgroupSizeCreateInfo>(reinterpret_cast<const VkPipelineShaderStageRequiredSubgroupSizeCreateInfo*>(object), settings, "VkPipelineShaderStageRequiredSubgroupSizeCreateInfo", indents, dump_html_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceInlineUniformBlockFeatures>(static_cast<const VkPhysicalDeviceInlineUniformBlockFeatures*>(object), settings, "VkPhysicalDeviceInlineUniformBlockFeatures", indents, dump_html_VkPhysicalDeviceInlineUniformBlockFeatures);
+        dump_html_pNext<const VkPhysicalDeviceInlineUniformBlockFeatures>(reinterpret_cast<const VkPhysicalDeviceInlineUniformBlockFeatures*>(object), settings, "VkPhysicalDeviceInlineUniformBlockFeatures", indents, dump_html_VkPhysicalDeviceInlineUniformBlockFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceInlineUniformBlockProperties>(static_cast<const VkPhysicalDeviceInlineUniformBlockProperties*>(object), settings, "VkPhysicalDeviceInlineUniformBlockProperties", indents, dump_html_VkPhysicalDeviceInlineUniformBlockProperties);
+        dump_html_pNext<const VkPhysicalDeviceInlineUniformBlockProperties>(reinterpret_cast<const VkPhysicalDeviceInlineUniformBlockProperties*>(object), settings, "VkPhysicalDeviceInlineUniformBlockProperties", indents, dump_html_VkPhysicalDeviceInlineUniformBlockProperties);
         break;
     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK:
-        dump_html_pNext<const VkWriteDescriptorSetInlineUniformBlock>(static_cast<const VkWriteDescriptorSetInlineUniformBlock*>(object), settings, "VkWriteDescriptorSetInlineUniformBlock", indents, dump_html_VkWriteDescriptorSetInlineUniformBlock);
+        dump_html_pNext<const VkWriteDescriptorSetInlineUniformBlock>(reinterpret_cast<const VkWriteDescriptorSetInlineUniformBlock*>(object), settings, "VkWriteDescriptorSetInlineUniformBlock", indents, dump_html_VkWriteDescriptorSetInlineUniformBlock);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO:
-        dump_html_pNext<const VkDescriptorPoolInlineUniformBlockCreateInfo>(static_cast<const VkDescriptorPoolInlineUniformBlockCreateInfo*>(object), settings, "VkDescriptorPoolInlineUniformBlockCreateInfo", indents, dump_html_VkDescriptorPoolInlineUniformBlockCreateInfo);
+        dump_html_pNext<const VkDescriptorPoolInlineUniformBlockCreateInfo>(reinterpret_cast<const VkDescriptorPoolInlineUniformBlockCreateInfo*>(object), settings, "VkDescriptorPoolInlineUniformBlockCreateInfo", indents, dump_html_VkDescriptorPoolInlineUniformBlockCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceTextureCompressionASTCHDRFeatures>(static_cast<const VkPhysicalDeviceTextureCompressionASTCHDRFeatures*>(object), settings, "VkPhysicalDeviceTextureCompressionASTCHDRFeatures", indents, dump_html_VkPhysicalDeviceTextureCompressionASTCHDRFeatures);
+        dump_html_pNext<const VkPhysicalDeviceTextureCompressionASTCHDRFeatures>(reinterpret_cast<const VkPhysicalDeviceTextureCompressionASTCHDRFeatures*>(object), settings, "VkPhysicalDeviceTextureCompressionASTCHDRFeatures", indents, dump_html_VkPhysicalDeviceTextureCompressionASTCHDRFeatures);
         break;
     case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO:
-        dump_html_pNext<const VkRenderingAttachmentInfo>(static_cast<const VkRenderingAttachmentInfo*>(object), settings, "VkRenderingAttachmentInfo", indents, dump_html_VkRenderingAttachmentInfo);
+        dump_html_pNext<const VkRenderingAttachmentInfo>(reinterpret_cast<const VkRenderingAttachmentInfo*>(object), settings, "VkRenderingAttachmentInfo", indents, dump_html_VkRenderingAttachmentInfo);
         break;
     case VK_STRUCTURE_TYPE_RENDERING_INFO:
-        dump_html_pNext<const VkRenderingInfo>(static_cast<const VkRenderingInfo*>(object), settings, "VkRenderingInfo", indents, dump_html_VkRenderingInfo);
+        dump_html_pNext<const VkRenderingInfo>(reinterpret_cast<const VkRenderingInfo*>(object), settings, "VkRenderingInfo", indents, dump_html_VkRenderingInfo);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO:
-        dump_html_pNext<const VkPipelineRenderingCreateInfo>(static_cast<const VkPipelineRenderingCreateInfo*>(object), settings, "VkPipelineRenderingCreateInfo", indents, dump_html_VkPipelineRenderingCreateInfo);
+        dump_html_pNext<const VkPipelineRenderingCreateInfo>(reinterpret_cast<const VkPipelineRenderingCreateInfo*>(object), settings, "VkPipelineRenderingCreateInfo", indents, dump_html_VkPipelineRenderingCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceDynamicRenderingFeatures>(static_cast<const VkPhysicalDeviceDynamicRenderingFeatures*>(object), settings, "VkPhysicalDeviceDynamicRenderingFeatures", indents, dump_html_VkPhysicalDeviceDynamicRenderingFeatures);
+        dump_html_pNext<const VkPhysicalDeviceDynamicRenderingFeatures>(reinterpret_cast<const VkPhysicalDeviceDynamicRenderingFeatures*>(object), settings, "VkPhysicalDeviceDynamicRenderingFeatures", indents, dump_html_VkPhysicalDeviceDynamicRenderingFeatures);
         break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO:
-        dump_html_pNext<const VkCommandBufferInheritanceRenderingInfo>(static_cast<const VkCommandBufferInheritanceRenderingInfo*>(object), settings, "VkCommandBufferInheritanceRenderingInfo", indents, dump_html_VkCommandBufferInheritanceRenderingInfo);
+        dump_html_pNext<const VkCommandBufferInheritanceRenderingInfo>(reinterpret_cast<const VkCommandBufferInheritanceRenderingInfo*>(object), settings, "VkCommandBufferInheritanceRenderingInfo", indents, dump_html_VkCommandBufferInheritanceRenderingInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceShaderIntegerDotProductFeatures>(static_cast<const VkPhysicalDeviceShaderIntegerDotProductFeatures*>(object), settings, "VkPhysicalDeviceShaderIntegerDotProductFeatures", indents, dump_html_VkPhysicalDeviceShaderIntegerDotProductFeatures);
+        dump_html_pNext<const VkPhysicalDeviceShaderIntegerDotProductFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderIntegerDotProductFeatures*>(object), settings, "VkPhysicalDeviceShaderIntegerDotProductFeatures", indents, dump_html_VkPhysicalDeviceShaderIntegerDotProductFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceShaderIntegerDotProductProperties>(static_cast<const VkPhysicalDeviceShaderIntegerDotProductProperties*>(object), settings, "VkPhysicalDeviceShaderIntegerDotProductProperties", indents, dump_html_VkPhysicalDeviceShaderIntegerDotProductProperties);
+        dump_html_pNext<const VkPhysicalDeviceShaderIntegerDotProductProperties>(reinterpret_cast<const VkPhysicalDeviceShaderIntegerDotProductProperties*>(object), settings, "VkPhysicalDeviceShaderIntegerDotProductProperties", indents, dump_html_VkPhysicalDeviceShaderIntegerDotProductProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceTexelBufferAlignmentProperties>(static_cast<const VkPhysicalDeviceTexelBufferAlignmentProperties*>(object), settings, "VkPhysicalDeviceTexelBufferAlignmentProperties", indents, dump_html_VkPhysicalDeviceTexelBufferAlignmentProperties);
+        dump_html_pNext<const VkPhysicalDeviceTexelBufferAlignmentProperties>(reinterpret_cast<const VkPhysicalDeviceTexelBufferAlignmentProperties*>(object), settings, "VkPhysicalDeviceTexelBufferAlignmentProperties", indents, dump_html_VkPhysicalDeviceTexelBufferAlignmentProperties);
         break;
     case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3:
-        dump_html_pNext<const VkFormatProperties3>(static_cast<const VkFormatProperties3*>(object), settings, "VkFormatProperties3", indents, dump_html_VkFormatProperties3);
+        dump_html_pNext<const VkFormatProperties3>(reinterpret_cast<const VkFormatProperties3*>(object), settings, "VkFormatProperties3", indents, dump_html_VkFormatProperties3);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance4Features>(static_cast<const VkPhysicalDeviceMaintenance4Features*>(object), settings, "VkPhysicalDeviceMaintenance4Features", indents, dump_html_VkPhysicalDeviceMaintenance4Features);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance4Features>(reinterpret_cast<const VkPhysicalDeviceMaintenance4Features*>(object), settings, "VkPhysicalDeviceMaintenance4Features", indents, dump_html_VkPhysicalDeviceMaintenance4Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance4Properties>(static_cast<const VkPhysicalDeviceMaintenance4Properties*>(object), settings, "VkPhysicalDeviceMaintenance4Properties", indents, dump_html_VkPhysicalDeviceMaintenance4Properties);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance4Properties>(reinterpret_cast<const VkPhysicalDeviceMaintenance4Properties*>(object), settings, "VkPhysicalDeviceMaintenance4Properties", indents, dump_html_VkPhysicalDeviceMaintenance4Properties);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS:
-        dump_html_pNext<const VkDeviceBufferMemoryRequirements>(static_cast<const VkDeviceBufferMemoryRequirements*>(object), settings, "VkDeviceBufferMemoryRequirements", indents, dump_html_VkDeviceBufferMemoryRequirements);
+        dump_html_pNext<const VkDeviceBufferMemoryRequirements>(reinterpret_cast<const VkDeviceBufferMemoryRequirements*>(object), settings, "VkDeviceBufferMemoryRequirements", indents, dump_html_VkDeviceBufferMemoryRequirements);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS:
-        dump_html_pNext<const VkDeviceImageMemoryRequirements>(static_cast<const VkDeviceImageMemoryRequirements*>(object), settings, "VkDeviceImageMemoryRequirements", indents, dump_html_VkDeviceImageMemoryRequirements);
+        dump_html_pNext<const VkDeviceImageMemoryRequirements>(reinterpret_cast<const VkDeviceImageMemoryRequirements*>(object), settings, "VkDeviceImageMemoryRequirements", indents, dump_html_VkDeviceImageMemoryRequirements);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceVulkan14Features>(static_cast<const VkPhysicalDeviceVulkan14Features*>(object), settings, "VkPhysicalDeviceVulkan14Features", indents, dump_html_VkPhysicalDeviceVulkan14Features);
+        dump_html_pNext<const VkPhysicalDeviceVulkan14Features>(reinterpret_cast<const VkPhysicalDeviceVulkan14Features*>(object), settings, "VkPhysicalDeviceVulkan14Features", indents, dump_html_VkPhysicalDeviceVulkan14Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceVulkan14Properties>(static_cast<const VkPhysicalDeviceVulkan14Properties*>(object), settings, "VkPhysicalDeviceVulkan14Properties", indents, dump_html_VkPhysicalDeviceVulkan14Properties);
+        dump_html_pNext<const VkPhysicalDeviceVulkan14Properties>(reinterpret_cast<const VkPhysicalDeviceVulkan14Properties*>(object), settings, "VkPhysicalDeviceVulkan14Properties", indents, dump_html_VkPhysicalDeviceVulkan14Properties);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO:
-        dump_html_pNext<const VkDeviceQueueGlobalPriorityCreateInfo>(static_cast<const VkDeviceQueueGlobalPriorityCreateInfo*>(object), settings, "VkDeviceQueueGlobalPriorityCreateInfo", indents, dump_html_VkDeviceQueueGlobalPriorityCreateInfo);
+        dump_html_pNext<const VkDeviceQueueGlobalPriorityCreateInfo>(reinterpret_cast<const VkDeviceQueueGlobalPriorityCreateInfo*>(object), settings, "VkDeviceQueueGlobalPriorityCreateInfo", indents, dump_html_VkDeviceQueueGlobalPriorityCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceGlobalPriorityQueryFeatures>(static_cast<const VkPhysicalDeviceGlobalPriorityQueryFeatures*>(object), settings, "VkPhysicalDeviceGlobalPriorityQueryFeatures", indents, dump_html_VkPhysicalDeviceGlobalPriorityQueryFeatures);
+        dump_html_pNext<const VkPhysicalDeviceGlobalPriorityQueryFeatures>(reinterpret_cast<const VkPhysicalDeviceGlobalPriorityQueryFeatures*>(object), settings, "VkPhysicalDeviceGlobalPriorityQueryFeatures", indents, dump_html_VkPhysicalDeviceGlobalPriorityQueryFeatures);
         break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES:
-        dump_html_pNext<const VkQueueFamilyGlobalPriorityProperties>(static_cast<const VkQueueFamilyGlobalPriorityProperties*>(object), settings, "VkQueueFamilyGlobalPriorityProperties", indents, dump_html_VkQueueFamilyGlobalPriorityProperties);
+        dump_html_pNext<const VkQueueFamilyGlobalPriorityProperties>(reinterpret_cast<const VkQueueFamilyGlobalPriorityProperties*>(object), settings, "VkQueueFamilyGlobalPriorityProperties", indents, dump_html_VkQueueFamilyGlobalPriorityProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_ROTATE_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceShaderSubgroupRotateFeatures>(static_cast<const VkPhysicalDeviceShaderSubgroupRotateFeatures*>(object), settings, "VkPhysicalDeviceShaderSubgroupRotateFeatures", indents, dump_html_VkPhysicalDeviceShaderSubgroupRotateFeatures);
+        dump_html_pNext<const VkPhysicalDeviceShaderSubgroupRotateFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderSubgroupRotateFeatures*>(object), settings, "VkPhysicalDeviceShaderSubgroupRotateFeatures", indents, dump_html_VkPhysicalDeviceShaderSubgroupRotateFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT_CONTROLS_2_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceShaderFloatControls2Features>(static_cast<const VkPhysicalDeviceShaderFloatControls2Features*>(object), settings, "VkPhysicalDeviceShaderFloatControls2Features", indents, dump_html_VkPhysicalDeviceShaderFloatControls2Features);
+        dump_html_pNext<const VkPhysicalDeviceShaderFloatControls2Features>(reinterpret_cast<const VkPhysicalDeviceShaderFloatControls2Features*>(object), settings, "VkPhysicalDeviceShaderFloatControls2Features", indents, dump_html_VkPhysicalDeviceShaderFloatControls2Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EXPECT_ASSUME_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceShaderExpectAssumeFeatures>(static_cast<const VkPhysicalDeviceShaderExpectAssumeFeatures*>(object), settings, "VkPhysicalDeviceShaderExpectAssumeFeatures", indents, dump_html_VkPhysicalDeviceShaderExpectAssumeFeatures);
+        dump_html_pNext<const VkPhysicalDeviceShaderExpectAssumeFeatures>(reinterpret_cast<const VkPhysicalDeviceShaderExpectAssumeFeatures*>(object), settings, "VkPhysicalDeviceShaderExpectAssumeFeatures", indents, dump_html_VkPhysicalDeviceShaderExpectAssumeFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceLineRasterizationFeatures>(static_cast<const VkPhysicalDeviceLineRasterizationFeatures*>(object), settings, "VkPhysicalDeviceLineRasterizationFeatures", indents, dump_html_VkPhysicalDeviceLineRasterizationFeatures);
+        dump_html_pNext<const VkPhysicalDeviceLineRasterizationFeatures>(reinterpret_cast<const VkPhysicalDeviceLineRasterizationFeatures*>(object), settings, "VkPhysicalDeviceLineRasterizationFeatures", indents, dump_html_VkPhysicalDeviceLineRasterizationFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceLineRasterizationProperties>(static_cast<const VkPhysicalDeviceLineRasterizationProperties*>(object), settings, "VkPhysicalDeviceLineRasterizationProperties", indents, dump_html_VkPhysicalDeviceLineRasterizationProperties);
+        dump_html_pNext<const VkPhysicalDeviceLineRasterizationProperties>(reinterpret_cast<const VkPhysicalDeviceLineRasterizationProperties*>(object), settings, "VkPhysicalDeviceLineRasterizationProperties", indents, dump_html_VkPhysicalDeviceLineRasterizationProperties);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineRasterizationLineStateCreateInfo>(static_cast<const VkPipelineRasterizationLineStateCreateInfo*>(object), settings, "VkPipelineRasterizationLineStateCreateInfo", indents, dump_html_VkPipelineRasterizationLineStateCreateInfo);
+        dump_html_pNext<const VkPipelineRasterizationLineStateCreateInfo>(reinterpret_cast<const VkPipelineRasterizationLineStateCreateInfo*>(object), settings, "VkPipelineRasterizationLineStateCreateInfo", indents, dump_html_VkPipelineRasterizationLineStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceVertexAttributeDivisorProperties>(static_cast<const VkPhysicalDeviceVertexAttributeDivisorProperties*>(object), settings, "VkPhysicalDeviceVertexAttributeDivisorProperties", indents, dump_html_VkPhysicalDeviceVertexAttributeDivisorProperties);
+        dump_html_pNext<const VkPhysicalDeviceVertexAttributeDivisorProperties>(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorProperties*>(object), settings, "VkPhysicalDeviceVertexAttributeDivisorProperties", indents, dump_html_VkPhysicalDeviceVertexAttributeDivisorProperties);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO:
-        dump_html_pNext<const VkPipelineVertexInputDivisorStateCreateInfo>(static_cast<const VkPipelineVertexInputDivisorStateCreateInfo*>(object), settings, "VkPipelineVertexInputDivisorStateCreateInfo", indents, dump_html_VkPipelineVertexInputDivisorStateCreateInfo);
+        dump_html_pNext<const VkPipelineVertexInputDivisorStateCreateInfo>(reinterpret_cast<const VkPipelineVertexInputDivisorStateCreateInfo*>(object), settings, "VkPipelineVertexInputDivisorStateCreateInfo", indents, dump_html_VkPipelineVertexInputDivisorStateCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceVertexAttributeDivisorFeatures>(static_cast<const VkPhysicalDeviceVertexAttributeDivisorFeatures*>(object), settings, "VkPhysicalDeviceVertexAttributeDivisorFeatures", indents, dump_html_VkPhysicalDeviceVertexAttributeDivisorFeatures);
+        dump_html_pNext<const VkPhysicalDeviceVertexAttributeDivisorFeatures>(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorFeatures*>(object), settings, "VkPhysicalDeviceVertexAttributeDivisorFeatures", indents, dump_html_VkPhysicalDeviceVertexAttributeDivisorFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceIndexTypeUint8Features>(static_cast<const VkPhysicalDeviceIndexTypeUint8Features*>(object), settings, "VkPhysicalDeviceIndexTypeUint8Features", indents, dump_html_VkPhysicalDeviceIndexTypeUint8Features);
+        dump_html_pNext<const VkPhysicalDeviceIndexTypeUint8Features>(reinterpret_cast<const VkPhysicalDeviceIndexTypeUint8Features*>(object), settings, "VkPhysicalDeviceIndexTypeUint8Features", indents, dump_html_VkPhysicalDeviceIndexTypeUint8Features);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_MAP_INFO:
-        dump_html_pNext<const VkMemoryMapInfo>(static_cast<const VkMemoryMapInfo*>(object), settings, "VkMemoryMapInfo", indents, dump_html_VkMemoryMapInfo);
+        dump_html_pNext<const VkMemoryMapInfo>(reinterpret_cast<const VkMemoryMapInfo*>(object), settings, "VkMemoryMapInfo", indents, dump_html_VkMemoryMapInfo);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO:
-        dump_html_pNext<const VkMemoryUnmapInfo>(static_cast<const VkMemoryUnmapInfo*>(object), settings, "VkMemoryUnmapInfo", indents, dump_html_VkMemoryUnmapInfo);
+        dump_html_pNext<const VkMemoryUnmapInfo>(reinterpret_cast<const VkMemoryUnmapInfo*>(object), settings, "VkMemoryUnmapInfo", indents, dump_html_VkMemoryUnmapInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance5Features>(static_cast<const VkPhysicalDeviceMaintenance5Features*>(object), settings, "VkPhysicalDeviceMaintenance5Features", indents, dump_html_VkPhysicalDeviceMaintenance5Features);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance5Features>(reinterpret_cast<const VkPhysicalDeviceMaintenance5Features*>(object), settings, "VkPhysicalDeviceMaintenance5Features", indents, dump_html_VkPhysicalDeviceMaintenance5Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance5Properties>(static_cast<const VkPhysicalDeviceMaintenance5Properties*>(object), settings, "VkPhysicalDeviceMaintenance5Properties", indents, dump_html_VkPhysicalDeviceMaintenance5Properties);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance5Properties>(reinterpret_cast<const VkPhysicalDeviceMaintenance5Properties*>(object), settings, "VkPhysicalDeviceMaintenance5Properties", indents, dump_html_VkPhysicalDeviceMaintenance5Properties);
         break;
     case VK_STRUCTURE_TYPE_RENDERING_AREA_INFO:
-        dump_html_pNext<const VkRenderingAreaInfo>(static_cast<const VkRenderingAreaInfo*>(object), settings, "VkRenderingAreaInfo", indents, dump_html_VkRenderingAreaInfo);
+        dump_html_pNext<const VkRenderingAreaInfo>(reinterpret_cast<const VkRenderingAreaInfo*>(object), settings, "VkRenderingAreaInfo", indents, dump_html_VkRenderingAreaInfo);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2:
-        dump_html_pNext<const VkImageSubresource2>(static_cast<const VkImageSubresource2*>(object), settings, "VkImageSubresource2", indents, dump_html_VkImageSubresource2);
+        dump_html_pNext<const VkImageSubresource2>(reinterpret_cast<const VkImageSubresource2*>(object), settings, "VkImageSubresource2", indents, dump_html_VkImageSubresource2);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_IMAGE_SUBRESOURCE_INFO:
-        dump_html_pNext<const VkDeviceImageSubresourceInfo>(static_cast<const VkDeviceImageSubresourceInfo*>(object), settings, "VkDeviceImageSubresourceInfo", indents, dump_html_VkDeviceImageSubresourceInfo);
+        dump_html_pNext<const VkDeviceImageSubresourceInfo>(reinterpret_cast<const VkDeviceImageSubresourceInfo*>(object), settings, "VkDeviceImageSubresourceInfo", indents, dump_html_VkDeviceImageSubresourceInfo);
         break;
     case VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2:
-        dump_html_pNext<const VkSubresourceLayout2>(static_cast<const VkSubresourceLayout2*>(object), settings, "VkSubresourceLayout2", indents, dump_html_VkSubresourceLayout2);
+        dump_html_pNext<const VkSubresourceLayout2>(reinterpret_cast<const VkSubresourceLayout2*>(object), settings, "VkSubresourceLayout2", indents, dump_html_VkSubresourceLayout2);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO:
-        dump_html_pNext<const VkPipelineCreateFlags2CreateInfo>(static_cast<const VkPipelineCreateFlags2CreateInfo*>(object), settings, "VkPipelineCreateFlags2CreateInfo", indents, dump_html_VkPipelineCreateFlags2CreateInfo);
+        dump_html_pNext<const VkPipelineCreateFlags2CreateInfo>(reinterpret_cast<const VkPipelineCreateFlags2CreateInfo*>(object), settings, "VkPipelineCreateFlags2CreateInfo", indents, dump_html_VkPipelineCreateFlags2CreateInfo);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO:
-        dump_html_pNext<const VkBufferUsageFlags2CreateInfo>(static_cast<const VkBufferUsageFlags2CreateInfo*>(object), settings, "VkBufferUsageFlags2CreateInfo", indents, dump_html_VkBufferUsageFlags2CreateInfo);
+        dump_html_pNext<const VkBufferUsageFlags2CreateInfo>(reinterpret_cast<const VkBufferUsageFlags2CreateInfo*>(object), settings, "VkBufferUsageFlags2CreateInfo", indents, dump_html_VkBufferUsageFlags2CreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDevicePushDescriptorProperties>(static_cast<const VkPhysicalDevicePushDescriptorProperties*>(object), settings, "VkPhysicalDevicePushDescriptorProperties", indents, dump_html_VkPhysicalDevicePushDescriptorProperties);
+        dump_html_pNext<const VkPhysicalDevicePushDescriptorProperties>(reinterpret_cast<const VkPhysicalDevicePushDescriptorProperties*>(object), settings, "VkPhysicalDevicePushDescriptorProperties", indents, dump_html_VkPhysicalDevicePushDescriptorProperties);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceDynamicRenderingLocalReadFeatures>(static_cast<const VkPhysicalDeviceDynamicRenderingLocalReadFeatures*>(object), settings, "VkPhysicalDeviceDynamicRenderingLocalReadFeatures", indents, dump_html_VkPhysicalDeviceDynamicRenderingLocalReadFeatures);
+        dump_html_pNext<const VkPhysicalDeviceDynamicRenderingLocalReadFeatures>(reinterpret_cast<const VkPhysicalDeviceDynamicRenderingLocalReadFeatures*>(object), settings, "VkPhysicalDeviceDynamicRenderingLocalReadFeatures", indents, dump_html_VkPhysicalDeviceDynamicRenderingLocalReadFeatures);
         break;
     case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_LOCATION_INFO:
-        dump_html_pNext<const VkRenderingAttachmentLocationInfo>(static_cast<const VkRenderingAttachmentLocationInfo*>(object), settings, "VkRenderingAttachmentLocationInfo", indents, dump_html_VkRenderingAttachmentLocationInfo);
+        dump_html_pNext<const VkRenderingAttachmentLocationInfo>(reinterpret_cast<const VkRenderingAttachmentLocationInfo*>(object), settings, "VkRenderingAttachmentLocationInfo", indents, dump_html_VkRenderingAttachmentLocationInfo);
         break;
     case VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO:
-        dump_html_pNext<const VkRenderingInputAttachmentIndexInfo>(static_cast<const VkRenderingInputAttachmentIndexInfo*>(object), settings, "VkRenderingInputAttachmentIndexInfo", indents, dump_html_VkRenderingInputAttachmentIndexInfo);
+        dump_html_pNext<const VkRenderingInputAttachmentIndexInfo>(reinterpret_cast<const VkRenderingInputAttachmentIndexInfo*>(object), settings, "VkRenderingInputAttachmentIndexInfo", indents, dump_html_VkRenderingInputAttachmentIndexInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance6Features>(static_cast<const VkPhysicalDeviceMaintenance6Features*>(object), settings, "VkPhysicalDeviceMaintenance6Features", indents, dump_html_VkPhysicalDeviceMaintenance6Features);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance6Features>(reinterpret_cast<const VkPhysicalDeviceMaintenance6Features*>(object), settings, "VkPhysicalDeviceMaintenance6Features", indents, dump_html_VkPhysicalDeviceMaintenance6Features);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_6_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance6Properties>(static_cast<const VkPhysicalDeviceMaintenance6Properties*>(object), settings, "VkPhysicalDeviceMaintenance6Properties", indents, dump_html_VkPhysicalDeviceMaintenance6Properties);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance6Properties>(reinterpret_cast<const VkPhysicalDeviceMaintenance6Properties*>(object), settings, "VkPhysicalDeviceMaintenance6Properties", indents, dump_html_VkPhysicalDeviceMaintenance6Properties);
         break;
     case VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS:
-        dump_html_pNext<const VkBindMemoryStatus>(static_cast<const VkBindMemoryStatus*>(object), settings, "VkBindMemoryStatus", indents, dump_html_VkBindMemoryStatus);
+        dump_html_pNext<const VkBindMemoryStatus>(reinterpret_cast<const VkBindMemoryStatus*>(object), settings, "VkBindMemoryStatus", indents, dump_html_VkBindMemoryStatus);
         break;
     case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO:
-        dump_html_pNext<const VkBindDescriptorSetsInfo>(static_cast<const VkBindDescriptorSetsInfo*>(object), settings, "VkBindDescriptorSetsInfo", indents, dump_html_VkBindDescriptorSetsInfo);
+        dump_html_pNext<const VkBindDescriptorSetsInfo>(reinterpret_cast<const VkBindDescriptorSetsInfo*>(object), settings, "VkBindDescriptorSetsInfo", indents, dump_html_VkBindDescriptorSetsInfo);
         break;
     case VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO:
-        dump_html_pNext<const VkPushConstantsInfo>(static_cast<const VkPushConstantsInfo*>(object), settings, "VkPushConstantsInfo", indents, dump_html_VkPushConstantsInfo);
+        dump_html_pNext<const VkPushConstantsInfo>(reinterpret_cast<const VkPushConstantsInfo*>(object), settings, "VkPushConstantsInfo", indents, dump_html_VkPushConstantsInfo);
         break;
     case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO:
-        dump_html_pNext<const VkPushDescriptorSetInfo>(static_cast<const VkPushDescriptorSetInfo*>(object), settings, "VkPushDescriptorSetInfo", indents, dump_html_VkPushDescriptorSetInfo);
+        dump_html_pNext<const VkPushDescriptorSetInfo>(reinterpret_cast<const VkPushDescriptorSetInfo*>(object), settings, "VkPushDescriptorSetInfo", indents, dump_html_VkPushDescriptorSetInfo);
         break;
     case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO:
-        dump_html_pNext<const VkPushDescriptorSetWithTemplateInfo>(static_cast<const VkPushDescriptorSetWithTemplateInfo*>(object), settings, "VkPushDescriptorSetWithTemplateInfo", indents, dump_html_VkPushDescriptorSetWithTemplateInfo);
+        dump_html_pNext<const VkPushDescriptorSetWithTemplateInfo>(reinterpret_cast<const VkPushDescriptorSetWithTemplateInfo*>(object), settings, "VkPushDescriptorSetWithTemplateInfo", indents, dump_html_VkPushDescriptorSetWithTemplateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES:
-        dump_html_pNext<const VkPhysicalDevicePipelineProtectedAccessFeatures>(static_cast<const VkPhysicalDevicePipelineProtectedAccessFeatures*>(object), settings, "VkPhysicalDevicePipelineProtectedAccessFeatures", indents, dump_html_VkPhysicalDevicePipelineProtectedAccessFeatures);
+        dump_html_pNext<const VkPhysicalDevicePipelineProtectedAccessFeatures>(reinterpret_cast<const VkPhysicalDevicePipelineProtectedAccessFeatures*>(object), settings, "VkPhysicalDevicePipelineProtectedAccessFeatures", indents, dump_html_VkPhysicalDevicePipelineProtectedAccessFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_FEATURES:
-        dump_html_pNext<const VkPhysicalDevicePipelineRobustnessFeatures>(static_cast<const VkPhysicalDevicePipelineRobustnessFeatures*>(object), settings, "VkPhysicalDevicePipelineRobustnessFeatures", indents, dump_html_VkPhysicalDevicePipelineRobustnessFeatures);
+        dump_html_pNext<const VkPhysicalDevicePipelineRobustnessFeatures>(reinterpret_cast<const VkPhysicalDevicePipelineRobustnessFeatures*>(object), settings, "VkPhysicalDevicePipelineRobustnessFeatures", indents, dump_html_VkPhysicalDevicePipelineRobustnessFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_ROBUSTNESS_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDevicePipelineRobustnessProperties>(static_cast<const VkPhysicalDevicePipelineRobustnessProperties*>(object), settings, "VkPhysicalDevicePipelineRobustnessProperties", indents, dump_html_VkPhysicalDevicePipelineRobustnessProperties);
+        dump_html_pNext<const VkPhysicalDevicePipelineRobustnessProperties>(reinterpret_cast<const VkPhysicalDevicePipelineRobustnessProperties*>(object), settings, "VkPhysicalDevicePipelineRobustnessProperties", indents, dump_html_VkPhysicalDevicePipelineRobustnessProperties);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_ROBUSTNESS_CREATE_INFO:
-        dump_html_pNext<const VkPipelineRobustnessCreateInfo>(static_cast<const VkPipelineRobustnessCreateInfo*>(object), settings, "VkPipelineRobustnessCreateInfo", indents, dump_html_VkPipelineRobustnessCreateInfo);
+        dump_html_pNext<const VkPipelineRobustnessCreateInfo>(reinterpret_cast<const VkPipelineRobustnessCreateInfo*>(object), settings, "VkPipelineRobustnessCreateInfo", indents, dump_html_VkPipelineRobustnessCreateInfo);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES:
-        dump_html_pNext<const VkPhysicalDeviceHostImageCopyFeatures>(static_cast<const VkPhysicalDeviceHostImageCopyFeatures*>(object), settings, "VkPhysicalDeviceHostImageCopyFeatures", indents, dump_html_VkPhysicalDeviceHostImageCopyFeatures);
+        dump_html_pNext<const VkPhysicalDeviceHostImageCopyFeatures>(reinterpret_cast<const VkPhysicalDeviceHostImageCopyFeatures*>(object), settings, "VkPhysicalDeviceHostImageCopyFeatures", indents, dump_html_VkPhysicalDeviceHostImageCopyFeatures);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES:
-        dump_html_pNext<const VkPhysicalDeviceHostImageCopyProperties>(static_cast<const VkPhysicalDeviceHostImageCopyProperties*>(object), settings, "VkPhysicalDeviceHostImageCopyProperties", indents, dump_html_VkPhysicalDeviceHostImageCopyProperties);
+        dump_html_pNext<const VkPhysicalDeviceHostImageCopyProperties>(reinterpret_cast<const VkPhysicalDeviceHostImageCopyProperties*>(object), settings, "VkPhysicalDeviceHostImageCopyProperties", indents, dump_html_VkPhysicalDeviceHostImageCopyProperties);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY:
-        dump_html_pNext<const VkMemoryToImageCopy>(static_cast<const VkMemoryToImageCopy*>(object), settings, "VkMemoryToImageCopy", indents, dump_html_VkMemoryToImageCopy);
+        dump_html_pNext<const VkMemoryToImageCopy>(reinterpret_cast<const VkMemoryToImageCopy*>(object), settings, "VkMemoryToImageCopy", indents, dump_html_VkMemoryToImageCopy);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_TO_MEMORY_COPY:
-        dump_html_pNext<const VkImageToMemoryCopy>(static_cast<const VkImageToMemoryCopy*>(object), settings, "VkImageToMemoryCopy", indents, dump_html_VkImageToMemoryCopy);
+        dump_html_pNext<const VkImageToMemoryCopy>(reinterpret_cast<const VkImageToMemoryCopy*>(object), settings, "VkImageToMemoryCopy", indents, dump_html_VkImageToMemoryCopy);
         break;
     case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO:
-        dump_html_pNext<const VkCopyMemoryToImageInfo>(static_cast<const VkCopyMemoryToImageInfo*>(object), settings, "VkCopyMemoryToImageInfo", indents, dump_html_VkCopyMemoryToImageInfo);
+        dump_html_pNext<const VkCopyMemoryToImageInfo>(reinterpret_cast<const VkCopyMemoryToImageInfo*>(object), settings, "VkCopyMemoryToImageInfo", indents, dump_html_VkCopyMemoryToImageInfo);
         break;
     case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_MEMORY_INFO:
-        dump_html_pNext<const VkCopyImageToMemoryInfo>(static_cast<const VkCopyImageToMemoryInfo*>(object), settings, "VkCopyImageToMemoryInfo", indents, dump_html_VkCopyImageToMemoryInfo);
+        dump_html_pNext<const VkCopyImageToMemoryInfo>(reinterpret_cast<const VkCopyImageToMemoryInfo*>(object), settings, "VkCopyImageToMemoryInfo", indents, dump_html_VkCopyImageToMemoryInfo);
         break;
     case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_IMAGE_INFO:
-        dump_html_pNext<const VkCopyImageToImageInfo>(static_cast<const VkCopyImageToImageInfo*>(object), settings, "VkCopyImageToImageInfo", indents, dump_html_VkCopyImageToImageInfo);
+        dump_html_pNext<const VkCopyImageToImageInfo>(reinterpret_cast<const VkCopyImageToImageInfo*>(object), settings, "VkCopyImageToImageInfo", indents, dump_html_VkCopyImageToImageInfo);
         break;
     case VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO:
-        dump_html_pNext<const VkHostImageLayoutTransitionInfo>(static_cast<const VkHostImageLayoutTransitionInfo*>(object), settings, "VkHostImageLayoutTransitionInfo", indents, dump_html_VkHostImageLayoutTransitionInfo);
+        dump_html_pNext<const VkHostImageLayoutTransitionInfo>(reinterpret_cast<const VkHostImageLayoutTransitionInfo*>(object), settings, "VkHostImageLayoutTransitionInfo", indents, dump_html_VkHostImageLayoutTransitionInfo);
         break;
     case VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE:
-        dump_html_pNext<const VkSubresourceHostMemcpySize>(static_cast<const VkSubresourceHostMemcpySize*>(object), settings, "VkSubresourceHostMemcpySize", indents, dump_html_VkSubresourceHostMemcpySize);
+        dump_html_pNext<const VkSubresourceHostMemcpySize>(reinterpret_cast<const VkSubresourceHostMemcpySize*>(object), settings, "VkSubresourceHostMemcpySize", indents, dump_html_VkSubresourceHostMemcpySize);
         break;
     case VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY:
-        dump_html_pNext<const VkHostImageCopyDevicePerformanceQuery>(static_cast<const VkHostImageCopyDevicePerformanceQuery*>(object), settings, "VkHostImageCopyDevicePerformanceQuery", indents, dump_html_VkHostImageCopyDevicePerformanceQuery);
+        dump_html_pNext<const VkHostImageCopyDevicePerformanceQuery>(reinterpret_cast<const VkHostImageCopyDevicePerformanceQuery*>(object), settings, "VkHostImageCopyDevicePerformanceQuery", indents, dump_html_VkHostImageCopyDevicePerformanceQuery);
         break;
     case VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR:
-        dump_html_pNext<const VkSwapchainCreateInfoKHR>(static_cast<const VkSwapchainCreateInfoKHR*>(object), settings, "VkSwapchainCreateInfoKHR", indents, dump_html_VkSwapchainCreateInfoKHR);
+        dump_html_pNext<const VkSwapchainCreateInfoKHR>(reinterpret_cast<const VkSwapchainCreateInfoKHR*>(object), settings, "VkSwapchainCreateInfoKHR", indents, dump_html_VkSwapchainCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PRESENT_INFO_KHR:
-        dump_html_pNext<const VkPresentInfoKHR>(static_cast<const VkPresentInfoKHR*>(object), settings, "VkPresentInfoKHR", indents, dump_html_VkPresentInfoKHR);
+        dump_html_pNext<const VkPresentInfoKHR>(reinterpret_cast<const VkPresentInfoKHR*>(object), settings, "VkPresentInfoKHR", indents, dump_html_VkPresentInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
-        dump_html_pNext<const VkImageSwapchainCreateInfoKHR>(static_cast<const VkImageSwapchainCreateInfoKHR*>(object), settings, "VkImageSwapchainCreateInfoKHR", indents, dump_html_VkImageSwapchainCreateInfoKHR);
+        dump_html_pNext<const VkImageSwapchainCreateInfoKHR>(reinterpret_cast<const VkImageSwapchainCreateInfoKHR*>(object), settings, "VkImageSwapchainCreateInfoKHR", indents, dump_html_VkImageSwapchainCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
-        dump_html_pNext<const VkBindImageMemorySwapchainInfoKHR>(static_cast<const VkBindImageMemorySwapchainInfoKHR*>(object), settings, "VkBindImageMemorySwapchainInfoKHR", indents, dump_html_VkBindImageMemorySwapchainInfoKHR);
+        dump_html_pNext<const VkBindImageMemorySwapchainInfoKHR>(reinterpret_cast<const VkBindImageMemorySwapchainInfoKHR*>(object), settings, "VkBindImageMemorySwapchainInfoKHR", indents, dump_html_VkBindImageMemorySwapchainInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR:
-        dump_html_pNext<const VkAcquireNextImageInfoKHR>(static_cast<const VkAcquireNextImageInfoKHR*>(object), settings, "VkAcquireNextImageInfoKHR", indents, dump_html_VkAcquireNextImageInfoKHR);
+        dump_html_pNext<const VkAcquireNextImageInfoKHR>(reinterpret_cast<const VkAcquireNextImageInfoKHR*>(object), settings, "VkAcquireNextImageInfoKHR", indents, dump_html_VkAcquireNextImageInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_CAPABILITIES_KHR:
-        dump_html_pNext<const VkDeviceGroupPresentCapabilitiesKHR>(static_cast<const VkDeviceGroupPresentCapabilitiesKHR*>(object), settings, "VkDeviceGroupPresentCapabilitiesKHR", indents, dump_html_VkDeviceGroupPresentCapabilitiesKHR);
+        dump_html_pNext<const VkDeviceGroupPresentCapabilitiesKHR>(reinterpret_cast<const VkDeviceGroupPresentCapabilitiesKHR*>(object), settings, "VkDeviceGroupPresentCapabilitiesKHR", indents, dump_html_VkDeviceGroupPresentCapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR:
-        dump_html_pNext<const VkDeviceGroupPresentInfoKHR>(static_cast<const VkDeviceGroupPresentInfoKHR*>(object), settings, "VkDeviceGroupPresentInfoKHR", indents, dump_html_VkDeviceGroupPresentInfoKHR);
+        dump_html_pNext<const VkDeviceGroupPresentInfoKHR>(reinterpret_cast<const VkDeviceGroupPresentInfoKHR*>(object), settings, "VkDeviceGroupPresentInfoKHR", indents, dump_html_VkDeviceGroupPresentInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR:
-        dump_html_pNext<const VkDeviceGroupSwapchainCreateInfoKHR>(static_cast<const VkDeviceGroupSwapchainCreateInfoKHR*>(object), settings, "VkDeviceGroupSwapchainCreateInfoKHR", indents, dump_html_VkDeviceGroupSwapchainCreateInfoKHR);
+        dump_html_pNext<const VkDeviceGroupSwapchainCreateInfoKHR>(reinterpret_cast<const VkDeviceGroupSwapchainCreateInfoKHR*>(object), settings, "VkDeviceGroupSwapchainCreateInfoKHR", indents, dump_html_VkDeviceGroupSwapchainCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkDisplayModeCreateInfoKHR>(static_cast<const VkDisplayModeCreateInfoKHR*>(object), settings, "VkDisplayModeCreateInfoKHR", indents, dump_html_VkDisplayModeCreateInfoKHR);
+        dump_html_pNext<const VkDisplayModeCreateInfoKHR>(reinterpret_cast<const VkDisplayModeCreateInfoKHR*>(object), settings, "VkDisplayModeCreateInfoKHR", indents, dump_html_VkDisplayModeCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkDisplaySurfaceCreateInfoKHR>(static_cast<const VkDisplaySurfaceCreateInfoKHR*>(object), settings, "VkDisplaySurfaceCreateInfoKHR", indents, dump_html_VkDisplaySurfaceCreateInfoKHR);
+        dump_html_pNext<const VkDisplaySurfaceCreateInfoKHR>(reinterpret_cast<const VkDisplaySurfaceCreateInfoKHR*>(object), settings, "VkDisplaySurfaceCreateInfoKHR", indents, dump_html_VkDisplaySurfaceCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
-        dump_html_pNext<const VkDisplayPresentInfoKHR>(static_cast<const VkDisplayPresentInfoKHR*>(object), settings, "VkDisplayPresentInfoKHR", indents, dump_html_VkDisplayPresentInfoKHR);
+        dump_html_pNext<const VkDisplayPresentInfoKHR>(reinterpret_cast<const VkDisplayPresentInfoKHR*>(object), settings, "VkDisplayPresentInfoKHR", indents, dump_html_VkDisplayPresentInfoKHR);
         break;
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
     case VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkXlibSurfaceCreateInfoKHR>(static_cast<const VkXlibSurfaceCreateInfoKHR*>(object), settings, "VkXlibSurfaceCreateInfoKHR", indents, dump_html_VkXlibSurfaceCreateInfoKHR);
+        dump_html_pNext<const VkXlibSurfaceCreateInfoKHR>(reinterpret_cast<const VkXlibSurfaceCreateInfoKHR*>(object), settings, "VkXlibSurfaceCreateInfoKHR", indents, dump_html_VkXlibSurfaceCreateInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     case VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkXcbSurfaceCreateInfoKHR>(static_cast<const VkXcbSurfaceCreateInfoKHR*>(object), settings, "VkXcbSurfaceCreateInfoKHR", indents, dump_html_VkXcbSurfaceCreateInfoKHR);
+        dump_html_pNext<const VkXcbSurfaceCreateInfoKHR>(reinterpret_cast<const VkXcbSurfaceCreateInfoKHR*>(object), settings, "VkXcbSurfaceCreateInfoKHR", indents, dump_html_VkXcbSurfaceCreateInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
     case VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkWaylandSurfaceCreateInfoKHR>(static_cast<const VkWaylandSurfaceCreateInfoKHR*>(object), settings, "VkWaylandSurfaceCreateInfoKHR", indents, dump_html_VkWaylandSurfaceCreateInfoKHR);
+        dump_html_pNext<const VkWaylandSurfaceCreateInfoKHR>(reinterpret_cast<const VkWaylandSurfaceCreateInfoKHR*>(object), settings, "VkWaylandSurfaceCreateInfoKHR", indents, dump_html_VkWaylandSurfaceCreateInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkAndroidSurfaceCreateInfoKHR>(static_cast<const VkAndroidSurfaceCreateInfoKHR*>(object), settings, "VkAndroidSurfaceCreateInfoKHR", indents, dump_html_VkAndroidSurfaceCreateInfoKHR);
+        dump_html_pNext<const VkAndroidSurfaceCreateInfoKHR>(reinterpret_cast<const VkAndroidSurfaceCreateInfoKHR*>(object), settings, "VkAndroidSurfaceCreateInfoKHR", indents, dump_html_VkAndroidSurfaceCreateInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkWin32SurfaceCreateInfoKHR>(static_cast<const VkWin32SurfaceCreateInfoKHR*>(object), settings, "VkWin32SurfaceCreateInfoKHR", indents, dump_html_VkWin32SurfaceCreateInfoKHR);
+        dump_html_pNext<const VkWin32SurfaceCreateInfoKHR>(reinterpret_cast<const VkWin32SurfaceCreateInfoKHR*>(object), settings, "VkWin32SurfaceCreateInfoKHR", indents, dump_html_VkWin32SurfaceCreateInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_KHR:
-        dump_html_pNext<const VkQueueFamilyQueryResultStatusPropertiesKHR>(static_cast<const VkQueueFamilyQueryResultStatusPropertiesKHR*>(object), settings, "VkQueueFamilyQueryResultStatusPropertiesKHR", indents, dump_html_VkQueueFamilyQueryResultStatusPropertiesKHR);
+        dump_html_pNext<const VkQueueFamilyQueryResultStatusPropertiesKHR>(reinterpret_cast<const VkQueueFamilyQueryResultStatusPropertiesKHR*>(object), settings, "VkQueueFamilyQueryResultStatusPropertiesKHR", indents, dump_html_VkQueueFamilyQueryResultStatusPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_VIDEO_PROPERTIES_KHR:
-        dump_html_pNext<const VkQueueFamilyVideoPropertiesKHR>(static_cast<const VkQueueFamilyVideoPropertiesKHR*>(object), settings, "VkQueueFamilyVideoPropertiesKHR", indents, dump_html_VkQueueFamilyVideoPropertiesKHR);
+        dump_html_pNext<const VkQueueFamilyVideoPropertiesKHR>(reinterpret_cast<const VkQueueFamilyVideoPropertiesKHR*>(object), settings, "VkQueueFamilyVideoPropertiesKHR", indents, dump_html_VkQueueFamilyVideoPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR:
-        dump_html_pNext<const VkVideoProfileInfoKHR>(static_cast<const VkVideoProfileInfoKHR*>(object), settings, "VkVideoProfileInfoKHR", indents, dump_html_VkVideoProfileInfoKHR);
+        dump_html_pNext<const VkVideoProfileInfoKHR>(reinterpret_cast<const VkVideoProfileInfoKHR*>(object), settings, "VkVideoProfileInfoKHR", indents, dump_html_VkVideoProfileInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR:
-        dump_html_pNext<const VkVideoProfileListInfoKHR>(static_cast<const VkVideoProfileListInfoKHR*>(object), settings, "VkVideoProfileListInfoKHR", indents, dump_html_VkVideoProfileListInfoKHR);
+        dump_html_pNext<const VkVideoProfileListInfoKHR>(reinterpret_cast<const VkVideoProfileListInfoKHR*>(object), settings, "VkVideoProfileListInfoKHR", indents, dump_html_VkVideoProfileListInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoCapabilitiesKHR>(static_cast<const VkVideoCapabilitiesKHR*>(object), settings, "VkVideoCapabilitiesKHR", indents, dump_html_VkVideoCapabilitiesKHR);
+        dump_html_pNext<const VkVideoCapabilitiesKHR>(reinterpret_cast<const VkVideoCapabilitiesKHR*>(object), settings, "VkVideoCapabilitiesKHR", indents, dump_html_VkVideoCapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_FORMAT_INFO_KHR:
-        dump_html_pNext<const VkPhysicalDeviceVideoFormatInfoKHR>(static_cast<const VkPhysicalDeviceVideoFormatInfoKHR*>(object), settings, "VkPhysicalDeviceVideoFormatInfoKHR", indents, dump_html_VkPhysicalDeviceVideoFormatInfoKHR);
+        dump_html_pNext<const VkPhysicalDeviceVideoFormatInfoKHR>(reinterpret_cast<const VkPhysicalDeviceVideoFormatInfoKHR*>(object), settings, "VkPhysicalDeviceVideoFormatInfoKHR", indents, dump_html_VkPhysicalDeviceVideoFormatInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR:
-        dump_html_pNext<const VkVideoFormatPropertiesKHR>(static_cast<const VkVideoFormatPropertiesKHR*>(object), settings, "VkVideoFormatPropertiesKHR", indents, dump_html_VkVideoFormatPropertiesKHR);
+        dump_html_pNext<const VkVideoFormatPropertiesKHR>(reinterpret_cast<const VkVideoFormatPropertiesKHR*>(object), settings, "VkVideoFormatPropertiesKHR", indents, dump_html_VkVideoFormatPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_PICTURE_RESOURCE_INFO_KHR:
-        dump_html_pNext<const VkVideoPictureResourceInfoKHR>(static_cast<const VkVideoPictureResourceInfoKHR*>(object), settings, "VkVideoPictureResourceInfoKHR", indents, dump_html_VkVideoPictureResourceInfoKHR);
+        dump_html_pNext<const VkVideoPictureResourceInfoKHR>(reinterpret_cast<const VkVideoPictureResourceInfoKHR*>(object), settings, "VkVideoPictureResourceInfoKHR", indents, dump_html_VkVideoPictureResourceInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR:
-        dump_html_pNext<const VkVideoReferenceSlotInfoKHR>(static_cast<const VkVideoReferenceSlotInfoKHR*>(object), settings, "VkVideoReferenceSlotInfoKHR", indents, dump_html_VkVideoReferenceSlotInfoKHR);
+        dump_html_pNext<const VkVideoReferenceSlotInfoKHR>(reinterpret_cast<const VkVideoReferenceSlotInfoKHR*>(object), settings, "VkVideoReferenceSlotInfoKHR", indents, dump_html_VkVideoReferenceSlotInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR:
-        dump_html_pNext<const VkVideoSessionMemoryRequirementsKHR>(static_cast<const VkVideoSessionMemoryRequirementsKHR*>(object), settings, "VkVideoSessionMemoryRequirementsKHR", indents, dump_html_VkVideoSessionMemoryRequirementsKHR);
+        dump_html_pNext<const VkVideoSessionMemoryRequirementsKHR>(reinterpret_cast<const VkVideoSessionMemoryRequirementsKHR*>(object), settings, "VkVideoSessionMemoryRequirementsKHR", indents, dump_html_VkVideoSessionMemoryRequirementsKHR);
         break;
     case VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR:
-        dump_html_pNext<const VkBindVideoSessionMemoryInfoKHR>(static_cast<const VkBindVideoSessionMemoryInfoKHR*>(object), settings, "VkBindVideoSessionMemoryInfoKHR", indents, dump_html_VkBindVideoSessionMemoryInfoKHR);
+        dump_html_pNext<const VkBindVideoSessionMemoryInfoKHR>(reinterpret_cast<const VkBindVideoSessionMemoryInfoKHR*>(object), settings, "VkBindVideoSessionMemoryInfoKHR", indents, dump_html_VkBindVideoSessionMemoryInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_SESSION_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoSessionCreateInfoKHR>(static_cast<const VkVideoSessionCreateInfoKHR*>(object), settings, "VkVideoSessionCreateInfoKHR", indents, dump_html_VkVideoSessionCreateInfoKHR);
+        dump_html_pNext<const VkVideoSessionCreateInfoKHR>(reinterpret_cast<const VkVideoSessionCreateInfoKHR*>(object), settings, "VkVideoSessionCreateInfoKHR", indents, dump_html_VkVideoSessionCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoSessionParametersCreateInfoKHR>(static_cast<const VkVideoSessionParametersCreateInfoKHR*>(object), settings, "VkVideoSessionParametersCreateInfoKHR", indents, dump_html_VkVideoSessionParametersCreateInfoKHR);
+        dump_html_pNext<const VkVideoSessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoSessionParametersCreateInfoKHR*>(object), settings, "VkVideoSessionParametersCreateInfoKHR", indents, dump_html_VkVideoSessionParametersCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_UPDATE_INFO_KHR:
-        dump_html_pNext<const VkVideoSessionParametersUpdateInfoKHR>(static_cast<const VkVideoSessionParametersUpdateInfoKHR*>(object), settings, "VkVideoSessionParametersUpdateInfoKHR", indents, dump_html_VkVideoSessionParametersUpdateInfoKHR);
+        dump_html_pNext<const VkVideoSessionParametersUpdateInfoKHR>(reinterpret_cast<const VkVideoSessionParametersUpdateInfoKHR*>(object), settings, "VkVideoSessionParametersUpdateInfoKHR", indents, dump_html_VkVideoSessionParametersUpdateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR:
-        dump_html_pNext<const VkVideoBeginCodingInfoKHR>(static_cast<const VkVideoBeginCodingInfoKHR*>(object), settings, "VkVideoBeginCodingInfoKHR", indents, dump_html_VkVideoBeginCodingInfoKHR);
+        dump_html_pNext<const VkVideoBeginCodingInfoKHR>(reinterpret_cast<const VkVideoBeginCodingInfoKHR*>(object), settings, "VkVideoBeginCodingInfoKHR", indents, dump_html_VkVideoBeginCodingInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR:
-        dump_html_pNext<const VkVideoEndCodingInfoKHR>(static_cast<const VkVideoEndCodingInfoKHR*>(object), settings, "VkVideoEndCodingInfoKHR", indents, dump_html_VkVideoEndCodingInfoKHR);
+        dump_html_pNext<const VkVideoEndCodingInfoKHR>(reinterpret_cast<const VkVideoEndCodingInfoKHR*>(object), settings, "VkVideoEndCodingInfoKHR", indents, dump_html_VkVideoEndCodingInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_CODING_CONTROL_INFO_KHR:
-        dump_html_pNext<const VkVideoCodingControlInfoKHR>(static_cast<const VkVideoCodingControlInfoKHR*>(object), settings, "VkVideoCodingControlInfoKHR", indents, dump_html_VkVideoCodingControlInfoKHR);
+        dump_html_pNext<const VkVideoCodingControlInfoKHR>(reinterpret_cast<const VkVideoCodingControlInfoKHR*>(object), settings, "VkVideoCodingControlInfoKHR", indents, dump_html_VkVideoCodingControlInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoDecodeCapabilitiesKHR>(static_cast<const VkVideoDecodeCapabilitiesKHR*>(object), settings, "VkVideoDecodeCapabilitiesKHR", indents, dump_html_VkVideoDecodeCapabilitiesKHR);
+        dump_html_pNext<const VkVideoDecodeCapabilitiesKHR>(reinterpret_cast<const VkVideoDecodeCapabilitiesKHR*>(object), settings, "VkVideoDecodeCapabilitiesKHR", indents, dump_html_VkVideoDecodeCapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeUsageInfoKHR>(static_cast<const VkVideoDecodeUsageInfoKHR*>(object), settings, "VkVideoDecodeUsageInfoKHR", indents, dump_html_VkVideoDecodeUsageInfoKHR);
+        dump_html_pNext<const VkVideoDecodeUsageInfoKHR>(reinterpret_cast<const VkVideoDecodeUsageInfoKHR*>(object), settings, "VkVideoDecodeUsageInfoKHR", indents, dump_html_VkVideoDecodeUsageInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeInfoKHR>(static_cast<const VkVideoDecodeInfoKHR*>(object), settings, "VkVideoDecodeInfoKHR", indents, dump_html_VkVideoDecodeInfoKHR);
+        dump_html_pNext<const VkVideoDecodeInfoKHR>(reinterpret_cast<const VkVideoDecodeInfoKHR*>(object), settings, "VkVideoDecodeInfoKHR", indents, dump_html_VkVideoDecodeInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoEncodeH264CapabilitiesKHR>(static_cast<const VkVideoEncodeH264CapabilitiesKHR*>(object), settings, "VkVideoEncodeH264CapabilitiesKHR", indents, dump_html_VkVideoEncodeH264CapabilitiesKHR);
+        dump_html_pNext<const VkVideoEncodeH264CapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeH264CapabilitiesKHR*>(object), settings, "VkVideoEncodeH264CapabilitiesKHR", indents, dump_html_VkVideoEncodeH264CapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUALITY_LEVEL_PROPERTIES_KHR:
-        dump_html_pNext<const VkVideoEncodeH264QualityLevelPropertiesKHR>(static_cast<const VkVideoEncodeH264QualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeH264QualityLevelPropertiesKHR", indents, dump_html_VkVideoEncodeH264QualityLevelPropertiesKHR);
+        dump_html_pNext<const VkVideoEncodeH264QualityLevelPropertiesKHR>(reinterpret_cast<const VkVideoEncodeH264QualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeH264QualityLevelPropertiesKHR", indents, dump_html_VkVideoEncodeH264QualityLevelPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264SessionCreateInfoKHR>(static_cast<const VkVideoEncodeH264SessionCreateInfoKHR*>(object), settings, "VkVideoEncodeH264SessionCreateInfoKHR", indents, dump_html_VkVideoEncodeH264SessionCreateInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264SessionCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeH264SessionCreateInfoKHR*>(object), settings, "VkVideoEncodeH264SessionCreateInfoKHR", indents, dump_html_VkVideoEncodeH264SessionCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264SessionParametersAddInfoKHR>(static_cast<const VkVideoEncodeH264SessionParametersAddInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersAddInfoKHR", indents, dump_html_VkVideoEncodeH264SessionParametersAddInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264SessionParametersAddInfoKHR>(reinterpret_cast<const VkVideoEncodeH264SessionParametersAddInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersAddInfoKHR", indents, dump_html_VkVideoEncodeH264SessionParametersAddInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264SessionParametersCreateInfoKHR>(static_cast<const VkVideoEncodeH264SessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersCreateInfoKHR", indents, dump_html_VkVideoEncodeH264SessionParametersCreateInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeH264SessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersCreateInfoKHR", indents, dump_html_VkVideoEncodeH264SessionParametersCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_GET_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264SessionParametersGetInfoKHR>(static_cast<const VkVideoEncodeH264SessionParametersGetInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersGetInfoKHR", indents, dump_html_VkVideoEncodeH264SessionParametersGetInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264SessionParametersGetInfoKHR>(reinterpret_cast<const VkVideoEncodeH264SessionParametersGetInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersGetInfoKHR", indents, dump_html_VkVideoEncodeH264SessionParametersGetInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264SessionParametersFeedbackInfoKHR>(static_cast<const VkVideoEncodeH264SessionParametersFeedbackInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersFeedbackInfoKHR", indents, dump_html_VkVideoEncodeH264SessionParametersFeedbackInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264SessionParametersFeedbackInfoKHR>(reinterpret_cast<const VkVideoEncodeH264SessionParametersFeedbackInfoKHR*>(object), settings, "VkVideoEncodeH264SessionParametersFeedbackInfoKHR", indents, dump_html_VkVideoEncodeH264SessionParametersFeedbackInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_NALU_SLICE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264NaluSliceInfoKHR>(static_cast<const VkVideoEncodeH264NaluSliceInfoKHR*>(object), settings, "VkVideoEncodeH264NaluSliceInfoKHR", indents, dump_html_VkVideoEncodeH264NaluSliceInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264NaluSliceInfoKHR>(reinterpret_cast<const VkVideoEncodeH264NaluSliceInfoKHR*>(object), settings, "VkVideoEncodeH264NaluSliceInfoKHR", indents, dump_html_VkVideoEncodeH264NaluSliceInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264PictureInfoKHR>(static_cast<const VkVideoEncodeH264PictureInfoKHR*>(object), settings, "VkVideoEncodeH264PictureInfoKHR", indents, dump_html_VkVideoEncodeH264PictureInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264PictureInfoKHR>(reinterpret_cast<const VkVideoEncodeH264PictureInfoKHR*>(object), settings, "VkVideoEncodeH264PictureInfoKHR", indents, dump_html_VkVideoEncodeH264PictureInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_DPB_SLOT_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264DpbSlotInfoKHR>(static_cast<const VkVideoEncodeH264DpbSlotInfoKHR*>(object), settings, "VkVideoEncodeH264DpbSlotInfoKHR", indents, dump_html_VkVideoEncodeH264DpbSlotInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264DpbSlotInfoKHR>(reinterpret_cast<const VkVideoEncodeH264DpbSlotInfoKHR*>(object), settings, "VkVideoEncodeH264DpbSlotInfoKHR", indents, dump_html_VkVideoEncodeH264DpbSlotInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264ProfileInfoKHR>(static_cast<const VkVideoEncodeH264ProfileInfoKHR*>(object), settings, "VkVideoEncodeH264ProfileInfoKHR", indents, dump_html_VkVideoEncodeH264ProfileInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264ProfileInfoKHR>(reinterpret_cast<const VkVideoEncodeH264ProfileInfoKHR*>(object), settings, "VkVideoEncodeH264ProfileInfoKHR", indents, dump_html_VkVideoEncodeH264ProfileInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264RateControlInfoKHR>(static_cast<const VkVideoEncodeH264RateControlInfoKHR*>(object), settings, "VkVideoEncodeH264RateControlInfoKHR", indents, dump_html_VkVideoEncodeH264RateControlInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264RateControlInfoKHR>(reinterpret_cast<const VkVideoEncodeH264RateControlInfoKHR*>(object), settings, "VkVideoEncodeH264RateControlInfoKHR", indents, dump_html_VkVideoEncodeH264RateControlInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264RateControlLayerInfoKHR>(static_cast<const VkVideoEncodeH264RateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeH264RateControlLayerInfoKHR", indents, dump_html_VkVideoEncodeH264RateControlLayerInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264RateControlLayerInfoKHR>(reinterpret_cast<const VkVideoEncodeH264RateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeH264RateControlLayerInfoKHR", indents, dump_html_VkVideoEncodeH264RateControlLayerInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_GOP_REMAINING_FRAME_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH264GopRemainingFrameInfoKHR>(static_cast<const VkVideoEncodeH264GopRemainingFrameInfoKHR*>(object), settings, "VkVideoEncodeH264GopRemainingFrameInfoKHR", indents, dump_html_VkVideoEncodeH264GopRemainingFrameInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH264GopRemainingFrameInfoKHR>(reinterpret_cast<const VkVideoEncodeH264GopRemainingFrameInfoKHR*>(object), settings, "VkVideoEncodeH264GopRemainingFrameInfoKHR", indents, dump_html_VkVideoEncodeH264GopRemainingFrameInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoEncodeH265CapabilitiesKHR>(static_cast<const VkVideoEncodeH265CapabilitiesKHR*>(object), settings, "VkVideoEncodeH265CapabilitiesKHR", indents, dump_html_VkVideoEncodeH265CapabilitiesKHR);
+        dump_html_pNext<const VkVideoEncodeH265CapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeH265CapabilitiesKHR*>(object), settings, "VkVideoEncodeH265CapabilitiesKHR", indents, dump_html_VkVideoEncodeH265CapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265SessionCreateInfoKHR>(static_cast<const VkVideoEncodeH265SessionCreateInfoKHR*>(object), settings, "VkVideoEncodeH265SessionCreateInfoKHR", indents, dump_html_VkVideoEncodeH265SessionCreateInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265SessionCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeH265SessionCreateInfoKHR*>(object), settings, "VkVideoEncodeH265SessionCreateInfoKHR", indents, dump_html_VkVideoEncodeH265SessionCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_KHR:
-        dump_html_pNext<const VkVideoEncodeH265QualityLevelPropertiesKHR>(static_cast<const VkVideoEncodeH265QualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeH265QualityLevelPropertiesKHR", indents, dump_html_VkVideoEncodeH265QualityLevelPropertiesKHR);
+        dump_html_pNext<const VkVideoEncodeH265QualityLevelPropertiesKHR>(reinterpret_cast<const VkVideoEncodeH265QualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeH265QualityLevelPropertiesKHR", indents, dump_html_VkVideoEncodeH265QualityLevelPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265SessionParametersAddInfoKHR>(static_cast<const VkVideoEncodeH265SessionParametersAddInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersAddInfoKHR", indents, dump_html_VkVideoEncodeH265SessionParametersAddInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265SessionParametersAddInfoKHR>(reinterpret_cast<const VkVideoEncodeH265SessionParametersAddInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersAddInfoKHR", indents, dump_html_VkVideoEncodeH265SessionParametersAddInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265SessionParametersCreateInfoKHR>(static_cast<const VkVideoEncodeH265SessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersCreateInfoKHR", indents, dump_html_VkVideoEncodeH265SessionParametersCreateInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeH265SessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersCreateInfoKHR", indents, dump_html_VkVideoEncodeH265SessionParametersCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265SessionParametersGetInfoKHR>(static_cast<const VkVideoEncodeH265SessionParametersGetInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersGetInfoKHR", indents, dump_html_VkVideoEncodeH265SessionParametersGetInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265SessionParametersGetInfoKHR>(reinterpret_cast<const VkVideoEncodeH265SessionParametersGetInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersGetInfoKHR", indents, dump_html_VkVideoEncodeH265SessionParametersGetInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265SessionParametersFeedbackInfoKHR>(static_cast<const VkVideoEncodeH265SessionParametersFeedbackInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersFeedbackInfoKHR", indents, dump_html_VkVideoEncodeH265SessionParametersFeedbackInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265SessionParametersFeedbackInfoKHR>(reinterpret_cast<const VkVideoEncodeH265SessionParametersFeedbackInfoKHR*>(object), settings, "VkVideoEncodeH265SessionParametersFeedbackInfoKHR", indents, dump_html_VkVideoEncodeH265SessionParametersFeedbackInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_NALU_SLICE_SEGMENT_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265NaluSliceSegmentInfoKHR>(static_cast<const VkVideoEncodeH265NaluSliceSegmentInfoKHR*>(object), settings, "VkVideoEncodeH265NaluSliceSegmentInfoKHR", indents, dump_html_VkVideoEncodeH265NaluSliceSegmentInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265NaluSliceSegmentInfoKHR>(reinterpret_cast<const VkVideoEncodeH265NaluSliceSegmentInfoKHR*>(object), settings, "VkVideoEncodeH265NaluSliceSegmentInfoKHR", indents, dump_html_VkVideoEncodeH265NaluSliceSegmentInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265PictureInfoKHR>(static_cast<const VkVideoEncodeH265PictureInfoKHR*>(object), settings, "VkVideoEncodeH265PictureInfoKHR", indents, dump_html_VkVideoEncodeH265PictureInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265PictureInfoKHR>(reinterpret_cast<const VkVideoEncodeH265PictureInfoKHR*>(object), settings, "VkVideoEncodeH265PictureInfoKHR", indents, dump_html_VkVideoEncodeH265PictureInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265DpbSlotInfoKHR>(static_cast<const VkVideoEncodeH265DpbSlotInfoKHR*>(object), settings, "VkVideoEncodeH265DpbSlotInfoKHR", indents, dump_html_VkVideoEncodeH265DpbSlotInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265DpbSlotInfoKHR>(reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoKHR*>(object), settings, "VkVideoEncodeH265DpbSlotInfoKHR", indents, dump_html_VkVideoEncodeH265DpbSlotInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265ProfileInfoKHR>(static_cast<const VkVideoEncodeH265ProfileInfoKHR*>(object), settings, "VkVideoEncodeH265ProfileInfoKHR", indents, dump_html_VkVideoEncodeH265ProfileInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265ProfileInfoKHR>(reinterpret_cast<const VkVideoEncodeH265ProfileInfoKHR*>(object), settings, "VkVideoEncodeH265ProfileInfoKHR", indents, dump_html_VkVideoEncodeH265ProfileInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265RateControlInfoKHR>(static_cast<const VkVideoEncodeH265RateControlInfoKHR*>(object), settings, "VkVideoEncodeH265RateControlInfoKHR", indents, dump_html_VkVideoEncodeH265RateControlInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265RateControlInfoKHR>(reinterpret_cast<const VkVideoEncodeH265RateControlInfoKHR*>(object), settings, "VkVideoEncodeH265RateControlInfoKHR", indents, dump_html_VkVideoEncodeH265RateControlInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265RateControlLayerInfoKHR>(static_cast<const VkVideoEncodeH265RateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeH265RateControlLayerInfoKHR", indents, dump_html_VkVideoEncodeH265RateControlLayerInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265RateControlLayerInfoKHR>(reinterpret_cast<const VkVideoEncodeH265RateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeH265RateControlLayerInfoKHR", indents, dump_html_VkVideoEncodeH265RateControlLayerInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeH265GopRemainingFrameInfoKHR>(static_cast<const VkVideoEncodeH265GopRemainingFrameInfoKHR*>(object), settings, "VkVideoEncodeH265GopRemainingFrameInfoKHR", indents, dump_html_VkVideoEncodeH265GopRemainingFrameInfoKHR);
+        dump_html_pNext<const VkVideoEncodeH265GopRemainingFrameInfoKHR>(reinterpret_cast<const VkVideoEncodeH265GopRemainingFrameInfoKHR*>(object), settings, "VkVideoEncodeH265GopRemainingFrameInfoKHR", indents, dump_html_VkVideoEncodeH265GopRemainingFrameInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH264ProfileInfoKHR>(static_cast<const VkVideoDecodeH264ProfileInfoKHR*>(object), settings, "VkVideoDecodeH264ProfileInfoKHR", indents, dump_html_VkVideoDecodeH264ProfileInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH264ProfileInfoKHR>(reinterpret_cast<const VkVideoDecodeH264ProfileInfoKHR*>(object), settings, "VkVideoDecodeH264ProfileInfoKHR", indents, dump_html_VkVideoDecodeH264ProfileInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoDecodeH264CapabilitiesKHR>(static_cast<const VkVideoDecodeH264CapabilitiesKHR*>(object), settings, "VkVideoDecodeH264CapabilitiesKHR", indents, dump_html_VkVideoDecodeH264CapabilitiesKHR);
+        dump_html_pNext<const VkVideoDecodeH264CapabilitiesKHR>(reinterpret_cast<const VkVideoDecodeH264CapabilitiesKHR*>(object), settings, "VkVideoDecodeH264CapabilitiesKHR", indents, dump_html_VkVideoDecodeH264CapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH264SessionParametersAddInfoKHR>(static_cast<const VkVideoDecodeH264SessionParametersAddInfoKHR*>(object), settings, "VkVideoDecodeH264SessionParametersAddInfoKHR", indents, dump_html_VkVideoDecodeH264SessionParametersAddInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH264SessionParametersAddInfoKHR>(reinterpret_cast<const VkVideoDecodeH264SessionParametersAddInfoKHR*>(object), settings, "VkVideoDecodeH264SessionParametersAddInfoKHR", indents, dump_html_VkVideoDecodeH264SessionParametersAddInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH264SessionParametersCreateInfoKHR>(static_cast<const VkVideoDecodeH264SessionParametersCreateInfoKHR*>(object), settings, "VkVideoDecodeH264SessionParametersCreateInfoKHR", indents, dump_html_VkVideoDecodeH264SessionParametersCreateInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH264SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoDecodeH264SessionParametersCreateInfoKHR*>(object), settings, "VkVideoDecodeH264SessionParametersCreateInfoKHR", indents, dump_html_VkVideoDecodeH264SessionParametersCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH264PictureInfoKHR>(static_cast<const VkVideoDecodeH264PictureInfoKHR*>(object), settings, "VkVideoDecodeH264PictureInfoKHR", indents, dump_html_VkVideoDecodeH264PictureInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH264PictureInfoKHR>(reinterpret_cast<const VkVideoDecodeH264PictureInfoKHR*>(object), settings, "VkVideoDecodeH264PictureInfoKHR", indents, dump_html_VkVideoDecodeH264PictureInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH264DpbSlotInfoKHR>(static_cast<const VkVideoDecodeH264DpbSlotInfoKHR*>(object), settings, "VkVideoDecodeH264DpbSlotInfoKHR", indents, dump_html_VkVideoDecodeH264DpbSlotInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH264DpbSlotInfoKHR>(reinterpret_cast<const VkVideoDecodeH264DpbSlotInfoKHR*>(object), settings, "VkVideoDecodeH264DpbSlotInfoKHR", indents, dump_html_VkVideoDecodeH264DpbSlotInfoKHR);
         break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
-        dump_html_pNext<const VkImportMemoryWin32HandleInfoKHR>(static_cast<const VkImportMemoryWin32HandleInfoKHR*>(object), settings, "VkImportMemoryWin32HandleInfoKHR", indents, dump_html_VkImportMemoryWin32HandleInfoKHR);
+        dump_html_pNext<const VkImportMemoryWin32HandleInfoKHR>(reinterpret_cast<const VkImportMemoryWin32HandleInfoKHR*>(object), settings, "VkImportMemoryWin32HandleInfoKHR", indents, dump_html_VkImportMemoryWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
-        dump_html_pNext<const VkExportMemoryWin32HandleInfoKHR>(static_cast<const VkExportMemoryWin32HandleInfoKHR*>(object), settings, "VkExportMemoryWin32HandleInfoKHR", indents, dump_html_VkExportMemoryWin32HandleInfoKHR);
+        dump_html_pNext<const VkExportMemoryWin32HandleInfoKHR>(reinterpret_cast<const VkExportMemoryWin32HandleInfoKHR*>(object), settings, "VkExportMemoryWin32HandleInfoKHR", indents, dump_html_VkExportMemoryWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_MEMORY_WIN32_HANDLE_PROPERTIES_KHR:
-        dump_html_pNext<const VkMemoryWin32HandlePropertiesKHR>(static_cast<const VkMemoryWin32HandlePropertiesKHR*>(object), settings, "VkMemoryWin32HandlePropertiesKHR", indents, dump_html_VkMemoryWin32HandlePropertiesKHR);
+        dump_html_pNext<const VkMemoryWin32HandlePropertiesKHR>(reinterpret_cast<const VkMemoryWin32HandlePropertiesKHR*>(object), settings, "VkMemoryWin32HandlePropertiesKHR", indents, dump_html_VkMemoryWin32HandlePropertiesKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR:
-        dump_html_pNext<const VkMemoryGetWin32HandleInfoKHR>(static_cast<const VkMemoryGetWin32HandleInfoKHR*>(object), settings, "VkMemoryGetWin32HandleInfoKHR", indents, dump_html_VkMemoryGetWin32HandleInfoKHR);
+        dump_html_pNext<const VkMemoryGetWin32HandleInfoKHR>(reinterpret_cast<const VkMemoryGetWin32HandleInfoKHR*>(object), settings, "VkMemoryGetWin32HandleInfoKHR", indents, dump_html_VkMemoryGetWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
     case VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR:
-        dump_html_pNext<const VkImportMemoryFdInfoKHR>(static_cast<const VkImportMemoryFdInfoKHR*>(object), settings, "VkImportMemoryFdInfoKHR", indents, dump_html_VkImportMemoryFdInfoKHR);
+        dump_html_pNext<const VkImportMemoryFdInfoKHR>(reinterpret_cast<const VkImportMemoryFdInfoKHR*>(object), settings, "VkImportMemoryFdInfoKHR", indents, dump_html_VkImportMemoryFdInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_FD_PROPERTIES_KHR:
-        dump_html_pNext<const VkMemoryFdPropertiesKHR>(static_cast<const VkMemoryFdPropertiesKHR*>(object), settings, "VkMemoryFdPropertiesKHR", indents, dump_html_VkMemoryFdPropertiesKHR);
+        dump_html_pNext<const VkMemoryFdPropertiesKHR>(reinterpret_cast<const VkMemoryFdPropertiesKHR*>(object), settings, "VkMemoryFdPropertiesKHR", indents, dump_html_VkMemoryFdPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR:
-        dump_html_pNext<const VkMemoryGetFdInfoKHR>(static_cast<const VkMemoryGetFdInfoKHR*>(object), settings, "VkMemoryGetFdInfoKHR", indents, dump_html_VkMemoryGetFdInfoKHR);
+        dump_html_pNext<const VkMemoryGetFdInfoKHR>(reinterpret_cast<const VkMemoryGetFdInfoKHR*>(object), settings, "VkMemoryGetFdInfoKHR", indents, dump_html_VkMemoryGetFdInfoKHR);
         break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
-        dump_html_pNext<const VkWin32KeyedMutexAcquireReleaseInfoKHR>(static_cast<const VkWin32KeyedMutexAcquireReleaseInfoKHR*>(object), settings, "VkWin32KeyedMutexAcquireReleaseInfoKHR", indents, dump_html_VkWin32KeyedMutexAcquireReleaseInfoKHR);
+        dump_html_pNext<const VkWin32KeyedMutexAcquireReleaseInfoKHR>(reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoKHR*>(object), settings, "VkWin32KeyedMutexAcquireReleaseInfoKHR", indents, dump_html_VkWin32KeyedMutexAcquireReleaseInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
-        dump_html_pNext<const VkImportSemaphoreWin32HandleInfoKHR>(static_cast<const VkImportSemaphoreWin32HandleInfoKHR*>(object), settings, "VkImportSemaphoreWin32HandleInfoKHR", indents, dump_html_VkImportSemaphoreWin32HandleInfoKHR);
+        dump_html_pNext<const VkImportSemaphoreWin32HandleInfoKHR>(reinterpret_cast<const VkImportSemaphoreWin32HandleInfoKHR*>(object), settings, "VkImportSemaphoreWin32HandleInfoKHR", indents, dump_html_VkImportSemaphoreWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
-        dump_html_pNext<const VkExportSemaphoreWin32HandleInfoKHR>(static_cast<const VkExportSemaphoreWin32HandleInfoKHR*>(object), settings, "VkExportSemaphoreWin32HandleInfoKHR", indents, dump_html_VkExportSemaphoreWin32HandleInfoKHR);
+        dump_html_pNext<const VkExportSemaphoreWin32HandleInfoKHR>(reinterpret_cast<const VkExportSemaphoreWin32HandleInfoKHR*>(object), settings, "VkExportSemaphoreWin32HandleInfoKHR", indents, dump_html_VkExportSemaphoreWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR:
-        dump_html_pNext<const VkD3D12FenceSubmitInfoKHR>(static_cast<const VkD3D12FenceSubmitInfoKHR*>(object), settings, "VkD3D12FenceSubmitInfoKHR", indents, dump_html_VkD3D12FenceSubmitInfoKHR);
+        dump_html_pNext<const VkD3D12FenceSubmitInfoKHR>(reinterpret_cast<const VkD3D12FenceSubmitInfoKHR*>(object), settings, "VkD3D12FenceSubmitInfoKHR", indents, dump_html_VkD3D12FenceSubmitInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR:
-        dump_html_pNext<const VkSemaphoreGetWin32HandleInfoKHR>(static_cast<const VkSemaphoreGetWin32HandleInfoKHR*>(object), settings, "VkSemaphoreGetWin32HandleInfoKHR", indents, dump_html_VkSemaphoreGetWin32HandleInfoKHR);
+        dump_html_pNext<const VkSemaphoreGetWin32HandleInfoKHR>(reinterpret_cast<const VkSemaphoreGetWin32HandleInfoKHR*>(object), settings, "VkSemaphoreGetWin32HandleInfoKHR", indents, dump_html_VkSemaphoreGetWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
     case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR:
-        dump_html_pNext<const VkImportSemaphoreFdInfoKHR>(static_cast<const VkImportSemaphoreFdInfoKHR*>(object), settings, "VkImportSemaphoreFdInfoKHR", indents, dump_html_VkImportSemaphoreFdInfoKHR);
+        dump_html_pNext<const VkImportSemaphoreFdInfoKHR>(reinterpret_cast<const VkImportSemaphoreFdInfoKHR*>(object), settings, "VkImportSemaphoreFdInfoKHR", indents, dump_html_VkImportSemaphoreFdInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR:
-        dump_html_pNext<const VkSemaphoreGetFdInfoKHR>(static_cast<const VkSemaphoreGetFdInfoKHR*>(object), settings, "VkSemaphoreGetFdInfoKHR", indents, dump_html_VkSemaphoreGetFdInfoKHR);
+        dump_html_pNext<const VkSemaphoreGetFdInfoKHR>(reinterpret_cast<const VkSemaphoreGetFdInfoKHR*>(object), settings, "VkSemaphoreGetFdInfoKHR", indents, dump_html_VkSemaphoreGetFdInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
-        dump_html_pNext<const VkPresentRegionsKHR>(static_cast<const VkPresentRegionsKHR*>(object), settings, "VkPresentRegionsKHR", indents, dump_html_VkPresentRegionsKHR);
+        dump_html_pNext<const VkPresentRegionsKHR>(reinterpret_cast<const VkPresentRegionsKHR*>(object), settings, "VkPresentRegionsKHR", indents, dump_html_VkPresentRegionsKHR);
         break;
     case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
-        dump_html_pNext<const VkSharedPresentSurfaceCapabilitiesKHR>(static_cast<const VkSharedPresentSurfaceCapabilitiesKHR*>(object), settings, "VkSharedPresentSurfaceCapabilitiesKHR", indents, dump_html_VkSharedPresentSurfaceCapabilitiesKHR);
+        dump_html_pNext<const VkSharedPresentSurfaceCapabilitiesKHR>(reinterpret_cast<const VkSharedPresentSurfaceCapabilitiesKHR*>(object), settings, "VkSharedPresentSurfaceCapabilitiesKHR", indents, dump_html_VkSharedPresentSurfaceCapabilitiesKHR);
         break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR:
-        dump_html_pNext<const VkImportFenceWin32HandleInfoKHR>(static_cast<const VkImportFenceWin32HandleInfoKHR*>(object), settings, "VkImportFenceWin32HandleInfoKHR", indents, dump_html_VkImportFenceWin32HandleInfoKHR);
+        dump_html_pNext<const VkImportFenceWin32HandleInfoKHR>(reinterpret_cast<const VkImportFenceWin32HandleInfoKHR*>(object), settings, "VkImportFenceWin32HandleInfoKHR", indents, dump_html_VkImportFenceWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_EXPORT_FENCE_WIN32_HANDLE_INFO_KHR:
-        dump_html_pNext<const VkExportFenceWin32HandleInfoKHR>(static_cast<const VkExportFenceWin32HandleInfoKHR*>(object), settings, "VkExportFenceWin32HandleInfoKHR", indents, dump_html_VkExportFenceWin32HandleInfoKHR);
+        dump_html_pNext<const VkExportFenceWin32HandleInfoKHR>(reinterpret_cast<const VkExportFenceWin32HandleInfoKHR*>(object), settings, "VkExportFenceWin32HandleInfoKHR", indents, dump_html_VkExportFenceWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR:
-        dump_html_pNext<const VkFenceGetWin32HandleInfoKHR>(static_cast<const VkFenceGetWin32HandleInfoKHR*>(object), settings, "VkFenceGetWin32HandleInfoKHR", indents, dump_html_VkFenceGetWin32HandleInfoKHR);
+        dump_html_pNext<const VkFenceGetWin32HandleInfoKHR>(reinterpret_cast<const VkFenceGetWin32HandleInfoKHR*>(object), settings, "VkFenceGetWin32HandleInfoKHR", indents, dump_html_VkFenceGetWin32HandleInfoKHR);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
     case VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR:
-        dump_html_pNext<const VkImportFenceFdInfoKHR>(static_cast<const VkImportFenceFdInfoKHR*>(object), settings, "VkImportFenceFdInfoKHR", indents, dump_html_VkImportFenceFdInfoKHR);
+        dump_html_pNext<const VkImportFenceFdInfoKHR>(reinterpret_cast<const VkImportFenceFdInfoKHR*>(object), settings, "VkImportFenceFdInfoKHR", indents, dump_html_VkImportFenceFdInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR:
-        dump_html_pNext<const VkFenceGetFdInfoKHR>(static_cast<const VkFenceGetFdInfoKHR*>(object), settings, "VkFenceGetFdInfoKHR", indents, dump_html_VkFenceGetFdInfoKHR);
+        dump_html_pNext<const VkFenceGetFdInfoKHR>(reinterpret_cast<const VkFenceGetFdInfoKHR*>(object), settings, "VkFenceGetFdInfoKHR", indents, dump_html_VkFenceGetFdInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePerformanceQueryFeaturesKHR>(static_cast<const VkPhysicalDevicePerformanceQueryFeaturesKHR*>(object), settings, "VkPhysicalDevicePerformanceQueryFeaturesKHR", indents, dump_html_VkPhysicalDevicePerformanceQueryFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDevicePerformanceQueryFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePerformanceQueryFeaturesKHR*>(object), settings, "VkPhysicalDevicePerformanceQueryFeaturesKHR", indents, dump_html_VkPhysicalDevicePerformanceQueryFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePerformanceQueryPropertiesKHR>(static_cast<const VkPhysicalDevicePerformanceQueryPropertiesKHR*>(object), settings, "VkPhysicalDevicePerformanceQueryPropertiesKHR", indents, dump_html_VkPhysicalDevicePerformanceQueryPropertiesKHR);
+        dump_html_pNext<const VkPhysicalDevicePerformanceQueryPropertiesKHR>(reinterpret_cast<const VkPhysicalDevicePerformanceQueryPropertiesKHR*>(object), settings, "VkPhysicalDevicePerformanceQueryPropertiesKHR", indents, dump_html_VkPhysicalDevicePerformanceQueryPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_KHR:
-        dump_html_pNext<const VkPerformanceCounterKHR>(static_cast<const VkPerformanceCounterKHR*>(object), settings, "VkPerformanceCounterKHR", indents, dump_html_VkPerformanceCounterKHR);
+        dump_html_pNext<const VkPerformanceCounterKHR>(reinterpret_cast<const VkPerformanceCounterKHR*>(object), settings, "VkPerformanceCounterKHR", indents, dump_html_VkPerformanceCounterKHR);
         break;
     case VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_DESCRIPTION_KHR:
-        dump_html_pNext<const VkPerformanceCounterDescriptionKHR>(static_cast<const VkPerformanceCounterDescriptionKHR*>(object), settings, "VkPerformanceCounterDescriptionKHR", indents, dump_html_VkPerformanceCounterDescriptionKHR);
+        dump_html_pNext<const VkPerformanceCounterDescriptionKHR>(reinterpret_cast<const VkPerformanceCounterDescriptionKHR*>(object), settings, "VkPerformanceCounterDescriptionKHR", indents, dump_html_VkPerformanceCounterDescriptionKHR);
         break;
     case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkQueryPoolPerformanceCreateInfoKHR>(static_cast<const VkQueryPoolPerformanceCreateInfoKHR*>(object), settings, "VkQueryPoolPerformanceCreateInfoKHR", indents, dump_html_VkQueryPoolPerformanceCreateInfoKHR);
+        dump_html_pNext<const VkQueryPoolPerformanceCreateInfoKHR>(reinterpret_cast<const VkQueryPoolPerformanceCreateInfoKHR*>(object), settings, "VkQueryPoolPerformanceCreateInfoKHR", indents, dump_html_VkQueryPoolPerformanceCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_ACQUIRE_PROFILING_LOCK_INFO_KHR:
-        dump_html_pNext<const VkAcquireProfilingLockInfoKHR>(static_cast<const VkAcquireProfilingLockInfoKHR*>(object), settings, "VkAcquireProfilingLockInfoKHR", indents, dump_html_VkAcquireProfilingLockInfoKHR);
+        dump_html_pNext<const VkAcquireProfilingLockInfoKHR>(reinterpret_cast<const VkAcquireProfilingLockInfoKHR*>(object), settings, "VkAcquireProfilingLockInfoKHR", indents, dump_html_VkAcquireProfilingLockInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_SUBMIT_INFO_KHR:
-        dump_html_pNext<const VkPerformanceQuerySubmitInfoKHR>(static_cast<const VkPerformanceQuerySubmitInfoKHR*>(object), settings, "VkPerformanceQuerySubmitInfoKHR", indents, dump_html_VkPerformanceQuerySubmitInfoKHR);
+        dump_html_pNext<const VkPerformanceQuerySubmitInfoKHR>(reinterpret_cast<const VkPerformanceQuerySubmitInfoKHR*>(object), settings, "VkPerformanceQuerySubmitInfoKHR", indents, dump_html_VkPerformanceQuerySubmitInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR:
-        dump_html_pNext<const VkPhysicalDeviceSurfaceInfo2KHR>(static_cast<const VkPhysicalDeviceSurfaceInfo2KHR*>(object), settings, "VkPhysicalDeviceSurfaceInfo2KHR", indents, dump_html_VkPhysicalDeviceSurfaceInfo2KHR);
+        dump_html_pNext<const VkPhysicalDeviceSurfaceInfo2KHR>(reinterpret_cast<const VkPhysicalDeviceSurfaceInfo2KHR*>(object), settings, "VkPhysicalDeviceSurfaceInfo2KHR", indents, dump_html_VkPhysicalDeviceSurfaceInfo2KHR);
         break;
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR:
-        dump_html_pNext<const VkSurfaceCapabilities2KHR>(static_cast<const VkSurfaceCapabilities2KHR*>(object), settings, "VkSurfaceCapabilities2KHR", indents, dump_html_VkSurfaceCapabilities2KHR);
+        dump_html_pNext<const VkSurfaceCapabilities2KHR>(reinterpret_cast<const VkSurfaceCapabilities2KHR*>(object), settings, "VkSurfaceCapabilities2KHR", indents, dump_html_VkSurfaceCapabilities2KHR);
         break;
     case VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR:
-        dump_html_pNext<const VkSurfaceFormat2KHR>(static_cast<const VkSurfaceFormat2KHR*>(object), settings, "VkSurfaceFormat2KHR", indents, dump_html_VkSurfaceFormat2KHR);
+        dump_html_pNext<const VkSurfaceFormat2KHR>(reinterpret_cast<const VkSurfaceFormat2KHR*>(object), settings, "VkSurfaceFormat2KHR", indents, dump_html_VkSurfaceFormat2KHR);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_PROPERTIES_2_KHR:
-        dump_html_pNext<const VkDisplayProperties2KHR>(static_cast<const VkDisplayProperties2KHR*>(object), settings, "VkDisplayProperties2KHR", indents, dump_html_VkDisplayProperties2KHR);
+        dump_html_pNext<const VkDisplayProperties2KHR>(reinterpret_cast<const VkDisplayProperties2KHR*>(object), settings, "VkDisplayProperties2KHR", indents, dump_html_VkDisplayProperties2KHR);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_PLANE_PROPERTIES_2_KHR:
-        dump_html_pNext<const VkDisplayPlaneProperties2KHR>(static_cast<const VkDisplayPlaneProperties2KHR*>(object), settings, "VkDisplayPlaneProperties2KHR", indents, dump_html_VkDisplayPlaneProperties2KHR);
+        dump_html_pNext<const VkDisplayPlaneProperties2KHR>(reinterpret_cast<const VkDisplayPlaneProperties2KHR*>(object), settings, "VkDisplayPlaneProperties2KHR", indents, dump_html_VkDisplayPlaneProperties2KHR);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_MODE_PROPERTIES_2_KHR:
-        dump_html_pNext<const VkDisplayModeProperties2KHR>(static_cast<const VkDisplayModeProperties2KHR*>(object), settings, "VkDisplayModeProperties2KHR", indents, dump_html_VkDisplayModeProperties2KHR);
+        dump_html_pNext<const VkDisplayModeProperties2KHR>(reinterpret_cast<const VkDisplayModeProperties2KHR*>(object), settings, "VkDisplayModeProperties2KHR", indents, dump_html_VkDisplayModeProperties2KHR);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR:
-        dump_html_pNext<const VkDisplayPlaneInfo2KHR>(static_cast<const VkDisplayPlaneInfo2KHR*>(object), settings, "VkDisplayPlaneInfo2KHR", indents, dump_html_VkDisplayPlaneInfo2KHR);
+        dump_html_pNext<const VkDisplayPlaneInfo2KHR>(reinterpret_cast<const VkDisplayPlaneInfo2KHR*>(object), settings, "VkDisplayPlaneInfo2KHR", indents, dump_html_VkDisplayPlaneInfo2KHR);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_PLANE_CAPABILITIES_2_KHR:
-        dump_html_pNext<const VkDisplayPlaneCapabilities2KHR>(static_cast<const VkDisplayPlaneCapabilities2KHR*>(object), settings, "VkDisplayPlaneCapabilities2KHR", indents, dump_html_VkDisplayPlaneCapabilities2KHR);
+        dump_html_pNext<const VkDisplayPlaneCapabilities2KHR>(reinterpret_cast<const VkDisplayPlaneCapabilities2KHR*>(object), settings, "VkDisplayPlaneCapabilities2KHR", indents, dump_html_VkDisplayPlaneCapabilities2KHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_BFLOAT16_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceShaderBfloat16FeaturesKHR>(static_cast<const VkPhysicalDeviceShaderBfloat16FeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderBfloat16FeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderBfloat16FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceShaderBfloat16FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderBfloat16FeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderBfloat16FeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderBfloat16FeaturesKHR);
         break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePortabilitySubsetFeaturesKHR>(static_cast<const VkPhysicalDevicePortabilitySubsetFeaturesKHR*>(object), settings, "VkPhysicalDevicePortabilitySubsetFeaturesKHR", indents, dump_html_VkPhysicalDevicePortabilitySubsetFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDevicePortabilitySubsetFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePortabilitySubsetFeaturesKHR*>(object), settings, "VkPhysicalDevicePortabilitySubsetFeaturesKHR", indents, dump_html_VkPhysicalDevicePortabilitySubsetFeaturesKHR);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePortabilitySubsetPropertiesKHR>(static_cast<const VkPhysicalDevicePortabilitySubsetPropertiesKHR*>(object), settings, "VkPhysicalDevicePortabilitySubsetPropertiesKHR", indents, dump_html_VkPhysicalDevicePortabilitySubsetPropertiesKHR);
+        dump_html_pNext<const VkPhysicalDevicePortabilitySubsetPropertiesKHR>(reinterpret_cast<const VkPhysicalDevicePortabilitySubsetPropertiesKHR*>(object), settings, "VkPhysicalDevicePortabilitySubsetPropertiesKHR", indents, dump_html_VkPhysicalDevicePortabilitySubsetPropertiesKHR);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceShaderClockFeaturesKHR>(static_cast<const VkPhysicalDeviceShaderClockFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderClockFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderClockFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceShaderClockFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderClockFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderClockFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderClockFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH265ProfileInfoKHR>(static_cast<const VkVideoDecodeH265ProfileInfoKHR*>(object), settings, "VkVideoDecodeH265ProfileInfoKHR", indents, dump_html_VkVideoDecodeH265ProfileInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH265ProfileInfoKHR>(reinterpret_cast<const VkVideoDecodeH265ProfileInfoKHR*>(object), settings, "VkVideoDecodeH265ProfileInfoKHR", indents, dump_html_VkVideoDecodeH265ProfileInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoDecodeH265CapabilitiesKHR>(static_cast<const VkVideoDecodeH265CapabilitiesKHR*>(object), settings, "VkVideoDecodeH265CapabilitiesKHR", indents, dump_html_VkVideoDecodeH265CapabilitiesKHR);
+        dump_html_pNext<const VkVideoDecodeH265CapabilitiesKHR>(reinterpret_cast<const VkVideoDecodeH265CapabilitiesKHR*>(object), settings, "VkVideoDecodeH265CapabilitiesKHR", indents, dump_html_VkVideoDecodeH265CapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH265SessionParametersAddInfoKHR>(static_cast<const VkVideoDecodeH265SessionParametersAddInfoKHR*>(object), settings, "VkVideoDecodeH265SessionParametersAddInfoKHR", indents, dump_html_VkVideoDecodeH265SessionParametersAddInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH265SessionParametersAddInfoKHR>(reinterpret_cast<const VkVideoDecodeH265SessionParametersAddInfoKHR*>(object), settings, "VkVideoDecodeH265SessionParametersAddInfoKHR", indents, dump_html_VkVideoDecodeH265SessionParametersAddInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH265SessionParametersCreateInfoKHR>(static_cast<const VkVideoDecodeH265SessionParametersCreateInfoKHR*>(object), settings, "VkVideoDecodeH265SessionParametersCreateInfoKHR", indents, dump_html_VkVideoDecodeH265SessionParametersCreateInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH265SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoDecodeH265SessionParametersCreateInfoKHR*>(object), settings, "VkVideoDecodeH265SessionParametersCreateInfoKHR", indents, dump_html_VkVideoDecodeH265SessionParametersCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH265PictureInfoKHR>(static_cast<const VkVideoDecodeH265PictureInfoKHR*>(object), settings, "VkVideoDecodeH265PictureInfoKHR", indents, dump_html_VkVideoDecodeH265PictureInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH265PictureInfoKHR>(reinterpret_cast<const VkVideoDecodeH265PictureInfoKHR*>(object), settings, "VkVideoDecodeH265PictureInfoKHR", indents, dump_html_VkVideoDecodeH265PictureInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH265DpbSlotInfoKHR>(static_cast<const VkVideoDecodeH265DpbSlotInfoKHR*>(object), settings, "VkVideoDecodeH265DpbSlotInfoKHR", indents, dump_html_VkVideoDecodeH265DpbSlotInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH265DpbSlotInfoKHR>(reinterpret_cast<const VkVideoDecodeH265DpbSlotInfoKHR*>(object), settings, "VkVideoDecodeH265DpbSlotInfoKHR", indents, dump_html_VkVideoDecodeH265DpbSlotInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
-        dump_html_pNext<const VkFragmentShadingRateAttachmentInfoKHR>(static_cast<const VkFragmentShadingRateAttachmentInfoKHR*>(object), settings, "VkFragmentShadingRateAttachmentInfoKHR", indents, dump_html_VkFragmentShadingRateAttachmentInfoKHR);
+        dump_html_pNext<const VkFragmentShadingRateAttachmentInfoKHR>(reinterpret_cast<const VkFragmentShadingRateAttachmentInfoKHR*>(object), settings, "VkFragmentShadingRateAttachmentInfoKHR", indents, dump_html_VkFragmentShadingRateAttachmentInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_STATE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkPipelineFragmentShadingRateStateCreateInfoKHR>(static_cast<const VkPipelineFragmentShadingRateStateCreateInfoKHR*>(object), settings, "VkPipelineFragmentShadingRateStateCreateInfoKHR", indents, dump_html_VkPipelineFragmentShadingRateStateCreateInfoKHR);
+        dump_html_pNext<const VkPipelineFragmentShadingRateStateCreateInfoKHR>(reinterpret_cast<const VkPipelineFragmentShadingRateStateCreateInfoKHR*>(object), settings, "VkPipelineFragmentShadingRateStateCreateInfoKHR", indents, dump_html_VkPipelineFragmentShadingRateStateCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceFragmentShadingRateFeaturesKHR>(static_cast<const VkPhysicalDeviceFragmentShadingRateFeaturesKHR*>(object), settings, "VkPhysicalDeviceFragmentShadingRateFeaturesKHR", indents, dump_html_VkPhysicalDeviceFragmentShadingRateFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceFragmentShadingRateFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateFeaturesKHR*>(object), settings, "VkPhysicalDeviceFragmentShadingRateFeaturesKHR", indents, dump_html_VkPhysicalDeviceFragmentShadingRateFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceFragmentShadingRatePropertiesKHR>(static_cast<const VkPhysicalDeviceFragmentShadingRatePropertiesKHR*>(object), settings, "VkPhysicalDeviceFragmentShadingRatePropertiesKHR", indents, dump_html_VkPhysicalDeviceFragmentShadingRatePropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceFragmentShadingRatePropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRatePropertiesKHR*>(object), settings, "VkPhysicalDeviceFragmentShadingRatePropertiesKHR", indents, dump_html_VkPhysicalDeviceFragmentShadingRatePropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_KHR:
-        dump_html_pNext<const VkPhysicalDeviceFragmentShadingRateKHR>(static_cast<const VkPhysicalDeviceFragmentShadingRateKHR*>(object), settings, "VkPhysicalDeviceFragmentShadingRateKHR", indents, dump_html_VkPhysicalDeviceFragmentShadingRateKHR);
+        dump_html_pNext<const VkPhysicalDeviceFragmentShadingRateKHR>(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateKHR*>(object), settings, "VkPhysicalDeviceFragmentShadingRateKHR", indents, dump_html_VkPhysicalDeviceFragmentShadingRateKHR);
         break;
     case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
-        dump_html_pNext<const VkRenderingFragmentShadingRateAttachmentInfoKHR>(static_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(object), settings, "VkRenderingFragmentShadingRateAttachmentInfoKHR", indents, dump_html_VkRenderingFragmentShadingRateAttachmentInfoKHR);
+        dump_html_pNext<const VkRenderingFragmentShadingRateAttachmentInfoKHR>(reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(object), settings, "VkRenderingFragmentShadingRateAttachmentInfoKHR", indents, dump_html_VkRenderingFragmentShadingRateAttachmentInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_QUAD_CONTROL_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceShaderQuadControlFeaturesKHR>(static_cast<const VkPhysicalDeviceShaderQuadControlFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderQuadControlFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderQuadControlFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceShaderQuadControlFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderQuadControlFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderQuadControlFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderQuadControlFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR:
-        dump_html_pNext<const VkSurfaceProtectedCapabilitiesKHR>(static_cast<const VkSurfaceProtectedCapabilitiesKHR*>(object), settings, "VkSurfaceProtectedCapabilitiesKHR", indents, dump_html_VkSurfaceProtectedCapabilitiesKHR);
+        dump_html_pNext<const VkSurfaceProtectedCapabilitiesKHR>(reinterpret_cast<const VkSurfaceProtectedCapabilitiesKHR*>(object), settings, "VkSurfaceProtectedCapabilitiesKHR", indents, dump_html_VkSurfaceProtectedCapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePresentWaitFeaturesKHR>(static_cast<const VkPhysicalDevicePresentWaitFeaturesKHR*>(object), settings, "VkPhysicalDevicePresentWaitFeaturesKHR", indents, dump_html_VkPhysicalDevicePresentWaitFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDevicePresentWaitFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePresentWaitFeaturesKHR*>(object), settings, "VkPhysicalDevicePresentWaitFeaturesKHR", indents, dump_html_VkPhysicalDevicePresentWaitFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR>(static_cast<const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR*>(object), settings, "VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR", indents, dump_html_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR*>(object), settings, "VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR", indents, dump_html_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR:
-        dump_html_pNext<const VkPipelineInfoKHR>(static_cast<const VkPipelineInfoKHR*>(object), settings, "VkPipelineInfoKHR", indents, dump_html_VkPipelineInfoKHR);
+        dump_html_pNext<const VkPipelineInfoKHR>(reinterpret_cast<const VkPipelineInfoKHR*>(object), settings, "VkPipelineInfoKHR", indents, dump_html_VkPipelineInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_PROPERTIES_KHR:
-        dump_html_pNext<const VkPipelineExecutablePropertiesKHR>(static_cast<const VkPipelineExecutablePropertiesKHR*>(object), settings, "VkPipelineExecutablePropertiesKHR", indents, dump_html_VkPipelineExecutablePropertiesKHR);
+        dump_html_pNext<const VkPipelineExecutablePropertiesKHR>(reinterpret_cast<const VkPipelineExecutablePropertiesKHR*>(object), settings, "VkPipelineExecutablePropertiesKHR", indents, dump_html_VkPipelineExecutablePropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INFO_KHR:
-        dump_html_pNext<const VkPipelineExecutableInfoKHR>(static_cast<const VkPipelineExecutableInfoKHR*>(object), settings, "VkPipelineExecutableInfoKHR", indents, dump_html_VkPipelineExecutableInfoKHR);
+        dump_html_pNext<const VkPipelineExecutableInfoKHR>(reinterpret_cast<const VkPipelineExecutableInfoKHR*>(object), settings, "VkPipelineExecutableInfoKHR", indents, dump_html_VkPipelineExecutableInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_STATISTIC_KHR:
-        dump_html_pNext<const VkPipelineExecutableStatisticKHR>(static_cast<const VkPipelineExecutableStatisticKHR*>(object), settings, "VkPipelineExecutableStatisticKHR", indents, dump_html_VkPipelineExecutableStatisticKHR);
+        dump_html_pNext<const VkPipelineExecutableStatisticKHR>(reinterpret_cast<const VkPipelineExecutableStatisticKHR*>(object), settings, "VkPipelineExecutableStatisticKHR", indents, dump_html_VkPipelineExecutableStatisticKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR:
-        dump_html_pNext<const VkPipelineExecutableInternalRepresentationKHR>(static_cast<const VkPipelineExecutableInternalRepresentationKHR*>(object), settings, "VkPipelineExecutableInternalRepresentationKHR", indents, dump_html_VkPipelineExecutableInternalRepresentationKHR);
+        dump_html_pNext<const VkPipelineExecutableInternalRepresentationKHR>(reinterpret_cast<const VkPipelineExecutableInternalRepresentationKHR*>(object), settings, "VkPipelineExecutableInternalRepresentationKHR", indents, dump_html_VkPipelineExecutableInternalRepresentationKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
-        dump_html_pNext<const VkPipelineLibraryCreateInfoKHR>(static_cast<const VkPipelineLibraryCreateInfoKHR*>(object), settings, "VkPipelineLibraryCreateInfoKHR", indents, dump_html_VkPipelineLibraryCreateInfoKHR);
+        dump_html_pNext<const VkPipelineLibraryCreateInfoKHR>(reinterpret_cast<const VkPipelineLibraryCreateInfoKHR*>(object), settings, "VkPipelineLibraryCreateInfoKHR", indents, dump_html_VkPipelineLibraryCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PRESENT_ID_KHR:
-        dump_html_pNext<const VkPresentIdKHR>(static_cast<const VkPresentIdKHR*>(object), settings, "VkPresentIdKHR", indents, dump_html_VkPresentIdKHR);
+        dump_html_pNext<const VkPresentIdKHR>(reinterpret_cast<const VkPresentIdKHR*>(object), settings, "VkPresentIdKHR", indents, dump_html_VkPresentIdKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePresentIdFeaturesKHR>(static_cast<const VkPhysicalDevicePresentIdFeaturesKHR*>(object), settings, "VkPhysicalDevicePresentIdFeaturesKHR", indents, dump_html_VkPhysicalDevicePresentIdFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDevicePresentIdFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePresentIdFeaturesKHR*>(object), settings, "VkPhysicalDevicePresentIdFeaturesKHR", indents, dump_html_VkPhysicalDevicePresentIdFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeInfoKHR>(static_cast<const VkVideoEncodeInfoKHR*>(object), settings, "VkVideoEncodeInfoKHR", indents, dump_html_VkVideoEncodeInfoKHR);
+        dump_html_pNext<const VkVideoEncodeInfoKHR>(reinterpret_cast<const VkVideoEncodeInfoKHR*>(object), settings, "VkVideoEncodeInfoKHR", indents, dump_html_VkVideoEncodeInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoEncodeCapabilitiesKHR>(static_cast<const VkVideoEncodeCapabilitiesKHR*>(object), settings, "VkVideoEncodeCapabilitiesKHR", indents, dump_html_VkVideoEncodeCapabilitiesKHR);
+        dump_html_pNext<const VkVideoEncodeCapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeCapabilitiesKHR*>(object), settings, "VkVideoEncodeCapabilitiesKHR", indents, dump_html_VkVideoEncodeCapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_FEEDBACK_CREATE_INFO_KHR:
-        dump_html_pNext<const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR>(static_cast<const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR*>(object), settings, "VkQueryPoolVideoEncodeFeedbackCreateInfoKHR", indents, dump_html_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR);
+        dump_html_pNext<const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR>(reinterpret_cast<const VkQueryPoolVideoEncodeFeedbackCreateInfoKHR*>(object), settings, "VkQueryPoolVideoEncodeFeedbackCreateInfoKHR", indents, dump_html_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeUsageInfoKHR>(static_cast<const VkVideoEncodeUsageInfoKHR*>(object), settings, "VkVideoEncodeUsageInfoKHR", indents, dump_html_VkVideoEncodeUsageInfoKHR);
+        dump_html_pNext<const VkVideoEncodeUsageInfoKHR>(reinterpret_cast<const VkVideoEncodeUsageInfoKHR*>(object), settings, "VkVideoEncodeUsageInfoKHR", indents, dump_html_VkVideoEncodeUsageInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_LAYER_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeRateControlLayerInfoKHR>(static_cast<const VkVideoEncodeRateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeRateControlLayerInfoKHR", indents, dump_html_VkVideoEncodeRateControlLayerInfoKHR);
+        dump_html_pNext<const VkVideoEncodeRateControlLayerInfoKHR>(reinterpret_cast<const VkVideoEncodeRateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeRateControlLayerInfoKHR", indents, dump_html_VkVideoEncodeRateControlLayerInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeRateControlInfoKHR>(static_cast<const VkVideoEncodeRateControlInfoKHR*>(object), settings, "VkVideoEncodeRateControlInfoKHR", indents, dump_html_VkVideoEncodeRateControlInfoKHR);
+        dump_html_pNext<const VkVideoEncodeRateControlInfoKHR>(reinterpret_cast<const VkVideoEncodeRateControlInfoKHR*>(object), settings, "VkVideoEncodeRateControlInfoKHR", indents, dump_html_VkVideoEncodeRateControlInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
-        dump_html_pNext<const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR>(static_cast<const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR*>(object), settings, "VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR", indents, dump_html_VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR);
+        dump_html_pNext<const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR>(reinterpret_cast<const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR*>(object), settings, "VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR", indents, dump_html_VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_PROPERTIES_KHR:
-        dump_html_pNext<const VkVideoEncodeQualityLevelPropertiesKHR>(static_cast<const VkVideoEncodeQualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeQualityLevelPropertiesKHR", indents, dump_html_VkVideoEncodeQualityLevelPropertiesKHR);
+        dump_html_pNext<const VkVideoEncodeQualityLevelPropertiesKHR>(reinterpret_cast<const VkVideoEncodeQualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeQualityLevelPropertiesKHR", indents, dump_html_VkVideoEncodeQualityLevelPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeQualityLevelInfoKHR>(static_cast<const VkVideoEncodeQualityLevelInfoKHR*>(object), settings, "VkVideoEncodeQualityLevelInfoKHR", indents, dump_html_VkVideoEncodeQualityLevelInfoKHR);
+        dump_html_pNext<const VkVideoEncodeQualityLevelInfoKHR>(reinterpret_cast<const VkVideoEncodeQualityLevelInfoKHR*>(object), settings, "VkVideoEncodeQualityLevelInfoKHR", indents, dump_html_VkVideoEncodeQualityLevelInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_PARAMETERS_GET_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeSessionParametersGetInfoKHR>(static_cast<const VkVideoEncodeSessionParametersGetInfoKHR*>(object), settings, "VkVideoEncodeSessionParametersGetInfoKHR", indents, dump_html_VkVideoEncodeSessionParametersGetInfoKHR);
+        dump_html_pNext<const VkVideoEncodeSessionParametersGetInfoKHR>(reinterpret_cast<const VkVideoEncodeSessionParametersGetInfoKHR*>(object), settings, "VkVideoEncodeSessionParametersGetInfoKHR", indents, dump_html_VkVideoEncodeSessionParametersGetInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeSessionParametersFeedbackInfoKHR>(static_cast<const VkVideoEncodeSessionParametersFeedbackInfoKHR*>(object), settings, "VkVideoEncodeSessionParametersFeedbackInfoKHR", indents, dump_html_VkVideoEncodeSessionParametersFeedbackInfoKHR);
+        dump_html_pNext<const VkVideoEncodeSessionParametersFeedbackInfoKHR>(reinterpret_cast<const VkVideoEncodeSessionParametersFeedbackInfoKHR*>(object), settings, "VkVideoEncodeSessionParametersFeedbackInfoKHR", indents, dump_html_VkVideoEncodeSessionParametersFeedbackInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR>(static_cast<const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR*>(object), settings, "VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR", indents, dump_html_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR*>(object), settings, "VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR", indents, dump_html_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR>(static_cast<const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR*>(object), settings, "VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR", indents, dump_html_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR*>(object), settings, "VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR", indents, dump_html_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR>(static_cast<const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_WORKGROUP_MEMORY_EXPLICIT_LAYOUT_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR>(static_cast<const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR*>(object), settings, "VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR", indents, dump_html_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR*>(object), settings, "VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR", indents, dump_html_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR>(static_cast<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR", indents, dump_html_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR", indents, dump_html_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR>(static_cast<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_ID_2_KHR:
-        dump_html_pNext<const VkSurfaceCapabilitiesPresentId2KHR>(static_cast<const VkSurfaceCapabilitiesPresentId2KHR*>(object), settings, "VkSurfaceCapabilitiesPresentId2KHR", indents, dump_html_VkSurfaceCapabilitiesPresentId2KHR);
+        dump_html_pNext<const VkSurfaceCapabilitiesPresentId2KHR>(reinterpret_cast<const VkSurfaceCapabilitiesPresentId2KHR*>(object), settings, "VkSurfaceCapabilitiesPresentId2KHR", indents, dump_html_VkSurfaceCapabilitiesPresentId2KHR);
         break;
     case VK_STRUCTURE_TYPE_PRESENT_ID_2_KHR:
-        dump_html_pNext<const VkPresentId2KHR>(static_cast<const VkPresentId2KHR*>(object), settings, "VkPresentId2KHR", indents, dump_html_VkPresentId2KHR);
+        dump_html_pNext<const VkPresentId2KHR>(reinterpret_cast<const VkPresentId2KHR*>(object), settings, "VkPresentId2KHR", indents, dump_html_VkPresentId2KHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePresentId2FeaturesKHR>(static_cast<const VkPhysicalDevicePresentId2FeaturesKHR*>(object), settings, "VkPhysicalDevicePresentId2FeaturesKHR", indents, dump_html_VkPhysicalDevicePresentId2FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDevicePresentId2FeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePresentId2FeaturesKHR*>(object), settings, "VkPhysicalDevicePresentId2FeaturesKHR", indents, dump_html_VkPhysicalDevicePresentId2FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_WAIT_2_KHR:
-        dump_html_pNext<const VkSurfaceCapabilitiesPresentWait2KHR>(static_cast<const VkSurfaceCapabilitiesPresentWait2KHR*>(object), settings, "VkSurfaceCapabilitiesPresentWait2KHR", indents, dump_html_VkSurfaceCapabilitiesPresentWait2KHR);
+        dump_html_pNext<const VkSurfaceCapabilitiesPresentWait2KHR>(reinterpret_cast<const VkSurfaceCapabilitiesPresentWait2KHR*>(object), settings, "VkSurfaceCapabilitiesPresentWait2KHR", indents, dump_html_VkSurfaceCapabilitiesPresentWait2KHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_2_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePresentWait2FeaturesKHR>(static_cast<const VkPhysicalDevicePresentWait2FeaturesKHR*>(object), settings, "VkPhysicalDevicePresentWait2FeaturesKHR", indents, dump_html_VkPhysicalDevicePresentWait2FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDevicePresentWait2FeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePresentWait2FeaturesKHR*>(object), settings, "VkPhysicalDevicePresentWait2FeaturesKHR", indents, dump_html_VkPhysicalDevicePresentWait2FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PRESENT_WAIT_2_INFO_KHR:
-        dump_html_pNext<const VkPresentWait2InfoKHR>(static_cast<const VkPresentWait2InfoKHR*>(object), settings, "VkPresentWait2InfoKHR", indents, dump_html_VkPresentWait2InfoKHR);
+        dump_html_pNext<const VkPresentWait2InfoKHR>(reinterpret_cast<const VkPresentWait2InfoKHR*>(object), settings, "VkPresentWait2InfoKHR", indents, dump_html_VkPresentWait2InfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR>(static_cast<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR", indents, dump_html_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR", indents, dump_html_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePipelineBinaryFeaturesKHR>(static_cast<const VkPhysicalDevicePipelineBinaryFeaturesKHR*>(object), settings, "VkPhysicalDevicePipelineBinaryFeaturesKHR", indents, dump_html_VkPhysicalDevicePipelineBinaryFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDevicePipelineBinaryFeaturesKHR>(reinterpret_cast<const VkPhysicalDevicePipelineBinaryFeaturesKHR*>(object), settings, "VkPhysicalDevicePipelineBinaryFeaturesKHR", indents, dump_html_VkPhysicalDevicePipelineBinaryFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDevicePipelineBinaryPropertiesKHR>(static_cast<const VkPhysicalDevicePipelineBinaryPropertiesKHR*>(object), settings, "VkPhysicalDevicePipelineBinaryPropertiesKHR", indents, dump_html_VkPhysicalDevicePipelineBinaryPropertiesKHR);
+        dump_html_pNext<const VkPhysicalDevicePipelineBinaryPropertiesKHR>(reinterpret_cast<const VkPhysicalDevicePipelineBinaryPropertiesKHR*>(object), settings, "VkPhysicalDevicePipelineBinaryPropertiesKHR", indents, dump_html_VkPhysicalDevicePipelineBinaryPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_PIPELINE_BINARY_INTERNAL_CACHE_CONTROL_KHR:
-        dump_html_pNext<const VkDevicePipelineBinaryInternalCacheControlKHR>(static_cast<const VkDevicePipelineBinaryInternalCacheControlKHR*>(object), settings, "VkDevicePipelineBinaryInternalCacheControlKHR", indents, dump_html_VkDevicePipelineBinaryInternalCacheControlKHR);
+        dump_html_pNext<const VkDevicePipelineBinaryInternalCacheControlKHR>(reinterpret_cast<const VkDevicePipelineBinaryInternalCacheControlKHR*>(object), settings, "VkDevicePipelineBinaryInternalCacheControlKHR", indents, dump_html_VkDevicePipelineBinaryInternalCacheControlKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_BINARY_KEY_KHR:
-        dump_html_pNext<const VkPipelineBinaryKeyKHR>(static_cast<const VkPipelineBinaryKeyKHR*>(object), settings, "VkPipelineBinaryKeyKHR", indents, dump_html_VkPipelineBinaryKeyKHR);
+        dump_html_pNext<const VkPipelineBinaryKeyKHR>(reinterpret_cast<const VkPipelineBinaryKeyKHR*>(object), settings, "VkPipelineBinaryKeyKHR", indents, dump_html_VkPipelineBinaryKeyKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkPipelineCreateInfoKHR>(static_cast<const VkPipelineCreateInfoKHR*>(object), settings, "VkPipelineCreateInfoKHR", indents, dump_html_VkPipelineCreateInfoKHR);
+        dump_html_pNext<const VkPipelineCreateInfoKHR>(reinterpret_cast<const VkPipelineCreateInfoKHR*>(object), settings, "VkPipelineCreateInfoKHR", indents, dump_html_VkPipelineCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_BINARY_CREATE_INFO_KHR:
-        dump_html_pNext<const VkPipelineBinaryCreateInfoKHR>(static_cast<const VkPipelineBinaryCreateInfoKHR*>(object), settings, "VkPipelineBinaryCreateInfoKHR", indents, dump_html_VkPipelineBinaryCreateInfoKHR);
+        dump_html_pNext<const VkPipelineBinaryCreateInfoKHR>(reinterpret_cast<const VkPipelineBinaryCreateInfoKHR*>(object), settings, "VkPipelineBinaryCreateInfoKHR", indents, dump_html_VkPipelineBinaryCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
-        dump_html_pNext<const VkPipelineBinaryInfoKHR>(static_cast<const VkPipelineBinaryInfoKHR*>(object), settings, "VkPipelineBinaryInfoKHR", indents, dump_html_VkPipelineBinaryInfoKHR);
+        dump_html_pNext<const VkPipelineBinaryInfoKHR>(reinterpret_cast<const VkPipelineBinaryInfoKHR*>(object), settings, "VkPipelineBinaryInfoKHR", indents, dump_html_VkPipelineBinaryInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_RELEASE_CAPTURED_PIPELINE_DATA_INFO_KHR:
-        dump_html_pNext<const VkReleaseCapturedPipelineDataInfoKHR>(static_cast<const VkReleaseCapturedPipelineDataInfoKHR*>(object), settings, "VkReleaseCapturedPipelineDataInfoKHR", indents, dump_html_VkReleaseCapturedPipelineDataInfoKHR);
+        dump_html_pNext<const VkReleaseCapturedPipelineDataInfoKHR>(reinterpret_cast<const VkReleaseCapturedPipelineDataInfoKHR*>(object), settings, "VkReleaseCapturedPipelineDataInfoKHR", indents, dump_html_VkReleaseCapturedPipelineDataInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_BINARY_DATA_INFO_KHR:
-        dump_html_pNext<const VkPipelineBinaryDataInfoKHR>(static_cast<const VkPipelineBinaryDataInfoKHR*>(object), settings, "VkPipelineBinaryDataInfoKHR", indents, dump_html_VkPipelineBinaryDataInfoKHR);
+        dump_html_pNext<const VkPipelineBinaryDataInfoKHR>(reinterpret_cast<const VkPipelineBinaryDataInfoKHR*>(object), settings, "VkPipelineBinaryDataInfoKHR", indents, dump_html_VkPipelineBinaryDataInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_BINARY_HANDLES_INFO_KHR:
-        dump_html_pNext<const VkPipelineBinaryHandlesInfoKHR>(static_cast<const VkPipelineBinaryHandlesInfoKHR*>(object), settings, "VkPipelineBinaryHandlesInfoKHR", indents, dump_html_VkPipelineBinaryHandlesInfoKHR);
+        dump_html_pNext<const VkPipelineBinaryHandlesInfoKHR>(reinterpret_cast<const VkPipelineBinaryHandlesInfoKHR*>(object), settings, "VkPipelineBinaryHandlesInfoKHR", indents, dump_html_VkPipelineBinaryHandlesInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
-        dump_html_pNext<const VkCooperativeMatrixPropertiesKHR>(static_cast<const VkCooperativeMatrixPropertiesKHR*>(object), settings, "VkCooperativeMatrixPropertiesKHR", indents, dump_html_VkCooperativeMatrixPropertiesKHR);
+        dump_html_pNext<const VkCooperativeMatrixPropertiesKHR>(reinterpret_cast<const VkCooperativeMatrixPropertiesKHR*>(object), settings, "VkCooperativeMatrixPropertiesKHR", indents, dump_html_VkCooperativeMatrixPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR>(static_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(object), settings, "VkPhysicalDeviceCooperativeMatrixFeaturesKHR", indents, dump_html_VkPhysicalDeviceCooperativeMatrixFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(object), settings, "VkPhysicalDeviceCooperativeMatrixFeaturesKHR", indents, dump_html_VkPhysicalDeviceCooperativeMatrixFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrixPropertiesKHR>(static_cast<const VkPhysicalDeviceCooperativeMatrixPropertiesKHR*>(object), settings, "VkPhysicalDeviceCooperativeMatrixPropertiesKHR", indents, dump_html_VkPhysicalDeviceCooperativeMatrixPropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrixPropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixPropertiesKHR*>(object), settings, "VkPhysicalDeviceCooperativeMatrixPropertiesKHR", indents, dump_html_VkPhysicalDeviceCooperativeMatrixPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR>(static_cast<const VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR*>(object), settings, "VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR", indents, dump_html_VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR*>(object), settings, "VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR", indents, dump_html_VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR>(static_cast<const VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR*>(object), settings, "VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR", indents, dump_html_VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR*>(object), settings, "VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR", indents, dump_html_VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PROFILE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeAV1ProfileInfoKHR>(static_cast<const VkVideoDecodeAV1ProfileInfoKHR*>(object), settings, "VkVideoDecodeAV1ProfileInfoKHR", indents, dump_html_VkVideoDecodeAV1ProfileInfoKHR);
+        dump_html_pNext<const VkVideoDecodeAV1ProfileInfoKHR>(reinterpret_cast<const VkVideoDecodeAV1ProfileInfoKHR*>(object), settings, "VkVideoDecodeAV1ProfileInfoKHR", indents, dump_html_VkVideoDecodeAV1ProfileInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoDecodeAV1CapabilitiesKHR>(static_cast<const VkVideoDecodeAV1CapabilitiesKHR*>(object), settings, "VkVideoDecodeAV1CapabilitiesKHR", indents, dump_html_VkVideoDecodeAV1CapabilitiesKHR);
+        dump_html_pNext<const VkVideoDecodeAV1CapabilitiesKHR>(reinterpret_cast<const VkVideoDecodeAV1CapabilitiesKHR*>(object), settings, "VkVideoDecodeAV1CapabilitiesKHR", indents, dump_html_VkVideoDecodeAV1CapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeAV1SessionParametersCreateInfoKHR>(static_cast<const VkVideoDecodeAV1SessionParametersCreateInfoKHR*>(object), settings, "VkVideoDecodeAV1SessionParametersCreateInfoKHR", indents, dump_html_VkVideoDecodeAV1SessionParametersCreateInfoKHR);
+        dump_html_pNext<const VkVideoDecodeAV1SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoDecodeAV1SessionParametersCreateInfoKHR*>(object), settings, "VkVideoDecodeAV1SessionParametersCreateInfoKHR", indents, dump_html_VkVideoDecodeAV1SessionParametersCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeAV1PictureInfoKHR>(static_cast<const VkVideoDecodeAV1PictureInfoKHR*>(object), settings, "VkVideoDecodeAV1PictureInfoKHR", indents, dump_html_VkVideoDecodeAV1PictureInfoKHR);
+        dump_html_pNext<const VkVideoDecodeAV1PictureInfoKHR>(reinterpret_cast<const VkVideoDecodeAV1PictureInfoKHR*>(object), settings, "VkVideoDecodeAV1PictureInfoKHR", indents, dump_html_VkVideoDecodeAV1PictureInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_DPB_SLOT_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeAV1DpbSlotInfoKHR>(static_cast<const VkVideoDecodeAV1DpbSlotInfoKHR*>(object), settings, "VkVideoDecodeAV1DpbSlotInfoKHR", indents, dump_html_VkVideoDecodeAV1DpbSlotInfoKHR);
+        dump_html_pNext<const VkVideoDecodeAV1DpbSlotInfoKHR>(reinterpret_cast<const VkVideoDecodeAV1DpbSlotInfoKHR*>(object), settings, "VkVideoDecodeAV1DpbSlotInfoKHR", indents, dump_html_VkVideoDecodeAV1DpbSlotInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_AV1_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceVideoEncodeAV1FeaturesKHR>(static_cast<const VkPhysicalDeviceVideoEncodeAV1FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoEncodeAV1FeaturesKHR", indents, dump_html_VkPhysicalDeviceVideoEncodeAV1FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceVideoEncodeAV1FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceVideoEncodeAV1FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoEncodeAV1FeaturesKHR", indents, dump_html_VkPhysicalDeviceVideoEncodeAV1FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1CapabilitiesKHR>(static_cast<const VkVideoEncodeAV1CapabilitiesKHR*>(object), settings, "VkVideoEncodeAV1CapabilitiesKHR", indents, dump_html_VkVideoEncodeAV1CapabilitiesKHR);
+        dump_html_pNext<const VkVideoEncodeAV1CapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeAV1CapabilitiesKHR*>(object), settings, "VkVideoEncodeAV1CapabilitiesKHR", indents, dump_html_VkVideoEncodeAV1CapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_QUALITY_LEVEL_PROPERTIES_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1QualityLevelPropertiesKHR>(static_cast<const VkVideoEncodeAV1QualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeAV1QualityLevelPropertiesKHR", indents, dump_html_VkVideoEncodeAV1QualityLevelPropertiesKHR);
+        dump_html_pNext<const VkVideoEncodeAV1QualityLevelPropertiesKHR>(reinterpret_cast<const VkVideoEncodeAV1QualityLevelPropertiesKHR*>(object), settings, "VkVideoEncodeAV1QualityLevelPropertiesKHR", indents, dump_html_VkVideoEncodeAV1QualityLevelPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_SESSION_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1SessionCreateInfoKHR>(static_cast<const VkVideoEncodeAV1SessionCreateInfoKHR*>(object), settings, "VkVideoEncodeAV1SessionCreateInfoKHR", indents, dump_html_VkVideoEncodeAV1SessionCreateInfoKHR);
+        dump_html_pNext<const VkVideoEncodeAV1SessionCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1SessionCreateInfoKHR*>(object), settings, "VkVideoEncodeAV1SessionCreateInfoKHR", indents, dump_html_VkVideoEncodeAV1SessionCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1SessionParametersCreateInfoKHR>(static_cast<const VkVideoEncodeAV1SessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeAV1SessionParametersCreateInfoKHR", indents, dump_html_VkVideoEncodeAV1SessionParametersCreateInfoKHR);
+        dump_html_pNext<const VkVideoEncodeAV1SessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1SessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeAV1SessionParametersCreateInfoKHR", indents, dump_html_VkVideoEncodeAV1SessionParametersCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PICTURE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1PictureInfoKHR>(static_cast<const VkVideoEncodeAV1PictureInfoKHR*>(object), settings, "VkVideoEncodeAV1PictureInfoKHR", indents, dump_html_VkVideoEncodeAV1PictureInfoKHR);
+        dump_html_pNext<const VkVideoEncodeAV1PictureInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1PictureInfoKHR*>(object), settings, "VkVideoEncodeAV1PictureInfoKHR", indents, dump_html_VkVideoEncodeAV1PictureInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_DPB_SLOT_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1DpbSlotInfoKHR>(static_cast<const VkVideoEncodeAV1DpbSlotInfoKHR*>(object), settings, "VkVideoEncodeAV1DpbSlotInfoKHR", indents, dump_html_VkVideoEncodeAV1DpbSlotInfoKHR);
+        dump_html_pNext<const VkVideoEncodeAV1DpbSlotInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1DpbSlotInfoKHR*>(object), settings, "VkVideoEncodeAV1DpbSlotInfoKHR", indents, dump_html_VkVideoEncodeAV1DpbSlotInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_PROFILE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1ProfileInfoKHR>(static_cast<const VkVideoEncodeAV1ProfileInfoKHR*>(object), settings, "VkVideoEncodeAV1ProfileInfoKHR", indents, dump_html_VkVideoEncodeAV1ProfileInfoKHR);
+        dump_html_pNext<const VkVideoEncodeAV1ProfileInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1ProfileInfoKHR*>(object), settings, "VkVideoEncodeAV1ProfileInfoKHR", indents, dump_html_VkVideoEncodeAV1ProfileInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_GOP_REMAINING_FRAME_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1GopRemainingFrameInfoKHR>(static_cast<const VkVideoEncodeAV1GopRemainingFrameInfoKHR*>(object), settings, "VkVideoEncodeAV1GopRemainingFrameInfoKHR", indents, dump_html_VkVideoEncodeAV1GopRemainingFrameInfoKHR);
+        dump_html_pNext<const VkVideoEncodeAV1GopRemainingFrameInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1GopRemainingFrameInfoKHR*>(object), settings, "VkVideoEncodeAV1GopRemainingFrameInfoKHR", indents, dump_html_VkVideoEncodeAV1GopRemainingFrameInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_RATE_CONTROL_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1RateControlInfoKHR>(static_cast<const VkVideoEncodeAV1RateControlInfoKHR*>(object), settings, "VkVideoEncodeAV1RateControlInfoKHR", indents, dump_html_VkVideoEncodeAV1RateControlInfoKHR);
+        dump_html_pNext<const VkVideoEncodeAV1RateControlInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1RateControlInfoKHR*>(object), settings, "VkVideoEncodeAV1RateControlInfoKHR", indents, dump_html_VkVideoEncodeAV1RateControlInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_RATE_CONTROL_LAYER_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1RateControlLayerInfoKHR>(static_cast<const VkVideoEncodeAV1RateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeAV1RateControlLayerInfoKHR", indents, dump_html_VkVideoEncodeAV1RateControlLayerInfoKHR);
+        dump_html_pNext<const VkVideoEncodeAV1RateControlLayerInfoKHR>(reinterpret_cast<const VkVideoEncodeAV1RateControlLayerInfoKHR*>(object), settings, "VkVideoEncodeAV1RateControlLayerInfoKHR", indents, dump_html_VkVideoEncodeAV1RateControlLayerInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_DECODE_VP9_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceVideoDecodeVP9FeaturesKHR>(static_cast<const VkPhysicalDeviceVideoDecodeVP9FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoDecodeVP9FeaturesKHR", indents, dump_html_VkPhysicalDeviceVideoDecodeVP9FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceVideoDecodeVP9FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceVideoDecodeVP9FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoDecodeVP9FeaturesKHR", indents, dump_html_VkPhysicalDeviceVideoDecodeVP9FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PROFILE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeVP9ProfileInfoKHR>(static_cast<const VkVideoDecodeVP9ProfileInfoKHR*>(object), settings, "VkVideoDecodeVP9ProfileInfoKHR", indents, dump_html_VkVideoDecodeVP9ProfileInfoKHR);
+        dump_html_pNext<const VkVideoDecodeVP9ProfileInfoKHR>(reinterpret_cast<const VkVideoDecodeVP9ProfileInfoKHR*>(object), settings, "VkVideoDecodeVP9ProfileInfoKHR", indents, dump_html_VkVideoDecodeVP9ProfileInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoDecodeVP9CapabilitiesKHR>(static_cast<const VkVideoDecodeVP9CapabilitiesKHR*>(object), settings, "VkVideoDecodeVP9CapabilitiesKHR", indents, dump_html_VkVideoDecodeVP9CapabilitiesKHR);
+        dump_html_pNext<const VkVideoDecodeVP9CapabilitiesKHR>(reinterpret_cast<const VkVideoDecodeVP9CapabilitiesKHR*>(object), settings, "VkVideoDecodeVP9CapabilitiesKHR", indents, dump_html_VkVideoDecodeVP9CapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PICTURE_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeVP9PictureInfoKHR>(static_cast<const VkVideoDecodeVP9PictureInfoKHR*>(object), settings, "VkVideoDecodeVP9PictureInfoKHR", indents, dump_html_VkVideoDecodeVP9PictureInfoKHR);
+        dump_html_pNext<const VkVideoDecodeVP9PictureInfoKHR>(reinterpret_cast<const VkVideoDecodeVP9PictureInfoKHR*>(object), settings, "VkVideoDecodeVP9PictureInfoKHR", indents, dump_html_VkVideoDecodeVP9PictureInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR>(static_cast<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoMaintenance1FeaturesKHR", indents, dump_html_VkPhysicalDeviceVideoMaintenance1FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoMaintenance1FeaturesKHR", indents, dump_html_VkPhysicalDeviceVideoMaintenance1FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
-        dump_html_pNext<const VkVideoInlineQueryInfoKHR>(static_cast<const VkVideoInlineQueryInfoKHR*>(object), settings, "VkVideoInlineQueryInfoKHR", indents, dump_html_VkVideoInlineQueryInfoKHR);
+        dump_html_pNext<const VkVideoInlineQueryInfoKHR>(reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(object), settings, "VkVideoInlineQueryInfoKHR", indents, dump_html_VkVideoInlineQueryInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFIED_IMAGE_LAYOUTS_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR>(static_cast<const VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR*>(object), settings, "VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR", indents, dump_html_VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR*>(object), settings, "VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR", indents, dump_html_VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_ATTACHMENT_FEEDBACK_LOOP_INFO_EXT:
-        dump_html_pNext<const VkAttachmentFeedbackLoopInfoEXT>(static_cast<const VkAttachmentFeedbackLoopInfoEXT*>(object), settings, "VkAttachmentFeedbackLoopInfoEXT", indents, dump_html_VkAttachmentFeedbackLoopInfoEXT);
+        dump_html_pNext<const VkAttachmentFeedbackLoopInfoEXT>(reinterpret_cast<const VkAttachmentFeedbackLoopInfoEXT*>(object), settings, "VkAttachmentFeedbackLoopInfoEXT", indents, dump_html_VkAttachmentFeedbackLoopInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR:
-        dump_html_pNext<const VkCalibratedTimestampInfoKHR>(static_cast<const VkCalibratedTimestampInfoKHR*>(object), settings, "VkCalibratedTimestampInfoKHR", indents, dump_html_VkCalibratedTimestampInfoKHR);
+        dump_html_pNext<const VkCalibratedTimestampInfoKHR>(reinterpret_cast<const VkCalibratedTimestampInfoKHR*>(object), settings, "VkCalibratedTimestampInfoKHR", indents, dump_html_VkCalibratedTimestampInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_SET_DESCRIPTOR_BUFFER_OFFSETS_INFO_EXT:
-        dump_html_pNext<const VkSetDescriptorBufferOffsetsInfoEXT>(static_cast<const VkSetDescriptorBufferOffsetsInfoEXT*>(object), settings, "VkSetDescriptorBufferOffsetsInfoEXT", indents, dump_html_VkSetDescriptorBufferOffsetsInfoEXT);
+        dump_html_pNext<const VkSetDescriptorBufferOffsetsInfoEXT>(reinterpret_cast<const VkSetDescriptorBufferOffsetsInfoEXT*>(object), settings, "VkSetDescriptorBufferOffsetsInfoEXT", indents, dump_html_VkSetDescriptorBufferOffsetsInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS_INFO_EXT:
-        dump_html_pNext<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT>(static_cast<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*>(object), settings, "VkBindDescriptorBufferEmbeddedSamplersInfoEXT", indents, dump_html_VkBindDescriptorBufferEmbeddedSamplersInfoEXT);
+        dump_html_pNext<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT>(reinterpret_cast<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*>(object), settings, "VkBindDescriptorBufferEmbeddedSamplersInfoEXT", indents, dump_html_VkBindDescriptorBufferEmbeddedSamplersInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoEncodeQuantizationMapCapabilitiesKHR>(static_cast<const VkVideoEncodeQuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeQuantizationMapCapabilitiesKHR", indents, dump_html_VkVideoEncodeQuantizationMapCapabilitiesKHR);
+        dump_html_pNext<const VkVideoEncodeQuantizationMapCapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeQuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeQuantizationMapCapabilitiesKHR", indents, dump_html_VkVideoEncodeQuantizationMapCapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_FORMAT_QUANTIZATION_MAP_PROPERTIES_KHR:
-        dump_html_pNext<const VkVideoFormatQuantizationMapPropertiesKHR>(static_cast<const VkVideoFormatQuantizationMapPropertiesKHR*>(object), settings, "VkVideoFormatQuantizationMapPropertiesKHR", indents, dump_html_VkVideoFormatQuantizationMapPropertiesKHR);
+        dump_html_pNext<const VkVideoFormatQuantizationMapPropertiesKHR>(reinterpret_cast<const VkVideoFormatQuantizationMapPropertiesKHR*>(object), settings, "VkVideoFormatQuantizationMapPropertiesKHR", indents, dump_html_VkVideoFormatQuantizationMapPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeQuantizationMapInfoKHR>(static_cast<const VkVideoEncodeQuantizationMapInfoKHR*>(object), settings, "VkVideoEncodeQuantizationMapInfoKHR", indents, dump_html_VkVideoEncodeQuantizationMapInfoKHR);
+        dump_html_pNext<const VkVideoEncodeQuantizationMapInfoKHR>(reinterpret_cast<const VkVideoEncodeQuantizationMapInfoKHR*>(object), settings, "VkVideoEncodeQuantizationMapInfoKHR", indents, dump_html_VkVideoEncodeQuantizationMapInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_SESSION_PARAMETERS_CREATE_INFO_KHR:
-        dump_html_pNext<const VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR>(static_cast<const VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR", indents, dump_html_VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR);
+        dump_html_pNext<const VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR>(reinterpret_cast<const VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR*>(object), settings, "VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR", indents, dump_html_VkVideoEncodeQuantizationMapSessionParametersCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR>(static_cast<const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR", indents, dump_html_VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR", indents, dump_html_VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_QUANTIZATION_MAP_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoEncodeH264QuantizationMapCapabilitiesKHR>(static_cast<const VkVideoEncodeH264QuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeH264QuantizationMapCapabilitiesKHR", indents, dump_html_VkVideoEncodeH264QuantizationMapCapabilitiesKHR);
+        dump_html_pNext<const VkVideoEncodeH264QuantizationMapCapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeH264QuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeH264QuantizationMapCapabilitiesKHR", indents, dump_html_VkVideoEncodeH264QuantizationMapCapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUANTIZATION_MAP_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoEncodeH265QuantizationMapCapabilitiesKHR>(static_cast<const VkVideoEncodeH265QuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeH265QuantizationMapCapabilitiesKHR", indents, dump_html_VkVideoEncodeH265QuantizationMapCapabilitiesKHR);
+        dump_html_pNext<const VkVideoEncodeH265QuantizationMapCapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeH265QuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeH265QuantizationMapCapabilitiesKHR", indents, dump_html_VkVideoEncodeH265QuantizationMapCapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_FORMAT_H265_QUANTIZATION_MAP_PROPERTIES_KHR:
-        dump_html_pNext<const VkVideoFormatH265QuantizationMapPropertiesKHR>(static_cast<const VkVideoFormatH265QuantizationMapPropertiesKHR*>(object), settings, "VkVideoFormatH265QuantizationMapPropertiesKHR", indents, dump_html_VkVideoFormatH265QuantizationMapPropertiesKHR);
+        dump_html_pNext<const VkVideoFormatH265QuantizationMapPropertiesKHR>(reinterpret_cast<const VkVideoFormatH265QuantizationMapPropertiesKHR*>(object), settings, "VkVideoFormatH265QuantizationMapPropertiesKHR", indents, dump_html_VkVideoFormatH265QuantizationMapPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_QUANTIZATION_MAP_CAPABILITIES_KHR:
-        dump_html_pNext<const VkVideoEncodeAV1QuantizationMapCapabilitiesKHR>(static_cast<const VkVideoEncodeAV1QuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeAV1QuantizationMapCapabilitiesKHR", indents, dump_html_VkVideoEncodeAV1QuantizationMapCapabilitiesKHR);
+        dump_html_pNext<const VkVideoEncodeAV1QuantizationMapCapabilitiesKHR>(reinterpret_cast<const VkVideoEncodeAV1QuantizationMapCapabilitiesKHR*>(object), settings, "VkVideoEncodeAV1QuantizationMapCapabilitiesKHR", indents, dump_html_VkVideoEncodeAV1QuantizationMapCapabilitiesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_FORMAT_AV1_QUANTIZATION_MAP_PROPERTIES_KHR:
-        dump_html_pNext<const VkVideoFormatAV1QuantizationMapPropertiesKHR>(static_cast<const VkVideoFormatAV1QuantizationMapPropertiesKHR*>(object), settings, "VkVideoFormatAV1QuantizationMapPropertiesKHR", indents, dump_html_VkVideoFormatAV1QuantizationMapPropertiesKHR);
+        dump_html_pNext<const VkVideoFormatAV1QuantizationMapPropertiesKHR>(reinterpret_cast<const VkVideoFormatAV1QuantizationMapPropertiesKHR*>(object), settings, "VkVideoFormatAV1QuantizationMapPropertiesKHR", indents, dump_html_VkVideoFormatAV1QuantizationMapPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_RELAXED_EXTENDED_INSTRUCTION_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR>(static_cast<const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR*>(object), settings, "VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR", indents, dump_html_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance7FeaturesKHR>(static_cast<const VkPhysicalDeviceMaintenance7FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance7FeaturesKHR", indents, dump_html_VkPhysicalDeviceMaintenance7FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance7FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceMaintenance7FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance7FeaturesKHR", indents, dump_html_VkPhysicalDeviceMaintenance7FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance7PropertiesKHR>(static_cast<const VkPhysicalDeviceMaintenance7PropertiesKHR*>(object), settings, "VkPhysicalDeviceMaintenance7PropertiesKHR", indents, dump_html_VkPhysicalDeviceMaintenance7PropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance7PropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceMaintenance7PropertiesKHR*>(object), settings, "VkPhysicalDeviceMaintenance7PropertiesKHR", indents, dump_html_VkPhysicalDeviceMaintenance7PropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceLayeredApiPropertiesKHR>(static_cast<const VkPhysicalDeviceLayeredApiPropertiesKHR*>(object), settings, "VkPhysicalDeviceLayeredApiPropertiesKHR", indents, dump_html_VkPhysicalDeviceLayeredApiPropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceLayeredApiPropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceLayeredApiPropertiesKHR*>(object), settings, "VkPhysicalDeviceLayeredApiPropertiesKHR", indents, dump_html_VkPhysicalDeviceLayeredApiPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_LIST_KHR:
-        dump_html_pNext<const VkPhysicalDeviceLayeredApiPropertiesListKHR>(static_cast<const VkPhysicalDeviceLayeredApiPropertiesListKHR*>(object), settings, "VkPhysicalDeviceLayeredApiPropertiesListKHR", indents, dump_html_VkPhysicalDeviceLayeredApiPropertiesListKHR);
+        dump_html_pNext<const VkPhysicalDeviceLayeredApiPropertiesListKHR>(reinterpret_cast<const VkPhysicalDeviceLayeredApiPropertiesListKHR*>(object), settings, "VkPhysicalDeviceLayeredApiPropertiesListKHR", indents, dump_html_VkPhysicalDeviceLayeredApiPropertiesListKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_VULKAN_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR>(static_cast<const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR*>(object), settings, "VkPhysicalDeviceLayeredApiVulkanPropertiesKHR", indents, dump_html_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR*>(object), settings, "VkPhysicalDeviceLayeredApiVulkanPropertiesKHR", indents, dump_html_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_8_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance8FeaturesKHR>(static_cast<const VkPhysicalDeviceMaintenance8FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance8FeaturesKHR", indents, dump_html_VkPhysicalDeviceMaintenance8FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance8FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceMaintenance8FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance8FeaturesKHR", indents, dump_html_VkPhysicalDeviceMaintenance8FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_BARRIER_ACCESS_FLAGS_3_KHR:
-        dump_html_pNext<const VkMemoryBarrierAccessFlags3KHR>(static_cast<const VkMemoryBarrierAccessFlags3KHR*>(object), settings, "VkMemoryBarrierAccessFlags3KHR", indents, dump_html_VkMemoryBarrierAccessFlags3KHR);
+        dump_html_pNext<const VkMemoryBarrierAccessFlags3KHR>(reinterpret_cast<const VkMemoryBarrierAccessFlags3KHR*>(object), settings, "VkMemoryBarrierAccessFlags3KHR", indents, dump_html_VkMemoryBarrierAccessFlags3KHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance9FeaturesKHR>(static_cast<const VkPhysicalDeviceMaintenance9FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance9FeaturesKHR", indents, dump_html_VkPhysicalDeviceMaintenance9FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance9FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceMaintenance9FeaturesKHR*>(object), settings, "VkPhysicalDeviceMaintenance9FeaturesKHR", indents, dump_html_VkPhysicalDeviceMaintenance9FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceMaintenance9PropertiesKHR>(static_cast<const VkPhysicalDeviceMaintenance9PropertiesKHR*>(object), settings, "VkPhysicalDeviceMaintenance9PropertiesKHR", indents, dump_html_VkPhysicalDeviceMaintenance9PropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceMaintenance9PropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceMaintenance9PropertiesKHR*>(object), settings, "VkPhysicalDeviceMaintenance9PropertiesKHR", indents, dump_html_VkPhysicalDeviceMaintenance9PropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR:
-        dump_html_pNext<const VkQueueFamilyOwnershipTransferPropertiesKHR>(static_cast<const VkQueueFamilyOwnershipTransferPropertiesKHR*>(object), settings, "VkQueueFamilyOwnershipTransferPropertiesKHR", indents, dump_html_VkQueueFamilyOwnershipTransferPropertiesKHR);
+        dump_html_pNext<const VkQueueFamilyOwnershipTransferPropertiesKHR>(reinterpret_cast<const VkQueueFamilyOwnershipTransferPropertiesKHR*>(object), settings, "VkQueueFamilyOwnershipTransferPropertiesKHR", indents, dump_html_VkQueueFamilyOwnershipTransferPropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceVideoMaintenance2FeaturesKHR>(static_cast<const VkPhysicalDeviceVideoMaintenance2FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoMaintenance2FeaturesKHR", indents, dump_html_VkPhysicalDeviceVideoMaintenance2FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceVideoMaintenance2FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceVideoMaintenance2FeaturesKHR*>(object), settings, "VkPhysicalDeviceVideoMaintenance2FeaturesKHR", indents, dump_html_VkPhysicalDeviceVideoMaintenance2FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_INLINE_SESSION_PARAMETERS_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH264InlineSessionParametersInfoKHR>(static_cast<const VkVideoDecodeH264InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeH264InlineSessionParametersInfoKHR", indents, dump_html_VkVideoDecodeH264InlineSessionParametersInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH264InlineSessionParametersInfoKHR>(reinterpret_cast<const VkVideoDecodeH264InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeH264InlineSessionParametersInfoKHR", indents, dump_html_VkVideoDecodeH264InlineSessionParametersInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_INLINE_SESSION_PARAMETERS_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeH265InlineSessionParametersInfoKHR>(static_cast<const VkVideoDecodeH265InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeH265InlineSessionParametersInfoKHR", indents, dump_html_VkVideoDecodeH265InlineSessionParametersInfoKHR);
+        dump_html_pNext<const VkVideoDecodeH265InlineSessionParametersInfoKHR>(reinterpret_cast<const VkVideoDecodeH265InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeH265InlineSessionParametersInfoKHR", indents, dump_html_VkVideoDecodeH265InlineSessionParametersInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_INLINE_SESSION_PARAMETERS_INFO_KHR:
-        dump_html_pNext<const VkVideoDecodeAV1InlineSessionParametersInfoKHR>(static_cast<const VkVideoDecodeAV1InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeAV1InlineSessionParametersInfoKHR", indents, dump_html_VkVideoDecodeAV1InlineSessionParametersInfoKHR);
+        dump_html_pNext<const VkVideoDecodeAV1InlineSessionParametersInfoKHR>(reinterpret_cast<const VkVideoDecodeAV1InlineSessionParametersInfoKHR*>(object), settings, "VkVideoDecodeAV1InlineSessionParametersInfoKHR", indents, dump_html_VkVideoDecodeAV1InlineSessionParametersInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR>(static_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR*>(object), settings, "VkPhysicalDeviceDepthClampZeroOneFeaturesKHR", indents, dump_html_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR*>(object), settings, "VkPhysicalDeviceDepthClampZeroOneFeaturesKHR", indents, dump_html_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceRobustness2FeaturesKHR>(static_cast<const VkPhysicalDeviceRobustness2FeaturesKHR*>(object), settings, "VkPhysicalDeviceRobustness2FeaturesKHR", indents, dump_html_VkPhysicalDeviceRobustness2FeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceRobustness2FeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceRobustness2FeaturesKHR*>(object), settings, "VkPhysicalDeviceRobustness2FeaturesKHR", indents, dump_html_VkPhysicalDeviceRobustness2FeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceRobustness2PropertiesKHR>(static_cast<const VkPhysicalDeviceRobustness2PropertiesKHR*>(object), settings, "VkPhysicalDeviceRobustness2PropertiesKHR", indents, dump_html_VkPhysicalDeviceRobustness2PropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceRobustness2PropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceRobustness2PropertiesKHR*>(object), settings, "VkPhysicalDeviceRobustness2PropertiesKHR", indents, dump_html_VkPhysicalDeviceRobustness2PropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
-        dump_html_pNext<const VkDebugReportCallbackCreateInfoEXT>(static_cast<const VkDebugReportCallbackCreateInfoEXT*>(object), settings, "VkDebugReportCallbackCreateInfoEXT", indents, dump_html_VkDebugReportCallbackCreateInfoEXT);
+        dump_html_pNext<const VkDebugReportCallbackCreateInfoEXT>(reinterpret_cast<const VkDebugReportCallbackCreateInfoEXT*>(object), settings, "VkDebugReportCallbackCreateInfoEXT", indents, dump_html_VkDebugReportCallbackCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD:
-        dump_html_pNext<const VkPipelineRasterizationStateRasterizationOrderAMD>(static_cast<const VkPipelineRasterizationStateRasterizationOrderAMD*>(object), settings, "VkPipelineRasterizationStateRasterizationOrderAMD", indents, dump_html_VkPipelineRasterizationStateRasterizationOrderAMD);
+        dump_html_pNext<const VkPipelineRasterizationStateRasterizationOrderAMD>(reinterpret_cast<const VkPipelineRasterizationStateRasterizationOrderAMD*>(object), settings, "VkPipelineRasterizationStateRasterizationOrderAMD", indents, dump_html_VkPipelineRasterizationStateRasterizationOrderAMD);
         break;
     case VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT:
-        dump_html_pNext<const VkDebugMarkerObjectNameInfoEXT>(static_cast<const VkDebugMarkerObjectNameInfoEXT*>(object), settings, "VkDebugMarkerObjectNameInfoEXT", indents, dump_html_VkDebugMarkerObjectNameInfoEXT);
+        dump_html_pNext<const VkDebugMarkerObjectNameInfoEXT>(reinterpret_cast<const VkDebugMarkerObjectNameInfoEXT*>(object), settings, "VkDebugMarkerObjectNameInfoEXT", indents, dump_html_VkDebugMarkerObjectNameInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT:
-        dump_html_pNext<const VkDebugMarkerObjectTagInfoEXT>(static_cast<const VkDebugMarkerObjectTagInfoEXT*>(object), settings, "VkDebugMarkerObjectTagInfoEXT", indents, dump_html_VkDebugMarkerObjectTagInfoEXT);
+        dump_html_pNext<const VkDebugMarkerObjectTagInfoEXT>(reinterpret_cast<const VkDebugMarkerObjectTagInfoEXT*>(object), settings, "VkDebugMarkerObjectTagInfoEXT", indents, dump_html_VkDebugMarkerObjectTagInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT:
-        dump_html_pNext<const VkDebugMarkerMarkerInfoEXT>(static_cast<const VkDebugMarkerMarkerInfoEXT*>(object), settings, "VkDebugMarkerMarkerInfoEXT", indents, dump_html_VkDebugMarkerMarkerInfoEXT);
+        dump_html_pNext<const VkDebugMarkerMarkerInfoEXT>(reinterpret_cast<const VkDebugMarkerMarkerInfoEXT*>(object), settings, "VkDebugMarkerMarkerInfoEXT", indents, dump_html_VkDebugMarkerMarkerInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV:
-        dump_html_pNext<const VkDedicatedAllocationImageCreateInfoNV>(static_cast<const VkDedicatedAllocationImageCreateInfoNV*>(object), settings, "VkDedicatedAllocationImageCreateInfoNV", indents, dump_html_VkDedicatedAllocationImageCreateInfoNV);
+        dump_html_pNext<const VkDedicatedAllocationImageCreateInfoNV>(reinterpret_cast<const VkDedicatedAllocationImageCreateInfoNV*>(object), settings, "VkDedicatedAllocationImageCreateInfoNV", indents, dump_html_VkDedicatedAllocationImageCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV:
-        dump_html_pNext<const VkDedicatedAllocationBufferCreateInfoNV>(static_cast<const VkDedicatedAllocationBufferCreateInfoNV*>(object), settings, "VkDedicatedAllocationBufferCreateInfoNV", indents, dump_html_VkDedicatedAllocationBufferCreateInfoNV);
+        dump_html_pNext<const VkDedicatedAllocationBufferCreateInfoNV>(reinterpret_cast<const VkDedicatedAllocationBufferCreateInfoNV*>(object), settings, "VkDedicatedAllocationBufferCreateInfoNV", indents, dump_html_VkDedicatedAllocationBufferCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
-        dump_html_pNext<const VkDedicatedAllocationMemoryAllocateInfoNV>(static_cast<const VkDedicatedAllocationMemoryAllocateInfoNV*>(object), settings, "VkDedicatedAllocationMemoryAllocateInfoNV", indents, dump_html_VkDedicatedAllocationMemoryAllocateInfoNV);
+        dump_html_pNext<const VkDedicatedAllocationMemoryAllocateInfoNV>(reinterpret_cast<const VkDedicatedAllocationMemoryAllocateInfoNV*>(object), settings, "VkDedicatedAllocationMemoryAllocateInfoNV", indents, dump_html_VkDedicatedAllocationMemoryAllocateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceTransformFeedbackFeaturesEXT>(static_cast<const VkPhysicalDeviceTransformFeedbackFeaturesEXT*>(object), settings, "VkPhysicalDeviceTransformFeedbackFeaturesEXT", indents, dump_html_VkPhysicalDeviceTransformFeedbackFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceTransformFeedbackFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceTransformFeedbackFeaturesEXT*>(object), settings, "VkPhysicalDeviceTransformFeedbackFeaturesEXT", indents, dump_html_VkPhysicalDeviceTransformFeedbackFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceTransformFeedbackPropertiesEXT>(static_cast<const VkPhysicalDeviceTransformFeedbackPropertiesEXT*>(object), settings, "VkPhysicalDeviceTransformFeedbackPropertiesEXT", indents, dump_html_VkPhysicalDeviceTransformFeedbackPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceTransformFeedbackPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceTransformFeedbackPropertiesEXT*>(object), settings, "VkPhysicalDeviceTransformFeedbackPropertiesEXT", indents, dump_html_VkPhysicalDeviceTransformFeedbackPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineRasterizationStateStreamCreateInfoEXT>(static_cast<const VkPipelineRasterizationStateStreamCreateInfoEXT*>(object), settings, "VkPipelineRasterizationStateStreamCreateInfoEXT", indents, dump_html_VkPipelineRasterizationStateStreamCreateInfoEXT);
+        dump_html_pNext<const VkPipelineRasterizationStateStreamCreateInfoEXT>(reinterpret_cast<const VkPipelineRasterizationStateStreamCreateInfoEXT*>(object), settings, "VkPipelineRasterizationStateStreamCreateInfoEXT", indents, dump_html_VkPipelineRasterizationStateStreamCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_CU_MODULE_CREATE_INFO_NVX:
-        dump_html_pNext<const VkCuModuleCreateInfoNVX>(static_cast<const VkCuModuleCreateInfoNVX*>(object), settings, "VkCuModuleCreateInfoNVX", indents, dump_html_VkCuModuleCreateInfoNVX);
+        dump_html_pNext<const VkCuModuleCreateInfoNVX>(reinterpret_cast<const VkCuModuleCreateInfoNVX*>(object), settings, "VkCuModuleCreateInfoNVX", indents, dump_html_VkCuModuleCreateInfoNVX);
         break;
     case VK_STRUCTURE_TYPE_CU_MODULE_TEXTURING_MODE_CREATE_INFO_NVX:
-        dump_html_pNext<const VkCuModuleTexturingModeCreateInfoNVX>(static_cast<const VkCuModuleTexturingModeCreateInfoNVX*>(object), settings, "VkCuModuleTexturingModeCreateInfoNVX", indents, dump_html_VkCuModuleTexturingModeCreateInfoNVX);
+        dump_html_pNext<const VkCuModuleTexturingModeCreateInfoNVX>(reinterpret_cast<const VkCuModuleTexturingModeCreateInfoNVX*>(object), settings, "VkCuModuleTexturingModeCreateInfoNVX", indents, dump_html_VkCuModuleTexturingModeCreateInfoNVX);
         break;
     case VK_STRUCTURE_TYPE_CU_FUNCTION_CREATE_INFO_NVX:
-        dump_html_pNext<const VkCuFunctionCreateInfoNVX>(static_cast<const VkCuFunctionCreateInfoNVX*>(object), settings, "VkCuFunctionCreateInfoNVX", indents, dump_html_VkCuFunctionCreateInfoNVX);
+        dump_html_pNext<const VkCuFunctionCreateInfoNVX>(reinterpret_cast<const VkCuFunctionCreateInfoNVX*>(object), settings, "VkCuFunctionCreateInfoNVX", indents, dump_html_VkCuFunctionCreateInfoNVX);
         break;
     case VK_STRUCTURE_TYPE_CU_LAUNCH_INFO_NVX:
-        dump_html_pNext<const VkCuLaunchInfoNVX>(static_cast<const VkCuLaunchInfoNVX*>(object), settings, "VkCuLaunchInfoNVX", indents, dump_html_VkCuLaunchInfoNVX);
+        dump_html_pNext<const VkCuLaunchInfoNVX>(reinterpret_cast<const VkCuLaunchInfoNVX*>(object), settings, "VkCuLaunchInfoNVX", indents, dump_html_VkCuLaunchInfoNVX);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_HANDLE_INFO_NVX:
-        dump_html_pNext<const VkImageViewHandleInfoNVX>(static_cast<const VkImageViewHandleInfoNVX*>(object), settings, "VkImageViewHandleInfoNVX", indents, dump_html_VkImageViewHandleInfoNVX);
+        dump_html_pNext<const VkImageViewHandleInfoNVX>(reinterpret_cast<const VkImageViewHandleInfoNVX*>(object), settings, "VkImageViewHandleInfoNVX", indents, dump_html_VkImageViewHandleInfoNVX);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_ADDRESS_PROPERTIES_NVX:
-        dump_html_pNext<const VkImageViewAddressPropertiesNVX>(static_cast<const VkImageViewAddressPropertiesNVX*>(object), settings, "VkImageViewAddressPropertiesNVX", indents, dump_html_VkImageViewAddressPropertiesNVX);
+        dump_html_pNext<const VkImageViewAddressPropertiesNVX>(reinterpret_cast<const VkImageViewAddressPropertiesNVX*>(object), settings, "VkImageViewAddressPropertiesNVX", indents, dump_html_VkImageViewAddressPropertiesNVX);
         break;
     case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
-        dump_html_pNext<const VkTextureLODGatherFormatPropertiesAMD>(static_cast<const VkTextureLODGatherFormatPropertiesAMD*>(object), settings, "VkTextureLODGatherFormatPropertiesAMD", indents, dump_html_VkTextureLODGatherFormatPropertiesAMD);
+        dump_html_pNext<const VkTextureLODGatherFormatPropertiesAMD>(reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(object), settings, "VkTextureLODGatherFormatPropertiesAMD", indents, dump_html_VkTextureLODGatherFormatPropertiesAMD);
         break;
 #if defined(VK_USE_PLATFORM_GGP)
     case VK_STRUCTURE_TYPE_STREAM_DESCRIPTOR_SURFACE_CREATE_INFO_GGP:
-        dump_html_pNext<const VkStreamDescriptorSurfaceCreateInfoGGP>(static_cast<const VkStreamDescriptorSurfaceCreateInfoGGP*>(object), settings, "VkStreamDescriptorSurfaceCreateInfoGGP", indents, dump_html_VkStreamDescriptorSurfaceCreateInfoGGP);
+        dump_html_pNext<const VkStreamDescriptorSurfaceCreateInfoGGP>(reinterpret_cast<const VkStreamDescriptorSurfaceCreateInfoGGP*>(object), settings, "VkStreamDescriptorSurfaceCreateInfoGGP", indents, dump_html_VkStreamDescriptorSurfaceCreateInfoGGP);
         break;
 #endif // VK_USE_PLATFORM_GGP
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CORNER_SAMPLED_IMAGE_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCornerSampledImageFeaturesNV>(static_cast<const VkPhysicalDeviceCornerSampledImageFeaturesNV*>(object), settings, "VkPhysicalDeviceCornerSampledImageFeaturesNV", indents, dump_html_VkPhysicalDeviceCornerSampledImageFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceCornerSampledImageFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCornerSampledImageFeaturesNV*>(object), settings, "VkPhysicalDeviceCornerSampledImageFeaturesNV", indents, dump_html_VkPhysicalDeviceCornerSampledImageFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
-        dump_html_pNext<const VkExternalMemoryImageCreateInfoNV>(static_cast<const VkExternalMemoryImageCreateInfoNV*>(object), settings, "VkExternalMemoryImageCreateInfoNV", indents, dump_html_VkExternalMemoryImageCreateInfoNV);
+        dump_html_pNext<const VkExternalMemoryImageCreateInfoNV>(reinterpret_cast<const VkExternalMemoryImageCreateInfoNV*>(object), settings, "VkExternalMemoryImageCreateInfoNV", indents, dump_html_VkExternalMemoryImageCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV:
-        dump_html_pNext<const VkExportMemoryAllocateInfoNV>(static_cast<const VkExportMemoryAllocateInfoNV*>(object), settings, "VkExportMemoryAllocateInfoNV", indents, dump_html_VkExportMemoryAllocateInfoNV);
+        dump_html_pNext<const VkExportMemoryAllocateInfoNV>(reinterpret_cast<const VkExportMemoryAllocateInfoNV*>(object), settings, "VkExportMemoryAllocateInfoNV", indents, dump_html_VkExportMemoryAllocateInfoNV);
         break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV:
-        dump_html_pNext<const VkImportMemoryWin32HandleInfoNV>(static_cast<const VkImportMemoryWin32HandleInfoNV*>(object), settings, "VkImportMemoryWin32HandleInfoNV", indents, dump_html_VkImportMemoryWin32HandleInfoNV);
+        dump_html_pNext<const VkImportMemoryWin32HandleInfoNV>(reinterpret_cast<const VkImportMemoryWin32HandleInfoNV*>(object), settings, "VkImportMemoryWin32HandleInfoNV", indents, dump_html_VkImportMemoryWin32HandleInfoNV);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV:
-        dump_html_pNext<const VkExportMemoryWin32HandleInfoNV>(static_cast<const VkExportMemoryWin32HandleInfoNV*>(object), settings, "VkExportMemoryWin32HandleInfoNV", indents, dump_html_VkExportMemoryWin32HandleInfoNV);
+        dump_html_pNext<const VkExportMemoryWin32HandleInfoNV>(reinterpret_cast<const VkExportMemoryWin32HandleInfoNV*>(object), settings, "VkExportMemoryWin32HandleInfoNV", indents, dump_html_VkExportMemoryWin32HandleInfoNV);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
-        dump_html_pNext<const VkWin32KeyedMutexAcquireReleaseInfoNV>(static_cast<const VkWin32KeyedMutexAcquireReleaseInfoNV*>(object), settings, "VkWin32KeyedMutexAcquireReleaseInfoNV", indents, dump_html_VkWin32KeyedMutexAcquireReleaseInfoNV);
+        dump_html_pNext<const VkWin32KeyedMutexAcquireReleaseInfoNV>(reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoNV*>(object), settings, "VkWin32KeyedMutexAcquireReleaseInfoNV", indents, dump_html_VkWin32KeyedMutexAcquireReleaseInfoNV);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
     case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
-        dump_html_pNext<const VkValidationFlagsEXT>(static_cast<const VkValidationFlagsEXT*>(object), settings, "VkValidationFlagsEXT", indents, dump_html_VkValidationFlagsEXT);
+        dump_html_pNext<const VkValidationFlagsEXT>(reinterpret_cast<const VkValidationFlagsEXT*>(object), settings, "VkValidationFlagsEXT", indents, dump_html_VkValidationFlagsEXT);
         break;
 #if defined(VK_USE_PLATFORM_VI_NN)
     case VK_STRUCTURE_TYPE_VI_SURFACE_CREATE_INFO_NN:
-        dump_html_pNext<const VkViSurfaceCreateInfoNN>(static_cast<const VkViSurfaceCreateInfoNN*>(object), settings, "VkViSurfaceCreateInfoNN", indents, dump_html_VkViSurfaceCreateInfoNN);
+        dump_html_pNext<const VkViSurfaceCreateInfoNN>(reinterpret_cast<const VkViSurfaceCreateInfoNN*>(object), settings, "VkViSurfaceCreateInfoNN", indents, dump_html_VkViSurfaceCreateInfoNN);
         break;
 #endif // VK_USE_PLATFORM_VI_NN
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_ASTC_DECODE_MODE_EXT:
-        dump_html_pNext<const VkImageViewASTCDecodeModeEXT>(static_cast<const VkImageViewASTCDecodeModeEXT*>(object), settings, "VkImageViewASTCDecodeModeEXT", indents, dump_html_VkImageViewASTCDecodeModeEXT);
+        dump_html_pNext<const VkImageViewASTCDecodeModeEXT>(reinterpret_cast<const VkImageViewASTCDecodeModeEXT*>(object), settings, "VkImageViewASTCDecodeModeEXT", indents, dump_html_VkImageViewASTCDecodeModeEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ASTC_DECODE_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceASTCDecodeFeaturesEXT>(static_cast<const VkPhysicalDeviceASTCDecodeFeaturesEXT*>(object), settings, "VkPhysicalDeviceASTCDecodeFeaturesEXT", indents, dump_html_VkPhysicalDeviceASTCDecodeFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceASTCDecodeFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceASTCDecodeFeaturesEXT*>(object), settings, "VkPhysicalDeviceASTCDecodeFeaturesEXT", indents, dump_html_VkPhysicalDeviceASTCDecodeFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT:
-        dump_html_pNext<const VkConditionalRenderingBeginInfoEXT>(static_cast<const VkConditionalRenderingBeginInfoEXT*>(object), settings, "VkConditionalRenderingBeginInfoEXT", indents, dump_html_VkConditionalRenderingBeginInfoEXT);
+        dump_html_pNext<const VkConditionalRenderingBeginInfoEXT>(reinterpret_cast<const VkConditionalRenderingBeginInfoEXT*>(object), settings, "VkConditionalRenderingBeginInfoEXT", indents, dump_html_VkConditionalRenderingBeginInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceConditionalRenderingFeaturesEXT>(static_cast<const VkPhysicalDeviceConditionalRenderingFeaturesEXT*>(object), settings, "VkPhysicalDeviceConditionalRenderingFeaturesEXT", indents, dump_html_VkPhysicalDeviceConditionalRenderingFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceConditionalRenderingFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceConditionalRenderingFeaturesEXT*>(object), settings, "VkPhysicalDeviceConditionalRenderingFeaturesEXT", indents, dump_html_VkPhysicalDeviceConditionalRenderingFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT:
-        dump_html_pNext<const VkCommandBufferInheritanceConditionalRenderingInfoEXT>(static_cast<const VkCommandBufferInheritanceConditionalRenderingInfoEXT*>(object), settings, "VkCommandBufferInheritanceConditionalRenderingInfoEXT", indents, dump_html_VkCommandBufferInheritanceConditionalRenderingInfoEXT);
+        dump_html_pNext<const VkCommandBufferInheritanceConditionalRenderingInfoEXT>(reinterpret_cast<const VkCommandBufferInheritanceConditionalRenderingInfoEXT*>(object), settings, "VkCommandBufferInheritanceConditionalRenderingInfoEXT", indents, dump_html_VkCommandBufferInheritanceConditionalRenderingInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_W_SCALING_STATE_CREATE_INFO_NV:
-        dump_html_pNext<const VkPipelineViewportWScalingStateCreateInfoNV>(static_cast<const VkPipelineViewportWScalingStateCreateInfoNV*>(object), settings, "VkPipelineViewportWScalingStateCreateInfoNV", indents, dump_html_VkPipelineViewportWScalingStateCreateInfoNV);
+        dump_html_pNext<const VkPipelineViewportWScalingStateCreateInfoNV>(reinterpret_cast<const VkPipelineViewportWScalingStateCreateInfoNV*>(object), settings, "VkPipelineViewportWScalingStateCreateInfoNV", indents, dump_html_VkPipelineViewportWScalingStateCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT:
-        dump_html_pNext<const VkSurfaceCapabilities2EXT>(static_cast<const VkSurfaceCapabilities2EXT*>(object), settings, "VkSurfaceCapabilities2EXT", indents, dump_html_VkSurfaceCapabilities2EXT);
+        dump_html_pNext<const VkSurfaceCapabilities2EXT>(reinterpret_cast<const VkSurfaceCapabilities2EXT*>(object), settings, "VkSurfaceCapabilities2EXT", indents, dump_html_VkSurfaceCapabilities2EXT);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_POWER_INFO_EXT:
-        dump_html_pNext<const VkDisplayPowerInfoEXT>(static_cast<const VkDisplayPowerInfoEXT*>(object), settings, "VkDisplayPowerInfoEXT", indents, dump_html_VkDisplayPowerInfoEXT);
+        dump_html_pNext<const VkDisplayPowerInfoEXT>(reinterpret_cast<const VkDisplayPowerInfoEXT*>(object), settings, "VkDisplayPowerInfoEXT", indents, dump_html_VkDisplayPowerInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_EVENT_INFO_EXT:
-        dump_html_pNext<const VkDeviceEventInfoEXT>(static_cast<const VkDeviceEventInfoEXT*>(object), settings, "VkDeviceEventInfoEXT", indents, dump_html_VkDeviceEventInfoEXT);
+        dump_html_pNext<const VkDeviceEventInfoEXT>(reinterpret_cast<const VkDeviceEventInfoEXT*>(object), settings, "VkDeviceEventInfoEXT", indents, dump_html_VkDeviceEventInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_EVENT_INFO_EXT:
-        dump_html_pNext<const VkDisplayEventInfoEXT>(static_cast<const VkDisplayEventInfoEXT*>(object), settings, "VkDisplayEventInfoEXT", indents, dump_html_VkDisplayEventInfoEXT);
+        dump_html_pNext<const VkDisplayEventInfoEXT>(reinterpret_cast<const VkDisplayEventInfoEXT*>(object), settings, "VkDisplayEventInfoEXT", indents, dump_html_VkDisplayEventInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_SWAPCHAIN_COUNTER_CREATE_INFO_EXT:
-        dump_html_pNext<const VkSwapchainCounterCreateInfoEXT>(static_cast<const VkSwapchainCounterCreateInfoEXT*>(object), settings, "VkSwapchainCounterCreateInfoEXT", indents, dump_html_VkSwapchainCounterCreateInfoEXT);
+        dump_html_pNext<const VkSwapchainCounterCreateInfoEXT>(reinterpret_cast<const VkSwapchainCounterCreateInfoEXT*>(object), settings, "VkSwapchainCounterCreateInfoEXT", indents, dump_html_VkSwapchainCounterCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
-        dump_html_pNext<const VkPresentTimesInfoGOOGLE>(static_cast<const VkPresentTimesInfoGOOGLE*>(object), settings, "VkPresentTimesInfoGOOGLE", indents, dump_html_VkPresentTimesInfoGOOGLE);
+        dump_html_pNext<const VkPresentTimesInfoGOOGLE>(reinterpret_cast<const VkPresentTimesInfoGOOGLE*>(object), settings, "VkPresentTimesInfoGOOGLE", indents, dump_html_VkPresentTimesInfoGOOGLE);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_ATTRIBUTES_PROPERTIES_NVX:
-        dump_html_pNext<const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX>(static_cast<const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX*>(object), settings, "VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX", indents, dump_html_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX);
+        dump_html_pNext<const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX>(reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX*>(object), settings, "VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX", indents, dump_html_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX);
         break;
     case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX:
-        dump_html_pNext<const VkMultiviewPerViewAttributesInfoNVX>(static_cast<const VkMultiviewPerViewAttributesInfoNVX*>(object), settings, "VkMultiviewPerViewAttributesInfoNVX", indents, dump_html_VkMultiviewPerViewAttributesInfoNVX);
+        dump_html_pNext<const VkMultiviewPerViewAttributesInfoNVX>(reinterpret_cast<const VkMultiviewPerViewAttributesInfoNVX*>(object), settings, "VkMultiviewPerViewAttributesInfoNVX", indents, dump_html_VkMultiviewPerViewAttributesInfoNVX);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SWIZZLE_STATE_CREATE_INFO_NV:
-        dump_html_pNext<const VkPipelineViewportSwizzleStateCreateInfoNV>(static_cast<const VkPipelineViewportSwizzleStateCreateInfoNV*>(object), settings, "VkPipelineViewportSwizzleStateCreateInfoNV", indents, dump_html_VkPipelineViewportSwizzleStateCreateInfoNV);
+        dump_html_pNext<const VkPipelineViewportSwizzleStateCreateInfoNV>(reinterpret_cast<const VkPipelineViewportSwizzleStateCreateInfoNV*>(object), settings, "VkPipelineViewportSwizzleStateCreateInfoNV", indents, dump_html_VkPipelineViewportSwizzleStateCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISCARD_RECTANGLE_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDiscardRectanglePropertiesEXT>(static_cast<const VkPhysicalDeviceDiscardRectanglePropertiesEXT*>(object), settings, "VkPhysicalDeviceDiscardRectanglePropertiesEXT", indents, dump_html_VkPhysicalDeviceDiscardRectanglePropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDiscardRectanglePropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceDiscardRectanglePropertiesEXT*>(object), settings, "VkPhysicalDeviceDiscardRectanglePropertiesEXT", indents, dump_html_VkPhysicalDeviceDiscardRectanglePropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineDiscardRectangleStateCreateInfoEXT>(static_cast<const VkPipelineDiscardRectangleStateCreateInfoEXT*>(object), settings, "VkPipelineDiscardRectangleStateCreateInfoEXT", indents, dump_html_VkPipelineDiscardRectangleStateCreateInfoEXT);
+        dump_html_pNext<const VkPipelineDiscardRectangleStateCreateInfoEXT>(reinterpret_cast<const VkPipelineDiscardRectangleStateCreateInfoEXT*>(object), settings, "VkPipelineDiscardRectangleStateCreateInfoEXT", indents, dump_html_VkPipelineDiscardRectangleStateCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONSERVATIVE_RASTERIZATION_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceConservativeRasterizationPropertiesEXT>(static_cast<const VkPhysicalDeviceConservativeRasterizationPropertiesEXT*>(object), settings, "VkPhysicalDeviceConservativeRasterizationPropertiesEXT", indents, dump_html_VkPhysicalDeviceConservativeRasterizationPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceConservativeRasterizationPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceConservativeRasterizationPropertiesEXT*>(object), settings, "VkPhysicalDeviceConservativeRasterizationPropertiesEXT", indents, dump_html_VkPhysicalDeviceConservativeRasterizationPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineRasterizationConservativeStateCreateInfoEXT>(static_cast<const VkPipelineRasterizationConservativeStateCreateInfoEXT*>(object), settings, "VkPipelineRasterizationConservativeStateCreateInfoEXT", indents, dump_html_VkPipelineRasterizationConservativeStateCreateInfoEXT);
+        dump_html_pNext<const VkPipelineRasterizationConservativeStateCreateInfoEXT>(reinterpret_cast<const VkPipelineRasterizationConservativeStateCreateInfoEXT*>(object), settings, "VkPipelineRasterizationConservativeStateCreateInfoEXT", indents, dump_html_VkPipelineRasterizationConservativeStateCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDepthClipEnableFeaturesEXT>(static_cast<const VkPhysicalDeviceDepthClipEnableFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthClipEnableFeaturesEXT", indents, dump_html_VkPhysicalDeviceDepthClipEnableFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDepthClipEnableFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDepthClipEnableFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthClipEnableFeaturesEXT", indents, dump_html_VkPhysicalDeviceDepthClipEnableFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineRasterizationDepthClipStateCreateInfoEXT>(static_cast<const VkPipelineRasterizationDepthClipStateCreateInfoEXT*>(object), settings, "VkPipelineRasterizationDepthClipStateCreateInfoEXT", indents, dump_html_VkPipelineRasterizationDepthClipStateCreateInfoEXT);
+        dump_html_pNext<const VkPipelineRasterizationDepthClipStateCreateInfoEXT>(reinterpret_cast<const VkPipelineRasterizationDepthClipStateCreateInfoEXT*>(object), settings, "VkPipelineRasterizationDepthClipStateCreateInfoEXT", indents, dump_html_VkPipelineRasterizationDepthClipStateCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_HDR_METADATA_EXT:
-        dump_html_pNext<const VkHdrMetadataEXT>(static_cast<const VkHdrMetadataEXT*>(object), settings, "VkHdrMetadataEXT", indents, dump_html_VkHdrMetadataEXT);
+        dump_html_pNext<const VkHdrMetadataEXT>(reinterpret_cast<const VkHdrMetadataEXT*>(object), settings, "VkHdrMetadataEXT", indents, dump_html_VkHdrMetadataEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RELAXED_LINE_RASTERIZATION_FEATURES_IMG:
-        dump_html_pNext<const VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG>(static_cast<const VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG*>(object), settings, "VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG", indents, dump_html_VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG);
+        dump_html_pNext<const VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG>(reinterpret_cast<const VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG*>(object), settings, "VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG", indents, dump_html_VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG);
         break;
 #if defined(VK_USE_PLATFORM_IOS_MVK)
     case VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK:
-        dump_html_pNext<const VkIOSSurfaceCreateInfoMVK>(static_cast<const VkIOSSurfaceCreateInfoMVK*>(object), settings, "VkIOSSurfaceCreateInfoMVK", indents, dump_html_VkIOSSurfaceCreateInfoMVK);
+        dump_html_pNext<const VkIOSSurfaceCreateInfoMVK>(reinterpret_cast<const VkIOSSurfaceCreateInfoMVK*>(object), settings, "VkIOSSurfaceCreateInfoMVK", indents, dump_html_VkIOSSurfaceCreateInfoMVK);
         break;
 #endif // VK_USE_PLATFORM_IOS_MVK
 #if defined(VK_USE_PLATFORM_MACOS_MVK)
     case VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK:
-        dump_html_pNext<const VkMacOSSurfaceCreateInfoMVK>(static_cast<const VkMacOSSurfaceCreateInfoMVK*>(object), settings, "VkMacOSSurfaceCreateInfoMVK", indents, dump_html_VkMacOSSurfaceCreateInfoMVK);
+        dump_html_pNext<const VkMacOSSurfaceCreateInfoMVK>(reinterpret_cast<const VkMacOSSurfaceCreateInfoMVK*>(object), settings, "VkMacOSSurfaceCreateInfoMVK", indents, dump_html_VkMacOSSurfaceCreateInfoMVK);
         break;
 #endif // VK_USE_PLATFORM_MACOS_MVK
     case VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT:
-        dump_html_pNext<const VkDebugUtilsLabelEXT>(static_cast<const VkDebugUtilsLabelEXT*>(object), settings, "VkDebugUtilsLabelEXT", indents, dump_html_VkDebugUtilsLabelEXT);
+        dump_html_pNext<const VkDebugUtilsLabelEXT>(reinterpret_cast<const VkDebugUtilsLabelEXT*>(object), settings, "VkDebugUtilsLabelEXT", indents, dump_html_VkDebugUtilsLabelEXT);
         break;
     case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
-        dump_html_pNext<const VkDebugUtilsObjectNameInfoEXT>(static_cast<const VkDebugUtilsObjectNameInfoEXT*>(object), settings, "VkDebugUtilsObjectNameInfoEXT", indents, dump_html_VkDebugUtilsObjectNameInfoEXT);
+        dump_html_pNext<const VkDebugUtilsObjectNameInfoEXT>(reinterpret_cast<const VkDebugUtilsObjectNameInfoEXT*>(object), settings, "VkDebugUtilsObjectNameInfoEXT", indents, dump_html_VkDebugUtilsObjectNameInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT:
-        dump_html_pNext<const VkDebugUtilsMessengerCallbackDataEXT>(static_cast<const VkDebugUtilsMessengerCallbackDataEXT*>(object), settings, "VkDebugUtilsMessengerCallbackDataEXT", indents, dump_html_VkDebugUtilsMessengerCallbackDataEXT);
+        dump_html_pNext<const VkDebugUtilsMessengerCallbackDataEXT>(reinterpret_cast<const VkDebugUtilsMessengerCallbackDataEXT*>(object), settings, "VkDebugUtilsMessengerCallbackDataEXT", indents, dump_html_VkDebugUtilsMessengerCallbackDataEXT);
         break;
     case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
-        dump_html_pNext<const VkDebugUtilsMessengerCreateInfoEXT>(static_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(object), settings, "VkDebugUtilsMessengerCreateInfoEXT", indents, dump_html_VkDebugUtilsMessengerCreateInfoEXT);
+        dump_html_pNext<const VkDebugUtilsMessengerCreateInfoEXT>(reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(object), settings, "VkDebugUtilsMessengerCreateInfoEXT", indents, dump_html_VkDebugUtilsMessengerCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT:
-        dump_html_pNext<const VkDebugUtilsObjectTagInfoEXT>(static_cast<const VkDebugUtilsObjectTagInfoEXT*>(object), settings, "VkDebugUtilsObjectTagInfoEXT", indents, dump_html_VkDebugUtilsObjectTagInfoEXT);
+        dump_html_pNext<const VkDebugUtilsObjectTagInfoEXT>(reinterpret_cast<const VkDebugUtilsObjectTagInfoEXT*>(object), settings, "VkDebugUtilsObjectTagInfoEXT", indents, dump_html_VkDebugUtilsObjectTagInfoEXT);
         break;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID:
-        dump_html_pNext<const VkAndroidHardwareBufferUsageANDROID>(static_cast<const VkAndroidHardwareBufferUsageANDROID*>(object), settings, "VkAndroidHardwareBufferUsageANDROID", indents, dump_html_VkAndroidHardwareBufferUsageANDROID);
+        dump_html_pNext<const VkAndroidHardwareBufferUsageANDROID>(reinterpret_cast<const VkAndroidHardwareBufferUsageANDROID*>(object), settings, "VkAndroidHardwareBufferUsageANDROID", indents, dump_html_VkAndroidHardwareBufferUsageANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID:
-        dump_html_pNext<const VkAndroidHardwareBufferPropertiesANDROID>(static_cast<const VkAndroidHardwareBufferPropertiesANDROID*>(object), settings, "VkAndroidHardwareBufferPropertiesANDROID", indents, dump_html_VkAndroidHardwareBufferPropertiesANDROID);
+        dump_html_pNext<const VkAndroidHardwareBufferPropertiesANDROID>(reinterpret_cast<const VkAndroidHardwareBufferPropertiesANDROID*>(object), settings, "VkAndroidHardwareBufferPropertiesANDROID", indents, dump_html_VkAndroidHardwareBufferPropertiesANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID:
-        dump_html_pNext<const VkAndroidHardwareBufferFormatPropertiesANDROID>(static_cast<const VkAndroidHardwareBufferFormatPropertiesANDROID*>(object), settings, "VkAndroidHardwareBufferFormatPropertiesANDROID", indents, dump_html_VkAndroidHardwareBufferFormatPropertiesANDROID);
+        dump_html_pNext<const VkAndroidHardwareBufferFormatPropertiesANDROID>(reinterpret_cast<const VkAndroidHardwareBufferFormatPropertiesANDROID*>(object), settings, "VkAndroidHardwareBufferFormatPropertiesANDROID", indents, dump_html_VkAndroidHardwareBufferFormatPropertiesANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
-        dump_html_pNext<const VkImportAndroidHardwareBufferInfoANDROID>(static_cast<const VkImportAndroidHardwareBufferInfoANDROID*>(object), settings, "VkImportAndroidHardwareBufferInfoANDROID", indents, dump_html_VkImportAndroidHardwareBufferInfoANDROID);
+        dump_html_pNext<const VkImportAndroidHardwareBufferInfoANDROID>(reinterpret_cast<const VkImportAndroidHardwareBufferInfoANDROID*>(object), settings, "VkImportAndroidHardwareBufferInfoANDROID", indents, dump_html_VkImportAndroidHardwareBufferInfoANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
-        dump_html_pNext<const VkMemoryGetAndroidHardwareBufferInfoANDROID>(static_cast<const VkMemoryGetAndroidHardwareBufferInfoANDROID*>(object), settings, "VkMemoryGetAndroidHardwareBufferInfoANDROID", indents, dump_html_VkMemoryGetAndroidHardwareBufferInfoANDROID);
+        dump_html_pNext<const VkMemoryGetAndroidHardwareBufferInfoANDROID>(reinterpret_cast<const VkMemoryGetAndroidHardwareBufferInfoANDROID*>(object), settings, "VkMemoryGetAndroidHardwareBufferInfoANDROID", indents, dump_html_VkMemoryGetAndroidHardwareBufferInfoANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID:
-        dump_html_pNext<const VkExternalFormatANDROID>(static_cast<const VkExternalFormatANDROID*>(object), settings, "VkExternalFormatANDROID", indents, dump_html_VkExternalFormatANDROID);
+        dump_html_pNext<const VkExternalFormatANDROID>(reinterpret_cast<const VkExternalFormatANDROID*>(object), settings, "VkExternalFormatANDROID", indents, dump_html_VkExternalFormatANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID:
-        dump_html_pNext<const VkAndroidHardwareBufferFormatProperties2ANDROID>(static_cast<const VkAndroidHardwareBufferFormatProperties2ANDROID*>(object), settings, "VkAndroidHardwareBufferFormatProperties2ANDROID", indents, dump_html_VkAndroidHardwareBufferFormatProperties2ANDROID);
+        dump_html_pNext<const VkAndroidHardwareBufferFormatProperties2ANDROID>(reinterpret_cast<const VkAndroidHardwareBufferFormatProperties2ANDROID*>(object), settings, "VkAndroidHardwareBufferFormatProperties2ANDROID", indents, dump_html_VkAndroidHardwareBufferFormatProperties2ANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX:
-        dump_html_pNext<const VkPhysicalDeviceShaderEnqueueFeaturesAMDX>(static_cast<const VkPhysicalDeviceShaderEnqueueFeaturesAMDX*>(object), settings, "VkPhysicalDeviceShaderEnqueueFeaturesAMDX", indents, dump_html_VkPhysicalDeviceShaderEnqueueFeaturesAMDX);
+        dump_html_pNext<const VkPhysicalDeviceShaderEnqueueFeaturesAMDX>(reinterpret_cast<const VkPhysicalDeviceShaderEnqueueFeaturesAMDX*>(object), settings, "VkPhysicalDeviceShaderEnqueueFeaturesAMDX", indents, dump_html_VkPhysicalDeviceShaderEnqueueFeaturesAMDX);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_PROPERTIES_AMDX:
-        dump_html_pNext<const VkPhysicalDeviceShaderEnqueuePropertiesAMDX>(static_cast<const VkPhysicalDeviceShaderEnqueuePropertiesAMDX*>(object), settings, "VkPhysicalDeviceShaderEnqueuePropertiesAMDX", indents, dump_html_VkPhysicalDeviceShaderEnqueuePropertiesAMDX);
+        dump_html_pNext<const VkPhysicalDeviceShaderEnqueuePropertiesAMDX>(reinterpret_cast<const VkPhysicalDeviceShaderEnqueuePropertiesAMDX*>(object), settings, "VkPhysicalDeviceShaderEnqueuePropertiesAMDX", indents, dump_html_VkPhysicalDeviceShaderEnqueuePropertiesAMDX);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_SCRATCH_SIZE_AMDX:
-        dump_html_pNext<const VkExecutionGraphPipelineScratchSizeAMDX>(static_cast<const VkExecutionGraphPipelineScratchSizeAMDX*>(object), settings, "VkExecutionGraphPipelineScratchSizeAMDX", indents, dump_html_VkExecutionGraphPipelineScratchSizeAMDX);
+        dump_html_pNext<const VkExecutionGraphPipelineScratchSizeAMDX>(reinterpret_cast<const VkExecutionGraphPipelineScratchSizeAMDX*>(object), settings, "VkExecutionGraphPipelineScratchSizeAMDX", indents, dump_html_VkExecutionGraphPipelineScratchSizeAMDX);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_EXECUTION_GRAPH_PIPELINE_CREATE_INFO_AMDX:
-        dump_html_pNext<const VkExecutionGraphPipelineCreateInfoAMDX>(static_cast<const VkExecutionGraphPipelineCreateInfoAMDX*>(object), settings, "VkExecutionGraphPipelineCreateInfoAMDX", indents, dump_html_VkExecutionGraphPipelineCreateInfoAMDX);
+        dump_html_pNext<const VkExecutionGraphPipelineCreateInfoAMDX>(reinterpret_cast<const VkExecutionGraphPipelineCreateInfoAMDX*>(object), settings, "VkExecutionGraphPipelineCreateInfoAMDX", indents, dump_html_VkExecutionGraphPipelineCreateInfoAMDX);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
@@ -38700,1636 +38702,1636 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_NODE_CREATE_INFO_AMDX:
-        dump_html_pNext<const VkPipelineShaderStageNodeCreateInfoAMDX>(static_cast<const VkPipelineShaderStageNodeCreateInfoAMDX*>(object), settings, "VkPipelineShaderStageNodeCreateInfoAMDX", indents, dump_html_VkPipelineShaderStageNodeCreateInfoAMDX);
+        dump_html_pNext<const VkPipelineShaderStageNodeCreateInfoAMDX>(reinterpret_cast<const VkPipelineShaderStageNodeCreateInfoAMDX*>(object), settings, "VkPipelineShaderStageNodeCreateInfoAMDX", indents, dump_html_VkPipelineShaderStageNodeCreateInfoAMDX);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
     case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
-        dump_html_pNext<const VkAttachmentSampleCountInfoAMD>(static_cast<const VkAttachmentSampleCountInfoAMD*>(object), settings, "VkAttachmentSampleCountInfoAMD", indents, dump_html_VkAttachmentSampleCountInfoAMD);
+        dump_html_pNext<const VkAttachmentSampleCountInfoAMD>(reinterpret_cast<const VkAttachmentSampleCountInfoAMD*>(object), settings, "VkAttachmentSampleCountInfoAMD", indents, dump_html_VkAttachmentSampleCountInfoAMD);
         break;
     case VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT:
-        dump_html_pNext<const VkSampleLocationsInfoEXT>(static_cast<const VkSampleLocationsInfoEXT*>(object), settings, "VkSampleLocationsInfoEXT", indents, dump_html_VkSampleLocationsInfoEXT);
+        dump_html_pNext<const VkSampleLocationsInfoEXT>(reinterpret_cast<const VkSampleLocationsInfoEXT*>(object), settings, "VkSampleLocationsInfoEXT", indents, dump_html_VkSampleLocationsInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
-        dump_html_pNext<const VkRenderPassSampleLocationsBeginInfoEXT>(static_cast<const VkRenderPassSampleLocationsBeginInfoEXT*>(object), settings, "VkRenderPassSampleLocationsBeginInfoEXT", indents, dump_html_VkRenderPassSampleLocationsBeginInfoEXT);
+        dump_html_pNext<const VkRenderPassSampleLocationsBeginInfoEXT>(reinterpret_cast<const VkRenderPassSampleLocationsBeginInfoEXT*>(object), settings, "VkRenderPassSampleLocationsBeginInfoEXT", indents, dump_html_VkRenderPassSampleLocationsBeginInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineSampleLocationsStateCreateInfoEXT>(static_cast<const VkPipelineSampleLocationsStateCreateInfoEXT*>(object), settings, "VkPipelineSampleLocationsStateCreateInfoEXT", indents, dump_html_VkPipelineSampleLocationsStateCreateInfoEXT);
+        dump_html_pNext<const VkPipelineSampleLocationsStateCreateInfoEXT>(reinterpret_cast<const VkPipelineSampleLocationsStateCreateInfoEXT*>(object), settings, "VkPipelineSampleLocationsStateCreateInfoEXT", indents, dump_html_VkPipelineSampleLocationsStateCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceSampleLocationsPropertiesEXT>(static_cast<const VkPhysicalDeviceSampleLocationsPropertiesEXT*>(object), settings, "VkPhysicalDeviceSampleLocationsPropertiesEXT", indents, dump_html_VkPhysicalDeviceSampleLocationsPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceSampleLocationsPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceSampleLocationsPropertiesEXT*>(object), settings, "VkPhysicalDeviceSampleLocationsPropertiesEXT", indents, dump_html_VkPhysicalDeviceSampleLocationsPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_MULTISAMPLE_PROPERTIES_EXT:
-        dump_html_pNext<const VkMultisamplePropertiesEXT>(static_cast<const VkMultisamplePropertiesEXT*>(object), settings, "VkMultisamplePropertiesEXT", indents, dump_html_VkMultisamplePropertiesEXT);
+        dump_html_pNext<const VkMultisamplePropertiesEXT>(reinterpret_cast<const VkMultisamplePropertiesEXT*>(object), settings, "VkMultisamplePropertiesEXT", indents, dump_html_VkMultisamplePropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT>(static_cast<const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(object), settings, "VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT", indents, dump_html_VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(object), settings, "VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT", indents, dump_html_VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT>(static_cast<const VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT*>(object), settings, "VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT", indents, dump_html_VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT*>(object), settings, "VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT", indents, dump_html_VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineColorBlendAdvancedStateCreateInfoEXT>(static_cast<const VkPipelineColorBlendAdvancedStateCreateInfoEXT*>(object), settings, "VkPipelineColorBlendAdvancedStateCreateInfoEXT", indents, dump_html_VkPipelineColorBlendAdvancedStateCreateInfoEXT);
+        dump_html_pNext<const VkPipelineColorBlendAdvancedStateCreateInfoEXT>(reinterpret_cast<const VkPipelineColorBlendAdvancedStateCreateInfoEXT*>(object), settings, "VkPipelineColorBlendAdvancedStateCreateInfoEXT", indents, dump_html_VkPipelineColorBlendAdvancedStateCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_TO_COLOR_STATE_CREATE_INFO_NV:
-        dump_html_pNext<const VkPipelineCoverageToColorStateCreateInfoNV>(static_cast<const VkPipelineCoverageToColorStateCreateInfoNV*>(object), settings, "VkPipelineCoverageToColorStateCreateInfoNV", indents, dump_html_VkPipelineCoverageToColorStateCreateInfoNV);
+        dump_html_pNext<const VkPipelineCoverageToColorStateCreateInfoNV>(reinterpret_cast<const VkPipelineCoverageToColorStateCreateInfoNV*>(object), settings, "VkPipelineCoverageToColorStateCreateInfoNV", indents, dump_html_VkPipelineCoverageToColorStateCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV:
-        dump_html_pNext<const VkPipelineCoverageModulationStateCreateInfoNV>(static_cast<const VkPipelineCoverageModulationStateCreateInfoNV*>(object), settings, "VkPipelineCoverageModulationStateCreateInfoNV", indents, dump_html_VkPipelineCoverageModulationStateCreateInfoNV);
+        dump_html_pNext<const VkPipelineCoverageModulationStateCreateInfoNV>(reinterpret_cast<const VkPipelineCoverageModulationStateCreateInfoNV*>(object), settings, "VkPipelineCoverageModulationStateCreateInfoNV", indents, dump_html_VkPipelineCoverageModulationStateCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV>(static_cast<const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV*>(object), settings, "VkPhysicalDeviceShaderSMBuiltinsPropertiesNV", indents, dump_html_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceShaderSMBuiltinsPropertiesNV*>(object), settings, "VkPhysicalDeviceShaderSMBuiltinsPropertiesNV", indents, dump_html_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceShaderSMBuiltinsFeaturesNV>(static_cast<const VkPhysicalDeviceShaderSMBuiltinsFeaturesNV*>(object), settings, "VkPhysicalDeviceShaderSMBuiltinsFeaturesNV", indents, dump_html_VkPhysicalDeviceShaderSMBuiltinsFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceShaderSMBuiltinsFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceShaderSMBuiltinsFeaturesNV*>(object), settings, "VkPhysicalDeviceShaderSMBuiltinsFeaturesNV", indents, dump_html_VkPhysicalDeviceShaderSMBuiltinsFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT:
-        dump_html_pNext<const VkDrmFormatModifierPropertiesListEXT>(static_cast<const VkDrmFormatModifierPropertiesListEXT*>(object), settings, "VkDrmFormatModifierPropertiesListEXT", indents, dump_html_VkDrmFormatModifierPropertiesListEXT);
+        dump_html_pNext<const VkDrmFormatModifierPropertiesListEXT>(reinterpret_cast<const VkDrmFormatModifierPropertiesListEXT*>(object), settings, "VkDrmFormatModifierPropertiesListEXT", indents, dump_html_VkDrmFormatModifierPropertiesListEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT:
-        dump_html_pNext<const VkPhysicalDeviceImageDrmFormatModifierInfoEXT>(static_cast<const VkPhysicalDeviceImageDrmFormatModifierInfoEXT*>(object), settings, "VkPhysicalDeviceImageDrmFormatModifierInfoEXT", indents, dump_html_VkPhysicalDeviceImageDrmFormatModifierInfoEXT);
+        dump_html_pNext<const VkPhysicalDeviceImageDrmFormatModifierInfoEXT>(reinterpret_cast<const VkPhysicalDeviceImageDrmFormatModifierInfoEXT*>(object), settings, "VkPhysicalDeviceImageDrmFormatModifierInfoEXT", indents, dump_html_VkPhysicalDeviceImageDrmFormatModifierInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT:
-        dump_html_pNext<const VkImageDrmFormatModifierListCreateInfoEXT>(static_cast<const VkImageDrmFormatModifierListCreateInfoEXT*>(object), settings, "VkImageDrmFormatModifierListCreateInfoEXT", indents, dump_html_VkImageDrmFormatModifierListCreateInfoEXT);
+        dump_html_pNext<const VkImageDrmFormatModifierListCreateInfoEXT>(reinterpret_cast<const VkImageDrmFormatModifierListCreateInfoEXT*>(object), settings, "VkImageDrmFormatModifierListCreateInfoEXT", indents, dump_html_VkImageDrmFormatModifierListCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT:
-        dump_html_pNext<const VkImageDrmFormatModifierExplicitCreateInfoEXT>(static_cast<const VkImageDrmFormatModifierExplicitCreateInfoEXT*>(object), settings, "VkImageDrmFormatModifierExplicitCreateInfoEXT", indents, dump_html_VkImageDrmFormatModifierExplicitCreateInfoEXT);
+        dump_html_pNext<const VkImageDrmFormatModifierExplicitCreateInfoEXT>(reinterpret_cast<const VkImageDrmFormatModifierExplicitCreateInfoEXT*>(object), settings, "VkImageDrmFormatModifierExplicitCreateInfoEXT", indents, dump_html_VkImageDrmFormatModifierExplicitCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT:
-        dump_html_pNext<const VkImageDrmFormatModifierPropertiesEXT>(static_cast<const VkImageDrmFormatModifierPropertiesEXT*>(object), settings, "VkImageDrmFormatModifierPropertiesEXT", indents, dump_html_VkImageDrmFormatModifierPropertiesEXT);
+        dump_html_pNext<const VkImageDrmFormatModifierPropertiesEXT>(reinterpret_cast<const VkImageDrmFormatModifierPropertiesEXT*>(object), settings, "VkImageDrmFormatModifierPropertiesEXT", indents, dump_html_VkImageDrmFormatModifierPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_2_EXT:
-        dump_html_pNext<const VkDrmFormatModifierPropertiesList2EXT>(static_cast<const VkDrmFormatModifierPropertiesList2EXT*>(object), settings, "VkDrmFormatModifierPropertiesList2EXT", indents, dump_html_VkDrmFormatModifierPropertiesList2EXT);
+        dump_html_pNext<const VkDrmFormatModifierPropertiesList2EXT>(reinterpret_cast<const VkDrmFormatModifierPropertiesList2EXT*>(object), settings, "VkDrmFormatModifierPropertiesList2EXT", indents, dump_html_VkDrmFormatModifierPropertiesList2EXT);
         break;
     case VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkValidationCacheCreateInfoEXT>(static_cast<const VkValidationCacheCreateInfoEXT*>(object), settings, "VkValidationCacheCreateInfoEXT", indents, dump_html_VkValidationCacheCreateInfoEXT);
+        dump_html_pNext<const VkValidationCacheCreateInfoEXT>(reinterpret_cast<const VkValidationCacheCreateInfoEXT*>(object), settings, "VkValidationCacheCreateInfoEXT", indents, dump_html_VkValidationCacheCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkShaderModuleValidationCacheCreateInfoEXT>(static_cast<const VkShaderModuleValidationCacheCreateInfoEXT*>(object), settings, "VkShaderModuleValidationCacheCreateInfoEXT", indents, dump_html_VkShaderModuleValidationCacheCreateInfoEXT);
+        dump_html_pNext<const VkShaderModuleValidationCacheCreateInfoEXT>(reinterpret_cast<const VkShaderModuleValidationCacheCreateInfoEXT*>(object), settings, "VkShaderModuleValidationCacheCreateInfoEXT", indents, dump_html_VkShaderModuleValidationCacheCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SHADING_RATE_IMAGE_STATE_CREATE_INFO_NV:
-        dump_html_pNext<const VkPipelineViewportShadingRateImageStateCreateInfoNV>(static_cast<const VkPipelineViewportShadingRateImageStateCreateInfoNV*>(object), settings, "VkPipelineViewportShadingRateImageStateCreateInfoNV", indents, dump_html_VkPipelineViewportShadingRateImageStateCreateInfoNV);
+        dump_html_pNext<const VkPipelineViewportShadingRateImageStateCreateInfoNV>(reinterpret_cast<const VkPipelineViewportShadingRateImageStateCreateInfoNV*>(object), settings, "VkPipelineViewportShadingRateImageStateCreateInfoNV", indents, dump_html_VkPipelineViewportShadingRateImageStateCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceShadingRateImageFeaturesNV>(static_cast<const VkPhysicalDeviceShadingRateImageFeaturesNV*>(object), settings, "VkPhysicalDeviceShadingRateImageFeaturesNV", indents, dump_html_VkPhysicalDeviceShadingRateImageFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceShadingRateImageFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceShadingRateImageFeaturesNV*>(object), settings, "VkPhysicalDeviceShadingRateImageFeaturesNV", indents, dump_html_VkPhysicalDeviceShadingRateImageFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceShadingRateImagePropertiesNV>(static_cast<const VkPhysicalDeviceShadingRateImagePropertiesNV*>(object), settings, "VkPhysicalDeviceShadingRateImagePropertiesNV", indents, dump_html_VkPhysicalDeviceShadingRateImagePropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceShadingRateImagePropertiesNV>(reinterpret_cast<const VkPhysicalDeviceShadingRateImagePropertiesNV*>(object), settings, "VkPhysicalDeviceShadingRateImagePropertiesNV", indents, dump_html_VkPhysicalDeviceShadingRateImagePropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_COARSE_SAMPLE_ORDER_STATE_CREATE_INFO_NV:
-        dump_html_pNext<const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV>(static_cast<const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV*>(object), settings, "VkPipelineViewportCoarseSampleOrderStateCreateInfoNV", indents, dump_html_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV);
+        dump_html_pNext<const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV>(reinterpret_cast<const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV*>(object), settings, "VkPipelineViewportCoarseSampleOrderStateCreateInfoNV", indents, dump_html_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV:
-        dump_html_pNext<const VkRayTracingShaderGroupCreateInfoNV>(static_cast<const VkRayTracingShaderGroupCreateInfoNV*>(object), settings, "VkRayTracingShaderGroupCreateInfoNV", indents, dump_html_VkRayTracingShaderGroupCreateInfoNV);
+        dump_html_pNext<const VkRayTracingShaderGroupCreateInfoNV>(reinterpret_cast<const VkRayTracingShaderGroupCreateInfoNV*>(object), settings, "VkRayTracingShaderGroupCreateInfoNV", indents, dump_html_VkRayTracingShaderGroupCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV:
-        dump_html_pNext<const VkRayTracingPipelineCreateInfoNV>(static_cast<const VkRayTracingPipelineCreateInfoNV*>(object), settings, "VkRayTracingPipelineCreateInfoNV", indents, dump_html_VkRayTracingPipelineCreateInfoNV);
+        dump_html_pNext<const VkRayTracingPipelineCreateInfoNV>(reinterpret_cast<const VkRayTracingPipelineCreateInfoNV*>(object), settings, "VkRayTracingPipelineCreateInfoNV", indents, dump_html_VkRayTracingPipelineCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV:
-        dump_html_pNext<const VkGeometryTrianglesNV>(static_cast<const VkGeometryTrianglesNV*>(object), settings, "VkGeometryTrianglesNV", indents, dump_html_VkGeometryTrianglesNV);
+        dump_html_pNext<const VkGeometryTrianglesNV>(reinterpret_cast<const VkGeometryTrianglesNV*>(object), settings, "VkGeometryTrianglesNV", indents, dump_html_VkGeometryTrianglesNV);
         break;
     case VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV:
-        dump_html_pNext<const VkGeometryAABBNV>(static_cast<const VkGeometryAABBNV*>(object), settings, "VkGeometryAABBNV", indents, dump_html_VkGeometryAABBNV);
+        dump_html_pNext<const VkGeometryAABBNV>(reinterpret_cast<const VkGeometryAABBNV*>(object), settings, "VkGeometryAABBNV", indents, dump_html_VkGeometryAABBNV);
         break;
     case VK_STRUCTURE_TYPE_GEOMETRY_NV:
-        dump_html_pNext<const VkGeometryNV>(static_cast<const VkGeometryNV*>(object), settings, "VkGeometryNV", indents, dump_html_VkGeometryNV);
+        dump_html_pNext<const VkGeometryNV>(reinterpret_cast<const VkGeometryNV*>(object), settings, "VkGeometryNV", indents, dump_html_VkGeometryNV);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV:
-        dump_html_pNext<const VkAccelerationStructureInfoNV>(static_cast<const VkAccelerationStructureInfoNV*>(object), settings, "VkAccelerationStructureInfoNV", indents, dump_html_VkAccelerationStructureInfoNV);
+        dump_html_pNext<const VkAccelerationStructureInfoNV>(reinterpret_cast<const VkAccelerationStructureInfoNV*>(object), settings, "VkAccelerationStructureInfoNV", indents, dump_html_VkAccelerationStructureInfoNV);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV:
-        dump_html_pNext<const VkAccelerationStructureCreateInfoNV>(static_cast<const VkAccelerationStructureCreateInfoNV*>(object), settings, "VkAccelerationStructureCreateInfoNV", indents, dump_html_VkAccelerationStructureCreateInfoNV);
+        dump_html_pNext<const VkAccelerationStructureCreateInfoNV>(reinterpret_cast<const VkAccelerationStructureCreateInfoNV*>(object), settings, "VkAccelerationStructureCreateInfoNV", indents, dump_html_VkAccelerationStructureCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_NV:
-        dump_html_pNext<const VkBindAccelerationStructureMemoryInfoNV>(static_cast<const VkBindAccelerationStructureMemoryInfoNV*>(object), settings, "VkBindAccelerationStructureMemoryInfoNV", indents, dump_html_VkBindAccelerationStructureMemoryInfoNV);
+        dump_html_pNext<const VkBindAccelerationStructureMemoryInfoNV>(reinterpret_cast<const VkBindAccelerationStructureMemoryInfoNV*>(object), settings, "VkBindAccelerationStructureMemoryInfoNV", indents, dump_html_VkBindAccelerationStructureMemoryInfoNV);
         break;
     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
-        dump_html_pNext<const VkWriteDescriptorSetAccelerationStructureNV>(static_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(object), settings, "VkWriteDescriptorSetAccelerationStructureNV", indents, dump_html_VkWriteDescriptorSetAccelerationStructureNV);
+        dump_html_pNext<const VkWriteDescriptorSetAccelerationStructureNV>(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(object), settings, "VkWriteDescriptorSetAccelerationStructureNV", indents, dump_html_VkWriteDescriptorSetAccelerationStructureNV);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV:
-        dump_html_pNext<const VkAccelerationStructureMemoryRequirementsInfoNV>(static_cast<const VkAccelerationStructureMemoryRequirementsInfoNV*>(object), settings, "VkAccelerationStructureMemoryRequirementsInfoNV", indents, dump_html_VkAccelerationStructureMemoryRequirementsInfoNV);
+        dump_html_pNext<const VkAccelerationStructureMemoryRequirementsInfoNV>(reinterpret_cast<const VkAccelerationStructureMemoryRequirementsInfoNV*>(object), settings, "VkAccelerationStructureMemoryRequirementsInfoNV", indents, dump_html_VkAccelerationStructureMemoryRequirementsInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceRayTracingPropertiesNV>(static_cast<const VkPhysicalDeviceRayTracingPropertiesNV*>(object), settings, "VkPhysicalDeviceRayTracingPropertiesNV", indents, dump_html_VkPhysicalDeviceRayTracingPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceRayTracingPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingPropertiesNV*>(object), settings, "VkPhysicalDeviceRayTracingPropertiesNV", indents, dump_html_VkPhysicalDeviceRayTracingPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_REPRESENTATIVE_FRAGMENT_TEST_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV>(static_cast<const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV*>(object), settings, "VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV", indents, dump_html_VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV*>(object), settings, "VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV", indents, dump_html_VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_REPRESENTATIVE_FRAGMENT_TEST_STATE_CREATE_INFO_NV:
-        dump_html_pNext<const VkPipelineRepresentativeFragmentTestStateCreateInfoNV>(static_cast<const VkPipelineRepresentativeFragmentTestStateCreateInfoNV*>(object), settings, "VkPipelineRepresentativeFragmentTestStateCreateInfoNV", indents, dump_html_VkPipelineRepresentativeFragmentTestStateCreateInfoNV);
+        dump_html_pNext<const VkPipelineRepresentativeFragmentTestStateCreateInfoNV>(reinterpret_cast<const VkPipelineRepresentativeFragmentTestStateCreateInfoNV*>(object), settings, "VkPipelineRepresentativeFragmentTestStateCreateInfoNV", indents, dump_html_VkPipelineRepresentativeFragmentTestStateCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_IMAGE_FORMAT_INFO_EXT:
-        dump_html_pNext<const VkPhysicalDeviceImageViewImageFormatInfoEXT>(static_cast<const VkPhysicalDeviceImageViewImageFormatInfoEXT*>(object), settings, "VkPhysicalDeviceImageViewImageFormatInfoEXT", indents, dump_html_VkPhysicalDeviceImageViewImageFormatInfoEXT);
+        dump_html_pNext<const VkPhysicalDeviceImageViewImageFormatInfoEXT>(reinterpret_cast<const VkPhysicalDeviceImageViewImageFormatInfoEXT*>(object), settings, "VkPhysicalDeviceImageViewImageFormatInfoEXT", indents, dump_html_VkPhysicalDeviceImageViewImageFormatInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT:
-        dump_html_pNext<const VkFilterCubicImageViewImageFormatPropertiesEXT>(static_cast<const VkFilterCubicImageViewImageFormatPropertiesEXT*>(object), settings, "VkFilterCubicImageViewImageFormatPropertiesEXT", indents, dump_html_VkFilterCubicImageViewImageFormatPropertiesEXT);
+        dump_html_pNext<const VkFilterCubicImageViewImageFormatPropertiesEXT>(reinterpret_cast<const VkFilterCubicImageViewImageFormatPropertiesEXT*>(object), settings, "VkFilterCubicImageViewImageFormatPropertiesEXT", indents, dump_html_VkFilterCubicImageViewImageFormatPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
-        dump_html_pNext<const VkImportMemoryHostPointerInfoEXT>(static_cast<const VkImportMemoryHostPointerInfoEXT*>(object), settings, "VkImportMemoryHostPointerInfoEXT", indents, dump_html_VkImportMemoryHostPointerInfoEXT);
+        dump_html_pNext<const VkImportMemoryHostPointerInfoEXT>(reinterpret_cast<const VkImportMemoryHostPointerInfoEXT*>(object), settings, "VkImportMemoryHostPointerInfoEXT", indents, dump_html_VkImportMemoryHostPointerInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_HOST_POINTER_PROPERTIES_EXT:
-        dump_html_pNext<const VkMemoryHostPointerPropertiesEXT>(static_cast<const VkMemoryHostPointerPropertiesEXT*>(object), settings, "VkMemoryHostPointerPropertiesEXT", indents, dump_html_VkMemoryHostPointerPropertiesEXT);
+        dump_html_pNext<const VkMemoryHostPointerPropertiesEXT>(reinterpret_cast<const VkMemoryHostPointerPropertiesEXT*>(object), settings, "VkMemoryHostPointerPropertiesEXT", indents, dump_html_VkMemoryHostPointerPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceExternalMemoryHostPropertiesEXT>(static_cast<const VkPhysicalDeviceExternalMemoryHostPropertiesEXT*>(object), settings, "VkPhysicalDeviceExternalMemoryHostPropertiesEXT", indents, dump_html_VkPhysicalDeviceExternalMemoryHostPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceExternalMemoryHostPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceExternalMemoryHostPropertiesEXT*>(object), settings, "VkPhysicalDeviceExternalMemoryHostPropertiesEXT", indents, dump_html_VkPhysicalDeviceExternalMemoryHostPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD:
-        dump_html_pNext<const VkPipelineCompilerControlCreateInfoAMD>(static_cast<const VkPipelineCompilerControlCreateInfoAMD*>(object), settings, "VkPipelineCompilerControlCreateInfoAMD", indents, dump_html_VkPipelineCompilerControlCreateInfoAMD);
+        dump_html_pNext<const VkPipelineCompilerControlCreateInfoAMD>(reinterpret_cast<const VkPipelineCompilerControlCreateInfoAMD*>(object), settings, "VkPipelineCompilerControlCreateInfoAMD", indents, dump_html_VkPipelineCompilerControlCreateInfoAMD);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD:
-        dump_html_pNext<const VkPhysicalDeviceShaderCorePropertiesAMD>(static_cast<const VkPhysicalDeviceShaderCorePropertiesAMD*>(object), settings, "VkPhysicalDeviceShaderCorePropertiesAMD", indents, dump_html_VkPhysicalDeviceShaderCorePropertiesAMD);
+        dump_html_pNext<const VkPhysicalDeviceShaderCorePropertiesAMD>(reinterpret_cast<const VkPhysicalDeviceShaderCorePropertiesAMD*>(object), settings, "VkPhysicalDeviceShaderCorePropertiesAMD", indents, dump_html_VkPhysicalDeviceShaderCorePropertiesAMD);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD:
-        dump_html_pNext<const VkDeviceMemoryOverallocationCreateInfoAMD>(static_cast<const VkDeviceMemoryOverallocationCreateInfoAMD*>(object), settings, "VkDeviceMemoryOverallocationCreateInfoAMD", indents, dump_html_VkDeviceMemoryOverallocationCreateInfoAMD);
+        dump_html_pNext<const VkDeviceMemoryOverallocationCreateInfoAMD>(reinterpret_cast<const VkDeviceMemoryOverallocationCreateInfoAMD*>(object), settings, "VkDeviceMemoryOverallocationCreateInfoAMD", indents, dump_html_VkDeviceMemoryOverallocationCreateInfoAMD);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT>(static_cast<const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT*>(object), settings, "VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT", indents, dump_html_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT*>(object), settings, "VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT", indents, dump_html_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT);
         break;
 #if defined(VK_USE_PLATFORM_GGP)
     case VK_STRUCTURE_TYPE_PRESENT_FRAME_TOKEN_GGP:
-        dump_html_pNext<const VkPresentFrameTokenGGP>(static_cast<const VkPresentFrameTokenGGP*>(object), settings, "VkPresentFrameTokenGGP", indents, dump_html_VkPresentFrameTokenGGP);
+        dump_html_pNext<const VkPresentFrameTokenGGP>(reinterpret_cast<const VkPresentFrameTokenGGP*>(object), settings, "VkPresentFrameTokenGGP", indents, dump_html_VkPresentFrameTokenGGP);
         break;
 #endif // VK_USE_PLATFORM_GGP
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceMeshShaderFeaturesNV>(static_cast<const VkPhysicalDeviceMeshShaderFeaturesNV*>(object), settings, "VkPhysicalDeviceMeshShaderFeaturesNV", indents, dump_html_VkPhysicalDeviceMeshShaderFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceMeshShaderFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceMeshShaderFeaturesNV*>(object), settings, "VkPhysicalDeviceMeshShaderFeaturesNV", indents, dump_html_VkPhysicalDeviceMeshShaderFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceMeshShaderPropertiesNV>(static_cast<const VkPhysicalDeviceMeshShaderPropertiesNV*>(object), settings, "VkPhysicalDeviceMeshShaderPropertiesNV", indents, dump_html_VkPhysicalDeviceMeshShaderPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceMeshShaderPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceMeshShaderPropertiesNV*>(object), settings, "VkPhysicalDeviceMeshShaderPropertiesNV", indents, dump_html_VkPhysicalDeviceMeshShaderPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_FOOTPRINT_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceShaderImageFootprintFeaturesNV>(static_cast<const VkPhysicalDeviceShaderImageFootprintFeaturesNV*>(object), settings, "VkPhysicalDeviceShaderImageFootprintFeaturesNV", indents, dump_html_VkPhysicalDeviceShaderImageFootprintFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceShaderImageFootprintFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceShaderImageFootprintFeaturesNV*>(object), settings, "VkPhysicalDeviceShaderImageFootprintFeaturesNV", indents, dump_html_VkPhysicalDeviceShaderImageFootprintFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_EXCLUSIVE_SCISSOR_STATE_CREATE_INFO_NV:
-        dump_html_pNext<const VkPipelineViewportExclusiveScissorStateCreateInfoNV>(static_cast<const VkPipelineViewportExclusiveScissorStateCreateInfoNV*>(object), settings, "VkPipelineViewportExclusiveScissorStateCreateInfoNV", indents, dump_html_VkPipelineViewportExclusiveScissorStateCreateInfoNV);
+        dump_html_pNext<const VkPipelineViewportExclusiveScissorStateCreateInfoNV>(reinterpret_cast<const VkPipelineViewportExclusiveScissorStateCreateInfoNV*>(object), settings, "VkPipelineViewportExclusiveScissorStateCreateInfoNV", indents, dump_html_VkPipelineViewportExclusiveScissorStateCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXCLUSIVE_SCISSOR_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceExclusiveScissorFeaturesNV>(static_cast<const VkPhysicalDeviceExclusiveScissorFeaturesNV*>(object), settings, "VkPhysicalDeviceExclusiveScissorFeaturesNV", indents, dump_html_VkPhysicalDeviceExclusiveScissorFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceExclusiveScissorFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceExclusiveScissorFeaturesNV*>(object), settings, "VkPhysicalDeviceExclusiveScissorFeaturesNV", indents, dump_html_VkPhysicalDeviceExclusiveScissorFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV:
-        dump_html_pNext<const VkQueueFamilyCheckpointPropertiesNV>(static_cast<const VkQueueFamilyCheckpointPropertiesNV*>(object), settings, "VkQueueFamilyCheckpointPropertiesNV", indents, dump_html_VkQueueFamilyCheckpointPropertiesNV);
+        dump_html_pNext<const VkQueueFamilyCheckpointPropertiesNV>(reinterpret_cast<const VkQueueFamilyCheckpointPropertiesNV*>(object), settings, "VkQueueFamilyCheckpointPropertiesNV", indents, dump_html_VkQueueFamilyCheckpointPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV:
-        dump_html_pNext<const VkCheckpointDataNV>(static_cast<const VkCheckpointDataNV*>(object), settings, "VkCheckpointDataNV", indents, dump_html_VkCheckpointDataNV);
+        dump_html_pNext<const VkCheckpointDataNV>(reinterpret_cast<const VkCheckpointDataNV*>(object), settings, "VkCheckpointDataNV", indents, dump_html_VkCheckpointDataNV);
         break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV:
-        dump_html_pNext<const VkQueueFamilyCheckpointProperties2NV>(static_cast<const VkQueueFamilyCheckpointProperties2NV*>(object), settings, "VkQueueFamilyCheckpointProperties2NV", indents, dump_html_VkQueueFamilyCheckpointProperties2NV);
+        dump_html_pNext<const VkQueueFamilyCheckpointProperties2NV>(reinterpret_cast<const VkQueueFamilyCheckpointProperties2NV*>(object), settings, "VkQueueFamilyCheckpointProperties2NV", indents, dump_html_VkQueueFamilyCheckpointProperties2NV);
         break;
     case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV:
-        dump_html_pNext<const VkCheckpointData2NV>(static_cast<const VkCheckpointData2NV*>(object), settings, "VkCheckpointData2NV", indents, dump_html_VkCheckpointData2NV);
+        dump_html_pNext<const VkCheckpointData2NV>(reinterpret_cast<const VkCheckpointData2NV*>(object), settings, "VkCheckpointData2NV", indents, dump_html_VkCheckpointData2NV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL:
-        dump_html_pNext<const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL>(static_cast<const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL*>(object), settings, "VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL", indents, dump_html_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL);
+        dump_html_pNext<const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL>(reinterpret_cast<const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL*>(object), settings, "VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL", indents, dump_html_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL);
         break;
     case VK_STRUCTURE_TYPE_INITIALIZE_PERFORMANCE_API_INFO_INTEL:
-        dump_html_pNext<const VkInitializePerformanceApiInfoINTEL>(static_cast<const VkInitializePerformanceApiInfoINTEL*>(object), settings, "VkInitializePerformanceApiInfoINTEL", indents, dump_html_VkInitializePerformanceApiInfoINTEL);
+        dump_html_pNext<const VkInitializePerformanceApiInfoINTEL>(reinterpret_cast<const VkInitializePerformanceApiInfoINTEL*>(object), settings, "VkInitializePerformanceApiInfoINTEL", indents, dump_html_VkInitializePerformanceApiInfoINTEL);
         break;
     case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL:
-        dump_html_pNext<const VkQueryPoolPerformanceQueryCreateInfoINTEL>(static_cast<const VkQueryPoolPerformanceQueryCreateInfoINTEL*>(object), settings, "VkQueryPoolPerformanceQueryCreateInfoINTEL", indents, dump_html_VkQueryPoolPerformanceQueryCreateInfoINTEL);
+        dump_html_pNext<const VkQueryPoolPerformanceQueryCreateInfoINTEL>(reinterpret_cast<const VkQueryPoolPerformanceQueryCreateInfoINTEL*>(object), settings, "VkQueryPoolPerformanceQueryCreateInfoINTEL", indents, dump_html_VkQueryPoolPerformanceQueryCreateInfoINTEL);
         break;
     case VK_STRUCTURE_TYPE_PERFORMANCE_MARKER_INFO_INTEL:
-        dump_html_pNext<const VkPerformanceMarkerInfoINTEL>(static_cast<const VkPerformanceMarkerInfoINTEL*>(object), settings, "VkPerformanceMarkerInfoINTEL", indents, dump_html_VkPerformanceMarkerInfoINTEL);
+        dump_html_pNext<const VkPerformanceMarkerInfoINTEL>(reinterpret_cast<const VkPerformanceMarkerInfoINTEL*>(object), settings, "VkPerformanceMarkerInfoINTEL", indents, dump_html_VkPerformanceMarkerInfoINTEL);
         break;
     case VK_STRUCTURE_TYPE_PERFORMANCE_STREAM_MARKER_INFO_INTEL:
-        dump_html_pNext<const VkPerformanceStreamMarkerInfoINTEL>(static_cast<const VkPerformanceStreamMarkerInfoINTEL*>(object), settings, "VkPerformanceStreamMarkerInfoINTEL", indents, dump_html_VkPerformanceStreamMarkerInfoINTEL);
+        dump_html_pNext<const VkPerformanceStreamMarkerInfoINTEL>(reinterpret_cast<const VkPerformanceStreamMarkerInfoINTEL*>(object), settings, "VkPerformanceStreamMarkerInfoINTEL", indents, dump_html_VkPerformanceStreamMarkerInfoINTEL);
         break;
     case VK_STRUCTURE_TYPE_PERFORMANCE_OVERRIDE_INFO_INTEL:
-        dump_html_pNext<const VkPerformanceOverrideInfoINTEL>(static_cast<const VkPerformanceOverrideInfoINTEL*>(object), settings, "VkPerformanceOverrideInfoINTEL", indents, dump_html_VkPerformanceOverrideInfoINTEL);
+        dump_html_pNext<const VkPerformanceOverrideInfoINTEL>(reinterpret_cast<const VkPerformanceOverrideInfoINTEL*>(object), settings, "VkPerformanceOverrideInfoINTEL", indents, dump_html_VkPerformanceOverrideInfoINTEL);
         break;
     case VK_STRUCTURE_TYPE_PERFORMANCE_CONFIGURATION_ACQUIRE_INFO_INTEL:
-        dump_html_pNext<const VkPerformanceConfigurationAcquireInfoINTEL>(static_cast<const VkPerformanceConfigurationAcquireInfoINTEL*>(object), settings, "VkPerformanceConfigurationAcquireInfoINTEL", indents, dump_html_VkPerformanceConfigurationAcquireInfoINTEL);
+        dump_html_pNext<const VkPerformanceConfigurationAcquireInfoINTEL>(reinterpret_cast<const VkPerformanceConfigurationAcquireInfoINTEL*>(object), settings, "VkPerformanceConfigurationAcquireInfoINTEL", indents, dump_html_VkPerformanceConfigurationAcquireInfoINTEL);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDevicePCIBusInfoPropertiesEXT>(static_cast<const VkPhysicalDevicePCIBusInfoPropertiesEXT*>(object), settings, "VkPhysicalDevicePCIBusInfoPropertiesEXT", indents, dump_html_VkPhysicalDevicePCIBusInfoPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDevicePCIBusInfoPropertiesEXT>(reinterpret_cast<const VkPhysicalDevicePCIBusInfoPropertiesEXT*>(object), settings, "VkPhysicalDevicePCIBusInfoPropertiesEXT", indents, dump_html_VkPhysicalDevicePCIBusInfoPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_NATIVE_HDR_SURFACE_CAPABILITIES_AMD:
-        dump_html_pNext<const VkDisplayNativeHdrSurfaceCapabilitiesAMD>(static_cast<const VkDisplayNativeHdrSurfaceCapabilitiesAMD*>(object), settings, "VkDisplayNativeHdrSurfaceCapabilitiesAMD", indents, dump_html_VkDisplayNativeHdrSurfaceCapabilitiesAMD);
+        dump_html_pNext<const VkDisplayNativeHdrSurfaceCapabilitiesAMD>(reinterpret_cast<const VkDisplayNativeHdrSurfaceCapabilitiesAMD*>(object), settings, "VkDisplayNativeHdrSurfaceCapabilitiesAMD", indents, dump_html_VkDisplayNativeHdrSurfaceCapabilitiesAMD);
         break;
     case VK_STRUCTURE_TYPE_SWAPCHAIN_DISPLAY_NATIVE_HDR_CREATE_INFO_AMD:
-        dump_html_pNext<const VkSwapchainDisplayNativeHdrCreateInfoAMD>(static_cast<const VkSwapchainDisplayNativeHdrCreateInfoAMD*>(object), settings, "VkSwapchainDisplayNativeHdrCreateInfoAMD", indents, dump_html_VkSwapchainDisplayNativeHdrCreateInfoAMD);
+        dump_html_pNext<const VkSwapchainDisplayNativeHdrCreateInfoAMD>(reinterpret_cast<const VkSwapchainDisplayNativeHdrCreateInfoAMD*>(object), settings, "VkSwapchainDisplayNativeHdrCreateInfoAMD", indents, dump_html_VkSwapchainDisplayNativeHdrCreateInfoAMD);
         break;
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_IMAGEPIPE_SURFACE_CREATE_INFO_FUCHSIA:
-        dump_html_pNext<const VkImagePipeSurfaceCreateInfoFUCHSIA>(static_cast<const VkImagePipeSurfaceCreateInfoFUCHSIA*>(object), settings, "VkImagePipeSurfaceCreateInfoFUCHSIA", indents, dump_html_VkImagePipeSurfaceCreateInfoFUCHSIA);
+        dump_html_pNext<const VkImagePipeSurfaceCreateInfoFUCHSIA>(reinterpret_cast<const VkImagePipeSurfaceCreateInfoFUCHSIA*>(object), settings, "VkImagePipeSurfaceCreateInfoFUCHSIA", indents, dump_html_VkImagePipeSurfaceCreateInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkMetalSurfaceCreateInfoEXT>(static_cast<const VkMetalSurfaceCreateInfoEXT*>(object), settings, "VkMetalSurfaceCreateInfoEXT", indents, dump_html_VkMetalSurfaceCreateInfoEXT);
+        dump_html_pNext<const VkMetalSurfaceCreateInfoEXT>(reinterpret_cast<const VkMetalSurfaceCreateInfoEXT*>(object), settings, "VkMetalSurfaceCreateInfoEXT", indents, dump_html_VkMetalSurfaceCreateInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapFeaturesEXT>(static_cast<const VkPhysicalDeviceFragmentDensityMapFeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapFeaturesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMapFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapFeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapFeaturesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMapFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapPropertiesEXT>(static_cast<const VkPhysicalDeviceFragmentDensityMapPropertiesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapPropertiesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMapPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapPropertiesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapPropertiesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMapPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_CREATE_INFO_EXT:
-        dump_html_pNext<const VkRenderPassFragmentDensityMapCreateInfoEXT>(static_cast<const VkRenderPassFragmentDensityMapCreateInfoEXT*>(object), settings, "VkRenderPassFragmentDensityMapCreateInfoEXT", indents, dump_html_VkRenderPassFragmentDensityMapCreateInfoEXT);
+        dump_html_pNext<const VkRenderPassFragmentDensityMapCreateInfoEXT>(reinterpret_cast<const VkRenderPassFragmentDensityMapCreateInfoEXT*>(object), settings, "VkRenderPassFragmentDensityMapCreateInfoEXT", indents, dump_html_VkRenderPassFragmentDensityMapCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
-        dump_html_pNext<const VkRenderingFragmentDensityMapAttachmentInfoEXT>(static_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(object), settings, "VkRenderingFragmentDensityMapAttachmentInfoEXT", indents, dump_html_VkRenderingFragmentDensityMapAttachmentInfoEXT);
+        dump_html_pNext<const VkRenderingFragmentDensityMapAttachmentInfoEXT>(reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(object), settings, "VkRenderingFragmentDensityMapAttachmentInfoEXT", indents, dump_html_VkRenderingFragmentDensityMapAttachmentInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_2_AMD:
-        dump_html_pNext<const VkPhysicalDeviceShaderCoreProperties2AMD>(static_cast<const VkPhysicalDeviceShaderCoreProperties2AMD*>(object), settings, "VkPhysicalDeviceShaderCoreProperties2AMD", indents, dump_html_VkPhysicalDeviceShaderCoreProperties2AMD);
+        dump_html_pNext<const VkPhysicalDeviceShaderCoreProperties2AMD>(reinterpret_cast<const VkPhysicalDeviceShaderCoreProperties2AMD*>(object), settings, "VkPhysicalDeviceShaderCoreProperties2AMD", indents, dump_html_VkPhysicalDeviceShaderCoreProperties2AMD);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COHERENT_MEMORY_FEATURES_AMD:
-        dump_html_pNext<const VkPhysicalDeviceCoherentMemoryFeaturesAMD>(static_cast<const VkPhysicalDeviceCoherentMemoryFeaturesAMD*>(object), settings, "VkPhysicalDeviceCoherentMemoryFeaturesAMD", indents, dump_html_VkPhysicalDeviceCoherentMemoryFeaturesAMD);
+        dump_html_pNext<const VkPhysicalDeviceCoherentMemoryFeaturesAMD>(reinterpret_cast<const VkPhysicalDeviceCoherentMemoryFeaturesAMD*>(object), settings, "VkPhysicalDeviceCoherentMemoryFeaturesAMD", indents, dump_html_VkPhysicalDeviceCoherentMemoryFeaturesAMD);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT>(static_cast<const VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceMemoryBudgetPropertiesEXT>(static_cast<const VkPhysicalDeviceMemoryBudgetPropertiesEXT*>(object), settings, "VkPhysicalDeviceMemoryBudgetPropertiesEXT", indents, dump_html_VkPhysicalDeviceMemoryBudgetPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceMemoryBudgetPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceMemoryBudgetPropertiesEXT*>(object), settings, "VkPhysicalDeviceMemoryBudgetPropertiesEXT", indents, dump_html_VkPhysicalDeviceMemoryBudgetPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceMemoryPriorityFeaturesEXT>(static_cast<const VkPhysicalDeviceMemoryPriorityFeaturesEXT*>(object), settings, "VkPhysicalDeviceMemoryPriorityFeaturesEXT", indents, dump_html_VkPhysicalDeviceMemoryPriorityFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceMemoryPriorityFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMemoryPriorityFeaturesEXT*>(object), settings, "VkPhysicalDeviceMemoryPriorityFeaturesEXT", indents, dump_html_VkPhysicalDeviceMemoryPriorityFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT:
-        dump_html_pNext<const VkMemoryPriorityAllocateInfoEXT>(static_cast<const VkMemoryPriorityAllocateInfoEXT*>(object), settings, "VkMemoryPriorityAllocateInfoEXT", indents, dump_html_VkMemoryPriorityAllocateInfoEXT);
+        dump_html_pNext<const VkMemoryPriorityAllocateInfoEXT>(reinterpret_cast<const VkMemoryPriorityAllocateInfoEXT*>(object), settings, "VkMemoryPriorityAllocateInfoEXT", indents, dump_html_VkMemoryPriorityAllocateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEDICATED_ALLOCATION_IMAGE_ALIASING_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV>(static_cast<const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV*>(object), settings, "VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV", indents, dump_html_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV*>(object), settings, "VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV", indents, dump_html_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceBufferDeviceAddressFeaturesEXT>(static_cast<const VkPhysicalDeviceBufferDeviceAddressFeaturesEXT*>(object), settings, "VkPhysicalDeviceBufferDeviceAddressFeaturesEXT", indents, dump_html_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceBufferDeviceAddressFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceBufferDeviceAddressFeaturesEXT*>(object), settings, "VkPhysicalDeviceBufferDeviceAddressFeaturesEXT", indents, dump_html_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT:
-        dump_html_pNext<const VkBufferDeviceAddressCreateInfoEXT>(static_cast<const VkBufferDeviceAddressCreateInfoEXT*>(object), settings, "VkBufferDeviceAddressCreateInfoEXT", indents, dump_html_VkBufferDeviceAddressCreateInfoEXT);
+        dump_html_pNext<const VkBufferDeviceAddressCreateInfoEXT>(reinterpret_cast<const VkBufferDeviceAddressCreateInfoEXT*>(object), settings, "VkBufferDeviceAddressCreateInfoEXT", indents, dump_html_VkBufferDeviceAddressCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT:
-        dump_html_pNext<const VkValidationFeaturesEXT>(static_cast<const VkValidationFeaturesEXT*>(object), settings, "VkValidationFeaturesEXT", indents, dump_html_VkValidationFeaturesEXT);
+        dump_html_pNext<const VkValidationFeaturesEXT>(reinterpret_cast<const VkValidationFeaturesEXT*>(object), settings, "VkValidationFeaturesEXT", indents, dump_html_VkValidationFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_NV:
-        dump_html_pNext<const VkCooperativeMatrixPropertiesNV>(static_cast<const VkCooperativeMatrixPropertiesNV*>(object), settings, "VkCooperativeMatrixPropertiesNV", indents, dump_html_VkCooperativeMatrixPropertiesNV);
+        dump_html_pNext<const VkCooperativeMatrixPropertiesNV>(reinterpret_cast<const VkCooperativeMatrixPropertiesNV*>(object), settings, "VkCooperativeMatrixPropertiesNV", indents, dump_html_VkCooperativeMatrixPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrixFeaturesNV>(static_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrixFeaturesNV", indents, dump_html_VkPhysicalDeviceCooperativeMatrixFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrixFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrixFeaturesNV", indents, dump_html_VkPhysicalDeviceCooperativeMatrixFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrixPropertiesNV>(static_cast<const VkPhysicalDeviceCooperativeMatrixPropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrixPropertiesNV", indents, dump_html_VkPhysicalDeviceCooperativeMatrixPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrixPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixPropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrixPropertiesNV", indents, dump_html_VkPhysicalDeviceCooperativeMatrixPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COVERAGE_REDUCTION_MODE_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCoverageReductionModeFeaturesNV>(static_cast<const VkPhysicalDeviceCoverageReductionModeFeaturesNV*>(object), settings, "VkPhysicalDeviceCoverageReductionModeFeaturesNV", indents, dump_html_VkPhysicalDeviceCoverageReductionModeFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceCoverageReductionModeFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCoverageReductionModeFeaturesNV*>(object), settings, "VkPhysicalDeviceCoverageReductionModeFeaturesNV", indents, dump_html_VkPhysicalDeviceCoverageReductionModeFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_REDUCTION_STATE_CREATE_INFO_NV:
-        dump_html_pNext<const VkPipelineCoverageReductionStateCreateInfoNV>(static_cast<const VkPipelineCoverageReductionStateCreateInfoNV*>(object), settings, "VkPipelineCoverageReductionStateCreateInfoNV", indents, dump_html_VkPipelineCoverageReductionStateCreateInfoNV);
+        dump_html_pNext<const VkPipelineCoverageReductionStateCreateInfoNV>(reinterpret_cast<const VkPipelineCoverageReductionStateCreateInfoNV*>(object), settings, "VkPipelineCoverageReductionStateCreateInfoNV", indents, dump_html_VkPipelineCoverageReductionStateCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_FRAMEBUFFER_MIXED_SAMPLES_COMBINATION_NV:
-        dump_html_pNext<const VkFramebufferMixedSamplesCombinationNV>(static_cast<const VkFramebufferMixedSamplesCombinationNV*>(object), settings, "VkFramebufferMixedSamplesCombinationNV", indents, dump_html_VkFramebufferMixedSamplesCombinationNV);
+        dump_html_pNext<const VkFramebufferMixedSamplesCombinationNV>(reinterpret_cast<const VkFramebufferMixedSamplesCombinationNV*>(object), settings, "VkFramebufferMixedSamplesCombinationNV", indents, dump_html_VkFramebufferMixedSamplesCombinationNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT>(static_cast<const VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT", indents, dump_html_VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT", indents, dump_html_VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_IMAGE_ARRAYS_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT>(static_cast<const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT*>(object), settings, "VkPhysicalDeviceYcbcrImageArraysFeaturesEXT", indents, dump_html_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT*>(object), settings, "VkPhysicalDeviceYcbcrImageArraysFeaturesEXT", indents, dump_html_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceProvokingVertexFeaturesEXT>(static_cast<const VkPhysicalDeviceProvokingVertexFeaturesEXT*>(object), settings, "VkPhysicalDeviceProvokingVertexFeaturesEXT", indents, dump_html_VkPhysicalDeviceProvokingVertexFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceProvokingVertexFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceProvokingVertexFeaturesEXT*>(object), settings, "VkPhysicalDeviceProvokingVertexFeaturesEXT", indents, dump_html_VkPhysicalDeviceProvokingVertexFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceProvokingVertexPropertiesEXT>(static_cast<const VkPhysicalDeviceProvokingVertexPropertiesEXT*>(object), settings, "VkPhysicalDeviceProvokingVertexPropertiesEXT", indents, dump_html_VkPhysicalDeviceProvokingVertexPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceProvokingVertexPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceProvokingVertexPropertiesEXT*>(object), settings, "VkPhysicalDeviceProvokingVertexPropertiesEXT", indents, dump_html_VkPhysicalDeviceProvokingVertexPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT>(static_cast<const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT*>(object), settings, "VkPipelineRasterizationProvokingVertexStateCreateInfoEXT", indents, dump_html_VkPipelineRasterizationProvokingVertexStateCreateInfoEXT);
+        dump_html_pNext<const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT>(reinterpret_cast<const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT*>(object), settings, "VkPipelineRasterizationProvokingVertexStateCreateInfoEXT", indents, dump_html_VkPipelineRasterizationProvokingVertexStateCreateInfoEXT);
         break;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT:
-        dump_html_pNext<const VkSurfaceFullScreenExclusiveInfoEXT>(static_cast<const VkSurfaceFullScreenExclusiveInfoEXT*>(object), settings, "VkSurfaceFullScreenExclusiveInfoEXT", indents, dump_html_VkSurfaceFullScreenExclusiveInfoEXT);
+        dump_html_pNext<const VkSurfaceFullScreenExclusiveInfoEXT>(reinterpret_cast<const VkSurfaceFullScreenExclusiveInfoEXT*>(object), settings, "VkSurfaceFullScreenExclusiveInfoEXT", indents, dump_html_VkSurfaceFullScreenExclusiveInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:
-        dump_html_pNext<const VkSurfaceCapabilitiesFullScreenExclusiveEXT>(static_cast<const VkSurfaceCapabilitiesFullScreenExclusiveEXT*>(object), settings, "VkSurfaceCapabilitiesFullScreenExclusiveEXT", indents, dump_html_VkSurfaceCapabilitiesFullScreenExclusiveEXT);
+        dump_html_pNext<const VkSurfaceCapabilitiesFullScreenExclusiveEXT>(reinterpret_cast<const VkSurfaceCapabilitiesFullScreenExclusiveEXT*>(object), settings, "VkSurfaceCapabilitiesFullScreenExclusiveEXT", indents, dump_html_VkSurfaceCapabilitiesFullScreenExclusiveEXT);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT:
-        dump_html_pNext<const VkSurfaceFullScreenExclusiveWin32InfoEXT>(static_cast<const VkSurfaceFullScreenExclusiveWin32InfoEXT*>(object), settings, "VkSurfaceFullScreenExclusiveWin32InfoEXT", indents, dump_html_VkSurfaceFullScreenExclusiveWin32InfoEXT);
+        dump_html_pNext<const VkSurfaceFullScreenExclusiveWin32InfoEXT>(reinterpret_cast<const VkSurfaceFullScreenExclusiveWin32InfoEXT*>(object), settings, "VkSurfaceFullScreenExclusiveWin32InfoEXT", indents, dump_html_VkSurfaceFullScreenExclusiveWin32InfoEXT);
         break;
 #endif // VK_USE_PLATFORM_WIN32_KHR
     case VK_STRUCTURE_TYPE_HEADLESS_SURFACE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkHeadlessSurfaceCreateInfoEXT>(static_cast<const VkHeadlessSurfaceCreateInfoEXT*>(object), settings, "VkHeadlessSurfaceCreateInfoEXT", indents, dump_html_VkHeadlessSurfaceCreateInfoEXT);
+        dump_html_pNext<const VkHeadlessSurfaceCreateInfoEXT>(reinterpret_cast<const VkHeadlessSurfaceCreateInfoEXT*>(object), settings, "VkHeadlessSurfaceCreateInfoEXT", indents, dump_html_VkHeadlessSurfaceCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT>(static_cast<const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderAtomicFloatFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderAtomicFloatFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT>(static_cast<const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicStateFeaturesEXT", indents, dump_html_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicStateFeaturesEXT", indents, dump_html_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT>(static_cast<const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT*>(object), settings, "VkPhysicalDeviceMapMemoryPlacedFeaturesEXT", indents, dump_html_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMapMemoryPlacedFeaturesEXT*>(object), settings, "VkPhysicalDeviceMapMemoryPlacedFeaturesEXT", indents, dump_html_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceMapMemoryPlacedPropertiesEXT>(static_cast<const VkPhysicalDeviceMapMemoryPlacedPropertiesEXT*>(object), settings, "VkPhysicalDeviceMapMemoryPlacedPropertiesEXT", indents, dump_html_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceMapMemoryPlacedPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceMapMemoryPlacedPropertiesEXT*>(object), settings, "VkPhysicalDeviceMapMemoryPlacedPropertiesEXT", indents, dump_html_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT:
-        dump_html_pNext<const VkMemoryMapPlacedInfoEXT>(static_cast<const VkMemoryMapPlacedInfoEXT*>(object), settings, "VkMemoryMapPlacedInfoEXT", indents, dump_html_VkMemoryMapPlacedInfoEXT);
+        dump_html_pNext<const VkMemoryMapPlacedInfoEXT>(reinterpret_cast<const VkMemoryMapPlacedInfoEXT*>(object), settings, "VkMemoryMapPlacedInfoEXT", indents, dump_html_VkMemoryMapPlacedInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT>(static_cast<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT:
-        dump_html_pNext<const VkSurfacePresentModeEXT>(static_cast<const VkSurfacePresentModeEXT*>(object), settings, "VkSurfacePresentModeEXT", indents, dump_html_VkSurfacePresentModeEXT);
+        dump_html_pNext<const VkSurfacePresentModeEXT>(reinterpret_cast<const VkSurfacePresentModeEXT*>(object), settings, "VkSurfacePresentModeEXT", indents, dump_html_VkSurfacePresentModeEXT);
         break;
     case VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT:
-        dump_html_pNext<const VkSurfacePresentScalingCapabilitiesEXT>(static_cast<const VkSurfacePresentScalingCapabilitiesEXT*>(object), settings, "VkSurfacePresentScalingCapabilitiesEXT", indents, dump_html_VkSurfacePresentScalingCapabilitiesEXT);
+        dump_html_pNext<const VkSurfacePresentScalingCapabilitiesEXT>(reinterpret_cast<const VkSurfacePresentScalingCapabilitiesEXT*>(object), settings, "VkSurfacePresentScalingCapabilitiesEXT", indents, dump_html_VkSurfacePresentScalingCapabilitiesEXT);
         break;
     case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT:
-        dump_html_pNext<const VkSurfacePresentModeCompatibilityEXT>(static_cast<const VkSurfacePresentModeCompatibilityEXT*>(object), settings, "VkSurfacePresentModeCompatibilityEXT", indents, dump_html_VkSurfacePresentModeCompatibilityEXT);
+        dump_html_pNext<const VkSurfacePresentModeCompatibilityEXT>(reinterpret_cast<const VkSurfacePresentModeCompatibilityEXT*>(object), settings, "VkSurfacePresentModeCompatibilityEXT", indents, dump_html_VkSurfacePresentModeCompatibilityEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT>(static_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT*>(object), settings, "VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT", indents, dump_html_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT*>(object), settings, "VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT", indents, dump_html_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
-        dump_html_pNext<const VkSwapchainPresentFenceInfoEXT>(static_cast<const VkSwapchainPresentFenceInfoEXT*>(object), settings, "VkSwapchainPresentFenceInfoEXT", indents, dump_html_VkSwapchainPresentFenceInfoEXT);
+        dump_html_pNext<const VkSwapchainPresentFenceInfoEXT>(reinterpret_cast<const VkSwapchainPresentFenceInfoEXT*>(object), settings, "VkSwapchainPresentFenceInfoEXT", indents, dump_html_VkSwapchainPresentFenceInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT:
-        dump_html_pNext<const VkSwapchainPresentModesCreateInfoEXT>(static_cast<const VkSwapchainPresentModesCreateInfoEXT*>(object), settings, "VkSwapchainPresentModesCreateInfoEXT", indents, dump_html_VkSwapchainPresentModesCreateInfoEXT);
+        dump_html_pNext<const VkSwapchainPresentModesCreateInfoEXT>(reinterpret_cast<const VkSwapchainPresentModesCreateInfoEXT*>(object), settings, "VkSwapchainPresentModesCreateInfoEXT", indents, dump_html_VkSwapchainPresentModesCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT:
-        dump_html_pNext<const VkSwapchainPresentModeInfoEXT>(static_cast<const VkSwapchainPresentModeInfoEXT*>(object), settings, "VkSwapchainPresentModeInfoEXT", indents, dump_html_VkSwapchainPresentModeInfoEXT);
+        dump_html_pNext<const VkSwapchainPresentModeInfoEXT>(reinterpret_cast<const VkSwapchainPresentModeInfoEXT*>(object), settings, "VkSwapchainPresentModeInfoEXT", indents, dump_html_VkSwapchainPresentModeInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT:
-        dump_html_pNext<const VkSwapchainPresentScalingCreateInfoEXT>(static_cast<const VkSwapchainPresentScalingCreateInfoEXT*>(object), settings, "VkSwapchainPresentScalingCreateInfoEXT", indents, dump_html_VkSwapchainPresentScalingCreateInfoEXT);
+        dump_html_pNext<const VkSwapchainPresentScalingCreateInfoEXT>(reinterpret_cast<const VkSwapchainPresentScalingCreateInfoEXT*>(object), settings, "VkSwapchainPresentScalingCreateInfoEXT", indents, dump_html_VkSwapchainPresentScalingCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_EXT:
-        dump_html_pNext<const VkReleaseSwapchainImagesInfoEXT>(static_cast<const VkReleaseSwapchainImagesInfoEXT*>(object), settings, "VkReleaseSwapchainImagesInfoEXT", indents, dump_html_VkReleaseSwapchainImagesInfoEXT);
+        dump_html_pNext<const VkReleaseSwapchainImagesInfoEXT>(reinterpret_cast<const VkReleaseSwapchainImagesInfoEXT*>(object), settings, "VkReleaseSwapchainImagesInfoEXT", indents, dump_html_VkReleaseSwapchainImagesInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV>(static_cast<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV", indents, dump_html_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV", indents, dump_html_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV>(static_cast<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV", indents, dump_html_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV", indents, dump_html_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_GRAPHICS_SHADER_GROUP_CREATE_INFO_NV:
-        dump_html_pNext<const VkGraphicsShaderGroupCreateInfoNV>(static_cast<const VkGraphicsShaderGroupCreateInfoNV*>(object), settings, "VkGraphicsShaderGroupCreateInfoNV", indents, dump_html_VkGraphicsShaderGroupCreateInfoNV);
+        dump_html_pNext<const VkGraphicsShaderGroupCreateInfoNV>(reinterpret_cast<const VkGraphicsShaderGroupCreateInfoNV*>(object), settings, "VkGraphicsShaderGroupCreateInfoNV", indents, dump_html_VkGraphicsShaderGroupCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
-        dump_html_pNext<const VkGraphicsPipelineShaderGroupsCreateInfoNV>(static_cast<const VkGraphicsPipelineShaderGroupsCreateInfoNV*>(object), settings, "VkGraphicsPipelineShaderGroupsCreateInfoNV", indents, dump_html_VkGraphicsPipelineShaderGroupsCreateInfoNV);
+        dump_html_pNext<const VkGraphicsPipelineShaderGroupsCreateInfoNV>(reinterpret_cast<const VkGraphicsPipelineShaderGroupsCreateInfoNV*>(object), settings, "VkGraphicsPipelineShaderGroupsCreateInfoNV", indents, dump_html_VkGraphicsPipelineShaderGroupsCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV:
-        dump_html_pNext<const VkIndirectCommandsLayoutTokenNV>(static_cast<const VkIndirectCommandsLayoutTokenNV*>(object), settings, "VkIndirectCommandsLayoutTokenNV", indents, dump_html_VkIndirectCommandsLayoutTokenNV);
+        dump_html_pNext<const VkIndirectCommandsLayoutTokenNV>(reinterpret_cast<const VkIndirectCommandsLayoutTokenNV*>(object), settings, "VkIndirectCommandsLayoutTokenNV", indents, dump_html_VkIndirectCommandsLayoutTokenNV);
         break;
     case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NV:
-        dump_html_pNext<const VkIndirectCommandsLayoutCreateInfoNV>(static_cast<const VkIndirectCommandsLayoutCreateInfoNV*>(object), settings, "VkIndirectCommandsLayoutCreateInfoNV", indents, dump_html_VkIndirectCommandsLayoutCreateInfoNV);
+        dump_html_pNext<const VkIndirectCommandsLayoutCreateInfoNV>(reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoNV*>(object), settings, "VkIndirectCommandsLayoutCreateInfoNV", indents, dump_html_VkIndirectCommandsLayoutCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_NV:
-        dump_html_pNext<const VkGeneratedCommandsInfoNV>(static_cast<const VkGeneratedCommandsInfoNV*>(object), settings, "VkGeneratedCommandsInfoNV", indents, dump_html_VkGeneratedCommandsInfoNV);
+        dump_html_pNext<const VkGeneratedCommandsInfoNV>(reinterpret_cast<const VkGeneratedCommandsInfoNV*>(object), settings, "VkGeneratedCommandsInfoNV", indents, dump_html_VkGeneratedCommandsInfoNV);
         break;
     case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_NV:
-        dump_html_pNext<const VkGeneratedCommandsMemoryRequirementsInfoNV>(static_cast<const VkGeneratedCommandsMemoryRequirementsInfoNV*>(object), settings, "VkGeneratedCommandsMemoryRequirementsInfoNV", indents, dump_html_VkGeneratedCommandsMemoryRequirementsInfoNV);
+        dump_html_pNext<const VkGeneratedCommandsMemoryRequirementsInfoNV>(reinterpret_cast<const VkGeneratedCommandsMemoryRequirementsInfoNV*>(object), settings, "VkGeneratedCommandsMemoryRequirementsInfoNV", indents, dump_html_VkGeneratedCommandsMemoryRequirementsInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceInheritedViewportScissorFeaturesNV>(static_cast<const VkPhysicalDeviceInheritedViewportScissorFeaturesNV*>(object), settings, "VkPhysicalDeviceInheritedViewportScissorFeaturesNV", indents, dump_html_VkPhysicalDeviceInheritedViewportScissorFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceInheritedViewportScissorFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceInheritedViewportScissorFeaturesNV*>(object), settings, "VkPhysicalDeviceInheritedViewportScissorFeaturesNV", indents, dump_html_VkPhysicalDeviceInheritedViewportScissorFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_VIEWPORT_SCISSOR_INFO_NV:
-        dump_html_pNext<const VkCommandBufferInheritanceViewportScissorInfoNV>(static_cast<const VkCommandBufferInheritanceViewportScissorInfoNV*>(object), settings, "VkCommandBufferInheritanceViewportScissorInfoNV", indents, dump_html_VkCommandBufferInheritanceViewportScissorInfoNV);
+        dump_html_pNext<const VkCommandBufferInheritanceViewportScissorInfoNV>(reinterpret_cast<const VkCommandBufferInheritanceViewportScissorInfoNV*>(object), settings, "VkCommandBufferInheritanceViewportScissorInfoNV", indents, dump_html_VkCommandBufferInheritanceViewportScissorInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT>(static_cast<const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT*>(object), settings, "VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT", indents, dump_html_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT*>(object), settings, "VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT", indents, dump_html_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
-        dump_html_pNext<const VkRenderPassTransformBeginInfoQCOM>(static_cast<const VkRenderPassTransformBeginInfoQCOM*>(object), settings, "VkRenderPassTransformBeginInfoQCOM", indents, dump_html_VkRenderPassTransformBeginInfoQCOM);
+        dump_html_pNext<const VkRenderPassTransformBeginInfoQCOM>(reinterpret_cast<const VkRenderPassTransformBeginInfoQCOM*>(object), settings, "VkRenderPassTransformBeginInfoQCOM", indents, dump_html_VkRenderPassTransformBeginInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM:
-        dump_html_pNext<const VkCommandBufferInheritanceRenderPassTransformInfoQCOM>(static_cast<const VkCommandBufferInheritanceRenderPassTransformInfoQCOM*>(object), settings, "VkCommandBufferInheritanceRenderPassTransformInfoQCOM", indents, dump_html_VkCommandBufferInheritanceRenderPassTransformInfoQCOM);
+        dump_html_pNext<const VkCommandBufferInheritanceRenderPassTransformInfoQCOM>(reinterpret_cast<const VkCommandBufferInheritanceRenderPassTransformInfoQCOM*>(object), settings, "VkCommandBufferInheritanceRenderPassTransformInfoQCOM", indents, dump_html_VkCommandBufferInheritanceRenderPassTransformInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_BIAS_CONTROL_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDepthBiasControlFeaturesEXT>(static_cast<const VkPhysicalDeviceDepthBiasControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthBiasControlFeaturesEXT", indents, dump_html_VkPhysicalDeviceDepthBiasControlFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDepthBiasControlFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDepthBiasControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthBiasControlFeaturesEXT", indents, dump_html_VkPhysicalDeviceDepthBiasControlFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_DEPTH_BIAS_INFO_EXT:
-        dump_html_pNext<const VkDepthBiasInfoEXT>(static_cast<const VkDepthBiasInfoEXT*>(object), settings, "VkDepthBiasInfoEXT", indents, dump_html_VkDepthBiasInfoEXT);
+        dump_html_pNext<const VkDepthBiasInfoEXT>(reinterpret_cast<const VkDepthBiasInfoEXT*>(object), settings, "VkDepthBiasInfoEXT", indents, dump_html_VkDepthBiasInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DEPTH_BIAS_REPRESENTATION_INFO_EXT:
-        dump_html_pNext<const VkDepthBiasRepresentationInfoEXT>(static_cast<const VkDepthBiasRepresentationInfoEXT*>(object), settings, "VkDepthBiasRepresentationInfoEXT", indents, dump_html_VkDepthBiasRepresentationInfoEXT);
+        dump_html_pNext<const VkDepthBiasRepresentationInfoEXT>(reinterpret_cast<const VkDepthBiasRepresentationInfoEXT*>(object), settings, "VkDepthBiasRepresentationInfoEXT", indents, dump_html_VkDepthBiasRepresentationInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_MEMORY_REPORT_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT>(static_cast<const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT*>(object), settings, "VkPhysicalDeviceDeviceMemoryReportFeaturesEXT", indents, dump_html_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDeviceMemoryReportFeaturesEXT*>(object), settings, "VkPhysicalDeviceDeviceMemoryReportFeaturesEXT", indents, dump_html_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_MEMORY_REPORT_CALLBACK_DATA_EXT:
-        dump_html_pNext<const VkDeviceMemoryReportCallbackDataEXT>(static_cast<const VkDeviceMemoryReportCallbackDataEXT*>(object), settings, "VkDeviceMemoryReportCallbackDataEXT", indents, dump_html_VkDeviceMemoryReportCallbackDataEXT);
+        dump_html_pNext<const VkDeviceMemoryReportCallbackDataEXT>(reinterpret_cast<const VkDeviceMemoryReportCallbackDataEXT*>(object), settings, "VkDeviceMemoryReportCallbackDataEXT", indents, dump_html_VkDeviceMemoryReportCallbackDataEXT);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT:
-        dump_html_pNext<const VkDeviceDeviceMemoryReportCreateInfoEXT>(static_cast<const VkDeviceDeviceMemoryReportCreateInfoEXT*>(object), settings, "VkDeviceDeviceMemoryReportCreateInfoEXT", indents, dump_html_VkDeviceDeviceMemoryReportCreateInfoEXT);
+        dump_html_pNext<const VkDeviceDeviceMemoryReportCreateInfoEXT>(reinterpret_cast<const VkDeviceDeviceMemoryReportCreateInfoEXT*>(object), settings, "VkDeviceDeviceMemoryReportCreateInfoEXT", indents, dump_html_VkDeviceDeviceMemoryReportCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
-        dump_html_pNext<const VkSamplerCustomBorderColorCreateInfoEXT>(static_cast<const VkSamplerCustomBorderColorCreateInfoEXT*>(object), settings, "VkSamplerCustomBorderColorCreateInfoEXT", indents, dump_html_VkSamplerCustomBorderColorCreateInfoEXT);
+        dump_html_pNext<const VkSamplerCustomBorderColorCreateInfoEXT>(reinterpret_cast<const VkSamplerCustomBorderColorCreateInfoEXT*>(object), settings, "VkSamplerCustomBorderColorCreateInfoEXT", indents, dump_html_VkSamplerCustomBorderColorCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceCustomBorderColorPropertiesEXT>(static_cast<const VkPhysicalDeviceCustomBorderColorPropertiesEXT*>(object), settings, "VkPhysicalDeviceCustomBorderColorPropertiesEXT", indents, dump_html_VkPhysicalDeviceCustomBorderColorPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceCustomBorderColorPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceCustomBorderColorPropertiesEXT*>(object), settings, "VkPhysicalDeviceCustomBorderColorPropertiesEXT", indents, dump_html_VkPhysicalDeviceCustomBorderColorPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceCustomBorderColorFeaturesEXT>(static_cast<const VkPhysicalDeviceCustomBorderColorFeaturesEXT*>(object), settings, "VkPhysicalDeviceCustomBorderColorFeaturesEXT", indents, dump_html_VkPhysicalDeviceCustomBorderColorFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceCustomBorderColorFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceCustomBorderColorFeaturesEXT*>(object), settings, "VkPhysicalDeviceCustomBorderColorFeaturesEXT", indents, dump_html_VkPhysicalDeviceCustomBorderColorFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDevicePresentBarrierFeaturesNV>(static_cast<const VkPhysicalDevicePresentBarrierFeaturesNV*>(object), settings, "VkPhysicalDevicePresentBarrierFeaturesNV", indents, dump_html_VkPhysicalDevicePresentBarrierFeaturesNV);
+        dump_html_pNext<const VkPhysicalDevicePresentBarrierFeaturesNV>(reinterpret_cast<const VkPhysicalDevicePresentBarrierFeaturesNV*>(object), settings, "VkPhysicalDevicePresentBarrierFeaturesNV", indents, dump_html_VkPhysicalDevicePresentBarrierFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_BARRIER_NV:
-        dump_html_pNext<const VkSurfaceCapabilitiesPresentBarrierNV>(static_cast<const VkSurfaceCapabilitiesPresentBarrierNV*>(object), settings, "VkSurfaceCapabilitiesPresentBarrierNV", indents, dump_html_VkSurfaceCapabilitiesPresentBarrierNV);
+        dump_html_pNext<const VkSurfaceCapabilitiesPresentBarrierNV>(reinterpret_cast<const VkSurfaceCapabilitiesPresentBarrierNV*>(object), settings, "VkSurfaceCapabilitiesPresentBarrierNV", indents, dump_html_VkSurfaceCapabilitiesPresentBarrierNV);
         break;
     case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV:
-        dump_html_pNext<const VkSwapchainPresentBarrierCreateInfoNV>(static_cast<const VkSwapchainPresentBarrierCreateInfoNV*>(object), settings, "VkSwapchainPresentBarrierCreateInfoNV", indents, dump_html_VkSwapchainPresentBarrierCreateInfoNV);
+        dump_html_pNext<const VkSwapchainPresentBarrierCreateInfoNV>(reinterpret_cast<const VkSwapchainPresentBarrierCreateInfoNV*>(object), settings, "VkSwapchainPresentBarrierCreateInfoNV", indents, dump_html_VkSwapchainPresentBarrierCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV>(static_cast<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(object), settings, "VkPhysicalDeviceDiagnosticsConfigFeaturesNV", indents, dump_html_VkPhysicalDeviceDiagnosticsConfigFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(object), settings, "VkPhysicalDeviceDiagnosticsConfigFeaturesNV", indents, dump_html_VkPhysicalDeviceDiagnosticsConfigFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
-        dump_html_pNext<const VkDeviceDiagnosticsConfigCreateInfoNV>(static_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(object), settings, "VkDeviceDiagnosticsConfigCreateInfoNV", indents, dump_html_VkDeviceDiagnosticsConfigCreateInfoNV);
+        dump_html_pNext<const VkDeviceDiagnosticsConfigCreateInfoNV>(reinterpret_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(object), settings, "VkDeviceDiagnosticsConfigCreateInfoNV", indents, dump_html_VkDeviceDiagnosticsConfigCreateInfoNV);
         break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV:
-        dump_html_pNext<const VkCudaModuleCreateInfoNV>(static_cast<const VkCudaModuleCreateInfoNV*>(object), settings, "VkCudaModuleCreateInfoNV", indents, dump_html_VkCudaModuleCreateInfoNV);
+        dump_html_pNext<const VkCudaModuleCreateInfoNV>(reinterpret_cast<const VkCudaModuleCreateInfoNV*>(object), settings, "VkCudaModuleCreateInfoNV", indents, dump_html_VkCudaModuleCreateInfoNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_CUDA_FUNCTION_CREATE_INFO_NV:
-        dump_html_pNext<const VkCudaFunctionCreateInfoNV>(static_cast<const VkCudaFunctionCreateInfoNV*>(object), settings, "VkCudaFunctionCreateInfoNV", indents, dump_html_VkCudaFunctionCreateInfoNV);
+        dump_html_pNext<const VkCudaFunctionCreateInfoNV>(reinterpret_cast<const VkCudaFunctionCreateInfoNV*>(object), settings, "VkCudaFunctionCreateInfoNV", indents, dump_html_VkCudaFunctionCreateInfoNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_CUDA_LAUNCH_INFO_NV:
-        dump_html_pNext<const VkCudaLaunchInfoNV>(static_cast<const VkCudaLaunchInfoNV*>(object), settings, "VkCudaLaunchInfoNV", indents, dump_html_VkCudaLaunchInfoNV);
+        dump_html_pNext<const VkCudaLaunchInfoNV>(reinterpret_cast<const VkCudaLaunchInfoNV*>(object), settings, "VkCudaLaunchInfoNV", indents, dump_html_VkCudaLaunchInfoNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCudaKernelLaunchFeaturesNV>(static_cast<const VkPhysicalDeviceCudaKernelLaunchFeaturesNV*>(object), settings, "VkPhysicalDeviceCudaKernelLaunchFeaturesNV", indents, dump_html_VkPhysicalDeviceCudaKernelLaunchFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceCudaKernelLaunchFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCudaKernelLaunchFeaturesNV*>(object), settings, "VkPhysicalDeviceCudaKernelLaunchFeaturesNV", indents, dump_html_VkPhysicalDeviceCudaKernelLaunchFeaturesNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCudaKernelLaunchPropertiesNV>(static_cast<const VkPhysicalDeviceCudaKernelLaunchPropertiesNV*>(object), settings, "VkPhysicalDeviceCudaKernelLaunchPropertiesNV", indents, dump_html_VkPhysicalDeviceCudaKernelLaunchPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceCudaKernelLaunchPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCudaKernelLaunchPropertiesNV*>(object), settings, "VkPhysicalDeviceCudaKernelLaunchPropertiesNV", indents, dump_html_VkPhysicalDeviceCudaKernelLaunchPropertiesNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceTileShadingFeaturesQCOM>(static_cast<const VkPhysicalDeviceTileShadingFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTileShadingFeaturesQCOM", indents, dump_html_VkPhysicalDeviceTileShadingFeaturesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceTileShadingFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceTileShadingFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTileShadingFeaturesQCOM", indents, dump_html_VkPhysicalDeviceTileShadingFeaturesQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_PROPERTIES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceTileShadingPropertiesQCOM>(static_cast<const VkPhysicalDeviceTileShadingPropertiesQCOM*>(object), settings, "VkPhysicalDeviceTileShadingPropertiesQCOM", indents, dump_html_VkPhysicalDeviceTileShadingPropertiesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceTileShadingPropertiesQCOM>(reinterpret_cast<const VkPhysicalDeviceTileShadingPropertiesQCOM*>(object), settings, "VkPhysicalDeviceTileShadingPropertiesQCOM", indents, dump_html_VkPhysicalDeviceTileShadingPropertiesQCOM);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_TILE_SHADING_CREATE_INFO_QCOM:
-        dump_html_pNext<const VkRenderPassTileShadingCreateInfoQCOM>(static_cast<const VkRenderPassTileShadingCreateInfoQCOM*>(object), settings, "VkRenderPassTileShadingCreateInfoQCOM", indents, dump_html_VkRenderPassTileShadingCreateInfoQCOM);
+        dump_html_pNext<const VkRenderPassTileShadingCreateInfoQCOM>(reinterpret_cast<const VkRenderPassTileShadingCreateInfoQCOM*>(object), settings, "VkRenderPassTileShadingCreateInfoQCOM", indents, dump_html_VkRenderPassTileShadingCreateInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM:
-        dump_html_pNext<const VkPerTileBeginInfoQCOM>(static_cast<const VkPerTileBeginInfoQCOM*>(object), settings, "VkPerTileBeginInfoQCOM", indents, dump_html_VkPerTileBeginInfoQCOM);
+        dump_html_pNext<const VkPerTileBeginInfoQCOM>(reinterpret_cast<const VkPerTileBeginInfoQCOM*>(object), settings, "VkPerTileBeginInfoQCOM", indents, dump_html_VkPerTileBeginInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_PER_TILE_END_INFO_QCOM:
-        dump_html_pNext<const VkPerTileEndInfoQCOM>(static_cast<const VkPerTileEndInfoQCOM*>(object), settings, "VkPerTileEndInfoQCOM", indents, dump_html_VkPerTileEndInfoQCOM);
+        dump_html_pNext<const VkPerTileEndInfoQCOM>(reinterpret_cast<const VkPerTileEndInfoQCOM*>(object), settings, "VkPerTileEndInfoQCOM", indents, dump_html_VkPerTileEndInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_DISPATCH_TILE_INFO_QCOM:
-        dump_html_pNext<const VkDispatchTileInfoQCOM>(static_cast<const VkDispatchTileInfoQCOM*>(object), settings, "VkDispatchTileInfoQCOM", indents, dump_html_VkDispatchTileInfoQCOM);
+        dump_html_pNext<const VkDispatchTileInfoQCOM>(reinterpret_cast<const VkDispatchTileInfoQCOM*>(object), settings, "VkDispatchTileInfoQCOM", indents, dump_html_VkDispatchTileInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
-        dump_html_pNext<const VkQueryLowLatencySupportNV>(static_cast<const VkQueryLowLatencySupportNV*>(object), settings, "VkQueryLowLatencySupportNV", indents, dump_html_VkQueryLowLatencySupportNV);
+        dump_html_pNext<const VkQueryLowLatencySupportNV>(reinterpret_cast<const VkQueryLowLatencySupportNV*>(object), settings, "VkQueryLowLatencySupportNV", indents, dump_html_VkQueryLowLatencySupportNV);
         break;
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_EXPORT_METAL_OBJECT_CREATE_INFO_EXT:
-        dump_html_pNext<const VkExportMetalObjectCreateInfoEXT>(static_cast<const VkExportMetalObjectCreateInfoEXT*>(object), settings, "VkExportMetalObjectCreateInfoEXT", indents, dump_html_VkExportMetalObjectCreateInfoEXT);
+        dump_html_pNext<const VkExportMetalObjectCreateInfoEXT>(reinterpret_cast<const VkExportMetalObjectCreateInfoEXT*>(object), settings, "VkExportMetalObjectCreateInfoEXT", indents, dump_html_VkExportMetalObjectCreateInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_EXPORT_METAL_OBJECTS_INFO_EXT:
-        dump_html_pNext<const VkExportMetalObjectsInfoEXT>(static_cast<const VkExportMetalObjectsInfoEXT*>(object), settings, "VkExportMetalObjectsInfoEXT", indents, dump_html_VkExportMetalObjectsInfoEXT);
+        dump_html_pNext<const VkExportMetalObjectsInfoEXT>(reinterpret_cast<const VkExportMetalObjectsInfoEXT*>(object), settings, "VkExportMetalObjectsInfoEXT", indents, dump_html_VkExportMetalObjectsInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_EXPORT_METAL_DEVICE_INFO_EXT:
-        dump_html_pNext<const VkExportMetalDeviceInfoEXT>(static_cast<const VkExportMetalDeviceInfoEXT*>(object), settings, "VkExportMetalDeviceInfoEXT", indents, dump_html_VkExportMetalDeviceInfoEXT);
+        dump_html_pNext<const VkExportMetalDeviceInfoEXT>(reinterpret_cast<const VkExportMetalDeviceInfoEXT*>(object), settings, "VkExportMetalDeviceInfoEXT", indents, dump_html_VkExportMetalDeviceInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_EXPORT_METAL_COMMAND_QUEUE_INFO_EXT:
-        dump_html_pNext<const VkExportMetalCommandQueueInfoEXT>(static_cast<const VkExportMetalCommandQueueInfoEXT*>(object), settings, "VkExportMetalCommandQueueInfoEXT", indents, dump_html_VkExportMetalCommandQueueInfoEXT);
+        dump_html_pNext<const VkExportMetalCommandQueueInfoEXT>(reinterpret_cast<const VkExportMetalCommandQueueInfoEXT*>(object), settings, "VkExportMetalCommandQueueInfoEXT", indents, dump_html_VkExportMetalCommandQueueInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_EXPORT_METAL_BUFFER_INFO_EXT:
-        dump_html_pNext<const VkExportMetalBufferInfoEXT>(static_cast<const VkExportMetalBufferInfoEXT*>(object), settings, "VkExportMetalBufferInfoEXT", indents, dump_html_VkExportMetalBufferInfoEXT);
+        dump_html_pNext<const VkExportMetalBufferInfoEXT>(reinterpret_cast<const VkExportMetalBufferInfoEXT*>(object), settings, "VkExportMetalBufferInfoEXT", indents, dump_html_VkExportMetalBufferInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_IMPORT_METAL_BUFFER_INFO_EXT:
-        dump_html_pNext<const VkImportMetalBufferInfoEXT>(static_cast<const VkImportMetalBufferInfoEXT*>(object), settings, "VkImportMetalBufferInfoEXT", indents, dump_html_VkImportMetalBufferInfoEXT);
+        dump_html_pNext<const VkImportMetalBufferInfoEXT>(reinterpret_cast<const VkImportMetalBufferInfoEXT*>(object), settings, "VkImportMetalBufferInfoEXT", indents, dump_html_VkImportMetalBufferInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_EXPORT_METAL_TEXTURE_INFO_EXT:
-        dump_html_pNext<const VkExportMetalTextureInfoEXT>(static_cast<const VkExportMetalTextureInfoEXT*>(object), settings, "VkExportMetalTextureInfoEXT", indents, dump_html_VkExportMetalTextureInfoEXT);
+        dump_html_pNext<const VkExportMetalTextureInfoEXT>(reinterpret_cast<const VkExportMetalTextureInfoEXT*>(object), settings, "VkExportMetalTextureInfoEXT", indents, dump_html_VkExportMetalTextureInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_IMPORT_METAL_TEXTURE_INFO_EXT:
-        dump_html_pNext<const VkImportMetalTextureInfoEXT>(static_cast<const VkImportMetalTextureInfoEXT*>(object), settings, "VkImportMetalTextureInfoEXT", indents, dump_html_VkImportMetalTextureInfoEXT);
+        dump_html_pNext<const VkImportMetalTextureInfoEXT>(reinterpret_cast<const VkImportMetalTextureInfoEXT*>(object), settings, "VkImportMetalTextureInfoEXT", indents, dump_html_VkImportMetalTextureInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_EXPORT_METAL_IO_SURFACE_INFO_EXT:
-        dump_html_pNext<const VkExportMetalIOSurfaceInfoEXT>(static_cast<const VkExportMetalIOSurfaceInfoEXT*>(object), settings, "VkExportMetalIOSurfaceInfoEXT", indents, dump_html_VkExportMetalIOSurfaceInfoEXT);
+        dump_html_pNext<const VkExportMetalIOSurfaceInfoEXT>(reinterpret_cast<const VkExportMetalIOSurfaceInfoEXT*>(object), settings, "VkExportMetalIOSurfaceInfoEXT", indents, dump_html_VkExportMetalIOSurfaceInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_IMPORT_METAL_IO_SURFACE_INFO_EXT:
-        dump_html_pNext<const VkImportMetalIOSurfaceInfoEXT>(static_cast<const VkImportMetalIOSurfaceInfoEXT*>(object), settings, "VkImportMetalIOSurfaceInfoEXT", indents, dump_html_VkImportMetalIOSurfaceInfoEXT);
+        dump_html_pNext<const VkImportMetalIOSurfaceInfoEXT>(reinterpret_cast<const VkImportMetalIOSurfaceInfoEXT*>(object), settings, "VkImportMetalIOSurfaceInfoEXT", indents, dump_html_VkImportMetalIOSurfaceInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_EXPORT_METAL_SHARED_EVENT_INFO_EXT:
-        dump_html_pNext<const VkExportMetalSharedEventInfoEXT>(static_cast<const VkExportMetalSharedEventInfoEXT*>(object), settings, "VkExportMetalSharedEventInfoEXT", indents, dump_html_VkExportMetalSharedEventInfoEXT);
+        dump_html_pNext<const VkExportMetalSharedEventInfoEXT>(reinterpret_cast<const VkExportMetalSharedEventInfoEXT*>(object), settings, "VkExportMetalSharedEventInfoEXT", indents, dump_html_VkExportMetalSharedEventInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_IMPORT_METAL_SHARED_EVENT_INFO_EXT:
-        dump_html_pNext<const VkImportMetalSharedEventInfoEXT>(static_cast<const VkImportMetalSharedEventInfoEXT*>(object), settings, "VkImportMetalSharedEventInfoEXT", indents, dump_html_VkImportMetalSharedEventInfoEXT);
+        dump_html_pNext<const VkImportMetalSharedEventInfoEXT>(reinterpret_cast<const VkImportMetalSharedEventInfoEXT*>(object), settings, "VkImportMetalSharedEventInfoEXT", indents, dump_html_VkImportMetalSharedEventInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDescriptorBufferPropertiesEXT>(static_cast<const VkPhysicalDeviceDescriptorBufferPropertiesEXT*>(object), settings, "VkPhysicalDeviceDescriptorBufferPropertiesEXT", indents, dump_html_VkPhysicalDeviceDescriptorBufferPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDescriptorBufferPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferPropertiesEXT*>(object), settings, "VkPhysicalDeviceDescriptorBufferPropertiesEXT", indents, dump_html_VkPhysicalDeviceDescriptorBufferPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_DENSITY_MAP_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT>(static_cast<const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT*>(object), settings, "VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT", indents, dump_html_VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT*>(object), settings, "VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT", indents, dump_html_VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDescriptorBufferFeaturesEXT>(static_cast<const VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(object), settings, "VkPhysicalDeviceDescriptorBufferFeaturesEXT", indents, dump_html_VkPhysicalDeviceDescriptorBufferFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDescriptorBufferFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(object), settings, "VkPhysicalDeviceDescriptorBufferFeaturesEXT", indents, dump_html_VkPhysicalDeviceDescriptorBufferFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_ADDRESS_INFO_EXT:
-        dump_html_pNext<const VkDescriptorAddressInfoEXT>(static_cast<const VkDescriptorAddressInfoEXT*>(object), settings, "VkDescriptorAddressInfoEXT", indents, dump_html_VkDescriptorAddressInfoEXT);
+        dump_html_pNext<const VkDescriptorAddressInfoEXT>(reinterpret_cast<const VkDescriptorAddressInfoEXT*>(object), settings, "VkDescriptorAddressInfoEXT", indents, dump_html_VkDescriptorAddressInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT:
-        dump_html_pNext<const VkDescriptorBufferBindingInfoEXT>(static_cast<const VkDescriptorBufferBindingInfoEXT*>(object), settings, "VkDescriptorBufferBindingInfoEXT", indents, dump_html_VkDescriptorBufferBindingInfoEXT);
+        dump_html_pNext<const VkDescriptorBufferBindingInfoEXT>(reinterpret_cast<const VkDescriptorBufferBindingInfoEXT*>(object), settings, "VkDescriptorBufferBindingInfoEXT", indents, dump_html_VkDescriptorBufferBindingInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
-        dump_html_pNext<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT>(static_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(object), settings, "VkDescriptorBufferBindingPushDescriptorBufferHandleEXT", indents, dump_html_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT);
+        dump_html_pNext<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT>(reinterpret_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(object), settings, "VkDescriptorBufferBindingPushDescriptorBufferHandleEXT", indents, dump_html_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT:
-        dump_html_pNext<const VkDescriptorGetInfoEXT>(static_cast<const VkDescriptorGetInfoEXT*>(object), settings, "VkDescriptorGetInfoEXT", indents, dump_html_VkDescriptorGetInfoEXT);
+        dump_html_pNext<const VkDescriptorGetInfoEXT>(reinterpret_cast<const VkDescriptorGetInfoEXT*>(object), settings, "VkDescriptorGetInfoEXT", indents, dump_html_VkDescriptorGetInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_BUFFER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
-        dump_html_pNext<const VkBufferCaptureDescriptorDataInfoEXT>(static_cast<const VkBufferCaptureDescriptorDataInfoEXT*>(object), settings, "VkBufferCaptureDescriptorDataInfoEXT", indents, dump_html_VkBufferCaptureDescriptorDataInfoEXT);
+        dump_html_pNext<const VkBufferCaptureDescriptorDataInfoEXT>(reinterpret_cast<const VkBufferCaptureDescriptorDataInfoEXT*>(object), settings, "VkBufferCaptureDescriptorDataInfoEXT", indents, dump_html_VkBufferCaptureDescriptorDataInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
-        dump_html_pNext<const VkImageCaptureDescriptorDataInfoEXT>(static_cast<const VkImageCaptureDescriptorDataInfoEXT*>(object), settings, "VkImageCaptureDescriptorDataInfoEXT", indents, dump_html_VkImageCaptureDescriptorDataInfoEXT);
+        dump_html_pNext<const VkImageCaptureDescriptorDataInfoEXT>(reinterpret_cast<const VkImageCaptureDescriptorDataInfoEXT*>(object), settings, "VkImageCaptureDescriptorDataInfoEXT", indents, dump_html_VkImageCaptureDescriptorDataInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
-        dump_html_pNext<const VkImageViewCaptureDescriptorDataInfoEXT>(static_cast<const VkImageViewCaptureDescriptorDataInfoEXT*>(object), settings, "VkImageViewCaptureDescriptorDataInfoEXT", indents, dump_html_VkImageViewCaptureDescriptorDataInfoEXT);
+        dump_html_pNext<const VkImageViewCaptureDescriptorDataInfoEXT>(reinterpret_cast<const VkImageViewCaptureDescriptorDataInfoEXT*>(object), settings, "VkImageViewCaptureDescriptorDataInfoEXT", indents, dump_html_VkImageViewCaptureDescriptorDataInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
-        dump_html_pNext<const VkSamplerCaptureDescriptorDataInfoEXT>(static_cast<const VkSamplerCaptureDescriptorDataInfoEXT*>(object), settings, "VkSamplerCaptureDescriptorDataInfoEXT", indents, dump_html_VkSamplerCaptureDescriptorDataInfoEXT);
+        dump_html_pNext<const VkSamplerCaptureDescriptorDataInfoEXT>(reinterpret_cast<const VkSamplerCaptureDescriptorDataInfoEXT*>(object), settings, "VkSamplerCaptureDescriptorDataInfoEXT", indents, dump_html_VkSamplerCaptureDescriptorDataInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT:
-        dump_html_pNext<const VkOpaqueCaptureDescriptorDataCreateInfoEXT>(static_cast<const VkOpaqueCaptureDescriptorDataCreateInfoEXT*>(object), settings, "VkOpaqueCaptureDescriptorDataCreateInfoEXT", indents, dump_html_VkOpaqueCaptureDescriptorDataCreateInfoEXT);
+        dump_html_pNext<const VkOpaqueCaptureDescriptorDataCreateInfoEXT>(reinterpret_cast<const VkOpaqueCaptureDescriptorDataCreateInfoEXT*>(object), settings, "VkOpaqueCaptureDescriptorDataCreateInfoEXT", indents, dump_html_VkOpaqueCaptureDescriptorDataCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
-        dump_html_pNext<const VkAccelerationStructureCaptureDescriptorDataInfoEXT>(static_cast<const VkAccelerationStructureCaptureDescriptorDataInfoEXT*>(object), settings, "VkAccelerationStructureCaptureDescriptorDataInfoEXT", indents, dump_html_VkAccelerationStructureCaptureDescriptorDataInfoEXT);
+        dump_html_pNext<const VkAccelerationStructureCaptureDescriptorDataInfoEXT>(reinterpret_cast<const VkAccelerationStructureCaptureDescriptorDataInfoEXT*>(object), settings, "VkAccelerationStructureCaptureDescriptorDataInfoEXT", indents, dump_html_VkAccelerationStructureCaptureDescriptorDataInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>(static_cast<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(object), settings, "VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT", indents, dump_html_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(object), settings, "VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT", indents, dump_html_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>(static_cast<const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT*>(object), settings, "VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT", indents, dump_html_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT*>(object), settings, "VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT", indents, dump_html_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT:
-        dump_html_pNext<const VkGraphicsPipelineLibraryCreateInfoEXT>(static_cast<const VkGraphicsPipelineLibraryCreateInfoEXT*>(object), settings, "VkGraphicsPipelineLibraryCreateInfoEXT", indents, dump_html_VkGraphicsPipelineLibraryCreateInfoEXT);
+        dump_html_pNext<const VkGraphicsPipelineLibraryCreateInfoEXT>(reinterpret_cast<const VkGraphicsPipelineLibraryCreateInfoEXT*>(object), settings, "VkGraphicsPipelineLibraryCreateInfoEXT", indents, dump_html_VkGraphicsPipelineLibraryCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD:
-        dump_html_pNext<const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD>(static_cast<const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD*>(object), settings, "VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD", indents, dump_html_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD);
+        dump_html_pNext<const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD>(reinterpret_cast<const VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD*>(object), settings, "VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD", indents, dump_html_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV>(static_cast<const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV*>(object), settings, "VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV", indents, dump_html_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV*>(object), settings, "VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV", indents, dump_html_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV>(static_cast<const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV*>(object), settings, "VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV", indents, dump_html_VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV*>(object), settings, "VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV", indents, dump_html_VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_ENUM_STATE_CREATE_INFO_NV:
-        dump_html_pNext<const VkPipelineFragmentShadingRateEnumStateCreateInfoNV>(static_cast<const VkPipelineFragmentShadingRateEnumStateCreateInfoNV*>(object), settings, "VkPipelineFragmentShadingRateEnumStateCreateInfoNV", indents, dump_html_VkPipelineFragmentShadingRateEnumStateCreateInfoNV);
+        dump_html_pNext<const VkPipelineFragmentShadingRateEnumStateCreateInfoNV>(reinterpret_cast<const VkPipelineFragmentShadingRateEnumStateCreateInfoNV*>(object), settings, "VkPipelineFragmentShadingRateEnumStateCreateInfoNV", indents, dump_html_VkPipelineFragmentShadingRateEnumStateCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MOTION_TRIANGLES_DATA_NV:
-        dump_html_pNext<const VkAccelerationStructureGeometryMotionTrianglesDataNV>(static_cast<const VkAccelerationStructureGeometryMotionTrianglesDataNV*>(object), settings, "VkAccelerationStructureGeometryMotionTrianglesDataNV", indents, dump_html_VkAccelerationStructureGeometryMotionTrianglesDataNV);
+        dump_html_pNext<const VkAccelerationStructureGeometryMotionTrianglesDataNV>(reinterpret_cast<const VkAccelerationStructureGeometryMotionTrianglesDataNV*>(object), settings, "VkAccelerationStructureGeometryMotionTrianglesDataNV", indents, dump_html_VkAccelerationStructureGeometryMotionTrianglesDataNV);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MOTION_INFO_NV:
-        dump_html_pNext<const VkAccelerationStructureMotionInfoNV>(static_cast<const VkAccelerationStructureMotionInfoNV*>(object), settings, "VkAccelerationStructureMotionInfoNV", indents, dump_html_VkAccelerationStructureMotionInfoNV);
+        dump_html_pNext<const VkAccelerationStructureMotionInfoNV>(reinterpret_cast<const VkAccelerationStructureMotionInfoNV*>(object), settings, "VkAccelerationStructureMotionInfoNV", indents, dump_html_VkAccelerationStructureMotionInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MOTION_BLUR_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV>(static_cast<const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingMotionBlurFeaturesNV", indents, dump_html_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingMotionBlurFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingMotionBlurFeaturesNV", indents, dump_html_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_2_PLANE_444_FORMATS_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT>(static_cast<const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT*>(object), settings, "VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT", indents, dump_html_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT*>(object), settings, "VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT", indents, dump_html_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT>(static_cast<const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMap2FeaturesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMap2FeaturesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT>(static_cast<const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMap2PropertiesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMap2PropertiesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_COPY_COMMAND_TRANSFORM_INFO_QCOM:
-        dump_html_pNext<const VkCopyCommandTransformInfoQCOM>(static_cast<const VkCopyCommandTransformInfoQCOM*>(object), settings, "VkCopyCommandTransformInfoQCOM", indents, dump_html_VkCopyCommandTransformInfoQCOM);
+        dump_html_pNext<const VkCopyCommandTransformInfoQCOM>(reinterpret_cast<const VkCopyCommandTransformInfoQCOM*>(object), settings, "VkCopyCommandTransformInfoQCOM", indents, dump_html_VkCopyCommandTransformInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceImageCompressionControlFeaturesEXT>(static_cast<const VkPhysicalDeviceImageCompressionControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageCompressionControlFeaturesEXT", indents, dump_html_VkPhysicalDeviceImageCompressionControlFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceImageCompressionControlFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceImageCompressionControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageCompressionControlFeaturesEXT", indents, dump_html_VkPhysicalDeviceImageCompressionControlFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT:
-        dump_html_pNext<const VkImageCompressionControlEXT>(static_cast<const VkImageCompressionControlEXT*>(object), settings, "VkImageCompressionControlEXT", indents, dump_html_VkImageCompressionControlEXT);
+        dump_html_pNext<const VkImageCompressionControlEXT>(reinterpret_cast<const VkImageCompressionControlEXT*>(object), settings, "VkImageCompressionControlEXT", indents, dump_html_VkImageCompressionControlEXT);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT:
-        dump_html_pNext<const VkImageCompressionPropertiesEXT>(static_cast<const VkImageCompressionPropertiesEXT*>(object), settings, "VkImageCompressionPropertiesEXT", indents, dump_html_VkImageCompressionPropertiesEXT);
+        dump_html_pNext<const VkImageCompressionPropertiesEXT>(reinterpret_cast<const VkImageCompressionPropertiesEXT*>(object), settings, "VkImageCompressionPropertiesEXT", indents, dump_html_VkImageCompressionPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_LAYOUT_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT>(static_cast<const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT*>(object), settings, "VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT", indents, dump_html_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT*>(object), settings, "VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT", indents, dump_html_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDevice4444FormatsFeaturesEXT>(static_cast<const VkPhysicalDevice4444FormatsFeaturesEXT*>(object), settings, "VkPhysicalDevice4444FormatsFeaturesEXT", indents, dump_html_VkPhysicalDevice4444FormatsFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDevice4444FormatsFeaturesEXT>(reinterpret_cast<const VkPhysicalDevice4444FormatsFeaturesEXT*>(object), settings, "VkPhysicalDevice4444FormatsFeaturesEXT", indents, dump_html_VkPhysicalDevice4444FormatsFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceFaultFeaturesEXT>(static_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(object), settings, "VkPhysicalDeviceFaultFeaturesEXT", indents, dump_html_VkPhysicalDeviceFaultFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceFaultFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(object), settings, "VkPhysicalDeviceFaultFeaturesEXT", indents, dump_html_VkPhysicalDeviceFaultFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_FAULT_COUNTS_EXT:
-        dump_html_pNext<const VkDeviceFaultCountsEXT>(static_cast<const VkDeviceFaultCountsEXT*>(object), settings, "VkDeviceFaultCountsEXT", indents, dump_html_VkDeviceFaultCountsEXT);
+        dump_html_pNext<const VkDeviceFaultCountsEXT>(reinterpret_cast<const VkDeviceFaultCountsEXT*>(object), settings, "VkDeviceFaultCountsEXT", indents, dump_html_VkDeviceFaultCountsEXT);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT:
-        dump_html_pNext<const VkDeviceFaultInfoEXT>(static_cast<const VkDeviceFaultInfoEXT*>(object), settings, "VkDeviceFaultInfoEXT", indents, dump_html_VkDeviceFaultInfoEXT);
+        dump_html_pNext<const VkDeviceFaultInfoEXT>(reinterpret_cast<const VkDeviceFaultInfoEXT*>(object), settings, "VkDeviceFaultInfoEXT", indents, dump_html_VkDeviceFaultInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT>(static_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(object), settings, "VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT", indents, dump_html_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(object), settings, "VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT", indents, dump_html_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>(static_cast<const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT*>(object), settings, "VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT", indents, dump_html_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT*>(object), settings, "VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT", indents, dump_html_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
     case VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkDirectFBSurfaceCreateInfoEXT>(static_cast<const VkDirectFBSurfaceCreateInfoEXT*>(object), settings, "VkDirectFBSurfaceCreateInfoEXT", indents, dump_html_VkDirectFBSurfaceCreateInfoEXT);
+        dump_html_pNext<const VkDirectFBSurfaceCreateInfoEXT>(reinterpret_cast<const VkDirectFBSurfaceCreateInfoEXT*>(object), settings, "VkDirectFBSurfaceCreateInfoEXT", indents, dump_html_VkDirectFBSurfaceCreateInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_DIRECTFB_EXT
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT>(static_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT*>(object), settings, "VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT", indents, dump_html_VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT*>(object), settings, "VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT", indents, dump_html_VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkMutableDescriptorTypeCreateInfoEXT>(static_cast<const VkMutableDescriptorTypeCreateInfoEXT*>(object), settings, "VkMutableDescriptorTypeCreateInfoEXT", indents, dump_html_VkMutableDescriptorTypeCreateInfoEXT);
+        dump_html_pNext<const VkMutableDescriptorTypeCreateInfoEXT>(reinterpret_cast<const VkMutableDescriptorTypeCreateInfoEXT*>(object), settings, "VkMutableDescriptorTypeCreateInfoEXT", indents, dump_html_VkMutableDescriptorTypeCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT>(static_cast<const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(object), settings, "VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT", indents, dump_html_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(object), settings, "VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT", indents, dump_html_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT:
-        dump_html_pNext<const VkVertexInputBindingDescription2EXT>(static_cast<const VkVertexInputBindingDescription2EXT*>(object), settings, "VkVertexInputBindingDescription2EXT", indents, dump_html_VkVertexInputBindingDescription2EXT);
+        dump_html_pNext<const VkVertexInputBindingDescription2EXT>(reinterpret_cast<const VkVertexInputBindingDescription2EXT*>(object), settings, "VkVertexInputBindingDescription2EXT", indents, dump_html_VkVertexInputBindingDescription2EXT);
         break;
     case VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT:
-        dump_html_pNext<const VkVertexInputAttributeDescription2EXT>(static_cast<const VkVertexInputAttributeDescription2EXT*>(object), settings, "VkVertexInputAttributeDescription2EXT", indents, dump_html_VkVertexInputAttributeDescription2EXT);
+        dump_html_pNext<const VkVertexInputAttributeDescription2EXT>(reinterpret_cast<const VkVertexInputAttributeDescription2EXT*>(object), settings, "VkVertexInputAttributeDescription2EXT", indents, dump_html_VkVertexInputAttributeDescription2EXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDrmPropertiesEXT>(static_cast<const VkPhysicalDeviceDrmPropertiesEXT*>(object), settings, "VkPhysicalDeviceDrmPropertiesEXT", indents, dump_html_VkPhysicalDeviceDrmPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDrmPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceDrmPropertiesEXT*>(object), settings, "VkPhysicalDeviceDrmPropertiesEXT", indents, dump_html_VkPhysicalDeviceDrmPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceAddressBindingReportFeaturesEXT>(static_cast<const VkPhysicalDeviceAddressBindingReportFeaturesEXT*>(object), settings, "VkPhysicalDeviceAddressBindingReportFeaturesEXT", indents, dump_html_VkPhysicalDeviceAddressBindingReportFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceAddressBindingReportFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceAddressBindingReportFeaturesEXT*>(object), settings, "VkPhysicalDeviceAddressBindingReportFeaturesEXT", indents, dump_html_VkPhysicalDeviceAddressBindingReportFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT:
-        dump_html_pNext<const VkDeviceAddressBindingCallbackDataEXT>(static_cast<const VkDeviceAddressBindingCallbackDataEXT*>(object), settings, "VkDeviceAddressBindingCallbackDataEXT", indents, dump_html_VkDeviceAddressBindingCallbackDataEXT);
+        dump_html_pNext<const VkDeviceAddressBindingCallbackDataEXT>(reinterpret_cast<const VkDeviceAddressBindingCallbackDataEXT*>(object), settings, "VkDeviceAddressBindingCallbackDataEXT", indents, dump_html_VkDeviceAddressBindingCallbackDataEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDepthClipControlFeaturesEXT>(static_cast<const VkPhysicalDeviceDepthClipControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthClipControlFeaturesEXT", indents, dump_html_VkPhysicalDeviceDepthClipControlFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDepthClipControlFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDepthClipControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthClipControlFeaturesEXT", indents, dump_html_VkPhysicalDeviceDepthClipControlFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineViewportDepthClipControlCreateInfoEXT>(static_cast<const VkPipelineViewportDepthClipControlCreateInfoEXT*>(object), settings, "VkPipelineViewportDepthClipControlCreateInfoEXT", indents, dump_html_VkPipelineViewportDepthClipControlCreateInfoEXT);
+        dump_html_pNext<const VkPipelineViewportDepthClipControlCreateInfoEXT>(reinterpret_cast<const VkPipelineViewportDepthClipControlCreateInfoEXT*>(object), settings, "VkPipelineViewportDepthClipControlCreateInfoEXT", indents, dump_html_VkPipelineViewportDepthClipControlCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT>(static_cast<const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT*>(object), settings, "VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT", indents, dump_html_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT*>(object), settings, "VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT", indents, dump_html_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT>(static_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(object), settings, "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT", indents, dump_html_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(object), settings, "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT", indents, dump_html_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA:
-        dump_html_pNext<const VkImportMemoryZirconHandleInfoFUCHSIA>(static_cast<const VkImportMemoryZirconHandleInfoFUCHSIA*>(object), settings, "VkImportMemoryZirconHandleInfoFUCHSIA", indents, dump_html_VkImportMemoryZirconHandleInfoFUCHSIA);
+        dump_html_pNext<const VkImportMemoryZirconHandleInfoFUCHSIA>(reinterpret_cast<const VkImportMemoryZirconHandleInfoFUCHSIA*>(object), settings, "VkImportMemoryZirconHandleInfoFUCHSIA", indents, dump_html_VkImportMemoryZirconHandleInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_MEMORY_ZIRCON_HANDLE_PROPERTIES_FUCHSIA:
-        dump_html_pNext<const VkMemoryZirconHandlePropertiesFUCHSIA>(static_cast<const VkMemoryZirconHandlePropertiesFUCHSIA*>(object), settings, "VkMemoryZirconHandlePropertiesFUCHSIA", indents, dump_html_VkMemoryZirconHandlePropertiesFUCHSIA);
+        dump_html_pNext<const VkMemoryZirconHandlePropertiesFUCHSIA>(reinterpret_cast<const VkMemoryZirconHandlePropertiesFUCHSIA*>(object), settings, "VkMemoryZirconHandlePropertiesFUCHSIA", indents, dump_html_VkMemoryZirconHandlePropertiesFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_MEMORY_GET_ZIRCON_HANDLE_INFO_FUCHSIA:
-        dump_html_pNext<const VkMemoryGetZirconHandleInfoFUCHSIA>(static_cast<const VkMemoryGetZirconHandleInfoFUCHSIA*>(object), settings, "VkMemoryGetZirconHandleInfoFUCHSIA", indents, dump_html_VkMemoryGetZirconHandleInfoFUCHSIA);
+        dump_html_pNext<const VkMemoryGetZirconHandleInfoFUCHSIA>(reinterpret_cast<const VkMemoryGetZirconHandleInfoFUCHSIA*>(object), settings, "VkMemoryGetZirconHandleInfoFUCHSIA", indents, dump_html_VkMemoryGetZirconHandleInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_ZIRCON_HANDLE_INFO_FUCHSIA:
-        dump_html_pNext<const VkImportSemaphoreZirconHandleInfoFUCHSIA>(static_cast<const VkImportSemaphoreZirconHandleInfoFUCHSIA*>(object), settings, "VkImportSemaphoreZirconHandleInfoFUCHSIA", indents, dump_html_VkImportSemaphoreZirconHandleInfoFUCHSIA);
+        dump_html_pNext<const VkImportSemaphoreZirconHandleInfoFUCHSIA>(reinterpret_cast<const VkImportSemaphoreZirconHandleInfoFUCHSIA*>(object), settings, "VkImportSemaphoreZirconHandleInfoFUCHSIA", indents, dump_html_VkImportSemaphoreZirconHandleInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_SEMAPHORE_GET_ZIRCON_HANDLE_INFO_FUCHSIA:
-        dump_html_pNext<const VkSemaphoreGetZirconHandleInfoFUCHSIA>(static_cast<const VkSemaphoreGetZirconHandleInfoFUCHSIA*>(object), settings, "VkSemaphoreGetZirconHandleInfoFUCHSIA", indents, dump_html_VkSemaphoreGetZirconHandleInfoFUCHSIA);
+        dump_html_pNext<const VkSemaphoreGetZirconHandleInfoFUCHSIA>(reinterpret_cast<const VkSemaphoreGetZirconHandleInfoFUCHSIA*>(object), settings, "VkSemaphoreGetZirconHandleInfoFUCHSIA", indents, dump_html_VkSemaphoreGetZirconHandleInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_CREATE_INFO_FUCHSIA:
-        dump_html_pNext<const VkBufferCollectionCreateInfoFUCHSIA>(static_cast<const VkBufferCollectionCreateInfoFUCHSIA*>(object), settings, "VkBufferCollectionCreateInfoFUCHSIA", indents, dump_html_VkBufferCollectionCreateInfoFUCHSIA);
+        dump_html_pNext<const VkBufferCollectionCreateInfoFUCHSIA>(reinterpret_cast<const VkBufferCollectionCreateInfoFUCHSIA*>(object), settings, "VkBufferCollectionCreateInfoFUCHSIA", indents, dump_html_VkBufferCollectionCreateInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_IMPORT_MEMORY_BUFFER_COLLECTION_FUCHSIA:
-        dump_html_pNext<const VkImportMemoryBufferCollectionFUCHSIA>(static_cast<const VkImportMemoryBufferCollectionFUCHSIA*>(object), settings, "VkImportMemoryBufferCollectionFUCHSIA", indents, dump_html_VkImportMemoryBufferCollectionFUCHSIA);
+        dump_html_pNext<const VkImportMemoryBufferCollectionFUCHSIA>(reinterpret_cast<const VkImportMemoryBufferCollectionFUCHSIA*>(object), settings, "VkImportMemoryBufferCollectionFUCHSIA", indents, dump_html_VkImportMemoryBufferCollectionFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_IMAGE_CREATE_INFO_FUCHSIA:
-        dump_html_pNext<const VkBufferCollectionImageCreateInfoFUCHSIA>(static_cast<const VkBufferCollectionImageCreateInfoFUCHSIA*>(object), settings, "VkBufferCollectionImageCreateInfoFUCHSIA", indents, dump_html_VkBufferCollectionImageCreateInfoFUCHSIA);
+        dump_html_pNext<const VkBufferCollectionImageCreateInfoFUCHSIA>(reinterpret_cast<const VkBufferCollectionImageCreateInfoFUCHSIA*>(object), settings, "VkBufferCollectionImageCreateInfoFUCHSIA", indents, dump_html_VkBufferCollectionImageCreateInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_CONSTRAINTS_INFO_FUCHSIA:
-        dump_html_pNext<const VkBufferCollectionConstraintsInfoFUCHSIA>(static_cast<const VkBufferCollectionConstraintsInfoFUCHSIA*>(object), settings, "VkBufferCollectionConstraintsInfoFUCHSIA", indents, dump_html_VkBufferCollectionConstraintsInfoFUCHSIA);
+        dump_html_pNext<const VkBufferCollectionConstraintsInfoFUCHSIA>(reinterpret_cast<const VkBufferCollectionConstraintsInfoFUCHSIA*>(object), settings, "VkBufferCollectionConstraintsInfoFUCHSIA", indents, dump_html_VkBufferCollectionConstraintsInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_BUFFER_CONSTRAINTS_INFO_FUCHSIA:
-        dump_html_pNext<const VkBufferConstraintsInfoFUCHSIA>(static_cast<const VkBufferConstraintsInfoFUCHSIA*>(object), settings, "VkBufferConstraintsInfoFUCHSIA", indents, dump_html_VkBufferConstraintsInfoFUCHSIA);
+        dump_html_pNext<const VkBufferConstraintsInfoFUCHSIA>(reinterpret_cast<const VkBufferConstraintsInfoFUCHSIA*>(object), settings, "VkBufferConstraintsInfoFUCHSIA", indents, dump_html_VkBufferConstraintsInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_BUFFER_CREATE_INFO_FUCHSIA:
-        dump_html_pNext<const VkBufferCollectionBufferCreateInfoFUCHSIA>(static_cast<const VkBufferCollectionBufferCreateInfoFUCHSIA*>(object), settings, "VkBufferCollectionBufferCreateInfoFUCHSIA", indents, dump_html_VkBufferCollectionBufferCreateInfoFUCHSIA);
+        dump_html_pNext<const VkBufferCollectionBufferCreateInfoFUCHSIA>(reinterpret_cast<const VkBufferCollectionBufferCreateInfoFUCHSIA*>(object), settings, "VkBufferCollectionBufferCreateInfoFUCHSIA", indents, dump_html_VkBufferCollectionBufferCreateInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_SYSMEM_COLOR_SPACE_FUCHSIA:
-        dump_html_pNext<const VkSysmemColorSpaceFUCHSIA>(static_cast<const VkSysmemColorSpaceFUCHSIA*>(object), settings, "VkSysmemColorSpaceFUCHSIA", indents, dump_html_VkSysmemColorSpaceFUCHSIA);
+        dump_html_pNext<const VkSysmemColorSpaceFUCHSIA>(reinterpret_cast<const VkSysmemColorSpaceFUCHSIA*>(object), settings, "VkSysmemColorSpaceFUCHSIA", indents, dump_html_VkSysmemColorSpaceFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_BUFFER_COLLECTION_PROPERTIES_FUCHSIA:
-        dump_html_pNext<const VkBufferCollectionPropertiesFUCHSIA>(static_cast<const VkBufferCollectionPropertiesFUCHSIA*>(object), settings, "VkBufferCollectionPropertiesFUCHSIA", indents, dump_html_VkBufferCollectionPropertiesFUCHSIA);
+        dump_html_pNext<const VkBufferCollectionPropertiesFUCHSIA>(reinterpret_cast<const VkBufferCollectionPropertiesFUCHSIA*>(object), settings, "VkBufferCollectionPropertiesFUCHSIA", indents, dump_html_VkBufferCollectionPropertiesFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_IMAGE_FORMAT_CONSTRAINTS_INFO_FUCHSIA:
-        dump_html_pNext<const VkImageFormatConstraintsInfoFUCHSIA>(static_cast<const VkImageFormatConstraintsInfoFUCHSIA*>(object), settings, "VkImageFormatConstraintsInfoFUCHSIA", indents, dump_html_VkImageFormatConstraintsInfoFUCHSIA);
+        dump_html_pNext<const VkImageFormatConstraintsInfoFUCHSIA>(reinterpret_cast<const VkImageFormatConstraintsInfoFUCHSIA*>(object), settings, "VkImageFormatConstraintsInfoFUCHSIA", indents, dump_html_VkImageFormatConstraintsInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     case VK_STRUCTURE_TYPE_IMAGE_CONSTRAINTS_INFO_FUCHSIA:
-        dump_html_pNext<const VkImageConstraintsInfoFUCHSIA>(static_cast<const VkImageConstraintsInfoFUCHSIA*>(object), settings, "VkImageConstraintsInfoFUCHSIA", indents, dump_html_VkImageConstraintsInfoFUCHSIA);
+        dump_html_pNext<const VkImageConstraintsInfoFUCHSIA>(reinterpret_cast<const VkImageConstraintsInfoFUCHSIA*>(object), settings, "VkImageConstraintsInfoFUCHSIA", indents, dump_html_VkImageConstraintsInfoFUCHSIA);
         break;
 #endif // VK_USE_PLATFORM_FUCHSIA
     case VK_STRUCTURE_TYPE_SUBPASS_SHADING_PIPELINE_CREATE_INFO_HUAWEI:
-        dump_html_pNext<const VkSubpassShadingPipelineCreateInfoHUAWEI>(static_cast<const VkSubpassShadingPipelineCreateInfoHUAWEI*>(object), settings, "VkSubpassShadingPipelineCreateInfoHUAWEI", indents, dump_html_VkSubpassShadingPipelineCreateInfoHUAWEI);
+        dump_html_pNext<const VkSubpassShadingPipelineCreateInfoHUAWEI>(reinterpret_cast<const VkSubpassShadingPipelineCreateInfoHUAWEI*>(object), settings, "VkSubpassShadingPipelineCreateInfoHUAWEI", indents, dump_html_VkSubpassShadingPipelineCreateInfoHUAWEI);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_FEATURES_HUAWEI:
-        dump_html_pNext<const VkPhysicalDeviceSubpassShadingFeaturesHUAWEI>(static_cast<const VkPhysicalDeviceSubpassShadingFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceSubpassShadingFeaturesHUAWEI", indents, dump_html_VkPhysicalDeviceSubpassShadingFeaturesHUAWEI);
+        dump_html_pNext<const VkPhysicalDeviceSubpassShadingFeaturesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceSubpassShadingFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceSubpassShadingFeaturesHUAWEI", indents, dump_html_VkPhysicalDeviceSubpassShadingFeaturesHUAWEI);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_PROPERTIES_HUAWEI:
-        dump_html_pNext<const VkPhysicalDeviceSubpassShadingPropertiesHUAWEI>(static_cast<const VkPhysicalDeviceSubpassShadingPropertiesHUAWEI*>(object), settings, "VkPhysicalDeviceSubpassShadingPropertiesHUAWEI", indents, dump_html_VkPhysicalDeviceSubpassShadingPropertiesHUAWEI);
+        dump_html_pNext<const VkPhysicalDeviceSubpassShadingPropertiesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceSubpassShadingPropertiesHUAWEI*>(object), settings, "VkPhysicalDeviceSubpassShadingPropertiesHUAWEI", indents, dump_html_VkPhysicalDeviceSubpassShadingPropertiesHUAWEI);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI:
-        dump_html_pNext<const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI>(static_cast<const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceInvocationMaskFeaturesHUAWEI", indents, dump_html_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI);
+        dump_html_pNext<const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceInvocationMaskFeaturesHUAWEI", indents, dump_html_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_GET_REMOTE_ADDRESS_INFO_NV:
-        dump_html_pNext<const VkMemoryGetRemoteAddressInfoNV>(static_cast<const VkMemoryGetRemoteAddressInfoNV*>(object), settings, "VkMemoryGetRemoteAddressInfoNV", indents, dump_html_VkMemoryGetRemoteAddressInfoNV);
+        dump_html_pNext<const VkMemoryGetRemoteAddressInfoNV>(reinterpret_cast<const VkMemoryGetRemoteAddressInfoNV*>(object), settings, "VkMemoryGetRemoteAddressInfoNV", indents, dump_html_VkMemoryGetRemoteAddressInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV>(static_cast<const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV*>(object), settings, "VkPhysicalDeviceExternalMemoryRDMAFeaturesNV", indents, dump_html_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV*>(object), settings, "VkPhysicalDeviceExternalMemoryRDMAFeaturesNV", indents, dump_html_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_PROPERTIES_IDENTIFIER_EXT:
-        dump_html_pNext<const VkPipelinePropertiesIdentifierEXT>(static_cast<const VkPipelinePropertiesIdentifierEXT*>(object), settings, "VkPipelinePropertiesIdentifierEXT", indents, dump_html_VkPipelinePropertiesIdentifierEXT);
+        dump_html_pNext<const VkPipelinePropertiesIdentifierEXT>(reinterpret_cast<const VkPipelinePropertiesIdentifierEXT*>(object), settings, "VkPipelinePropertiesIdentifierEXT", indents, dump_html_VkPipelinePropertiesIdentifierEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROPERTIES_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDevicePipelinePropertiesFeaturesEXT>(static_cast<const VkPhysicalDevicePipelinePropertiesFeaturesEXT*>(object), settings, "VkPhysicalDevicePipelinePropertiesFeaturesEXT", indents, dump_html_VkPhysicalDevicePipelinePropertiesFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDevicePipelinePropertiesFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePipelinePropertiesFeaturesEXT*>(object), settings, "VkPhysicalDevicePipelinePropertiesFeaturesEXT", indents, dump_html_VkPhysicalDevicePipelinePropertiesFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceFrameBoundaryFeaturesEXT>(static_cast<const VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(object), settings, "VkPhysicalDeviceFrameBoundaryFeaturesEXT", indents, dump_html_VkPhysicalDeviceFrameBoundaryFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceFrameBoundaryFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(object), settings, "VkPhysicalDeviceFrameBoundaryFeaturesEXT", indents, dump_html_VkPhysicalDeviceFrameBoundaryFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
-        dump_html_pNext<const VkFrameBoundaryEXT>(static_cast<const VkFrameBoundaryEXT*>(object), settings, "VkFrameBoundaryEXT", indents, dump_html_VkFrameBoundaryEXT);
+        dump_html_pNext<const VkFrameBoundaryEXT>(reinterpret_cast<const VkFrameBoundaryEXT*>(object), settings, "VkFrameBoundaryEXT", indents, dump_html_VkFrameBoundaryEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>(static_cast<const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(object), settings, "VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT", indents, dump_html_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(object), settings, "VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT", indents, dump_html_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_SUBPASS_RESOLVE_PERFORMANCE_QUERY_EXT:
-        dump_html_pNext<const VkSubpassResolvePerformanceQueryEXT>(static_cast<const VkSubpassResolvePerformanceQueryEXT*>(object), settings, "VkSubpassResolvePerformanceQueryEXT", indents, dump_html_VkSubpassResolvePerformanceQueryEXT);
+        dump_html_pNext<const VkSubpassResolvePerformanceQueryEXT>(reinterpret_cast<const VkSubpassResolvePerformanceQueryEXT*>(object), settings, "VkSubpassResolvePerformanceQueryEXT", indents, dump_html_VkSubpassResolvePerformanceQueryEXT);
         break;
     case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
-        dump_html_pNext<const VkMultisampledRenderToSingleSampledInfoEXT>(static_cast<const VkMultisampledRenderToSingleSampledInfoEXT*>(object), settings, "VkMultisampledRenderToSingleSampledInfoEXT", indents, dump_html_VkMultisampledRenderToSingleSampledInfoEXT);
+        dump_html_pNext<const VkMultisampledRenderToSingleSampledInfoEXT>(reinterpret_cast<const VkMultisampledRenderToSingleSampledInfoEXT*>(object), settings, "VkMultisampledRenderToSingleSampledInfoEXT", indents, dump_html_VkMultisampledRenderToSingleSampledInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT>(static_cast<const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicState2FeaturesEXT", indents, dump_html_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicState2FeaturesEXT", indents, dump_html_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
     case VK_STRUCTURE_TYPE_SCREEN_SURFACE_CREATE_INFO_QNX:
-        dump_html_pNext<const VkScreenSurfaceCreateInfoQNX>(static_cast<const VkScreenSurfaceCreateInfoQNX*>(object), settings, "VkScreenSurfaceCreateInfoQNX", indents, dump_html_VkScreenSurfaceCreateInfoQNX);
+        dump_html_pNext<const VkScreenSurfaceCreateInfoQNX>(reinterpret_cast<const VkScreenSurfaceCreateInfoQNX*>(object), settings, "VkScreenSurfaceCreateInfoQNX", indents, dump_html_VkScreenSurfaceCreateInfoQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceColorWriteEnableFeaturesEXT>(static_cast<const VkPhysicalDeviceColorWriteEnableFeaturesEXT*>(object), settings, "VkPhysicalDeviceColorWriteEnableFeaturesEXT", indents, dump_html_VkPhysicalDeviceColorWriteEnableFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceColorWriteEnableFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceColorWriteEnableFeaturesEXT*>(object), settings, "VkPhysicalDeviceColorWriteEnableFeaturesEXT", indents, dump_html_VkPhysicalDeviceColorWriteEnableFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineColorWriteCreateInfoEXT>(static_cast<const VkPipelineColorWriteCreateInfoEXT*>(object), settings, "VkPipelineColorWriteCreateInfoEXT", indents, dump_html_VkPipelineColorWriteCreateInfoEXT);
+        dump_html_pNext<const VkPipelineColorWriteCreateInfoEXT>(reinterpret_cast<const VkPipelineColorWriteCreateInfoEXT*>(object), settings, "VkPipelineColorWriteCreateInfoEXT", indents, dump_html_VkPipelineColorWriteCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT>(static_cast<const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT*>(object), settings, "VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT", indents, dump_html_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT*>(object), settings, "VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT", indents, dump_html_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceImageViewMinLodFeaturesEXT>(static_cast<const VkPhysicalDeviceImageViewMinLodFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageViewMinLodFeaturesEXT", indents, dump_html_VkPhysicalDeviceImageViewMinLodFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceImageViewMinLodFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceImageViewMinLodFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageViewMinLodFeaturesEXT", indents, dump_html_VkPhysicalDeviceImageViewMinLodFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT:
-        dump_html_pNext<const VkImageViewMinLodCreateInfoEXT>(static_cast<const VkImageViewMinLodCreateInfoEXT*>(object), settings, "VkImageViewMinLodCreateInfoEXT", indents, dump_html_VkImageViewMinLodCreateInfoEXT);
+        dump_html_pNext<const VkImageViewMinLodCreateInfoEXT>(reinterpret_cast<const VkImageViewMinLodCreateInfoEXT*>(object), settings, "VkImageViewMinLodCreateInfoEXT", indents, dump_html_VkImageViewMinLodCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceMultiDrawFeaturesEXT>(static_cast<const VkPhysicalDeviceMultiDrawFeaturesEXT*>(object), settings, "VkPhysicalDeviceMultiDrawFeaturesEXT", indents, dump_html_VkPhysicalDeviceMultiDrawFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceMultiDrawFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMultiDrawFeaturesEXT*>(object), settings, "VkPhysicalDeviceMultiDrawFeaturesEXT", indents, dump_html_VkPhysicalDeviceMultiDrawFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceMultiDrawPropertiesEXT>(static_cast<const VkPhysicalDeviceMultiDrawPropertiesEXT*>(object), settings, "VkPhysicalDeviceMultiDrawPropertiesEXT", indents, dump_html_VkPhysicalDeviceMultiDrawPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceMultiDrawPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceMultiDrawPropertiesEXT*>(object), settings, "VkPhysicalDeviceMultiDrawPropertiesEXT", indents, dump_html_VkPhysicalDeviceMultiDrawPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>(static_cast<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(object), settings, "VkPhysicalDeviceImage2DViewOf3DFeaturesEXT", indents, dump_html_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceImage2DViewOf3DFeaturesEXT*>(object), settings, "VkPhysicalDeviceImage2DViewOf3DFeaturesEXT", indents, dump_html_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderTileImageFeaturesEXT>(static_cast<const VkPhysicalDeviceShaderTileImageFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderTileImageFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderTileImageFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderTileImageFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderTileImageFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderTileImageFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderTileImageFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderTileImagePropertiesEXT>(static_cast<const VkPhysicalDeviceShaderTileImagePropertiesEXT*>(object), settings, "VkPhysicalDeviceShaderTileImagePropertiesEXT", indents, dump_html_VkPhysicalDeviceShaderTileImagePropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderTileImagePropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderTileImagePropertiesEXT*>(object), settings, "VkPhysicalDeviceShaderTileImagePropertiesEXT", indents, dump_html_VkPhysicalDeviceShaderTileImagePropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT:
-        dump_html_pNext<const VkMicromapBuildInfoEXT>(static_cast<const VkMicromapBuildInfoEXT*>(object), settings, "VkMicromapBuildInfoEXT", indents, dump_html_VkMicromapBuildInfoEXT);
+        dump_html_pNext<const VkMicromapBuildInfoEXT>(reinterpret_cast<const VkMicromapBuildInfoEXT*>(object), settings, "VkMicromapBuildInfoEXT", indents, dump_html_VkMicromapBuildInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_MICROMAP_CREATE_INFO_EXT:
-        dump_html_pNext<const VkMicromapCreateInfoEXT>(static_cast<const VkMicromapCreateInfoEXT*>(object), settings, "VkMicromapCreateInfoEXT", indents, dump_html_VkMicromapCreateInfoEXT);
+        dump_html_pNext<const VkMicromapCreateInfoEXT>(reinterpret_cast<const VkMicromapCreateInfoEXT*>(object), settings, "VkMicromapCreateInfoEXT", indents, dump_html_VkMicromapCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceOpacityMicromapFeaturesEXT>(static_cast<const VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(object), settings, "VkPhysicalDeviceOpacityMicromapFeaturesEXT", indents, dump_html_VkPhysicalDeviceOpacityMicromapFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceOpacityMicromapFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceOpacityMicromapFeaturesEXT*>(object), settings, "VkPhysicalDeviceOpacityMicromapFeaturesEXT", indents, dump_html_VkPhysicalDeviceOpacityMicromapFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceOpacityMicromapPropertiesEXT>(static_cast<const VkPhysicalDeviceOpacityMicromapPropertiesEXT*>(object), settings, "VkPhysicalDeviceOpacityMicromapPropertiesEXT", indents, dump_html_VkPhysicalDeviceOpacityMicromapPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceOpacityMicromapPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceOpacityMicromapPropertiesEXT*>(object), settings, "VkPhysicalDeviceOpacityMicromapPropertiesEXT", indents, dump_html_VkPhysicalDeviceOpacityMicromapPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_MICROMAP_VERSION_INFO_EXT:
-        dump_html_pNext<const VkMicromapVersionInfoEXT>(static_cast<const VkMicromapVersionInfoEXT*>(object), settings, "VkMicromapVersionInfoEXT", indents, dump_html_VkMicromapVersionInfoEXT);
+        dump_html_pNext<const VkMicromapVersionInfoEXT>(reinterpret_cast<const VkMicromapVersionInfoEXT*>(object), settings, "VkMicromapVersionInfoEXT", indents, dump_html_VkMicromapVersionInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_COPY_MICROMAP_TO_MEMORY_INFO_EXT:
-        dump_html_pNext<const VkCopyMicromapToMemoryInfoEXT>(static_cast<const VkCopyMicromapToMemoryInfoEXT*>(object), settings, "VkCopyMicromapToMemoryInfoEXT", indents, dump_html_VkCopyMicromapToMemoryInfoEXT);
+        dump_html_pNext<const VkCopyMicromapToMemoryInfoEXT>(reinterpret_cast<const VkCopyMicromapToMemoryInfoEXT*>(object), settings, "VkCopyMicromapToMemoryInfoEXT", indents, dump_html_VkCopyMicromapToMemoryInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_MICROMAP_INFO_EXT:
-        dump_html_pNext<const VkCopyMemoryToMicromapInfoEXT>(static_cast<const VkCopyMemoryToMicromapInfoEXT*>(object), settings, "VkCopyMemoryToMicromapInfoEXT", indents, dump_html_VkCopyMemoryToMicromapInfoEXT);
+        dump_html_pNext<const VkCopyMemoryToMicromapInfoEXT>(reinterpret_cast<const VkCopyMemoryToMicromapInfoEXT*>(object), settings, "VkCopyMemoryToMicromapInfoEXT", indents, dump_html_VkCopyMemoryToMicromapInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_COPY_MICROMAP_INFO_EXT:
-        dump_html_pNext<const VkCopyMicromapInfoEXT>(static_cast<const VkCopyMicromapInfoEXT*>(object), settings, "VkCopyMicromapInfoEXT", indents, dump_html_VkCopyMicromapInfoEXT);
+        dump_html_pNext<const VkCopyMicromapInfoEXT>(reinterpret_cast<const VkCopyMicromapInfoEXT*>(object), settings, "VkCopyMicromapInfoEXT", indents, dump_html_VkCopyMicromapInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_MICROMAP_BUILD_SIZES_INFO_EXT:
-        dump_html_pNext<const VkMicromapBuildSizesInfoEXT>(static_cast<const VkMicromapBuildSizesInfoEXT*>(object), settings, "VkMicromapBuildSizesInfoEXT", indents, dump_html_VkMicromapBuildSizesInfoEXT);
+        dump_html_pNext<const VkMicromapBuildSizesInfoEXT>(reinterpret_cast<const VkMicromapBuildSizesInfoEXT*>(object), settings, "VkMicromapBuildSizesInfoEXT", indents, dump_html_VkMicromapBuildSizesInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
-        dump_html_pNext<const VkAccelerationStructureTrianglesOpacityMicromapEXT>(static_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(object), settings, "VkAccelerationStructureTrianglesOpacityMicromapEXT", indents, dump_html_VkAccelerationStructureTrianglesOpacityMicromapEXT);
+        dump_html_pNext<const VkAccelerationStructureTrianglesOpacityMicromapEXT>(reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(object), settings, "VkAccelerationStructureTrianglesOpacityMicromapEXT", indents, dump_html_VkAccelerationStructureTrianglesOpacityMicromapEXT);
         break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceDisplacementMicromapFeaturesNV>(static_cast<const VkPhysicalDeviceDisplacementMicromapFeaturesNV*>(object), settings, "VkPhysicalDeviceDisplacementMicromapFeaturesNV", indents, dump_html_VkPhysicalDeviceDisplacementMicromapFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceDisplacementMicromapFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDisplacementMicromapFeaturesNV*>(object), settings, "VkPhysicalDeviceDisplacementMicromapFeaturesNV", indents, dump_html_VkPhysicalDeviceDisplacementMicromapFeaturesNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISPLACEMENT_MICROMAP_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceDisplacementMicromapPropertiesNV>(static_cast<const VkPhysicalDeviceDisplacementMicromapPropertiesNV*>(object), settings, "VkPhysicalDeviceDisplacementMicromapPropertiesNV", indents, dump_html_VkPhysicalDeviceDisplacementMicromapPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceDisplacementMicromapPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceDisplacementMicromapPropertiesNV*>(object), settings, "VkPhysicalDeviceDisplacementMicromapPropertiesNV", indents, dump_html_VkPhysicalDeviceDisplacementMicromapPropertiesNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
-        dump_html_pNext<const VkAccelerationStructureTrianglesDisplacementMicromapNV>(static_cast<const VkAccelerationStructureTrianglesDisplacementMicromapNV*>(object), settings, "VkAccelerationStructureTrianglesDisplacementMicromapNV", indents, dump_html_VkAccelerationStructureTrianglesDisplacementMicromapNV);
+        dump_html_pNext<const VkAccelerationStructureTrianglesDisplacementMicromapNV>(reinterpret_cast<const VkAccelerationStructureTrianglesDisplacementMicromapNV*>(object), settings, "VkAccelerationStructureTrianglesDisplacementMicromapNV", indents, dump_html_VkAccelerationStructureTrianglesDisplacementMicromapNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI:
-        dump_html_pNext<const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI>(static_cast<const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI", indents, dump_html_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI);
+        dump_html_pNext<const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI", indents, dump_html_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI:
-        dump_html_pNext<const VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI>(static_cast<const VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI*>(object), settings, "VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI", indents, dump_html_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI);
+        dump_html_pNext<const VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI*>(object), settings, "VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI", indents, dump_html_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI:
-        dump_html_pNext<const VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI>(static_cast<const VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI", indents, dump_html_VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI);
+        dump_html_pNext<const VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI", indents, dump_html_VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>(static_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(object), settings, "VkPhysicalDeviceBorderColorSwizzleFeaturesEXT", indents, dump_html_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceBorderColorSwizzleFeaturesEXT*>(object), settings, "VkPhysicalDeviceBorderColorSwizzleFeaturesEXT", indents, dump_html_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT:
-        dump_html_pNext<const VkSamplerBorderColorComponentMappingCreateInfoEXT>(static_cast<const VkSamplerBorderColorComponentMappingCreateInfoEXT*>(object), settings, "VkSamplerBorderColorComponentMappingCreateInfoEXT", indents, dump_html_VkSamplerBorderColorComponentMappingCreateInfoEXT);
+        dump_html_pNext<const VkSamplerBorderColorComponentMappingCreateInfoEXT>(reinterpret_cast<const VkSamplerBorderColorComponentMappingCreateInfoEXT*>(object), settings, "VkSamplerBorderColorComponentMappingCreateInfoEXT", indents, dump_html_VkSamplerBorderColorComponentMappingCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>(static_cast<const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT*>(object), settings, "VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT", indents, dump_html_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT*>(object), settings, "VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT", indents, dump_html_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceShaderCorePropertiesARM>(static_cast<const VkPhysicalDeviceShaderCorePropertiesARM*>(object), settings, "VkPhysicalDeviceShaderCorePropertiesARM", indents, dump_html_VkPhysicalDeviceShaderCorePropertiesARM);
+        dump_html_pNext<const VkPhysicalDeviceShaderCorePropertiesARM>(reinterpret_cast<const VkPhysicalDeviceShaderCorePropertiesARM*>(object), settings, "VkPhysicalDeviceShaderCorePropertiesARM", indents, dump_html_VkPhysicalDeviceShaderCorePropertiesARM);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM:
-        dump_html_pNext<const VkDeviceQueueShaderCoreControlCreateInfoARM>(static_cast<const VkDeviceQueueShaderCoreControlCreateInfoARM*>(object), settings, "VkDeviceQueueShaderCoreControlCreateInfoARM", indents, dump_html_VkDeviceQueueShaderCoreControlCreateInfoARM);
+        dump_html_pNext<const VkDeviceQueueShaderCoreControlCreateInfoARM>(reinterpret_cast<const VkDeviceQueueShaderCoreControlCreateInfoARM*>(object), settings, "VkDeviceQueueShaderCoreControlCreateInfoARM", indents, dump_html_VkDeviceQueueShaderCoreControlCreateInfoARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_FEATURES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceSchedulingControlsFeaturesARM>(static_cast<const VkPhysicalDeviceSchedulingControlsFeaturesARM*>(object), settings, "VkPhysicalDeviceSchedulingControlsFeaturesARM", indents, dump_html_VkPhysicalDeviceSchedulingControlsFeaturesARM);
+        dump_html_pNext<const VkPhysicalDeviceSchedulingControlsFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceSchedulingControlsFeaturesARM*>(object), settings, "VkPhysicalDeviceSchedulingControlsFeaturesARM", indents, dump_html_VkPhysicalDeviceSchedulingControlsFeaturesARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceSchedulingControlsPropertiesARM>(static_cast<const VkPhysicalDeviceSchedulingControlsPropertiesARM*>(object), settings, "VkPhysicalDeviceSchedulingControlsPropertiesARM", indents, dump_html_VkPhysicalDeviceSchedulingControlsPropertiesARM);
+        dump_html_pNext<const VkPhysicalDeviceSchedulingControlsPropertiesARM>(reinterpret_cast<const VkPhysicalDeviceSchedulingControlsPropertiesARM*>(object), settings, "VkPhysicalDeviceSchedulingControlsPropertiesARM", indents, dump_html_VkPhysicalDeviceSchedulingControlsPropertiesARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT>(static_cast<const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT", indents, dump_html_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT", indents, dump_html_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_SLICED_CREATE_INFO_EXT:
-        dump_html_pNext<const VkImageViewSlicedCreateInfoEXT>(static_cast<const VkImageViewSlicedCreateInfoEXT*>(object), settings, "VkImageViewSlicedCreateInfoEXT", indents, dump_html_VkImageViewSlicedCreateInfoEXT);
+        dump_html_pNext<const VkImageViewSlicedCreateInfoEXT>(reinterpret_cast<const VkImageViewSlicedCreateInfoEXT*>(object), settings, "VkImageViewSlicedCreateInfoEXT", indents, dump_html_VkImageViewSlicedCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE:
-        dump_html_pNext<const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE>(static_cast<const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE*>(object), settings, "VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE", indents, dump_html_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE);
+        dump_html_pNext<const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE>(reinterpret_cast<const VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE*>(object), settings, "VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE", indents, dump_html_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE:
-        dump_html_pNext<const VkDescriptorSetBindingReferenceVALVE>(static_cast<const VkDescriptorSetBindingReferenceVALVE*>(object), settings, "VkDescriptorSetBindingReferenceVALVE", indents, dump_html_VkDescriptorSetBindingReferenceVALVE);
+        dump_html_pNext<const VkDescriptorSetBindingReferenceVALVE>(reinterpret_cast<const VkDescriptorSetBindingReferenceVALVE*>(object), settings, "VkDescriptorSetBindingReferenceVALVE", indents, dump_html_VkDescriptorSetBindingReferenceVALVE);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE:
-        dump_html_pNext<const VkDescriptorSetLayoutHostMappingInfoVALVE>(static_cast<const VkDescriptorSetLayoutHostMappingInfoVALVE*>(object), settings, "VkDescriptorSetLayoutHostMappingInfoVALVE", indents, dump_html_VkDescriptorSetLayoutHostMappingInfoVALVE);
+        dump_html_pNext<const VkDescriptorSetLayoutHostMappingInfoVALVE>(reinterpret_cast<const VkDescriptorSetLayoutHostMappingInfoVALVE*>(object), settings, "VkDescriptorSetLayoutHostMappingInfoVALVE", indents, dump_html_VkDescriptorSetLayoutHostMappingInfoVALVE);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NON_SEAMLESS_CUBE_MAP_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>(static_cast<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(object), settings, "VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT", indents, dump_html_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT*>(object), settings, "VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT", indents, dump_html_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_FEATURES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceRenderPassStripedFeaturesARM>(static_cast<const VkPhysicalDeviceRenderPassStripedFeaturesARM*>(object), settings, "VkPhysicalDeviceRenderPassStripedFeaturesARM", indents, dump_html_VkPhysicalDeviceRenderPassStripedFeaturesARM);
+        dump_html_pNext<const VkPhysicalDeviceRenderPassStripedFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceRenderPassStripedFeaturesARM*>(object), settings, "VkPhysicalDeviceRenderPassStripedFeaturesARM", indents, dump_html_VkPhysicalDeviceRenderPassStripedFeaturesARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RENDER_PASS_STRIPED_PROPERTIES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceRenderPassStripedPropertiesARM>(static_cast<const VkPhysicalDeviceRenderPassStripedPropertiesARM*>(object), settings, "VkPhysicalDeviceRenderPassStripedPropertiesARM", indents, dump_html_VkPhysicalDeviceRenderPassStripedPropertiesARM);
+        dump_html_pNext<const VkPhysicalDeviceRenderPassStripedPropertiesARM>(reinterpret_cast<const VkPhysicalDeviceRenderPassStripedPropertiesARM*>(object), settings, "VkPhysicalDeviceRenderPassStripedPropertiesARM", indents, dump_html_VkPhysicalDeviceRenderPassStripedPropertiesARM);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_INFO_ARM:
-        dump_html_pNext<const VkRenderPassStripeInfoARM>(static_cast<const VkRenderPassStripeInfoARM*>(object), settings, "VkRenderPassStripeInfoARM", indents, dump_html_VkRenderPassStripeInfoARM);
+        dump_html_pNext<const VkRenderPassStripeInfoARM>(reinterpret_cast<const VkRenderPassStripeInfoARM*>(object), settings, "VkRenderPassStripeInfoARM", indents, dump_html_VkRenderPassStripeInfoARM);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
-        dump_html_pNext<const VkRenderPassStripeBeginInfoARM>(static_cast<const VkRenderPassStripeBeginInfoARM*>(object), settings, "VkRenderPassStripeBeginInfoARM", indents, dump_html_VkRenderPassStripeBeginInfoARM);
+        dump_html_pNext<const VkRenderPassStripeBeginInfoARM>(reinterpret_cast<const VkRenderPassStripeBeginInfoARM*>(object), settings, "VkRenderPassStripeBeginInfoARM", indents, dump_html_VkRenderPassStripeBeginInfoARM);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
-        dump_html_pNext<const VkRenderPassStripeSubmitInfoARM>(static_cast<const VkRenderPassStripeSubmitInfoARM*>(object), settings, "VkRenderPassStripeSubmitInfoARM", indents, dump_html_VkRenderPassStripeSubmitInfoARM);
+        dump_html_pNext<const VkRenderPassStripeSubmitInfoARM>(reinterpret_cast<const VkRenderPassStripeSubmitInfoARM*>(object), settings, "VkRenderPassStripeSubmitInfoARM", indents, dump_html_VkRenderPassStripeSubmitInfoARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT>(static_cast<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT>(static_cast<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT*>(object), settings, "VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT", indents, dump_html_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT:
-        dump_html_pNext<const VkRenderPassFragmentDensityMapOffsetEndInfoEXT>(static_cast<const VkRenderPassFragmentDensityMapOffsetEndInfoEXT*>(object), settings, "VkRenderPassFragmentDensityMapOffsetEndInfoEXT", indents, dump_html_VkRenderPassFragmentDensityMapOffsetEndInfoEXT);
+        dump_html_pNext<const VkRenderPassFragmentDensityMapOffsetEndInfoEXT>(reinterpret_cast<const VkRenderPassFragmentDensityMapOffsetEndInfoEXT*>(object), settings, "VkRenderPassFragmentDensityMapOffsetEndInfoEXT", indents, dump_html_VkRenderPassFragmentDensityMapOffsetEndInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCopyMemoryIndirectFeaturesNV>(static_cast<const VkPhysicalDeviceCopyMemoryIndirectFeaturesNV*>(object), settings, "VkPhysicalDeviceCopyMemoryIndirectFeaturesNV", indents, dump_html_VkPhysicalDeviceCopyMemoryIndirectFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceCopyMemoryIndirectFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectFeaturesNV*>(object), settings, "VkPhysicalDeviceCopyMemoryIndirectFeaturesNV", indents, dump_html_VkPhysicalDeviceCopyMemoryIndirectFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCopyMemoryIndirectPropertiesNV>(static_cast<const VkPhysicalDeviceCopyMemoryIndirectPropertiesNV*>(object), settings, "VkPhysicalDeviceCopyMemoryIndirectPropertiesNV", indents, dump_html_VkPhysicalDeviceCopyMemoryIndirectPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceCopyMemoryIndirectPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectPropertiesNV*>(object), settings, "VkPhysicalDeviceCopyMemoryIndirectPropertiesNV", indents, dump_html_VkPhysicalDeviceCopyMemoryIndirectPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceMemoryDecompressionFeaturesNV>(static_cast<const VkPhysicalDeviceMemoryDecompressionFeaturesNV*>(object), settings, "VkPhysicalDeviceMemoryDecompressionFeaturesNV", indents, dump_html_VkPhysicalDeviceMemoryDecompressionFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceMemoryDecompressionFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceMemoryDecompressionFeaturesNV*>(object), settings, "VkPhysicalDeviceMemoryDecompressionFeaturesNV", indents, dump_html_VkPhysicalDeviceMemoryDecompressionFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceMemoryDecompressionPropertiesNV>(static_cast<const VkPhysicalDeviceMemoryDecompressionPropertiesNV*>(object), settings, "VkPhysicalDeviceMemoryDecompressionPropertiesNV", indents, dump_html_VkPhysicalDeviceMemoryDecompressionPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceMemoryDecompressionPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceMemoryDecompressionPropertiesNV*>(object), settings, "VkPhysicalDeviceMemoryDecompressionPropertiesNV", indents, dump_html_VkPhysicalDeviceMemoryDecompressionPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_COMPUTE_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV>(static_cast<const VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV", indents, dump_html_VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV", indents, dump_html_VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_INDIRECT_BUFFER_INFO_NV:
-        dump_html_pNext<const VkComputePipelineIndirectBufferInfoNV>(static_cast<const VkComputePipelineIndirectBufferInfoNV*>(object), settings, "VkComputePipelineIndirectBufferInfoNV", indents, dump_html_VkComputePipelineIndirectBufferInfoNV);
+        dump_html_pNext<const VkComputePipelineIndirectBufferInfoNV>(reinterpret_cast<const VkComputePipelineIndirectBufferInfoNV*>(object), settings, "VkComputePipelineIndirectBufferInfoNV", indents, dump_html_VkComputePipelineIndirectBufferInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV:
-        dump_html_pNext<const VkPipelineIndirectDeviceAddressInfoNV>(static_cast<const VkPipelineIndirectDeviceAddressInfoNV*>(object), settings, "VkPipelineIndirectDeviceAddressInfoNV", indents, dump_html_VkPipelineIndirectDeviceAddressInfoNV);
+        dump_html_pNext<const VkPipelineIndirectDeviceAddressInfoNV>(reinterpret_cast<const VkPipelineIndirectDeviceAddressInfoNV*>(object), settings, "VkPipelineIndirectDeviceAddressInfoNV", indents, dump_html_VkPipelineIndirectDeviceAddressInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_LINEAR_SWEPT_SPHERES_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV>(static_cast<const VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV", indents, dump_html_VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV", indents, dump_html_VkPhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_LINEAR_SWEPT_SPHERES_DATA_NV:
-        dump_html_pNext<const VkAccelerationStructureGeometryLinearSweptSpheresDataNV>(static_cast<const VkAccelerationStructureGeometryLinearSweptSpheresDataNV*>(object), settings, "VkAccelerationStructureGeometryLinearSweptSpheresDataNV", indents, dump_html_VkAccelerationStructureGeometryLinearSweptSpheresDataNV);
+        dump_html_pNext<const VkAccelerationStructureGeometryLinearSweptSpheresDataNV>(reinterpret_cast<const VkAccelerationStructureGeometryLinearSweptSpheresDataNV*>(object), settings, "VkAccelerationStructureGeometryLinearSweptSpheresDataNV", indents, dump_html_VkAccelerationStructureGeometryLinearSweptSpheresDataNV);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_SPHERES_DATA_NV:
-        dump_html_pNext<const VkAccelerationStructureGeometrySpheresDataNV>(static_cast<const VkAccelerationStructureGeometrySpheresDataNV*>(object), settings, "VkAccelerationStructureGeometrySpheresDataNV", indents, dump_html_VkAccelerationStructureGeometrySpheresDataNV);
+        dump_html_pNext<const VkAccelerationStructureGeometrySpheresDataNV>(reinterpret_cast<const VkAccelerationStructureGeometrySpheresDataNV*>(object), settings, "VkAccelerationStructureGeometrySpheresDataNV", indents, dump_html_VkAccelerationStructureGeometrySpheresDataNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceLinearColorAttachmentFeaturesNV>(static_cast<const VkPhysicalDeviceLinearColorAttachmentFeaturesNV*>(object), settings, "VkPhysicalDeviceLinearColorAttachmentFeaturesNV", indents, dump_html_VkPhysicalDeviceLinearColorAttachmentFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceLinearColorAttachmentFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceLinearColorAttachmentFeaturesNV*>(object), settings, "VkPhysicalDeviceLinearColorAttachmentFeaturesNV", indents, dump_html_VkPhysicalDeviceLinearColorAttachmentFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT>(static_cast<const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT", indents, dump_html_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT*>(object), settings, "VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT", indents, dump_html_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM:
-        dump_html_pNext<const VkImageViewSampleWeightCreateInfoQCOM>(static_cast<const VkImageViewSampleWeightCreateInfoQCOM*>(object), settings, "VkImageViewSampleWeightCreateInfoQCOM", indents, dump_html_VkImageViewSampleWeightCreateInfoQCOM);
+        dump_html_pNext<const VkImageViewSampleWeightCreateInfoQCOM>(reinterpret_cast<const VkImageViewSampleWeightCreateInfoQCOM*>(object), settings, "VkImageViewSampleWeightCreateInfoQCOM", indents, dump_html_VkImageViewSampleWeightCreateInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_FEATURES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceImageProcessingFeaturesQCOM>(static_cast<const VkPhysicalDeviceImageProcessingFeaturesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessingFeaturesQCOM", indents, dump_html_VkPhysicalDeviceImageProcessingFeaturesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceImageProcessingFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceImageProcessingFeaturesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessingFeaturesQCOM", indents, dump_html_VkPhysicalDeviceImageProcessingFeaturesQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceImageProcessingPropertiesQCOM>(static_cast<const VkPhysicalDeviceImageProcessingPropertiesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessingPropertiesQCOM", indents, dump_html_VkPhysicalDeviceImageProcessingPropertiesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceImageProcessingPropertiesQCOM>(reinterpret_cast<const VkPhysicalDeviceImageProcessingPropertiesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessingPropertiesQCOM", indents, dump_html_VkPhysicalDeviceImageProcessingPropertiesQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceNestedCommandBufferFeaturesEXT>(static_cast<const VkPhysicalDeviceNestedCommandBufferFeaturesEXT*>(object), settings, "VkPhysicalDeviceNestedCommandBufferFeaturesEXT", indents, dump_html_VkPhysicalDeviceNestedCommandBufferFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceNestedCommandBufferFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceNestedCommandBufferFeaturesEXT*>(object), settings, "VkPhysicalDeviceNestedCommandBufferFeaturesEXT", indents, dump_html_VkPhysicalDeviceNestedCommandBufferFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceNestedCommandBufferPropertiesEXT>(static_cast<const VkPhysicalDeviceNestedCommandBufferPropertiesEXT*>(object), settings, "VkPhysicalDeviceNestedCommandBufferPropertiesEXT", indents, dump_html_VkPhysicalDeviceNestedCommandBufferPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceNestedCommandBufferPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceNestedCommandBufferPropertiesEXT*>(object), settings, "VkPhysicalDeviceNestedCommandBufferPropertiesEXT", indents, dump_html_VkPhysicalDeviceNestedCommandBufferPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT:
-        dump_html_pNext<const VkExternalMemoryAcquireUnmodifiedEXT>(static_cast<const VkExternalMemoryAcquireUnmodifiedEXT*>(object), settings, "VkExternalMemoryAcquireUnmodifiedEXT", indents, dump_html_VkExternalMemoryAcquireUnmodifiedEXT);
+        dump_html_pNext<const VkExternalMemoryAcquireUnmodifiedEXT>(reinterpret_cast<const VkExternalMemoryAcquireUnmodifiedEXT*>(object), settings, "VkExternalMemoryAcquireUnmodifiedEXT", indents, dump_html_VkExternalMemoryAcquireUnmodifiedEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT>(static_cast<const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicState3FeaturesEXT", indents, dump_html_VkPhysicalDeviceExtendedDynamicState3FeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3FeaturesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicState3FeaturesEXT", indents, dump_html_VkPhysicalDeviceExtendedDynamicState3FeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceExtendedDynamicState3PropertiesEXT>(static_cast<const VkPhysicalDeviceExtendedDynamicState3PropertiesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicState3PropertiesEXT", indents, dump_html_VkPhysicalDeviceExtendedDynamicState3PropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceExtendedDynamicState3PropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicState3PropertiesEXT*>(object), settings, "VkPhysicalDeviceExtendedDynamicState3PropertiesEXT", indents, dump_html_VkPhysicalDeviceExtendedDynamicState3PropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT>(static_cast<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(object), settings, "VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT", indents, dump_html_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(object), settings, "VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT", indents, dump_html_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT:
-        dump_html_pNext<const VkRenderPassCreationControlEXT>(static_cast<const VkRenderPassCreationControlEXT*>(object), settings, "VkRenderPassCreationControlEXT", indents, dump_html_VkRenderPassCreationControlEXT);
+        dump_html_pNext<const VkRenderPassCreationControlEXT>(reinterpret_cast<const VkRenderPassCreationControlEXT*>(object), settings, "VkRenderPassCreationControlEXT", indents, dump_html_VkRenderPassCreationControlEXT);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_CREATE_INFO_EXT:
-        dump_html_pNext<const VkRenderPassCreationFeedbackCreateInfoEXT>(static_cast<const VkRenderPassCreationFeedbackCreateInfoEXT*>(object), settings, "VkRenderPassCreationFeedbackCreateInfoEXT", indents, dump_html_VkRenderPassCreationFeedbackCreateInfoEXT);
+        dump_html_pNext<const VkRenderPassCreationFeedbackCreateInfoEXT>(reinterpret_cast<const VkRenderPassCreationFeedbackCreateInfoEXT*>(object), settings, "VkRenderPassCreationFeedbackCreateInfoEXT", indents, dump_html_VkRenderPassCreationFeedbackCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT:
-        dump_html_pNext<const VkRenderPassSubpassFeedbackCreateInfoEXT>(static_cast<const VkRenderPassSubpassFeedbackCreateInfoEXT*>(object), settings, "VkRenderPassSubpassFeedbackCreateInfoEXT", indents, dump_html_VkRenderPassSubpassFeedbackCreateInfoEXT);
+        dump_html_pNext<const VkRenderPassSubpassFeedbackCreateInfoEXT>(reinterpret_cast<const VkRenderPassSubpassFeedbackCreateInfoEXT*>(object), settings, "VkRenderPassSubpassFeedbackCreateInfoEXT", indents, dump_html_VkRenderPassSubpassFeedbackCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_INFO_LUNARG:
-        dump_html_pNext<const VkDirectDriverLoadingInfoLUNARG>(static_cast<const VkDirectDriverLoadingInfoLUNARG*>(object), settings, "VkDirectDriverLoadingInfoLUNARG", indents, dump_html_VkDirectDriverLoadingInfoLUNARG);
+        dump_html_pNext<const VkDirectDriverLoadingInfoLUNARG>(reinterpret_cast<const VkDirectDriverLoadingInfoLUNARG*>(object), settings, "VkDirectDriverLoadingInfoLUNARG", indents, dump_html_VkDirectDriverLoadingInfoLUNARG);
         break;
     case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG:
-        dump_html_pNext<const VkDirectDriverLoadingListLUNARG>(static_cast<const VkDirectDriverLoadingListLUNARG*>(object), settings, "VkDirectDriverLoadingListLUNARG", indents, dump_html_VkDirectDriverLoadingListLUNARG);
+        dump_html_pNext<const VkDirectDriverLoadingListLUNARG>(reinterpret_cast<const VkDirectDriverLoadingListLUNARG*>(object), settings, "VkDirectDriverLoadingListLUNARG", indents, dump_html_VkDirectDriverLoadingListLUNARG);
         break;
     case VK_STRUCTURE_TYPE_TENSOR_DESCRIPTION_ARM:
-        dump_html_pNext<const VkTensorDescriptionARM>(static_cast<const VkTensorDescriptionARM*>(object), settings, "VkTensorDescriptionARM", indents, dump_html_VkTensorDescriptionARM);
+        dump_html_pNext<const VkTensorDescriptionARM>(reinterpret_cast<const VkTensorDescriptionARM*>(object), settings, "VkTensorDescriptionARM", indents, dump_html_VkTensorDescriptionARM);
         break;
     case VK_STRUCTURE_TYPE_TENSOR_CREATE_INFO_ARM:
-        dump_html_pNext<const VkTensorCreateInfoARM>(static_cast<const VkTensorCreateInfoARM*>(object), settings, "VkTensorCreateInfoARM", indents, dump_html_VkTensorCreateInfoARM);
+        dump_html_pNext<const VkTensorCreateInfoARM>(reinterpret_cast<const VkTensorCreateInfoARM*>(object), settings, "VkTensorCreateInfoARM", indents, dump_html_VkTensorCreateInfoARM);
         break;
     case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
-        dump_html_pNext<const VkTensorViewCreateInfoARM>(static_cast<const VkTensorViewCreateInfoARM*>(object), settings, "VkTensorViewCreateInfoARM", indents, dump_html_VkTensorViewCreateInfoARM);
+        dump_html_pNext<const VkTensorViewCreateInfoARM>(reinterpret_cast<const VkTensorViewCreateInfoARM*>(object), settings, "VkTensorViewCreateInfoARM", indents, dump_html_VkTensorViewCreateInfoARM);
         break;
     case VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM:
-        dump_html_pNext<const VkTensorMemoryRequirementsInfoARM>(static_cast<const VkTensorMemoryRequirementsInfoARM*>(object), settings, "VkTensorMemoryRequirementsInfoARM", indents, dump_html_VkTensorMemoryRequirementsInfoARM);
+        dump_html_pNext<const VkTensorMemoryRequirementsInfoARM>(reinterpret_cast<const VkTensorMemoryRequirementsInfoARM*>(object), settings, "VkTensorMemoryRequirementsInfoARM", indents, dump_html_VkTensorMemoryRequirementsInfoARM);
         break;
     case VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM:
-        dump_html_pNext<const VkBindTensorMemoryInfoARM>(static_cast<const VkBindTensorMemoryInfoARM*>(object), settings, "VkBindTensorMemoryInfoARM", indents, dump_html_VkBindTensorMemoryInfoARM);
+        dump_html_pNext<const VkBindTensorMemoryInfoARM>(reinterpret_cast<const VkBindTensorMemoryInfoARM*>(object), settings, "VkBindTensorMemoryInfoARM", indents, dump_html_VkBindTensorMemoryInfoARM);
         break;
     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_TENSOR_ARM:
-        dump_html_pNext<const VkWriteDescriptorSetTensorARM>(static_cast<const VkWriteDescriptorSetTensorARM*>(object), settings, "VkWriteDescriptorSetTensorARM", indents, dump_html_VkWriteDescriptorSetTensorARM);
+        dump_html_pNext<const VkWriteDescriptorSetTensorARM>(reinterpret_cast<const VkWriteDescriptorSetTensorARM*>(object), settings, "VkWriteDescriptorSetTensorARM", indents, dump_html_VkWriteDescriptorSetTensorARM);
         break;
     case VK_STRUCTURE_TYPE_TENSOR_FORMAT_PROPERTIES_ARM:
-        dump_html_pNext<const VkTensorFormatPropertiesARM>(static_cast<const VkTensorFormatPropertiesARM*>(object), settings, "VkTensorFormatPropertiesARM", indents, dump_html_VkTensorFormatPropertiesARM);
+        dump_html_pNext<const VkTensorFormatPropertiesARM>(reinterpret_cast<const VkTensorFormatPropertiesARM*>(object), settings, "VkTensorFormatPropertiesARM", indents, dump_html_VkTensorFormatPropertiesARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_PROPERTIES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceTensorPropertiesARM>(static_cast<const VkPhysicalDeviceTensorPropertiesARM*>(object), settings, "VkPhysicalDeviceTensorPropertiesARM", indents, dump_html_VkPhysicalDeviceTensorPropertiesARM);
+        dump_html_pNext<const VkPhysicalDeviceTensorPropertiesARM>(reinterpret_cast<const VkPhysicalDeviceTensorPropertiesARM*>(object), settings, "VkPhysicalDeviceTensorPropertiesARM", indents, dump_html_VkPhysicalDeviceTensorPropertiesARM);
         break;
     case VK_STRUCTURE_TYPE_TENSOR_MEMORY_BARRIER_ARM:
-        dump_html_pNext<const VkTensorMemoryBarrierARM>(static_cast<const VkTensorMemoryBarrierARM*>(object), settings, "VkTensorMemoryBarrierARM", indents, dump_html_VkTensorMemoryBarrierARM);
+        dump_html_pNext<const VkTensorMemoryBarrierARM>(reinterpret_cast<const VkTensorMemoryBarrierARM*>(object), settings, "VkTensorMemoryBarrierARM", indents, dump_html_VkTensorMemoryBarrierARM);
         break;
     case VK_STRUCTURE_TYPE_TENSOR_DEPENDENCY_INFO_ARM:
-        dump_html_pNext<const VkTensorDependencyInfoARM>(static_cast<const VkTensorDependencyInfoARM*>(object), settings, "VkTensorDependencyInfoARM", indents, dump_html_VkTensorDependencyInfoARM);
+        dump_html_pNext<const VkTensorDependencyInfoARM>(reinterpret_cast<const VkTensorDependencyInfoARM*>(object), settings, "VkTensorDependencyInfoARM", indents, dump_html_VkTensorDependencyInfoARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_FEATURES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceTensorFeaturesARM>(static_cast<const VkPhysicalDeviceTensorFeaturesARM*>(object), settings, "VkPhysicalDeviceTensorFeaturesARM", indents, dump_html_VkPhysicalDeviceTensorFeaturesARM);
+        dump_html_pNext<const VkPhysicalDeviceTensorFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceTensorFeaturesARM*>(object), settings, "VkPhysicalDeviceTensorFeaturesARM", indents, dump_html_VkPhysicalDeviceTensorFeaturesARM);
         break;
     case VK_STRUCTURE_TYPE_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM:
-        dump_html_pNext<const VkDeviceTensorMemoryRequirementsARM>(static_cast<const VkDeviceTensorMemoryRequirementsARM*>(object), settings, "VkDeviceTensorMemoryRequirementsARM", indents, dump_html_VkDeviceTensorMemoryRequirementsARM);
+        dump_html_pNext<const VkDeviceTensorMemoryRequirementsARM>(reinterpret_cast<const VkDeviceTensorMemoryRequirementsARM*>(object), settings, "VkDeviceTensorMemoryRequirementsARM", indents, dump_html_VkDeviceTensorMemoryRequirementsARM);
         break;
     case VK_STRUCTURE_TYPE_TENSOR_COPY_ARM:
-        dump_html_pNext<const VkTensorCopyARM>(static_cast<const VkTensorCopyARM*>(object), settings, "VkTensorCopyARM", indents, dump_html_VkTensorCopyARM);
+        dump_html_pNext<const VkTensorCopyARM>(reinterpret_cast<const VkTensorCopyARM*>(object), settings, "VkTensorCopyARM", indents, dump_html_VkTensorCopyARM);
         break;
     case VK_STRUCTURE_TYPE_COPY_TENSOR_INFO_ARM:
-        dump_html_pNext<const VkCopyTensorInfoARM>(static_cast<const VkCopyTensorInfoARM*>(object), settings, "VkCopyTensorInfoARM", indents, dump_html_VkCopyTensorInfoARM);
+        dump_html_pNext<const VkCopyTensorInfoARM>(reinterpret_cast<const VkCopyTensorInfoARM*>(object), settings, "VkCopyTensorInfoARM", indents, dump_html_VkCopyTensorInfoARM);
         break;
     case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_TENSOR_ARM:
-        dump_html_pNext<const VkMemoryDedicatedAllocateInfoTensorARM>(static_cast<const VkMemoryDedicatedAllocateInfoTensorARM*>(object), settings, "VkMemoryDedicatedAllocateInfoTensorARM", indents, dump_html_VkMemoryDedicatedAllocateInfoTensorARM);
+        dump_html_pNext<const VkMemoryDedicatedAllocateInfoTensorARM>(reinterpret_cast<const VkMemoryDedicatedAllocateInfoTensorARM*>(object), settings, "VkMemoryDedicatedAllocateInfoTensorARM", indents, dump_html_VkMemoryDedicatedAllocateInfoTensorARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_TENSOR_INFO_ARM:
-        dump_html_pNext<const VkPhysicalDeviceExternalTensorInfoARM>(static_cast<const VkPhysicalDeviceExternalTensorInfoARM*>(object), settings, "VkPhysicalDeviceExternalTensorInfoARM", indents, dump_html_VkPhysicalDeviceExternalTensorInfoARM);
+        dump_html_pNext<const VkPhysicalDeviceExternalTensorInfoARM>(reinterpret_cast<const VkPhysicalDeviceExternalTensorInfoARM*>(object), settings, "VkPhysicalDeviceExternalTensorInfoARM", indents, dump_html_VkPhysicalDeviceExternalTensorInfoARM);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_TENSOR_PROPERTIES_ARM:
-        dump_html_pNext<const VkExternalTensorPropertiesARM>(static_cast<const VkExternalTensorPropertiesARM*>(object), settings, "VkExternalTensorPropertiesARM", indents, dump_html_VkExternalTensorPropertiesARM);
+        dump_html_pNext<const VkExternalTensorPropertiesARM>(reinterpret_cast<const VkExternalTensorPropertiesARM*>(object), settings, "VkExternalTensorPropertiesARM", indents, dump_html_VkExternalTensorPropertiesARM);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_TENSOR_CREATE_INFO_ARM:
-        dump_html_pNext<const VkExternalMemoryTensorCreateInfoARM>(static_cast<const VkExternalMemoryTensorCreateInfoARM*>(object), settings, "VkExternalMemoryTensorCreateInfoARM", indents, dump_html_VkExternalMemoryTensorCreateInfoARM);
+        dump_html_pNext<const VkExternalMemoryTensorCreateInfoARM>(reinterpret_cast<const VkExternalMemoryTensorCreateInfoARM*>(object), settings, "VkExternalMemoryTensorCreateInfoARM", indents, dump_html_VkExternalMemoryTensorCreateInfoARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceDescriptorBufferTensorFeaturesARM>(static_cast<const VkPhysicalDeviceDescriptorBufferTensorFeaturesARM*>(object), settings, "VkPhysicalDeviceDescriptorBufferTensorFeaturesARM", indents, dump_html_VkPhysicalDeviceDescriptorBufferTensorFeaturesARM);
+        dump_html_pNext<const VkPhysicalDeviceDescriptorBufferTensorFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferTensorFeaturesARM*>(object), settings, "VkPhysicalDeviceDescriptorBufferTensorFeaturesARM", indents, dump_html_VkPhysicalDeviceDescriptorBufferTensorFeaturesARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_PROPERTIES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceDescriptorBufferTensorPropertiesARM>(static_cast<const VkPhysicalDeviceDescriptorBufferTensorPropertiesARM*>(object), settings, "VkPhysicalDeviceDescriptorBufferTensorPropertiesARM", indents, dump_html_VkPhysicalDeviceDescriptorBufferTensorPropertiesARM);
+        dump_html_pNext<const VkPhysicalDeviceDescriptorBufferTensorPropertiesARM>(reinterpret_cast<const VkPhysicalDeviceDescriptorBufferTensorPropertiesARM*>(object), settings, "VkPhysicalDeviceDescriptorBufferTensorPropertiesARM", indents, dump_html_VkPhysicalDeviceDescriptorBufferTensorPropertiesARM);
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_TENSOR_INFO_ARM:
-        dump_html_pNext<const VkDescriptorGetTensorInfoARM>(static_cast<const VkDescriptorGetTensorInfoARM*>(object), settings, "VkDescriptorGetTensorInfoARM", indents, dump_html_VkDescriptorGetTensorInfoARM);
+        dump_html_pNext<const VkDescriptorGetTensorInfoARM>(reinterpret_cast<const VkDescriptorGetTensorInfoARM*>(object), settings, "VkDescriptorGetTensorInfoARM", indents, dump_html_VkDescriptorGetTensorInfoARM);
         break;
     case VK_STRUCTURE_TYPE_TENSOR_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
-        dump_html_pNext<const VkTensorCaptureDescriptorDataInfoARM>(static_cast<const VkTensorCaptureDescriptorDataInfoARM*>(object), settings, "VkTensorCaptureDescriptorDataInfoARM", indents, dump_html_VkTensorCaptureDescriptorDataInfoARM);
+        dump_html_pNext<const VkTensorCaptureDescriptorDataInfoARM>(reinterpret_cast<const VkTensorCaptureDescriptorDataInfoARM*>(object), settings, "VkTensorCaptureDescriptorDataInfoARM", indents, dump_html_VkTensorCaptureDescriptorDataInfoARM);
         break;
     case VK_STRUCTURE_TYPE_TENSOR_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
-        dump_html_pNext<const VkTensorViewCaptureDescriptorDataInfoARM>(static_cast<const VkTensorViewCaptureDescriptorDataInfoARM*>(object), settings, "VkTensorViewCaptureDescriptorDataInfoARM", indents, dump_html_VkTensorViewCaptureDescriptorDataInfoARM);
+        dump_html_pNext<const VkTensorViewCaptureDescriptorDataInfoARM>(reinterpret_cast<const VkTensorViewCaptureDescriptorDataInfoARM*>(object), settings, "VkTensorViewCaptureDescriptorDataInfoARM", indents, dump_html_VkTensorViewCaptureDescriptorDataInfoARM);
         break;
     case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_TENSORS_ARM:
-        dump_html_pNext<const VkFrameBoundaryTensorsARM>(static_cast<const VkFrameBoundaryTensorsARM*>(object), settings, "VkFrameBoundaryTensorsARM", indents, dump_html_VkFrameBoundaryTensorsARM);
+        dump_html_pNext<const VkFrameBoundaryTensorsARM>(reinterpret_cast<const VkFrameBoundaryTensorsARM*>(object), settings, "VkFrameBoundaryTensorsARM", indents, dump_html_VkFrameBoundaryTensorsARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>(static_cast<const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT>(static_cast<const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT*>(object), settings, "VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT", indents, dump_html_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT*>(object), settings, "VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT", indents, dump_html_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineShaderStageModuleIdentifierCreateInfoEXT>(static_cast<const VkPipelineShaderStageModuleIdentifierCreateInfoEXT*>(object), settings, "VkPipelineShaderStageModuleIdentifierCreateInfoEXT", indents, dump_html_VkPipelineShaderStageModuleIdentifierCreateInfoEXT);
+        dump_html_pNext<const VkPipelineShaderStageModuleIdentifierCreateInfoEXT>(reinterpret_cast<const VkPipelineShaderStageModuleIdentifierCreateInfoEXT*>(object), settings, "VkPipelineShaderStageModuleIdentifierCreateInfoEXT", indents, dump_html_VkPipelineShaderStageModuleIdentifierCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_SHADER_MODULE_IDENTIFIER_EXT:
-        dump_html_pNext<const VkShaderModuleIdentifierEXT>(static_cast<const VkShaderModuleIdentifierEXT*>(object), settings, "VkShaderModuleIdentifierEXT", indents, dump_html_VkShaderModuleIdentifierEXT);
+        dump_html_pNext<const VkShaderModuleIdentifierEXT>(reinterpret_cast<const VkShaderModuleIdentifierEXT*>(object), settings, "VkShaderModuleIdentifierEXT", indents, dump_html_VkShaderModuleIdentifierEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceOpticalFlowFeaturesNV>(static_cast<const VkPhysicalDeviceOpticalFlowFeaturesNV*>(object), settings, "VkPhysicalDeviceOpticalFlowFeaturesNV", indents, dump_html_VkPhysicalDeviceOpticalFlowFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceOpticalFlowFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceOpticalFlowFeaturesNV*>(object), settings, "VkPhysicalDeviceOpticalFlowFeaturesNV", indents, dump_html_VkPhysicalDeviceOpticalFlowFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPTICAL_FLOW_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceOpticalFlowPropertiesNV>(static_cast<const VkPhysicalDeviceOpticalFlowPropertiesNV*>(object), settings, "VkPhysicalDeviceOpticalFlowPropertiesNV", indents, dump_html_VkPhysicalDeviceOpticalFlowPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceOpticalFlowPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceOpticalFlowPropertiesNV*>(object), settings, "VkPhysicalDeviceOpticalFlowPropertiesNV", indents, dump_html_VkPhysicalDeviceOpticalFlowPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:
-        dump_html_pNext<const VkOpticalFlowImageFormatInfoNV>(static_cast<const VkOpticalFlowImageFormatInfoNV*>(object), settings, "VkOpticalFlowImageFormatInfoNV", indents, dump_html_VkOpticalFlowImageFormatInfoNV);
+        dump_html_pNext<const VkOpticalFlowImageFormatInfoNV>(reinterpret_cast<const VkOpticalFlowImageFormatInfoNV*>(object), settings, "VkOpticalFlowImageFormatInfoNV", indents, dump_html_VkOpticalFlowImageFormatInfoNV);
         break;
     case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_NV:
-        dump_html_pNext<const VkOpticalFlowImageFormatPropertiesNV>(static_cast<const VkOpticalFlowImageFormatPropertiesNV*>(object), settings, "VkOpticalFlowImageFormatPropertiesNV", indents, dump_html_VkOpticalFlowImageFormatPropertiesNV);
+        dump_html_pNext<const VkOpticalFlowImageFormatPropertiesNV>(reinterpret_cast<const VkOpticalFlowImageFormatPropertiesNV*>(object), settings, "VkOpticalFlowImageFormatPropertiesNV", indents, dump_html_VkOpticalFlowImageFormatPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_INFO_NV:
-        dump_html_pNext<const VkOpticalFlowSessionCreateInfoNV>(static_cast<const VkOpticalFlowSessionCreateInfoNV*>(object), settings, "VkOpticalFlowSessionCreateInfoNV", indents, dump_html_VkOpticalFlowSessionCreateInfoNV);
+        dump_html_pNext<const VkOpticalFlowSessionCreateInfoNV>(reinterpret_cast<const VkOpticalFlowSessionCreateInfoNV*>(object), settings, "VkOpticalFlowSessionCreateInfoNV", indents, dump_html_VkOpticalFlowSessionCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_PRIVATE_DATA_INFO_NV:
-        dump_html_pNext<const VkOpticalFlowSessionCreatePrivateDataInfoNV>(static_cast<const VkOpticalFlowSessionCreatePrivateDataInfoNV*>(object), settings, "VkOpticalFlowSessionCreatePrivateDataInfoNV", indents, dump_html_VkOpticalFlowSessionCreatePrivateDataInfoNV);
+        dump_html_pNext<const VkOpticalFlowSessionCreatePrivateDataInfoNV>(reinterpret_cast<const VkOpticalFlowSessionCreatePrivateDataInfoNV*>(object), settings, "VkOpticalFlowSessionCreatePrivateDataInfoNV", indents, dump_html_VkOpticalFlowSessionCreatePrivateDataInfoNV);
         break;
     case VK_STRUCTURE_TYPE_OPTICAL_FLOW_EXECUTE_INFO_NV:
-        dump_html_pNext<const VkOpticalFlowExecuteInfoNV>(static_cast<const VkOpticalFlowExecuteInfoNV*>(object), settings, "VkOpticalFlowExecuteInfoNV", indents, dump_html_VkOpticalFlowExecuteInfoNV);
+        dump_html_pNext<const VkOpticalFlowExecuteInfoNV>(reinterpret_cast<const VkOpticalFlowExecuteInfoNV*>(object), settings, "VkOpticalFlowExecuteInfoNV", indents, dump_html_VkOpticalFlowExecuteInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceLegacyDitheringFeaturesEXT>(static_cast<const VkPhysicalDeviceLegacyDitheringFeaturesEXT*>(object), settings, "VkPhysicalDeviceLegacyDitheringFeaturesEXT", indents, dump_html_VkPhysicalDeviceLegacyDitheringFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceLegacyDitheringFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceLegacyDitheringFeaturesEXT*>(object), settings, "VkPhysicalDeviceLegacyDitheringFeaturesEXT", indents, dump_html_VkPhysicalDeviceLegacyDitheringFeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID:
-        dump_html_pNext<const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID>(static_cast<const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID*>(object), settings, "VkPhysicalDeviceExternalFormatResolveFeaturesANDROID", indents, dump_html_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID);
+        dump_html_pNext<const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID>(reinterpret_cast<const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID*>(object), settings, "VkPhysicalDeviceExternalFormatResolveFeaturesANDROID", indents, dump_html_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_PROPERTIES_ANDROID:
-        dump_html_pNext<const VkPhysicalDeviceExternalFormatResolvePropertiesANDROID>(static_cast<const VkPhysicalDeviceExternalFormatResolvePropertiesANDROID*>(object), settings, "VkPhysicalDeviceExternalFormatResolvePropertiesANDROID", indents, dump_html_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID);
+        dump_html_pNext<const VkPhysicalDeviceExternalFormatResolvePropertiesANDROID>(reinterpret_cast<const VkPhysicalDeviceExternalFormatResolvePropertiesANDROID*>(object), settings, "VkPhysicalDeviceExternalFormatResolvePropertiesANDROID", indents, dump_html_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_RESOLVE_PROPERTIES_ANDROID:
-        dump_html_pNext<const VkAndroidHardwareBufferFormatResolvePropertiesANDROID>(static_cast<const VkAndroidHardwareBufferFormatResolvePropertiesANDROID*>(object), settings, "VkAndroidHardwareBufferFormatResolvePropertiesANDROID", indents, dump_html_VkAndroidHardwareBufferFormatResolvePropertiesANDROID);
+        dump_html_pNext<const VkAndroidHardwareBufferFormatResolvePropertiesANDROID>(reinterpret_cast<const VkAndroidHardwareBufferFormatResolvePropertiesANDROID*>(object), settings, "VkAndroidHardwareBufferFormatResolvePropertiesANDROID", indents, dump_html_VkAndroidHardwareBufferFormatResolvePropertiesANDROID);
         break;
 #endif // VK_USE_PLATFORM_ANDROID_KHR
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ANTI_LAG_FEATURES_AMD:
-        dump_html_pNext<const VkPhysicalDeviceAntiLagFeaturesAMD>(static_cast<const VkPhysicalDeviceAntiLagFeaturesAMD*>(object), settings, "VkPhysicalDeviceAntiLagFeaturesAMD", indents, dump_html_VkPhysicalDeviceAntiLagFeaturesAMD);
+        dump_html_pNext<const VkPhysicalDeviceAntiLagFeaturesAMD>(reinterpret_cast<const VkPhysicalDeviceAntiLagFeaturesAMD*>(object), settings, "VkPhysicalDeviceAntiLagFeaturesAMD", indents, dump_html_VkPhysicalDeviceAntiLagFeaturesAMD);
         break;
     case VK_STRUCTURE_TYPE_ANTI_LAG_PRESENTATION_INFO_AMD:
-        dump_html_pNext<const VkAntiLagPresentationInfoAMD>(static_cast<const VkAntiLagPresentationInfoAMD*>(object), settings, "VkAntiLagPresentationInfoAMD", indents, dump_html_VkAntiLagPresentationInfoAMD);
+        dump_html_pNext<const VkAntiLagPresentationInfoAMD>(reinterpret_cast<const VkAntiLagPresentationInfoAMD*>(object), settings, "VkAntiLagPresentationInfoAMD", indents, dump_html_VkAntiLagPresentationInfoAMD);
         break;
     case VK_STRUCTURE_TYPE_ANTI_LAG_DATA_AMD:
-        dump_html_pNext<const VkAntiLagDataAMD>(static_cast<const VkAntiLagDataAMD*>(object), settings, "VkAntiLagDataAMD", indents, dump_html_VkAntiLagDataAMD);
+        dump_html_pNext<const VkAntiLagDataAMD>(reinterpret_cast<const VkAntiLagDataAMD*>(object), settings, "VkAntiLagDataAMD", indents, dump_html_VkAntiLagDataAMD);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderObjectFeaturesEXT>(static_cast<const VkPhysicalDeviceShaderObjectFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderObjectFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderObjectFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderObjectFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderObjectFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderObjectFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderObjectFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderObjectPropertiesEXT>(static_cast<const VkPhysicalDeviceShaderObjectPropertiesEXT*>(object), settings, "VkPhysicalDeviceShaderObjectPropertiesEXT", indents, dump_html_VkPhysicalDeviceShaderObjectPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderObjectPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderObjectPropertiesEXT*>(object), settings, "VkPhysicalDeviceShaderObjectPropertiesEXT", indents, dump_html_VkPhysicalDeviceShaderObjectPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT:
-        dump_html_pNext<const VkShaderCreateInfoEXT>(static_cast<const VkShaderCreateInfoEXT*>(object), settings, "VkShaderCreateInfoEXT", indents, dump_html_VkShaderCreateInfoEXT);
+        dump_html_pNext<const VkShaderCreateInfoEXT>(reinterpret_cast<const VkShaderCreateInfoEXT*>(object), settings, "VkShaderCreateInfoEXT", indents, dump_html_VkShaderCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceTilePropertiesFeaturesQCOM>(static_cast<const VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTilePropertiesFeaturesQCOM", indents, dump_html_VkPhysicalDeviceTilePropertiesFeaturesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceTilePropertiesFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTilePropertiesFeaturesQCOM", indents, dump_html_VkPhysicalDeviceTilePropertiesFeaturesQCOM);
         break;
     case VK_STRUCTURE_TYPE_TILE_PROPERTIES_QCOM:
-        dump_html_pNext<const VkTilePropertiesQCOM>(static_cast<const VkTilePropertiesQCOM*>(object), settings, "VkTilePropertiesQCOM", indents, dump_html_VkTilePropertiesQCOM);
+        dump_html_pNext<const VkTilePropertiesQCOM>(reinterpret_cast<const VkTilePropertiesQCOM*>(object), settings, "VkTilePropertiesQCOM", indents, dump_html_VkTilePropertiesQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC:
-        dump_html_pNext<const VkPhysicalDeviceAmigoProfilingFeaturesSEC>(static_cast<const VkPhysicalDeviceAmigoProfilingFeaturesSEC*>(object), settings, "VkPhysicalDeviceAmigoProfilingFeaturesSEC", indents, dump_html_VkPhysicalDeviceAmigoProfilingFeaturesSEC);
+        dump_html_pNext<const VkPhysicalDeviceAmigoProfilingFeaturesSEC>(reinterpret_cast<const VkPhysicalDeviceAmigoProfilingFeaturesSEC*>(object), settings, "VkPhysicalDeviceAmigoProfilingFeaturesSEC", indents, dump_html_VkPhysicalDeviceAmigoProfilingFeaturesSEC);
         break;
     case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
-        dump_html_pNext<const VkAmigoProfilingSubmitInfoSEC>(static_cast<const VkAmigoProfilingSubmitInfoSEC*>(object), settings, "VkAmigoProfilingSubmitInfoSEC", indents, dump_html_VkAmigoProfilingSubmitInfoSEC);
+        dump_html_pNext<const VkAmigoProfilingSubmitInfoSEC>(reinterpret_cast<const VkAmigoProfilingSubmitInfoSEC*>(object), settings, "VkAmigoProfilingSubmitInfoSEC", indents, dump_html_VkAmigoProfilingSubmitInfoSEC);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM>(static_cast<const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM*>(object), settings, "VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM", indents, dump_html_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM*>(object), settings, "VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM", indents, dump_html_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV>(static_cast<const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV*>(object), settings, "VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV", indents, dump_html_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV*>(object), settings, "VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV", indents, dump_html_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>(static_cast<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV", indents, dump_html_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV", indents, dump_html_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCooperativeVectorPropertiesNV>(static_cast<const VkPhysicalDeviceCooperativeVectorPropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeVectorPropertiesNV", indents, dump_html_VkPhysicalDeviceCooperativeVectorPropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceCooperativeVectorPropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeVectorPropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeVectorPropertiesNV", indents, dump_html_VkPhysicalDeviceCooperativeVectorPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCooperativeVectorFeaturesNV>(static_cast<const VkPhysicalDeviceCooperativeVectorFeaturesNV*>(object), settings, "VkPhysicalDeviceCooperativeVectorFeaturesNV", indents, dump_html_VkPhysicalDeviceCooperativeVectorFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceCooperativeVectorFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeVectorFeaturesNV*>(object), settings, "VkPhysicalDeviceCooperativeVectorFeaturesNV", indents, dump_html_VkPhysicalDeviceCooperativeVectorFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_COOPERATIVE_VECTOR_PROPERTIES_NV:
-        dump_html_pNext<const VkCooperativeVectorPropertiesNV>(static_cast<const VkCooperativeVectorPropertiesNV*>(object), settings, "VkCooperativeVectorPropertiesNV", indents, dump_html_VkCooperativeVectorPropertiesNV);
+        dump_html_pNext<const VkCooperativeVectorPropertiesNV>(reinterpret_cast<const VkCooperativeVectorPropertiesNV*>(object), settings, "VkCooperativeVectorPropertiesNV", indents, dump_html_VkCooperativeVectorPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_CONVERT_COOPERATIVE_VECTOR_MATRIX_INFO_NV:
-        dump_html_pNext<const VkConvertCooperativeVectorMatrixInfoNV>(static_cast<const VkConvertCooperativeVectorMatrixInfoNV*>(object), settings, "VkConvertCooperativeVectorMatrixInfoNV", indents, dump_html_VkConvertCooperativeVectorMatrixInfoNV);
+        dump_html_pNext<const VkConvertCooperativeVectorMatrixInfoNV>(reinterpret_cast<const VkConvertCooperativeVectorMatrixInfoNV*>(object), settings, "VkConvertCooperativeVectorMatrixInfoNV", indents, dump_html_VkConvertCooperativeVectorMatrixInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV>(static_cast<const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV*>(object), settings, "VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV", indents, dump_html_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV*>(object), settings, "VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV", indents, dump_html_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV>(static_cast<const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV*>(object), settings, "VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV", indents, dump_html_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV>(reinterpret_cast<const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV*>(object), settings, "VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV", indents, dump_html_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT>(static_cast<const VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT*>(object), settings, "VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT", indents, dump_html_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT*>(object), settings, "VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT", indents, dump_html_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT>(static_cast<const VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT*>(object), settings, "VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT", indents, dump_html_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT*>(object), settings, "VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT", indents, dump_html_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT:
-        dump_html_pNext<const VkLayerSettingsCreateInfoEXT>(static_cast<const VkLayerSettingsCreateInfoEXT*>(object), settings, "VkLayerSettingsCreateInfoEXT", indents, dump_html_VkLayerSettingsCreateInfoEXT);
+        dump_html_pNext<const VkLayerSettingsCreateInfoEXT>(reinterpret_cast<const VkLayerSettingsCreateInfoEXT*>(object), settings, "VkLayerSettingsCreateInfoEXT", indents, dump_html_VkLayerSettingsCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>(static_cast<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(object), settings, "VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM", indents, dump_html_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM);
+        dump_html_pNext<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM*>(object), settings, "VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM", indents, dump_html_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>(static_cast<const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM*>(object), settings, "VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM", indents, dump_html_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM);
+        dump_html_pNext<const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>(reinterpret_cast<const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM*>(object), settings, "VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM", indents, dump_html_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT>(static_cast<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(object), settings, "VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT", indents, dump_html_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT>(reinterpret_cast<const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT*>(object), settings, "VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT", indents, dump_html_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_UNUSED_ATTACHMENTS_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT>(static_cast<const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(object), settings, "VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT", indents, dump_html_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT*>(object), settings, "VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT", indents, dump_html_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_LATENCY_SLEEP_MODE_INFO_NV:
-        dump_html_pNext<const VkLatencySleepModeInfoNV>(static_cast<const VkLatencySleepModeInfoNV*>(object), settings, "VkLatencySleepModeInfoNV", indents, dump_html_VkLatencySleepModeInfoNV);
+        dump_html_pNext<const VkLatencySleepModeInfoNV>(reinterpret_cast<const VkLatencySleepModeInfoNV*>(object), settings, "VkLatencySleepModeInfoNV", indents, dump_html_VkLatencySleepModeInfoNV);
         break;
     case VK_STRUCTURE_TYPE_LATENCY_SLEEP_INFO_NV:
-        dump_html_pNext<const VkLatencySleepInfoNV>(static_cast<const VkLatencySleepInfoNV*>(object), settings, "VkLatencySleepInfoNV", indents, dump_html_VkLatencySleepInfoNV);
+        dump_html_pNext<const VkLatencySleepInfoNV>(reinterpret_cast<const VkLatencySleepInfoNV*>(object), settings, "VkLatencySleepInfoNV", indents, dump_html_VkLatencySleepInfoNV);
         break;
     case VK_STRUCTURE_TYPE_SET_LATENCY_MARKER_INFO_NV:
-        dump_html_pNext<const VkSetLatencyMarkerInfoNV>(static_cast<const VkSetLatencyMarkerInfoNV*>(object), settings, "VkSetLatencyMarkerInfoNV", indents, dump_html_VkSetLatencyMarkerInfoNV);
+        dump_html_pNext<const VkSetLatencyMarkerInfoNV>(reinterpret_cast<const VkSetLatencyMarkerInfoNV*>(object), settings, "VkSetLatencyMarkerInfoNV", indents, dump_html_VkSetLatencyMarkerInfoNV);
         break;
     case VK_STRUCTURE_TYPE_LATENCY_TIMINGS_FRAME_REPORT_NV:
-        dump_html_pNext<const VkLatencyTimingsFrameReportNV>(static_cast<const VkLatencyTimingsFrameReportNV*>(object), settings, "VkLatencyTimingsFrameReportNV", indents, dump_html_VkLatencyTimingsFrameReportNV);
+        dump_html_pNext<const VkLatencyTimingsFrameReportNV>(reinterpret_cast<const VkLatencyTimingsFrameReportNV*>(object), settings, "VkLatencyTimingsFrameReportNV", indents, dump_html_VkLatencyTimingsFrameReportNV);
         break;
     case VK_STRUCTURE_TYPE_GET_LATENCY_MARKER_INFO_NV:
-        dump_html_pNext<const VkGetLatencyMarkerInfoNV>(static_cast<const VkGetLatencyMarkerInfoNV*>(object), settings, "VkGetLatencyMarkerInfoNV", indents, dump_html_VkGetLatencyMarkerInfoNV);
+        dump_html_pNext<const VkGetLatencyMarkerInfoNV>(reinterpret_cast<const VkGetLatencyMarkerInfoNV*>(object), settings, "VkGetLatencyMarkerInfoNV", indents, dump_html_VkGetLatencyMarkerInfoNV);
         break;
     case VK_STRUCTURE_TYPE_LATENCY_SUBMISSION_PRESENT_ID_NV:
-        dump_html_pNext<const VkLatencySubmissionPresentIdNV>(static_cast<const VkLatencySubmissionPresentIdNV*>(object), settings, "VkLatencySubmissionPresentIdNV", indents, dump_html_VkLatencySubmissionPresentIdNV);
+        dump_html_pNext<const VkLatencySubmissionPresentIdNV>(reinterpret_cast<const VkLatencySubmissionPresentIdNV*>(object), settings, "VkLatencySubmissionPresentIdNV", indents, dump_html_VkLatencySubmissionPresentIdNV);
         break;
     case VK_STRUCTURE_TYPE_SWAPCHAIN_LATENCY_CREATE_INFO_NV:
-        dump_html_pNext<const VkSwapchainLatencyCreateInfoNV>(static_cast<const VkSwapchainLatencyCreateInfoNV*>(object), settings, "VkSwapchainLatencyCreateInfoNV", indents, dump_html_VkSwapchainLatencyCreateInfoNV);
+        dump_html_pNext<const VkSwapchainLatencyCreateInfoNV>(reinterpret_cast<const VkSwapchainLatencyCreateInfoNV*>(object), settings, "VkSwapchainLatencyCreateInfoNV", indents, dump_html_VkSwapchainLatencyCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_OUT_OF_BAND_QUEUE_TYPE_INFO_NV:
-        dump_html_pNext<const VkOutOfBandQueueTypeInfoNV>(static_cast<const VkOutOfBandQueueTypeInfoNV*>(object), settings, "VkOutOfBandQueueTypeInfoNV", indents, dump_html_VkOutOfBandQueueTypeInfoNV);
+        dump_html_pNext<const VkOutOfBandQueueTypeInfoNV>(reinterpret_cast<const VkOutOfBandQueueTypeInfoNV*>(object), settings, "VkOutOfBandQueueTypeInfoNV", indents, dump_html_VkOutOfBandQueueTypeInfoNV);
         break;
     case VK_STRUCTURE_TYPE_LATENCY_SURFACE_CAPABILITIES_NV:
-        dump_html_pNext<const VkLatencySurfaceCapabilitiesNV>(static_cast<const VkLatencySurfaceCapabilitiesNV*>(object), settings, "VkLatencySurfaceCapabilitiesNV", indents, dump_html_VkLatencySurfaceCapabilitiesNV);
+        dump_html_pNext<const VkLatencySurfaceCapabilitiesNV>(reinterpret_cast<const VkLatencySurfaceCapabilitiesNV*>(object), settings, "VkLatencySurfaceCapabilitiesNV", indents, dump_html_VkLatencySurfaceCapabilitiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM>(static_cast<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(object), settings, "VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM", indents, dump_html_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(object), settings, "VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM", indents, dump_html_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM);
         break;
     case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
-        dump_html_pNext<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM>(static_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(object), settings, "VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM", indents, dump_html_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM);
+        dump_html_pNext<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM>(reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(object), settings, "VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM", indents, dump_html_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PER_STAGE_DESCRIPTOR_SET_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDevicePerStageDescriptorSetFeaturesNV>(static_cast<const VkPhysicalDevicePerStageDescriptorSetFeaturesNV*>(object), settings, "VkPhysicalDevicePerStageDescriptorSetFeaturesNV", indents, dump_html_VkPhysicalDevicePerStageDescriptorSetFeaturesNV);
+        dump_html_pNext<const VkPhysicalDevicePerStageDescriptorSetFeaturesNV>(reinterpret_cast<const VkPhysicalDevicePerStageDescriptorSetFeaturesNV*>(object), settings, "VkPhysicalDevicePerStageDescriptorSetFeaturesNV", indents, dump_html_VkPhysicalDevicePerStageDescriptorSetFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceImageProcessing2FeaturesQCOM>(static_cast<const VkPhysicalDeviceImageProcessing2FeaturesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessing2FeaturesQCOM", indents, dump_html_VkPhysicalDeviceImageProcessing2FeaturesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceImageProcessing2FeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceImageProcessing2FeaturesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessing2FeaturesQCOM", indents, dump_html_VkPhysicalDeviceImageProcessing2FeaturesQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_PROPERTIES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceImageProcessing2PropertiesQCOM>(static_cast<const VkPhysicalDeviceImageProcessing2PropertiesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessing2PropertiesQCOM", indents, dump_html_VkPhysicalDeviceImageProcessing2PropertiesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceImageProcessing2PropertiesQCOM>(reinterpret_cast<const VkPhysicalDeviceImageProcessing2PropertiesQCOM*>(object), settings, "VkPhysicalDeviceImageProcessing2PropertiesQCOM", indents, dump_html_VkPhysicalDeviceImageProcessing2PropertiesQCOM);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_BLOCK_MATCH_WINDOW_CREATE_INFO_QCOM:
-        dump_html_pNext<const VkSamplerBlockMatchWindowCreateInfoQCOM>(static_cast<const VkSamplerBlockMatchWindowCreateInfoQCOM*>(object), settings, "VkSamplerBlockMatchWindowCreateInfoQCOM", indents, dump_html_VkSamplerBlockMatchWindowCreateInfoQCOM);
+        dump_html_pNext<const VkSamplerBlockMatchWindowCreateInfoQCOM>(reinterpret_cast<const VkSamplerBlockMatchWindowCreateInfoQCOM*>(object), settings, "VkSamplerBlockMatchWindowCreateInfoQCOM", indents, dump_html_VkSamplerBlockMatchWindowCreateInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_WEIGHTS_FEATURES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceCubicWeightsFeaturesQCOM>(static_cast<const VkPhysicalDeviceCubicWeightsFeaturesQCOM*>(object), settings, "VkPhysicalDeviceCubicWeightsFeaturesQCOM", indents, dump_html_VkPhysicalDeviceCubicWeightsFeaturesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceCubicWeightsFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceCubicWeightsFeaturesQCOM*>(object), settings, "VkPhysicalDeviceCubicWeightsFeaturesQCOM", indents, dump_html_VkPhysicalDeviceCubicWeightsFeaturesQCOM);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM:
-        dump_html_pNext<const VkSamplerCubicWeightsCreateInfoQCOM>(static_cast<const VkSamplerCubicWeightsCreateInfoQCOM*>(object), settings, "VkSamplerCubicWeightsCreateInfoQCOM", indents, dump_html_VkSamplerCubicWeightsCreateInfoQCOM);
+        dump_html_pNext<const VkSamplerCubicWeightsCreateInfoQCOM>(reinterpret_cast<const VkSamplerCubicWeightsCreateInfoQCOM*>(object), settings, "VkSamplerCubicWeightsCreateInfoQCOM", indents, dump_html_VkSamplerCubicWeightsCreateInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM:
-        dump_html_pNext<const VkBlitImageCubicWeightsInfoQCOM>(static_cast<const VkBlitImageCubicWeightsInfoQCOM*>(object), settings, "VkBlitImageCubicWeightsInfoQCOM", indents, dump_html_VkBlitImageCubicWeightsInfoQCOM);
+        dump_html_pNext<const VkBlitImageCubicWeightsInfoQCOM>(reinterpret_cast<const VkBlitImageCubicWeightsInfoQCOM*>(object), settings, "VkBlitImageCubicWeightsInfoQCOM", indents, dump_html_VkBlitImageCubicWeightsInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_DEGAMMA_FEATURES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceYcbcrDegammaFeaturesQCOM>(static_cast<const VkPhysicalDeviceYcbcrDegammaFeaturesQCOM*>(object), settings, "VkPhysicalDeviceYcbcrDegammaFeaturesQCOM", indents, dump_html_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceYcbcrDegammaFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceYcbcrDegammaFeaturesQCOM*>(object), settings, "VkPhysicalDeviceYcbcrDegammaFeaturesQCOM", indents, dump_html_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM);
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM:
-        dump_html_pNext<const VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM>(static_cast<const VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM*>(object), settings, "VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM", indents, dump_html_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM);
+        dump_html_pNext<const VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM>(reinterpret_cast<const VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM*>(object), settings, "VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM", indents, dump_html_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUBIC_CLAMP_FEATURES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceCubicClampFeaturesQCOM>(static_cast<const VkPhysicalDeviceCubicClampFeaturesQCOM*>(object), settings, "VkPhysicalDeviceCubicClampFeaturesQCOM", indents, dump_html_VkPhysicalDeviceCubicClampFeaturesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceCubicClampFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceCubicClampFeaturesQCOM*>(object), settings, "VkPhysicalDeviceCubicClampFeaturesQCOM", indents, dump_html_VkPhysicalDeviceCubicClampFeaturesQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT>(static_cast<const VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT*>(object), settings, "VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT", indents, dump_html_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT*>(object), settings, "VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT", indents, dump_html_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT);
         break;
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
     case VK_STRUCTURE_TYPE_SCREEN_BUFFER_PROPERTIES_QNX:
-        dump_html_pNext<const VkScreenBufferPropertiesQNX>(static_cast<const VkScreenBufferPropertiesQNX*>(object), settings, "VkScreenBufferPropertiesQNX", indents, dump_html_VkScreenBufferPropertiesQNX);
+        dump_html_pNext<const VkScreenBufferPropertiesQNX>(reinterpret_cast<const VkScreenBufferPropertiesQNX*>(object), settings, "VkScreenBufferPropertiesQNX", indents, dump_html_VkScreenBufferPropertiesQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
     case VK_STRUCTURE_TYPE_SCREEN_BUFFER_FORMAT_PROPERTIES_QNX:
-        dump_html_pNext<const VkScreenBufferFormatPropertiesQNX>(static_cast<const VkScreenBufferFormatPropertiesQNX*>(object), settings, "VkScreenBufferFormatPropertiesQNX", indents, dump_html_VkScreenBufferFormatPropertiesQNX);
+        dump_html_pNext<const VkScreenBufferFormatPropertiesQNX>(reinterpret_cast<const VkScreenBufferFormatPropertiesQNX*>(object), settings, "VkScreenBufferFormatPropertiesQNX", indents, dump_html_VkScreenBufferFormatPropertiesQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
     case VK_STRUCTURE_TYPE_IMPORT_SCREEN_BUFFER_INFO_QNX:
-        dump_html_pNext<const VkImportScreenBufferInfoQNX>(static_cast<const VkImportScreenBufferInfoQNX*>(object), settings, "VkImportScreenBufferInfoQNX", indents, dump_html_VkImportScreenBufferInfoQNX);
+        dump_html_pNext<const VkImportScreenBufferInfoQNX>(reinterpret_cast<const VkImportScreenBufferInfoQNX*>(object), settings, "VkImportScreenBufferInfoQNX", indents, dump_html_VkImportScreenBufferInfoQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
     case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_QNX:
-        dump_html_pNext<const VkExternalFormatQNX>(static_cast<const VkExternalFormatQNX*>(object), settings, "VkExternalFormatQNX", indents, dump_html_VkExternalFormatQNX);
+        dump_html_pNext<const VkExternalFormatQNX>(reinterpret_cast<const VkExternalFormatQNX*>(object), settings, "VkExternalFormatQNX", indents, dump_html_VkExternalFormatQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_SCREEN_BUFFER_FEATURES_QNX:
-        dump_html_pNext<const VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX>(static_cast<const VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX*>(object), settings, "VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX", indents, dump_html_VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX);
+        dump_html_pNext<const VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX>(reinterpret_cast<const VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX*>(object), settings, "VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX", indents, dump_html_VkPhysicalDeviceExternalMemoryScreenBufferFeaturesQNX);
         break;
 #endif // VK_USE_PLATFORM_SCREEN_QNX
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT:
-        dump_html_pNext<const VkPhysicalDeviceLayeredDriverPropertiesMSFT>(static_cast<const VkPhysicalDeviceLayeredDriverPropertiesMSFT*>(object), settings, "VkPhysicalDeviceLayeredDriverPropertiesMSFT", indents, dump_html_VkPhysicalDeviceLayeredDriverPropertiesMSFT);
+        dump_html_pNext<const VkPhysicalDeviceLayeredDriverPropertiesMSFT>(reinterpret_cast<const VkPhysicalDeviceLayeredDriverPropertiesMSFT*>(object), settings, "VkPhysicalDeviceLayeredDriverPropertiesMSFT", indents, dump_html_VkPhysicalDeviceLayeredDriverPropertiesMSFT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV>(static_cast<const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV*>(object), settings, "VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV", indents, dump_html_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV*>(object), settings, "VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV", indents, dump_html_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM>(static_cast<const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTileMemoryHeapFeaturesQCOM", indents, dump_html_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM>(reinterpret_cast<const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM*>(object), settings, "VkPhysicalDeviceTileMemoryHeapFeaturesQCOM", indents, dump_html_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_PROPERTIES_QCOM:
-        dump_html_pNext<const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM>(static_cast<const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM*>(object), settings, "VkPhysicalDeviceTileMemoryHeapPropertiesQCOM", indents, dump_html_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM);
+        dump_html_pNext<const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM>(reinterpret_cast<const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM*>(object), settings, "VkPhysicalDeviceTileMemoryHeapPropertiesQCOM", indents, dump_html_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM);
         break;
     case VK_STRUCTURE_TYPE_TILE_MEMORY_REQUIREMENTS_QCOM:
-        dump_html_pNext<const VkTileMemoryRequirementsQCOM>(static_cast<const VkTileMemoryRequirementsQCOM*>(object), settings, "VkTileMemoryRequirementsQCOM", indents, dump_html_VkTileMemoryRequirementsQCOM);
+        dump_html_pNext<const VkTileMemoryRequirementsQCOM>(reinterpret_cast<const VkTileMemoryRequirementsQCOM*>(object), settings, "VkTileMemoryRequirementsQCOM", indents, dump_html_VkTileMemoryRequirementsQCOM);
         break;
     case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
-        dump_html_pNext<const VkTileMemoryBindInfoQCOM>(static_cast<const VkTileMemoryBindInfoQCOM*>(object), settings, "VkTileMemoryBindInfoQCOM", indents, dump_html_VkTileMemoryBindInfoQCOM);
+        dump_html_pNext<const VkTileMemoryBindInfoQCOM>(reinterpret_cast<const VkTileMemoryBindInfoQCOM*>(object), settings, "VkTileMemoryBindInfoQCOM", indents, dump_html_VkTileMemoryBindInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM:
-        dump_html_pNext<const VkTileMemorySizeInfoQCOM>(static_cast<const VkTileMemorySizeInfoQCOM*>(object), settings, "VkTileMemorySizeInfoQCOM", indents, dump_html_VkTileMemorySizeInfoQCOM);
+        dump_html_pNext<const VkTileMemorySizeInfoQCOM>(reinterpret_cast<const VkTileMemorySizeInfoQCOM*>(object), settings, "VkTileMemorySizeInfoQCOM", indents, dump_html_VkTileMemorySizeInfoQCOM);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_STEREO_CREATE_INFO_NV:
-        dump_html_pNext<const VkDisplaySurfaceStereoCreateInfoNV>(static_cast<const VkDisplaySurfaceStereoCreateInfoNV*>(object), settings, "VkDisplaySurfaceStereoCreateInfoNV", indents, dump_html_VkDisplaySurfaceStereoCreateInfoNV);
+        dump_html_pNext<const VkDisplaySurfaceStereoCreateInfoNV>(reinterpret_cast<const VkDisplaySurfaceStereoCreateInfoNV*>(object), settings, "VkDisplaySurfaceStereoCreateInfoNV", indents, dump_html_VkDisplaySurfaceStereoCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_MODE_STEREO_PROPERTIES_NV:
-        dump_html_pNext<const VkDisplayModeStereoPropertiesNV>(static_cast<const VkDisplayModeStereoPropertiesNV*>(object), settings, "VkDisplayModeStereoPropertiesNV", indents, dump_html_VkDisplayModeStereoPropertiesNV);
+        dump_html_pNext<const VkDisplayModeStereoPropertiesNV>(reinterpret_cast<const VkDisplayModeStereoPropertiesNV*>(object), settings, "VkDisplayModeStereoPropertiesNV", indents, dump_html_VkDisplayModeStereoPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceRawAccessChainsFeaturesNV>(static_cast<const VkPhysicalDeviceRawAccessChainsFeaturesNV*>(object), settings, "VkPhysicalDeviceRawAccessChainsFeaturesNV", indents, dump_html_VkPhysicalDeviceRawAccessChainsFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceRawAccessChainsFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRawAccessChainsFeaturesNV*>(object), settings, "VkPhysicalDeviceRawAccessChainsFeaturesNV", indents, dump_html_VkPhysicalDeviceRawAccessChainsFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_DEVICE_CREATE_INFO_NV:
-        dump_html_pNext<const VkExternalComputeQueueDeviceCreateInfoNV>(static_cast<const VkExternalComputeQueueDeviceCreateInfoNV*>(object), settings, "VkExternalComputeQueueDeviceCreateInfoNV", indents, dump_html_VkExternalComputeQueueDeviceCreateInfoNV);
+        dump_html_pNext<const VkExternalComputeQueueDeviceCreateInfoNV>(reinterpret_cast<const VkExternalComputeQueueDeviceCreateInfoNV*>(object), settings, "VkExternalComputeQueueDeviceCreateInfoNV", indents, dump_html_VkExternalComputeQueueDeviceCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_CREATE_INFO_NV:
-        dump_html_pNext<const VkExternalComputeQueueCreateInfoNV>(static_cast<const VkExternalComputeQueueCreateInfoNV*>(object), settings, "VkExternalComputeQueueCreateInfoNV", indents, dump_html_VkExternalComputeQueueCreateInfoNV);
+        dump_html_pNext<const VkExternalComputeQueueCreateInfoNV>(reinterpret_cast<const VkExternalComputeQueueCreateInfoNV*>(object), settings, "VkExternalComputeQueueCreateInfoNV", indents, dump_html_VkExternalComputeQueueCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_EXTERNAL_COMPUTE_QUEUE_DATA_PARAMS_NV:
-        dump_html_pNext<const VkExternalComputeQueueDataParamsNV>(static_cast<const VkExternalComputeQueueDataParamsNV*>(object), settings, "VkExternalComputeQueueDataParamsNV", indents, dump_html_VkExternalComputeQueueDataParamsNV);
+        dump_html_pNext<const VkExternalComputeQueueDataParamsNV>(reinterpret_cast<const VkExternalComputeQueueDataParamsNV*>(object), settings, "VkExternalComputeQueueDataParamsNV", indents, dump_html_VkExternalComputeQueueDataParamsNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_COMPUTE_QUEUE_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceExternalComputeQueuePropertiesNV>(static_cast<const VkPhysicalDeviceExternalComputeQueuePropertiesNV*>(object), settings, "VkPhysicalDeviceExternalComputeQueuePropertiesNV", indents, dump_html_VkPhysicalDeviceExternalComputeQueuePropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceExternalComputeQueuePropertiesNV>(reinterpret_cast<const VkPhysicalDeviceExternalComputeQueuePropertiesNV*>(object), settings, "VkPhysicalDeviceExternalComputeQueuePropertiesNV", indents, dump_html_VkPhysicalDeviceExternalComputeQueuePropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMMAND_BUFFER_INHERITANCE_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCommandBufferInheritanceFeaturesNV>(static_cast<const VkPhysicalDeviceCommandBufferInheritanceFeaturesNV*>(object), settings, "VkPhysicalDeviceCommandBufferInheritanceFeaturesNV", indents, dump_html_VkPhysicalDeviceCommandBufferInheritanceFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceCommandBufferInheritanceFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCommandBufferInheritanceFeaturesNV*>(object), settings, "VkPhysicalDeviceCommandBufferInheritanceFeaturesNV", indents, dump_html_VkPhysicalDeviceCommandBufferInheritanceFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV>(static_cast<const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV*>(object), settings, "VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV", indents, dump_html_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV*>(object), settings, "VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV", indents, dump_html_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT>(static_cast<const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceShaderFloat8FeaturesEXT>(static_cast<const VkPhysicalDeviceShaderFloat8FeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderFloat8FeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderFloat8FeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceShaderFloat8FeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceShaderFloat8FeaturesEXT*>(object), settings, "VkPhysicalDeviceShaderFloat8FeaturesEXT", indents, dump_html_VkPhysicalDeviceShaderFloat8FeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceRayTracingValidationFeaturesNV>(static_cast<const VkPhysicalDeviceRayTracingValidationFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingValidationFeaturesNV", indents, dump_html_VkPhysicalDeviceRayTracingValidationFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceRayTracingValidationFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceRayTracingValidationFeaturesNV*>(object), settings, "VkPhysicalDeviceRayTracingValidationFeaturesNV", indents, dump_html_VkPhysicalDeviceRayTracingValidationFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_ACCELERATION_STRUCTURE_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceClusterAccelerationStructureFeaturesNV>(static_cast<const VkPhysicalDeviceClusterAccelerationStructureFeaturesNV*>(object), settings, "VkPhysicalDeviceClusterAccelerationStructureFeaturesNV", indents, dump_html_VkPhysicalDeviceClusterAccelerationStructureFeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceClusterAccelerationStructureFeaturesNV>(reinterpret_cast<const VkPhysicalDeviceClusterAccelerationStructureFeaturesNV*>(object), settings, "VkPhysicalDeviceClusterAccelerationStructureFeaturesNV", indents, dump_html_VkPhysicalDeviceClusterAccelerationStructureFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_ACCELERATION_STRUCTURE_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceClusterAccelerationStructurePropertiesNV>(static_cast<const VkPhysicalDeviceClusterAccelerationStructurePropertiesNV*>(object), settings, "VkPhysicalDeviceClusterAccelerationStructurePropertiesNV", indents, dump_html_VkPhysicalDeviceClusterAccelerationStructurePropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceClusterAccelerationStructurePropertiesNV>(reinterpret_cast<const VkPhysicalDeviceClusterAccelerationStructurePropertiesNV*>(object), settings, "VkPhysicalDeviceClusterAccelerationStructurePropertiesNV", indents, dump_html_VkPhysicalDeviceClusterAccelerationStructurePropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_CLUSTERS_BOTTOM_LEVEL_INPUT_NV:
-        dump_html_pNext<const VkClusterAccelerationStructureClustersBottomLevelInputNV>(static_cast<const VkClusterAccelerationStructureClustersBottomLevelInputNV*>(object), settings, "VkClusterAccelerationStructureClustersBottomLevelInputNV", indents, dump_html_VkClusterAccelerationStructureClustersBottomLevelInputNV);
+        dump_html_pNext<const VkClusterAccelerationStructureClustersBottomLevelInputNV>(reinterpret_cast<const VkClusterAccelerationStructureClustersBottomLevelInputNV*>(object), settings, "VkClusterAccelerationStructureClustersBottomLevelInputNV", indents, dump_html_VkClusterAccelerationStructureClustersBottomLevelInputNV);
         break;
     case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_TRIANGLE_CLUSTER_INPUT_NV:
-        dump_html_pNext<const VkClusterAccelerationStructureTriangleClusterInputNV>(static_cast<const VkClusterAccelerationStructureTriangleClusterInputNV*>(object), settings, "VkClusterAccelerationStructureTriangleClusterInputNV", indents, dump_html_VkClusterAccelerationStructureTriangleClusterInputNV);
+        dump_html_pNext<const VkClusterAccelerationStructureTriangleClusterInputNV>(reinterpret_cast<const VkClusterAccelerationStructureTriangleClusterInputNV*>(object), settings, "VkClusterAccelerationStructureTriangleClusterInputNV", indents, dump_html_VkClusterAccelerationStructureTriangleClusterInputNV);
         break;
     case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_MOVE_OBJECTS_INPUT_NV:
-        dump_html_pNext<const VkClusterAccelerationStructureMoveObjectsInputNV>(static_cast<const VkClusterAccelerationStructureMoveObjectsInputNV*>(object), settings, "VkClusterAccelerationStructureMoveObjectsInputNV", indents, dump_html_VkClusterAccelerationStructureMoveObjectsInputNV);
+        dump_html_pNext<const VkClusterAccelerationStructureMoveObjectsInputNV>(reinterpret_cast<const VkClusterAccelerationStructureMoveObjectsInputNV*>(object), settings, "VkClusterAccelerationStructureMoveObjectsInputNV", indents, dump_html_VkClusterAccelerationStructureMoveObjectsInputNV);
         break;
     case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_INPUT_INFO_NV:
-        dump_html_pNext<const VkClusterAccelerationStructureInputInfoNV>(static_cast<const VkClusterAccelerationStructureInputInfoNV*>(object), settings, "VkClusterAccelerationStructureInputInfoNV", indents, dump_html_VkClusterAccelerationStructureInputInfoNV);
+        dump_html_pNext<const VkClusterAccelerationStructureInputInfoNV>(reinterpret_cast<const VkClusterAccelerationStructureInputInfoNV*>(object), settings, "VkClusterAccelerationStructureInputInfoNV", indents, dump_html_VkClusterAccelerationStructureInputInfoNV);
         break;
     case VK_STRUCTURE_TYPE_CLUSTER_ACCELERATION_STRUCTURE_COMMANDS_INFO_NV:
-        dump_html_pNext<const VkClusterAccelerationStructureCommandsInfoNV>(static_cast<const VkClusterAccelerationStructureCommandsInfoNV*>(object), settings, "VkClusterAccelerationStructureCommandsInfoNV", indents, dump_html_VkClusterAccelerationStructureCommandsInfoNV);
+        dump_html_pNext<const VkClusterAccelerationStructureCommandsInfoNV>(reinterpret_cast<const VkClusterAccelerationStructureCommandsInfoNV*>(object), settings, "VkClusterAccelerationStructureCommandsInfoNV", indents, dump_html_VkClusterAccelerationStructureCommandsInfoNV);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR:
-        dump_html_pNext<const VkAccelerationStructureBuildSizesInfoKHR>(static_cast<const VkAccelerationStructureBuildSizesInfoKHR*>(object), settings, "VkAccelerationStructureBuildSizesInfoKHR", indents, dump_html_VkAccelerationStructureBuildSizesInfoKHR);
+        dump_html_pNext<const VkAccelerationStructureBuildSizesInfoKHR>(reinterpret_cast<const VkAccelerationStructureBuildSizesInfoKHR*>(object), settings, "VkAccelerationStructureBuildSizesInfoKHR", indents, dump_html_VkAccelerationStructureBuildSizesInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CLUSTER_ACCELERATION_STRUCTURE_CREATE_INFO_NV:
-        dump_html_pNext<const VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV>(static_cast<const VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV*>(object), settings, "VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV", indents, dump_html_VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV);
+        dump_html_pNext<const VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV>(reinterpret_cast<const VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV*>(object), settings, "VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV", indents, dump_html_VkRayTracingPipelineClusterAccelerationStructureCreateInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PARTITIONED_ACCELERATION_STRUCTURE_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV>(static_cast<const VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV*>(object), settings, "VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV", indents, dump_html_VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV);
+        dump_html_pNext<const VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV>(reinterpret_cast<const VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV*>(object), settings, "VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV", indents, dump_html_VkPhysicalDevicePartitionedAccelerationStructureFeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PARTITIONED_ACCELERATION_STRUCTURE_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV>(static_cast<const VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV*>(object), settings, "VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV", indents, dump_html_VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV);
+        dump_html_pNext<const VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV>(reinterpret_cast<const VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV*>(object), settings, "VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV", indents, dump_html_VkPhysicalDevicePartitionedAccelerationStructurePropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_FLAGS_NV:
-        dump_html_pNext<const VkPartitionedAccelerationStructureFlagsNV>(static_cast<const VkPartitionedAccelerationStructureFlagsNV*>(object), settings, "VkPartitionedAccelerationStructureFlagsNV", indents, dump_html_VkPartitionedAccelerationStructureFlagsNV);
+        dump_html_pNext<const VkPartitionedAccelerationStructureFlagsNV>(reinterpret_cast<const VkPartitionedAccelerationStructureFlagsNV*>(object), settings, "VkPartitionedAccelerationStructureFlagsNV", indents, dump_html_VkPartitionedAccelerationStructureFlagsNV);
         break;
     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_PARTITIONED_ACCELERATION_STRUCTURE_NV:
-        dump_html_pNext<const VkWriteDescriptorSetPartitionedAccelerationStructureNV>(static_cast<const VkWriteDescriptorSetPartitionedAccelerationStructureNV*>(object), settings, "VkWriteDescriptorSetPartitionedAccelerationStructureNV", indents, dump_html_VkWriteDescriptorSetPartitionedAccelerationStructureNV);
+        dump_html_pNext<const VkWriteDescriptorSetPartitionedAccelerationStructureNV>(reinterpret_cast<const VkWriteDescriptorSetPartitionedAccelerationStructureNV*>(object), settings, "VkWriteDescriptorSetPartitionedAccelerationStructureNV", indents, dump_html_VkWriteDescriptorSetPartitionedAccelerationStructureNV);
         break;
     case VK_STRUCTURE_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCES_INPUT_NV:
-        dump_html_pNext<const VkPartitionedAccelerationStructureInstancesInputNV>(static_cast<const VkPartitionedAccelerationStructureInstancesInputNV*>(object), settings, "VkPartitionedAccelerationStructureInstancesInputNV", indents, dump_html_VkPartitionedAccelerationStructureInstancesInputNV);
+        dump_html_pNext<const VkPartitionedAccelerationStructureInstancesInputNV>(reinterpret_cast<const VkPartitionedAccelerationStructureInstancesInputNV*>(object), settings, "VkPartitionedAccelerationStructureInstancesInputNV", indents, dump_html_VkPartitionedAccelerationStructureInstancesInputNV);
         break;
     case VK_STRUCTURE_TYPE_BUILD_PARTITIONED_ACCELERATION_STRUCTURE_INFO_NV:
-        dump_html_pNext<const VkBuildPartitionedAccelerationStructureInfoNV>(static_cast<const VkBuildPartitionedAccelerationStructureInfoNV*>(object), settings, "VkBuildPartitionedAccelerationStructureInfoNV", indents, dump_html_VkBuildPartitionedAccelerationStructureInfoNV);
+        dump_html_pNext<const VkBuildPartitionedAccelerationStructureInfoNV>(reinterpret_cast<const VkBuildPartitionedAccelerationStructureInfoNV*>(object), settings, "VkBuildPartitionedAccelerationStructureInfoNV", indents, dump_html_VkBuildPartitionedAccelerationStructureInfoNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT>(static_cast<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT", indents, dump_html_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT", indents, dump_html_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT>(static_cast<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT", indents, dump_html_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT*>(object), settings, "VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT", indents, dump_html_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_EXT:
-        dump_html_pNext<const VkGeneratedCommandsMemoryRequirementsInfoEXT>(static_cast<const VkGeneratedCommandsMemoryRequirementsInfoEXT*>(object), settings, "VkGeneratedCommandsMemoryRequirementsInfoEXT", indents, dump_html_VkGeneratedCommandsMemoryRequirementsInfoEXT);
+        dump_html_pNext<const VkGeneratedCommandsMemoryRequirementsInfoEXT>(reinterpret_cast<const VkGeneratedCommandsMemoryRequirementsInfoEXT*>(object), settings, "VkGeneratedCommandsMemoryRequirementsInfoEXT", indents, dump_html_VkGeneratedCommandsMemoryRequirementsInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT:
-        dump_html_pNext<const VkIndirectExecutionSetPipelineInfoEXT>(static_cast<const VkIndirectExecutionSetPipelineInfoEXT*>(object), settings, "VkIndirectExecutionSetPipelineInfoEXT", indents, dump_html_VkIndirectExecutionSetPipelineInfoEXT);
+        dump_html_pNext<const VkIndirectExecutionSetPipelineInfoEXT>(reinterpret_cast<const VkIndirectExecutionSetPipelineInfoEXT*>(object), settings, "VkIndirectExecutionSetPipelineInfoEXT", indents, dump_html_VkIndirectExecutionSetPipelineInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_LAYOUT_INFO_EXT:
-        dump_html_pNext<const VkIndirectExecutionSetShaderLayoutInfoEXT>(static_cast<const VkIndirectExecutionSetShaderLayoutInfoEXT*>(object), settings, "VkIndirectExecutionSetShaderLayoutInfoEXT", indents, dump_html_VkIndirectExecutionSetShaderLayoutInfoEXT);
+        dump_html_pNext<const VkIndirectExecutionSetShaderLayoutInfoEXT>(reinterpret_cast<const VkIndirectExecutionSetShaderLayoutInfoEXT*>(object), settings, "VkIndirectExecutionSetShaderLayoutInfoEXT", indents, dump_html_VkIndirectExecutionSetShaderLayoutInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_INFO_EXT:
-        dump_html_pNext<const VkIndirectExecutionSetShaderInfoEXT>(static_cast<const VkIndirectExecutionSetShaderInfoEXT*>(object), settings, "VkIndirectExecutionSetShaderInfoEXT", indents, dump_html_VkIndirectExecutionSetShaderInfoEXT);
+        dump_html_pNext<const VkIndirectExecutionSetShaderInfoEXT>(reinterpret_cast<const VkIndirectExecutionSetShaderInfoEXT*>(object), settings, "VkIndirectExecutionSetShaderInfoEXT", indents, dump_html_VkIndirectExecutionSetShaderInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_CREATE_INFO_EXT:
-        dump_html_pNext<const VkIndirectExecutionSetCreateInfoEXT>(static_cast<const VkIndirectExecutionSetCreateInfoEXT*>(object), settings, "VkIndirectExecutionSetCreateInfoEXT", indents, dump_html_VkIndirectExecutionSetCreateInfoEXT);
+        dump_html_pNext<const VkIndirectExecutionSetCreateInfoEXT>(reinterpret_cast<const VkIndirectExecutionSetCreateInfoEXT*>(object), settings, "VkIndirectExecutionSetCreateInfoEXT", indents, dump_html_VkIndirectExecutionSetCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_EXT:
-        dump_html_pNext<const VkGeneratedCommandsInfoEXT>(static_cast<const VkGeneratedCommandsInfoEXT*>(object), settings, "VkGeneratedCommandsInfoEXT", indents, dump_html_VkGeneratedCommandsInfoEXT);
+        dump_html_pNext<const VkGeneratedCommandsInfoEXT>(reinterpret_cast<const VkGeneratedCommandsInfoEXT*>(object), settings, "VkGeneratedCommandsInfoEXT", indents, dump_html_VkGeneratedCommandsInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_PIPELINE_EXT:
-        dump_html_pNext<const VkWriteIndirectExecutionSetPipelineEXT>(static_cast<const VkWriteIndirectExecutionSetPipelineEXT*>(object), settings, "VkWriteIndirectExecutionSetPipelineEXT", indents, dump_html_VkWriteIndirectExecutionSetPipelineEXT);
+        dump_html_pNext<const VkWriteIndirectExecutionSetPipelineEXT>(reinterpret_cast<const VkWriteIndirectExecutionSetPipelineEXT*>(object), settings, "VkWriteIndirectExecutionSetPipelineEXT", indents, dump_html_VkWriteIndirectExecutionSetPipelineEXT);
         break;
     case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_EXT:
-        dump_html_pNext<const VkIndirectCommandsLayoutTokenEXT>(static_cast<const VkIndirectCommandsLayoutTokenEXT*>(object), settings, "VkIndirectCommandsLayoutTokenEXT", indents, dump_html_VkIndirectCommandsLayoutTokenEXT);
+        dump_html_pNext<const VkIndirectCommandsLayoutTokenEXT>(reinterpret_cast<const VkIndirectCommandsLayoutTokenEXT*>(object), settings, "VkIndirectCommandsLayoutTokenEXT", indents, dump_html_VkIndirectCommandsLayoutTokenEXT);
         break;
     case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_EXT:
-        dump_html_pNext<const VkIndirectCommandsLayoutCreateInfoEXT>(static_cast<const VkIndirectCommandsLayoutCreateInfoEXT*>(object), settings, "VkIndirectCommandsLayoutCreateInfoEXT", indents, dump_html_VkIndirectCommandsLayoutCreateInfoEXT);
+        dump_html_pNext<const VkIndirectCommandsLayoutCreateInfoEXT>(reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoEXT*>(object), settings, "VkIndirectCommandsLayoutCreateInfoEXT", indents, dump_html_VkIndirectCommandsLayoutCreateInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
-        dump_html_pNext<const VkGeneratedCommandsPipelineInfoEXT>(static_cast<const VkGeneratedCommandsPipelineInfoEXT*>(object), settings, "VkGeneratedCommandsPipelineInfoEXT", indents, dump_html_VkGeneratedCommandsPipelineInfoEXT);
+        dump_html_pNext<const VkGeneratedCommandsPipelineInfoEXT>(reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(object), settings, "VkGeneratedCommandsPipelineInfoEXT", indents, dump_html_VkGeneratedCommandsPipelineInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
-        dump_html_pNext<const VkGeneratedCommandsShaderInfoEXT>(static_cast<const VkGeneratedCommandsShaderInfoEXT*>(object), settings, "VkGeneratedCommandsShaderInfoEXT", indents, dump_html_VkGeneratedCommandsShaderInfoEXT);
+        dump_html_pNext<const VkGeneratedCommandsShaderInfoEXT>(reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(object), settings, "VkGeneratedCommandsShaderInfoEXT", indents, dump_html_VkGeneratedCommandsShaderInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_SHADER_EXT:
-        dump_html_pNext<const VkWriteIndirectExecutionSetShaderEXT>(static_cast<const VkWriteIndirectExecutionSetShaderEXT*>(object), settings, "VkWriteIndirectExecutionSetShaderEXT", indents, dump_html_VkWriteIndirectExecutionSetShaderEXT);
+        dump_html_pNext<const VkWriteIndirectExecutionSetShaderEXT>(reinterpret_cast<const VkWriteIndirectExecutionSetShaderEXT*>(object), settings, "VkWriteIndirectExecutionSetShaderEXT", indents, dump_html_VkWriteIndirectExecutionSetShaderEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA:
-        dump_html_pNext<const VkPhysicalDeviceImageAlignmentControlFeaturesMESA>(static_cast<const VkPhysicalDeviceImageAlignmentControlFeaturesMESA*>(object), settings, "VkPhysicalDeviceImageAlignmentControlFeaturesMESA", indents, dump_html_VkPhysicalDeviceImageAlignmentControlFeaturesMESA);
+        dump_html_pNext<const VkPhysicalDeviceImageAlignmentControlFeaturesMESA>(reinterpret_cast<const VkPhysicalDeviceImageAlignmentControlFeaturesMESA*>(object), settings, "VkPhysicalDeviceImageAlignmentControlFeaturesMESA", indents, dump_html_VkPhysicalDeviceImageAlignmentControlFeaturesMESA);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA:
-        dump_html_pNext<const VkPhysicalDeviceImageAlignmentControlPropertiesMESA>(static_cast<const VkPhysicalDeviceImageAlignmentControlPropertiesMESA*>(object), settings, "VkPhysicalDeviceImageAlignmentControlPropertiesMESA", indents, dump_html_VkPhysicalDeviceImageAlignmentControlPropertiesMESA);
+        dump_html_pNext<const VkPhysicalDeviceImageAlignmentControlPropertiesMESA>(reinterpret_cast<const VkPhysicalDeviceImageAlignmentControlPropertiesMESA*>(object), settings, "VkPhysicalDeviceImageAlignmentControlPropertiesMESA", indents, dump_html_VkPhysicalDeviceImageAlignmentControlPropertiesMESA);
         break;
     case VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA:
-        dump_html_pNext<const VkImageAlignmentControlCreateInfoMESA>(static_cast<const VkImageAlignmentControlCreateInfoMESA*>(object), settings, "VkImageAlignmentControlCreateInfoMESA", indents, dump_html_VkImageAlignmentControlCreateInfoMESA);
+        dump_html_pNext<const VkImageAlignmentControlCreateInfoMESA>(reinterpret_cast<const VkImageAlignmentControlCreateInfoMESA*>(object), settings, "VkImageAlignmentControlCreateInfoMESA", indents, dump_html_VkImageAlignmentControlCreateInfoMESA);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceDepthClampControlFeaturesEXT>(static_cast<const VkPhysicalDeviceDepthClampControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthClampControlFeaturesEXT", indents, dump_html_VkPhysicalDeviceDepthClampControlFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceDepthClampControlFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceDepthClampControlFeaturesEXT*>(object), settings, "VkPhysicalDeviceDepthClampControlFeaturesEXT", indents, dump_html_VkPhysicalDeviceDepthClampControlFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT:
-        dump_html_pNext<const VkPipelineViewportDepthClampControlCreateInfoEXT>(static_cast<const VkPipelineViewportDepthClampControlCreateInfoEXT*>(object), settings, "VkPipelineViewportDepthClampControlCreateInfoEXT", indents, dump_html_VkPipelineViewportDepthClampControlCreateInfoEXT);
+        dump_html_pNext<const VkPipelineViewportDepthClampControlCreateInfoEXT>(reinterpret_cast<const VkPipelineViewportDepthClampControlCreateInfoEXT*>(object), settings, "VkPipelineViewportDepthClampControlCreateInfoEXT", indents, dump_html_VkPipelineViewportDepthClampControlCreateInfoEXT);
         break;
 #if defined(VK_USE_PLATFORM_OHOS)
     case VK_STRUCTURE_TYPE_OH_SURFACE_CREATE_INFO_OHOS:
-        dump_html_pNext<const VkOHSurfaceCreateInfoOHOS>(static_cast<const VkOHSurfaceCreateInfoOHOS*>(object), settings, "VkOHSurfaceCreateInfoOHOS", indents, dump_html_VkOHSurfaceCreateInfoOHOS);
+        dump_html_pNext<const VkOHSurfaceCreateInfoOHOS>(reinterpret_cast<const VkOHSurfaceCreateInfoOHOS*>(object), settings, "VkOHSurfaceCreateInfoOHOS", indents, dump_html_VkOHSurfaceCreateInfoOHOS);
         break;
 #endif // VK_USE_PLATFORM_OHOS
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
-        dump_html_pNext<const VkPhysicalDeviceHdrVividFeaturesHUAWEI>(static_cast<const VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceHdrVividFeaturesHUAWEI", indents, dump_html_VkPhysicalDeviceHdrVividFeaturesHUAWEI);
+        dump_html_pNext<const VkPhysicalDeviceHdrVividFeaturesHUAWEI>(reinterpret_cast<const VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(object), settings, "VkPhysicalDeviceHdrVividFeaturesHUAWEI", indents, dump_html_VkPhysicalDeviceHdrVividFeaturesHUAWEI);
         break;
     case VK_STRUCTURE_TYPE_HDR_VIVID_DYNAMIC_METADATA_HUAWEI:
-        dump_html_pNext<const VkHdrVividDynamicMetadataHUAWEI>(static_cast<const VkHdrVividDynamicMetadataHUAWEI*>(object), settings, "VkHdrVividDynamicMetadataHUAWEI", indents, dump_html_VkHdrVividDynamicMetadataHUAWEI);
+        dump_html_pNext<const VkHdrVividDynamicMetadataHUAWEI>(reinterpret_cast<const VkHdrVividDynamicMetadataHUAWEI*>(object), settings, "VkHdrVividDynamicMetadataHUAWEI", indents, dump_html_VkHdrVividDynamicMetadataHUAWEI);
         break;
     case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_FLEXIBLE_DIMENSIONS_PROPERTIES_NV:
-        dump_html_pNext<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV>(static_cast<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV*>(object), settings, "VkCooperativeMatrixFlexibleDimensionsPropertiesNV", indents, dump_html_VkCooperativeMatrixFlexibleDimensionsPropertiesNV);
+        dump_html_pNext<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV>(reinterpret_cast<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV*>(object), settings, "VkCooperativeMatrixFlexibleDimensionsPropertiesNV", indents, dump_html_VkCooperativeMatrixFlexibleDimensionsPropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrix2FeaturesNV>(static_cast<const VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrix2FeaturesNV", indents, dump_html_VkPhysicalDeviceCooperativeMatrix2FeaturesNV);
+        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrix2FeaturesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrix2FeaturesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrix2FeaturesNV", indents, dump_html_VkPhysicalDeviceCooperativeMatrix2FeaturesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_PROPERTIES_NV:
-        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrix2PropertiesNV>(static_cast<const VkPhysicalDeviceCooperativeMatrix2PropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrix2PropertiesNV", indents, dump_html_VkPhysicalDeviceCooperativeMatrix2PropertiesNV);
+        dump_html_pNext<const VkPhysicalDeviceCooperativeMatrix2PropertiesNV>(reinterpret_cast<const VkPhysicalDeviceCooperativeMatrix2PropertiesNV*>(object), settings, "VkPhysicalDeviceCooperativeMatrix2PropertiesNV", indents, dump_html_VkPhysicalDeviceCooperativeMatrix2PropertiesNV);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_OPACITY_MICROMAP_FEATURES_ARM:
-        dump_html_pNext<const VkPhysicalDevicePipelineOpacityMicromapFeaturesARM>(static_cast<const VkPhysicalDevicePipelineOpacityMicromapFeaturesARM*>(object), settings, "VkPhysicalDevicePipelineOpacityMicromapFeaturesARM", indents, dump_html_VkPhysicalDevicePipelineOpacityMicromapFeaturesARM);
+        dump_html_pNext<const VkPhysicalDevicePipelineOpacityMicromapFeaturesARM>(reinterpret_cast<const VkPhysicalDevicePipelineOpacityMicromapFeaturesARM*>(object), settings, "VkPhysicalDevicePipelineOpacityMicromapFeaturesARM", indents, dump_html_VkPhysicalDevicePipelineOpacityMicromapFeaturesARM);
         break;
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_IMPORT_MEMORY_METAL_HANDLE_INFO_EXT:
-        dump_html_pNext<const VkImportMemoryMetalHandleInfoEXT>(static_cast<const VkImportMemoryMetalHandleInfoEXT*>(object), settings, "VkImportMemoryMetalHandleInfoEXT", indents, dump_html_VkImportMemoryMetalHandleInfoEXT);
+        dump_html_pNext<const VkImportMemoryMetalHandleInfoEXT>(reinterpret_cast<const VkImportMemoryMetalHandleInfoEXT*>(object), settings, "VkImportMemoryMetalHandleInfoEXT", indents, dump_html_VkImportMemoryMetalHandleInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_MEMORY_METAL_HANDLE_PROPERTIES_EXT:
-        dump_html_pNext<const VkMemoryMetalHandlePropertiesEXT>(static_cast<const VkMemoryMetalHandlePropertiesEXT*>(object), settings, "VkMemoryMetalHandlePropertiesEXT", indents, dump_html_VkMemoryMetalHandlePropertiesEXT);
+        dump_html_pNext<const VkMemoryMetalHandlePropertiesEXT>(reinterpret_cast<const VkMemoryMetalHandlePropertiesEXT*>(object), settings, "VkMemoryMetalHandlePropertiesEXT", indents, dump_html_VkMemoryMetalHandlePropertiesEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     case VK_STRUCTURE_TYPE_MEMORY_GET_METAL_HANDLE_INFO_EXT:
-        dump_html_pNext<const VkMemoryGetMetalHandleInfoEXT>(static_cast<const VkMemoryGetMetalHandleInfoEXT*>(object), settings, "VkMemoryGetMetalHandleInfoEXT", indents, dump_html_VkMemoryGetMetalHandleInfoEXT);
+        dump_html_pNext<const VkMemoryGetMetalHandleInfoEXT>(reinterpret_cast<const VkMemoryGetMetalHandleInfoEXT*>(object), settings, "VkMemoryGetMetalHandleInfoEXT", indents, dump_html_VkMemoryGetMetalHandleInfoEXT);
         break;
 #endif // VK_USE_PLATFORM_METAL_EXT
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT>(static_cast<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT*>(object), settings, "VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT", indents, dump_html_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT*>(object), settings, "VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT", indents, dump_html_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FORMAT_PACK_FEATURES_ARM:
-        dump_html_pNext<const VkPhysicalDeviceFormatPackFeaturesARM>(static_cast<const VkPhysicalDeviceFormatPackFeaturesARM*>(object), settings, "VkPhysicalDeviceFormatPackFeaturesARM", indents, dump_html_VkPhysicalDeviceFormatPackFeaturesARM);
+        dump_html_pNext<const VkPhysicalDeviceFormatPackFeaturesARM>(reinterpret_cast<const VkPhysicalDeviceFormatPackFeaturesARM*>(object), settings, "VkPhysicalDeviceFormatPackFeaturesARM", indents, dump_html_VkPhysicalDeviceFormatPackFeaturesARM);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_FEATURES_VALVE:
-        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE>(static_cast<const VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE*>(object), settings, "VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE", indents, dump_html_VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE);
+        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE*>(object), settings, "VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE", indents, dump_html_VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_PROPERTIES_VALVE:
-        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE>(static_cast<const VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE*>(object), settings, "VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE", indents, dump_html_VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE);
+        dump_html_pNext<const VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE>(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE*>(object), settings, "VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE", indents, dump_html_VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE);
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_DENSITY_MAP_LAYERED_CREATE_INFO_VALVE:
-        dump_html_pNext<const VkPipelineFragmentDensityMapLayeredCreateInfoVALVE>(static_cast<const VkPipelineFragmentDensityMapLayeredCreateInfoVALVE*>(object), settings, "VkPipelineFragmentDensityMapLayeredCreateInfoVALVE", indents, dump_html_VkPipelineFragmentDensityMapLayeredCreateInfoVALVE);
+        dump_html_pNext<const VkPipelineFragmentDensityMapLayeredCreateInfoVALVE>(reinterpret_cast<const VkPipelineFragmentDensityMapLayeredCreateInfoVALVE*>(object), settings, "VkPipelineFragmentDensityMapLayeredCreateInfoVALVE", indents, dump_html_VkPipelineFragmentDensityMapLayeredCreateInfoVALVE);
         break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV:
-        dump_html_pNext<const VkSetPresentConfigNV>(static_cast<const VkSetPresentConfigNV*>(object), settings, "VkSetPresentConfigNV", indents, dump_html_VkSetPresentConfigNV);
+        dump_html_pNext<const VkSetPresentConfigNV>(reinterpret_cast<const VkSetPresentConfigNV*>(object), settings, "VkSetPresentConfigNV", indents, dump_html_VkSetPresentConfigNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_METERING_FEATURES_NV:
-        dump_html_pNext<const VkPhysicalDevicePresentMeteringFeaturesNV>(static_cast<const VkPhysicalDevicePresentMeteringFeaturesNV*>(object), settings, "VkPhysicalDevicePresentMeteringFeaturesNV", indents, dump_html_VkPhysicalDevicePresentMeteringFeaturesNV);
+        dump_html_pNext<const VkPhysicalDevicePresentMeteringFeaturesNV>(reinterpret_cast<const VkPhysicalDevicePresentMeteringFeaturesNV*>(object), settings, "VkPhysicalDevicePresentMeteringFeaturesNV", indents, dump_html_VkPhysicalDevicePresentMeteringFeaturesNV);
         break;
 #endif // VK_ENABLE_BETA_EXTENSIONS
     case VK_STRUCTURE_TYPE_RENDERING_END_INFO_EXT:
-        dump_html_pNext<const VkRenderingEndInfoEXT>(static_cast<const VkRenderingEndInfoEXT*>(object), settings, "VkRenderingEndInfoEXT", indents, dump_html_VkRenderingEndInfoEXT);
+        dump_html_pNext<const VkRenderingEndInfoEXT>(reinterpret_cast<const VkRenderingEndInfoEXT*>(object), settings, "VkRenderingEndInfoEXT", indents, dump_html_VkRenderingEndInfoEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT>(static_cast<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT*>(object), settings, "VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT", indents, dump_html_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT*>(object), settings, "VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT", indents, dump_html_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
-        dump_html_pNext<const VkAccelerationStructureGeometryTrianglesDataKHR>(static_cast<const VkAccelerationStructureGeometryTrianglesDataKHR*>(object), settings, "VkAccelerationStructureGeometryTrianglesDataKHR", indents, dump_html_VkAccelerationStructureGeometryTrianglesDataKHR);
+        dump_html_pNext<const VkAccelerationStructureGeometryTrianglesDataKHR>(reinterpret_cast<const VkAccelerationStructureGeometryTrianglesDataKHR*>(object), settings, "VkAccelerationStructureGeometryTrianglesDataKHR", indents, dump_html_VkAccelerationStructureGeometryTrianglesDataKHR);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR:
-        dump_html_pNext<const VkAccelerationStructureGeometryAabbsDataKHR>(static_cast<const VkAccelerationStructureGeometryAabbsDataKHR*>(object), settings, "VkAccelerationStructureGeometryAabbsDataKHR", indents, dump_html_VkAccelerationStructureGeometryAabbsDataKHR);
+        dump_html_pNext<const VkAccelerationStructureGeometryAabbsDataKHR>(reinterpret_cast<const VkAccelerationStructureGeometryAabbsDataKHR*>(object), settings, "VkAccelerationStructureGeometryAabbsDataKHR", indents, dump_html_VkAccelerationStructureGeometryAabbsDataKHR);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR:
-        dump_html_pNext<const VkAccelerationStructureGeometryInstancesDataKHR>(static_cast<const VkAccelerationStructureGeometryInstancesDataKHR*>(object), settings, "VkAccelerationStructureGeometryInstancesDataKHR", indents, dump_html_VkAccelerationStructureGeometryInstancesDataKHR);
+        dump_html_pNext<const VkAccelerationStructureGeometryInstancesDataKHR>(reinterpret_cast<const VkAccelerationStructureGeometryInstancesDataKHR*>(object), settings, "VkAccelerationStructureGeometryInstancesDataKHR", indents, dump_html_VkAccelerationStructureGeometryInstancesDataKHR);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR:
-        dump_html_pNext<const VkAccelerationStructureGeometryKHR>(static_cast<const VkAccelerationStructureGeometryKHR*>(object), settings, "VkAccelerationStructureGeometryKHR", indents, dump_html_VkAccelerationStructureGeometryKHR);
+        dump_html_pNext<const VkAccelerationStructureGeometryKHR>(reinterpret_cast<const VkAccelerationStructureGeometryKHR*>(object), settings, "VkAccelerationStructureGeometryKHR", indents, dump_html_VkAccelerationStructureGeometryKHR);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR:
-        dump_html_pNext<const VkAccelerationStructureBuildGeometryInfoKHR>(static_cast<const VkAccelerationStructureBuildGeometryInfoKHR*>(object), settings, "VkAccelerationStructureBuildGeometryInfoKHR", indents, dump_html_VkAccelerationStructureBuildGeometryInfoKHR);
+        dump_html_pNext<const VkAccelerationStructureBuildGeometryInfoKHR>(reinterpret_cast<const VkAccelerationStructureBuildGeometryInfoKHR*>(object), settings, "VkAccelerationStructureBuildGeometryInfoKHR", indents, dump_html_VkAccelerationStructureBuildGeometryInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkAccelerationStructureCreateInfoKHR>(static_cast<const VkAccelerationStructureCreateInfoKHR*>(object), settings, "VkAccelerationStructureCreateInfoKHR", indents, dump_html_VkAccelerationStructureCreateInfoKHR);
+        dump_html_pNext<const VkAccelerationStructureCreateInfoKHR>(reinterpret_cast<const VkAccelerationStructureCreateInfoKHR*>(object), settings, "VkAccelerationStructureCreateInfoKHR", indents, dump_html_VkAccelerationStructureCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
-        dump_html_pNext<const VkWriteDescriptorSetAccelerationStructureKHR>(static_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(object), settings, "VkWriteDescriptorSetAccelerationStructureKHR", indents, dump_html_VkWriteDescriptorSetAccelerationStructureKHR);
+        dump_html_pNext<const VkWriteDescriptorSetAccelerationStructureKHR>(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(object), settings, "VkWriteDescriptorSetAccelerationStructureKHR", indents, dump_html_VkWriteDescriptorSetAccelerationStructureKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceAccelerationStructureFeaturesKHR>(static_cast<const VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(object), settings, "VkPhysicalDeviceAccelerationStructureFeaturesKHR", indents, dump_html_VkPhysicalDeviceAccelerationStructureFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceAccelerationStructureFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(object), settings, "VkPhysicalDeviceAccelerationStructureFeaturesKHR", indents, dump_html_VkPhysicalDeviceAccelerationStructureFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceAccelerationStructurePropertiesKHR>(static_cast<const VkPhysicalDeviceAccelerationStructurePropertiesKHR*>(object), settings, "VkPhysicalDeviceAccelerationStructurePropertiesKHR", indents, dump_html_VkPhysicalDeviceAccelerationStructurePropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceAccelerationStructurePropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceAccelerationStructurePropertiesKHR*>(object), settings, "VkPhysicalDeviceAccelerationStructurePropertiesKHR", indents, dump_html_VkPhysicalDeviceAccelerationStructurePropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR:
-        dump_html_pNext<const VkAccelerationStructureDeviceAddressInfoKHR>(static_cast<const VkAccelerationStructureDeviceAddressInfoKHR*>(object), settings, "VkAccelerationStructureDeviceAddressInfoKHR", indents, dump_html_VkAccelerationStructureDeviceAddressInfoKHR);
+        dump_html_pNext<const VkAccelerationStructureDeviceAddressInfoKHR>(reinterpret_cast<const VkAccelerationStructureDeviceAddressInfoKHR*>(object), settings, "VkAccelerationStructureDeviceAddressInfoKHR", indents, dump_html_VkAccelerationStructureDeviceAddressInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_VERSION_INFO_KHR:
-        dump_html_pNext<const VkAccelerationStructureVersionInfoKHR>(static_cast<const VkAccelerationStructureVersionInfoKHR*>(object), settings, "VkAccelerationStructureVersionInfoKHR", indents, dump_html_VkAccelerationStructureVersionInfoKHR);
+        dump_html_pNext<const VkAccelerationStructureVersionInfoKHR>(reinterpret_cast<const VkAccelerationStructureVersionInfoKHR*>(object), settings, "VkAccelerationStructureVersionInfoKHR", indents, dump_html_VkAccelerationStructureVersionInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_INFO_KHR:
-        dump_html_pNext<const VkCopyAccelerationStructureToMemoryInfoKHR>(static_cast<const VkCopyAccelerationStructureToMemoryInfoKHR*>(object), settings, "VkCopyAccelerationStructureToMemoryInfoKHR", indents, dump_html_VkCopyAccelerationStructureToMemoryInfoKHR);
+        dump_html_pNext<const VkCopyAccelerationStructureToMemoryInfoKHR>(reinterpret_cast<const VkCopyAccelerationStructureToMemoryInfoKHR*>(object), settings, "VkCopyAccelerationStructureToMemoryInfoKHR", indents, dump_html_VkCopyAccelerationStructureToMemoryInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_INFO_KHR:
-        dump_html_pNext<const VkCopyMemoryToAccelerationStructureInfoKHR>(static_cast<const VkCopyMemoryToAccelerationStructureInfoKHR*>(object), settings, "VkCopyMemoryToAccelerationStructureInfoKHR", indents, dump_html_VkCopyMemoryToAccelerationStructureInfoKHR);
+        dump_html_pNext<const VkCopyMemoryToAccelerationStructureInfoKHR>(reinterpret_cast<const VkCopyMemoryToAccelerationStructureInfoKHR*>(object), settings, "VkCopyMemoryToAccelerationStructureInfoKHR", indents, dump_html_VkCopyMemoryToAccelerationStructureInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR:
-        dump_html_pNext<const VkCopyAccelerationStructureInfoKHR>(static_cast<const VkCopyAccelerationStructureInfoKHR*>(object), settings, "VkCopyAccelerationStructureInfoKHR", indents, dump_html_VkCopyAccelerationStructureInfoKHR);
+        dump_html_pNext<const VkCopyAccelerationStructureInfoKHR>(reinterpret_cast<const VkCopyAccelerationStructureInfoKHR*>(object), settings, "VkCopyAccelerationStructureInfoKHR", indents, dump_html_VkCopyAccelerationStructureInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR:
-        dump_html_pNext<const VkRayTracingShaderGroupCreateInfoKHR>(static_cast<const VkRayTracingShaderGroupCreateInfoKHR*>(object), settings, "VkRayTracingShaderGroupCreateInfoKHR", indents, dump_html_VkRayTracingShaderGroupCreateInfoKHR);
+        dump_html_pNext<const VkRayTracingShaderGroupCreateInfoKHR>(reinterpret_cast<const VkRayTracingShaderGroupCreateInfoKHR*>(object), settings, "VkRayTracingShaderGroupCreateInfoKHR", indents, dump_html_VkRayTracingShaderGroupCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_INTERFACE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkRayTracingPipelineInterfaceCreateInfoKHR>(static_cast<const VkRayTracingPipelineInterfaceCreateInfoKHR*>(object), settings, "VkRayTracingPipelineInterfaceCreateInfoKHR", indents, dump_html_VkRayTracingPipelineInterfaceCreateInfoKHR);
+        dump_html_pNext<const VkRayTracingPipelineInterfaceCreateInfoKHR>(reinterpret_cast<const VkRayTracingPipelineInterfaceCreateInfoKHR*>(object), settings, "VkRayTracingPipelineInterfaceCreateInfoKHR", indents, dump_html_VkRayTracingPipelineInterfaceCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
-        dump_html_pNext<const VkRayTracingPipelineCreateInfoKHR>(static_cast<const VkRayTracingPipelineCreateInfoKHR*>(object), settings, "VkRayTracingPipelineCreateInfoKHR", indents, dump_html_VkRayTracingPipelineCreateInfoKHR);
+        dump_html_pNext<const VkRayTracingPipelineCreateInfoKHR>(reinterpret_cast<const VkRayTracingPipelineCreateInfoKHR*>(object), settings, "VkRayTracingPipelineCreateInfoKHR", indents, dump_html_VkRayTracingPipelineCreateInfoKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceRayTracingPipelineFeaturesKHR>(static_cast<const VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPipelineFeaturesKHR", indents, dump_html_VkPhysicalDeviceRayTracingPipelineFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceRayTracingPipelineFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPipelineFeaturesKHR", indents, dump_html_VkPhysicalDeviceRayTracingPipelineFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(static_cast<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPipelinePropertiesKHR", indents, dump_html_VkPhysicalDeviceRayTracingPipelinePropertiesKHR);
+        dump_html_pNext<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(reinterpret_cast<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(object), settings, "VkPhysicalDeviceRayTracingPipelinePropertiesKHR", indents, dump_html_VkPhysicalDeviceRayTracingPipelinePropertiesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR:
-        dump_html_pNext<const VkPhysicalDeviceRayQueryFeaturesKHR>(static_cast<const VkPhysicalDeviceRayQueryFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayQueryFeaturesKHR", indents, dump_html_VkPhysicalDeviceRayQueryFeaturesKHR);
+        dump_html_pNext<const VkPhysicalDeviceRayQueryFeaturesKHR>(reinterpret_cast<const VkPhysicalDeviceRayQueryFeaturesKHR*>(object), settings, "VkPhysicalDeviceRayQueryFeaturesKHR", indents, dump_html_VkPhysicalDeviceRayQueryFeaturesKHR);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceMeshShaderFeaturesEXT>(static_cast<const VkPhysicalDeviceMeshShaderFeaturesEXT*>(object), settings, "VkPhysicalDeviceMeshShaderFeaturesEXT", indents, dump_html_VkPhysicalDeviceMeshShaderFeaturesEXT);
+        dump_html_pNext<const VkPhysicalDeviceMeshShaderFeaturesEXT>(reinterpret_cast<const VkPhysicalDeviceMeshShaderFeaturesEXT*>(object), settings, "VkPhysicalDeviceMeshShaderFeaturesEXT", indents, dump_html_VkPhysicalDeviceMeshShaderFeaturesEXT);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT:
-        dump_html_pNext<const VkPhysicalDeviceMeshShaderPropertiesEXT>(static_cast<const VkPhysicalDeviceMeshShaderPropertiesEXT*>(object), settings, "VkPhysicalDeviceMeshShaderPropertiesEXT", indents, dump_html_VkPhysicalDeviceMeshShaderPropertiesEXT);
+        dump_html_pNext<const VkPhysicalDeviceMeshShaderPropertiesEXT>(reinterpret_cast<const VkPhysicalDeviceMeshShaderPropertiesEXT*>(object), settings, "VkPhysicalDeviceMeshShaderPropertiesEXT", indents, dump_html_VkPhysicalDeviceMeshShaderPropertiesEXT);
         break;
     case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
     case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
-        if(static_cast<const VkBaseInStructure*>(object)->pNext != nullptr){
-            dump_html_pNext_trampoline(static_cast<const void*>(static_cast<const VkBaseInStructure*>(object)->pNext), settings, indents);
+        if(base_struct.pNext != nullptr){
+            dump_html_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, indents);
         } else {
             settings.stream() << "<details class='data'><summary>";
             dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");
@@ -40339,7 +40341,7 @@ void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& setti
     default:
         settings.stream() << "<details class='data'><summary>";
         dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");
-        settings.stream() << "<div class='val'>UNKNOWN (" << (int64_t) (static_cast<const VkBaseInStructure*>(object)->sType) <<")</div></summary></details>";
+        settings.stream() << "<div class='val'>UNKNOWN (" << (int64_t) (base_struct.sType) <<")</div></summary></details>";
     }
 }
 
