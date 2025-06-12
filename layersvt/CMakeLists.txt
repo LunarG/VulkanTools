@@ -89,6 +89,10 @@ if(BUILD_APIDUMP)
     endif()
 
     target_compile_definitions(VkLayer_api_dump PRIVATE VK_ENABLE_BETA_EXTENSIONS)
+
+    if (VT_CODEGEN)
+        add_dependencies(VkLayer_api_dump vt_codegen)
+    endif()
 endif ()
 
 if(BUILD_MONITOR)
