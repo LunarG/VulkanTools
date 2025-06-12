@@ -27,29 +27,83 @@
 
 //=========================== Type Implementations ==========================//
 
-void dump_json_uint32_t(const uint32_t &object, const ApiDumpSettings& settings, int indents)
+void dump_json_uint32_t(const uint32_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << "\"" << object << "\"";
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_json_value(settings, object);
+    dump_json_end(settings, OutputConstruct::value, indents);
 }
-void dump_json_uint8_t(const uint8_t &object, const ApiDumpSettings& settings, int indents)
-{
-    settings.stream() << "\"" << (uint32_t) object << "\"";
+void dump_json_uint32_t(const uint32_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_uint32_t(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_uint16_t(const uint16_t &object, const ApiDumpSettings& settings, int indents)
+void dump_json_uint8_t(const uint8_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << "\"" << object << "\"";
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_json_value(settings, (uint32_t) object);
+    dump_json_end(settings, OutputConstruct::value, indents);
 }
-void dump_json_int32_t(const int32_t &object, const ApiDumpSettings& settings, int indents)
-{
-    settings.stream() << "\"" << object << "\"";
+void dump_json_uint8_t(const uint8_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_uint8_t(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_int8_t(const int8_t &object, const ApiDumpSettings& settings, int indents)
+void dump_json_uint16_t(const uint16_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << "\"" << (int32_t) object << "\"";
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_json_value(settings, object);
+    dump_json_end(settings, OutputConstruct::value, indents);
 }
-void dump_json_int16_t(const int16_t &object, const ApiDumpSettings& settings, int indents)
+void dump_json_uint16_t(const uint16_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_uint16_t(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_int32_t(const int32_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << "\"" << object << "\"";
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_json_value(settings, object);
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_int32_t(const int32_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_int32_t(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_int8_t(const int8_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
+{
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_json_value(settings, (int32_t) object);
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_int8_t(const int8_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_int8_t(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_int16_t(const int16_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
+{
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_json_value(settings, object);
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_int16_t(const int16_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_int16_t(*object, settings, type_string, name, indents, object);
+    }
 }
 
 //========================= Basetype Implementations ========================//
@@ -58,1223 +112,1553 @@ void dump_json_int16_t(const int16_t &object, const ApiDumpSettings& settings, i
 //======================= System Type Implementations =======================//
 
 
-//========================== Handle Implementations =========================//
-
-
 //=========================== Enum Implementations ==========================//
 
-void dump_json_StdVideoH264ChromaFormatIdc(const StdVideoH264ChromaFormatIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264ChromaFormatIdc(const StdVideoH264ChromaFormatIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_CHROMA_FORMAT_IDC_MONOCHROME\"";
+        dump_json_value(settings, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_MONOCHROME");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_CHROMA_FORMAT_IDC_420\"";
+        dump_json_value(settings, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_420");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_CHROMA_FORMAT_IDC_422\"";
+        dump_json_value(settings, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_422");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H264_CHROMA_FORMAT_IDC_444\"";
+        dump_json_value(settings, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_444");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_CHROMA_FORMAT_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264ChromaFormatIdc(const StdVideoH264ChromaFormatIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264ChromaFormatIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264ProfileIdc(const StdVideoH264ProfileIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264ProfileIdc(const StdVideoH264ProfileIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 66:
-        settings.stream() << "\"STD_VIDEO_H264_PROFILE_IDC_BASELINE\"";
+        dump_json_value(settings, "STD_VIDEO_H264_PROFILE_IDC_BASELINE");
         break;
     case 77:
-        settings.stream() << "\"STD_VIDEO_H264_PROFILE_IDC_MAIN\"";
+        dump_json_value(settings, "STD_VIDEO_H264_PROFILE_IDC_MAIN");
         break;
     case 100:
-        settings.stream() << "\"STD_VIDEO_H264_PROFILE_IDC_HIGH\"";
+        dump_json_value(settings, "STD_VIDEO_H264_PROFILE_IDC_HIGH");
         break;
     case 244:
-        settings.stream() << "\"STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE\"";
+        dump_json_value(settings, "STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_PROFILE_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_PROFILE_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264ProfileIdc(const StdVideoH264ProfileIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264ProfileIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264LevelIdc(const StdVideoH264LevelIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264LevelIdc(const StdVideoH264LevelIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_1_0\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_1_0");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_1_1\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_1_1");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_1_2\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_1_2");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_1_3\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_1_3");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_2_0\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_2_0");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_2_1\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_2_1");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_2_2\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_2_2");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_3_0\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_3_0");
         break;
     case 8:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_3_1\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_3_1");
         break;
     case 9:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_3_2\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_3_2");
         break;
     case 10:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_4_0\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_4_0");
         break;
     case 11:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_4_1\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_4_1");
         break;
     case 12:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_4_2\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_4_2");
         break;
     case 13:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_5_0\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_5_0");
         break;
     case 14:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_5_1\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_5_1");
         break;
     case 15:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_5_2\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_5_2");
         break;
     case 16:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_6_0\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_6_0");
         break;
     case 17:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_6_1\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_6_1");
         break;
     case 18:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_6_2\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_6_2");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_LEVEL_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_LEVEL_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264LevelIdc(const StdVideoH264LevelIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264LevelIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264PocType(const StdVideoH264PocType& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264PocType(const StdVideoH264PocType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_POC_TYPE_0\"";
+        dump_json_value(settings, "STD_VIDEO_H264_POC_TYPE_0");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_POC_TYPE_1\"";
+        dump_json_value(settings, "STD_VIDEO_H264_POC_TYPE_1");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_POC_TYPE_2\"";
+        dump_json_value(settings, "STD_VIDEO_H264_POC_TYPE_2");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_POC_TYPE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_POC_TYPE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264PocType(const StdVideoH264PocType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264PocType(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264AspectRatioIdc(const StdVideoH264AspectRatioIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264AspectRatioIdc(const StdVideoH264AspectRatioIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_UNSPECIFIED\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_UNSPECIFIED");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_SQUARE\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_SQUARE");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_12_11\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_12_11");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_10_11\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_10_11");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_16_11\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_16_11");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_40_33\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_40_33");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_24_11\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_24_11");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_20_11\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_20_11");
         break;
     case 8:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_32_11\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_32_11");
         break;
     case 9:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_80_33\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_80_33");
         break;
     case 10:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_18_11\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_18_11");
         break;
     case 11:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_15_11\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_15_11");
         break;
     case 12:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_64_33\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_64_33");
         break;
     case 13:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_160_99\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_160_99");
         break;
     case 14:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_4_3\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_4_3");
         break;
     case 15:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_3_2\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_3_2");
         break;
     case 16:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_2_1\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_2_1");
         break;
     case 255:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_EXTENDED_SAR\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_EXTENDED_SAR");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_ASPECT_RATIO_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264AspectRatioIdc(const StdVideoH264AspectRatioIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264AspectRatioIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264WeightedBipredIdc(const StdVideoH264WeightedBipredIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264WeightedBipredIdc(const StdVideoH264WeightedBipredIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_DEFAULT\"";
+        dump_json_value(settings, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_DEFAULT");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_EXPLICIT\"";
+        dump_json_value(settings, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_EXPLICIT");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_IMPLICIT\"";
+        dump_json_value(settings, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_IMPLICIT");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264WeightedBipredIdc(const StdVideoH264WeightedBipredIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264WeightedBipredIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264ModificationOfPicNumsIdc(const StdVideoH264ModificationOfPicNumsIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264ModificationOfPicNumsIdc(const StdVideoH264ModificationOfPicNumsIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_SUBTRACT\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_SUBTRACT");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_ADD\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_ADD");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_LONG_TERM\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_LONG_TERM");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_END\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_END");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264ModificationOfPicNumsIdc(const StdVideoH264ModificationOfPicNumsIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264ModificationOfPicNumsIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264MemMgmtControlOp(const StdVideoH264MemMgmtControlOp& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264MemMgmtControlOp(const StdVideoH264MemMgmtControlOp object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_END\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_END");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_SHORT_TERM\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_SHORT_TERM");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_LONG_TERM\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_LONG_TERM");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_MARK_LONG_TERM\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_MARK_LONG_TERM");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_SET_MAX_LONG_TERM_INDEX\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_SET_MAX_LONG_TERM_INDEX");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_ALL\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_ALL");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_MARK_CURRENT_AS_LONG_TERM\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_MARK_CURRENT_AS_LONG_TERM");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264MemMgmtControlOp(const StdVideoH264MemMgmtControlOp* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264MemMgmtControlOp(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264CabacInitIdc(const StdVideoH264CabacInitIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264CabacInitIdc(const StdVideoH264CabacInitIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_CABAC_INIT_IDC_0\"";
+        dump_json_value(settings, "STD_VIDEO_H264_CABAC_INIT_IDC_0");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_CABAC_INIT_IDC_1\"";
+        dump_json_value(settings, "STD_VIDEO_H264_CABAC_INIT_IDC_1");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_CABAC_INIT_IDC_2\"";
+        dump_json_value(settings, "STD_VIDEO_H264_CABAC_INIT_IDC_2");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_CABAC_INIT_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_CABAC_INIT_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264CabacInitIdc(const StdVideoH264CabacInitIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264CabacInitIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264DisableDeblockingFilterIdc(const StdVideoH264DisableDeblockingFilterIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264DisableDeblockingFilterIdc(const StdVideoH264DisableDeblockingFilterIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_DISABLED\"";
+        dump_json_value(settings, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_DISABLED");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_ENABLED\"";
+        dump_json_value(settings, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_ENABLED");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_PARTIAL\"";
+        dump_json_value(settings, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_PARTIAL");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264DisableDeblockingFilterIdc(const StdVideoH264DisableDeblockingFilterIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264DisableDeblockingFilterIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264SliceType(const StdVideoH264SliceType& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264SliceType(const StdVideoH264SliceType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_SLICE_TYPE_P\"";
+        dump_json_value(settings, "STD_VIDEO_H264_SLICE_TYPE_P");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_SLICE_TYPE_B\"";
+        dump_json_value(settings, "STD_VIDEO_H264_SLICE_TYPE_B");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_SLICE_TYPE_I\"";
+        dump_json_value(settings, "STD_VIDEO_H264_SLICE_TYPE_I");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_SLICE_TYPE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_SLICE_TYPE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264SliceType(const StdVideoH264SliceType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264SliceType(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264PictureType(const StdVideoH264PictureType& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264PictureType(const StdVideoH264PictureType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_PICTURE_TYPE_P\"";
+        dump_json_value(settings, "STD_VIDEO_H264_PICTURE_TYPE_P");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_PICTURE_TYPE_B\"";
+        dump_json_value(settings, "STD_VIDEO_H264_PICTURE_TYPE_B");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_PICTURE_TYPE_I\"";
+        dump_json_value(settings, "STD_VIDEO_H264_PICTURE_TYPE_I");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_H264_PICTURE_TYPE_IDR\"";
+        dump_json_value(settings, "STD_VIDEO_H264_PICTURE_TYPE_IDR");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_PICTURE_TYPE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_PICTURE_TYPE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264PictureType(const StdVideoH264PictureType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264PictureType(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH264NonVclNaluType(const StdVideoH264NonVclNaluType& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264NonVclNaluType(const StdVideoH264NonVclNaluType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H264_NON_VCL_NALU_TYPE_SPS\"";
+        dump_json_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_SPS");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H264_NON_VCL_NALU_TYPE_PPS\"";
+        dump_json_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_PPS");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H264_NON_VCL_NALU_TYPE_AUD\"";
+        dump_json_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_AUD");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H264_NON_VCL_NALU_TYPE_PREFIX\"";
+        dump_json_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_PREFIX");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_H264_NON_VCL_NALU_TYPE_END_OF_SEQUENCE\"";
+        dump_json_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_END_OF_SEQUENCE");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_H264_NON_VCL_NALU_TYPE_END_OF_STREAM\"";
+        dump_json_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_END_OF_STREAM");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_H264_NON_VCL_NALU_TYPE_PRECODED\"";
+        dump_json_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_PRECODED");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H264_NON_VCL_NALU_TYPE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH264NonVclNaluType(const StdVideoH264NonVclNaluType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264NonVclNaluType(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoDecodeH264FieldOrderCount(const StdVideoDecodeH264FieldOrderCount& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeH264FieldOrderCount(const StdVideoDecodeH264FieldOrderCount object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_TOP\"";
+        dump_json_value(settings, "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_TOP");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_BOTTOM\"";
+        dump_json_value(settings, "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_BOTTOM");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoDecodeH264FieldOrderCount(const StdVideoDecodeH264FieldOrderCount* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeH264FieldOrderCount(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH265ChromaFormatIdc(const StdVideoH265ChromaFormatIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265ChromaFormatIdc(const StdVideoH265ChromaFormatIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H265_CHROMA_FORMAT_IDC_MONOCHROME\"";
+        dump_json_value(settings, "STD_VIDEO_H265_CHROMA_FORMAT_IDC_MONOCHROME");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H265_CHROMA_FORMAT_IDC_420\"";
+        dump_json_value(settings, "STD_VIDEO_H265_CHROMA_FORMAT_IDC_420");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H265_CHROMA_FORMAT_IDC_422\"";
+        dump_json_value(settings, "STD_VIDEO_H265_CHROMA_FORMAT_IDC_422");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H265_CHROMA_FORMAT_IDC_444\"";
+        dump_json_value(settings, "STD_VIDEO_H265_CHROMA_FORMAT_IDC_444");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H265_CHROMA_FORMAT_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H265_CHROMA_FORMAT_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH265ChromaFormatIdc(const StdVideoH265ChromaFormatIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265ChromaFormatIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH265ProfileIdc(const StdVideoH265ProfileIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265ProfileIdc(const StdVideoH265ProfileIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 1:
-        settings.stream() << "\"STD_VIDEO_H265_PROFILE_IDC_MAIN\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PROFILE_IDC_MAIN");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H265_PROFILE_IDC_MAIN_10\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PROFILE_IDC_MAIN_10");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H265_PROFILE_IDC_MAIN_STILL_PICTURE\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PROFILE_IDC_MAIN_STILL_PICTURE");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_H265_PROFILE_IDC_FORMAT_RANGE_EXTENSIONS\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PROFILE_IDC_FORMAT_RANGE_EXTENSIONS");
         break;
     case 9:
-        settings.stream() << "\"STD_VIDEO_H265_PROFILE_IDC_SCC_EXTENSIONS\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PROFILE_IDC_SCC_EXTENSIONS");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H265_PROFILE_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PROFILE_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH265ProfileIdc(const StdVideoH265ProfileIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265ProfileIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH265LevelIdc(const StdVideoH265LevelIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265LevelIdc(const StdVideoH265LevelIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_1_0\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_1_0");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_2_0\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_2_0");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_2_1\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_2_1");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_3_0\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_3_0");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_3_1\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_3_1");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_4_0\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_4_0");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_4_1\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_4_1");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_5_0\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_5_0");
         break;
     case 8:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_5_1\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_5_1");
         break;
     case 9:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_5_2\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_5_2");
         break;
     case 10:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_6_0\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_6_0");
         break;
     case 11:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_6_1\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_6_1");
         break;
     case 12:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_6_2\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_6_2");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H265_LEVEL_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H265_LEVEL_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH265LevelIdc(const StdVideoH265LevelIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265LevelIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH265SliceType(const StdVideoH265SliceType& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265SliceType(const StdVideoH265SliceType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H265_SLICE_TYPE_B\"";
+        dump_json_value(settings, "STD_VIDEO_H265_SLICE_TYPE_B");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H265_SLICE_TYPE_P\"";
+        dump_json_value(settings, "STD_VIDEO_H265_SLICE_TYPE_P");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H265_SLICE_TYPE_I\"";
+        dump_json_value(settings, "STD_VIDEO_H265_SLICE_TYPE_I");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H265_SLICE_TYPE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H265_SLICE_TYPE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH265SliceType(const StdVideoH265SliceType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265SliceType(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH265PictureType(const StdVideoH265PictureType& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265PictureType(const StdVideoH265PictureType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H265_PICTURE_TYPE_P\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PICTURE_TYPE_P");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H265_PICTURE_TYPE_B\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PICTURE_TYPE_B");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H265_PICTURE_TYPE_I\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PICTURE_TYPE_I");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H265_PICTURE_TYPE_IDR\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PICTURE_TYPE_IDR");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H265_PICTURE_TYPE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H265_PICTURE_TYPE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH265PictureType(const StdVideoH265PictureType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265PictureType(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoH265AspectRatioIdc(const StdVideoH265AspectRatioIdc& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265AspectRatioIdc(const StdVideoH265AspectRatioIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_UNSPECIFIED\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_UNSPECIFIED");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_SQUARE\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_SQUARE");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_12_11\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_12_11");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_10_11\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_10_11");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_16_11\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_16_11");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_40_33\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_40_33");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_24_11\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_24_11");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_20_11\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_20_11");
         break;
     case 8:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_32_11\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_32_11");
         break;
     case 9:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_80_33\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_80_33");
         break;
     case 10:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_18_11\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_18_11");
         break;
     case 11:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_15_11\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_15_11");
         break;
     case 12:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_64_33\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_64_33");
         break;
     case 13:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_160_99\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_160_99");
         break;
     case 14:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_4_3\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_4_3");
         break;
     case 15:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_3_2\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_3_2");
         break;
     case 16:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_2_1\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_2_1");
         break;
     case 255:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_EXTENDED_SAR\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_EXTENDED_SAR");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_H265_ASPECT_RATIO_IDC_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoH265AspectRatioIdc(const StdVideoH265AspectRatioIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265AspectRatioIdc(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1Profile(const StdVideoAV1Profile& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1Profile(const StdVideoAV1Profile object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_AV1_PROFILE_MAIN\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_PROFILE_MAIN");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_PROFILE_HIGH\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_PROFILE_HIGH");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_PROFILE_PROFESSIONAL\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_PROFILE_PROFESSIONAL");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_PROFILE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_PROFILE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1Profile(const StdVideoAV1Profile* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1Profile(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1Level(const StdVideoAV1Level& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1Level(const StdVideoAV1Level object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_2_0\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_2_0");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_2_1\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_2_1");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_2_2\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_2_2");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_2_3\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_2_3");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_3_0\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_3_0");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_3_1\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_3_1");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_3_2\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_3_2");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_3_3\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_3_3");
         break;
     case 8:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_4_0\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_4_0");
         break;
     case 9:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_4_1\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_4_1");
         break;
     case 10:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_4_2\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_4_2");
         break;
     case 11:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_4_3\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_4_3");
         break;
     case 12:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_5_0\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_5_0");
         break;
     case 13:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_5_1\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_5_1");
         break;
     case 14:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_5_2\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_5_2");
         break;
     case 15:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_5_3\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_5_3");
         break;
     case 16:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_6_0\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_6_0");
         break;
     case 17:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_6_1\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_6_1");
         break;
     case 18:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_6_2\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_6_2");
         break;
     case 19:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_6_3\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_6_3");
         break;
     case 20:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_7_0\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_7_0");
         break;
     case 21:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_7_1\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_7_1");
         break;
     case 22:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_7_2\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_7_2");
         break;
     case 23:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_7_3\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_7_3");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_LEVEL_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_LEVEL_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1Level(const StdVideoAV1Level* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1Level(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1FrameType(const StdVideoAV1FrameType& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1FrameType(const StdVideoAV1FrameType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_AV1_FRAME_TYPE_KEY\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_FRAME_TYPE_KEY");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_FRAME_TYPE_INTER\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_FRAME_TYPE_INTER");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_FRAME_TYPE_INTRA_ONLY\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_FRAME_TYPE_INTRA_ONLY");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_AV1_FRAME_TYPE_SWITCH\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_FRAME_TYPE_SWITCH");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_FRAME_TYPE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_FRAME_TYPE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1FrameType(const StdVideoAV1FrameType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1FrameType(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1ReferenceName(const StdVideoAV1ReferenceName& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1ReferenceName(const StdVideoAV1ReferenceName object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_AV1_REFERENCE_NAME_INTRA_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_INTRA_FRAME");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_REFERENCE_NAME_LAST_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_LAST_FRAME");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_REFERENCE_NAME_LAST2_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_LAST2_FRAME");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_AV1_REFERENCE_NAME_LAST3_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_LAST3_FRAME");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_AV1_REFERENCE_NAME_GOLDEN_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_GOLDEN_FRAME");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_AV1_REFERENCE_NAME_BWDREF_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_BWDREF_FRAME");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_AV1_REFERENCE_NAME_ALTREF2_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_ALTREF2_FRAME");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_AV1_REFERENCE_NAME_ALTREF_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_ALTREF_FRAME");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_REFERENCE_NAME_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1ReferenceName(const StdVideoAV1ReferenceName* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1ReferenceName(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1InterpolationFilter(const StdVideoAV1InterpolationFilter& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1InterpolationFilter(const StdVideoAV1InterpolationFilter object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SHARP\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SHARP");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_AV1_INTERPOLATION_FILTER_BILINEAR\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_BILINEAR");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_AV1_INTERPOLATION_FILTER_SWITCHABLE\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_SWITCHABLE");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_INTERPOLATION_FILTER_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1InterpolationFilter(const StdVideoAV1InterpolationFilter* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1InterpolationFilter(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1TxMode(const StdVideoAV1TxMode& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1TxMode(const StdVideoAV1TxMode object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_AV1_TX_MODE_ONLY_4X4\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TX_MODE_ONLY_4X4");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_TX_MODE_LARGEST\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TX_MODE_LARGEST");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_TX_MODE_SELECT\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TX_MODE_SELECT");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_TX_MODE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TX_MODE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1TxMode(const StdVideoAV1TxMode* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1TxMode(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1FrameRestorationType(const StdVideoAV1FrameRestorationType& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1FrameRestorationType(const StdVideoAV1FrameRestorationType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_NONE\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_NONE");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_WIENER\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_WIENER");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_SGRPROJ\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_SGRPROJ");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_SWITCHABLE\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_SWITCHABLE");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1FrameRestorationType(const StdVideoAV1FrameRestorationType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1FrameRestorationType(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1ColorPrimaries(const StdVideoAV1ColorPrimaries& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1ColorPrimaries(const StdVideoAV1ColorPrimaries object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_BT_709\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_709");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_UNSPECIFIED\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_UNSPECIFIED");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_M\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_M");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_B_G\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_B_G");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_BT_601\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_601");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_240\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_240");
         break;
     case 8:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_GENERIC_FILM\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_GENERIC_FILM");
         break;
     case 9:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_BT_2020\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_2020");
         break;
     case 10:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_XYZ\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_XYZ");
         break;
     case 11:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_431\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_431");
         break;
     case 12:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_432\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_432");
         break;
     case 22:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_EBU_3213\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_EBU_3213");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_COLOR_PRIMARIES_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1ColorPrimaries(const StdVideoAV1ColorPrimaries* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1ColorPrimaries(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1TransferCharacteristics(const StdVideoAV1TransferCharacteristics& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1TransferCharacteristics(const StdVideoAV1TransferCharacteristics object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_0\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_0");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_709\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_709");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_UNSPECIFIED\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_UNSPECIFIED");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_3\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_3");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_470_M\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_470_M");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_470_B_G\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_470_B_G");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_601\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_601");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_240\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_240");
         break;
     case 8:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LINEAR\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LINEAR");
         break;
     case 9:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LOG_100\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LOG_100");
         break;
     case 10:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LOG_100_SQRT10\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LOG_100_SQRT10");
         break;
     case 11:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_IEC_61966\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_IEC_61966");
         break;
     case 12:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_1361\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_1361");
         break;
     case 13:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SRGB\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SRGB");
         break;
     case 14:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_2020_10_BIT\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_2020_10_BIT");
         break;
     case 15:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_2020_12_BIT\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_2020_12_BIT");
         break;
     case 16:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_2084\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_2084");
         break;
     case 17:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_428\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_428");
         break;
     case 18:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_HLG\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_HLG");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1TransferCharacteristics(const StdVideoAV1TransferCharacteristics* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1TransferCharacteristics(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1MatrixCoefficients(const StdVideoAV1MatrixCoefficients& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1MatrixCoefficients(const StdVideoAV1MatrixCoefficients object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_IDENTITY\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_IDENTITY");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_709\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_709");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_UNSPECIFIED\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_UNSPECIFIED");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_RESERVED_3\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_RESERVED_3");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_FCC\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_FCC");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_470_B_G\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_470_B_G");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_601\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_601");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_240\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_240");
         break;
     case 8:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_YCGCO\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_YCGCO");
         break;
     case 9:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_2020_NCL\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_2020_NCL");
         break;
     case 10:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_2020_CL\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_2020_CL");
         break;
     case 11:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_2085\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_2085");
         break;
     case 12:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_CHROMAT_NCL\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_CHROMAT_NCL");
         break;
     case 13:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_CHROMAT_CL\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_CHROMAT_CL");
         break;
     case 14:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_ICTCP\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_ICTCP");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_MATRIX_COEFFICIENTS_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1MatrixCoefficients(const StdVideoAV1MatrixCoefficients* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1MatrixCoefficients(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoAV1ChromaSamplePosition(const StdVideoAV1ChromaSamplePosition& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1ChromaSamplePosition(const StdVideoAV1ChromaSamplePosition object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_UNKNOWN\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_UNKNOWN");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_VERTICAL\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_VERTICAL");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_COLOCATED\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_COLOCATED");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_RESERVED\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_RESERVED");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoAV1ChromaSamplePosition(const StdVideoAV1ChromaSamplePosition* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1ChromaSamplePosition(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoVP9Profile(const StdVideoVP9Profile& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9Profile(const StdVideoVP9Profile object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_VP9_PROFILE_0\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_PROFILE_0");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_VP9_PROFILE_1\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_PROFILE_1");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_VP9_PROFILE_2\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_PROFILE_2");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_VP9_PROFILE_3\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_PROFILE_3");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_VP9_PROFILE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_PROFILE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoVP9Profile(const StdVideoVP9Profile* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9Profile(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoVP9Level(const StdVideoVP9Level& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9Level(const StdVideoVP9Level object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_1_0\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_1_0");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_1_1\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_1_1");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_2_0\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_2_0");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_2_1\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_2_1");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_3_0\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_3_0");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_3_1\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_3_1");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_4_0\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_4_0");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_4_1\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_4_1");
         break;
     case 8:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_5_0\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_5_0");
         break;
     case 9:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_5_1\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_5_1");
         break;
     case 10:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_5_2\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_5_2");
         break;
     case 11:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_6_0\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_6_0");
         break;
     case 12:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_6_1\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_6_1");
         break;
     case 13:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_6_2\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_6_2");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_LEVEL_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoVP9Level(const StdVideoVP9Level* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9Level(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoVP9FrameType(const StdVideoVP9FrameType& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9FrameType(const StdVideoVP9FrameType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_VP9_FRAME_TYPE_KEY\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_FRAME_TYPE_KEY");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_VP9_FRAME_TYPE_NON_KEY\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_FRAME_TYPE_NON_KEY");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_VP9_FRAME_TYPE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_FRAME_TYPE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoVP9FrameType(const StdVideoVP9FrameType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9FrameType(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoVP9ReferenceName(const StdVideoVP9ReferenceName& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9ReferenceName(const StdVideoVP9ReferenceName object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_VP9_REFERENCE_NAME_LAST_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_REFERENCE_NAME_LAST_FRAME");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_VP9_REFERENCE_NAME_GOLDEN_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_REFERENCE_NAME_GOLDEN_FRAME");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_VP9_REFERENCE_NAME_ALTREF_FRAME\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_REFERENCE_NAME_ALTREF_FRAME");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_VP9_REFERENCE_NAME_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_REFERENCE_NAME_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoVP9ReferenceName(const StdVideoVP9ReferenceName* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9ReferenceName(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoVP9InterpolationFilter(const StdVideoVP9InterpolationFilter& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9InterpolationFilter(const StdVideoVP9InterpolationFilter object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SHARP\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SHARP");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_BILINEAR\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_BILINEAR");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_SWITCHABLE\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_SWITCHABLE");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoVP9InterpolationFilter(const StdVideoVP9InterpolationFilter* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9InterpolationFilter(*object, settings, type_string, name, indents, object);
     }
 }
-void dump_json_StdVideoVP9ColorSpace(const StdVideoVP9ColorSpace& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9ColorSpace(const StdVideoVP9ColorSpace object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
+    dump_json_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN");
         break;
     case 1:
-        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_BT_601\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_BT_601");
         break;
     case 2:
-        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_BT_709\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_BT_709");
         break;
     case 3:
-        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_SMPTE_170\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_SMPTE_170");
         break;
     case 4:
-        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_SMPTE_240\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_SMPTE_240");
         break;
     case 5:
-        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_BT_2020\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_BT_2020");
         break;
     case 6:
-        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_RESERVED\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_RESERVED");
         break;
     case 7:
-        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_RGB\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_RGB");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_INVALID\"";
+        dump_json_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_INVALID");
         break;
     default:
-        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+        dump_json_value(settings, "UNKNOWN (", object, ")");
+    }
+    dump_json_end(settings, OutputConstruct::value, indents);
+}
+void dump_json_StdVideoVP9ColorSpace(const StdVideoVP9ColorSpace* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9ColorSpace(*object, settings, type_string, name, indents, object);
     }
 }
 
@@ -1282,8 +1666,6 @@ void dump_json_StdVideoVP9ColorSpace(const StdVideoVP9ColorSpace& object, const 
 
 
 //=========================== Flag Implementations ==========================//
-
-
 
 
 //======================= Func Pointer Implementations ======================//
@@ -1297,2189 +1679,4025 @@ void dump_json_StdVideoVP9ColorSpace(const StdVideoVP9ColorSpace& object, const 
 
 //========================== Struct Implementations =========================//
 
-void dump_json_StdVideoH264SpsVuiFlags(const StdVideoH264SpsVuiFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264SpsVuiFlags(const StdVideoH264SpsVuiFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.aspect_ratio_info_present_flag, NULL, settings, "uint32_t", "aspect_ratio_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.aspect_ratio_info_present_flag, settings, "uint32_t: 1", "aspect_ratio_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.overscan_info_present_flag, NULL, settings, "uint32_t", "overscan_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.overscan_info_present_flag, settings, "uint32_t: 1", "overscan_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.overscan_appropriate_flag, NULL, settings, "uint32_t", "overscan_appropriate_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.overscan_appropriate_flag, settings, "uint32_t: 1", "overscan_appropriate_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.video_signal_type_present_flag, NULL, settings, "uint32_t", "video_signal_type_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.video_signal_type_present_flag, settings, "uint32_t: 1", "video_signal_type_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.video_full_range_flag, NULL, settings, "uint32_t", "video_full_range_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.video_full_range_flag, settings, "uint32_t: 1", "video_full_range_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.color_description_present_flag, NULL, settings, "uint32_t", "color_description_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.color_description_present_flag, settings, "uint32_t: 1", "color_description_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.chroma_loc_info_present_flag, NULL, settings, "uint32_t", "chroma_loc_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.chroma_loc_info_present_flag, settings, "uint32_t: 1", "chroma_loc_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.timing_info_present_flag, NULL, settings, "uint32_t", "timing_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.timing_info_present_flag, settings, "uint32_t: 1", "timing_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.fixed_frame_rate_flag, NULL, settings, "uint32_t", "fixed_frame_rate_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.fixed_frame_rate_flag, settings, "uint32_t: 1", "fixed_frame_rate_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.bitstream_restriction_flag, NULL, settings, "uint32_t", "bitstream_restriction_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.bitstream_restriction_flag, settings, "uint32_t: 1", "bitstream_restriction_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.nal_hrd_parameters_present_flag, NULL, settings, "uint32_t", "nal_hrd_parameters_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.nal_hrd_parameters_present_flag, settings, "uint32_t: 1", "nal_hrd_parameters_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vcl_hrd_parameters_present_flag, NULL, settings, "uint32_t", "vcl_hrd_parameters_present_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.vcl_hrd_parameters_present_flag, settings, "uint32_t: 1", "vcl_hrd_parameters_present_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH264HrdParameters(const StdVideoH264HrdParameters& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264SpsVuiFlags(const StdVideoH264SpsVuiFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264SpsVuiFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH264HrdParameters(const StdVideoH264HrdParameters& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint8_t>(object.cpb_cnt_minus1, NULL, settings, "uint8_t", "cpb_cnt_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint8_t(object.cpb_cnt_minus1, settings, "uint8_t", "cpb_cnt_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.bit_rate_scale, NULL, settings, "uint8_t", "bit_rate_scale", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.bit_rate_scale, settings, "uint8_t", "bit_rate_scale", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.cpb_size_scale, NULL, settings, "uint8_t", "cpb_size_scale", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.cpb_size_scale, settings, "uint8_t", "cpb_size_scale", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.bit_rate_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "uint32_t", "bit_rate_value_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_array_start(object.bit_rate_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "bit_rate_value_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_CPB_CNT_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint32_t(object.bit_rate_value_minus1[i], settings, "uint32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H264_CPB_CNT_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.bit_rate_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.cpb_size_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "uint32_t", "cpb_size_value_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_array_start(object.cpb_size_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "cpb_size_value_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_CPB_CNT_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint32_t(object.cpb_size_value_minus1[i], settings, "uint32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H264_CPB_CNT_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cpb_size_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.cbr_flag, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "uint8_t", "cbr_flag", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.cbr_flag, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "cbr_flag", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_CPB_CNT_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.cbr_flag[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H264_CPB_CNT_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cbr_flag, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.initial_cpb_removal_delay_length_minus1, NULL, settings, "uint32_t", "initial_cpb_removal_delay_length_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.initial_cpb_removal_delay_length_minus1, settings, "uint32_t", "initial_cpb_removal_delay_length_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.cpb_removal_delay_length_minus1, NULL, settings, "uint32_t", "cpb_removal_delay_length_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.cpb_removal_delay_length_minus1, settings, "uint32_t", "cpb_removal_delay_length_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.dpb_output_delay_length_minus1, NULL, settings, "uint32_t", "dpb_output_delay_length_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.dpb_output_delay_length_minus1, settings, "uint32_t", "dpb_output_delay_length_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.time_offset_length, NULL, settings, "uint32_t", "time_offset_length", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.time_offset_length, settings, "uint32_t", "time_offset_length", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH264SequenceParameterSetVui(const StdVideoH264SequenceParameterSetVui& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264HrdParameters(const StdVideoH264HrdParameters* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264HrdParameters(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH264SequenceParameterSetVui(const StdVideoH264SequenceParameterSetVui& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH264SpsVuiFlags>(object.flags, NULL, settings, "StdVideoH264SpsVuiFlags", "flags", true, false, indents + 1, dump_json_StdVideoH264SpsVuiFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH264SpsVuiFlags(object.flags, settings, "StdVideoH264SpsVuiFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264AspectRatioIdc>(object.aspect_ratio_idc, NULL, settings, "StdVideoH264AspectRatioIdc", "aspect_ratio_idc", false, false, indents + 1, dump_json_StdVideoH264AspectRatioIdc);
+    dump_json_StdVideoH264AspectRatioIdc(object.aspect_ratio_idc, settings, "StdVideoH264AspectRatioIdc", "aspect_ratio_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.sar_width, NULL, settings, "uint16_t", "sar_width", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.sar_width, settings, "uint16_t", "sar_width", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.sar_height, NULL, settings, "uint16_t", "sar_height", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.sar_height, settings, "uint16_t", "sar_height", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.video_format, NULL, settings, "uint8_t", "video_format", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.video_format, settings, "uint8_t", "video_format", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.colour_primaries, NULL, settings, "uint8_t", "colour_primaries", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.colour_primaries, settings, "uint8_t", "colour_primaries", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.transfer_characteristics, NULL, settings, "uint8_t", "transfer_characteristics", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.transfer_characteristics, settings, "uint8_t", "transfer_characteristics", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.matrix_coefficients, NULL, settings, "uint8_t", "matrix_coefficients", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.matrix_coefficients, settings, "uint8_t", "matrix_coefficients", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.num_units_in_tick, NULL, settings, "uint32_t", "num_units_in_tick", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.num_units_in_tick, settings, "uint32_t", "num_units_in_tick", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.time_scale, NULL, settings, "uint32_t", "time_scale", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.time_scale, settings, "uint32_t", "time_scale", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.max_num_reorder_frames, NULL, settings, "uint8_t", "max_num_reorder_frames", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.max_num_reorder_frames, settings, "uint8_t", "max_num_reorder_frames", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.max_dec_frame_buffering, NULL, settings, "uint8_t", "max_dec_frame_buffering", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.max_dec_frame_buffering, settings, "uint8_t", "max_dec_frame_buffering", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.chroma_sample_loc_type_top_field, NULL, settings, "uint8_t", "chroma_sample_loc_type_top_field", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.chroma_sample_loc_type_top_field, settings, "uint8_t", "chroma_sample_loc_type_top_field", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.chroma_sample_loc_type_bottom_field, NULL, settings, "uint8_t", "chroma_sample_loc_type_bottom_field", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.chroma_sample_loc_type_bottom_field, settings, "uint8_t", "chroma_sample_loc_type_bottom_field", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved1, NULL, settings, "uint32_t", "reserved1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.reserved1, settings, "uint32_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH264HrdParameters>(object.pHrdParameters, settings, "const StdVideoH264HrdParameters*", "pHrdParameters", true, false, indents + 1, dump_json_StdVideoH264HrdParameters);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoH264HrdParameters(object.pHrdParameters, settings, "const StdVideoH264HrdParameters*", "pHrdParameters", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoH264SequenceParameterSetVui(const StdVideoH264SequenceParameterSetVui* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264SequenceParameterSetVui(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoH264SpsFlags(const StdVideoH264SpsFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264SpsFlags(const StdVideoH264SpsFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.constraint_set0_flag, NULL, settings, "uint32_t", "constraint_set0_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.constraint_set0_flag, settings, "uint32_t: 1", "constraint_set0_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.constraint_set1_flag, NULL, settings, "uint32_t", "constraint_set1_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.constraint_set1_flag, settings, "uint32_t: 1", "constraint_set1_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.constraint_set2_flag, NULL, settings, "uint32_t", "constraint_set2_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.constraint_set2_flag, settings, "uint32_t: 1", "constraint_set2_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.constraint_set3_flag, NULL, settings, "uint32_t", "constraint_set3_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.constraint_set3_flag, settings, "uint32_t: 1", "constraint_set3_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.constraint_set4_flag, NULL, settings, "uint32_t", "constraint_set4_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.constraint_set4_flag, settings, "uint32_t: 1", "constraint_set4_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.constraint_set5_flag, NULL, settings, "uint32_t", "constraint_set5_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.constraint_set5_flag, settings, "uint32_t: 1", "constraint_set5_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.direct_8x8_inference_flag, NULL, settings, "uint32_t", "direct_8x8_inference_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.direct_8x8_inference_flag, settings, "uint32_t: 1", "direct_8x8_inference_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.mb_adaptive_frame_field_flag, NULL, settings, "uint32_t", "mb_adaptive_frame_field_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.mb_adaptive_frame_field_flag, settings, "uint32_t: 1", "mb_adaptive_frame_field_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_mbs_only_flag, NULL, settings, "uint32_t", "frame_mbs_only_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_mbs_only_flag, settings, "uint32_t: 1", "frame_mbs_only_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.delta_pic_order_always_zero_flag, NULL, settings, "uint32_t", "delta_pic_order_always_zero_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.delta_pic_order_always_zero_flag, settings, "uint32_t: 1", "delta_pic_order_always_zero_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.separate_colour_plane_flag, NULL, settings, "uint32_t", "separate_colour_plane_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.separate_colour_plane_flag, settings, "uint32_t: 1", "separate_colour_plane_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.gaps_in_frame_num_value_allowed_flag, NULL, settings, "uint32_t", "gaps_in_frame_num_value_allowed_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.gaps_in_frame_num_value_allowed_flag, settings, "uint32_t: 1", "gaps_in_frame_num_value_allowed_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.qpprime_y_zero_transform_bypass_flag, NULL, settings, "uint32_t", "qpprime_y_zero_transform_bypass_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.qpprime_y_zero_transform_bypass_flag, settings, "uint32_t: 1", "qpprime_y_zero_transform_bypass_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_cropping_flag, NULL, settings, "uint32_t", "frame_cropping_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_cropping_flag, settings, "uint32_t: 1", "frame_cropping_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.seq_scaling_matrix_present_flag, NULL, settings, "uint32_t", "seq_scaling_matrix_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.seq_scaling_matrix_present_flag, settings, "uint32_t: 1", "seq_scaling_matrix_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vui_parameters_present_flag, NULL, settings, "uint32_t", "vui_parameters_present_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.vui_parameters_present_flag, settings, "uint32_t: 1", "vui_parameters_present_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH264ScalingLists(const StdVideoH264ScalingLists& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264SpsFlags(const StdVideoH264SpsFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264SpsFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH264ScalingLists(const StdVideoH264ScalingLists& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint16_t>(object.scaling_list_present_mask, NULL, settings, "uint16_t", "scaling_list_present_mask", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint16_t(object.scaling_list_present_mask, settings, "uint16_t", "scaling_list_present_mask", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.use_default_scaling_matrix_mask, NULL, settings, "uint16_t", "use_default_scaling_matrix_mask", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.use_default_scaling_matrix_mask, settings, "uint16_t", "use_default_scaling_matrix_mask", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS]", "ScalingList4x4", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS]", "ScalingList4x4", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.ScalingList4x4[i][j], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS - 1 && j < STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS]", "ScalingList8x8", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS]", "ScalingList8x8", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.ScalingList8x8[i][j], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS - 1 && j < STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH264SequenceParameterSet(const StdVideoH264SequenceParameterSet& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264ScalingLists(const StdVideoH264ScalingLists* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264ScalingLists(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH264SequenceParameterSet(const StdVideoH264SequenceParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH264SpsFlags>(object.flags, NULL, settings, "StdVideoH264SpsFlags", "flags", true, false, indents + 1, dump_json_StdVideoH264SpsFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH264SpsFlags(object.flags, settings, "StdVideoH264SpsFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264ProfileIdc>(object.profile_idc, NULL, settings, "StdVideoH264ProfileIdc", "profile_idc", false, false, indents + 1, dump_json_StdVideoH264ProfileIdc);
+    dump_json_StdVideoH264ProfileIdc(object.profile_idc, settings, "StdVideoH264ProfileIdc", "profile_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264LevelIdc>(object.level_idc, NULL, settings, "StdVideoH264LevelIdc", "level_idc", false, false, indents + 1, dump_json_StdVideoH264LevelIdc);
+    dump_json_StdVideoH264LevelIdc(object.level_idc, settings, "StdVideoH264LevelIdc", "level_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264ChromaFormatIdc>(object.chroma_format_idc, NULL, settings, "StdVideoH264ChromaFormatIdc", "chroma_format_idc", false, false, indents + 1, dump_json_StdVideoH264ChromaFormatIdc);
+    dump_json_StdVideoH264ChromaFormatIdc(object.chroma_format_idc, settings, "StdVideoH264ChromaFormatIdc", "chroma_format_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.seq_parameter_set_id, NULL, settings, "uint8_t", "seq_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.seq_parameter_set_id, settings, "uint8_t", "seq_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.bit_depth_luma_minus8, NULL, settings, "uint8_t", "bit_depth_luma_minus8", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.bit_depth_luma_minus8, settings, "uint8_t", "bit_depth_luma_minus8", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.bit_depth_chroma_minus8, NULL, settings, "uint8_t", "bit_depth_chroma_minus8", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.bit_depth_chroma_minus8, settings, "uint8_t", "bit_depth_chroma_minus8", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_max_frame_num_minus4, NULL, settings, "uint8_t", "log2_max_frame_num_minus4", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_max_frame_num_minus4, settings, "uint8_t", "log2_max_frame_num_minus4", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264PocType>(object.pic_order_cnt_type, NULL, settings, "StdVideoH264PocType", "pic_order_cnt_type", false, false, indents + 1, dump_json_StdVideoH264PocType);
+    dump_json_StdVideoH264PocType(object.pic_order_cnt_type, settings, "StdVideoH264PocType", "pic_order_cnt_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int32_t>(object.offset_for_non_ref_pic, NULL, settings, "int32_t", "offset_for_non_ref_pic", false, false, indents + 1, dump_json_int32_t);
+    dump_json_int32_t(object.offset_for_non_ref_pic, settings, "int32_t", "offset_for_non_ref_pic", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int32_t>(object.offset_for_top_to_bottom_field, NULL, settings, "int32_t", "offset_for_top_to_bottom_field", false, false, indents + 1, dump_json_int32_t);
+    dump_json_int32_t(object.offset_for_top_to_bottom_field, settings, "int32_t", "offset_for_top_to_bottom_field", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_max_pic_order_cnt_lsb_minus4, NULL, settings, "uint8_t", "log2_max_pic_order_cnt_lsb_minus4", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_max_pic_order_cnt_lsb_minus4, settings, "uint8_t", "log2_max_pic_order_cnt_lsb_minus4", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_ref_frames_in_pic_order_cnt_cycle, NULL, settings, "uint8_t", "num_ref_frames_in_pic_order_cnt_cycle", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_ref_frames_in_pic_order_cnt_cycle, settings, "uint8_t", "num_ref_frames_in_pic_order_cnt_cycle", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.max_num_ref_frames, NULL, settings, "uint8_t", "max_num_ref_frames", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.max_num_ref_frames, settings, "uint8_t", "max_num_ref_frames", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pic_width_in_mbs_minus1, NULL, settings, "uint32_t", "pic_width_in_mbs_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pic_width_in_mbs_minus1, settings, "uint32_t", "pic_width_in_mbs_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pic_height_in_map_units_minus1, NULL, settings, "uint32_t", "pic_height_in_map_units_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pic_height_in_map_units_minus1, settings, "uint32_t", "pic_height_in_map_units_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_crop_left_offset, NULL, settings, "uint32_t", "frame_crop_left_offset", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_crop_left_offset, settings, "uint32_t", "frame_crop_left_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_crop_right_offset, NULL, settings, "uint32_t", "frame_crop_right_offset", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_crop_right_offset, settings, "uint32_t", "frame_crop_right_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_crop_top_offset, NULL, settings, "uint32_t", "frame_crop_top_offset", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_crop_top_offset, settings, "uint32_t", "frame_crop_top_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_crop_bottom_offset, NULL, settings, "uint32_t", "frame_crop_bottom_offset", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_crop_bottom_offset, settings, "uint32_t", "frame_crop_bottom_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved2, NULL, settings, "uint32_t", "reserved2", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.reserved2, settings, "uint32_t", "reserved2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const int32_t>(object.pOffsetForRefFrame, settings, "const int32_t*", "pOffsetForRefFrame", false, false, indents + 1, dump_json_int32_t);
+    dump_json_int32_t(object.pOffsetForRefFrame, settings, "const int32_t*", "pOffsetForRefFrame", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH264ScalingLists>(object.pScalingLists, settings, "const StdVideoH264ScalingLists*", "pScalingLists", true, false, indents + 1, dump_json_StdVideoH264ScalingLists);
+    dump_json_StdVideoH264ScalingLists(object.pScalingLists, settings, "const StdVideoH264ScalingLists*", "pScalingLists", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH264SequenceParameterSetVui>(object.pSequenceParameterSetVui, settings, "const StdVideoH264SequenceParameterSetVui*", "pSequenceParameterSetVui", true, false, indents + 1, dump_json_StdVideoH264SequenceParameterSetVui);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoH264SequenceParameterSetVui(object.pSequenceParameterSetVui, settings, "const StdVideoH264SequenceParameterSetVui*", "pSequenceParameterSetVui", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoH264SequenceParameterSet(const StdVideoH264SequenceParameterSet* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264SequenceParameterSet(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoH264PpsFlags(const StdVideoH264PpsFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264PpsFlags(const StdVideoH264PpsFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.transform_8x8_mode_flag, NULL, settings, "uint32_t", "transform_8x8_mode_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.transform_8x8_mode_flag, settings, "uint32_t: 1", "transform_8x8_mode_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.redundant_pic_cnt_present_flag, NULL, settings, "uint32_t", "redundant_pic_cnt_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.redundant_pic_cnt_present_flag, settings, "uint32_t: 1", "redundant_pic_cnt_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.constrained_intra_pred_flag, NULL, settings, "uint32_t", "constrained_intra_pred_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.constrained_intra_pred_flag, settings, "uint32_t: 1", "constrained_intra_pred_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.deblocking_filter_control_present_flag, NULL, settings, "uint32_t", "deblocking_filter_control_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.deblocking_filter_control_present_flag, settings, "uint32_t: 1", "deblocking_filter_control_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.weighted_pred_flag, NULL, settings, "uint32_t", "weighted_pred_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.weighted_pred_flag, settings, "uint32_t: 1", "weighted_pred_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.bottom_field_pic_order_in_frame_present_flag, NULL, settings, "uint32_t", "bottom_field_pic_order_in_frame_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.bottom_field_pic_order_in_frame_present_flag, settings, "uint32_t: 1", "bottom_field_pic_order_in_frame_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.entropy_coding_mode_flag, NULL, settings, "uint32_t", "entropy_coding_mode_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.entropy_coding_mode_flag, settings, "uint32_t: 1", "entropy_coding_mode_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pic_scaling_matrix_present_flag, NULL, settings, "uint32_t", "pic_scaling_matrix_present_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.pic_scaling_matrix_present_flag, settings, "uint32_t: 1", "pic_scaling_matrix_present_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH264PictureParameterSet(const StdVideoH264PictureParameterSet& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264PpsFlags(const StdVideoH264PpsFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264PpsFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH264PictureParameterSet(const StdVideoH264PictureParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH264PpsFlags>(object.flags, NULL, settings, "StdVideoH264PpsFlags", "flags", true, false, indents + 1, dump_json_StdVideoH264PpsFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH264PpsFlags(object.flags, settings, "StdVideoH264PpsFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.seq_parameter_set_id, NULL, settings, "uint8_t", "seq_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.seq_parameter_set_id, settings, "uint8_t", "seq_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pic_parameter_set_id, NULL, settings, "uint8_t", "pic_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pic_parameter_set_id, settings, "uint8_t", "pic_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_ref_idx_l0_default_active_minus1, NULL, settings, "uint8_t", "num_ref_idx_l0_default_active_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_ref_idx_l0_default_active_minus1, settings, "uint8_t", "num_ref_idx_l0_default_active_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_ref_idx_l1_default_active_minus1, NULL, settings, "uint8_t", "num_ref_idx_l1_default_active_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_ref_idx_l1_default_active_minus1, settings, "uint8_t", "num_ref_idx_l1_default_active_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264WeightedBipredIdc>(object.weighted_bipred_idc, NULL, settings, "StdVideoH264WeightedBipredIdc", "weighted_bipred_idc", false, false, indents + 1, dump_json_StdVideoH264WeightedBipredIdc);
+    dump_json_StdVideoH264WeightedBipredIdc(object.weighted_bipred_idc, settings, "StdVideoH264WeightedBipredIdc", "weighted_bipred_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.pic_init_qp_minus26, NULL, settings, "int8_t", "pic_init_qp_minus26", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.pic_init_qp_minus26, settings, "int8_t", "pic_init_qp_minus26", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.pic_init_qs_minus26, NULL, settings, "int8_t", "pic_init_qs_minus26", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.pic_init_qs_minus26, settings, "int8_t", "pic_init_qs_minus26", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.chroma_qp_index_offset, NULL, settings, "int8_t", "chroma_qp_index_offset", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.chroma_qp_index_offset, settings, "int8_t", "chroma_qp_index_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.second_chroma_qp_index_offset, NULL, settings, "int8_t", "second_chroma_qp_index_offset", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.second_chroma_qp_index_offset, settings, "int8_t", "second_chroma_qp_index_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH264ScalingLists>(object.pScalingLists, settings, "const StdVideoH264ScalingLists*", "pScalingLists", true, false, indents + 1, dump_json_StdVideoH264ScalingLists);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoH264ScalingLists(object.pScalingLists, settings, "const StdVideoH264ScalingLists*", "pScalingLists", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeH264PictureInfoFlags(const StdVideoDecodeH264PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH264PictureParameterSet(const StdVideoH264PictureParameterSet* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH264PictureParameterSet(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeH264PictureInfoFlags(const StdVideoDecodeH264PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.field_pic_flag, NULL, settings, "uint32_t", "field_pic_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.field_pic_flag, settings, "uint32_t: 1", "field_pic_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.is_intra, NULL, settings, "uint32_t", "is_intra", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.is_intra, settings, "uint32_t: 1", "is_intra", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.IdrPicFlag, NULL, settings, "uint32_t", "IdrPicFlag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.IdrPicFlag, settings, "uint32_t: 1", "IdrPicFlag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.bottom_field_flag, NULL, settings, "uint32_t", "bottom_field_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.bottom_field_flag, settings, "uint32_t: 1", "bottom_field_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.is_reference, NULL, settings, "uint32_t", "is_reference", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.is_reference, settings, "uint32_t: 1", "is_reference", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.complementary_field_pair, NULL, settings, "uint32_t", "complementary_field_pair", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.complementary_field_pair, settings, "uint32_t: 1", "complementary_field_pair", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoDecodeH264PictureInfoFlags(const StdVideoDecodeH264PictureInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeH264PictureInfoFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoDecodeH264PictureInfo(const StdVideoDecodeH264PictureInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeH264PictureInfo(const StdVideoDecodeH264PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoDecodeH264PictureInfoFlags>(object.flags, NULL, settings, "StdVideoDecodeH264PictureInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoDecodeH264PictureInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoDecodeH264PictureInfoFlags(object.flags, settings, "StdVideoDecodeH264PictureInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.seq_parameter_set_id, NULL, settings, "uint8_t", "seq_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.seq_parameter_set_id, settings, "uint8_t", "seq_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pic_parameter_set_id, NULL, settings, "uint8_t", "pic_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pic_parameter_set_id, settings, "uint8_t", "pic_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved2, NULL, settings, "uint8_t", "reserved2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved2, settings, "uint8_t", "reserved2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.frame_num, NULL, settings, "uint16_t", "frame_num", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.frame_num, settings, "uint16_t", "frame_num", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.idr_pic_id, NULL, settings, "uint16_t", "idr_pic_id", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.idr_pic_id, settings, "uint16_t", "idr_pic_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int32_t>(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "int32_t", "PicOrderCnt", false, false, indents + 1, dump_json_int32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "PicOrderCnt", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int32_t(object.PicOrderCnt[i], settings, "int32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeH264ReferenceInfoFlags(const StdVideoDecodeH264ReferenceInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeH264PictureInfo(const StdVideoDecodeH264PictureInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeH264PictureInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeH264ReferenceInfoFlags(const StdVideoDecodeH264ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.top_field_flag, NULL, settings, "uint32_t", "top_field_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.top_field_flag, settings, "uint32_t: 1", "top_field_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.bottom_field_flag, NULL, settings, "uint32_t", "bottom_field_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.bottom_field_flag, settings, "uint32_t: 1", "bottom_field_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.used_for_long_term_reference, NULL, settings, "uint32_t", "used_for_long_term_reference", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.used_for_long_term_reference, settings, "uint32_t: 1", "used_for_long_term_reference", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.is_non_existing, NULL, settings, "uint32_t", "is_non_existing", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.is_non_existing, settings, "uint32_t: 1", "is_non_existing", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeH264ReferenceInfo(const StdVideoDecodeH264ReferenceInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeH264ReferenceInfoFlags(const StdVideoDecodeH264ReferenceInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeH264ReferenceInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeH264ReferenceInfo(const StdVideoDecodeH264ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoDecodeH264ReferenceInfoFlags>(object.flags, NULL, settings, "StdVideoDecodeH264ReferenceInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoDecodeH264ReferenceInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoDecodeH264ReferenceInfoFlags(object.flags, settings, "StdVideoDecodeH264ReferenceInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.FrameNum, NULL, settings, "uint16_t", "FrameNum", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.FrameNum, settings, "uint16_t", "FrameNum", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.reserved, NULL, settings, "uint16_t", "reserved", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.reserved, settings, "uint16_t", "reserved", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int32_t>(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "int32_t", "PicOrderCnt", false, false, indents + 1, dump_json_int32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "PicOrderCnt", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int32_t(object.PicOrderCnt[i], settings, "int32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoDecodeH264ReferenceInfo(const StdVideoDecodeH264ReferenceInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeH264ReferenceInfo(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeH264WeightTableFlags(const StdVideoEncodeH264WeightTableFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264WeightTableFlags(const StdVideoEncodeH264WeightTableFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.luma_weight_l0_flag, NULL, settings, "uint32_t", "luma_weight_l0_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.luma_weight_l0_flag, settings, "uint32_t", "luma_weight_l0_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.chroma_weight_l0_flag, NULL, settings, "uint32_t", "chroma_weight_l0_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.chroma_weight_l0_flag, settings, "uint32_t", "chroma_weight_l0_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.luma_weight_l1_flag, NULL, settings, "uint32_t", "luma_weight_l1_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.luma_weight_l1_flag, settings, "uint32_t", "luma_weight_l1_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.chroma_weight_l1_flag, NULL, settings, "uint32_t", "chroma_weight_l1_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.chroma_weight_l1_flag, settings, "uint32_t", "chroma_weight_l1_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH264WeightTable(const StdVideoEncodeH264WeightTable& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264WeightTableFlags(const StdVideoEncodeH264WeightTableFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264WeightTableFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH264WeightTable(const StdVideoEncodeH264WeightTable& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeH264WeightTableFlags>(object.flags, NULL, settings, "StdVideoEncodeH264WeightTableFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeH264WeightTableFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeH264WeightTableFlags(object.flags, settings, "StdVideoEncodeH264WeightTableFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.luma_log2_weight_denom, NULL, settings, "uint8_t", "luma_log2_weight_denom", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.luma_log2_weight_denom, settings, "uint8_t", "luma_log2_weight_denom", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.chroma_log2_weight_denom, NULL, settings, "uint8_t", "chroma_log2_weight_denom", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.chroma_log2_weight_denom, settings, "uint8_t", "chroma_log2_weight_denom", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.luma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_weight_l0", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.luma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_weight_l0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.luma_weight_l0[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H264_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.luma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.luma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l0", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.luma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_offset_l0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.luma_offset_l0[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H264_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.luma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.chroma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_weight_l0", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.chroma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_weight_l0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_MAX_NUM_LIST_REF; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H264_MAX_CHROMA_PLANES; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.chroma_weight_l0[i][j], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H264_MAX_CHROMA_PLANES - 1 && j < STD_VIDEO_H264_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.chroma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.chroma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_offset_l0", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.chroma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_offset_l0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_MAX_NUM_LIST_REF; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H264_MAX_CHROMA_PLANES; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.chroma_offset_l0[i][j], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H264_MAX_CHROMA_PLANES - 1 && j < STD_VIDEO_H264_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.chroma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.luma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_weight_l1", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.luma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_weight_l1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.luma_weight_l1[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H264_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.luma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.luma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l1", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.luma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_offset_l1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.luma_offset_l1[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H264_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.luma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.chroma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_weight_l1", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.chroma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_weight_l1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_MAX_NUM_LIST_REF; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H264_MAX_CHROMA_PLANES; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.chroma_weight_l1[i][j], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H264_MAX_CHROMA_PLANES - 1 && j < STD_VIDEO_H264_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.chroma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.chroma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "chroma_offset_l1", false, false, indents + 1, dump_json_int8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.chroma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_offset_l1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_MAX_NUM_LIST_REF; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H264_MAX_CHROMA_PLANES; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.chroma_offset_l1[i][j], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H264_MAX_CHROMA_PLANES - 1 && j < STD_VIDEO_H264_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.chroma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF*STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH264SliceHeaderFlags(const StdVideoEncodeH264SliceHeaderFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264WeightTable(const StdVideoEncodeH264WeightTable* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264WeightTable(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH264SliceHeaderFlags(const StdVideoEncodeH264SliceHeaderFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.direct_spatial_mv_pred_flag, NULL, settings, "uint32_t", "direct_spatial_mv_pred_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.direct_spatial_mv_pred_flag, settings, "uint32_t: 1", "direct_spatial_mv_pred_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.num_ref_idx_active_override_flag, NULL, settings, "uint32_t", "num_ref_idx_active_override_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.num_ref_idx_active_override_flag, settings, "uint32_t: 1", "num_ref_idx_active_override_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeH264SliceHeaderFlags(const StdVideoEncodeH264SliceHeaderFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264SliceHeaderFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeH264PictureInfoFlags(const StdVideoEncodeH264PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264PictureInfoFlags(const StdVideoEncodeH264PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.IdrPicFlag, NULL, settings, "uint32_t", "IdrPicFlag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.IdrPicFlag, settings, "uint32_t: 1", "IdrPicFlag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.is_reference, NULL, settings, "uint32_t", "is_reference", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.is_reference, settings, "uint32_t: 1", "is_reference", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.no_output_of_prior_pics_flag, NULL, settings, "uint32_t", "no_output_of_prior_pics_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.no_output_of_prior_pics_flag, settings, "uint32_t: 1", "no_output_of_prior_pics_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.long_term_reference_flag, NULL, settings, "uint32_t", "long_term_reference_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.long_term_reference_flag, settings, "uint32_t: 1", "long_term_reference_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.adaptive_ref_pic_marking_mode_flag, NULL, settings, "uint32_t", "adaptive_ref_pic_marking_mode_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.adaptive_ref_pic_marking_mode_flag, settings, "uint32_t: 1", "adaptive_ref_pic_marking_mode_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 27", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH264ReferenceInfoFlags(const StdVideoEncodeH264ReferenceInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264PictureInfoFlags(const StdVideoEncodeH264PictureInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264PictureInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH264ReferenceInfoFlags(const StdVideoEncodeH264ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.used_for_long_term_reference, NULL, settings, "uint32_t", "used_for_long_term_reference", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.used_for_long_term_reference, settings, "uint32_t: 1", "used_for_long_term_reference", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 31", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH264ReferenceListsInfoFlags(const StdVideoEncodeH264ReferenceListsInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264ReferenceInfoFlags(const StdVideoEncodeH264ReferenceInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264ReferenceInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH264ReferenceListsInfoFlags(const StdVideoEncodeH264ReferenceListsInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.ref_pic_list_modification_flag_l0, NULL, settings, "uint32_t", "ref_pic_list_modification_flag_l0", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.ref_pic_list_modification_flag_l0, settings, "uint32_t: 1", "ref_pic_list_modification_flag_l0", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.ref_pic_list_modification_flag_l1, NULL, settings, "uint32_t", "ref_pic_list_modification_flag_l1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.ref_pic_list_modification_flag_l1, settings, "uint32_t: 1", "ref_pic_list_modification_flag_l1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeH264ReferenceListsInfoFlags(const StdVideoEncodeH264ReferenceListsInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264ReferenceListsInfoFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeH264RefListModEntry(const StdVideoEncodeH264RefListModEntry& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264RefListModEntry(const StdVideoEncodeH264RefListModEntry& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH264ModificationOfPicNumsIdc>(object.modification_of_pic_nums_idc, NULL, settings, "StdVideoH264ModificationOfPicNumsIdc", "modification_of_pic_nums_idc", false, false, indents + 1, dump_json_StdVideoH264ModificationOfPicNumsIdc);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH264ModificationOfPicNumsIdc(object.modification_of_pic_nums_idc, settings, "StdVideoH264ModificationOfPicNumsIdc", "modification_of_pic_nums_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.abs_diff_pic_num_minus1, NULL, settings, "uint16_t", "abs_diff_pic_num_minus1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.abs_diff_pic_num_minus1, settings, "uint16_t", "abs_diff_pic_num_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.long_term_pic_num, NULL, settings, "uint16_t", "long_term_pic_num", false, false, indents + 1, dump_json_uint16_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint16_t(object.long_term_pic_num, settings, "uint16_t", "long_term_pic_num", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH264RefPicMarkingEntry(const StdVideoEncodeH264RefPicMarkingEntry& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264RefListModEntry(const StdVideoEncodeH264RefListModEntry* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264RefListModEntry(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH264RefPicMarkingEntry(const StdVideoEncodeH264RefPicMarkingEntry& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH264MemMgmtControlOp>(object.memory_management_control_operation, NULL, settings, "StdVideoH264MemMgmtControlOp", "memory_management_control_operation", false, false, indents + 1, dump_json_StdVideoH264MemMgmtControlOp);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH264MemMgmtControlOp(object.memory_management_control_operation, settings, "StdVideoH264MemMgmtControlOp", "memory_management_control_operation", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.difference_of_pic_nums_minus1, NULL, settings, "uint16_t", "difference_of_pic_nums_minus1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.difference_of_pic_nums_minus1, settings, "uint16_t", "difference_of_pic_nums_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.long_term_pic_num, NULL, settings, "uint16_t", "long_term_pic_num", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.long_term_pic_num, settings, "uint16_t", "long_term_pic_num", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.long_term_frame_idx, NULL, settings, "uint16_t", "long_term_frame_idx", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.long_term_frame_idx, settings, "uint16_t", "long_term_frame_idx", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.max_long_term_frame_idx_plus1, NULL, settings, "uint16_t", "max_long_term_frame_idx_plus1", false, false, indents + 1, dump_json_uint16_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint16_t(object.max_long_term_frame_idx_plus1, settings, "uint16_t", "max_long_term_frame_idx_plus1", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH264ReferenceListsInfo(const StdVideoEncodeH264ReferenceListsInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264RefPicMarkingEntry(const StdVideoEncodeH264RefPicMarkingEntry* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264RefPicMarkingEntry(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH264ReferenceListsInfo(const StdVideoEncodeH264ReferenceListsInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeH264ReferenceListsInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeH264ReferenceListsInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeH264ReferenceListsInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeH264ReferenceListsInfoFlags(object.flags, settings, "StdVideoEncodeH264ReferenceListsInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_ref_idx_l0_active_minus1, NULL, settings, "uint8_t", "num_ref_idx_l0_active_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_ref_idx_l0_active_minus1, settings, "uint8_t", "num_ref_idx_l0_active_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_ref_idx_l1_active_minus1, NULL, settings, "uint8_t", "num_ref_idx_l1_active_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_ref_idx_l1_active_minus1, settings, "uint8_t", "num_ref_idx_l1_active_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.RefPicList0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList0", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.RefPicList0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "RefPicList0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.RefPicList0[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H264_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.RefPicList0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.RefPicList1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.RefPicList1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "RefPicList1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H264_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.RefPicList1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H264_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.RefPicList1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.refList0ModOpCount, NULL, settings, "uint8_t", "refList0ModOpCount", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.refList0ModOpCount, settings, "uint8_t", "refList0ModOpCount", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.refList1ModOpCount, NULL, settings, "uint8_t", "refList1ModOpCount", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.refList1ModOpCount, settings, "uint8_t", "refList1ModOpCount", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.refPicMarkingOpCount, NULL, settings, "uint8_t", "refPicMarkingOpCount", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.refPicMarkingOpCount, settings, "uint8_t", "refPicMarkingOpCount", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.reserved1, 7, settings, "uint8_t[7]", "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.reserved1, 7, settings, "uint8_t[7]", "reserved1", indents + 2);
+    for (size_t i = 0; i < 7; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.reserved1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < 7 - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.reserved1, 7, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoEncodeH264RefListModEntry>(object.pRefList0ModOperations, settings, "const StdVideoEncodeH264RefListModEntry*", "pRefList0ModOperations", true, false, indents + 1, dump_json_StdVideoEncodeH264RefListModEntry);
+    dump_json_StdVideoEncodeH264RefListModEntry(object.pRefList0ModOperations, settings, "const StdVideoEncodeH264RefListModEntry*", "pRefList0ModOperations", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoEncodeH264RefListModEntry>(object.pRefList1ModOperations, settings, "const StdVideoEncodeH264RefListModEntry*", "pRefList1ModOperations", true, false, indents + 1, dump_json_StdVideoEncodeH264RefListModEntry);
+    dump_json_StdVideoEncodeH264RefListModEntry(object.pRefList1ModOperations, settings, "const StdVideoEncodeH264RefListModEntry*", "pRefList1ModOperations", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoEncodeH264RefPicMarkingEntry>(object.pRefPicMarkingOperations, settings, "const StdVideoEncodeH264RefPicMarkingEntry*", "pRefPicMarkingOperations", true, false, indents + 1, dump_json_StdVideoEncodeH264RefPicMarkingEntry);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoEncodeH264RefPicMarkingEntry(object.pRefPicMarkingOperations, settings, "const StdVideoEncodeH264RefPicMarkingEntry*", "pRefPicMarkingOperations", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeH264ReferenceListsInfo(const StdVideoEncodeH264ReferenceListsInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264ReferenceListsInfo(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeH264PictureInfo(const StdVideoEncodeH264PictureInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264PictureInfo(const StdVideoEncodeH264PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeH264PictureInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeH264PictureInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeH264PictureInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeH264PictureInfoFlags(object.flags, settings, "StdVideoEncodeH264PictureInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.seq_parameter_set_id, NULL, settings, "uint8_t", "seq_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.seq_parameter_set_id, settings, "uint8_t", "seq_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pic_parameter_set_id, NULL, settings, "uint8_t", "pic_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pic_parameter_set_id, settings, "uint8_t", "pic_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.idr_pic_id, NULL, settings, "uint16_t", "idr_pic_id", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.idr_pic_id, settings, "uint16_t", "idr_pic_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264PictureType>(object.primary_pic_type, NULL, settings, "StdVideoH264PictureType", "primary_pic_type", false, false, indents + 1, dump_json_StdVideoH264PictureType);
+    dump_json_StdVideoH264PictureType(object.primary_pic_type, settings, "StdVideoH264PictureType", "primary_pic_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_num, NULL, settings, "uint32_t", "frame_num", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_num, settings, "uint32_t", "frame_num", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int32_t>(object.PicOrderCnt, NULL, settings, "int32_t", "PicOrderCnt", false, false, indents + 1, dump_json_int32_t);
+    dump_json_int32_t(object.PicOrderCnt, settings, "int32_t", "PicOrderCnt", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.temporal_id, NULL, settings, "uint8_t", "temporal_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.temporal_id, settings, "uint8_t", "temporal_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.reserved1, 3, settings, "uint8_t[3]", "reserved1", indents + 2);
+    for (size_t i = 0; i < 3; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.reserved1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < 3 - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.reserved1, 3, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoEncodeH264ReferenceListsInfo>(object.pRefLists, settings, "const StdVideoEncodeH264ReferenceListsInfo*", "pRefLists", true, false, indents + 1, dump_json_StdVideoEncodeH264ReferenceListsInfo);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoEncodeH264ReferenceListsInfo(object.pRefLists, settings, "const StdVideoEncodeH264ReferenceListsInfo*", "pRefLists", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH264ReferenceInfo(const StdVideoEncodeH264ReferenceInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264PictureInfo(const StdVideoEncodeH264PictureInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264PictureInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH264ReferenceInfo(const StdVideoEncodeH264ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeH264ReferenceInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeH264ReferenceInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeH264ReferenceInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeH264ReferenceInfoFlags(object.flags, settings, "StdVideoEncodeH264ReferenceInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264PictureType>(object.primary_pic_type, NULL, settings, "StdVideoH264PictureType", "primary_pic_type", false, false, indents + 1, dump_json_StdVideoH264PictureType);
+    dump_json_StdVideoH264PictureType(object.primary_pic_type, settings, "StdVideoH264PictureType", "primary_pic_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.FrameNum, NULL, settings, "uint32_t", "FrameNum", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.FrameNum, settings, "uint32_t", "FrameNum", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int32_t>(object.PicOrderCnt, NULL, settings, "int32_t", "PicOrderCnt", false, false, indents + 1, dump_json_int32_t);
+    dump_json_int32_t(object.PicOrderCnt, settings, "int32_t", "PicOrderCnt", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.long_term_pic_num, NULL, settings, "uint16_t", "long_term_pic_num", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.long_term_pic_num, settings, "uint16_t", "long_term_pic_num", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.long_term_frame_idx, NULL, settings, "uint16_t", "long_term_frame_idx", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.long_term_frame_idx, settings, "uint16_t", "long_term_frame_idx", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.temporal_id, NULL, settings, "uint8_t", "temporal_id", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint8_t(object.temporal_id, settings, "uint8_t", "temporal_id", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH264SliceHeader(const StdVideoEncodeH264SliceHeader& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH264ReferenceInfo(const StdVideoEncodeH264ReferenceInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264ReferenceInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH264SliceHeader(const StdVideoEncodeH264SliceHeader& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeH264SliceHeaderFlags>(object.flags, NULL, settings, "StdVideoEncodeH264SliceHeaderFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeH264SliceHeaderFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeH264SliceHeaderFlags(object.flags, settings, "StdVideoEncodeH264SliceHeaderFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.first_mb_in_slice, NULL, settings, "uint32_t", "first_mb_in_slice", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.first_mb_in_slice, settings, "uint32_t", "first_mb_in_slice", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264SliceType>(object.slice_type, NULL, settings, "StdVideoH264SliceType", "slice_type", false, false, indents + 1, dump_json_StdVideoH264SliceType);
+    dump_json_StdVideoH264SliceType(object.slice_type, settings, "StdVideoH264SliceType", "slice_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_alpha_c0_offset_div2, NULL, settings, "int8_t", "slice_alpha_c0_offset_div2", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_alpha_c0_offset_div2, settings, "int8_t", "slice_alpha_c0_offset_div2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_beta_offset_div2, NULL, settings, "int8_t", "slice_beta_offset_div2", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_beta_offset_div2, settings, "int8_t", "slice_beta_offset_div2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_qp_delta, NULL, settings, "int8_t", "slice_qp_delta", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_qp_delta, settings, "int8_t", "slice_qp_delta", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264CabacInitIdc>(object.cabac_init_idc, NULL, settings, "StdVideoH264CabacInitIdc", "cabac_init_idc", false, false, indents + 1, dump_json_StdVideoH264CabacInitIdc);
+    dump_json_StdVideoH264CabacInitIdc(object.cabac_init_idc, settings, "StdVideoH264CabacInitIdc", "cabac_init_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH264DisableDeblockingFilterIdc>(object.disable_deblocking_filter_idc, NULL, settings, "StdVideoH264DisableDeblockingFilterIdc", "disable_deblocking_filter_idc", false, false, indents + 1, dump_json_StdVideoH264DisableDeblockingFilterIdc);
+    dump_json_StdVideoH264DisableDeblockingFilterIdc(object.disable_deblocking_filter_idc, settings, "StdVideoH264DisableDeblockingFilterIdc", "disable_deblocking_filter_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoEncodeH264WeightTable>(object.pWeightTable, settings, "const StdVideoEncodeH264WeightTable*", "pWeightTable", true, false, indents + 1, dump_json_StdVideoEncodeH264WeightTable);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoEncodeH264WeightTable(object.pWeightTable, settings, "const StdVideoEncodeH264WeightTable*", "pWeightTable", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeH264SliceHeader(const StdVideoEncodeH264SliceHeader* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH264SliceHeader(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoH265DecPicBufMgr(const StdVideoH265DecPicBufMgr& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265DecPicBufMgr(const StdVideoH265DecPicBufMgr& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_array<const uint32_t>(object.max_latency_increase_plus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint32_t", "max_latency_increase_plus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_array_start(object.max_latency_increase_plus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "max_latency_increase_plus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint32_t(object.max_latency_increase_plus1[i], settings, "uint32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.max_latency_increase_plus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.max_dec_pic_buffering_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint8_t", "max_dec_pic_buffering_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.max_dec_pic_buffering_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "max_dec_pic_buffering_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.max_dec_pic_buffering_minus1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.max_dec_pic_buffering_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.max_num_reorder_pics, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint8_t", "max_num_reorder_pics", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.max_num_reorder_pics, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "max_num_reorder_pics", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.max_num_reorder_pics[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.max_num_reorder_pics, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265SubLayerHrdParameters(const StdVideoH265SubLayerHrdParameters& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265DecPicBufMgr(const StdVideoH265DecPicBufMgr* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265DecPicBufMgr(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265SubLayerHrdParameters(const StdVideoH265SubLayerHrdParameters& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_array<const uint32_t>(object.bit_rate_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "bit_rate_value_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_array_start(object.bit_rate_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "bit_rate_value_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_CPB_CNT_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint32_t(object.bit_rate_value_minus1[i], settings, "uint32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_CPB_CNT_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.bit_rate_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.cpb_size_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "cpb_size_value_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_array_start(object.cpb_size_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "cpb_size_value_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_CPB_CNT_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint32_t(object.cpb_size_value_minus1[i], settings, "uint32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_CPB_CNT_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cpb_size_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.cpb_size_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "cpb_size_du_value_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_array_start(object.cpb_size_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "cpb_size_du_value_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_CPB_CNT_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint32_t(object.cpb_size_du_value_minus1[i], settings, "uint32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_CPB_CNT_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cpb_size_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.bit_rate_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "uint32_t", "bit_rate_du_value_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_array_start(object.bit_rate_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "bit_rate_du_value_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_CPB_CNT_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint32_t(object.bit_rate_du_value_minus1[i], settings, "uint32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_CPB_CNT_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.bit_rate_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.cbr_flag, NULL, settings, "uint32_t", "cbr_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.cbr_flag, settings, "uint32_t", "cbr_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265HrdFlags(const StdVideoH265HrdFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265SubLayerHrdParameters(const StdVideoH265SubLayerHrdParameters* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265SubLayerHrdParameters(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265HrdFlags(const StdVideoH265HrdFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.nal_hrd_parameters_present_flag, NULL, settings, "uint32_t", "nal_hrd_parameters_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.nal_hrd_parameters_present_flag, settings, "uint32_t: 1", "nal_hrd_parameters_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vcl_hrd_parameters_present_flag, NULL, settings, "uint32_t", "vcl_hrd_parameters_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vcl_hrd_parameters_present_flag, settings, "uint32_t: 1", "vcl_hrd_parameters_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sub_pic_hrd_params_present_flag, NULL, settings, "uint32_t", "sub_pic_hrd_params_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sub_pic_hrd_params_present_flag, settings, "uint32_t: 1", "sub_pic_hrd_params_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sub_pic_cpb_params_in_pic_timing_sei_flag, NULL, settings, "uint32_t", "sub_pic_cpb_params_in_pic_timing_sei_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sub_pic_cpb_params_in_pic_timing_sei_flag, settings, "uint32_t: 1", "sub_pic_cpb_params_in_pic_timing_sei_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.fixed_pic_rate_general_flag, NULL, settings, "uint32_t", "fixed_pic_rate_general_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.fixed_pic_rate_general_flag, settings, "uint32_t: 8", "fixed_pic_rate_general_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.fixed_pic_rate_within_cvs_flag, NULL, settings, "uint32_t", "fixed_pic_rate_within_cvs_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.fixed_pic_rate_within_cvs_flag, settings, "uint32_t: 8", "fixed_pic_rate_within_cvs_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.low_delay_hrd_flag, NULL, settings, "uint32_t", "low_delay_hrd_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.low_delay_hrd_flag, settings, "uint32_t: 8", "low_delay_hrd_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoH265HrdFlags(const StdVideoH265HrdFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265HrdFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoH265HrdParameters(const StdVideoH265HrdParameters& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265HrdParameters(const StdVideoH265HrdParameters& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH265HrdFlags>(object.flags, NULL, settings, "StdVideoH265HrdFlags", "flags", true, false, indents + 1, dump_json_StdVideoH265HrdFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH265HrdFlags(object.flags, settings, "StdVideoH265HrdFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.tick_divisor_minus2, NULL, settings, "uint8_t", "tick_divisor_minus2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.tick_divisor_minus2, settings, "uint8_t", "tick_divisor_minus2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.du_cpb_removal_delay_increment_length_minus1, NULL, settings, "uint8_t", "du_cpb_removal_delay_increment_length_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.du_cpb_removal_delay_increment_length_minus1, settings, "uint8_t", "du_cpb_removal_delay_increment_length_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.dpb_output_delay_du_length_minus1, NULL, settings, "uint8_t", "dpb_output_delay_du_length_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.dpb_output_delay_du_length_minus1, settings, "uint8_t", "dpb_output_delay_du_length_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.bit_rate_scale, NULL, settings, "uint8_t", "bit_rate_scale", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.bit_rate_scale, settings, "uint8_t", "bit_rate_scale", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.cpb_size_scale, NULL, settings, "uint8_t", "cpb_size_scale", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.cpb_size_scale, settings, "uint8_t", "cpb_size_scale", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.cpb_size_du_scale, NULL, settings, "uint8_t", "cpb_size_du_scale", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.cpb_size_du_scale, settings, "uint8_t", "cpb_size_du_scale", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.initial_cpb_removal_delay_length_minus1, NULL, settings, "uint8_t", "initial_cpb_removal_delay_length_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.initial_cpb_removal_delay_length_minus1, settings, "uint8_t", "initial_cpb_removal_delay_length_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.au_cpb_removal_delay_length_minus1, NULL, settings, "uint8_t", "au_cpb_removal_delay_length_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.au_cpb_removal_delay_length_minus1, settings, "uint8_t", "au_cpb_removal_delay_length_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.dpb_output_delay_length_minus1, NULL, settings, "uint8_t", "dpb_output_delay_length_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.dpb_output_delay_length_minus1, settings, "uint8_t", "dpb_output_delay_length_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.cpb_cnt_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint8_t", "cpb_cnt_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.cpb_cnt_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "cpb_cnt_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.cpb_cnt_minus1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cpb_cnt_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint16_t>(object.elemental_duration_in_tc_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "uint16_t", "elemental_duration_in_tc_minus1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_array_start(object.elemental_duration_in_tc_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "elemental_duration_in_tc_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint16_t(object.elemental_duration_in_tc_minus1[i], settings, "uint16_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.elemental_duration_in_tc_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint16_t>(object.reserved, 3, settings, "uint16_t[3]", "uint16_t", "reserved", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_array_start(object.reserved, 3, settings, "uint16_t[3]", "reserved", indents + 2);
+    for (size_t i = 0; i < 3; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint16_t(object.reserved[i], settings, "uint16_t", indexName.c_str(), indents + 2 + 2);
+          if (i < 3 - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.reserved, 3, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265SubLayerHrdParameters>(object.pSubLayerHrdParametersNal, settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersNal", true, false, indents + 1, dump_json_StdVideoH265SubLayerHrdParameters);
+    dump_json_StdVideoH265SubLayerHrdParameters(object.pSubLayerHrdParametersNal, settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersNal", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265SubLayerHrdParameters>(object.pSubLayerHrdParametersVcl, settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersVcl", true, false, indents + 1, dump_json_StdVideoH265SubLayerHrdParameters);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoH265SubLayerHrdParameters(object.pSubLayerHrdParametersVcl, settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersVcl", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265VpsFlags(const StdVideoH265VpsFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265HrdParameters(const StdVideoH265HrdParameters* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265HrdParameters(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265VpsFlags(const StdVideoH265VpsFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.vps_temporal_id_nesting_flag, NULL, settings, "uint32_t", "vps_temporal_id_nesting_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.vps_temporal_id_nesting_flag, settings, "uint32_t: 1", "vps_temporal_id_nesting_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vps_sub_layer_ordering_info_present_flag, NULL, settings, "uint32_t", "vps_sub_layer_ordering_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vps_sub_layer_ordering_info_present_flag, settings, "uint32_t: 1", "vps_sub_layer_ordering_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vps_timing_info_present_flag, NULL, settings, "uint32_t", "vps_timing_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vps_timing_info_present_flag, settings, "uint32_t: 1", "vps_timing_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vps_poc_proportional_to_timing_flag, NULL, settings, "uint32_t", "vps_poc_proportional_to_timing_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.vps_poc_proportional_to_timing_flag, settings, "uint32_t: 1", "vps_poc_proportional_to_timing_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265ProfileTierLevelFlags(const StdVideoH265ProfileTierLevelFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265VpsFlags(const StdVideoH265VpsFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265VpsFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265ProfileTierLevelFlags(const StdVideoH265ProfileTierLevelFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.general_tier_flag, NULL, settings, "uint32_t", "general_tier_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.general_tier_flag, settings, "uint32_t: 1", "general_tier_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.general_progressive_source_flag, NULL, settings, "uint32_t", "general_progressive_source_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.general_progressive_source_flag, settings, "uint32_t: 1", "general_progressive_source_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.general_interlaced_source_flag, NULL, settings, "uint32_t", "general_interlaced_source_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.general_interlaced_source_flag, settings, "uint32_t: 1", "general_interlaced_source_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.general_non_packed_constraint_flag, NULL, settings, "uint32_t", "general_non_packed_constraint_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.general_non_packed_constraint_flag, settings, "uint32_t: 1", "general_non_packed_constraint_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.general_frame_only_constraint_flag, NULL, settings, "uint32_t", "general_frame_only_constraint_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.general_frame_only_constraint_flag, settings, "uint32_t: 1", "general_frame_only_constraint_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoH265ProfileTierLevelFlags(const StdVideoH265ProfileTierLevelFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265ProfileTierLevelFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoH265ProfileTierLevel(const StdVideoH265ProfileTierLevel& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265ProfileTierLevel(const StdVideoH265ProfileTierLevel& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH265ProfileTierLevelFlags>(object.flags, NULL, settings, "StdVideoH265ProfileTierLevelFlags", "flags", true, false, indents + 1, dump_json_StdVideoH265ProfileTierLevelFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH265ProfileTierLevelFlags(object.flags, settings, "StdVideoH265ProfileTierLevelFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH265ProfileIdc>(object.general_profile_idc, NULL, settings, "StdVideoH265ProfileIdc", "general_profile_idc", false, false, indents + 1, dump_json_StdVideoH265ProfileIdc);
+    dump_json_StdVideoH265ProfileIdc(object.general_profile_idc, settings, "StdVideoH265ProfileIdc", "general_profile_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH265LevelIdc>(object.general_level_idc, NULL, settings, "StdVideoH265LevelIdc", "general_level_idc", false, false, indents + 1, dump_json_StdVideoH265LevelIdc);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoH265LevelIdc(object.general_level_idc, settings, "StdVideoH265LevelIdc", "general_level_idc", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265VideoParameterSet(const StdVideoH265VideoParameterSet& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265ProfileTierLevel(const StdVideoH265ProfileTierLevel* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265ProfileTierLevel(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265VideoParameterSet(const StdVideoH265VideoParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH265VpsFlags>(object.flags, NULL, settings, "StdVideoH265VpsFlags", "flags", true, false, indents + 1, dump_json_StdVideoH265VpsFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH265VpsFlags(object.flags, settings, "StdVideoH265VpsFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.vps_video_parameter_set_id, NULL, settings, "uint8_t", "vps_video_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.vps_video_parameter_set_id, settings, "uint8_t", "vps_video_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.vps_max_sub_layers_minus1, NULL, settings, "uint8_t", "vps_max_sub_layers_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.vps_max_sub_layers_minus1, settings, "uint8_t", "vps_max_sub_layers_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved2, NULL, settings, "uint8_t", "reserved2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved2, settings, "uint8_t", "reserved2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vps_num_units_in_tick, NULL, settings, "uint32_t", "vps_num_units_in_tick", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vps_num_units_in_tick, settings, "uint32_t", "vps_num_units_in_tick", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vps_time_scale, NULL, settings, "uint32_t", "vps_time_scale", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vps_time_scale, settings, "uint32_t", "vps_time_scale", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vps_num_ticks_poc_diff_one_minus1, NULL, settings, "uint32_t", "vps_num_ticks_poc_diff_one_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vps_num_ticks_poc_diff_one_minus1, settings, "uint32_t", "vps_num_ticks_poc_diff_one_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved3, NULL, settings, "uint32_t", "reserved3", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.reserved3, settings, "uint32_t", "reserved3", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265DecPicBufMgr>(object.pDecPicBufMgr, settings, "const StdVideoH265DecPicBufMgr*", "pDecPicBufMgr", true, false, indents + 1, dump_json_StdVideoH265DecPicBufMgr);
+    dump_json_StdVideoH265DecPicBufMgr(object.pDecPicBufMgr, settings, "const StdVideoH265DecPicBufMgr*", "pDecPicBufMgr", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265HrdParameters>(object.pHrdParameters, settings, "const StdVideoH265HrdParameters*", "pHrdParameters", true, false, indents + 1, dump_json_StdVideoH265HrdParameters);
+    dump_json_StdVideoH265HrdParameters(object.pHrdParameters, settings, "const StdVideoH265HrdParameters*", "pHrdParameters", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265ProfileTierLevel>(object.pProfileTierLevel, settings, "const StdVideoH265ProfileTierLevel*", "pProfileTierLevel", true, false, indents + 1, dump_json_StdVideoH265ProfileTierLevel);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoH265ProfileTierLevel(object.pProfileTierLevel, settings, "const StdVideoH265ProfileTierLevel*", "pProfileTierLevel", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265ScalingLists(const StdVideoH265ScalingLists& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265VideoParameterSet(const StdVideoH265VideoParameterSet* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265VideoParameterSet(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265ScalingLists(const StdVideoH265ScalingLists& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_array<const uint8_t>(object.ScalingList4x4, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS]", "ScalingList4x4", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_array_start(object.ScalingList4x4, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS]", "ScalingList4x4", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.ScalingList4x4[i][j], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS - 1 && j < STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.ScalingList4x4, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.ScalingList8x8, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS]", "ScalingList8x8", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.ScalingList8x8, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS]", "ScalingList8x8", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.ScalingList8x8[i][j], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS - 1 && j < STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.ScalingList8x8, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.ScalingList16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "ScalingList16x16", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.ScalingList16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS]", "ScalingList16x16", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.ScalingList16x16[i][j], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS - 1 && j < STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.ScalingList16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.ScalingList32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS]", "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "ScalingList32x32", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.ScalingList32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS]", "ScalingList32x32", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.ScalingList32x32[i][j], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS - 1 && j < STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.ScalingList32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.ScalingListDCCoef16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "uint8_t", "ScalingListDCCoef16x16", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.ScalingListDCCoef16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "ScalingListDCCoef16x16", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.ScalingListDCCoef16x16[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.ScalingListDCCoef16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.ScalingListDCCoef32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "uint8_t", "ScalingListDCCoef32x32", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.ScalingListDCCoef32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "ScalingListDCCoef32x32", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.ScalingListDCCoef32x32[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.ScalingListDCCoef32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoH265ScalingLists(const StdVideoH265ScalingLists* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265ScalingLists(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoH265SpsVuiFlags(const StdVideoH265SpsVuiFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265SpsVuiFlags(const StdVideoH265SpsVuiFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.aspect_ratio_info_present_flag, NULL, settings, "uint32_t", "aspect_ratio_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.aspect_ratio_info_present_flag, settings, "uint32_t: 1", "aspect_ratio_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.overscan_info_present_flag, NULL, settings, "uint32_t", "overscan_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.overscan_info_present_flag, settings, "uint32_t: 1", "overscan_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.overscan_appropriate_flag, NULL, settings, "uint32_t", "overscan_appropriate_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.overscan_appropriate_flag, settings, "uint32_t: 1", "overscan_appropriate_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.video_signal_type_present_flag, NULL, settings, "uint32_t", "video_signal_type_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.video_signal_type_present_flag, settings, "uint32_t: 1", "video_signal_type_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.video_full_range_flag, NULL, settings, "uint32_t", "video_full_range_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.video_full_range_flag, settings, "uint32_t: 1", "video_full_range_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.colour_description_present_flag, NULL, settings, "uint32_t", "colour_description_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.colour_description_present_flag, settings, "uint32_t: 1", "colour_description_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.chroma_loc_info_present_flag, NULL, settings, "uint32_t", "chroma_loc_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.chroma_loc_info_present_flag, settings, "uint32_t: 1", "chroma_loc_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.neutral_chroma_indication_flag, NULL, settings, "uint32_t", "neutral_chroma_indication_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.neutral_chroma_indication_flag, settings, "uint32_t: 1", "neutral_chroma_indication_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.field_seq_flag, NULL, settings, "uint32_t", "field_seq_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.field_seq_flag, settings, "uint32_t: 1", "field_seq_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_field_info_present_flag, NULL, settings, "uint32_t", "frame_field_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_field_info_present_flag, settings, "uint32_t: 1", "frame_field_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.default_display_window_flag, NULL, settings, "uint32_t", "default_display_window_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.default_display_window_flag, settings, "uint32_t: 1", "default_display_window_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vui_timing_info_present_flag, NULL, settings, "uint32_t", "vui_timing_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vui_timing_info_present_flag, settings, "uint32_t: 1", "vui_timing_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vui_poc_proportional_to_timing_flag, NULL, settings, "uint32_t", "vui_poc_proportional_to_timing_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vui_poc_proportional_to_timing_flag, settings, "uint32_t: 1", "vui_poc_proportional_to_timing_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vui_hrd_parameters_present_flag, NULL, settings, "uint32_t", "vui_hrd_parameters_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vui_hrd_parameters_present_flag, settings, "uint32_t: 1", "vui_hrd_parameters_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.bitstream_restriction_flag, NULL, settings, "uint32_t", "bitstream_restriction_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.bitstream_restriction_flag, settings, "uint32_t: 1", "bitstream_restriction_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.tiles_fixed_structure_flag, NULL, settings, "uint32_t", "tiles_fixed_structure_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.tiles_fixed_structure_flag, settings, "uint32_t: 1", "tiles_fixed_structure_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.motion_vectors_over_pic_boundaries_flag, NULL, settings, "uint32_t", "motion_vectors_over_pic_boundaries_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.motion_vectors_over_pic_boundaries_flag, settings, "uint32_t: 1", "motion_vectors_over_pic_boundaries_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.restricted_ref_pic_lists_flag, NULL, settings, "uint32_t", "restricted_ref_pic_lists_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.restricted_ref_pic_lists_flag, settings, "uint32_t: 1", "restricted_ref_pic_lists_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265SequenceParameterSetVui(const StdVideoH265SequenceParameterSetVui& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265SpsVuiFlags(const StdVideoH265SpsVuiFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265SpsVuiFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265SequenceParameterSetVui(const StdVideoH265SequenceParameterSetVui& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH265SpsVuiFlags>(object.flags, NULL, settings, "StdVideoH265SpsVuiFlags", "flags", true, false, indents + 1, dump_json_StdVideoH265SpsVuiFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH265SpsVuiFlags(object.flags, settings, "StdVideoH265SpsVuiFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH265AspectRatioIdc>(object.aspect_ratio_idc, NULL, settings, "StdVideoH265AspectRatioIdc", "aspect_ratio_idc", false, false, indents + 1, dump_json_StdVideoH265AspectRatioIdc);
+    dump_json_StdVideoH265AspectRatioIdc(object.aspect_ratio_idc, settings, "StdVideoH265AspectRatioIdc", "aspect_ratio_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.sar_width, NULL, settings, "uint16_t", "sar_width", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.sar_width, settings, "uint16_t", "sar_width", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.sar_height, NULL, settings, "uint16_t", "sar_height", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.sar_height, settings, "uint16_t", "sar_height", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.video_format, NULL, settings, "uint8_t", "video_format", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.video_format, settings, "uint8_t", "video_format", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.colour_primaries, NULL, settings, "uint8_t", "colour_primaries", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.colour_primaries, settings, "uint8_t", "colour_primaries", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.transfer_characteristics, NULL, settings, "uint8_t", "transfer_characteristics", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.transfer_characteristics, settings, "uint8_t", "transfer_characteristics", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.matrix_coeffs, NULL, settings, "uint8_t", "matrix_coeffs", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.matrix_coeffs, settings, "uint8_t", "matrix_coeffs", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.chroma_sample_loc_type_top_field, NULL, settings, "uint8_t", "chroma_sample_loc_type_top_field", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.chroma_sample_loc_type_top_field, settings, "uint8_t", "chroma_sample_loc_type_top_field", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.chroma_sample_loc_type_bottom_field, NULL, settings, "uint8_t", "chroma_sample_loc_type_bottom_field", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.chroma_sample_loc_type_bottom_field, settings, "uint8_t", "chroma_sample_loc_type_bottom_field", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved2, NULL, settings, "uint8_t", "reserved2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved2, settings, "uint8_t", "reserved2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.def_disp_win_left_offset, NULL, settings, "uint16_t", "def_disp_win_left_offset", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.def_disp_win_left_offset, settings, "uint16_t", "def_disp_win_left_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.def_disp_win_right_offset, NULL, settings, "uint16_t", "def_disp_win_right_offset", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.def_disp_win_right_offset, settings, "uint16_t", "def_disp_win_right_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.def_disp_win_top_offset, NULL, settings, "uint16_t", "def_disp_win_top_offset", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.def_disp_win_top_offset, settings, "uint16_t", "def_disp_win_top_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.def_disp_win_bottom_offset, NULL, settings, "uint16_t", "def_disp_win_bottom_offset", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.def_disp_win_bottom_offset, settings, "uint16_t", "def_disp_win_bottom_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vui_num_units_in_tick, NULL, settings, "uint32_t", "vui_num_units_in_tick", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vui_num_units_in_tick, settings, "uint32_t", "vui_num_units_in_tick", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vui_time_scale, NULL, settings, "uint32_t", "vui_time_scale", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vui_time_scale, settings, "uint32_t", "vui_time_scale", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vui_num_ticks_poc_diff_one_minus1, NULL, settings, "uint32_t", "vui_num_ticks_poc_diff_one_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vui_num_ticks_poc_diff_one_minus1, settings, "uint32_t", "vui_num_ticks_poc_diff_one_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.min_spatial_segmentation_idc, NULL, settings, "uint16_t", "min_spatial_segmentation_idc", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.min_spatial_segmentation_idc, settings, "uint16_t", "min_spatial_segmentation_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.reserved3, NULL, settings, "uint16_t", "reserved3", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.reserved3, settings, "uint16_t", "reserved3", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.max_bytes_per_pic_denom, NULL, settings, "uint8_t", "max_bytes_per_pic_denom", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.max_bytes_per_pic_denom, settings, "uint8_t", "max_bytes_per_pic_denom", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.max_bits_per_min_cu_denom, NULL, settings, "uint8_t", "max_bits_per_min_cu_denom", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.max_bits_per_min_cu_denom, settings, "uint8_t", "max_bits_per_min_cu_denom", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_max_mv_length_horizontal, NULL, settings, "uint8_t", "log2_max_mv_length_horizontal", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_max_mv_length_horizontal, settings, "uint8_t", "log2_max_mv_length_horizontal", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_max_mv_length_vertical, NULL, settings, "uint8_t", "log2_max_mv_length_vertical", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_max_mv_length_vertical, settings, "uint8_t", "log2_max_mv_length_vertical", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265HrdParameters>(object.pHrdParameters, settings, "const StdVideoH265HrdParameters*", "pHrdParameters", true, false, indents + 1, dump_json_StdVideoH265HrdParameters);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoH265HrdParameters(object.pHrdParameters, settings, "const StdVideoH265HrdParameters*", "pHrdParameters", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265PredictorPaletteEntries(const StdVideoH265PredictorPaletteEntries& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265SequenceParameterSetVui(const StdVideoH265SequenceParameterSetVui* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265SequenceParameterSetVui(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265PredictorPaletteEntries(const StdVideoH265PredictorPaletteEntries& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_array<const uint16_t>(object.PredictorPaletteEntries, STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE*STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE][STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE]", "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE]", "PredictorPaletteEntries", false, false, indents + 1, dump_json_uint16_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_array_start(object.PredictorPaletteEntries, STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE*STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE][STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE]", "PredictorPaletteEntries", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_uint16_t(object.PredictorPaletteEntries[i][j], settings, "uint16_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE - 1 && j < STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.PredictorPaletteEntries, STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE*STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoH265PredictorPaletteEntries(const StdVideoH265PredictorPaletteEntries* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265PredictorPaletteEntries(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoH265SpsFlags(const StdVideoH265SpsFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265SpsFlags(const StdVideoH265SpsFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.sps_temporal_id_nesting_flag, NULL, settings, "uint32_t", "sps_temporal_id_nesting_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.sps_temporal_id_nesting_flag, settings, "uint32_t: 1", "sps_temporal_id_nesting_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.separate_colour_plane_flag, NULL, settings, "uint32_t", "separate_colour_plane_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.separate_colour_plane_flag, settings, "uint32_t: 1", "separate_colour_plane_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.conformance_window_flag, NULL, settings, "uint32_t", "conformance_window_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.conformance_window_flag, settings, "uint32_t: 1", "conformance_window_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sps_sub_layer_ordering_info_present_flag, NULL, settings, "uint32_t", "sps_sub_layer_ordering_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sps_sub_layer_ordering_info_present_flag, settings, "uint32_t: 1", "sps_sub_layer_ordering_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.scaling_list_enabled_flag, NULL, settings, "uint32_t", "scaling_list_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.scaling_list_enabled_flag, settings, "uint32_t: 1", "scaling_list_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sps_scaling_list_data_present_flag, NULL, settings, "uint32_t", "sps_scaling_list_data_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sps_scaling_list_data_present_flag, settings, "uint32_t: 1", "sps_scaling_list_data_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.amp_enabled_flag, NULL, settings, "uint32_t", "amp_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.amp_enabled_flag, settings, "uint32_t: 1", "amp_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sample_adaptive_offset_enabled_flag, NULL, settings, "uint32_t", "sample_adaptive_offset_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sample_adaptive_offset_enabled_flag, settings, "uint32_t: 1", "sample_adaptive_offset_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pcm_enabled_flag, NULL, settings, "uint32_t", "pcm_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pcm_enabled_flag, settings, "uint32_t: 1", "pcm_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pcm_loop_filter_disabled_flag, NULL, settings, "uint32_t", "pcm_loop_filter_disabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pcm_loop_filter_disabled_flag, settings, "uint32_t: 1", "pcm_loop_filter_disabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.long_term_ref_pics_present_flag, NULL, settings, "uint32_t", "long_term_ref_pics_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.long_term_ref_pics_present_flag, settings, "uint32_t: 1", "long_term_ref_pics_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sps_temporal_mvp_enabled_flag, NULL, settings, "uint32_t", "sps_temporal_mvp_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sps_temporal_mvp_enabled_flag, settings, "uint32_t: 1", "sps_temporal_mvp_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.strong_intra_smoothing_enabled_flag, NULL, settings, "uint32_t", "strong_intra_smoothing_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.strong_intra_smoothing_enabled_flag, settings, "uint32_t: 1", "strong_intra_smoothing_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.vui_parameters_present_flag, NULL, settings, "uint32_t", "vui_parameters_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.vui_parameters_present_flag, settings, "uint32_t: 1", "vui_parameters_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sps_extension_present_flag, NULL, settings, "uint32_t", "sps_extension_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sps_extension_present_flag, settings, "uint32_t: 1", "sps_extension_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sps_range_extension_flag, NULL, settings, "uint32_t", "sps_range_extension_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sps_range_extension_flag, settings, "uint32_t: 1", "sps_range_extension_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.transform_skip_rotation_enabled_flag, NULL, settings, "uint32_t", "transform_skip_rotation_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.transform_skip_rotation_enabled_flag, settings, "uint32_t: 1", "transform_skip_rotation_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.transform_skip_context_enabled_flag, NULL, settings, "uint32_t", "transform_skip_context_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.transform_skip_context_enabled_flag, settings, "uint32_t: 1", "transform_skip_context_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.implicit_rdpcm_enabled_flag, NULL, settings, "uint32_t", "implicit_rdpcm_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.implicit_rdpcm_enabled_flag, settings, "uint32_t: 1", "implicit_rdpcm_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.explicit_rdpcm_enabled_flag, NULL, settings, "uint32_t", "explicit_rdpcm_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.explicit_rdpcm_enabled_flag, settings, "uint32_t: 1", "explicit_rdpcm_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.extended_precision_processing_flag, NULL, settings, "uint32_t", "extended_precision_processing_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.extended_precision_processing_flag, settings, "uint32_t: 1", "extended_precision_processing_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.intra_smoothing_disabled_flag, NULL, settings, "uint32_t", "intra_smoothing_disabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.intra_smoothing_disabled_flag, settings, "uint32_t: 1", "intra_smoothing_disabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.high_precision_offsets_enabled_flag, NULL, settings, "uint32_t", "high_precision_offsets_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.high_precision_offsets_enabled_flag, settings, "uint32_t: 1", "high_precision_offsets_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.persistent_rice_adaptation_enabled_flag, NULL, settings, "uint32_t", "persistent_rice_adaptation_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.persistent_rice_adaptation_enabled_flag, settings, "uint32_t: 1", "persistent_rice_adaptation_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.cabac_bypass_alignment_enabled_flag, NULL, settings, "uint32_t", "cabac_bypass_alignment_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.cabac_bypass_alignment_enabled_flag, settings, "uint32_t: 1", "cabac_bypass_alignment_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sps_scc_extension_flag, NULL, settings, "uint32_t", "sps_scc_extension_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sps_scc_extension_flag, settings, "uint32_t: 1", "sps_scc_extension_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sps_curr_pic_ref_enabled_flag, NULL, settings, "uint32_t", "sps_curr_pic_ref_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sps_curr_pic_ref_enabled_flag, settings, "uint32_t: 1", "sps_curr_pic_ref_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.palette_mode_enabled_flag, NULL, settings, "uint32_t", "palette_mode_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.palette_mode_enabled_flag, settings, "uint32_t: 1", "palette_mode_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sps_palette_predictor_initializers_present_flag, NULL, settings, "uint32_t", "sps_palette_predictor_initializers_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sps_palette_predictor_initializers_present_flag, settings, "uint32_t: 1", "sps_palette_predictor_initializers_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.intra_boundary_filtering_disabled_flag, NULL, settings, "uint32_t", "intra_boundary_filtering_disabled_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.intra_boundary_filtering_disabled_flag, settings, "uint32_t: 1", "intra_boundary_filtering_disabled_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265ShortTermRefPicSetFlags(const StdVideoH265ShortTermRefPicSetFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265SpsFlags(const StdVideoH265SpsFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265SpsFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265ShortTermRefPicSetFlags(const StdVideoH265ShortTermRefPicSetFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.inter_ref_pic_set_prediction_flag, NULL, settings, "uint32_t", "inter_ref_pic_set_prediction_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.inter_ref_pic_set_prediction_flag, settings, "uint32_t: 1", "inter_ref_pic_set_prediction_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.delta_rps_sign, NULL, settings, "uint32_t", "delta_rps_sign", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.delta_rps_sign, settings, "uint32_t: 1", "delta_rps_sign", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265ShortTermRefPicSet(const StdVideoH265ShortTermRefPicSet& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265ShortTermRefPicSetFlags(const StdVideoH265ShortTermRefPicSetFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265ShortTermRefPicSetFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265ShortTermRefPicSet(const StdVideoH265ShortTermRefPicSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH265ShortTermRefPicSetFlags>(object.flags, NULL, settings, "StdVideoH265ShortTermRefPicSetFlags", "flags", true, false, indents + 1, dump_json_StdVideoH265ShortTermRefPicSetFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH265ShortTermRefPicSetFlags(object.flags, settings, "StdVideoH265ShortTermRefPicSetFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.delta_idx_minus1, NULL, settings, "uint32_t", "delta_idx_minus1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.delta_idx_minus1, settings, "uint32_t", "delta_idx_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.use_delta_flag, NULL, settings, "uint16_t", "use_delta_flag", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.use_delta_flag, settings, "uint16_t", "use_delta_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.abs_delta_rps_minus1, NULL, settings, "uint16_t", "abs_delta_rps_minus1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.abs_delta_rps_minus1, settings, "uint16_t", "abs_delta_rps_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.used_by_curr_pic_flag, NULL, settings, "uint16_t", "used_by_curr_pic_flag", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.used_by_curr_pic_flag, settings, "uint16_t", "used_by_curr_pic_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.used_by_curr_pic_s0_flag, NULL, settings, "uint16_t", "used_by_curr_pic_s0_flag", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.used_by_curr_pic_s0_flag, settings, "uint16_t", "used_by_curr_pic_s0_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.used_by_curr_pic_s1_flag, NULL, settings, "uint16_t", "used_by_curr_pic_s1_flag", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.used_by_curr_pic_s1_flag, settings, "uint16_t", "used_by_curr_pic_s1_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.reserved1, NULL, settings, "uint16_t", "reserved1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.reserved1, settings, "uint16_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved2, NULL, settings, "uint8_t", "reserved2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved2, settings, "uint8_t", "reserved2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved3, NULL, settings, "uint8_t", "reserved3", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved3, settings, "uint8_t", "reserved3", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_negative_pics, NULL, settings, "uint8_t", "num_negative_pics", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_negative_pics, settings, "uint8_t", "num_negative_pics", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_positive_pics, NULL, settings, "uint8_t", "num_positive_pics", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_positive_pics, settings, "uint8_t", "num_positive_pics", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint16_t>(object.delta_poc_s0_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "uint16_t", "delta_poc_s0_minus1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_array_start(object.delta_poc_s0_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "delta_poc_s0_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_DPB_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint16_t(object.delta_poc_s0_minus1[i], settings, "uint16_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_DPB_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.delta_poc_s0_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint16_t>(object.delta_poc_s1_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "uint16_t", "delta_poc_s1_minus1", false, false, indents + 1, dump_json_uint16_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.delta_poc_s1_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "delta_poc_s1_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_DPB_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint16_t(object.delta_poc_s1_minus1[i], settings, "uint16_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_DPB_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.delta_poc_s1_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoH265ShortTermRefPicSet(const StdVideoH265ShortTermRefPicSet* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265ShortTermRefPicSet(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoH265LongTermRefPicsSps(const StdVideoH265LongTermRefPicsSps& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265LongTermRefPicsSps(const StdVideoH265LongTermRefPicsSps& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.used_by_curr_pic_lt_sps_flag, NULL, settings, "uint32_t", "used_by_curr_pic_lt_sps_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.used_by_curr_pic_lt_sps_flag, settings, "uint32_t", "used_by_curr_pic_lt_sps_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.lt_ref_pic_poc_lsb_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint32_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "uint32_t", "lt_ref_pic_poc_lsb_sps", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.lt_ref_pic_poc_lsb_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint32_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "lt_ref_pic_poc_lsb_sps", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint32_t(object.lt_ref_pic_poc_lsb_sps[i], settings, "uint32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.lt_ref_pic_poc_lsb_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265SequenceParameterSet(const StdVideoH265SequenceParameterSet& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265LongTermRefPicsSps(const StdVideoH265LongTermRefPicsSps* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265LongTermRefPicsSps(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265SequenceParameterSet(const StdVideoH265SequenceParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH265SpsFlags>(object.flags, NULL, settings, "StdVideoH265SpsFlags", "flags", true, false, indents + 1, dump_json_StdVideoH265SpsFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH265SpsFlags(object.flags, settings, "StdVideoH265SpsFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH265ChromaFormatIdc>(object.chroma_format_idc, NULL, settings, "StdVideoH265ChromaFormatIdc", "chroma_format_idc", false, false, indents + 1, dump_json_StdVideoH265ChromaFormatIdc);
+    dump_json_StdVideoH265ChromaFormatIdc(object.chroma_format_idc, settings, "StdVideoH265ChromaFormatIdc", "chroma_format_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pic_width_in_luma_samples, NULL, settings, "uint32_t", "pic_width_in_luma_samples", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pic_width_in_luma_samples, settings, "uint32_t", "pic_width_in_luma_samples", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pic_height_in_luma_samples, NULL, settings, "uint32_t", "pic_height_in_luma_samples", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pic_height_in_luma_samples, settings, "uint32_t", "pic_height_in_luma_samples", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.sps_video_parameter_set_id, NULL, settings, "uint8_t", "sps_video_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.sps_video_parameter_set_id, settings, "uint8_t", "sps_video_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.sps_max_sub_layers_minus1, NULL, settings, "uint8_t", "sps_max_sub_layers_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.sps_max_sub_layers_minus1, settings, "uint8_t", "sps_max_sub_layers_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.sps_seq_parameter_set_id, NULL, settings, "uint8_t", "sps_seq_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.sps_seq_parameter_set_id, settings, "uint8_t", "sps_seq_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.bit_depth_luma_minus8, NULL, settings, "uint8_t", "bit_depth_luma_minus8", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.bit_depth_luma_minus8, settings, "uint8_t", "bit_depth_luma_minus8", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.bit_depth_chroma_minus8, NULL, settings, "uint8_t", "bit_depth_chroma_minus8", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.bit_depth_chroma_minus8, settings, "uint8_t", "bit_depth_chroma_minus8", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_max_pic_order_cnt_lsb_minus4, NULL, settings, "uint8_t", "log2_max_pic_order_cnt_lsb_minus4", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_max_pic_order_cnt_lsb_minus4, settings, "uint8_t", "log2_max_pic_order_cnt_lsb_minus4", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_min_luma_coding_block_size_minus3, NULL, settings, "uint8_t", "log2_min_luma_coding_block_size_minus3", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_min_luma_coding_block_size_minus3, settings, "uint8_t", "log2_min_luma_coding_block_size_minus3", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_diff_max_min_luma_coding_block_size, NULL, settings, "uint8_t", "log2_diff_max_min_luma_coding_block_size", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_diff_max_min_luma_coding_block_size, settings, "uint8_t", "log2_diff_max_min_luma_coding_block_size", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_min_luma_transform_block_size_minus2, NULL, settings, "uint8_t", "log2_min_luma_transform_block_size_minus2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_min_luma_transform_block_size_minus2, settings, "uint8_t", "log2_min_luma_transform_block_size_minus2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_diff_max_min_luma_transform_block_size, NULL, settings, "uint8_t", "log2_diff_max_min_luma_transform_block_size", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_diff_max_min_luma_transform_block_size, settings, "uint8_t", "log2_diff_max_min_luma_transform_block_size", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.max_transform_hierarchy_depth_inter, NULL, settings, "uint8_t", "max_transform_hierarchy_depth_inter", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.max_transform_hierarchy_depth_inter, settings, "uint8_t", "max_transform_hierarchy_depth_inter", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.max_transform_hierarchy_depth_intra, NULL, settings, "uint8_t", "max_transform_hierarchy_depth_intra", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.max_transform_hierarchy_depth_intra, settings, "uint8_t", "max_transform_hierarchy_depth_intra", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_short_term_ref_pic_sets, NULL, settings, "uint8_t", "num_short_term_ref_pic_sets", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_short_term_ref_pic_sets, settings, "uint8_t", "num_short_term_ref_pic_sets", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_long_term_ref_pics_sps, NULL, settings, "uint8_t", "num_long_term_ref_pics_sps", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_long_term_ref_pics_sps, settings, "uint8_t", "num_long_term_ref_pics_sps", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pcm_sample_bit_depth_luma_minus1, NULL, settings, "uint8_t", "pcm_sample_bit_depth_luma_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pcm_sample_bit_depth_luma_minus1, settings, "uint8_t", "pcm_sample_bit_depth_luma_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pcm_sample_bit_depth_chroma_minus1, NULL, settings, "uint8_t", "pcm_sample_bit_depth_chroma_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pcm_sample_bit_depth_chroma_minus1, settings, "uint8_t", "pcm_sample_bit_depth_chroma_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_min_pcm_luma_coding_block_size_minus3, NULL, settings, "uint8_t", "log2_min_pcm_luma_coding_block_size_minus3", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_min_pcm_luma_coding_block_size_minus3, settings, "uint8_t", "log2_min_pcm_luma_coding_block_size_minus3", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_diff_max_min_pcm_luma_coding_block_size, NULL, settings, "uint8_t", "log2_diff_max_min_pcm_luma_coding_block_size", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_diff_max_min_pcm_luma_coding_block_size, settings, "uint8_t", "log2_diff_max_min_pcm_luma_coding_block_size", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved2, NULL, settings, "uint8_t", "reserved2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved2, settings, "uint8_t", "reserved2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.palette_max_size, NULL, settings, "uint8_t", "palette_max_size", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.palette_max_size, settings, "uint8_t", "palette_max_size", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.delta_palette_max_predictor_size, NULL, settings, "uint8_t", "delta_palette_max_predictor_size", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.delta_palette_max_predictor_size, settings, "uint8_t", "delta_palette_max_predictor_size", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.motion_vector_resolution_control_idc, NULL, settings, "uint8_t", "motion_vector_resolution_control_idc", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.motion_vector_resolution_control_idc, settings, "uint8_t", "motion_vector_resolution_control_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.sps_num_palette_predictor_initializers_minus1, NULL, settings, "uint8_t", "sps_num_palette_predictor_initializers_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.sps_num_palette_predictor_initializers_minus1, settings, "uint8_t", "sps_num_palette_predictor_initializers_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.conf_win_left_offset, NULL, settings, "uint32_t", "conf_win_left_offset", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.conf_win_left_offset, settings, "uint32_t", "conf_win_left_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.conf_win_right_offset, NULL, settings, "uint32_t", "conf_win_right_offset", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.conf_win_right_offset, settings, "uint32_t", "conf_win_right_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.conf_win_top_offset, NULL, settings, "uint32_t", "conf_win_top_offset", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.conf_win_top_offset, settings, "uint32_t", "conf_win_top_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.conf_win_bottom_offset, NULL, settings, "uint32_t", "conf_win_bottom_offset", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.conf_win_bottom_offset, settings, "uint32_t", "conf_win_bottom_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265ProfileTierLevel>(object.pProfileTierLevel, settings, "const StdVideoH265ProfileTierLevel*", "pProfileTierLevel", true, false, indents + 1, dump_json_StdVideoH265ProfileTierLevel);
+    dump_json_StdVideoH265ProfileTierLevel(object.pProfileTierLevel, settings, "const StdVideoH265ProfileTierLevel*", "pProfileTierLevel", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265DecPicBufMgr>(object.pDecPicBufMgr, settings, "const StdVideoH265DecPicBufMgr*", "pDecPicBufMgr", true, false, indents + 1, dump_json_StdVideoH265DecPicBufMgr);
+    dump_json_StdVideoH265DecPicBufMgr(object.pDecPicBufMgr, settings, "const StdVideoH265DecPicBufMgr*", "pDecPicBufMgr", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265ScalingLists>(object.pScalingLists, settings, "const StdVideoH265ScalingLists*", "pScalingLists", true, false, indents + 1, dump_json_StdVideoH265ScalingLists);
+    dump_json_StdVideoH265ScalingLists(object.pScalingLists, settings, "const StdVideoH265ScalingLists*", "pScalingLists", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265ShortTermRefPicSet>(object.pShortTermRefPicSet, settings, "const StdVideoH265ShortTermRefPicSet*", "pShortTermRefPicSet", true, false, indents + 1, dump_json_StdVideoH265ShortTermRefPicSet);
+    dump_json_StdVideoH265ShortTermRefPicSet(object.pShortTermRefPicSet, settings, "const StdVideoH265ShortTermRefPicSet*", "pShortTermRefPicSet", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265LongTermRefPicsSps>(object.pLongTermRefPicsSps, settings, "const StdVideoH265LongTermRefPicsSps*", "pLongTermRefPicsSps", true, false, indents + 1, dump_json_StdVideoH265LongTermRefPicsSps);
+    dump_json_StdVideoH265LongTermRefPicsSps(object.pLongTermRefPicsSps, settings, "const StdVideoH265LongTermRefPicsSps*", "pLongTermRefPicsSps", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265SequenceParameterSetVui>(object.pSequenceParameterSetVui, settings, "const StdVideoH265SequenceParameterSetVui*", "pSequenceParameterSetVui", true, false, indents + 1, dump_json_StdVideoH265SequenceParameterSetVui);
+    dump_json_StdVideoH265SequenceParameterSetVui(object.pSequenceParameterSetVui, settings, "const StdVideoH265SequenceParameterSetVui*", "pSequenceParameterSetVui", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265PredictorPaletteEntries>(object.pPredictorPaletteEntries, settings, "const StdVideoH265PredictorPaletteEntries*", "pPredictorPaletteEntries", true, false, indents + 1, dump_json_StdVideoH265PredictorPaletteEntries);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoH265PredictorPaletteEntries(object.pPredictorPaletteEntries, settings, "const StdVideoH265PredictorPaletteEntries*", "pPredictorPaletteEntries", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoH265PpsFlags(const StdVideoH265PpsFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265SequenceParameterSet(const StdVideoH265SequenceParameterSet* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265SequenceParameterSet(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoH265PpsFlags(const StdVideoH265PpsFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.dependent_slice_segments_enabled_flag, NULL, settings, "uint32_t", "dependent_slice_segments_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.dependent_slice_segments_enabled_flag, settings, "uint32_t: 1", "dependent_slice_segments_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.output_flag_present_flag, NULL, settings, "uint32_t", "output_flag_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.output_flag_present_flag, settings, "uint32_t: 1", "output_flag_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.sign_data_hiding_enabled_flag, NULL, settings, "uint32_t", "sign_data_hiding_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.sign_data_hiding_enabled_flag, settings, "uint32_t: 1", "sign_data_hiding_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.cabac_init_present_flag, NULL, settings, "uint32_t", "cabac_init_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.cabac_init_present_flag, settings, "uint32_t: 1", "cabac_init_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.constrained_intra_pred_flag, NULL, settings, "uint32_t", "constrained_intra_pred_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.constrained_intra_pred_flag, settings, "uint32_t: 1", "constrained_intra_pred_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.transform_skip_enabled_flag, NULL, settings, "uint32_t", "transform_skip_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.transform_skip_enabled_flag, settings, "uint32_t: 1", "transform_skip_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.cu_qp_delta_enabled_flag, NULL, settings, "uint32_t", "cu_qp_delta_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.cu_qp_delta_enabled_flag, settings, "uint32_t: 1", "cu_qp_delta_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pps_slice_chroma_qp_offsets_present_flag, NULL, settings, "uint32_t", "pps_slice_chroma_qp_offsets_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pps_slice_chroma_qp_offsets_present_flag, settings, "uint32_t: 1", "pps_slice_chroma_qp_offsets_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.weighted_pred_flag, NULL, settings, "uint32_t", "weighted_pred_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.weighted_pred_flag, settings, "uint32_t: 1", "weighted_pred_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.weighted_bipred_flag, NULL, settings, "uint32_t", "weighted_bipred_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.weighted_bipred_flag, settings, "uint32_t: 1", "weighted_bipred_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.transquant_bypass_enabled_flag, NULL, settings, "uint32_t", "transquant_bypass_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.transquant_bypass_enabled_flag, settings, "uint32_t: 1", "transquant_bypass_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.tiles_enabled_flag, NULL, settings, "uint32_t", "tiles_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.tiles_enabled_flag, settings, "uint32_t: 1", "tiles_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.entropy_coding_sync_enabled_flag, NULL, settings, "uint32_t", "entropy_coding_sync_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.entropy_coding_sync_enabled_flag, settings, "uint32_t: 1", "entropy_coding_sync_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.uniform_spacing_flag, NULL, settings, "uint32_t", "uniform_spacing_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.uniform_spacing_flag, settings, "uint32_t: 1", "uniform_spacing_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.loop_filter_across_tiles_enabled_flag, NULL, settings, "uint32_t", "loop_filter_across_tiles_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.loop_filter_across_tiles_enabled_flag, settings, "uint32_t: 1", "loop_filter_across_tiles_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pps_loop_filter_across_slices_enabled_flag, NULL, settings, "uint32_t", "pps_loop_filter_across_slices_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pps_loop_filter_across_slices_enabled_flag, settings, "uint32_t: 1", "pps_loop_filter_across_slices_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.deblocking_filter_control_present_flag, NULL, settings, "uint32_t", "deblocking_filter_control_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.deblocking_filter_control_present_flag, settings, "uint32_t: 1", "deblocking_filter_control_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.deblocking_filter_override_enabled_flag, NULL, settings, "uint32_t", "deblocking_filter_override_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.deblocking_filter_override_enabled_flag, settings, "uint32_t: 1", "deblocking_filter_override_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pps_deblocking_filter_disabled_flag, NULL, settings, "uint32_t", "pps_deblocking_filter_disabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pps_deblocking_filter_disabled_flag, settings, "uint32_t: 1", "pps_deblocking_filter_disabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pps_scaling_list_data_present_flag, NULL, settings, "uint32_t", "pps_scaling_list_data_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pps_scaling_list_data_present_flag, settings, "uint32_t: 1", "pps_scaling_list_data_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.lists_modification_present_flag, NULL, settings, "uint32_t", "lists_modification_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.lists_modification_present_flag, settings, "uint32_t: 1", "lists_modification_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.slice_segment_header_extension_present_flag, NULL, settings, "uint32_t", "slice_segment_header_extension_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.slice_segment_header_extension_present_flag, settings, "uint32_t: 1", "slice_segment_header_extension_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pps_extension_present_flag, NULL, settings, "uint32_t", "pps_extension_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pps_extension_present_flag, settings, "uint32_t: 1", "pps_extension_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.cross_component_prediction_enabled_flag, NULL, settings, "uint32_t", "cross_component_prediction_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.cross_component_prediction_enabled_flag, settings, "uint32_t: 1", "cross_component_prediction_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.chroma_qp_offset_list_enabled_flag, NULL, settings, "uint32_t", "chroma_qp_offset_list_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.chroma_qp_offset_list_enabled_flag, settings, "uint32_t: 1", "chroma_qp_offset_list_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pps_curr_pic_ref_enabled_flag, NULL, settings, "uint32_t", "pps_curr_pic_ref_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pps_curr_pic_ref_enabled_flag, settings, "uint32_t: 1", "pps_curr_pic_ref_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.residual_adaptive_colour_transform_enabled_flag, NULL, settings, "uint32_t", "residual_adaptive_colour_transform_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.residual_adaptive_colour_transform_enabled_flag, settings, "uint32_t: 1", "residual_adaptive_colour_transform_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pps_slice_act_qp_offsets_present_flag, NULL, settings, "uint32_t", "pps_slice_act_qp_offsets_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pps_slice_act_qp_offsets_present_flag, settings, "uint32_t: 1", "pps_slice_act_qp_offsets_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pps_palette_predictor_initializers_present_flag, NULL, settings, "uint32_t", "pps_palette_predictor_initializers_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pps_palette_predictor_initializers_present_flag, settings, "uint32_t: 1", "pps_palette_predictor_initializers_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.monochrome_palette_flag, NULL, settings, "uint32_t", "monochrome_palette_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.monochrome_palette_flag, settings, "uint32_t: 1", "monochrome_palette_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pps_range_extension_flag, NULL, settings, "uint32_t", "pps_range_extension_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.pps_range_extension_flag, settings, "uint32_t: 1", "pps_range_extension_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoH265PpsFlags(const StdVideoH265PpsFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265PpsFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoH265PictureParameterSet(const StdVideoH265PictureParameterSet& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265PictureParameterSet(const StdVideoH265PictureParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoH265PpsFlags>(object.flags, NULL, settings, "StdVideoH265PpsFlags", "flags", true, false, indents + 1, dump_json_StdVideoH265PpsFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoH265PpsFlags(object.flags, settings, "StdVideoH265PpsFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pps_pic_parameter_set_id, NULL, settings, "uint8_t", "pps_pic_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pps_pic_parameter_set_id, settings, "uint8_t", "pps_pic_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pps_seq_parameter_set_id, NULL, settings, "uint8_t", "pps_seq_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pps_seq_parameter_set_id, settings, "uint8_t", "pps_seq_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.sps_video_parameter_set_id, NULL, settings, "uint8_t", "sps_video_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.sps_video_parameter_set_id, settings, "uint8_t", "sps_video_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_extra_slice_header_bits, NULL, settings, "uint8_t", "num_extra_slice_header_bits", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_extra_slice_header_bits, settings, "uint8_t", "num_extra_slice_header_bits", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_ref_idx_l0_default_active_minus1, NULL, settings, "uint8_t", "num_ref_idx_l0_default_active_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_ref_idx_l0_default_active_minus1, settings, "uint8_t", "num_ref_idx_l0_default_active_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_ref_idx_l1_default_active_minus1, NULL, settings, "uint8_t", "num_ref_idx_l1_default_active_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_ref_idx_l1_default_active_minus1, settings, "uint8_t", "num_ref_idx_l1_default_active_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.init_qp_minus26, NULL, settings, "int8_t", "init_qp_minus26", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.init_qp_minus26, settings, "int8_t", "init_qp_minus26", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.diff_cu_qp_delta_depth, NULL, settings, "uint8_t", "diff_cu_qp_delta_depth", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.diff_cu_qp_delta_depth, settings, "uint8_t", "diff_cu_qp_delta_depth", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.pps_cb_qp_offset, NULL, settings, "int8_t", "pps_cb_qp_offset", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.pps_cb_qp_offset, settings, "int8_t", "pps_cb_qp_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.pps_cr_qp_offset, NULL, settings, "int8_t", "pps_cr_qp_offset", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.pps_cr_qp_offset, settings, "int8_t", "pps_cr_qp_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.pps_beta_offset_div2, NULL, settings, "int8_t", "pps_beta_offset_div2", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.pps_beta_offset_div2, settings, "int8_t", "pps_beta_offset_div2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.pps_tc_offset_div2, NULL, settings, "int8_t", "pps_tc_offset_div2", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.pps_tc_offset_div2, settings, "int8_t", "pps_tc_offset_div2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_parallel_merge_level_minus2, NULL, settings, "uint8_t", "log2_parallel_merge_level_minus2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_parallel_merge_level_minus2, settings, "uint8_t", "log2_parallel_merge_level_minus2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_max_transform_skip_block_size_minus2, NULL, settings, "uint8_t", "log2_max_transform_skip_block_size_minus2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_max_transform_skip_block_size_minus2, settings, "uint8_t", "log2_max_transform_skip_block_size_minus2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.diff_cu_chroma_qp_offset_depth, NULL, settings, "uint8_t", "diff_cu_chroma_qp_offset_depth", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.diff_cu_chroma_qp_offset_depth, settings, "uint8_t", "diff_cu_chroma_qp_offset_depth", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.chroma_qp_offset_list_len_minus1, NULL, settings, "uint8_t", "chroma_qp_offset_list_len_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.chroma_qp_offset_list_len_minus1, settings, "uint8_t", "chroma_qp_offset_list_len_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.cb_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "int8_t", "cb_qp_offset_list", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.cb_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "cb_qp_offset_list", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.cb_qp_offset_list[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cb_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.cr_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "int8_t", "cr_qp_offset_list", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.cr_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "cr_qp_offset_list", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.cr_qp_offset_list[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cr_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_sao_offset_scale_luma, NULL, settings, "uint8_t", "log2_sao_offset_scale_luma", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_sao_offset_scale_luma, settings, "uint8_t", "log2_sao_offset_scale_luma", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.log2_sao_offset_scale_chroma, NULL, settings, "uint8_t", "log2_sao_offset_scale_chroma", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.log2_sao_offset_scale_chroma, settings, "uint8_t", "log2_sao_offset_scale_chroma", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.pps_act_y_qp_offset_plus5, NULL, settings, "int8_t", "pps_act_y_qp_offset_plus5", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.pps_act_y_qp_offset_plus5, settings, "int8_t", "pps_act_y_qp_offset_plus5", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.pps_act_cb_qp_offset_plus5, NULL, settings, "int8_t", "pps_act_cb_qp_offset_plus5", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.pps_act_cb_qp_offset_plus5, settings, "int8_t", "pps_act_cb_qp_offset_plus5", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.pps_act_cr_qp_offset_plus3, NULL, settings, "int8_t", "pps_act_cr_qp_offset_plus3", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.pps_act_cr_qp_offset_plus3, settings, "int8_t", "pps_act_cr_qp_offset_plus3", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pps_num_palette_predictor_initializers, NULL, settings, "uint8_t", "pps_num_palette_predictor_initializers", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pps_num_palette_predictor_initializers, settings, "uint8_t", "pps_num_palette_predictor_initializers", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.luma_bit_depth_entry_minus8, NULL, settings, "uint8_t", "luma_bit_depth_entry_minus8", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.luma_bit_depth_entry_minus8, settings, "uint8_t", "luma_bit_depth_entry_minus8", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.chroma_bit_depth_entry_minus8, NULL, settings, "uint8_t", "chroma_bit_depth_entry_minus8", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.chroma_bit_depth_entry_minus8, settings, "uint8_t", "chroma_bit_depth_entry_minus8", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_tile_columns_minus1, NULL, settings, "uint8_t", "num_tile_columns_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_tile_columns_minus1, settings, "uint8_t", "num_tile_columns_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_tile_rows_minus1, NULL, settings, "uint8_t", "num_tile_rows_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_tile_rows_minus1, settings, "uint8_t", "num_tile_rows_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved2, NULL, settings, "uint8_t", "reserved2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved2, settings, "uint8_t", "reserved2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint16_t>(object.column_width_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE]", "uint16_t", "column_width_minus1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_array_start(object.column_width_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE]", "column_width_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint16_t(object.column_width_minus1[i], settings, "uint16_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.column_width_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint16_t>(object.row_height_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE]", "uint16_t", "row_height_minus1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_array_start(object.row_height_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE]", "row_height_minus1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint16_t(object.row_height_minus1[i], settings, "uint16_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.row_height_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved3, NULL, settings, "uint32_t", "reserved3", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.reserved3, settings, "uint32_t", "reserved3", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265ScalingLists>(object.pScalingLists, settings, "const StdVideoH265ScalingLists*", "pScalingLists", true, false, indents + 1, dump_json_StdVideoH265ScalingLists);
+    dump_json_StdVideoH265ScalingLists(object.pScalingLists, settings, "const StdVideoH265ScalingLists*", "pScalingLists", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265PredictorPaletteEntries>(object.pPredictorPaletteEntries, settings, "const StdVideoH265PredictorPaletteEntries*", "pPredictorPaletteEntries", true, false, indents + 1, dump_json_StdVideoH265PredictorPaletteEntries);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoH265PredictorPaletteEntries(object.pPredictorPaletteEntries, settings, "const StdVideoH265PredictorPaletteEntries*", "pPredictorPaletteEntries", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeH265PictureInfoFlags(const StdVideoDecodeH265PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoH265PictureParameterSet(const StdVideoH265PictureParameterSet* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoH265PictureParameterSet(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeH265PictureInfoFlags(const StdVideoDecodeH265PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.IrapPicFlag, NULL, settings, "uint32_t", "IrapPicFlag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.IrapPicFlag, settings, "uint32_t: 1", "IrapPicFlag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.IdrPicFlag, NULL, settings, "uint32_t", "IdrPicFlag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.IdrPicFlag, settings, "uint32_t: 1", "IdrPicFlag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.IsReference, NULL, settings, "uint32_t", "IsReference", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.IsReference, settings, "uint32_t: 1", "IsReference", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.short_term_ref_pic_set_sps_flag, NULL, settings, "uint32_t", "short_term_ref_pic_set_sps_flag", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.short_term_ref_pic_set_sps_flag, settings, "uint32_t: 1", "short_term_ref_pic_set_sps_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeH265PictureInfo(const StdVideoDecodeH265PictureInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeH265PictureInfoFlags(const StdVideoDecodeH265PictureInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeH265PictureInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeH265PictureInfo(const StdVideoDecodeH265PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoDecodeH265PictureInfoFlags>(object.flags, NULL, settings, "StdVideoDecodeH265PictureInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoDecodeH265PictureInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoDecodeH265PictureInfoFlags(object.flags, settings, "StdVideoDecodeH265PictureInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.sps_video_parameter_set_id, NULL, settings, "uint8_t", "sps_video_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.sps_video_parameter_set_id, settings, "uint8_t", "sps_video_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pps_seq_parameter_set_id, NULL, settings, "uint8_t", "pps_seq_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pps_seq_parameter_set_id, settings, "uint8_t", "pps_seq_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pps_pic_parameter_set_id, NULL, settings, "uint8_t", "pps_pic_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pps_pic_parameter_set_id, settings, "uint8_t", "pps_pic_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.NumDeltaPocsOfRefRpsIdx, NULL, settings, "uint8_t", "NumDeltaPocsOfRefRpsIdx", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.NumDeltaPocsOfRefRpsIdx, settings, "uint8_t", "NumDeltaPocsOfRefRpsIdx", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int32_t>(object.PicOrderCntVal, NULL, settings, "int32_t", "PicOrderCntVal", false, false, indents + 1, dump_json_int32_t);
+    dump_json_int32_t(object.PicOrderCntVal, settings, "int32_t", "PicOrderCntVal", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.NumBitsForSTRefPicSetInSlice, NULL, settings, "uint16_t", "NumBitsForSTRefPicSetInSlice", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.NumBitsForSTRefPicSetInSlice, settings, "uint16_t", "NumBitsForSTRefPicSetInSlice", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.reserved, NULL, settings, "uint16_t", "reserved", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.reserved, settings, "uint16_t", "reserved", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.RefPicSetStCurrBefore, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "uint8_t", "RefPicSetStCurrBefore", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.RefPicSetStCurrBefore, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "RefPicSetStCurrBefore", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.RefPicSetStCurrBefore[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.RefPicSetStCurrBefore, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.RefPicSetStCurrAfter, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "uint8_t", "RefPicSetStCurrAfter", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.RefPicSetStCurrAfter, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "RefPicSetStCurrAfter", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.RefPicSetStCurrAfter[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.RefPicSetStCurrAfter, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.RefPicSetLtCurr, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "uint8_t", "RefPicSetLtCurr", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.RefPicSetLtCurr, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "RefPicSetLtCurr", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.RefPicSetLtCurr[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.RefPicSetLtCurr, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoDecodeH265PictureInfo(const StdVideoDecodeH265PictureInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeH265PictureInfo(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoDecodeH265ReferenceInfoFlags(const StdVideoDecodeH265ReferenceInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeH265ReferenceInfoFlags(const StdVideoDecodeH265ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.used_for_long_term_reference, NULL, settings, "uint32_t", "used_for_long_term_reference", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.used_for_long_term_reference, settings, "uint32_t: 1", "used_for_long_term_reference", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.unused_for_reference, NULL, settings, "uint32_t", "unused_for_reference", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.unused_for_reference, settings, "uint32_t: 1", "unused_for_reference", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeH265ReferenceInfo(const StdVideoDecodeH265ReferenceInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeH265ReferenceInfoFlags(const StdVideoDecodeH265ReferenceInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeH265ReferenceInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeH265ReferenceInfo(const StdVideoDecodeH265ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoDecodeH265ReferenceInfoFlags>(object.flags, NULL, settings, "StdVideoDecodeH265ReferenceInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoDecodeH265ReferenceInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoDecodeH265ReferenceInfoFlags(object.flags, settings, "StdVideoDecodeH265ReferenceInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int32_t>(object.PicOrderCntVal, NULL, settings, "int32_t", "PicOrderCntVal", false, false, indents + 1, dump_json_int32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_int32_t(object.PicOrderCntVal, settings, "int32_t", "PicOrderCntVal", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH265WeightTableFlags(const StdVideoEncodeH265WeightTableFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeH265ReferenceInfo(const StdVideoDecodeH265ReferenceInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeH265ReferenceInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH265WeightTableFlags(const StdVideoEncodeH265WeightTableFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint16_t>(object.luma_weight_l0_flag, NULL, settings, "uint16_t", "luma_weight_l0_flag", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint16_t(object.luma_weight_l0_flag, settings, "uint16_t", "luma_weight_l0_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.chroma_weight_l0_flag, NULL, settings, "uint16_t", "chroma_weight_l0_flag", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.chroma_weight_l0_flag, settings, "uint16_t", "chroma_weight_l0_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.luma_weight_l1_flag, NULL, settings, "uint16_t", "luma_weight_l1_flag", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.luma_weight_l1_flag, settings, "uint16_t", "luma_weight_l1_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.chroma_weight_l1_flag, NULL, settings, "uint16_t", "chroma_weight_l1_flag", false, false, indents + 1, dump_json_uint16_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint16_t(object.chroma_weight_l1_flag, settings, "uint16_t", "chroma_weight_l1_flag", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeH265WeightTableFlags(const StdVideoEncodeH265WeightTableFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265WeightTableFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeH265WeightTable(const StdVideoEncodeH265WeightTable& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265WeightTable(const StdVideoEncodeH265WeightTable& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeH265WeightTableFlags>(object.flags, NULL, settings, "StdVideoEncodeH265WeightTableFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeH265WeightTableFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeH265WeightTableFlags(object.flags, settings, "StdVideoEncodeH265WeightTableFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.luma_log2_weight_denom, NULL, settings, "uint8_t", "luma_log2_weight_denom", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.luma_log2_weight_denom, settings, "uint8_t", "luma_log2_weight_denom", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.delta_chroma_log2_weight_denom, NULL, settings, "int8_t", "delta_chroma_log2_weight_denom", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.delta_chroma_log2_weight_denom, settings, "int8_t", "delta_chroma_log2_weight_denom", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.delta_luma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "delta_luma_weight_l0", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.delta_luma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_luma_weight_l0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.delta_luma_weight_l0[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.delta_luma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.luma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l0", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.luma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "luma_offset_l0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.luma_offset_l0[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.luma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.delta_chroma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_weight_l0", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.delta_chroma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_weight_l0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H265_MAX_CHROMA_PLANES; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.delta_chroma_weight_l0[i][j], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H265_MAX_CHROMA_PLANES - 1 && j < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.delta_chroma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.delta_chroma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_offset_l0", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.delta_chroma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_offset_l0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H265_MAX_CHROMA_PLANES; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.delta_chroma_offset_l0[i][j], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H265_MAX_CHROMA_PLANES - 1 && j < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.delta_chroma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.delta_luma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "delta_luma_weight_l1", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.delta_luma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_luma_weight_l1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.delta_luma_weight_l1[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.delta_luma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.luma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "int8_t", "luma_offset_l1", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.luma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "luma_offset_l1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.luma_offset_l1[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.luma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.delta_chroma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_weight_l1", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.delta_chroma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_weight_l1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H265_MAX_CHROMA_PLANES; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.delta_chroma_weight_l1[i][j], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H265_MAX_CHROMA_PLANES - 1 && j < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.delta_chroma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.delta_chroma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_chroma_offset_l1", false, false, indents + 1, dump_json_int8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.delta_chroma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_offset_l1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_H265_MAX_CHROMA_PLANES; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.delta_chroma_offset_l1[i][j], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_H265_MAX_CHROMA_PLANES - 1 && j < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.delta_chroma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF*STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH265SliceSegmentHeaderFlags(const StdVideoEncodeH265SliceSegmentHeaderFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265WeightTable(const StdVideoEncodeH265WeightTable* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265WeightTable(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH265SliceSegmentHeaderFlags(const StdVideoEncodeH265SliceSegmentHeaderFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.first_slice_segment_in_pic_flag, NULL, settings, "uint32_t", "first_slice_segment_in_pic_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.first_slice_segment_in_pic_flag, settings, "uint32_t: 1", "first_slice_segment_in_pic_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.dependent_slice_segment_flag, NULL, settings, "uint32_t", "dependent_slice_segment_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.dependent_slice_segment_flag, settings, "uint32_t: 1", "dependent_slice_segment_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.slice_sao_luma_flag, NULL, settings, "uint32_t", "slice_sao_luma_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.slice_sao_luma_flag, settings, "uint32_t: 1", "slice_sao_luma_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.slice_sao_chroma_flag, NULL, settings, "uint32_t", "slice_sao_chroma_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.slice_sao_chroma_flag, settings, "uint32_t: 1", "slice_sao_chroma_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.num_ref_idx_active_override_flag, NULL, settings, "uint32_t", "num_ref_idx_active_override_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.num_ref_idx_active_override_flag, settings, "uint32_t: 1", "num_ref_idx_active_override_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.mvd_l1_zero_flag, NULL, settings, "uint32_t", "mvd_l1_zero_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.mvd_l1_zero_flag, settings, "uint32_t: 1", "mvd_l1_zero_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.cabac_init_flag, NULL, settings, "uint32_t", "cabac_init_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.cabac_init_flag, settings, "uint32_t: 1", "cabac_init_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.cu_chroma_qp_offset_enabled_flag, NULL, settings, "uint32_t", "cu_chroma_qp_offset_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.cu_chroma_qp_offset_enabled_flag, settings, "uint32_t: 1", "cu_chroma_qp_offset_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.deblocking_filter_override_flag, NULL, settings, "uint32_t", "deblocking_filter_override_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.deblocking_filter_override_flag, settings, "uint32_t: 1", "deblocking_filter_override_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.slice_deblocking_filter_disabled_flag, NULL, settings, "uint32_t", "slice_deblocking_filter_disabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.slice_deblocking_filter_disabled_flag, settings, "uint32_t: 1", "slice_deblocking_filter_disabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.collocated_from_l0_flag, NULL, settings, "uint32_t", "collocated_from_l0_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.collocated_from_l0_flag, settings, "uint32_t: 1", "collocated_from_l0_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.slice_loop_filter_across_slices_enabled_flag, NULL, settings, "uint32_t", "slice_loop_filter_across_slices_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.slice_loop_filter_across_slices_enabled_flag, settings, "uint32_t: 1", "slice_loop_filter_across_slices_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 20", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH265SliceSegmentHeader(const StdVideoEncodeH265SliceSegmentHeader& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265SliceSegmentHeaderFlags(const StdVideoEncodeH265SliceSegmentHeaderFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265SliceSegmentHeaderFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH265SliceSegmentHeader(const StdVideoEncodeH265SliceSegmentHeader& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeH265SliceSegmentHeaderFlags>(object.flags, NULL, settings, "StdVideoEncodeH265SliceSegmentHeaderFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeH265SliceSegmentHeaderFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeH265SliceSegmentHeaderFlags(object.flags, settings, "StdVideoEncodeH265SliceSegmentHeaderFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH265SliceType>(object.slice_type, NULL, settings, "StdVideoH265SliceType", "slice_type", false, false, indents + 1, dump_json_StdVideoH265SliceType);
+    dump_json_StdVideoH265SliceType(object.slice_type, settings, "StdVideoH265SliceType", "slice_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.slice_segment_address, NULL, settings, "uint32_t", "slice_segment_address", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.slice_segment_address, settings, "uint32_t", "slice_segment_address", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.collocated_ref_idx, NULL, settings, "uint8_t", "collocated_ref_idx", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.collocated_ref_idx, settings, "uint8_t", "collocated_ref_idx", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.MaxNumMergeCand, NULL, settings, "uint8_t", "MaxNumMergeCand", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.MaxNumMergeCand, settings, "uint8_t", "MaxNumMergeCand", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_cb_qp_offset, NULL, settings, "int8_t", "slice_cb_qp_offset", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_cb_qp_offset, settings, "int8_t", "slice_cb_qp_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_cr_qp_offset, NULL, settings, "int8_t", "slice_cr_qp_offset", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_cr_qp_offset, settings, "int8_t", "slice_cr_qp_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_beta_offset_div2, NULL, settings, "int8_t", "slice_beta_offset_div2", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_beta_offset_div2, settings, "int8_t", "slice_beta_offset_div2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_tc_offset_div2, NULL, settings, "int8_t", "slice_tc_offset_div2", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_tc_offset_div2, settings, "int8_t", "slice_tc_offset_div2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_act_y_qp_offset, NULL, settings, "int8_t", "slice_act_y_qp_offset", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_act_y_qp_offset, settings, "int8_t", "slice_act_y_qp_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_act_cb_qp_offset, NULL, settings, "int8_t", "slice_act_cb_qp_offset", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_act_cb_qp_offset, settings, "int8_t", "slice_act_cb_qp_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_act_cr_qp_offset, NULL, settings, "int8_t", "slice_act_cr_qp_offset", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_act_cr_qp_offset, settings, "int8_t", "slice_act_cr_qp_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.slice_qp_delta, NULL, settings, "int8_t", "slice_qp_delta", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.slice_qp_delta, settings, "int8_t", "slice_qp_delta", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.reserved1, NULL, settings, "uint16_t", "reserved1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.reserved1, settings, "uint16_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoEncodeH265WeightTable>(object.pWeightTable, settings, "const StdVideoEncodeH265WeightTable*", "pWeightTable", true, false, indents + 1, dump_json_StdVideoEncodeH265WeightTable);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoEncodeH265WeightTable(object.pWeightTable, settings, "const StdVideoEncodeH265WeightTable*", "pWeightTable", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeH265SliceSegmentHeader(const StdVideoEncodeH265SliceSegmentHeader* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265SliceSegmentHeader(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeH265ReferenceListsInfoFlags(const StdVideoEncodeH265ReferenceListsInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265ReferenceListsInfoFlags(const StdVideoEncodeH265ReferenceListsInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.ref_pic_list_modification_flag_l0, NULL, settings, "uint32_t", "ref_pic_list_modification_flag_l0", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.ref_pic_list_modification_flag_l0, settings, "uint32_t: 1", "ref_pic_list_modification_flag_l0", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.ref_pic_list_modification_flag_l1, NULL, settings, "uint32_t", "ref_pic_list_modification_flag_l1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.ref_pic_list_modification_flag_l1, settings, "uint32_t: 1", "ref_pic_list_modification_flag_l1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH265ReferenceListsInfo(const StdVideoEncodeH265ReferenceListsInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265ReferenceListsInfoFlags(const StdVideoEncodeH265ReferenceListsInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265ReferenceListsInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH265ReferenceListsInfo(const StdVideoEncodeH265ReferenceListsInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeH265ReferenceListsInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeH265ReferenceListsInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeH265ReferenceListsInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeH265ReferenceListsInfoFlags(object.flags, settings, "StdVideoEncodeH265ReferenceListsInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_ref_idx_l0_active_minus1, NULL, settings, "uint8_t", "num_ref_idx_l0_active_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_ref_idx_l0_active_minus1, settings, "uint8_t", "num_ref_idx_l0_active_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_ref_idx_l1_active_minus1, NULL, settings, "uint8_t", "num_ref_idx_l1_active_minus1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_ref_idx_l1_active_minus1, settings, "uint8_t", "num_ref_idx_l1_active_minus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.RefPicList0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList0", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.RefPicList0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "RefPicList0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.RefPicList0[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.RefPicList0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.RefPicList1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "RefPicList1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.RefPicList1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "RefPicList1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.RefPicList1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.RefPicList1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.list_entry_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "list_entry_l0", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.list_entry_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "list_entry_l0", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.list_entry_l0[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.list_entry_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.list_entry_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "uint8_t", "list_entry_l1", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.list_entry_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "list_entry_l1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_NUM_LIST_REF; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.list_entry_l1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_NUM_LIST_REF - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.list_entry_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH265PictureInfoFlags(const StdVideoEncodeH265PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265ReferenceListsInfo(const StdVideoEncodeH265ReferenceListsInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265ReferenceListsInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH265PictureInfoFlags(const StdVideoEncodeH265PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.is_reference, NULL, settings, "uint32_t", "is_reference", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.is_reference, settings, "uint32_t: 1", "is_reference", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.IrapPicFlag, NULL, settings, "uint32_t", "IrapPicFlag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.IrapPicFlag, settings, "uint32_t: 1", "IrapPicFlag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.used_for_long_term_reference, NULL, settings, "uint32_t", "used_for_long_term_reference", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.used_for_long_term_reference, settings, "uint32_t: 1", "used_for_long_term_reference", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.discardable_flag, NULL, settings, "uint32_t", "discardable_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.discardable_flag, settings, "uint32_t: 1", "discardable_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.cross_layer_bla_flag, NULL, settings, "uint32_t", "cross_layer_bla_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.cross_layer_bla_flag, settings, "uint32_t: 1", "cross_layer_bla_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.pic_output_flag, NULL, settings, "uint32_t", "pic_output_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.pic_output_flag, settings, "uint32_t: 1", "pic_output_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.no_output_of_prior_pics_flag, NULL, settings, "uint32_t", "no_output_of_prior_pics_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.no_output_of_prior_pics_flag, settings, "uint32_t: 1", "no_output_of_prior_pics_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.short_term_ref_pic_set_sps_flag, NULL, settings, "uint32_t", "short_term_ref_pic_set_sps_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.short_term_ref_pic_set_sps_flag, settings, "uint32_t: 1", "short_term_ref_pic_set_sps_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.slice_temporal_mvp_enabled_flag, NULL, settings, "uint32_t", "slice_temporal_mvp_enabled_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.slice_temporal_mvp_enabled_flag, settings, "uint32_t: 1", "slice_temporal_mvp_enabled_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 23", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeH265PictureInfoFlags(const StdVideoEncodeH265PictureInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265PictureInfoFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeH265LongTermRefPics(const StdVideoEncodeH265LongTermRefPics& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265LongTermRefPics(const StdVideoEncodeH265LongTermRefPics& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint8_t>(object.num_long_term_sps, NULL, settings, "uint8_t", "num_long_term_sps", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint8_t(object.num_long_term_sps, settings, "uint8_t", "num_long_term_sps", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_long_term_pics, NULL, settings, "uint8_t", "num_long_term_pics", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_long_term_pics, settings, "uint8_t", "num_long_term_pics", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.lt_idx_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "uint8_t", "lt_idx_sps", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.lt_idx_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "lt_idx_sps", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.lt_idx_sps[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.lt_idx_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.poc_lsb_lt, STD_VIDEO_H265_MAX_LONG_TERM_PICS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_PICS]", "uint8_t", "poc_lsb_lt", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.poc_lsb_lt, STD_VIDEO_H265_MAX_LONG_TERM_PICS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_PICS]", "poc_lsb_lt", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_LONG_TERM_PICS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.poc_lsb_lt[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_LONG_TERM_PICS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.poc_lsb_lt, STD_VIDEO_H265_MAX_LONG_TERM_PICS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.used_by_curr_pic_lt_flag, NULL, settings, "uint16_t", "used_by_curr_pic_lt_flag", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.used_by_curr_pic_lt_flag, settings, "uint16_t", "used_by_curr_pic_lt_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.delta_poc_msb_present_flag, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "uint8_t", "delta_poc_msb_present_flag", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.delta_poc_msb_present_flag, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "delta_poc_msb_present_flag", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_DELTA_POC; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.delta_poc_msb_present_flag[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_DELTA_POC - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.delta_poc_msb_present_flag, STD_VIDEO_H265_MAX_DELTA_POC, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.delta_poc_msb_cycle_lt, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "uint8_t", "delta_poc_msb_cycle_lt", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.delta_poc_msb_cycle_lt, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "delta_poc_msb_cycle_lt", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_H265_MAX_DELTA_POC; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.delta_poc_msb_cycle_lt[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_H265_MAX_DELTA_POC - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.delta_poc_msb_cycle_lt, STD_VIDEO_H265_MAX_DELTA_POC, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH265PictureInfo(const StdVideoEncodeH265PictureInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265LongTermRefPics(const StdVideoEncodeH265LongTermRefPics* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265LongTermRefPics(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH265PictureInfo(const StdVideoEncodeH265PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeH265PictureInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeH265PictureInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeH265PictureInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeH265PictureInfoFlags(object.flags, settings, "StdVideoEncodeH265PictureInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH265PictureType>(object.pic_type, NULL, settings, "StdVideoH265PictureType", "pic_type", false, false, indents + 1, dump_json_StdVideoH265PictureType);
+    dump_json_StdVideoH265PictureType(object.pic_type, settings, "StdVideoH265PictureType", "pic_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.sps_video_parameter_set_id, NULL, settings, "uint8_t", "sps_video_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.sps_video_parameter_set_id, settings, "uint8_t", "sps_video_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pps_seq_parameter_set_id, NULL, settings, "uint8_t", "pps_seq_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pps_seq_parameter_set_id, settings, "uint8_t", "pps_seq_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.pps_pic_parameter_set_id, NULL, settings, "uint8_t", "pps_pic_parameter_set_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.pps_pic_parameter_set_id, settings, "uint8_t", "pps_pic_parameter_set_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.short_term_ref_pic_set_idx, NULL, settings, "uint8_t", "short_term_ref_pic_set_idx", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.short_term_ref_pic_set_idx, settings, "uint8_t", "short_term_ref_pic_set_idx", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int32_t>(object.PicOrderCntVal, NULL, settings, "int32_t", "PicOrderCntVal", false, false, indents + 1, dump_json_int32_t);
+    dump_json_int32_t(object.PicOrderCntVal, settings, "int32_t", "PicOrderCntVal", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.TemporalId, NULL, settings, "uint8_t", "TemporalId", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.TemporalId, settings, "uint8_t", "TemporalId", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.reserved1, 7, settings, "uint8_t[7]", "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.reserved1, 7, settings, "uint8_t[7]", "reserved1", indents + 2);
+    for (size_t i = 0; i < 7; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.reserved1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < 7 - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.reserved1, 7, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoEncodeH265ReferenceListsInfo>(object.pRefLists, settings, "const StdVideoEncodeH265ReferenceListsInfo*", "pRefLists", true, false, indents + 1, dump_json_StdVideoEncodeH265ReferenceListsInfo);
+    dump_json_StdVideoEncodeH265ReferenceListsInfo(object.pRefLists, settings, "const StdVideoEncodeH265ReferenceListsInfo*", "pRefLists", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoH265ShortTermRefPicSet>(object.pShortTermRefPicSet, settings, "const StdVideoH265ShortTermRefPicSet*", "pShortTermRefPicSet", true, false, indents + 1, dump_json_StdVideoH265ShortTermRefPicSet);
+    dump_json_StdVideoH265ShortTermRefPicSet(object.pShortTermRefPicSet, settings, "const StdVideoH265ShortTermRefPicSet*", "pShortTermRefPicSet", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoEncodeH265LongTermRefPics>(object.pLongTermRefPics, settings, "const StdVideoEncodeH265LongTermRefPics*", "pLongTermRefPics", true, false, indents + 1, dump_json_StdVideoEncodeH265LongTermRefPics);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoEncodeH265LongTermRefPics(object.pLongTermRefPics, settings, "const StdVideoEncodeH265LongTermRefPics*", "pLongTermRefPics", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeH265ReferenceInfoFlags(const StdVideoEncodeH265ReferenceInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265PictureInfo(const StdVideoEncodeH265PictureInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265PictureInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeH265ReferenceInfoFlags(const StdVideoEncodeH265ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.used_for_long_term_reference, NULL, settings, "uint32_t", "used_for_long_term_reference", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.used_for_long_term_reference, settings, "uint32_t: 1", "used_for_long_term_reference", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.unused_for_reference, NULL, settings, "uint32_t", "unused_for_reference", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.unused_for_reference, settings, "uint32_t: 1", "unused_for_reference", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeH265ReferenceInfoFlags(const StdVideoEncodeH265ReferenceInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265ReferenceInfoFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeH265ReferenceInfo(const StdVideoEncodeH265ReferenceInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265ReferenceInfo(const StdVideoEncodeH265ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeH265ReferenceInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeH265ReferenceInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeH265ReferenceInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeH265ReferenceInfoFlags(object.flags, settings, "StdVideoEncodeH265ReferenceInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoH265PictureType>(object.pic_type, NULL, settings, "StdVideoH265PictureType", "pic_type", false, false, indents + 1, dump_json_StdVideoH265PictureType);
+    dump_json_StdVideoH265PictureType(object.pic_type, settings, "StdVideoH265PictureType", "pic_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int32_t>(object.PicOrderCntVal, NULL, settings, "int32_t", "PicOrderCntVal", false, false, indents + 1, dump_json_int32_t);
+    dump_json_int32_t(object.PicOrderCntVal, settings, "int32_t", "PicOrderCntVal", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.TemporalId, NULL, settings, "uint8_t", "TemporalId", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint8_t(object.TemporalId, settings, "uint8_t", "TemporalId", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1ColorConfigFlags(const StdVideoAV1ColorConfigFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeH265ReferenceInfo(const StdVideoEncodeH265ReferenceInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeH265ReferenceInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1ColorConfigFlags(const StdVideoAV1ColorConfigFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.mono_chrome, NULL, settings, "uint32_t", "mono_chrome", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.mono_chrome, settings, "uint32_t: 1", "mono_chrome", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.color_range, NULL, settings, "uint32_t", "color_range", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.color_range, settings, "uint32_t: 1", "color_range", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.separate_uv_delta_q, NULL, settings, "uint32_t", "separate_uv_delta_q", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.separate_uv_delta_q, settings, "uint32_t: 1", "separate_uv_delta_q", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.color_description_present_flag, NULL, settings, "uint32_t", "color_description_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.color_description_present_flag, settings, "uint32_t: 1", "color_description_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 28", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1ColorConfig(const StdVideoAV1ColorConfig& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1ColorConfigFlags(const StdVideoAV1ColorConfigFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1ColorConfigFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1ColorConfig(const StdVideoAV1ColorConfig& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoAV1ColorConfigFlags>(object.flags, NULL, settings, "StdVideoAV1ColorConfigFlags", "flags", true, false, indents + 1, dump_json_StdVideoAV1ColorConfigFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoAV1ColorConfigFlags(object.flags, settings, "StdVideoAV1ColorConfigFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.BitDepth, NULL, settings, "uint8_t", "BitDepth", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.BitDepth, settings, "uint8_t", "BitDepth", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.subsampling_x, NULL, settings, "uint8_t", "subsampling_x", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.subsampling_x, settings, "uint8_t", "subsampling_x", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.subsampling_y, NULL, settings, "uint8_t", "subsampling_y", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.subsampling_y, settings, "uint8_t", "subsampling_y", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1ColorPrimaries>(object.color_primaries, NULL, settings, "StdVideoAV1ColorPrimaries", "color_primaries", false, false, indents + 1, dump_json_StdVideoAV1ColorPrimaries);
+    dump_json_StdVideoAV1ColorPrimaries(object.color_primaries, settings, "StdVideoAV1ColorPrimaries", "color_primaries", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1TransferCharacteristics>(object.transfer_characteristics, NULL, settings, "StdVideoAV1TransferCharacteristics", "transfer_characteristics", false, false, indents + 1, dump_json_StdVideoAV1TransferCharacteristics);
+    dump_json_StdVideoAV1TransferCharacteristics(object.transfer_characteristics, settings, "StdVideoAV1TransferCharacteristics", "transfer_characteristics", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1MatrixCoefficients>(object.matrix_coefficients, NULL, settings, "StdVideoAV1MatrixCoefficients", "matrix_coefficients", false, false, indents + 1, dump_json_StdVideoAV1MatrixCoefficients);
+    dump_json_StdVideoAV1MatrixCoefficients(object.matrix_coefficients, settings, "StdVideoAV1MatrixCoefficients", "matrix_coefficients", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1ChromaSamplePosition>(object.chroma_sample_position, NULL, settings, "StdVideoAV1ChromaSamplePosition", "chroma_sample_position", false, false, indents + 1, dump_json_StdVideoAV1ChromaSamplePosition);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoAV1ChromaSamplePosition(object.chroma_sample_position, settings, "StdVideoAV1ChromaSamplePosition", "chroma_sample_position", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoAV1ColorConfig(const StdVideoAV1ColorConfig* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1ColorConfig(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoAV1TimingInfoFlags(const StdVideoAV1TimingInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1TimingInfoFlags(const StdVideoAV1TimingInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.equal_picture_interval, NULL, settings, "uint32_t", "equal_picture_interval", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.equal_picture_interval, settings, "uint32_t: 1", "equal_picture_interval", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 31", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1TimingInfo(const StdVideoAV1TimingInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1TimingInfoFlags(const StdVideoAV1TimingInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1TimingInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1TimingInfo(const StdVideoAV1TimingInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoAV1TimingInfoFlags>(object.flags, NULL, settings, "StdVideoAV1TimingInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoAV1TimingInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoAV1TimingInfoFlags(object.flags, settings, "StdVideoAV1TimingInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.num_units_in_display_tick, NULL, settings, "uint32_t", "num_units_in_display_tick", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.num_units_in_display_tick, settings, "uint32_t", "num_units_in_display_tick", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.time_scale, NULL, settings, "uint32_t", "time_scale", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.time_scale, settings, "uint32_t", "time_scale", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.num_ticks_per_picture_minus_1, NULL, settings, "uint32_t", "num_ticks_per_picture_minus_1", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.num_ticks_per_picture_minus_1, settings, "uint32_t", "num_ticks_per_picture_minus_1", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1LoopFilterFlags(const StdVideoAV1LoopFilterFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1TimingInfo(const StdVideoAV1TimingInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1TimingInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1LoopFilterFlags(const StdVideoAV1LoopFilterFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.loop_filter_delta_enabled, NULL, settings, "uint32_t", "loop_filter_delta_enabled", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.loop_filter_delta_enabled, settings, "uint32_t: 1", "loop_filter_delta_enabled", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.loop_filter_delta_update, NULL, settings, "uint32_t", "loop_filter_delta_update", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.loop_filter_delta_update, settings, "uint32_t: 1", "loop_filter_delta_update", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoAV1LoopFilterFlags(const StdVideoAV1LoopFilterFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1LoopFilterFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoAV1LoopFilter(const StdVideoAV1LoopFilter& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1LoopFilter(const StdVideoAV1LoopFilter& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoAV1LoopFilterFlags>(object.flags, NULL, settings, "StdVideoAV1LoopFilterFlags", "flags", true, false, indents + 1, dump_json_StdVideoAV1LoopFilterFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoAV1LoopFilterFlags(object.flags, settings, "StdVideoAV1LoopFilterFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.loop_filter_level, STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS]", "uint8_t", "loop_filter_level", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.loop_filter_level, STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS]", "loop_filter_level", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.loop_filter_level[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.loop_filter_level, STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.loop_filter_sharpness, NULL, settings, "uint8_t", "loop_filter_sharpness", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.loop_filter_sharpness, settings, "uint8_t", "loop_filter_sharpness", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.update_ref_delta, NULL, settings, "uint8_t", "update_ref_delta", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.update_ref_delta, settings, "uint8_t", "update_ref_delta", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.loop_filter_ref_deltas, STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME]", "int8_t", "loop_filter_ref_deltas", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.loop_filter_ref_deltas, STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME]", "loop_filter_ref_deltas", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.loop_filter_ref_deltas[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.loop_filter_ref_deltas, STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.update_mode_delta, NULL, settings, "uint8_t", "update_mode_delta", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.update_mode_delta, settings, "uint8_t", "update_mode_delta", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.loop_filter_mode_deltas, STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS]", "int8_t", "loop_filter_mode_deltas", false, false, indents + 1, dump_json_int8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.loop_filter_mode_deltas, STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS]", "loop_filter_mode_deltas", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.loop_filter_mode_deltas[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.loop_filter_mode_deltas, STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1QuantizationFlags(const StdVideoAV1QuantizationFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1LoopFilter(const StdVideoAV1LoopFilter* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1LoopFilter(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1QuantizationFlags(const StdVideoAV1QuantizationFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.using_qmatrix, NULL, settings, "uint32_t", "using_qmatrix", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.using_qmatrix, settings, "uint32_t: 1", "using_qmatrix", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.diff_uv_delta, NULL, settings, "uint32_t", "diff_uv_delta", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.diff_uv_delta, settings, "uint32_t: 1", "diff_uv_delta", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1Quantization(const StdVideoAV1Quantization& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1QuantizationFlags(const StdVideoAV1QuantizationFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1QuantizationFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1Quantization(const StdVideoAV1Quantization& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoAV1QuantizationFlags>(object.flags, NULL, settings, "StdVideoAV1QuantizationFlags", "flags", true, false, indents + 1, dump_json_StdVideoAV1QuantizationFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoAV1QuantizationFlags(object.flags, settings, "StdVideoAV1QuantizationFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.base_q_idx, NULL, settings, "uint8_t", "base_q_idx", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.base_q_idx, settings, "uint8_t", "base_q_idx", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.DeltaQYDc, NULL, settings, "int8_t", "DeltaQYDc", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.DeltaQYDc, settings, "int8_t", "DeltaQYDc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.DeltaQUDc, NULL, settings, "int8_t", "DeltaQUDc", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.DeltaQUDc, settings, "int8_t", "DeltaQUDc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.DeltaQUAc, NULL, settings, "int8_t", "DeltaQUAc", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.DeltaQUAc, settings, "int8_t", "DeltaQUAc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.DeltaQVDc, NULL, settings, "int8_t", "DeltaQVDc", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.DeltaQVDc, settings, "int8_t", "DeltaQVDc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.DeltaQVAc, NULL, settings, "int8_t", "DeltaQVAc", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.DeltaQVAc, settings, "int8_t", "DeltaQVAc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.qm_y, NULL, settings, "uint8_t", "qm_y", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.qm_y, settings, "uint8_t", "qm_y", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.qm_u, NULL, settings, "uint8_t", "qm_u", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.qm_u, settings, "uint8_t", "qm_u", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.qm_v, NULL, settings, "uint8_t", "qm_v", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint8_t(object.qm_v, settings, "uint8_t", "qm_v", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoAV1Quantization(const StdVideoAV1Quantization* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1Quantization(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoAV1Segmentation(const StdVideoAV1Segmentation& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1Segmentation(const StdVideoAV1Segmentation& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_AV1_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_array_start(object.FeatureEnabled, STD_VIDEO_AV1_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "FeatureEnabled", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_SEGMENTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.FeatureEnabled[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_SEGMENTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.FeatureEnabled, STD_VIDEO_AV1_MAX_SEGMENTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int16_t>(object.FeatureData, STD_VIDEO_AV1_MAX_SEGMENTS*STD_VIDEO_AV1_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS][STD_VIDEO_AV1_SEG_LVL_MAX]", "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "FeatureData", false, false, indents + 1, dump_json_int16_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.FeatureData, STD_VIDEO_AV1_MAX_SEGMENTS*STD_VIDEO_AV1_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS][STD_VIDEO_AV1_SEG_LVL_MAX]", "FeatureData", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_SEGMENTS; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_AV1_SEG_LVL_MAX; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int16_t(object.FeatureData[i][j], settings, "int16_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_AV1_SEG_LVL_MAX - 1 && j < STD_VIDEO_AV1_MAX_SEGMENTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.FeatureData, STD_VIDEO_AV1_MAX_SEGMENTS*STD_VIDEO_AV1_SEG_LVL_MAX, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1TileInfoFlags(const StdVideoAV1TileInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1Segmentation(const StdVideoAV1Segmentation* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1Segmentation(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1TileInfoFlags(const StdVideoAV1TileInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.uniform_tile_spacing_flag, NULL, settings, "uint32_t", "uniform_tile_spacing_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.uniform_tile_spacing_flag, settings, "uint32_t: 1", "uniform_tile_spacing_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 31", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1TileInfo(const StdVideoAV1TileInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1TileInfoFlags(const StdVideoAV1TileInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1TileInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1TileInfo(const StdVideoAV1TileInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoAV1TileInfoFlags>(object.flags, NULL, settings, "StdVideoAV1TileInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoAV1TileInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoAV1TileInfoFlags(object.flags, settings, "StdVideoAV1TileInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.TileCols, NULL, settings, "uint8_t", "TileCols", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.TileCols, settings, "uint8_t", "TileCols", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.TileRows, NULL, settings, "uint8_t", "TileRows", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.TileRows, settings, "uint8_t", "TileRows", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.context_update_tile_id, NULL, settings, "uint16_t", "context_update_tile_id", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.context_update_tile_id, settings, "uint16_t", "context_update_tile_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.tile_size_bytes_minus_1, NULL, settings, "uint8_t", "tile_size_bytes_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.tile_size_bytes_minus_1, settings, "uint8_t", "tile_size_bytes_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.reserved1, 7, settings, "uint8_t[7]", "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.reserved1, 7, settings, "uint8_t[7]", "reserved1", indents + 2);
+    for (size_t i = 0; i < 7; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.reserved1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < 7 - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.reserved1, 7, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const uint16_t>(object.pMiColStarts, settings, "const uint16_t*", "pMiColStarts", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.pMiColStarts, settings, "const uint16_t*", "pMiColStarts", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const uint16_t>(object.pMiRowStarts, settings, "const uint16_t*", "pMiRowStarts", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.pMiRowStarts, settings, "const uint16_t*", "pMiRowStarts", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const uint16_t>(object.pWidthInSbsMinus1, settings, "const uint16_t*", "pWidthInSbsMinus1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.pWidthInSbsMinus1, settings, "const uint16_t*", "pWidthInSbsMinus1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const uint16_t>(object.pHeightInSbsMinus1, settings, "const uint16_t*", "pHeightInSbsMinus1", false, false, indents + 1, dump_json_uint16_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint16_t(object.pHeightInSbsMinus1, settings, "const uint16_t*", "pHeightInSbsMinus1", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoAV1TileInfo(const StdVideoAV1TileInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1TileInfo(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoAV1CDEF(const StdVideoAV1CDEF& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1CDEF(const StdVideoAV1CDEF& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint8_t>(object.cdef_damping_minus_3, NULL, settings, "uint8_t", "cdef_damping_minus_3", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint8_t(object.cdef_damping_minus_3, settings, "uint8_t", "cdef_damping_minus_3", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.cdef_bits, NULL, settings, "uint8_t", "cdef_bits", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.cdef_bits, settings, "uint8_t", "cdef_bits", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.cdef_y_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_y_pri_strength", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.cdef_y_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_y_pri_strength", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.cdef_y_pri_strength[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cdef_y_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.cdef_y_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_y_sec_strength", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.cdef_y_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_y_sec_strength", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.cdef_y_sec_strength[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cdef_y_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.cdef_uv_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_uv_pri_strength", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.cdef_uv_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_uv_pri_strength", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.cdef_uv_pri_strength[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cdef_uv_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.cdef_uv_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "uint8_t", "cdef_uv_sec_strength", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.cdef_uv_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_uv_sec_strength", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.cdef_uv_sec_strength[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.cdef_uv_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1LoopRestoration(const StdVideoAV1LoopRestoration& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1CDEF(const StdVideoAV1CDEF* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1CDEF(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1LoopRestoration(const StdVideoAV1LoopRestoration& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_array<const StdVideoAV1FrameRestorationType>(object.FrameRestorationType, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "StdVideoAV1FrameRestorationType[STD_VIDEO_AV1_MAX_NUM_PLANES]", "StdVideoAV1FrameRestorationType", "FrameRestorationType", false, false, indents + 1, dump_json_StdVideoAV1FrameRestorationType);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_array_start(object.FrameRestorationType, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "StdVideoAV1FrameRestorationType[STD_VIDEO_AV1_MAX_NUM_PLANES]", "FrameRestorationType", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_PLANES; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_StdVideoAV1FrameRestorationType(object.FrameRestorationType[i], settings, "StdVideoAV1FrameRestorationType", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_PLANES - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.FrameRestorationType, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint16_t>(object.LoopRestorationSize, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "uint16_t[STD_VIDEO_AV1_MAX_NUM_PLANES]", "uint16_t", "LoopRestorationSize", false, false, indents + 1, dump_json_uint16_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.LoopRestorationSize, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "uint16_t[STD_VIDEO_AV1_MAX_NUM_PLANES]", "LoopRestorationSize", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_PLANES; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint16_t(object.LoopRestorationSize[i], settings, "uint16_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_PLANES - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.LoopRestorationSize, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1GlobalMotion(const StdVideoAV1GlobalMotion& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1LoopRestoration(const StdVideoAV1LoopRestoration* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1LoopRestoration(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1GlobalMotion(const StdVideoAV1GlobalMotion& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_array<const uint8_t>(object.GmType, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "GmType", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_array_start(object.GmType, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "GmType", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_NUM_REF_FRAMES; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.GmType[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_NUM_REF_FRAMES - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.GmType, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int32_t>(object.gm_params, STD_VIDEO_AV1_NUM_REF_FRAMES*STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS, settings, "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES][STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS]", "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "gm_params", false, false, indents + 1, dump_json_int32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.gm_params, STD_VIDEO_AV1_NUM_REF_FRAMES*STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS, settings, "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES][STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS]", "gm_params", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_NUM_REF_FRAMES; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int32_t(object.gm_params[i][j], settings, "int32_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS - 1 && j < STD_VIDEO_AV1_NUM_REF_FRAMES - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.gm_params, STD_VIDEO_AV1_NUM_REF_FRAMES*STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoAV1GlobalMotion(const StdVideoAV1GlobalMotion* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1GlobalMotion(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoAV1FilmGrainFlags(const StdVideoAV1FilmGrainFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1FilmGrainFlags(const StdVideoAV1FilmGrainFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.chroma_scaling_from_luma, NULL, settings, "uint32_t", "chroma_scaling_from_luma", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.chroma_scaling_from_luma, settings, "uint32_t: 1", "chroma_scaling_from_luma", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.overlap_flag, NULL, settings, "uint32_t", "overlap_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.overlap_flag, settings, "uint32_t: 1", "overlap_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.clip_to_restricted_range, NULL, settings, "uint32_t", "clip_to_restricted_range", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.clip_to_restricted_range, settings, "uint32_t: 1", "clip_to_restricted_range", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.update_grain, NULL, settings, "uint32_t", "update_grain", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.update_grain, settings, "uint32_t: 1", "update_grain", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 28", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1FilmGrain(const StdVideoAV1FilmGrain& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1FilmGrainFlags(const StdVideoAV1FilmGrainFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1FilmGrainFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1FilmGrain(const StdVideoAV1FilmGrain& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoAV1FilmGrainFlags>(object.flags, NULL, settings, "StdVideoAV1FilmGrainFlags", "flags", true, false, indents + 1, dump_json_StdVideoAV1FilmGrainFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoAV1FilmGrainFlags(object.flags, settings, "StdVideoAV1FilmGrainFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.grain_scaling_minus_8, NULL, settings, "uint8_t", "grain_scaling_minus_8", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.grain_scaling_minus_8, settings, "uint8_t", "grain_scaling_minus_8", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.ar_coeff_lag, NULL, settings, "uint8_t", "ar_coeff_lag", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.ar_coeff_lag, settings, "uint8_t", "ar_coeff_lag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.ar_coeff_shift_minus_6, NULL, settings, "uint8_t", "ar_coeff_shift_minus_6", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.ar_coeff_shift_minus_6, settings, "uint8_t", "ar_coeff_shift_minus_6", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.grain_scale_shift, NULL, settings, "uint8_t", "grain_scale_shift", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.grain_scale_shift, settings, "uint8_t", "grain_scale_shift", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.grain_seed, NULL, settings, "uint16_t", "grain_seed", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.grain_seed, settings, "uint16_t", "grain_seed", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.film_grain_params_ref_idx, NULL, settings, "uint8_t", "film_grain_params_ref_idx", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.film_grain_params_ref_idx, settings, "uint8_t", "film_grain_params_ref_idx", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_y_points, NULL, settings, "uint8_t", "num_y_points", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_y_points, settings, "uint8_t", "num_y_points", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.point_y_value, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "uint8_t", "point_y_value", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.point_y_value, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "point_y_value", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_Y_POINTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.point_y_value[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_Y_POINTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.point_y_value, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.point_y_scaling, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "uint8_t", "point_y_scaling", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.point_y_scaling, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "point_y_scaling", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_Y_POINTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.point_y_scaling[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_Y_POINTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.point_y_scaling, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_cb_points, NULL, settings, "uint8_t", "num_cb_points", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_cb_points, settings, "uint8_t", "num_cb_points", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.point_cb_value, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "uint8_t", "point_cb_value", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.point_cb_value, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "point_cb_value", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_CB_POINTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.point_cb_value[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_CB_POINTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.point_cb_value, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.point_cb_scaling, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "uint8_t", "point_cb_scaling", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.point_cb_scaling, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "point_cb_scaling", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_CB_POINTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.point_cb_scaling[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_CB_POINTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.point_cb_scaling, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.num_cr_points, NULL, settings, "uint8_t", "num_cr_points", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.num_cr_points, settings, "uint8_t", "num_cr_points", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.point_cr_value, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "uint8_t", "point_cr_value", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.point_cr_value, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "point_cr_value", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_CR_POINTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.point_cr_value[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_CR_POINTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.point_cr_value, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.point_cr_scaling, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "uint8_t", "point_cr_scaling", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.point_cr_scaling, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "point_cr_scaling", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_CR_POINTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.point_cr_scaling[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_CR_POINTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.point_cr_scaling, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.ar_coeffs_y_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_LUMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_LUMA]", "int8_t", "ar_coeffs_y_plus_128", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.ar_coeffs_y_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_LUMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_LUMA]", "ar_coeffs_y_plus_128", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_POS_LUMA; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.ar_coeffs_y_plus_128[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_POS_LUMA - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.ar_coeffs_y_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_LUMA, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.ar_coeffs_cb_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "int8_t", "ar_coeffs_cb_plus_128", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.ar_coeffs_cb_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "ar_coeffs_cb_plus_128", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_POS_CHROMA; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.ar_coeffs_cb_plus_128[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_POS_CHROMA - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.ar_coeffs_cb_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.ar_coeffs_cr_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "int8_t", "ar_coeffs_cr_plus_128", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.ar_coeffs_cr_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "ar_coeffs_cr_plus_128", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_POS_CHROMA; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.ar_coeffs_cr_plus_128[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_MAX_NUM_POS_CHROMA - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.ar_coeffs_cr_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.cb_mult, NULL, settings, "uint8_t", "cb_mult", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.cb_mult, settings, "uint8_t", "cb_mult", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.cb_luma_mult, NULL, settings, "uint8_t", "cb_luma_mult", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.cb_luma_mult, settings, "uint8_t", "cb_luma_mult", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.cb_offset, NULL, settings, "uint16_t", "cb_offset", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.cb_offset, settings, "uint16_t", "cb_offset", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.cr_mult, NULL, settings, "uint8_t", "cr_mult", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.cr_mult, settings, "uint8_t", "cr_mult", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.cr_luma_mult, NULL, settings, "uint8_t", "cr_luma_mult", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.cr_luma_mult, settings, "uint8_t", "cr_luma_mult", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.cr_offset, NULL, settings, "uint16_t", "cr_offset", false, false, indents + 1, dump_json_uint16_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint16_t(object.cr_offset, settings, "uint16_t", "cr_offset", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoAV1SequenceHeaderFlags(const StdVideoAV1SequenceHeaderFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1FilmGrain(const StdVideoAV1FilmGrain* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1FilmGrain(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoAV1SequenceHeaderFlags(const StdVideoAV1SequenceHeaderFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.still_picture, NULL, settings, "uint32_t", "still_picture", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.still_picture, settings, "uint32_t: 1", "still_picture", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reduced_still_picture_header, NULL, settings, "uint32_t", "reduced_still_picture_header", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.reduced_still_picture_header, settings, "uint32_t: 1", "reduced_still_picture_header", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.use_128x128_superblock, NULL, settings, "uint32_t", "use_128x128_superblock", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.use_128x128_superblock, settings, "uint32_t: 1", "use_128x128_superblock", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_filter_intra, NULL, settings, "uint32_t", "enable_filter_intra", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_filter_intra, settings, "uint32_t: 1", "enable_filter_intra", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_intra_edge_filter, NULL, settings, "uint32_t", "enable_intra_edge_filter", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_intra_edge_filter, settings, "uint32_t: 1", "enable_intra_edge_filter", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_interintra_compound, NULL, settings, "uint32_t", "enable_interintra_compound", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_interintra_compound, settings, "uint32_t: 1", "enable_interintra_compound", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_masked_compound, NULL, settings, "uint32_t", "enable_masked_compound", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_masked_compound, settings, "uint32_t: 1", "enable_masked_compound", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_warped_motion, NULL, settings, "uint32_t", "enable_warped_motion", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_warped_motion, settings, "uint32_t: 1", "enable_warped_motion", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_dual_filter, NULL, settings, "uint32_t", "enable_dual_filter", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_dual_filter, settings, "uint32_t: 1", "enable_dual_filter", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_order_hint, NULL, settings, "uint32_t", "enable_order_hint", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_order_hint, settings, "uint32_t: 1", "enable_order_hint", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_jnt_comp, NULL, settings, "uint32_t", "enable_jnt_comp", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_jnt_comp, settings, "uint32_t: 1", "enable_jnt_comp", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_ref_frame_mvs, NULL, settings, "uint32_t", "enable_ref_frame_mvs", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_ref_frame_mvs, settings, "uint32_t: 1", "enable_ref_frame_mvs", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_id_numbers_present_flag, NULL, settings, "uint32_t", "frame_id_numbers_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_id_numbers_present_flag, settings, "uint32_t: 1", "frame_id_numbers_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_superres, NULL, settings, "uint32_t", "enable_superres", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_superres, settings, "uint32_t: 1", "enable_superres", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_cdef, NULL, settings, "uint32_t", "enable_cdef", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_cdef, settings, "uint32_t: 1", "enable_cdef", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.enable_restoration, NULL, settings, "uint32_t", "enable_restoration", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.enable_restoration, settings, "uint32_t: 1", "enable_restoration", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.film_grain_params_present, NULL, settings, "uint32_t", "film_grain_params_present", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.film_grain_params_present, settings, "uint32_t: 1", "film_grain_params_present", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.timing_info_present_flag, NULL, settings, "uint32_t", "timing_info_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.timing_info_present_flag, settings, "uint32_t: 1", "timing_info_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.initial_display_delay_present_flag, NULL, settings, "uint32_t", "initial_display_delay_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.initial_display_delay_present_flag, settings, "uint32_t: 1", "initial_display_delay_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 13", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoAV1SequenceHeaderFlags(const StdVideoAV1SequenceHeaderFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1SequenceHeaderFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoAV1SequenceHeader(const StdVideoAV1SequenceHeader& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1SequenceHeader(const StdVideoAV1SequenceHeader& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoAV1SequenceHeaderFlags>(object.flags, NULL, settings, "StdVideoAV1SequenceHeaderFlags", "flags", true, false, indents + 1, dump_json_StdVideoAV1SequenceHeaderFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoAV1SequenceHeaderFlags(object.flags, settings, "StdVideoAV1SequenceHeaderFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1Profile>(object.seq_profile, NULL, settings, "StdVideoAV1Profile", "seq_profile", false, false, indents + 1, dump_json_StdVideoAV1Profile);
+    dump_json_StdVideoAV1Profile(object.seq_profile, settings, "StdVideoAV1Profile", "seq_profile", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.frame_width_bits_minus_1, NULL, settings, "uint8_t", "frame_width_bits_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.frame_width_bits_minus_1, settings, "uint8_t", "frame_width_bits_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.frame_height_bits_minus_1, NULL, settings, "uint8_t", "frame_height_bits_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.frame_height_bits_minus_1, settings, "uint8_t", "frame_height_bits_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.max_frame_width_minus_1, NULL, settings, "uint16_t", "max_frame_width_minus_1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.max_frame_width_minus_1, settings, "uint16_t", "max_frame_width_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.max_frame_height_minus_1, NULL, settings, "uint16_t", "max_frame_height_minus_1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.max_frame_height_minus_1, settings, "uint16_t", "max_frame_height_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.delta_frame_id_length_minus_2, NULL, settings, "uint8_t", "delta_frame_id_length_minus_2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.delta_frame_id_length_minus_2, settings, "uint8_t", "delta_frame_id_length_minus_2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.additional_frame_id_length_minus_1, NULL, settings, "uint8_t", "additional_frame_id_length_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.additional_frame_id_length_minus_1, settings, "uint8_t", "additional_frame_id_length_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.order_hint_bits_minus_1, NULL, settings, "uint8_t", "order_hint_bits_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.order_hint_bits_minus_1, settings, "uint8_t", "order_hint_bits_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.seq_force_integer_mv, NULL, settings, "uint8_t", "seq_force_integer_mv", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.seq_force_integer_mv, settings, "uint8_t", "seq_force_integer_mv", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.seq_force_screen_content_tools, NULL, settings, "uint8_t", "seq_force_screen_content_tools", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.seq_force_screen_content_tools, settings, "uint8_t", "seq_force_screen_content_tools", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.reserved1, 5, settings, "uint8_t[5]", "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.reserved1, 5, settings, "uint8_t[5]", "reserved1", indents + 2);
+    for (size_t i = 0; i < 5; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.reserved1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < 5 - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.reserved1, 5, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1ColorConfig>(object.pColorConfig, settings, "const StdVideoAV1ColorConfig*", "pColorConfig", true, false, indents + 1, dump_json_StdVideoAV1ColorConfig);
+    dump_json_StdVideoAV1ColorConfig(object.pColorConfig, settings, "const StdVideoAV1ColorConfig*", "pColorConfig", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1TimingInfo>(object.pTimingInfo, settings, "const StdVideoAV1TimingInfo*", "pTimingInfo", true, false, indents + 1, dump_json_StdVideoAV1TimingInfo);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoAV1TimingInfo(object.pTimingInfo, settings, "const StdVideoAV1TimingInfo*", "pTimingInfo", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeAV1PictureInfoFlags(const StdVideoDecodeAV1PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoAV1SequenceHeader(const StdVideoAV1SequenceHeader* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoAV1SequenceHeader(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeAV1PictureInfoFlags(const StdVideoDecodeAV1PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.error_resilient_mode, NULL, settings, "uint32_t", "error_resilient_mode", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.error_resilient_mode, settings, "uint32_t: 1", "error_resilient_mode", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.disable_cdf_update, NULL, settings, "uint32_t", "disable_cdf_update", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.disable_cdf_update, settings, "uint32_t: 1", "disable_cdf_update", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.use_superres, NULL, settings, "uint32_t", "use_superres", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.use_superres, settings, "uint32_t: 1", "use_superres", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.render_and_frame_size_different, NULL, settings, "uint32_t", "render_and_frame_size_different", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.render_and_frame_size_different, settings, "uint32_t: 1", "render_and_frame_size_different", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.allow_screen_content_tools, NULL, settings, "uint32_t", "allow_screen_content_tools", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.allow_screen_content_tools, settings, "uint32_t: 1", "allow_screen_content_tools", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.is_filter_switchable, NULL, settings, "uint32_t", "is_filter_switchable", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.is_filter_switchable, settings, "uint32_t: 1", "is_filter_switchable", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.force_integer_mv, NULL, settings, "uint32_t", "force_integer_mv", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.force_integer_mv, settings, "uint32_t: 1", "force_integer_mv", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_size_override_flag, NULL, settings, "uint32_t", "frame_size_override_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_size_override_flag, settings, "uint32_t: 1", "frame_size_override_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.buffer_removal_time_present_flag, NULL, settings, "uint32_t", "buffer_removal_time_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.buffer_removal_time_present_flag, settings, "uint32_t: 1", "buffer_removal_time_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.allow_intrabc, NULL, settings, "uint32_t", "allow_intrabc", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.allow_intrabc, settings, "uint32_t: 1", "allow_intrabc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_refs_short_signaling, NULL, settings, "uint32_t", "frame_refs_short_signaling", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_refs_short_signaling, settings, "uint32_t: 1", "frame_refs_short_signaling", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.allow_high_precision_mv, NULL, settings, "uint32_t", "allow_high_precision_mv", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.allow_high_precision_mv, settings, "uint32_t: 1", "allow_high_precision_mv", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.is_motion_mode_switchable, NULL, settings, "uint32_t", "is_motion_mode_switchable", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.is_motion_mode_switchable, settings, "uint32_t: 1", "is_motion_mode_switchable", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.use_ref_frame_mvs, NULL, settings, "uint32_t", "use_ref_frame_mvs", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.use_ref_frame_mvs, settings, "uint32_t: 1", "use_ref_frame_mvs", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.disable_frame_end_update_cdf, NULL, settings, "uint32_t", "disable_frame_end_update_cdf", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.disable_frame_end_update_cdf, settings, "uint32_t: 1", "disable_frame_end_update_cdf", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.allow_warped_motion, NULL, settings, "uint32_t", "allow_warped_motion", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.allow_warped_motion, settings, "uint32_t: 1", "allow_warped_motion", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reduced_tx_set, NULL, settings, "uint32_t", "reduced_tx_set", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.reduced_tx_set, settings, "uint32_t: 1", "reduced_tx_set", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reference_select, NULL, settings, "uint32_t", "reference_select", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.reference_select, settings, "uint32_t: 1", "reference_select", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.skip_mode_present, NULL, settings, "uint32_t", "skip_mode_present", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.skip_mode_present, settings, "uint32_t: 1", "skip_mode_present", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.delta_q_present, NULL, settings, "uint32_t", "delta_q_present", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.delta_q_present, settings, "uint32_t: 1", "delta_q_present", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.delta_lf_present, NULL, settings, "uint32_t", "delta_lf_present", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.delta_lf_present, settings, "uint32_t: 1", "delta_lf_present", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.delta_lf_multi, NULL, settings, "uint32_t", "delta_lf_multi", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.delta_lf_multi, settings, "uint32_t: 1", "delta_lf_multi", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_enabled, NULL, settings, "uint32_t", "segmentation_enabled", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_enabled, settings, "uint32_t: 1", "segmentation_enabled", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_update_map, NULL, settings, "uint32_t", "segmentation_update_map", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_update_map, settings, "uint32_t: 1", "segmentation_update_map", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_temporal_update, NULL, settings, "uint32_t", "segmentation_temporal_update", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_temporal_update, settings, "uint32_t: 1", "segmentation_temporal_update", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_update_data, NULL, settings, "uint32_t", "segmentation_update_data", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_update_data, settings, "uint32_t: 1", "segmentation_update_data", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.UsesLr, NULL, settings, "uint32_t", "UsesLr", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.UsesLr, settings, "uint32_t: 1", "UsesLr", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.usesChromaLr, NULL, settings, "uint32_t", "usesChromaLr", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.usesChromaLr, settings, "uint32_t: 1", "usesChromaLr", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.apply_grain, NULL, settings, "uint32_t", "apply_grain", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.apply_grain, settings, "uint32_t: 1", "apply_grain", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 3", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeAV1PictureInfo(const StdVideoDecodeAV1PictureInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeAV1PictureInfoFlags(const StdVideoDecodeAV1PictureInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeAV1PictureInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeAV1PictureInfo(const StdVideoDecodeAV1PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoDecodeAV1PictureInfoFlags>(object.flags, NULL, settings, "StdVideoDecodeAV1PictureInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoDecodeAV1PictureInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoDecodeAV1PictureInfoFlags(object.flags, settings, "StdVideoDecodeAV1PictureInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1FrameType>(object.frame_type, NULL, settings, "StdVideoAV1FrameType", "frame_type", false, false, indents + 1, dump_json_StdVideoAV1FrameType);
+    dump_json_StdVideoAV1FrameType(object.frame_type, settings, "StdVideoAV1FrameType", "frame_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.current_frame_id, NULL, settings, "uint32_t", "current_frame_id", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.current_frame_id, settings, "uint32_t", "current_frame_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.OrderHint, NULL, settings, "uint8_t", "OrderHint", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.OrderHint, settings, "uint8_t", "OrderHint", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.primary_ref_frame, NULL, settings, "uint8_t", "primary_ref_frame", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.primary_ref_frame, settings, "uint8_t", "primary_ref_frame", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.refresh_frame_flags, NULL, settings, "uint8_t", "refresh_frame_flags", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.refresh_frame_flags, settings, "uint8_t", "refresh_frame_flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1InterpolationFilter>(object.interpolation_filter, NULL, settings, "StdVideoAV1InterpolationFilter", "interpolation_filter", false, false, indents + 1, dump_json_StdVideoAV1InterpolationFilter);
+    dump_json_StdVideoAV1InterpolationFilter(object.interpolation_filter, settings, "StdVideoAV1InterpolationFilter", "interpolation_filter", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1TxMode>(object.TxMode, NULL, settings, "StdVideoAV1TxMode", "TxMode", false, false, indents + 1, dump_json_StdVideoAV1TxMode);
+    dump_json_StdVideoAV1TxMode(object.TxMode, settings, "StdVideoAV1TxMode", "TxMode", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.delta_q_res, NULL, settings, "uint8_t", "delta_q_res", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.delta_q_res, settings, "uint8_t", "delta_q_res", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.delta_lf_res, NULL, settings, "uint8_t", "delta_lf_res", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.delta_lf_res, settings, "uint8_t", "delta_lf_res", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.SkipModeFrame, STD_VIDEO_AV1_SKIP_MODE_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_SKIP_MODE_FRAMES]", "uint8_t", "SkipModeFrame", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.SkipModeFrame, STD_VIDEO_AV1_SKIP_MODE_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_SKIP_MODE_FRAMES]", "SkipModeFrame", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_SKIP_MODE_FRAMES; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.SkipModeFrame[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_SKIP_MODE_FRAMES - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.SkipModeFrame, STD_VIDEO_AV1_SKIP_MODE_FRAMES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.coded_denom, NULL, settings, "uint8_t", "coded_denom", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.coded_denom, settings, "uint8_t", "coded_denom", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.reserved2, 3, settings, "uint8_t[3]", "uint8_t", "reserved2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.reserved2, 3, settings, "uint8_t[3]", "reserved2", indents + 2);
+    for (size_t i = 0; i < 3; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.reserved2[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < 3 - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.reserved2, 3, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.OrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "OrderHints", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.OrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "OrderHints", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_NUM_REF_FRAMES; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.OrderHints[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_NUM_REF_FRAMES - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.OrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.expectedFrameId, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint32_t", "expectedFrameId", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_array_start(object.expectedFrameId, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "expectedFrameId", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_NUM_REF_FRAMES; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint32_t(object.expectedFrameId[i], settings, "uint32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_NUM_REF_FRAMES - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.expectedFrameId, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1TileInfo>(object.pTileInfo, settings, "const StdVideoAV1TileInfo*", "pTileInfo", true, false, indents + 1, dump_json_StdVideoAV1TileInfo);
+    dump_json_StdVideoAV1TileInfo(object.pTileInfo, settings, "const StdVideoAV1TileInfo*", "pTileInfo", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1Quantization>(object.pQuantization, settings, "const StdVideoAV1Quantization*", "pQuantization", true, false, indents + 1, dump_json_StdVideoAV1Quantization);
+    dump_json_StdVideoAV1Quantization(object.pQuantization, settings, "const StdVideoAV1Quantization*", "pQuantization", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1Segmentation>(object.pSegmentation, settings, "const StdVideoAV1Segmentation*", "pSegmentation", true, false, indents + 1, dump_json_StdVideoAV1Segmentation);
+    dump_json_StdVideoAV1Segmentation(object.pSegmentation, settings, "const StdVideoAV1Segmentation*", "pSegmentation", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1LoopFilter>(object.pLoopFilter, settings, "const StdVideoAV1LoopFilter*", "pLoopFilter", true, false, indents + 1, dump_json_StdVideoAV1LoopFilter);
+    dump_json_StdVideoAV1LoopFilter(object.pLoopFilter, settings, "const StdVideoAV1LoopFilter*", "pLoopFilter", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1CDEF>(object.pCDEF, settings, "const StdVideoAV1CDEF*", "pCDEF", true, false, indents + 1, dump_json_StdVideoAV1CDEF);
+    dump_json_StdVideoAV1CDEF(object.pCDEF, settings, "const StdVideoAV1CDEF*", "pCDEF", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1LoopRestoration>(object.pLoopRestoration, settings, "const StdVideoAV1LoopRestoration*", "pLoopRestoration", true, false, indents + 1, dump_json_StdVideoAV1LoopRestoration);
+    dump_json_StdVideoAV1LoopRestoration(object.pLoopRestoration, settings, "const StdVideoAV1LoopRestoration*", "pLoopRestoration", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1GlobalMotion>(object.pGlobalMotion, settings, "const StdVideoAV1GlobalMotion*", "pGlobalMotion", true, false, indents + 1, dump_json_StdVideoAV1GlobalMotion);
+    dump_json_StdVideoAV1GlobalMotion(object.pGlobalMotion, settings, "const StdVideoAV1GlobalMotion*", "pGlobalMotion", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1FilmGrain>(object.pFilmGrain, settings, "const StdVideoAV1FilmGrain*", "pFilmGrain", true, false, indents + 1, dump_json_StdVideoAV1FilmGrain);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoAV1FilmGrain(object.pFilmGrain, settings, "const StdVideoAV1FilmGrain*", "pFilmGrain", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoDecodeAV1PictureInfo(const StdVideoDecodeAV1PictureInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeAV1PictureInfo(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoDecodeAV1ReferenceInfoFlags(const StdVideoDecodeAV1ReferenceInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeAV1ReferenceInfoFlags(const StdVideoDecodeAV1ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.disable_frame_end_update_cdf, NULL, settings, "uint32_t", "disable_frame_end_update_cdf", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.disable_frame_end_update_cdf, settings, "uint32_t: 1", "disable_frame_end_update_cdf", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_enabled, NULL, settings, "uint32_t", "segmentation_enabled", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_enabled, settings, "uint32_t: 1", "segmentation_enabled", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeAV1ReferenceInfo(const StdVideoDecodeAV1ReferenceInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeAV1ReferenceInfoFlags(const StdVideoDecodeAV1ReferenceInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeAV1ReferenceInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeAV1ReferenceInfo(const StdVideoDecodeAV1ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoDecodeAV1ReferenceInfoFlags>(object.flags, NULL, settings, "StdVideoDecodeAV1ReferenceInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoDecodeAV1ReferenceInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoDecodeAV1ReferenceInfoFlags(object.flags, settings, "StdVideoDecodeAV1ReferenceInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.frame_type, NULL, settings, "uint8_t", "frame_type", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.frame_type, settings, "uint8_t", "frame_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.RefFrameSignBias, NULL, settings, "uint8_t", "RefFrameSignBias", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.RefFrameSignBias, settings, "uint8_t", "RefFrameSignBias", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.OrderHint, NULL, settings, "uint8_t", "OrderHint", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.OrderHint, settings, "uint8_t", "OrderHint", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.SavedOrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "SavedOrderHints", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.SavedOrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "SavedOrderHints", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_NUM_REF_FRAMES; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.SavedOrderHints[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_NUM_REF_FRAMES - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.SavedOrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeAV1DecoderModelInfo(const StdVideoEncodeAV1DecoderModelInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeAV1ReferenceInfo(const StdVideoDecodeAV1ReferenceInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeAV1ReferenceInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeAV1DecoderModelInfo(const StdVideoEncodeAV1DecoderModelInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint8_t>(object.buffer_delay_length_minus_1, NULL, settings, "uint8_t", "buffer_delay_length_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint8_t(object.buffer_delay_length_minus_1, settings, "uint8_t", "buffer_delay_length_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.buffer_removal_time_length_minus_1, NULL, settings, "uint8_t", "buffer_removal_time_length_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.buffer_removal_time_length_minus_1, settings, "uint8_t", "buffer_removal_time_length_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.frame_presentation_time_length_minus_1, NULL, settings, "uint8_t", "frame_presentation_time_length_minus_1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.frame_presentation_time_length_minus_1, settings, "uint8_t", "frame_presentation_time_length_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.num_units_in_decoding_tick, NULL, settings, "uint32_t", "num_units_in_decoding_tick", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.num_units_in_decoding_tick, settings, "uint32_t", "num_units_in_decoding_tick", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeAV1DecoderModelInfo(const StdVideoEncodeAV1DecoderModelInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeAV1DecoderModelInfo(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeAV1ExtensionHeader(const StdVideoEncodeAV1ExtensionHeader& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeAV1ExtensionHeader(const StdVideoEncodeAV1ExtensionHeader& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint8_t>(object.temporal_id, NULL, settings, "uint8_t", "temporal_id", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint8_t(object.temporal_id, settings, "uint8_t", "temporal_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.spatial_id, NULL, settings, "uint8_t", "spatial_id", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint8_t(object.spatial_id, settings, "uint8_t", "spatial_id", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeAV1OperatingPointInfoFlags(const StdVideoEncodeAV1OperatingPointInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeAV1ExtensionHeader(const StdVideoEncodeAV1ExtensionHeader* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeAV1ExtensionHeader(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeAV1OperatingPointInfoFlags(const StdVideoEncodeAV1OperatingPointInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.decoder_model_present_for_this_op, NULL, settings, "uint32_t", "decoder_model_present_for_this_op", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.decoder_model_present_for_this_op, settings, "uint32_t: 1", "decoder_model_present_for_this_op", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.low_delay_mode_flag, NULL, settings, "uint32_t", "low_delay_mode_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.low_delay_mode_flag, settings, "uint32_t: 1", "low_delay_mode_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.initial_display_delay_present_for_this_op, NULL, settings, "uint32_t", "initial_display_delay_present_for_this_op", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.initial_display_delay_present_for_this_op, settings, "uint32_t: 1", "initial_display_delay_present_for_this_op", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 29", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeAV1OperatingPointInfo(const StdVideoEncodeAV1OperatingPointInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeAV1OperatingPointInfoFlags(const StdVideoEncodeAV1OperatingPointInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeAV1OperatingPointInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeAV1OperatingPointInfo(const StdVideoEncodeAV1OperatingPointInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeAV1OperatingPointInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeAV1OperatingPointInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeAV1OperatingPointInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeAV1OperatingPointInfoFlags(object.flags, settings, "StdVideoEncodeAV1OperatingPointInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.operating_point_idc, NULL, settings, "uint16_t", "operating_point_idc", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.operating_point_idc, settings, "uint16_t", "operating_point_idc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.seq_level_idx, NULL, settings, "uint8_t", "seq_level_idx", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.seq_level_idx, settings, "uint8_t", "seq_level_idx", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.seq_tier, NULL, settings, "uint8_t", "seq_tier", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.seq_tier, settings, "uint8_t", "seq_tier", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.decoder_buffer_delay, NULL, settings, "uint32_t", "decoder_buffer_delay", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.decoder_buffer_delay, settings, "uint32_t", "decoder_buffer_delay", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.encoder_buffer_delay, NULL, settings, "uint32_t", "encoder_buffer_delay", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.encoder_buffer_delay, settings, "uint32_t", "encoder_buffer_delay", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.initial_display_delay_minus_1, NULL, settings, "uint8_t", "initial_display_delay_minus_1", false, false, indents + 1, dump_json_uint8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint8_t(object.initial_display_delay_minus_1, settings, "uint8_t", "initial_display_delay_minus_1", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeAV1OperatingPointInfo(const StdVideoEncodeAV1OperatingPointInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeAV1OperatingPointInfo(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeAV1PictureInfoFlags(const StdVideoEncodeAV1PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeAV1PictureInfoFlags(const StdVideoEncodeAV1PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.error_resilient_mode, NULL, settings, "uint32_t", "error_resilient_mode", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.error_resilient_mode, settings, "uint32_t: 1", "error_resilient_mode", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.disable_cdf_update, NULL, settings, "uint32_t", "disable_cdf_update", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.disable_cdf_update, settings, "uint32_t: 1", "disable_cdf_update", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.use_superres, NULL, settings, "uint32_t", "use_superres", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.use_superres, settings, "uint32_t: 1", "use_superres", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.render_and_frame_size_different, NULL, settings, "uint32_t", "render_and_frame_size_different", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.render_and_frame_size_different, settings, "uint32_t: 1", "render_and_frame_size_different", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.allow_screen_content_tools, NULL, settings, "uint32_t", "allow_screen_content_tools", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.allow_screen_content_tools, settings, "uint32_t: 1", "allow_screen_content_tools", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.is_filter_switchable, NULL, settings, "uint32_t", "is_filter_switchable", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.is_filter_switchable, settings, "uint32_t: 1", "is_filter_switchable", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.force_integer_mv, NULL, settings, "uint32_t", "force_integer_mv", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.force_integer_mv, settings, "uint32_t: 1", "force_integer_mv", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_size_override_flag, NULL, settings, "uint32_t", "frame_size_override_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_size_override_flag, settings, "uint32_t: 1", "frame_size_override_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.buffer_removal_time_present_flag, NULL, settings, "uint32_t", "buffer_removal_time_present_flag", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.buffer_removal_time_present_flag, settings, "uint32_t: 1", "buffer_removal_time_present_flag", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.allow_intrabc, NULL, settings, "uint32_t", "allow_intrabc", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.allow_intrabc, settings, "uint32_t: 1", "allow_intrabc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_refs_short_signaling, NULL, settings, "uint32_t", "frame_refs_short_signaling", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_refs_short_signaling, settings, "uint32_t: 1", "frame_refs_short_signaling", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.allow_high_precision_mv, NULL, settings, "uint32_t", "allow_high_precision_mv", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.allow_high_precision_mv, settings, "uint32_t: 1", "allow_high_precision_mv", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.is_motion_mode_switchable, NULL, settings, "uint32_t", "is_motion_mode_switchable", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.is_motion_mode_switchable, settings, "uint32_t: 1", "is_motion_mode_switchable", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.use_ref_frame_mvs, NULL, settings, "uint32_t", "use_ref_frame_mvs", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.use_ref_frame_mvs, settings, "uint32_t: 1", "use_ref_frame_mvs", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.disable_frame_end_update_cdf, NULL, settings, "uint32_t", "disable_frame_end_update_cdf", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.disable_frame_end_update_cdf, settings, "uint32_t: 1", "disable_frame_end_update_cdf", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.allow_warped_motion, NULL, settings, "uint32_t", "allow_warped_motion", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.allow_warped_motion, settings, "uint32_t: 1", "allow_warped_motion", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reduced_tx_set, NULL, settings, "uint32_t", "reduced_tx_set", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.reduced_tx_set, settings, "uint32_t: 1", "reduced_tx_set", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.skip_mode_present, NULL, settings, "uint32_t", "skip_mode_present", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.skip_mode_present, settings, "uint32_t: 1", "skip_mode_present", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.delta_q_present, NULL, settings, "uint32_t", "delta_q_present", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.delta_q_present, settings, "uint32_t: 1", "delta_q_present", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.delta_lf_present, NULL, settings, "uint32_t", "delta_lf_present", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.delta_lf_present, settings, "uint32_t: 1", "delta_lf_present", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.delta_lf_multi, NULL, settings, "uint32_t", "delta_lf_multi", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.delta_lf_multi, settings, "uint32_t: 1", "delta_lf_multi", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_enabled, NULL, settings, "uint32_t", "segmentation_enabled", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_enabled, settings, "uint32_t: 1", "segmentation_enabled", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_update_map, NULL, settings, "uint32_t", "segmentation_update_map", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_update_map, settings, "uint32_t: 1", "segmentation_update_map", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_temporal_update, NULL, settings, "uint32_t", "segmentation_temporal_update", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_temporal_update, settings, "uint32_t: 1", "segmentation_temporal_update", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_update_data, NULL, settings, "uint32_t", "segmentation_update_data", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_update_data, settings, "uint32_t: 1", "segmentation_update_data", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.UsesLr, NULL, settings, "uint32_t", "UsesLr", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.UsesLr, settings, "uint32_t: 1", "UsesLr", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.usesChromaLr, NULL, settings, "uint32_t", "usesChromaLr", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.usesChromaLr, settings, "uint32_t: 1", "usesChromaLr", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.show_frame, NULL, settings, "uint32_t", "show_frame", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.show_frame, settings, "uint32_t: 1", "show_frame", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.showable_frame, NULL, settings, "uint32_t", "showable_frame", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.showable_frame, settings, "uint32_t: 1", "showable_frame", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 3", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeAV1PictureInfo(const StdVideoEncodeAV1PictureInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeAV1PictureInfoFlags(const StdVideoEncodeAV1PictureInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeAV1PictureInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeAV1PictureInfo(const StdVideoEncodeAV1PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeAV1PictureInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeAV1PictureInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeAV1PictureInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeAV1PictureInfoFlags(object.flags, settings, "StdVideoEncodeAV1PictureInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1FrameType>(object.frame_type, NULL, settings, "StdVideoAV1FrameType", "frame_type", false, false, indents + 1, dump_json_StdVideoAV1FrameType);
+    dump_json_StdVideoAV1FrameType(object.frame_type, settings, "StdVideoAV1FrameType", "frame_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_presentation_time, NULL, settings, "uint32_t", "frame_presentation_time", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_presentation_time, settings, "uint32_t", "frame_presentation_time", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.current_frame_id, NULL, settings, "uint32_t", "current_frame_id", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.current_frame_id, settings, "uint32_t", "current_frame_id", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.order_hint, NULL, settings, "uint8_t", "order_hint", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.order_hint, settings, "uint8_t", "order_hint", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.primary_ref_frame, NULL, settings, "uint8_t", "primary_ref_frame", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.primary_ref_frame, settings, "uint8_t", "primary_ref_frame", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.refresh_frame_flags, NULL, settings, "uint8_t", "refresh_frame_flags", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.refresh_frame_flags, settings, "uint8_t", "refresh_frame_flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.coded_denom, NULL, settings, "uint8_t", "coded_denom", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.coded_denom, settings, "uint8_t", "coded_denom", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.render_width_minus_1, NULL, settings, "uint16_t", "render_width_minus_1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.render_width_minus_1, settings, "uint16_t", "render_width_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint16_t>(object.render_height_minus_1, NULL, settings, "uint16_t", "render_height_minus_1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_uint16_t(object.render_height_minus_1, settings, "uint16_t", "render_height_minus_1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1InterpolationFilter>(object.interpolation_filter, NULL, settings, "StdVideoAV1InterpolationFilter", "interpolation_filter", false, false, indents + 1, dump_json_StdVideoAV1InterpolationFilter);
+    dump_json_StdVideoAV1InterpolationFilter(object.interpolation_filter, settings, "StdVideoAV1InterpolationFilter", "interpolation_filter", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1TxMode>(object.TxMode, NULL, settings, "StdVideoAV1TxMode", "TxMode", false, false, indents + 1, dump_json_StdVideoAV1TxMode);
+    dump_json_StdVideoAV1TxMode(object.TxMode, settings, "StdVideoAV1TxMode", "TxMode", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.delta_q_res, NULL, settings, "uint8_t", "delta_q_res", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.delta_q_res, settings, "uint8_t", "delta_q_res", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.delta_lf_res, NULL, settings, "uint8_t", "delta_lf_res", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.delta_lf_res, settings, "uint8_t", "delta_lf_res", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.ref_order_hint, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "uint8_t", "ref_order_hint", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.ref_order_hint, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "ref_order_hint", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_NUM_REF_FRAMES; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.ref_order_hint[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_NUM_REF_FRAMES - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.ref_order_hint, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.ref_frame_idx, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "int8_t", "ref_frame_idx", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.ref_frame_idx, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "ref_frame_idx", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_REFS_PER_FRAME; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.ref_frame_idx[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_REFS_PER_FRAME - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.ref_frame_idx, STD_VIDEO_AV1_REFS_PER_FRAME, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.reserved1, 3, settings, "uint8_t[3]", "reserved1", indents + 2);
+    for (size_t i = 0; i < 3; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.reserved1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < 3 - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.reserved1, 3, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint32_t>(object.delta_frame_id_minus_1, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "uint32_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "uint32_t", "delta_frame_id_minus_1", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_array_start(object.delta_frame_id_minus_1, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "uint32_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "delta_frame_id_minus_1", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_AV1_REFS_PER_FRAME; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint32_t(object.delta_frame_id_minus_1[i], settings, "uint32_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_AV1_REFS_PER_FRAME - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.delta_frame_id_minus_1, STD_VIDEO_AV1_REFS_PER_FRAME, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1TileInfo>(object.pTileInfo, settings, "const StdVideoAV1TileInfo*", "pTileInfo", true, false, indents + 1, dump_json_StdVideoAV1TileInfo);
+    dump_json_StdVideoAV1TileInfo(object.pTileInfo, settings, "const StdVideoAV1TileInfo*", "pTileInfo", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1Quantization>(object.pQuantization, settings, "const StdVideoAV1Quantization*", "pQuantization", true, false, indents + 1, dump_json_StdVideoAV1Quantization);
+    dump_json_StdVideoAV1Quantization(object.pQuantization, settings, "const StdVideoAV1Quantization*", "pQuantization", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1Segmentation>(object.pSegmentation, settings, "const StdVideoAV1Segmentation*", "pSegmentation", true, false, indents + 1, dump_json_StdVideoAV1Segmentation);
+    dump_json_StdVideoAV1Segmentation(object.pSegmentation, settings, "const StdVideoAV1Segmentation*", "pSegmentation", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1LoopFilter>(object.pLoopFilter, settings, "const StdVideoAV1LoopFilter*", "pLoopFilter", true, false, indents + 1, dump_json_StdVideoAV1LoopFilter);
+    dump_json_StdVideoAV1LoopFilter(object.pLoopFilter, settings, "const StdVideoAV1LoopFilter*", "pLoopFilter", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1CDEF>(object.pCDEF, settings, "const StdVideoAV1CDEF*", "pCDEF", true, false, indents + 1, dump_json_StdVideoAV1CDEF);
+    dump_json_StdVideoAV1CDEF(object.pCDEF, settings, "const StdVideoAV1CDEF*", "pCDEF", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1LoopRestoration>(object.pLoopRestoration, settings, "const StdVideoAV1LoopRestoration*", "pLoopRestoration", true, false, indents + 1, dump_json_StdVideoAV1LoopRestoration);
+    dump_json_StdVideoAV1LoopRestoration(object.pLoopRestoration, settings, "const StdVideoAV1LoopRestoration*", "pLoopRestoration", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoAV1GlobalMotion>(object.pGlobalMotion, settings, "const StdVideoAV1GlobalMotion*", "pGlobalMotion", true, false, indents + 1, dump_json_StdVideoAV1GlobalMotion);
+    dump_json_StdVideoAV1GlobalMotion(object.pGlobalMotion, settings, "const StdVideoAV1GlobalMotion*", "pGlobalMotion", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoEncodeAV1ExtensionHeader>(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", true, false, indents + 1, dump_json_StdVideoEncodeAV1ExtensionHeader);
+    dump_json_StdVideoEncodeAV1ExtensionHeader(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const uint32_t>(object.pBufferRemovalTimes, settings, "const uint32_t*", "pBufferRemovalTimes", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.pBufferRemovalTimes, settings, "const uint32_t*", "pBufferRemovalTimes", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoEncodeAV1ReferenceInfoFlags(const StdVideoEncodeAV1ReferenceInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeAV1PictureInfo(const StdVideoEncodeAV1PictureInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeAV1PictureInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoEncodeAV1ReferenceInfoFlags(const StdVideoEncodeAV1ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.disable_frame_end_update_cdf, NULL, settings, "uint32_t", "disable_frame_end_update_cdf", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.disable_frame_end_update_cdf, settings, "uint32_t: 1", "disable_frame_end_update_cdf", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_enabled, NULL, settings, "uint32_t", "segmentation_enabled", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_enabled, settings, "uint32_t: 1", "segmentation_enabled", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoEncodeAV1ReferenceInfoFlags(const StdVideoEncodeAV1ReferenceInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeAV1ReferenceInfoFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoEncodeAV1ReferenceInfoFlags>(object.flags, NULL, settings, "StdVideoEncodeAV1ReferenceInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoEncodeAV1ReferenceInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoEncodeAV1ReferenceInfoFlags(object.flags, settings, "StdVideoEncodeAV1ReferenceInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.RefFrameId, NULL, settings, "uint32_t", "RefFrameId", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.RefFrameId, settings, "uint32_t", "RefFrameId", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoAV1FrameType>(object.frame_type, NULL, settings, "StdVideoAV1FrameType", "frame_type", false, false, indents + 1, dump_json_StdVideoAV1FrameType);
+    dump_json_StdVideoAV1FrameType(object.frame_type, settings, "StdVideoAV1FrameType", "frame_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.OrderHint, NULL, settings, "uint8_t", "OrderHint", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.OrderHint, settings, "uint8_t", "OrderHint", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.reserved1, 3, settings, "uint8_t[3]", "reserved1", indents + 2);
+    for (size_t i = 0; i < 3; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.reserved1[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < 3 - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.reserved1, 3, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoEncodeAV1ExtensionHeader>(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", true, false, indents + 1, dump_json_StdVideoEncodeAV1ExtensionHeader);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoEncodeAV1ExtensionHeader(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoVP9ColorConfigFlags(const StdVideoVP9ColorConfigFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoEncodeAV1ReferenceInfo(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoVP9ColorConfigFlags(const StdVideoVP9ColorConfigFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.color_range, NULL, settings, "uint32_t", "color_range", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.color_range, settings, "uint32_t: 1", "color_range", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 31", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoVP9ColorConfig(const StdVideoVP9ColorConfig& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9ColorConfigFlags(const StdVideoVP9ColorConfigFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9ColorConfigFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoVP9ColorConfig(const StdVideoVP9ColorConfig& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoVP9ColorConfigFlags>(object.flags, NULL, settings, "StdVideoVP9ColorConfigFlags", "flags", true, false, indents + 1, dump_json_StdVideoVP9ColorConfigFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoVP9ColorConfigFlags(object.flags, settings, "StdVideoVP9ColorConfigFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.BitDepth, NULL, settings, "uint8_t", "BitDepth", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.BitDepth, settings, "uint8_t", "BitDepth", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.subsampling_x, NULL, settings, "uint8_t", "subsampling_x", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.subsampling_x, settings, "uint8_t", "subsampling_x", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.subsampling_y, NULL, settings, "uint8_t", "subsampling_y", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.subsampling_y, settings, "uint8_t", "subsampling_y", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reserved1, settings, "uint8_t", "reserved1", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoVP9ColorSpace>(object.color_space, NULL, settings, "StdVideoVP9ColorSpace", "color_space", false, false, indents + 1, dump_json_StdVideoVP9ColorSpace);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoVP9ColorSpace(object.color_space, settings, "StdVideoVP9ColorSpace", "color_space", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoVP9ColorConfig(const StdVideoVP9ColorConfig* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9ColorConfig(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoVP9LoopFilterFlags(const StdVideoVP9LoopFilterFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9LoopFilterFlags(const StdVideoVP9LoopFilterFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.loop_filter_delta_enabled, NULL, settings, "uint32_t", "loop_filter_delta_enabled", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.loop_filter_delta_enabled, settings, "uint32_t: 1", "loop_filter_delta_enabled", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.loop_filter_delta_update, NULL, settings, "uint32_t", "loop_filter_delta_update", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.loop_filter_delta_update, settings, "uint32_t: 1", "loop_filter_delta_update", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoVP9LoopFilter(const StdVideoVP9LoopFilter& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9LoopFilterFlags(const StdVideoVP9LoopFilterFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9LoopFilterFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoVP9LoopFilter(const StdVideoVP9LoopFilter& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoVP9LoopFilterFlags>(object.flags, NULL, settings, "StdVideoVP9LoopFilterFlags", "flags", true, false, indents + 1, dump_json_StdVideoVP9LoopFilterFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoVP9LoopFilterFlags(object.flags, settings, "StdVideoVP9LoopFilterFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.loop_filter_level, NULL, settings, "uint8_t", "loop_filter_level", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.loop_filter_level, settings, "uint8_t", "loop_filter_level", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.loop_filter_sharpness, NULL, settings, "uint8_t", "loop_filter_sharpness", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.loop_filter_sharpness, settings, "uint8_t", "loop_filter_sharpness", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.update_ref_delta, NULL, settings, "uint8_t", "update_ref_delta", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.update_ref_delta, settings, "uint8_t", "update_ref_delta", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.loop_filter_ref_deltas, STD_VIDEO_VP9_MAX_REF_FRAMES, settings, "int8_t[STD_VIDEO_VP9_MAX_REF_FRAMES]", "int8_t", "loop_filter_ref_deltas", false, false, indents + 1, dump_json_int8_t);
+    dump_json_array_start(object.loop_filter_ref_deltas, STD_VIDEO_VP9_MAX_REF_FRAMES, settings, "int8_t[STD_VIDEO_VP9_MAX_REF_FRAMES]", "loop_filter_ref_deltas", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_VP9_MAX_REF_FRAMES; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.loop_filter_ref_deltas[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_VP9_MAX_REF_FRAMES - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.loop_filter_ref_deltas, STD_VIDEO_VP9_MAX_REF_FRAMES, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.update_mode_delta, NULL, settings, "uint8_t", "update_mode_delta", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.update_mode_delta, settings, "uint8_t", "update_mode_delta", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int8_t>(object.loop_filter_mode_deltas, STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS]", "int8_t", "loop_filter_mode_deltas", false, false, indents + 1, dump_json_int8_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.loop_filter_mode_deltas, STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS]", "loop_filter_mode_deltas", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_int8_t(object.loop_filter_mode_deltas[i], settings, "int8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.loop_filter_mode_deltas, STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoVP9SegmentationFlags(const StdVideoVP9SegmentationFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9LoopFilter(const StdVideoVP9LoopFilter* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9LoopFilter(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoVP9SegmentationFlags(const StdVideoVP9SegmentationFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.segmentation_update_map, NULL, settings, "uint32_t", "segmentation_update_map", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.segmentation_update_map, settings, "uint32_t: 1", "segmentation_update_map", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_temporal_update, NULL, settings, "uint32_t", "segmentation_temporal_update", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_temporal_update, settings, "uint32_t: 1", "segmentation_temporal_update", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_update_data, NULL, settings, "uint32_t", "segmentation_update_data", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_update_data, settings, "uint32_t: 1", "segmentation_update_data", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_abs_or_delta_update, NULL, settings, "uint32_t", "segmentation_abs_or_delta_update", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_abs_or_delta_update, settings, "uint32_t: 1", "segmentation_abs_or_delta_update", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 28", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoVP9SegmentationFlags(const StdVideoVP9SegmentationFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9SegmentationFlags(*object, settings, type_string, name, indents, object);
+    }
 }
-void dump_json_StdVideoVP9Segmentation(const StdVideoVP9Segmentation& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9Segmentation(const StdVideoVP9Segmentation& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoVP9SegmentationFlags>(object.flags, NULL, settings, "StdVideoVP9SegmentationFlags", "flags", true, false, indents + 1, dump_json_StdVideoVP9SegmentationFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoVP9SegmentationFlags(object.flags, settings, "StdVideoVP9SegmentationFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS]", "uint8_t", "segmentation_tree_probs", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS]", "segmentation_tree_probs", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.segmentation_tree_probs[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.segmentation_pred_prob, STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB]", "uint8_t", "segmentation_pred_prob", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.segmentation_pred_prob, STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB]", "segmentation_pred_prob", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.segmentation_pred_prob[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.segmentation_pred_prob, STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_array_start(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "FeatureEnabled", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_VP9_MAX_SEGMENTS; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint8_t(object.FeatureEnabled[i], settings, "uint8_t", indexName.c_str(), indents + 2 + 2);
+          if (i < STD_VIDEO_VP9_MAX_SEGMENTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const int16_t>(object.FeatureData, STD_VIDEO_VP9_MAX_SEGMENTS*STD_VIDEO_VP9_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS][STD_VIDEO_VP9_SEG_LVL_MAX]", "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "FeatureData", false, false, indents + 1, dump_json_int16_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_array_start(object.FeatureData, STD_VIDEO_VP9_MAX_SEGMENTS*STD_VIDEO_VP9_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS][STD_VIDEO_VP9_SEG_LVL_MAX]", "FeatureData", indents + 2);
+    for (size_t i = 0; i < STD_VIDEO_VP9_MAX_SEGMENTS; ++i) {
+      for (size_t j = 0; j < STD_VIDEO_VP9_SEG_LVL_MAX; ++j) {
+        std::stringstream stream;
+       stream << "" << "[" << i << "][" << j << "]";
+        std::string indexName = stream.str();
+        dump_json_int16_t(object.FeatureData[i][j], settings, "int16_t", indexName.c_str(), indents + 2 + 2);
+        if (i < STD_VIDEO_VP9_SEG_LVL_MAX - 1 && j < STD_VIDEO_VP9_MAX_SEGMENTS - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+      }
+    }
+    dump_json_array_end(object.FeatureData, STD_VIDEO_VP9_MAX_SEGMENTS*STD_VIDEO_VP9_SEG_LVL_MAX, settings, indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeVP9PictureInfoFlags(const StdVideoDecodeVP9PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoVP9Segmentation(const StdVideoVP9Segmentation* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoVP9Segmentation(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeVP9PictureInfoFlags(const StdVideoDecodeVP9PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const uint32_t>(object.error_resilient_mode, NULL, settings, "uint32_t", "error_resilient_mode", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_uint32_t(object.error_resilient_mode, settings, "uint32_t: 1", "error_resilient_mode", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.intra_only, NULL, settings, "uint32_t", "intra_only", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.intra_only, settings, "uint32_t: 1", "intra_only", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.allow_high_precision_mv, NULL, settings, "uint32_t", "allow_high_precision_mv", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.allow_high_precision_mv, settings, "uint32_t: 1", "allow_high_precision_mv", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.refresh_frame_context, NULL, settings, "uint32_t", "refresh_frame_context", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.refresh_frame_context, settings, "uint32_t: 1", "refresh_frame_context", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.frame_parallel_decoding_mode, NULL, settings, "uint32_t", "frame_parallel_decoding_mode", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.frame_parallel_decoding_mode, settings, "uint32_t: 1", "frame_parallel_decoding_mode", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.segmentation_enabled, NULL, settings, "uint32_t", "segmentation_enabled", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.segmentation_enabled, settings, "uint32_t: 1", "segmentation_enabled", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.show_frame, NULL, settings, "uint32_t", "show_frame", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.show_frame, settings, "uint32_t: 1", "show_frame", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.UsePrevFrameMvs, NULL, settings, "uint32_t", "UsePrevFrameMvs", false, false, indents + 1, dump_json_uint32_t);
+    dump_json_uint32_t(object.UsePrevFrameMvs, settings, "uint32_t: 1", "UsePrevFrameMvs", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_uint32_t(object.reserved, settings, "uint32_t: 24", "reserved", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
 }
-void dump_json_StdVideoDecodeVP9PictureInfo(const StdVideoDecodeVP9PictureInfo& object, const ApiDumpSettings& settings, int indents)
+void dump_json_StdVideoDecodeVP9PictureInfoFlags(const StdVideoDecodeVP9PictureInfoFlags* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeVP9PictureInfoFlags(*object, settings, type_string, name, indents, object);
+    }
+}
+void dump_json_StdVideoDecodeVP9PictureInfo(const StdVideoDecodeVP9PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
-    settings.stream() << settings.indentation(indents) << "[\n";
-    dump_json_value<const StdVideoDecodeVP9PictureInfoFlags>(object.flags, NULL, settings, "StdVideoDecodeVP9PictureInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoDecodeVP9PictureInfoFlags);
+    dump_json_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_json_start_array(settings, indents + 1);
+    dump_json_StdVideoDecodeVP9PictureInfoFlags(object.flags, settings, "StdVideoDecodeVP9PictureInfoFlags", "flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoVP9Profile>(object.profile, NULL, settings, "StdVideoVP9Profile", "profile", false, false, indents + 1, dump_json_StdVideoVP9Profile);
+    dump_json_StdVideoVP9Profile(object.profile, settings, "StdVideoVP9Profile", "profile", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoVP9FrameType>(object.frame_type, NULL, settings, "StdVideoVP9FrameType", "frame_type", false, false, indents + 1, dump_json_StdVideoVP9FrameType);
+    dump_json_StdVideoVP9FrameType(object.frame_type, settings, "StdVideoVP9FrameType", "frame_type", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.frame_context_idx, NULL, settings, "uint8_t", "frame_context_idx", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.frame_context_idx, settings, "uint8_t", "frame_context_idx", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.reset_frame_context, NULL, settings, "uint8_t", "reset_frame_context", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.reset_frame_context, settings, "uint8_t", "reset_frame_context", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.refresh_frame_flags, NULL, settings, "uint8_t", "refresh_frame_flags", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.refresh_frame_flags, settings, "uint8_t", "refresh_frame_flags", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.ref_frame_sign_bias_mask, NULL, settings, "uint8_t", "ref_frame_sign_bias_mask", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.ref_frame_sign_bias_mask, settings, "uint8_t", "ref_frame_sign_bias_mask", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const StdVideoVP9InterpolationFilter>(object.interpolation_filter, NULL, settings, "StdVideoVP9InterpolationFilter", "interpolation_filter", false, false, indents + 1, dump_json_StdVideoVP9InterpolationFilter);
+    dump_json_StdVideoVP9InterpolationFilter(object.interpolation_filter, settings, "StdVideoVP9InterpolationFilter", "interpolation_filter", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.base_q_idx, NULL, settings, "uint8_t", "base_q_idx", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.base_q_idx, settings, "uint8_t", "base_q_idx", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.delta_q_y_dc, NULL, settings, "int8_t", "delta_q_y_dc", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.delta_q_y_dc, settings, "int8_t", "delta_q_y_dc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.delta_q_uv_dc, NULL, settings, "int8_t", "delta_q_uv_dc", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.delta_q_uv_dc, settings, "int8_t", "delta_q_uv_dc", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const int8_t>(object.delta_q_uv_ac, NULL, settings, "int8_t", "delta_q_uv_ac", false, false, indents + 1, dump_json_int8_t);
+    dump_json_int8_t(object.delta_q_uv_ac, settings, "int8_t", "delta_q_uv_ac", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.tile_cols_log2, NULL, settings, "uint8_t", "tile_cols_log2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.tile_cols_log2, settings, "uint8_t", "tile_cols_log2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_value<const uint8_t>(object.tile_rows_log2, NULL, settings, "uint8_t", "tile_rows_log2", false, false, indents + 1, dump_json_uint8_t);
+    dump_json_uint8_t(object.tile_rows_log2, settings, "uint8_t", "tile_rows_log2", indents + 2);
     settings.stream() << ",\n";
-    dump_json_array<const uint16_t>(object.reserved1, 3, settings, "uint16_t[3]", "uint16_t", "reserved1", false, false, indents + 1, dump_json_uint16_t);
+    dump_json_array_start(object.reserved1, 3, settings, "uint16_t[3]", "reserved1", indents + 2);
+    for (size_t i = 0; i < 3; ++i) {
+        std::stringstream stream;
+        stream << "" <<"[" << i << "]";
+        std::string indexName = stream.str();
+        dump_json_uint16_t(object.reserved1[i], settings, "uint16_t", indexName.c_str(), indents + 2 + 2);
+          if (i < 3 - 1) settings.stream() << ',';
+    settings.stream() << "\n";
+    }
+    dump_json_array_end(object.reserved1, 3, settings, indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoVP9ColorConfig>(object.pColorConfig, settings, "const StdVideoVP9ColorConfig*", "pColorConfig", true, false, indents + 1, dump_json_StdVideoVP9ColorConfig);
+    dump_json_StdVideoVP9ColorConfig(object.pColorConfig, settings, "const StdVideoVP9ColorConfig*", "pColorConfig", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoVP9LoopFilter>(object.pLoopFilter, settings, "const StdVideoVP9LoopFilter*", "pLoopFilter", true, false, indents + 1, dump_json_StdVideoVP9LoopFilter);
+    dump_json_StdVideoVP9LoopFilter(object.pLoopFilter, settings, "const StdVideoVP9LoopFilter*", "pLoopFilter", indents + 2);
     settings.stream() << ",\n";
-    dump_json_pointer<const StdVideoVP9Segmentation>(object.pSegmentation, settings, "const StdVideoVP9Segmentation*", "pSegmentation", true, false, indents + 1, dump_json_StdVideoVP9Segmentation);
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
+    dump_json_StdVideoVP9Segmentation(object.pSegmentation, settings, "const StdVideoVP9Segmentation*", "pSegmentation", indents + 2);
+    dump_json_newline_end_array(settings, indents + 1);
+    dump_json_end(settings, OutputConstruct::api_struct, indents);
+}
+void dump_json_StdVideoDecodeVP9PictureInfo(const StdVideoDecodeVP9PictureInfo* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
+    if (object == NULL) {
+        dump_json_nullptr(settings, type_string, name, indents);
+    } else {
+        dump_json_StdVideoDecodeVP9PictureInfo(*object, settings, type_string, name, indents, object);
+    }
 }
 
 //========================== Union Implementations ==========================//
