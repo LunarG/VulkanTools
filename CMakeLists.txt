@@ -64,13 +64,16 @@ endif()
 # So this target needs to be off by default to avoid obtuse build errors or patches.
 option(VT_CODEGEN "Enable vulkantools code generation")
 if (VT_CODEGEN)
+    file(GLOB VT_GENERATED_FILES ${VULKAN_TOOLS_SOURCE_DIR}/layersvt/generated *)
     find_package(Python3 REQUIRED)
-    add_custom_target(vt_codegen
+    add_custom_command(OUTPUT ${VT_GENERATED_FILES}
         COMMAND Python3::Interpreter "${VULKAN_TOOLS_SOURCE_DIR}/scripts/generate_source.py"
             "${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry"
             --incremental --generated-version ${VulkanHeaders_VERSION}
         WORKING_DIRECTORY ${VULKAN_TOOLS_SOURCE_DIR}/layersvt/generated
+        MAIN_DEPENDENCY ${VULKAN_TOOLS_SOURCE_DIR}/scripts/api_dump_generator.py
     )
+    add_custom_target(vt_codegen DEPENDS ${VT_GENERATED_FILES})
 endif()
 
 if (MSVC)
