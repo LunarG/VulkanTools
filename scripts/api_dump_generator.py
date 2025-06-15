@@ -993,6 +993,7 @@ void dump_text_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
     settings.stream() << " ";
     dump_text_{funcReturn}(result, settings, 0);
     @end if
+    settings.stream() << ":";
     dump_text_params_{funcName}(dump_inst, {funcNamedParams});
     settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";
 }}
