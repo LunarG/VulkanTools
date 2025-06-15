@@ -18,6 +18,13 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(VULKAN_TOOLS LANGUAGES CXX)
 
+add_subdirectory(scripts)
+
+find_package(VulkanHeaders REQUIRED CONFIG)
+find_package(VulkanLoader CONFIG)
+find_package(VulkanUtilityLibraries REQUIRED CONFIG)
+find_package(valijson REQUIRED CONFIG)
+
 find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
 find_package(Qt5 COMPONENTS Core Gui Widgets Network QUIET)
 if(Qt6_FOUND)
@@ -25,13 +32,6 @@ if(Qt6_FOUND)
 elseif(Qt5_FOUND)
   get_target_property(QT_TARGET_TYPE Qt5::Core TYPE)
 endif()
-
-add_subdirectory(scripts)
-
-find_package(VulkanHeaders REQUIRED CONFIG)
-find_package(VulkanLoader CONFIG)
-find_package(VulkanUtilityLibraries REQUIRED CONFIG)
-find_package(valijson REQUIRED CONFIG)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
