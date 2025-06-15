@@ -46,7 +46,6 @@ endif()
 if(BUILD_APIDUMP)
     find_package(Python3 REQUIRED)
 
-    set(VULKANTOOLS_SCRIPTS_DIR "${VULKAN_TOOLS_SOURCE_DIR}/scripts")
     set(VULKAN_REGISTRY "${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry")
 
     if(IOS)
