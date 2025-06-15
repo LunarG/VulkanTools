@@ -1110,6 +1110,183 @@ void dump_json_StdVideoAV1ChromaSamplePosition(StdVideoAV1ChromaSamplePosition o
         settings.stream() << "\"UNKNOWN (" << object << ")\"";
     }
 }
+void dump_json_StdVideoVP9Profile(StdVideoVP9Profile object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"STD_VIDEO_VP9_PROFILE_0\"";
+        break;
+    case 1:
+        settings.stream() << "\"STD_VIDEO_VP9_PROFILE_1\"";
+        break;
+    case 2:
+        settings.stream() << "\"STD_VIDEO_VP9_PROFILE_2\"";
+        break;
+    case 3:
+        settings.stream() << "\"STD_VIDEO_VP9_PROFILE_3\"";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "\"STD_VIDEO_VP9_PROFILE_INVALID\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_StdVideoVP9Level(StdVideoVP9Level object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_1_0\"";
+        break;
+    case 1:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_1_1\"";
+        break;
+    case 2:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_2_0\"";
+        break;
+    case 3:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_2_1\"";
+        break;
+    case 4:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_3_0\"";
+        break;
+    case 5:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_3_1\"";
+        break;
+    case 6:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_4_0\"";
+        break;
+    case 7:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_4_1\"";
+        break;
+    case 8:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_5_0\"";
+        break;
+    case 9:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_5_1\"";
+        break;
+    case 10:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_5_2\"";
+        break;
+    case 11:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_6_0\"";
+        break;
+    case 12:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_6_1\"";
+        break;
+    case 13:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_6_2\"";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "\"STD_VIDEO_VP9_LEVEL_INVALID\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_StdVideoVP9FrameType(StdVideoVP9FrameType object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"STD_VIDEO_VP9_FRAME_TYPE_KEY\"";
+        break;
+    case 1:
+        settings.stream() << "\"STD_VIDEO_VP9_FRAME_TYPE_NON_KEY\"";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "\"STD_VIDEO_VP9_FRAME_TYPE_INVALID\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_StdVideoVP9ReferenceName(StdVideoVP9ReferenceName object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME\"";
+        break;
+    case 1:
+        settings.stream() << "\"STD_VIDEO_VP9_REFERENCE_NAME_LAST_FRAME\"";
+        break;
+    case 2:
+        settings.stream() << "\"STD_VIDEO_VP9_REFERENCE_NAME_GOLDEN_FRAME\"";
+        break;
+    case 3:
+        settings.stream() << "\"STD_VIDEO_VP9_REFERENCE_NAME_ALTREF_FRAME\"";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "\"STD_VIDEO_VP9_REFERENCE_NAME_INVALID\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_StdVideoVP9InterpolationFilter(StdVideoVP9InterpolationFilter object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP\"";
+        break;
+    case 1:
+        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH\"";
+        break;
+    case 2:
+        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SHARP\"";
+        break;
+    case 3:
+        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_BILINEAR\"";
+        break;
+    case 4:
+        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_SWITCHABLE\"";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "\"STD_VIDEO_VP9_INTERPOLATION_FILTER_INVALID\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
+void dump_json_StdVideoVP9ColorSpace(StdVideoVP9ColorSpace object, const ApiDumpSettings& settings, int indents)
+{
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN\"";
+        break;
+    case 1:
+        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_BT_601\"";
+        break;
+    case 2:
+        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_BT_709\"";
+        break;
+    case 3:
+        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_SMPTE_170\"";
+        break;
+    case 4:
+        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_SMPTE_240\"";
+        break;
+    case 5:
+        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_BT_2020\"";
+        break;
+    case 6:
+        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_RESERVED\"";
+        break;
+    case 7:
+        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_RGB\"";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "\"STD_VIDEO_VP9_COLOR_SPACE_INVALID\"";
+        break;
+    default:
+        settings.stream() << "\"UNKNOWN (" << object << ")\"";
+    }
+}
 
 //========================= Bitmask Implementations =========================//
 
@@ -3147,6 +3324,147 @@ void dump_json_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceIn
     dump_json_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t); // IQA
     settings.stream() << ",\n";
     dump_json_pointer<const StdVideoEncodeAV1ExtensionHeader>(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", true, false, indents + 1, dump_json_StdVideoEncodeAV1ExtensionHeader);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoVP9ColorConfigFlags(const StdVideoVP9ColorConfigFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.color_range, NULL, settings, "uint32_t", "color_range", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoVP9ColorConfig(const StdVideoVP9ColorConfig& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const StdVideoVP9ColorConfigFlags>(object.flags, NULL, settings, "StdVideoVP9ColorConfigFlags", "flags", true, false, indents + 1, dump_json_StdVideoVP9ColorConfigFlags);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.BitDepth, NULL, settings, "uint8_t", "BitDepth", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.subsampling_x, NULL, settings, "uint8_t", "subsampling_x", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.subsampling_y, NULL, settings, "uint8_t", "subsampling_y", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.reserved1, NULL, settings, "uint8_t", "reserved1", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const StdVideoVP9ColorSpace>(object.color_space, NULL, settings, "StdVideoVP9ColorSpace", "color_space", false, false, indents + 1, dump_json_StdVideoVP9ColorSpace);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoVP9LoopFilterFlags(const StdVideoVP9LoopFilterFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.loop_filter_delta_enabled, NULL, settings, "uint32_t", "loop_filter_delta_enabled", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.loop_filter_delta_update, NULL, settings, "uint32_t", "loop_filter_delta_update", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoVP9LoopFilter(const StdVideoVP9LoopFilter& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const StdVideoVP9LoopFilterFlags>(object.flags, NULL, settings, "StdVideoVP9LoopFilterFlags", "flags", true, false, indents + 1, dump_json_StdVideoVP9LoopFilterFlags);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.loop_filter_level, NULL, settings, "uint8_t", "loop_filter_level", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.loop_filter_sharpness, NULL, settings, "uint8_t", "loop_filter_sharpness", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.update_ref_delta, NULL, settings, "uint8_t", "update_ref_delta", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.loop_filter_ref_deltas, STD_VIDEO_VP9_MAX_REF_FRAMES, settings, "int8_t[STD_VIDEO_VP9_MAX_REF_FRAMES]", "int8_t", "loop_filter_ref_deltas", false, false, indents + 1, dump_json_int8_t); // IQA
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.update_mode_delta, NULL, settings, "uint8_t", "update_mode_delta", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_array<const int8_t>(object.loop_filter_mode_deltas, STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS]", "int8_t", "loop_filter_mode_deltas", false, false, indents + 1, dump_json_int8_t); // IQA
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoVP9SegmentationFlags(const StdVideoVP9SegmentationFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.segmentation_update_map, NULL, settings, "uint32_t", "segmentation_update_map", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.segmentation_temporal_update, NULL, settings, "uint32_t", "segmentation_temporal_update", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.segmentation_update_data, NULL, settings, "uint32_t", "segmentation_update_data", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.segmentation_abs_or_delta_update, NULL, settings, "uint32_t", "segmentation_abs_or_delta_update", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoVP9Segmentation(const StdVideoVP9Segmentation& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const StdVideoVP9SegmentationFlags>(object.flags, NULL, settings, "StdVideoVP9SegmentationFlags", "flags", true, false, indents + 1, dump_json_StdVideoVP9SegmentationFlags);
+    settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS]", "uint8_t", "segmentation_tree_probs", false, false, indents + 1, dump_json_uint8_t); // IQA
+    settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.segmentation_pred_prob, STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB]", "uint8_t", "segmentation_pred_prob", false, false, indents + 1, dump_json_uint8_t); // IQA
+    settings.stream() << ",\n";
+    dump_json_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", false, false, indents + 1, dump_json_uint8_t); // IQA
+    settings.stream() << ",\n";
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoDecodeVP9PictureInfoFlags(const StdVideoDecodeVP9PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const uint32_t>(object.error_resilient_mode, NULL, settings, "uint32_t", "error_resilient_mode", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.intra_only, NULL, settings, "uint32_t", "intra_only", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.allow_high_precision_mv, NULL, settings, "uint32_t", "allow_high_precision_mv", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.refresh_frame_context, NULL, settings, "uint32_t", "refresh_frame_context", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.frame_parallel_decoding_mode, NULL, settings, "uint32_t", "frame_parallel_decoding_mode", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.segmentation_enabled, NULL, settings, "uint32_t", "segmentation_enabled", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.show_frame, NULL, settings, "uint32_t", "show_frame", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.UsePrevFrameMvs, NULL, settings, "uint32_t", "UsePrevFrameMvs", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint32_t>(object.reserved, NULL, settings, "uint32_t", "reserved", false, false, indents + 1, dump_json_uint32_t);
+    settings.stream() << "\n" << settings.indentation(indents) << "]";
+}
+void dump_json_StdVideoDecodeVP9PictureInfo(const StdVideoDecodeVP9PictureInfo& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << settings.indentation(indents) << "[\n";
+    dump_json_value<const StdVideoDecodeVP9PictureInfoFlags>(object.flags, NULL, settings, "StdVideoDecodeVP9PictureInfoFlags", "flags", true, false, indents + 1, dump_json_StdVideoDecodeVP9PictureInfoFlags);
+    settings.stream() << ",\n";
+    dump_json_value<const StdVideoVP9Profile>(object.profile, NULL, settings, "StdVideoVP9Profile", "profile", false, false, indents + 1, dump_json_StdVideoVP9Profile);
+    settings.stream() << ",\n";
+    dump_json_value<const StdVideoVP9FrameType>(object.frame_type, NULL, settings, "StdVideoVP9FrameType", "frame_type", false, false, indents + 1, dump_json_StdVideoVP9FrameType);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.frame_context_idx, NULL, settings, "uint8_t", "frame_context_idx", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.reset_frame_context, NULL, settings, "uint8_t", "reset_frame_context", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.refresh_frame_flags, NULL, settings, "uint8_t", "refresh_frame_flags", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.ref_frame_sign_bias_mask, NULL, settings, "uint8_t", "ref_frame_sign_bias_mask", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const StdVideoVP9InterpolationFilter>(object.interpolation_filter, NULL, settings, "StdVideoVP9InterpolationFilter", "interpolation_filter", false, false, indents + 1, dump_json_StdVideoVP9InterpolationFilter);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.base_q_idx, NULL, settings, "uint8_t", "base_q_idx", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const int8_t>(object.delta_q_y_dc, NULL, settings, "int8_t", "delta_q_y_dc", false, false, indents + 1, dump_json_int8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const int8_t>(object.delta_q_uv_dc, NULL, settings, "int8_t", "delta_q_uv_dc", false, false, indents + 1, dump_json_int8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const int8_t>(object.delta_q_uv_ac, NULL, settings, "int8_t", "delta_q_uv_ac", false, false, indents + 1, dump_json_int8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.tile_cols_log2, NULL, settings, "uint8_t", "tile_cols_log2", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_value<const uint8_t>(object.tile_rows_log2, NULL, settings, "uint8_t", "tile_rows_log2", false, false, indents + 1, dump_json_uint8_t);
+    settings.stream() << ",\n";
+    dump_json_array<const uint16_t>(object.reserved1, 3, settings, "uint16_t[3]", "uint16_t", "reserved1", false, false, indents + 1, dump_json_uint16_t); // IQA
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoVP9ColorConfig>(object.pColorConfig, settings, "const StdVideoVP9ColorConfig*", "pColorConfig", true, false, indents + 1, dump_json_StdVideoVP9ColorConfig);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoVP9LoopFilter>(object.pLoopFilter, settings, "const StdVideoVP9LoopFilter*", "pLoopFilter", true, false, indents + 1, dump_json_StdVideoVP9LoopFilter);
+    settings.stream() << ",\n";
+    dump_json_pointer<const StdVideoVP9Segmentation>(object.pSegmentation, settings, "const StdVideoVP9Segmentation*", "pSegmentation", true, false, indents + 1, dump_json_StdVideoVP9Segmentation);
     settings.stream() << "\n" << settings.indentation(indents) << "]";
 }
 

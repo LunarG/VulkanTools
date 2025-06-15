@@ -3186,6 +3186,35 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(V
     return result;
 }
 #endif // VK_USE_PLATFORM_SCREEN_QNX
+VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalTensorPropertiesARM(VkPhysicalDevice                             physicalDevice, const VkPhysicalDeviceExternalTensorInfoARM* pExternalTensorInfo, VkExternalTensorPropertiesARM*               pExternalTensorProperties)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceExternalTensorPropertiesARM", "physicalDevice, pExternalTensorInfo, pExternalTensorProperties");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkGetPhysicalDeviceExternalTensorPropertiesARM(ApiDumpInstance::current(), physicalDevice, pExternalTensorInfo, pExternalTensorProperties);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "void");
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceExternalTensorPropertiesARM", "physicalDevice, pExternalTensorInfo, pExternalTensorProperties", "void");
+    }
+    instance_dispatch_table(physicalDevice)->GetPhysicalDeviceExternalTensorPropertiesARM(physicalDevice, pExternalTensorInfo, pExternalTensorProperties);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkGetPhysicalDeviceExternalTensorPropertiesARM(ApiDumpInstance::current(), physicalDevice, pExternalTensorInfo, pExternalTensorProperties);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkGetPhysicalDeviceExternalTensorPropertiesARM(ApiDumpInstance::current(), physicalDevice, pExternalTensorInfo, pExternalTensorProperties);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkGetPhysicalDeviceExternalTensorPropertiesARM(ApiDumpInstance::current(), physicalDevice, pExternalTensorInfo, pExternalTensorProperties);
+                break;
+        }
+    }
+}
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceOpticalFlowImageFormatsNV(VkPhysicalDevice physicalDevice, const VkOpticalFlowImageFormatInfoNV* pOpticalFlowImageFormatInfo, uint32_t* pFormatCount, VkOpticalFlowImageFormatPropertiesNV* pImageFormatProperties)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -3276,6 +3305,38 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR
     }
     return result;
 }
+#if defined(VK_USE_PLATFORM_OHOS)
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateSurfaceOHOS(VkInstance instance, const VkSurfaceCreateInfoOHOS* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkCreateSurfaceOHOS", "instance, pCreateInfo, pAllocator, pSurface");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkCreateSurfaceOHOS(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkCreateSurfaceOHOS", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
+    }
+    VkResult result = instance_dispatch_table(instance)->CreateSurfaceOHOS(instance, pCreateInfo, pAllocator, pSurface);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkCreateSurfaceOHOS(ApiDumpInstance::current(), result, instance, pCreateInfo, pAllocator, pSurface);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkCreateSurfaceOHOS(ApiDumpInstance::current(), result, instance, pCreateInfo, pAllocator, pSurface);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkCreateSurfaceOHOS(ApiDumpInstance::current(), result, instance, pCreateInfo, pAllocator, pSurface);
+                break;
+        }
+    }
+    return result;
+}
+#endif // VK_USE_PLATFORM_OHOS
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV(VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkCooperativeMatrixFlexibleDimensionsPropertiesNV* pProperties)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -20416,6 +20477,311 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageReductionModeNV(VkCommandBuffer comma
         }
     }
 }
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateTensorARM(VkDevice device, const VkTensorCreateInfoARM* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkTensorARM* pTensor)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkCreateTensorARM", "device, pCreateInfo, pAllocator, pTensor");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkCreateTensorARM(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pTensor);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkCreateTensorARM", "device, pCreateInfo, pAllocator, pTensor", "VkResult");
+    }
+    VkResult result = device_dispatch_table(device)->CreateTensorARM(device, pCreateInfo, pAllocator, pTensor);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkCreateTensorARM(ApiDumpInstance::current(), result, device, pCreateInfo, pAllocator, pTensor);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkCreateTensorARM(ApiDumpInstance::current(), result, device, pCreateInfo, pAllocator, pTensor);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkCreateTensorARM(ApiDumpInstance::current(), result, device, pCreateInfo, pAllocator, pTensor);
+                break;
+        }
+    }
+    return result;
+}
+VKAPI_ATTR void VKAPI_CALL vkDestroyTensorARM(VkDevice device, VkTensorARM tensor, const VkAllocationCallbacks* pAllocator)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkDestroyTensorARM", "device, tensor, pAllocator");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkDestroyTensorARM(ApiDumpInstance::current(), device, tensor, pAllocator);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "void");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkDestroyTensorARM", "device, tensor, pAllocator", "void");
+    }
+    device_dispatch_table(device)->DestroyTensorARM(device, tensor, pAllocator);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkDestroyTensorARM(ApiDumpInstance::current(), device, tensor, pAllocator);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkDestroyTensorARM(ApiDumpInstance::current(), device, tensor, pAllocator);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkDestroyTensorARM(ApiDumpInstance::current(), device, tensor, pAllocator);
+                break;
+        }
+    }
+}
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateTensorViewARM(VkDevice device, const VkTensorViewCreateInfoARM* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkTensorViewARM* pView)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkCreateTensorViewARM", "device, pCreateInfo, pAllocator, pView");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkCreateTensorViewARM(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pView);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkCreateTensorViewARM", "device, pCreateInfo, pAllocator, pView", "VkResult");
+    }
+    VkResult result = device_dispatch_table(device)->CreateTensorViewARM(device, pCreateInfo, pAllocator, pView);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkCreateTensorViewARM(ApiDumpInstance::current(), result, device, pCreateInfo, pAllocator, pView);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkCreateTensorViewARM(ApiDumpInstance::current(), result, device, pCreateInfo, pAllocator, pView);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkCreateTensorViewARM(ApiDumpInstance::current(), result, device, pCreateInfo, pAllocator, pView);
+                break;
+        }
+    }
+    return result;
+}
+VKAPI_ATTR void VKAPI_CALL vkDestroyTensorViewARM(VkDevice device, VkTensorViewARM tensorView, const VkAllocationCallbacks* pAllocator)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkDestroyTensorViewARM", "device, tensorView, pAllocator");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkDestroyTensorViewARM(ApiDumpInstance::current(), device, tensorView, pAllocator);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "void");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkDestroyTensorViewARM", "device, tensorView, pAllocator", "void");
+    }
+    device_dispatch_table(device)->DestroyTensorViewARM(device, tensorView, pAllocator);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkDestroyTensorViewARM(ApiDumpInstance::current(), device, tensorView, pAllocator);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkDestroyTensorViewARM(ApiDumpInstance::current(), device, tensorView, pAllocator);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkDestroyTensorViewARM(ApiDumpInstance::current(), device, tensorView, pAllocator);
+                break;
+        }
+    }
+}
+VKAPI_ATTR void VKAPI_CALL vkGetTensorMemoryRequirementsARM(VkDevice device, const VkTensorMemoryRequirementsInfoARM* pInfo, VkMemoryRequirements2* pMemoryRequirements)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkGetTensorMemoryRequirementsARM", "device, pInfo, pMemoryRequirements");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkGetTensorMemoryRequirementsARM(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "void");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkGetTensorMemoryRequirementsARM", "device, pInfo, pMemoryRequirements", "void");
+    }
+    device_dispatch_table(device)->GetTensorMemoryRequirementsARM(device, pInfo, pMemoryRequirements);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkGetTensorMemoryRequirementsARM(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkGetTensorMemoryRequirementsARM(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkGetTensorMemoryRequirementsARM(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
+                break;
+        }
+    }
+}
+VKAPI_ATTR VkResult VKAPI_CALL vkBindTensorMemoryARM(VkDevice device, uint32_t bindInfoCount, const VkBindTensorMemoryInfoARM* pBindInfos)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkBindTensorMemoryARM", "device, bindInfoCount, pBindInfos");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkBindTensorMemoryARM(ApiDumpInstance::current(), device, bindInfoCount, pBindInfos);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkBindTensorMemoryARM", "device, bindInfoCount, pBindInfos", "VkResult");
+    }
+    VkResult result = device_dispatch_table(device)->BindTensorMemoryARM(device, bindInfoCount, pBindInfos);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkBindTensorMemoryARM(ApiDumpInstance::current(), result, device, bindInfoCount, pBindInfos);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkBindTensorMemoryARM(ApiDumpInstance::current(), result, device, bindInfoCount, pBindInfos);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkBindTensorMemoryARM(ApiDumpInstance::current(), result, device, bindInfoCount, pBindInfos);
+                break;
+        }
+    }
+    return result;
+}
+VKAPI_ATTR void VKAPI_CALL vkGetDeviceTensorMemoryRequirementsARM(VkDevice device, const VkDeviceTensorMemoryRequirementsARM* pInfo, VkMemoryRequirements2* pMemoryRequirements)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkGetDeviceTensorMemoryRequirementsARM", "device, pInfo, pMemoryRequirements");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkGetDeviceTensorMemoryRequirementsARM(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "void");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkGetDeviceTensorMemoryRequirementsARM", "device, pInfo, pMemoryRequirements", "void");
+    }
+    device_dispatch_table(device)->GetDeviceTensorMemoryRequirementsARM(device, pInfo, pMemoryRequirements);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkGetDeviceTensorMemoryRequirementsARM(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkGetDeviceTensorMemoryRequirementsARM(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkGetDeviceTensorMemoryRequirementsARM(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
+                break;
+        }
+    }
+}
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyTensorARM(VkCommandBuffer commandBuffer,  const VkCopyTensorInfoARM* pCopyTensorInfo)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkCmdCopyTensorARM", "commandBuffer, pCopyTensorInfo");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkCmdCopyTensorARM(ApiDumpInstance::current(), commandBuffer, pCopyTensorInfo);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "void");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkCmdCopyTensorARM", "commandBuffer, pCopyTensorInfo", "void");
+    }
+    device_dispatch_table(commandBuffer)->CmdCopyTensorARM(commandBuffer, pCopyTensorInfo);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkCmdCopyTensorARM(ApiDumpInstance::current(), commandBuffer, pCopyTensorInfo);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkCmdCopyTensorARM(ApiDumpInstance::current(), commandBuffer, pCopyTensorInfo);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkCmdCopyTensorARM(ApiDumpInstance::current(), commandBuffer, pCopyTensorInfo);
+                break;
+        }
+    }
+}
+VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDescriptorDataARM(VkDevice                                    device, const VkTensorCaptureDescriptorDataInfoARM* pInfo, void*                                       pData)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkGetTensorOpaqueCaptureDescriptorDataARM", "device, pInfo, pData");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkGetTensorOpaqueCaptureDescriptorDataARM(ApiDumpInstance::current(), device, pInfo, pData);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkGetTensorOpaqueCaptureDescriptorDataARM", "device, pInfo, pData", "VkResult");
+    }
+    VkResult result = device_dispatch_table(device)->GetTensorOpaqueCaptureDescriptorDataARM(device, pInfo, pData);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkGetTensorOpaqueCaptureDescriptorDataARM(ApiDumpInstance::current(), result, device, pInfo, pData);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkGetTensorOpaqueCaptureDescriptorDataARM(ApiDumpInstance::current(), result, device, pInfo, pData);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkGetTensorOpaqueCaptureDescriptorDataARM(ApiDumpInstance::current(), result, device, pInfo, pData);
+                break;
+        }
+    }
+    return result;
+}
+VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorViewOpaqueCaptureDescriptorDataARM(VkDevice                                        device, const VkTensorViewCaptureDescriptorDataInfoARM* pInfo, void*                                           pData)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkGetTensorViewOpaqueCaptureDescriptorDataARM", "device, pInfo, pData");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkGetTensorViewOpaqueCaptureDescriptorDataARM(ApiDumpInstance::current(), device, pInfo, pData);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkGetTensorViewOpaqueCaptureDescriptorDataARM", "device, pInfo, pData", "VkResult");
+    }
+    VkResult result = device_dispatch_table(device)->GetTensorViewOpaqueCaptureDescriptorDataARM(device, pInfo, pData);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkGetTensorViewOpaqueCaptureDescriptorDataARM(ApiDumpInstance::current(), result, device, pInfo, pData);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkGetTensorViewOpaqueCaptureDescriptorDataARM(ApiDumpInstance::current(), result, device, pInfo, pData);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkGetTensorViewOpaqueCaptureDescriptorDataARM(ApiDumpInstance::current(), result, device, pInfo, pData);
+                break;
+        }
+    }
+    return result;
+}
 VKAPI_ATTR void VKAPI_CALL vkGetShaderModuleIdentifierEXT(VkDevice device, VkShaderModule shaderModule, VkShaderModuleIdentifierEXT* pIdentifier)
 {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -20747,6 +21113,37 @@ VKAPI_ATTR void VKAPI_CALL vkAntiLagUpdateAMD(VkDevice device, const VkAntiLagDa
                 break;
         }
     }
+}
+VKAPI_ATTR VkResult VKAPI_CALL vkWaitForPresent2KHR(VkDevice device, VkSwapchainKHR swapchain, const VkPresentWait2InfoKHR* pPresentWait2Info)
+{
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+   if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
+        dump_function_head(ApiDumpInstance::current(), "vkWaitForPresent2KHR", "device, swapchain, pPresentWait2Info");
+        if (ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_text_params_vkWaitForPresent2KHR(ApiDumpInstance::current(), device, swapchain, pPresentWait2Info);
+        }
+        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
+
+    } else {
+        dump_function_head(ApiDumpInstance::current(), "vkWaitForPresent2KHR", "device, swapchain, pPresentWait2Info", "VkResult");
+    }
+    VkResult result = device_dispatch_table(device)->WaitForPresent2KHR(device, swapchain, pPresentWait2Info);
+    
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        switch(ApiDumpInstance::current().settings().format())
+        {
+            case ApiDumpFormat::Text:
+                dump_text_vkWaitForPresent2KHR(ApiDumpInstance::current(), result, device, swapchain, pPresentWait2Info);
+                break;
+            case ApiDumpFormat::Html:
+                dump_html_vkWaitForPresent2KHR(ApiDumpInstance::current(), result, device, swapchain, pPresentWait2Info);
+                break;
+            case ApiDumpFormat::Json:
+                dump_json_vkWaitForPresent2KHR(ApiDumpInstance::current(), result, device, swapchain, pPresentWait2Info);
+                break;
+        }
+    }
+    return result;
 }
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateShadersEXT(VkDevice device, uint32_t createInfoCount, const VkShaderCreateInfoEXT* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkShaderEXT* pShaders)
 {
@@ -22489,12 +22886,18 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
     if(strcmp(pName, "vkGetPhysicalDeviceScreenPresentationSupportQNX") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceScreenPresentationSupportQNX);
 #endif // VK_USE_PLATFORM_SCREEN_QNX
+    if(strcmp(pName, "vkGetPhysicalDeviceExternalTensorPropertiesARM") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceExternalTensorPropertiesARM);
     if(strcmp(pName, "vkGetPhysicalDeviceOpticalFlowImageFormatsNV") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceOpticalFlowImageFormatsNV);
     if(strcmp(pName, "vkGetPhysicalDeviceCooperativeVectorPropertiesNV") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceCooperativeVectorPropertiesNV);
     if(strcmp(pName, "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR);
+#if defined(VK_USE_PLATFORM_OHOS)
+    if(strcmp(pName, "vkCreateSurfaceOHOS") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCreateSurfaceOHOS);
+#endif // VK_USE_PLATFORM_OHOS
     if(strcmp(pName, "vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV);
 
@@ -23686,6 +24089,26 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetRepresentativeFragmentTestEnableNV);
     if(strcmp(pName, "vkCmdSetCoverageReductionModeNV") == 0 && (!device || device_dispatch_table(device)->CmdSetCoverageReductionModeNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetCoverageReductionModeNV);
+    if(strcmp(pName, "vkCreateTensorARM") == 0 && (!device || device_dispatch_table(device)->CreateTensorARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCreateTensorARM);
+    if(strcmp(pName, "vkDestroyTensorARM") == 0 && (!device || device_dispatch_table(device)->DestroyTensorARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyTensorARM);
+    if(strcmp(pName, "vkCreateTensorViewARM") == 0 && (!device || device_dispatch_table(device)->CreateTensorViewARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCreateTensorViewARM);
+    if(strcmp(pName, "vkDestroyTensorViewARM") == 0 && (!device || device_dispatch_table(device)->DestroyTensorViewARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyTensorViewARM);
+    if(strcmp(pName, "vkGetTensorMemoryRequirementsARM") == 0 && (!device || device_dispatch_table(device)->GetTensorMemoryRequirementsARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetTensorMemoryRequirementsARM);
+    if(strcmp(pName, "vkBindTensorMemoryARM") == 0 && (!device || device_dispatch_table(device)->BindTensorMemoryARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkBindTensorMemoryARM);
+    if(strcmp(pName, "vkGetDeviceTensorMemoryRequirementsARM") == 0 && (!device || device_dispatch_table(device)->GetDeviceTensorMemoryRequirementsARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceTensorMemoryRequirementsARM);
+    if(strcmp(pName, "vkCmdCopyTensorARM") == 0 && (!device || device_dispatch_table(device)->CmdCopyTensorARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyTensorARM);
+    if(strcmp(pName, "vkGetTensorOpaqueCaptureDescriptorDataARM") == 0 && (!device || device_dispatch_table(device)->GetTensorOpaqueCaptureDescriptorDataARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetTensorOpaqueCaptureDescriptorDataARM);
+    if(strcmp(pName, "vkGetTensorViewOpaqueCaptureDescriptorDataARM") == 0 && (!device || device_dispatch_table(device)->GetTensorViewOpaqueCaptureDescriptorDataARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetTensorViewOpaqueCaptureDescriptorDataARM);
     if(strcmp(pName, "vkGetShaderModuleIdentifierEXT") == 0 && (!device || device_dispatch_table(device)->GetShaderModuleIdentifierEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetShaderModuleIdentifierEXT);
     if(strcmp(pName, "vkGetShaderModuleCreateInfoIdentifierEXT") == 0 && (!device || device_dispatch_table(device)->GetShaderModuleCreateInfoIdentifierEXT))
@@ -23708,6 +24131,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetImageSubresourceLayout2KHR);
     if(strcmp(pName, "vkAntiLagUpdateAMD") == 0 && (!device || device_dispatch_table(device)->AntiLagUpdateAMD))
         return reinterpret_cast<PFN_vkVoidFunction>(vkAntiLagUpdateAMD);
+    if(strcmp(pName, "vkWaitForPresent2KHR") == 0 && (!device || device_dispatch_table(device)->WaitForPresent2KHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkWaitForPresent2KHR);
     if(strcmp(pName, "vkCreateShadersEXT") == 0 && (!device || device_dispatch_table(device)->CreateShadersEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateShadersEXT);
     if(strcmp(pName, "vkDestroyShaderEXT") == 0 && (!device || device_dispatch_table(device)->DestroyShaderEXT))

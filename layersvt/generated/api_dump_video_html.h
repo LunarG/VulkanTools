@@ -1183,6 +1183,195 @@ void dump_html_StdVideoAV1ChromaSamplePosition(StdVideoAV1ChromaSamplePosition o
     }
     settings.stream() << object << ")</div></summary>";
 }
+void dump_html_StdVideoVP9Profile(StdVideoVP9Profile object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "STD_VIDEO_VP9_PROFILE_0 (";
+        break;
+    case 1:
+        settings.stream() << "STD_VIDEO_VP9_PROFILE_1 (";
+        break;
+    case 2:
+        settings.stream() << "STD_VIDEO_VP9_PROFILE_2 (";
+        break;
+    case 3:
+        settings.stream() << "STD_VIDEO_VP9_PROFILE_3 (";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "STD_VIDEO_VP9_PROFILE_INVALID (";
+        break;
+    default:
+        settings.stream() << "UNKNOWN (";
+    }
+    settings.stream() << object << ")</div></summary>";
+}
+void dump_html_StdVideoVP9Level(StdVideoVP9Level object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_1_0 (";
+        break;
+    case 1:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_1_1 (";
+        break;
+    case 2:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_2_0 (";
+        break;
+    case 3:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_2_1 (";
+        break;
+    case 4:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_3_0 (";
+        break;
+    case 5:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_3_1 (";
+        break;
+    case 6:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_4_0 (";
+        break;
+    case 7:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_4_1 (";
+        break;
+    case 8:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_5_0 (";
+        break;
+    case 9:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_5_1 (";
+        break;
+    case 10:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_5_2 (";
+        break;
+    case 11:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_6_0 (";
+        break;
+    case 12:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_6_1 (";
+        break;
+    case 13:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_6_2 (";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "STD_VIDEO_VP9_LEVEL_INVALID (";
+        break;
+    default:
+        settings.stream() << "UNKNOWN (";
+    }
+    settings.stream() << object << ")</div></summary>";
+}
+void dump_html_StdVideoVP9FrameType(StdVideoVP9FrameType object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "STD_VIDEO_VP9_FRAME_TYPE_KEY (";
+        break;
+    case 1:
+        settings.stream() << "STD_VIDEO_VP9_FRAME_TYPE_NON_KEY (";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "STD_VIDEO_VP9_FRAME_TYPE_INVALID (";
+        break;
+    default:
+        settings.stream() << "UNKNOWN (";
+    }
+    settings.stream() << object << ")</div></summary>";
+}
+void dump_html_StdVideoVP9ReferenceName(StdVideoVP9ReferenceName object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME (";
+        break;
+    case 1:
+        settings.stream() << "STD_VIDEO_VP9_REFERENCE_NAME_LAST_FRAME (";
+        break;
+    case 2:
+        settings.stream() << "STD_VIDEO_VP9_REFERENCE_NAME_GOLDEN_FRAME (";
+        break;
+    case 3:
+        settings.stream() << "STD_VIDEO_VP9_REFERENCE_NAME_ALTREF_FRAME (";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "STD_VIDEO_VP9_REFERENCE_NAME_INVALID (";
+        break;
+    default:
+        settings.stream() << "UNKNOWN (";
+    }
+    settings.stream() << object << ")</div></summary>";
+}
+void dump_html_StdVideoVP9InterpolationFilter(StdVideoVP9InterpolationFilter object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP (";
+        break;
+    case 1:
+        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH (";
+        break;
+    case 2:
+        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SHARP (";
+        break;
+    case 3:
+        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_BILINEAR (";
+        break;
+    case 4:
+        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_SWITCHABLE (";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_INVALID (";
+        break;
+    default:
+        settings.stream() << "UNKNOWN (";
+    }
+    settings.stream() << object << ")</div></summary>";
+}
+void dump_html_StdVideoVP9ColorSpace(StdVideoVP9ColorSpace object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    switch((int64_t) object)
+    {
+    case 0:
+        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN (";
+        break;
+    case 1:
+        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_BT_601 (";
+        break;
+    case 2:
+        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_BT_709 (";
+        break;
+    case 3:
+        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_SMPTE_170 (";
+        break;
+    case 4:
+        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_SMPTE_240 (";
+        break;
+    case 5:
+        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_BT_2020 (";
+        break;
+    case 6:
+        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_RESERVED (";
+        break;
+    case 7:
+        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_RGB (";
+        break;
+    case 0x7FFFFFFF:
+        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_INVALID (";
+        break;
+    default:
+        settings.stream() << "UNKNOWN (";
+    }
+    settings.stream() << object << ")</div></summary>";
+}
 
 //========================= Bitmask Implementations =========================//
 
@@ -2816,6 +3005,132 @@ void dump_html_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceIn
     dump_html_value<const uint8_t>(object.OrderHint, settings, "uint8_t", "OrderHint", indents + 1, dump_html_uint8_t);
     dump_html_array<const uint8_t>(object.reserved1, 3, settings, "uint8_t[3]", "uint8_t", "reserved1", indents + 1, dump_html_uint8_t); // ZRR
     dump_html_pointer<const StdVideoEncodeAV1ExtensionHeader>(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", indents + 1, dump_html_StdVideoEncodeAV1ExtensionHeader);
+}
+void dump_html_StdVideoVP9ColorConfigFlags(const StdVideoVP9ColorConfigFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const uint32_t>(object.color_range, settings, "uint32_t", "color_range", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.reserved, settings, "uint32_t", "reserved", indents + 1, dump_html_uint32_t);
+}
+void dump_html_StdVideoVP9ColorConfig(const StdVideoVP9ColorConfig& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const StdVideoVP9ColorConfigFlags>(object.flags, settings, "StdVideoVP9ColorConfigFlags", "flags", indents + 1, dump_html_StdVideoVP9ColorConfigFlags);
+    dump_html_value<const uint8_t>(object.BitDepth, settings, "uint8_t", "BitDepth", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.subsampling_x, settings, "uint8_t", "subsampling_x", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.subsampling_y, settings, "uint8_t", "subsampling_y", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.reserved1, settings, "uint8_t", "reserved1", indents + 1, dump_html_uint8_t);
+    dump_html_value<const StdVideoVP9ColorSpace>(object.color_space, settings, "StdVideoVP9ColorSpace", "color_space", indents + 1, dump_html_StdVideoVP9ColorSpace);
+}
+void dump_html_StdVideoVP9LoopFilterFlags(const StdVideoVP9LoopFilterFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const uint32_t>(object.loop_filter_delta_enabled, settings, "uint32_t", "loop_filter_delta_enabled", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.loop_filter_delta_update, settings, "uint32_t", "loop_filter_delta_update", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.reserved, settings, "uint32_t", "reserved", indents + 1, dump_html_uint32_t);
+}
+void dump_html_StdVideoVP9LoopFilter(const StdVideoVP9LoopFilter& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const StdVideoVP9LoopFilterFlags>(object.flags, settings, "StdVideoVP9LoopFilterFlags", "flags", indents + 1, dump_html_StdVideoVP9LoopFilterFlags);
+    dump_html_value<const uint8_t>(object.loop_filter_level, settings, "uint8_t", "loop_filter_level", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.loop_filter_sharpness, settings, "uint8_t", "loop_filter_sharpness", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.update_ref_delta, settings, "uint8_t", "update_ref_delta", indents + 1, dump_html_uint8_t);
+    dump_html_array<const int8_t>(object.loop_filter_ref_deltas, STD_VIDEO_VP9_MAX_REF_FRAMES, settings, "int8_t[STD_VIDEO_VP9_MAX_REF_FRAMES]", "int8_t", "loop_filter_ref_deltas", indents + 1, dump_html_int8_t); // ZRR
+    dump_html_value<const uint8_t>(object.update_mode_delta, settings, "uint8_t", "update_mode_delta", indents + 1, dump_html_uint8_t);
+    dump_html_array<const int8_t>(object.loop_filter_mode_deltas, STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS]", "int8_t", "loop_filter_mode_deltas", indents + 1, dump_html_int8_t); // ZRR
+}
+void dump_html_StdVideoVP9SegmentationFlags(const StdVideoVP9SegmentationFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const uint32_t>(object.segmentation_update_map, settings, "uint32_t", "segmentation_update_map", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.segmentation_temporal_update, settings, "uint32_t", "segmentation_temporal_update", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.segmentation_update_data, settings, "uint32_t", "segmentation_update_data", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.segmentation_abs_or_delta_update, settings, "uint32_t", "segmentation_abs_or_delta_update", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.reserved, settings, "uint32_t", "reserved", indents + 1, dump_html_uint32_t);
+}
+void dump_html_StdVideoVP9Segmentation(const StdVideoVP9Segmentation& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const StdVideoVP9SegmentationFlags>(object.flags, settings, "StdVideoVP9SegmentationFlags", "flags", indents + 1, dump_html_StdVideoVP9SegmentationFlags);
+    dump_html_array<const uint8_t>(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS]", "uint8_t", "segmentation_tree_probs", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.segmentation_pred_prob, STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB]", "uint8_t", "segmentation_pred_prob", indents + 1, dump_html_uint8_t); // ZRR
+    dump_html_array<const uint8_t>(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "uint8_t", "FeatureEnabled", indents + 1, dump_html_uint8_t); // ZRR
+}
+void dump_html_StdVideoDecodeVP9PictureInfoFlags(const StdVideoDecodeVP9PictureInfoFlags& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const uint32_t>(object.error_resilient_mode, settings, "uint32_t", "error_resilient_mode", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.intra_only, settings, "uint32_t", "intra_only", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.allow_high_precision_mv, settings, "uint32_t", "allow_high_precision_mv", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.refresh_frame_context, settings, "uint32_t", "refresh_frame_context", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.frame_parallel_decoding_mode, settings, "uint32_t", "frame_parallel_decoding_mode", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.segmentation_enabled, settings, "uint32_t", "segmentation_enabled", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.show_frame, settings, "uint32_t", "show_frame", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.UsePrevFrameMvs, settings, "uint32_t", "UsePrevFrameMvs", indents + 1, dump_html_uint32_t);
+    dump_html_value<const uint32_t>(object.reserved, settings, "uint32_t", "reserved", indents + 1, dump_html_uint32_t);
+}
+void dump_html_StdVideoDecodeVP9PictureInfo(const StdVideoDecodeVP9PictureInfo& object, const ApiDumpSettings& settings, int indents)
+{
+    settings.stream() << "<div class='val'>";
+    if(settings.showAddress())
+        settings.stream() << &object << "\n";
+    else
+        settings.stream() << "address\n";
+    settings.stream() << "</div></summary>";
+    dump_html_value<const StdVideoDecodeVP9PictureInfoFlags>(object.flags, settings, "StdVideoDecodeVP9PictureInfoFlags", "flags", indents + 1, dump_html_StdVideoDecodeVP9PictureInfoFlags);
+    dump_html_value<const StdVideoVP9Profile>(object.profile, settings, "StdVideoVP9Profile", "profile", indents + 1, dump_html_StdVideoVP9Profile);
+    dump_html_value<const StdVideoVP9FrameType>(object.frame_type, settings, "StdVideoVP9FrameType", "frame_type", indents + 1, dump_html_StdVideoVP9FrameType);
+    dump_html_value<const uint8_t>(object.frame_context_idx, settings, "uint8_t", "frame_context_idx", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.reset_frame_context, settings, "uint8_t", "reset_frame_context", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.refresh_frame_flags, settings, "uint8_t", "refresh_frame_flags", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.ref_frame_sign_bias_mask, settings, "uint8_t", "ref_frame_sign_bias_mask", indents + 1, dump_html_uint8_t);
+    dump_html_value<const StdVideoVP9InterpolationFilter>(object.interpolation_filter, settings, "StdVideoVP9InterpolationFilter", "interpolation_filter", indents + 1, dump_html_StdVideoVP9InterpolationFilter);
+    dump_html_value<const uint8_t>(object.base_q_idx, settings, "uint8_t", "base_q_idx", indents + 1, dump_html_uint8_t);
+    dump_html_value<const int8_t>(object.delta_q_y_dc, settings, "int8_t", "delta_q_y_dc", indents + 1, dump_html_int8_t);
+    dump_html_value<const int8_t>(object.delta_q_uv_dc, settings, "int8_t", "delta_q_uv_dc", indents + 1, dump_html_int8_t);
+    dump_html_value<const int8_t>(object.delta_q_uv_ac, settings, "int8_t", "delta_q_uv_ac", indents + 1, dump_html_int8_t);
+    dump_html_value<const uint8_t>(object.tile_cols_log2, settings, "uint8_t", "tile_cols_log2", indents + 1, dump_html_uint8_t);
+    dump_html_value<const uint8_t>(object.tile_rows_log2, settings, "uint8_t", "tile_rows_log2", indents + 1, dump_html_uint8_t);
+    dump_html_array<const uint16_t>(object.reserved1, 3, settings, "uint16_t[3]", "uint16_t", "reserved1", indents + 1, dump_html_uint16_t); // ZRR
+    dump_html_pointer<const StdVideoVP9ColorConfig>(object.pColorConfig, settings, "const StdVideoVP9ColorConfig*", "pColorConfig", indents + 1, dump_html_StdVideoVP9ColorConfig);
+    dump_html_pointer<const StdVideoVP9LoopFilter>(object.pLoopFilter, settings, "const StdVideoVP9LoopFilter*", "pLoopFilter", indents + 1, dump_html_StdVideoVP9LoopFilter);
+    dump_html_pointer<const StdVideoVP9Segmentation>(object.pSegmentation, settings, "const StdVideoVP9Segmentation*", "pSegmentation", indents + 1, dump_html_StdVideoVP9Segmentation);
 }
 
 //========================== Union Implementations ==========================//
