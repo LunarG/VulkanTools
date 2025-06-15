@@ -2199,7 +2199,6 @@ class ApiDumpGeneratorOptions(GeneratorOptions):
                  addExtensions = None,
                  removeExtensions = None,
                  emitExtensions = None,
-                 sortProcedure = None,
                  prefixText = "",
                  genFuncPointers = True,
                  protectFile = True,
@@ -2227,8 +2226,7 @@ class ApiDumpGeneratorOptions(GeneratorOptions):
                  defaultExtensions = defaultExtensions,
                  addExtensions = addExtensions,
                  removeExtensions = removeExtensions,
-                 emitExtensions = emitExtensions,
-                 sortProcedure = sortProcedure)
+                 emitExtensions = emitExtensions,)
         self.input           = input
         self.prefixText      = prefixText
         self.genFuncPointers = genFuncPointers
