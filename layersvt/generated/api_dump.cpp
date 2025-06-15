@@ -98,7 +98,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, c
             dump_text_params_vkCreateDevice(ApiDumpInstance::current(), physicalDevice, pCreateInfo, pAllocator, pDevice);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-    } else {    
+    } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDevice", "physicalDevice, pCreateInfo, pAllocator, pDevice", "VkResult");
     }
 
@@ -182,7 +182,6 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(VkInstance instance, const VkAlloca
             dump_text_params_vkDestroyInstance(ApiDumpInstance::current(), instance, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyInstance", "instance, pAllocator", "void");
     }
@@ -214,7 +213,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(VkInstance instance, u
             dump_text_params_vkEnumeratePhysicalDevices(ApiDumpInstance::current(), instance, pPhysicalDeviceCount, pPhysicalDevices);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkEnumeratePhysicalDevices", "instance, pPhysicalDeviceCount, pPhysicalDevices", "VkResult");
     }
@@ -250,7 +248,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures(VkPhysicalDevice physical
             dump_text_params_vkGetPhysicalDeviceFeatures(ApiDumpInstance::current(), physicalDevice, pFeatures);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceFeatures", "physicalDevice, pFeatures", "void");
     }
@@ -280,7 +277,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties(VkPhysicalDevice 
             dump_text_params_vkGetPhysicalDeviceFormatProperties(ApiDumpInstance::current(), physicalDevice, format, pFormatProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceFormatProperties", "physicalDevice, format, pFormatProperties", "void");
     }
@@ -310,7 +306,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceImageFormatProperties(VkPhysic
             dump_text_params_vkGetPhysicalDeviceImageFormatProperties(ApiDumpInstance::current(), physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceImageFormatProperties", "physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties", "VkResult");
     }
@@ -341,7 +336,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties(VkPhysicalDevice physic
             dump_text_params_vkGetPhysicalDeviceProperties(ApiDumpInstance::current(), physicalDevice, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceProperties", "physicalDevice, pProperties", "void");
     }
@@ -371,7 +365,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDe
             dump_text_params_vkGetPhysicalDeviceQueueFamilyProperties(ApiDumpInstance::current(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceQueueFamilyProperties", "physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties", "void");
     }
@@ -401,7 +394,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice 
             dump_text_params_vkGetPhysicalDeviceMemoryProperties(ApiDumpInstance::current(), physicalDevice, pMemoryProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceMemoryProperties", "physicalDevice, pMemoryProperties", "void");
     }
@@ -431,7 +423,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties(VkPhys
             dump_text_params_vkGetPhysicalDeviceSparseImageFormatProperties(ApiDumpInstance::current(), physicalDevice, format, type, samples, usage, tiling, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSparseImageFormatProperties", "physicalDevice, format, type, samples, usage, tiling, pPropertyCount, pProperties", "void");
     }
@@ -461,7 +452,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroups(VkInstance instan
             dump_text_params_vkEnumeratePhysicalDeviceGroups(ApiDumpInstance::current(), instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkEnumeratePhysicalDeviceGroups", "instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties", "VkResult");
     }
@@ -492,7 +482,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physica
             dump_text_params_vkGetPhysicalDeviceFeatures2(ApiDumpInstance::current(), physicalDevice, pFeatures);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceFeatures2", "physicalDevice, pFeatures", "void");
     }
@@ -522,7 +511,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties2(VkPhysicalDevice physi
             dump_text_params_vkGetPhysicalDeviceProperties2(ApiDumpInstance::current(), physicalDevice, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceProperties2", "physicalDevice, pProperties", "void");
     }
@@ -552,7 +540,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties2(VkPhysicalDevice
             dump_text_params_vkGetPhysicalDeviceFormatProperties2(ApiDumpInstance::current(), physicalDevice, format, pFormatProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceFormatProperties2", "physicalDevice, format, pFormatProperties", "void");
     }
@@ -582,7 +569,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceImageFormatProperties2(VkPhysi
             dump_text_params_vkGetPhysicalDeviceImageFormatProperties2(ApiDumpInstance::current(), physicalDevice, pImageFormatInfo, pImageFormatProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceImageFormatProperties2", "physicalDevice, pImageFormatInfo, pImageFormatProperties", "VkResult");
     }
@@ -613,7 +599,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties2(VkPhysicalD
             dump_text_params_vkGetPhysicalDeviceQueueFamilyProperties2(ApiDumpInstance::current(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceQueueFamilyProperties2", "physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties", "void");
     }
@@ -643,7 +628,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties2(VkPhysicalDevice
             dump_text_params_vkGetPhysicalDeviceMemoryProperties2(ApiDumpInstance::current(), physicalDevice, pMemoryProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceMemoryProperties2", "physicalDevice, pMemoryProperties", "void");
     }
@@ -673,7 +657,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties2(VkPhy
             dump_text_params_vkGetPhysicalDeviceSparseImageFormatProperties2(ApiDumpInstance::current(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSparseImageFormatProperties2", "physicalDevice, pFormatInfo, pPropertyCount, pProperties", "void");
     }
@@ -703,7 +686,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalBufferProperties(VkPhysica
             dump_text_params_vkGetPhysicalDeviceExternalBufferProperties(ApiDumpInstance::current(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceExternalBufferProperties", "physicalDevice, pExternalBufferInfo, pExternalBufferProperties", "void");
     }
@@ -733,7 +715,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalFenceProperties(VkPhysical
             dump_text_params_vkGetPhysicalDeviceExternalFenceProperties(ApiDumpInstance::current(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceExternalFenceProperties", "physicalDevice, pExternalFenceInfo, pExternalFenceProperties", "void");
     }
@@ -763,7 +744,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalSemaphoreProperties(VkPhys
             dump_text_params_vkGetPhysicalDeviceExternalSemaphoreProperties(ApiDumpInstance::current(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceExternalSemaphoreProperties", "physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties", "void");
     }
@@ -793,7 +773,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolProperties(VkPhysicalDevic
             dump_text_params_vkGetPhysicalDeviceToolProperties(ApiDumpInstance::current(), physicalDevice, pToolCount, pToolProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceToolProperties", "physicalDevice, pToolCount, pToolProperties", "VkResult");
     }
@@ -824,7 +803,6 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR
             dump_text_params_vkDestroySurfaceKHR(ApiDumpInstance::current(), instance, surface, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroySurfaceKHR", "instance, surface, pAllocator", "void");
     }
@@ -854,7 +832,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDe
             dump_text_params_vkGetPhysicalDeviceSurfaceSupportKHR(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, surface, pSupported);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSurfaceSupportKHR", "physicalDevice, queueFamilyIndex, surface, pSupported", "VkResult");
     }
@@ -885,7 +862,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VkPhysi
             dump_text_params_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(ApiDumpInstance::current(), physicalDevice, surface, pSurfaceCapabilities);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR", "physicalDevice, surface, pSurfaceCapabilities", "VkResult");
     }
@@ -916,7 +892,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDe
             dump_text_params_vkGetPhysicalDeviceSurfaceFormatsKHR(ApiDumpInstance::current(), physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSurfaceFormatsKHR", "physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats", "VkResult");
     }
@@ -947,7 +922,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModesKHR(VkPhysi
             dump_text_params_vkGetPhysicalDeviceSurfacePresentModesKHR(ApiDumpInstance::current(), physicalDevice, surface, pPresentModeCount, pPresentModes);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSurfacePresentModesKHR", "physicalDevice, surface, pPresentModeCount, pPresentModes", "VkResult");
     }
@@ -978,7 +952,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDevicePresentRectanglesKHR(VkPhysica
             dump_text_params_vkGetPhysicalDevicePresentRectanglesKHR(ApiDumpInstance::current(), physicalDevice, surface, pRectCount, pRects);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDevicePresentRectanglesKHR", "physicalDevice, surface, pRectCount, pRects", "VkResult");
     }
@@ -1009,7 +982,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayPropertiesKHR(VkPhysica
             dump_text_params_vkGetPhysicalDeviceDisplayPropertiesKHR(ApiDumpInstance::current(), physicalDevice, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceDisplayPropertiesKHR", "physicalDevice, pPropertyCount, pProperties", "VkResult");
     }
@@ -1040,7 +1012,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayPlanePropertiesKHR(VkPh
             dump_text_params_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(ApiDumpInstance::current(), physicalDevice, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceDisplayPlanePropertiesKHR", "physicalDevice, pPropertyCount, pProperties", "VkResult");
     }
@@ -1071,7 +1042,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayPlaneSupportedDisplaysKHR(VkPhysicalD
             dump_text_params_vkGetDisplayPlaneSupportedDisplaysKHR(ApiDumpInstance::current(), physicalDevice, planeIndex, pDisplayCount, pDisplays);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDisplayPlaneSupportedDisplaysKHR", "physicalDevice, planeIndex, pDisplayCount, pDisplays", "VkResult");
     }
@@ -1102,7 +1072,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayModePropertiesKHR(VkPhysicalDevice ph
             dump_text_params_vkGetDisplayModePropertiesKHR(ApiDumpInstance::current(), physicalDevice, display, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDisplayModePropertiesKHR", "physicalDevice, display, pPropertyCount, pProperties", "VkResult");
     }
@@ -1133,7 +1102,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDisplayModeKHR(VkPhysicalDevice physicalD
             dump_text_params_vkCreateDisplayModeKHR(ApiDumpInstance::current(), physicalDevice, display, pCreateInfo, pAllocator, pMode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDisplayModeKHR", "physicalDevice, display, pCreateInfo, pAllocator, pMode", "VkResult");
     }
@@ -1164,7 +1132,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayPlaneCapabilitiesKHR(VkPhysicalDevice
             dump_text_params_vkGetDisplayPlaneCapabilitiesKHR(ApiDumpInstance::current(), physicalDevice, mode, planeIndex, pCapabilities);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDisplayPlaneCapabilitiesKHR", "physicalDevice, mode, planeIndex, pCapabilities", "VkResult");
     }
@@ -1195,7 +1162,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDisplayPlaneSurfaceKHR(VkInstance instanc
             dump_text_params_vkCreateDisplayPlaneSurfaceKHR(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDisplayPlaneSurfaceKHR", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -1227,7 +1193,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateXlibSurfaceKHR(VkInstance instance, const
             dump_text_params_vkCreateXlibSurfaceKHR(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateXlibSurfaceKHR", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -1260,7 +1225,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXlibPresentationSupportKHR(VkP
             dump_text_params_vkGetPhysicalDeviceXlibPresentationSupportKHR(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, dpy, visualID);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkBool32");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceXlibPresentationSupportKHR", "physicalDevice, queueFamilyIndex, dpy, visualID", "VkBool32");
     }
@@ -1293,7 +1257,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(VkInstance instance, const 
             dump_text_params_vkCreateXcbSurfaceKHR(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateXcbSurfaceKHR", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -1326,7 +1289,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportKHR(VkPh
             dump_text_params_vkGetPhysicalDeviceXcbPresentationSupportKHR(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, connection, visual_id);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkBool32");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceXcbPresentationSupportKHR", "physicalDevice, queueFamilyIndex, connection, visual_id", "VkBool32");
     }
@@ -1359,7 +1321,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateWaylandSurfaceKHR(VkInstance instance, co
             dump_text_params_vkCreateWaylandSurfaceKHR(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateWaylandSurfaceKHR", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -1392,7 +1353,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWaylandPresentationSupportKHR(
             dump_text_params_vkGetPhysicalDeviceWaylandPresentationSupportKHR(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, display);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkBool32");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceWaylandPresentationSupportKHR", "physicalDevice, queueFamilyIndex, display", "VkBool32");
     }
@@ -1425,7 +1385,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateAndroidSurfaceKHR(VkInstance instance, co
             dump_text_params_vkCreateAndroidSurfaceKHR(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateAndroidSurfaceKHR", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -1458,7 +1417,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance instance, cons
             dump_text_params_vkCreateWin32SurfaceKHR(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateWin32SurfaceKHR", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -1491,7 +1449,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWin32PresentationSupportKHR(Vk
             dump_text_params_vkGetPhysicalDeviceWin32PresentationSupportKHR(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkBool32");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceWin32PresentationSupportKHR", "physicalDevice, queueFamilyIndex", "VkBool32");
     }
@@ -1523,7 +1480,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugReportCallbackEXT(VkInstance instanc
             dump_text_params_vkCreateDebugReportCallbackEXT(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pCallback);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDebugReportCallbackEXT", "instance, pCreateInfo, pAllocator, pCallback", "VkResult");
     }
@@ -1554,7 +1510,6 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugReportCallbackEXT(VkInstance instance, 
             dump_text_params_vkDestroyDebugReportCallbackEXT(ApiDumpInstance::current(), instance, callback, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyDebugReportCallbackEXT", "instance, callback, pAllocator", "void");
     }
@@ -1584,7 +1539,6 @@ VKAPI_ATTR void VKAPI_CALL vkDebugReportMessageEXT(VkInstance instance, VkDebugR
             dump_text_params_vkDebugReportMessageEXT(ApiDumpInstance::current(), instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDebugReportMessageEXT", "instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage", "void");
     }
@@ -1614,7 +1568,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceVideoCapabilitiesKHR(VkPhysica
             dump_text_params_vkGetPhysicalDeviceVideoCapabilitiesKHR(ApiDumpInstance::current(), physicalDevice, pVideoProfile, pCapabilities);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceVideoCapabilitiesKHR", "physicalDevice, pVideoProfile, pCapabilities", "VkResult");
     }
@@ -1645,7 +1598,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceVideoFormatPropertiesKHR(VkPhy
             dump_text_params_vkGetPhysicalDeviceVideoFormatPropertiesKHR(ApiDumpInstance::current(), physicalDevice, pVideoFormatInfo, pVideoFormatPropertyCount, pVideoFormatProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceVideoFormatPropertiesKHR", "physicalDevice, pVideoFormatInfo, pVideoFormatPropertyCount, pVideoFormatProperties", "VkResult");
     }
@@ -1677,7 +1629,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateStreamDescriptorSurfaceGGP(VkInstance ins
             dump_text_params_vkCreateStreamDescriptorSurfaceGGP(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateStreamDescriptorSurfaceGGP", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -1709,7 +1660,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceExternalImageFormatPropertiesN
             dump_text_params_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(ApiDumpInstance::current(), physicalDevice, format, type, tiling, usage, flags, externalHandleType, pExternalImageFormatProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceExternalImageFormatPropertiesNV", "physicalDevice, format, type, tiling, usage, flags, externalHandleType, pExternalImageFormatProperties", "VkResult");
     }
@@ -1740,7 +1690,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFeatures2KHR(VkPhysicalDevice phys
             dump_text_params_vkGetPhysicalDeviceFeatures2KHR(ApiDumpInstance::current(), physicalDevice, pFeatures);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceFeatures2KHR", "physicalDevice, pFeatures", "void");
     }
@@ -1770,7 +1719,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceProperties2KHR(VkPhysicalDevice ph
             dump_text_params_vkGetPhysicalDeviceProperties2KHR(ApiDumpInstance::current(), physicalDevice, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceProperties2KHR", "physicalDevice, pProperties", "void");
     }
@@ -1800,7 +1748,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceFormatProperties2KHR(VkPhysicalDev
             dump_text_params_vkGetPhysicalDeviceFormatProperties2KHR(ApiDumpInstance::current(), physicalDevice, format, pFormatProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceFormatProperties2KHR", "physicalDevice, format, pFormatProperties", "void");
     }
@@ -1830,7 +1777,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceImageFormatProperties2KHR(VkPh
             dump_text_params_vkGetPhysicalDeviceImageFormatProperties2KHR(ApiDumpInstance::current(), physicalDevice, pImageFormatInfo, pImageFormatProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceImageFormatProperties2KHR", "physicalDevice, pImageFormatInfo, pImageFormatProperties", "VkResult");
     }
@@ -1861,7 +1807,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyProperties2KHR(VkPhysic
             dump_text_params_vkGetPhysicalDeviceQueueFamilyProperties2KHR(ApiDumpInstance::current(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceQueueFamilyProperties2KHR", "physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties", "void");
     }
@@ -1891,7 +1836,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties2KHR(VkPhysicalDev
             dump_text_params_vkGetPhysicalDeviceMemoryProperties2KHR(ApiDumpInstance::current(), physicalDevice, pMemoryProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceMemoryProperties2KHR", "physicalDevice, pMemoryProperties", "void");
     }
@@ -1921,7 +1865,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties2KHR(Vk
             dump_text_params_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(ApiDumpInstance::current(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSparseImageFormatProperties2KHR", "physicalDevice, pFormatInfo, pPropertyCount, pProperties", "void");
     }
@@ -1952,7 +1895,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateViSurfaceNN(VkInstance instance, const Vk
             dump_text_params_vkCreateViSurfaceNN(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateViSurfaceNN", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -1984,7 +1926,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroupsKHR(VkInstance ins
             dump_text_params_vkEnumeratePhysicalDeviceGroupsKHR(ApiDumpInstance::current(), instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkEnumeratePhysicalDeviceGroupsKHR", "instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties", "VkResult");
     }
@@ -2015,7 +1956,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalBufferPropertiesKHR(VkPhys
             dump_text_params_vkGetPhysicalDeviceExternalBufferPropertiesKHR(ApiDumpInstance::current(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceExternalBufferPropertiesKHR", "physicalDevice, pExternalBufferInfo, pExternalBufferProperties", "void");
     }
@@ -2045,7 +1985,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(VkP
             dump_text_params_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(ApiDumpInstance::current(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR", "physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties", "void");
     }
@@ -2075,7 +2014,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseDisplayEXT(VkPhysicalDevice physicalDevi
             dump_text_params_vkReleaseDisplayEXT(ApiDumpInstance::current(), physicalDevice, display);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkReleaseDisplayEXT", "physicalDevice, display", "VkResult");
     }
@@ -2107,7 +2045,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireXlibDisplayEXT(VkPhysicalDevice physical
             dump_text_params_vkAcquireXlibDisplayEXT(ApiDumpInstance::current(), physicalDevice, dpy, display);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAcquireXlibDisplayEXT", "physicalDevice, dpy, display", "VkResult");
     }
@@ -2140,7 +2077,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRandROutputDisplayEXT(VkPhysicalDevice physi
             dump_text_params_vkGetRandROutputDisplayEXT(ApiDumpInstance::current(), physicalDevice, dpy, rrOutput, pDisplay);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetRandROutputDisplayEXT", "physicalDevice, dpy, rrOutput, pDisplay", "VkResult");
     }
@@ -2172,7 +2108,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilities2EXT(VkPhys
             dump_text_params_vkGetPhysicalDeviceSurfaceCapabilities2EXT(ApiDumpInstance::current(), physicalDevice, surface, pSurfaceCapabilities);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSurfaceCapabilities2EXT", "physicalDevice, surface, pSurfaceCapabilities", "VkResult");
     }
@@ -2203,7 +2138,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceExternalFencePropertiesKHR(VkPhysi
             dump_text_params_vkGetPhysicalDeviceExternalFencePropertiesKHR(ApiDumpInstance::current(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceExternalFencePropertiesKHR", "physicalDevice, pExternalFenceInfo, pExternalFenceProperties", "void");
     }
@@ -2233,7 +2167,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceQueueFamilyPerformanceQu
             dump_text_params_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR", "physicalDevice, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions", "VkResult");
     }
@@ -2264,7 +2197,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesK
             dump_text_params_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(ApiDumpInstance::current(), physicalDevice, pPerformanceQueryCreateInfo, pNumPasses);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR", "physicalDevice, pPerformanceQueryCreateInfo, pNumPasses", "void");
     }
@@ -2294,7 +2226,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceCapabilities2KHR(VkPhys
             dump_text_params_vkGetPhysicalDeviceSurfaceCapabilities2KHR(ApiDumpInstance::current(), physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSurfaceCapabilities2KHR", "physicalDevice, pSurfaceInfo, pSurfaceCapabilities", "VkResult");
     }
@@ -2325,7 +2256,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfaceFormats2KHR(VkPhysicalD
             dump_text_params_vkGetPhysicalDeviceSurfaceFormats2KHR(ApiDumpInstance::current(), physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSurfaceFormats2KHR", "physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats", "VkResult");
     }
@@ -2356,7 +2286,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayProperties2KHR(VkPhysic
             dump_text_params_vkGetPhysicalDeviceDisplayProperties2KHR(ApiDumpInstance::current(), physicalDevice, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceDisplayProperties2KHR", "physicalDevice, pPropertyCount, pProperties", "VkResult");
     }
@@ -2387,7 +2316,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceDisplayPlaneProperties2KHR(VkP
             dump_text_params_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(ApiDumpInstance::current(), physicalDevice, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceDisplayPlaneProperties2KHR", "physicalDevice, pPropertyCount, pProperties", "VkResult");
     }
@@ -2418,7 +2346,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayModeProperties2KHR(VkPhysicalDevice p
             dump_text_params_vkGetDisplayModeProperties2KHR(ApiDumpInstance::current(), physicalDevice, display, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDisplayModeProperties2KHR", "physicalDevice, display, pPropertyCount, pProperties", "VkResult");
     }
@@ -2449,7 +2376,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDisplayPlaneCapabilities2KHR(VkPhysicalDevic
             dump_text_params_vkGetDisplayPlaneCapabilities2KHR(ApiDumpInstance::current(), physicalDevice, pDisplayPlaneInfo, pCapabilities);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDisplayPlaneCapabilities2KHR", "physicalDevice, pDisplayPlaneInfo, pCapabilities", "VkResult");
     }
@@ -2481,7 +2407,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateIOSSurfaceMVK(VkInstance instance, const 
             dump_text_params_vkCreateIOSSurfaceMVK(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateIOSSurfaceMVK", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -2514,7 +2439,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateMacOSSurfaceMVK(VkInstance instance, cons
             dump_text_params_vkCreateMacOSSurfaceMVK(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateMacOSSurfaceMVK", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -2546,7 +2470,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(VkInstance instanc
             dump_text_params_vkCreateDebugUtilsMessengerEXT(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pMessenger);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDebugUtilsMessengerEXT", "instance, pCreateInfo, pAllocator, pMessenger", "VkResult");
     }
@@ -2577,7 +2500,6 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance, 
             dump_text_params_vkDestroyDebugUtilsMessengerEXT(ApiDumpInstance::current(), instance, messenger, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyDebugUtilsMessengerEXT", "instance, messenger, pAllocator", "void");
     }
@@ -2607,7 +2529,6 @@ VKAPI_ATTR void VKAPI_CALL vkSubmitDebugUtilsMessageEXT(VkInstance instance, VkD
             dump_text_params_vkSubmitDebugUtilsMessageEXT(ApiDumpInstance::current(), instance, messageSeverity, messageTypes, pCallbackData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSubmitDebugUtilsMessageEXT", "instance, messageSeverity, messageTypes, pCallbackData", "void");
     }
@@ -2637,7 +2558,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMultisamplePropertiesEXT(VkPhysica
             dump_text_params_vkGetPhysicalDeviceMultisamplePropertiesEXT(ApiDumpInstance::current(), physicalDevice, samples, pMultisampleProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceMultisamplePropertiesEXT", "physicalDevice, samples, pMultisampleProperties", "void");
     }
@@ -2667,7 +2587,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(Vk
             dump_text_params_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(ApiDumpInstance::current(), physicalDevice, pTimeDomainCount, pTimeDomains);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceCalibrateableTimeDomainsKHR", "physicalDevice, pTimeDomainCount, pTimeDomains", "VkResult");
     }
@@ -2698,7 +2617,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(Vk
             dump_text_params_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(ApiDumpInstance::current(), physicalDevice, pTimeDomainCount, pTimeDomains);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT", "physicalDevice, pTimeDomainCount, pTimeDomains", "VkResult");
     }
@@ -2730,7 +2648,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(VkInstance instan
             dump_text_params_vkCreateImagePipeSurfaceFUCHSIA(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateImagePipeSurfaceFUCHSIA", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -2763,7 +2680,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateMetalSurfaceEXT(VkInstance instance, cons
             dump_text_params_vkCreateMetalSurfaceEXT(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateMetalSurfaceEXT", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -2795,7 +2711,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceFragmentShadingRatesKHR(VkPhys
             dump_text_params_vkGetPhysicalDeviceFragmentShadingRatesKHR(ApiDumpInstance::current(), physicalDevice, pFragmentShadingRateCount, pFragmentShadingRates);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceFragmentShadingRatesKHR", "physicalDevice, pFragmentShadingRateCount, pFragmentShadingRates", "VkResult");
     }
@@ -2826,7 +2741,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDe
             dump_text_params_vkGetPhysicalDeviceToolPropertiesEXT(ApiDumpInstance::current(), physicalDevice, pToolCount, pToolProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceToolPropertiesEXT", "physicalDevice, pToolCount, pToolProperties", "VkResult");
     }
@@ -2877,7 +2791,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
             dump_text_params_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(ApiDumpInstance::current(), physicalDevice, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceCooperativeMatrixPropertiesNV", "physicalDevice, pPropertyCount, pProperties", "VkResult");
     }
@@ -2908,7 +2821,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSupportedFramebufferMixedSampl
             dump_text_params_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(ApiDumpInstance::current(), physicalDevice, pCombinationCount, pCombinations);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV", "physicalDevice, pCombinationCount, pCombinations", "VkResult");
     }
@@ -2940,7 +2852,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModes2EXT(VkPhys
             dump_text_params_vkGetPhysicalDeviceSurfacePresentModes2EXT(ApiDumpInstance::current(), physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceSurfacePresentModes2EXT", "physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes", "VkResult");
     }
@@ -2972,7 +2883,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateHeadlessSurfaceEXT(VkInstance instance, c
             dump_text_params_vkCreateHeadlessSurfaceEXT(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateHeadlessSurfaceEXT", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -3003,7 +2913,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireDrmDisplayEXT(VkPhysicalDevice physicalD
             dump_text_params_vkAcquireDrmDisplayEXT(ApiDumpInstance::current(), physicalDevice, drmFd, display);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAcquireDrmDisplayEXT", "physicalDevice, drmFd, display", "VkResult");
     }
@@ -3034,7 +2943,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDrmDisplayEXT(VkPhysicalDevice physicalDevic
             dump_text_params_vkGetDrmDisplayEXT(ApiDumpInstance::current(), physicalDevice, drmFd, connectorId, display);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDrmDisplayEXT", "physicalDevice, drmFd, connectorId, display", "VkResult");
     }
@@ -3065,7 +2973,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceVideoEncodeQualityLevelPropert
             dump_text_params_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(ApiDumpInstance::current(), physicalDevice, pQualityLevelInfo, pQualityLevelProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR", "physicalDevice, pQualityLevelInfo, pQualityLevelProperties", "VkResult");
     }
@@ -3097,7 +3004,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireWinrtDisplayNV(VkPhysicalDevice physical
             dump_text_params_vkAcquireWinrtDisplayNV(ApiDumpInstance::current(), physicalDevice, display);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAcquireWinrtDisplayNV", "physicalDevice, display", "VkResult");
     }
@@ -3130,7 +3036,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetWinrtDisplayNV(VkPhysicalDevice physicalDevi
             dump_text_params_vkGetWinrtDisplayNV(ApiDumpInstance::current(), physicalDevice, deviceRelativeId, pDisplay);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetWinrtDisplayNV", "physicalDevice, deviceRelativeId, pDisplay", "VkResult");
     }
@@ -3163,7 +3068,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDirectFBSurfaceEXT(VkInstance instance, c
             dump_text_params_vkCreateDirectFBSurfaceEXT(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDirectFBSurfaceEXT", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -3196,7 +3100,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceDirectFBPresentationSupportEXT
             dump_text_params_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, dfb);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkBool32");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceDirectFBPresentationSupportEXT", "physicalDevice, queueFamilyIndex, dfb", "VkBool32");
     }
@@ -3229,7 +3132,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateScreenSurfaceQNX(VkInstance instance, con
             dump_text_params_vkCreateScreenSurfaceQNX(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateScreenSurfaceQNX", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
     }
@@ -3262,7 +3164,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(V
             dump_text_params_vkGetPhysicalDeviceScreenPresentationSupportQNX(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, window);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkBool32");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceScreenPresentationSupportQNX", "physicalDevice, queueFamilyIndex, window", "VkBool32");
     }
@@ -3294,7 +3195,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceOpticalFlowImageFormatsNV(VkPh
             dump_text_params_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(ApiDumpInstance::current(), physicalDevice, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceOpticalFlowImageFormatsNV", "physicalDevice, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties", "VkResult");
     }
@@ -3325,7 +3225,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeVectorPropertiesNV(
             dump_text_params_vkGetPhysicalDeviceCooperativeVectorPropertiesNV(ApiDumpInstance::current(), physicalDevice, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceCooperativeVectorPropertiesNV", "physicalDevice, pPropertyCount, pProperties", "VkResult");
     }
@@ -3356,7 +3255,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR
             dump_text_params_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(ApiDumpInstance::current(), physicalDevice, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR", "physicalDevice, pPropertyCount, pProperties", "VkResult");
     }
@@ -3387,7 +3285,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixFlexibleDimen
             dump_text_params_vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV(ApiDumpInstance::current(), physicalDevice, pPropertyCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV", "physicalDevice, pPropertyCount, pProperties", "VkResult");
     }
@@ -3421,7 +3318,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice device, const VkAllocationCa
             dump_text_params_vkDestroyDevice(ApiDumpInstance::current(), device, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyDevice", "device, pAllocator", "void");
     }
@@ -3452,7 +3349,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue(VkDevice device, uint32_t queueFamil
             dump_text_params_vkGetDeviceQueue(ApiDumpInstance::current(), device, queueFamilyIndex, queueIndex, pQueue);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceQueue", "device, queueFamilyIndex, queueIndex, pQueue", "void");
     }
@@ -3482,7 +3379,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit(VkQueue queue, uint32_t submitCount
             dump_text_params_vkQueueSubmit(ApiDumpInstance::current(), queue, submitCount, pSubmits, fence);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkQueueSubmit", "queue, submitCount, pSubmits, fence", "VkResult");
     }
@@ -3557,7 +3454,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAllocateMemory(VkDevice device, const VkMemoryA
             dump_text_params_vkAllocateMemory(ApiDumpInstance::current(), device, pAllocateInfo, pAllocator, pMemory);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAllocateMemory", "device, pAllocateInfo, pAllocator, pMemory", "VkResult");
     }
@@ -3588,7 +3485,7 @@ VKAPI_ATTR void VKAPI_CALL vkFreeMemory(VkDevice device, VkDeviceMemory memory, 
             dump_text_params_vkFreeMemory(ApiDumpInstance::current(), device, memory, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkFreeMemory", "device, memory, pAllocator", "void");
     }
@@ -3618,7 +3515,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkMapMemory(VkDevice device, VkDeviceMemory memor
             dump_text_params_vkMapMemory(ApiDumpInstance::current(), device, memory, offset, size, flags, ppData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkMapMemory", "device, memory, offset, size, flags, ppData", "VkResult");
     }
@@ -3649,7 +3546,7 @@ VKAPI_ATTR void VKAPI_CALL vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
             dump_text_params_vkUnmapMemory(ApiDumpInstance::current(), device, memory);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkUnmapMemory", "device, memory", "void");
     }
@@ -3679,7 +3576,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkFlushMappedMemoryRanges(VkDevice device, uint32
             dump_text_params_vkFlushMappedMemoryRanges(ApiDumpInstance::current(), device, memoryRangeCount, pMemoryRanges);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkFlushMappedMemoryRanges", "device, memoryRangeCount, pMemoryRanges", "VkResult");
     }
@@ -3710,7 +3607,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkInvalidateMappedMemoryRanges(VkDevice device, u
             dump_text_params_vkInvalidateMappedMemoryRanges(ApiDumpInstance::current(), device, memoryRangeCount, pMemoryRanges);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkInvalidateMappedMemoryRanges", "device, memoryRangeCount, pMemoryRanges", "VkResult");
     }
@@ -3741,7 +3638,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceMemoryCommitment(VkDevice device, VkDevice
             dump_text_params_vkGetDeviceMemoryCommitment(ApiDumpInstance::current(), device, memory, pCommittedMemoryInBytes);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceMemoryCommitment", "device, memory, pCommittedMemoryInBytes", "void");
     }
@@ -3771,7 +3668,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindBufferMemory(VkDevice device, VkBuffer buff
             dump_text_params_vkBindBufferMemory(ApiDumpInstance::current(), device, buffer, memory, memoryOffset);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBindBufferMemory", "device, buffer, memory, memoryOffset", "VkResult");
     }
@@ -3802,7 +3699,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory(VkDevice device, VkImage image,
             dump_text_params_vkBindImageMemory(ApiDumpInstance::current(), device, image, memory, memoryOffset);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBindImageMemory", "device, image, memory, memoryOffset", "VkResult");
     }
@@ -3833,7 +3730,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetBufferMemoryRequirements(VkDevice device, VkBuff
             dump_text_params_vkGetBufferMemoryRequirements(ApiDumpInstance::current(), device, buffer, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetBufferMemoryRequirements", "device, buffer, pMemoryRequirements", "void");
     }
@@ -3863,7 +3760,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements(VkDevice device, VkImage
             dump_text_params_vkGetImageMemoryRequirements(ApiDumpInstance::current(), device, image, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageMemoryRequirements", "device, image, pMemoryRequirements", "void");
     }
@@ -3893,7 +3790,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements(VkDevice device, V
             dump_text_params_vkGetImageSparseMemoryRequirements(ApiDumpInstance::current(), device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageSparseMemoryRequirements", "device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements", "void");
     }
@@ -3923,7 +3820,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueBindSparse(VkQueue queue, uint32_t bindInf
             dump_text_params_vkQueueBindSparse(ApiDumpInstance::current(), queue, bindInfoCount, pBindInfo, fence);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkQueueBindSparse", "queue, bindInfoCount, pBindInfo, fence", "VkResult");
     }
@@ -3954,7 +3851,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateFence(VkDevice device, const VkFenceCreat
             dump_text_params_vkCreateFence(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pFence);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateFence", "device, pCreateInfo, pAllocator, pFence", "VkResult");
     }
@@ -3985,7 +3882,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyFence(VkDevice device, VkFence fence, const 
             dump_text_params_vkDestroyFence(ApiDumpInstance::current(), device, fence, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyFence", "device, fence, pAllocator", "void");
     }
@@ -4015,7 +3912,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkResetFences(VkDevice device, uint32_t fenceCoun
             dump_text_params_vkResetFences(ApiDumpInstance::current(), device, fenceCount, pFences);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkResetFences", "device, fenceCount, pFences", "VkResult");
     }
@@ -4046,7 +3943,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceStatus(VkDevice device, VkFence fence)
             dump_text_params_vkGetFenceStatus(ApiDumpInstance::current(), device, fence);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetFenceStatus", "device, fence", "VkResult");
     }
@@ -4099,7 +3996,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSemaphore(VkDevice device, const VkSemaph
             dump_text_params_vkCreateSemaphore(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pSemaphore);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateSemaphore", "device, pCreateInfo, pAllocator, pSemaphore", "VkResult");
     }
@@ -4130,7 +4027,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySemaphore(VkDevice device, VkSemaphore semap
             dump_text_params_vkDestroySemaphore(ApiDumpInstance::current(), device, semaphore, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroySemaphore", "device, semaphore, pAllocator", "void");
     }
@@ -4160,7 +4057,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateEvent(VkDevice device, const VkEventCreat
             dump_text_params_vkCreateEvent(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pEvent);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateEvent", "device, pCreateInfo, pAllocator, pEvent", "VkResult");
     }
@@ -4191,7 +4088,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyEvent(VkDevice device, VkEvent event, const 
             dump_text_params_vkDestroyEvent(ApiDumpInstance::current(), device, event, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyEvent", "device, event, pAllocator", "void");
     }
@@ -4221,7 +4118,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetEventStatus(VkDevice device, VkEvent event)
             dump_text_params_vkGetEventStatus(ApiDumpInstance::current(), device, event);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetEventStatus", "device, event", "VkResult");
     }
@@ -4252,7 +4149,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetEvent(VkDevice device, VkEvent event)
             dump_text_params_vkSetEvent(ApiDumpInstance::current(), device, event);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetEvent", "device, event", "VkResult");
     }
@@ -4283,7 +4180,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkResetEvent(VkDevice device, VkEvent event)
             dump_text_params_vkResetEvent(ApiDumpInstance::current(), device, event);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkResetEvent", "device, event", "VkResult");
     }
@@ -4314,7 +4211,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateQueryPool(VkDevice device, const VkQueryP
             dump_text_params_vkCreateQueryPool(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pQueryPool);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateQueryPool", "device, pCreateInfo, pAllocator, pQueryPool", "VkResult");
     }
@@ -4345,7 +4242,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyQueryPool(VkDevice device, VkQueryPool query
             dump_text_params_vkDestroyQueryPool(ApiDumpInstance::current(), device, queryPool, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyQueryPool", "device, queryPool, pAllocator", "void");
     }
@@ -4397,7 +4294,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateBuffer(VkDevice device, const VkBufferCre
             dump_text_params_vkCreateBuffer(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateBuffer", "device, pCreateInfo, pAllocator, pBuffer", "VkResult");
     }
@@ -4428,7 +4325,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyBuffer(VkDevice device, VkBuffer buffer, con
             dump_text_params_vkDestroyBuffer(ApiDumpInstance::current(), device, buffer, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyBuffer", "device, buffer, pAllocator", "void");
     }
@@ -4458,7 +4355,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateBufferView(VkDevice device, const VkBuffe
             dump_text_params_vkCreateBufferView(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pView);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateBufferView", "device, pCreateInfo, pAllocator, pView", "VkResult");
     }
@@ -4489,7 +4386,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyBufferView(VkDevice device, VkBufferView buf
             dump_text_params_vkDestroyBufferView(ApiDumpInstance::current(), device, bufferView, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyBufferView", "device, bufferView, pAllocator", "void");
     }
@@ -4519,7 +4416,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateImage(VkDevice device, const VkImageCreat
             dump_text_params_vkCreateImage(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pImage);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateImage", "device, pCreateInfo, pAllocator, pImage", "VkResult");
     }
@@ -4550,7 +4447,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyImage(VkDevice device, VkImage image, const 
             dump_text_params_vkDestroyImage(ApiDumpInstance::current(), device, image, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyImage", "device, image, pAllocator", "void");
     }
@@ -4580,7 +4477,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout(VkDevice device, VkImage 
             dump_text_params_vkGetImageSubresourceLayout(ApiDumpInstance::current(), device, image, pSubresource, pLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageSubresourceLayout", "device, image, pSubresource, pLayout", "void");
     }
@@ -4610,7 +4507,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateImageView(VkDevice device, const VkImageV
             dump_text_params_vkCreateImageView(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pView);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateImageView", "device, pCreateInfo, pAllocator, pView", "VkResult");
     }
@@ -4641,7 +4538,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyImageView(VkDevice device, VkImageView image
             dump_text_params_vkDestroyImageView(ApiDumpInstance::current(), device, imageView, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyImageView", "device, imageView, pAllocator", "void");
     }
@@ -4671,7 +4568,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateShaderModule(VkDevice device, const VkSha
             dump_text_params_vkCreateShaderModule(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pShaderModule);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateShaderModule", "device, pCreateInfo, pAllocator, pShaderModule", "VkResult");
     }
@@ -4702,7 +4599,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyShaderModule(VkDevice device, VkShaderModule
             dump_text_params_vkDestroyShaderModule(ApiDumpInstance::current(), device, shaderModule, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyShaderModule", "device, shaderModule, pAllocator", "void");
     }
@@ -4732,7 +4629,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineCache(VkDevice device, const VkPi
             dump_text_params_vkCreatePipelineCache(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pPipelineCache);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreatePipelineCache", "device, pCreateInfo, pAllocator, pPipelineCache", "VkResult");
     }
@@ -4763,7 +4660,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPipelineCache(VkDevice device, VkPipelineCac
             dump_text_params_vkDestroyPipelineCache(ApiDumpInstance::current(), device, pipelineCache, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyPipelineCache", "device, pipelineCache, pAllocator", "void");
     }
@@ -4793,7 +4690,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineCacheData(VkDevice device, VkPipelin
             dump_text_params_vkGetPipelineCacheData(ApiDumpInstance::current(), device, pipelineCache, pDataSize, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPipelineCacheData", "device, pipelineCache, pDataSize, pData", "VkResult");
     }
@@ -4824,7 +4721,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkMergePipelineCaches(VkDevice device, VkPipeline
             dump_text_params_vkMergePipelineCaches(ApiDumpInstance::current(), device, dstCache, srcCacheCount, pSrcCaches);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkMergePipelineCaches", "device, dstCache, srcCacheCount, pSrcCaches", "VkResult");
     }
@@ -4855,7 +4752,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateGraphicsPipelines(VkDevice device, VkPipe
             dump_text_params_vkCreateGraphicsPipelines(ApiDumpInstance::current(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateGraphicsPipelines", "device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines", "VkResult");
     }
@@ -4886,7 +4783,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateComputePipelines(VkDevice device, VkPipel
             dump_text_params_vkCreateComputePipelines(ApiDumpInstance::current(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateComputePipelines", "device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines", "VkResult");
     }
@@ -4917,7 +4814,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPipeline(VkDevice device, VkPipeline pipelin
             dump_text_params_vkDestroyPipeline(ApiDumpInstance::current(), device, pipeline, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyPipeline", "device, pipeline, pAllocator", "void");
     }
@@ -4947,7 +4844,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineLayout(VkDevice device, const VkP
             dump_text_params_vkCreatePipelineLayout(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pPipelineLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreatePipelineLayout", "device, pCreateInfo, pAllocator, pPipelineLayout", "VkResult");
     }
@@ -4978,7 +4875,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPipelineLayout(VkDevice device, VkPipelineLa
             dump_text_params_vkDestroyPipelineLayout(ApiDumpInstance::current(), device, pipelineLayout, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyPipelineLayout", "device, pipelineLayout, pAllocator", "void");
     }
@@ -5008,7 +4905,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSampler(VkDevice device, const VkSamplerC
             dump_text_params_vkCreateSampler(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pSampler);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateSampler", "device, pCreateInfo, pAllocator, pSampler", "VkResult");
     }
@@ -5039,7 +4936,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySampler(VkDevice device, VkSampler sampler, 
             dump_text_params_vkDestroySampler(ApiDumpInstance::current(), device, sampler, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroySampler", "device, sampler, pAllocator", "void");
     }
@@ -5069,7 +4966,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorSetLayout(VkDevice device, cons
             dump_text_params_vkCreateDescriptorSetLayout(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pSetLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDescriptorSetLayout", "device, pCreateInfo, pAllocator, pSetLayout", "VkResult");
     }
@@ -5100,7 +4997,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorSetLayout(VkDevice device, VkDescr
             dump_text_params_vkDestroyDescriptorSetLayout(ApiDumpInstance::current(), device, descriptorSetLayout, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyDescriptorSetLayout", "device, descriptorSetLayout, pAllocator", "void");
     }
@@ -5130,7 +5027,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorPool(VkDevice device, const VkD
             dump_text_params_vkCreateDescriptorPool(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pDescriptorPool);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDescriptorPool", "device, pCreateInfo, pAllocator, pDescriptorPool", "VkResult");
     }
@@ -5161,7 +5058,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorPool(VkDevice device, VkDescriptor
             dump_text_params_vkDestroyDescriptorPool(ApiDumpInstance::current(), device, descriptorPool, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyDescriptorPool", "device, descriptorPool, pAllocator", "void");
     }
@@ -5191,7 +5088,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkResetDescriptorPool(VkDevice device, VkDescript
             dump_text_params_vkResetDescriptorPool(ApiDumpInstance::current(), device, descriptorPool, flags);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkResetDescriptorPool", "device, descriptorPool, flags", "VkResult");
     }
@@ -5222,7 +5119,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAllocateDescriptorSets(VkDevice device, const V
             dump_text_params_vkAllocateDescriptorSets(ApiDumpInstance::current(), device, pAllocateInfo, pDescriptorSets);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAllocateDescriptorSets", "device, pAllocateInfo, pDescriptorSets", "VkResult");
     }
@@ -5253,7 +5150,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkFreeDescriptorSets(VkDevice device, VkDescripto
             dump_text_params_vkFreeDescriptorSets(ApiDumpInstance::current(), device, descriptorPool, descriptorSetCount, pDescriptorSets);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkFreeDescriptorSets", "device, descriptorPool, descriptorSetCount, pDescriptorSets", "VkResult");
     }
@@ -5284,7 +5181,7 @@ VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSets(VkDevice device, uint32_t desc
             dump_text_params_vkUpdateDescriptorSets(ApiDumpInstance::current(), device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkUpdateDescriptorSets", "device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies", "void");
     }
@@ -5314,7 +5211,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateFramebuffer(VkDevice device, const VkFram
             dump_text_params_vkCreateFramebuffer(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pFramebuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateFramebuffer", "device, pCreateInfo, pAllocator, pFramebuffer", "VkResult");
     }
@@ -5345,7 +5242,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyFramebuffer(VkDevice device, VkFramebuffer f
             dump_text_params_vkDestroyFramebuffer(ApiDumpInstance::current(), device, framebuffer, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyFramebuffer", "device, framebuffer, pAllocator", "void");
     }
@@ -5375,7 +5272,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass(VkDevice device, const VkRende
             dump_text_params_vkCreateRenderPass(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pRenderPass);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateRenderPass", "device, pCreateInfo, pAllocator, pRenderPass", "VkResult");
     }
@@ -5406,7 +5303,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyRenderPass(VkDevice device, VkRenderPass ren
             dump_text_params_vkDestroyRenderPass(ApiDumpInstance::current(), device, renderPass, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyRenderPass", "device, renderPass, pAllocator", "void");
     }
@@ -5436,7 +5333,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetRenderAreaGranularity(VkDevice device, VkRenderP
             dump_text_params_vkGetRenderAreaGranularity(ApiDumpInstance::current(), device, renderPass, pGranularity);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetRenderAreaGranularity", "device, renderPass, pGranularity", "void");
     }
@@ -5466,7 +5363,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateCommandPool(VkDevice device, const VkComm
             dump_text_params_vkCreateCommandPool(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pCommandPool);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateCommandPool", "device, pCreateInfo, pAllocator, pCommandPool", "VkResult");
     }
@@ -5497,7 +5394,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCommandPool(VkDevice device, VkCommandPool c
             dump_text_params_vkDestroyCommandPool(ApiDumpInstance::current(), device, commandPool, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyCommandPool", "device, commandPool, pAllocator", "void");
     }
@@ -5527,7 +5424,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkResetCommandPool(VkDevice device, VkCommandPool
             dump_text_params_vkResetCommandPool(ApiDumpInstance::current(), device, commandPool, flags);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkResetCommandPool", "device, commandPool, flags", "VkResult");
     }
@@ -5558,7 +5455,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAllocateCommandBuffers(VkDevice device, const V
             dump_text_params_vkAllocateCommandBuffers(ApiDumpInstance::current(), device, pAllocateInfo, pCommandBuffers);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAllocateCommandBuffers", "device, pAllocateInfo, pCommandBuffers", "VkResult");
     }
@@ -5595,7 +5492,7 @@ VKAPI_ATTR void VKAPI_CALL vkFreeCommandBuffers(VkDevice device, VkCommandPool c
             dump_text_params_vkFreeCommandBuffers(ApiDumpInstance::current(), device, commandPool, commandBufferCount, pCommandBuffers);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkFreeCommandBuffers", "device, commandPool, commandBufferCount, pCommandBuffers", "void");
     }
@@ -5625,7 +5522,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBeginCommandBuffer(VkCommandBuffer commandBuffe
             dump_text_params_vkBeginCommandBuffer(ApiDumpInstance::current(), commandBuffer, pBeginInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBeginCommandBuffer", "commandBuffer, pBeginInfo", "VkResult");
     }
@@ -5656,7 +5553,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEndCommandBuffer(VkCommandBuffer commandBuffer)
             dump_text_params_vkEndCommandBuffer(ApiDumpInstance::current(), commandBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkEndCommandBuffer", "commandBuffer", "VkResult");
     }
@@ -5687,7 +5584,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkResetCommandBuffer(VkCommandBuffer commandBuffe
             dump_text_params_vkResetCommandBuffer(ApiDumpInstance::current(), commandBuffer, flags);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkResetCommandBuffer", "commandBuffer, flags", "VkResult");
     }
@@ -5718,7 +5615,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindPipeline(VkCommandBuffer commandBuffer, VkPi
             dump_text_params_vkCmdBindPipeline(ApiDumpInstance::current(), commandBuffer, pipelineBindPoint, pipeline);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindPipeline", "commandBuffer, pipelineBindPoint, pipeline", "void");
     }
@@ -5748,7 +5645,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewport(VkCommandBuffer commandBuffer, uint3
             dump_text_params_vkCmdSetViewport(ApiDumpInstance::current(), commandBuffer, firstViewport, viewportCount, pViewports);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetViewport", "commandBuffer, firstViewport, viewportCount, pViewports", "void");
     }
@@ -5778,7 +5675,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetScissor(VkCommandBuffer commandBuffer, uint32
             dump_text_params_vkCmdSetScissor(ApiDumpInstance::current(), commandBuffer, firstScissor, scissorCount, pScissors);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetScissor", "commandBuffer, firstScissor, scissorCount, pScissors", "void");
     }
@@ -5808,7 +5705,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineWidth(VkCommandBuffer commandBuffer, floa
             dump_text_params_vkCmdSetLineWidth(ApiDumpInstance::current(), commandBuffer, lineWidth);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetLineWidth", "commandBuffer, lineWidth", "void");
     }
@@ -5838,7 +5735,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBias(VkCommandBuffer commandBuffer, floa
             dump_text_params_vkCmdSetDepthBias(ApiDumpInstance::current(), commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthBias", "commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor", "void");
     }
@@ -5868,7 +5765,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetBlendConstants(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdSetBlendConstants(ApiDumpInstance::current(), commandBuffer, blendConstants);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetBlendConstants", "commandBuffer, blendConstants", "void");
     }
@@ -5898,7 +5795,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBounds(VkCommandBuffer commandBuffer, fl
             dump_text_params_vkCmdSetDepthBounds(ApiDumpInstance::current(), commandBuffer, minDepthBounds, maxDepthBounds);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthBounds", "commandBuffer, minDepthBounds, maxDepthBounds", "void");
     }
@@ -5928,7 +5825,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilCompareMask(VkCommandBuffer commandBuf
             dump_text_params_vkCmdSetStencilCompareMask(ApiDumpInstance::current(), commandBuffer, faceMask, compareMask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetStencilCompareMask", "commandBuffer, faceMask, compareMask", "void");
     }
@@ -5958,7 +5855,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilWriteMask(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdSetStencilWriteMask(ApiDumpInstance::current(), commandBuffer, faceMask, writeMask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetStencilWriteMask", "commandBuffer, faceMask, writeMask", "void");
     }
@@ -5988,7 +5885,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilReference(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdSetStencilReference(ApiDumpInstance::current(), commandBuffer, faceMask, reference);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetStencilReference", "commandBuffer, faceMask, reference", "void");
     }
@@ -6018,7 +5915,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdBindDescriptorSets(ApiDumpInstance::current(), commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindDescriptorSets", "commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets", "void");
     }
@@ -6048,7 +5945,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer(VkCommandBuffer commandBuffer, V
             dump_text_params_vkCmdBindIndexBuffer(ApiDumpInstance::current(), commandBuffer, buffer, offset, indexType);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindIndexBuffer", "commandBuffer, buffer, offset, indexType", "void");
     }
@@ -6078,7 +5975,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdBindVertexBuffers(ApiDumpInstance::current(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindVertexBuffers", "commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets", "void");
     }
@@ -6108,7 +6005,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDraw(VkCommandBuffer commandBuffer, uint32_t ver
             dump_text_params_vkCmdDraw(ApiDumpInstance::current(), commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDraw", "commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance", "void");
     }
@@ -6138,7 +6035,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexed(VkCommandBuffer commandBuffer, uint3
             dump_text_params_vkCmdDrawIndexed(ApiDumpInstance::current(), commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndexed", "commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance", "void");
     }
@@ -6168,7 +6065,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirect(VkCommandBuffer commandBuffer, VkBu
             dump_text_params_vkCmdDrawIndirect(ApiDumpInstance::current(), commandBuffer, buffer, offset, drawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndirect", "commandBuffer, buffer, offset, drawCount, stride", "void");
     }
@@ -6198,7 +6095,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirect(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdDrawIndexedIndirect(ApiDumpInstance::current(), commandBuffer, buffer, offset, drawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndexedIndirect", "commandBuffer, buffer, offset, drawCount, stride", "void");
     }
@@ -6228,7 +6125,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatch(VkCommandBuffer commandBuffer, uint32_t
             dump_text_params_vkCmdDispatch(ApiDumpInstance::current(), commandBuffer, groupCountX, groupCountY, groupCountZ);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDispatch", "commandBuffer, groupCountX, groupCountY, groupCountZ", "void");
     }
@@ -6258,7 +6155,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchIndirect(VkCommandBuffer commandBuffer, 
             dump_text_params_vkCmdDispatchIndirect(ApiDumpInstance::current(), commandBuffer, buffer, offset);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchIndirect", "commandBuffer, buffer, offset", "void");
     }
@@ -6288,7 +6185,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer(VkCommandBuffer commandBuffer, VkBuff
             dump_text_params_vkCmdCopyBuffer(ApiDumpInstance::current(), commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyBuffer", "commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions", "void");
     }
@@ -6318,7 +6215,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImage(VkCommandBuffer commandBuffer, VkImage
             dump_text_params_vkCmdCopyImage(ApiDumpInstance::current(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyImage", "commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions", "void");
     }
@@ -6348,7 +6245,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBlitImage(VkCommandBuffer commandBuffer, VkImage
             dump_text_params_vkCmdBlitImage(ApiDumpInstance::current(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBlitImage", "commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter", "void");
     }
@@ -6378,7 +6275,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBufferToImage(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdCopyBufferToImage(ApiDumpInstance::current(), commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyBufferToImage", "commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions", "void");
     }
@@ -6408,7 +6305,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToBuffer(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdCopyImageToBuffer(ApiDumpInstance::current(), commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyImageToBuffer", "commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions", "void");
     }
@@ -6438,7 +6335,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdUpdateBuffer(VkCommandBuffer commandBuffer, VkBu
             dump_text_params_vkCmdUpdateBuffer(ApiDumpInstance::current(), commandBuffer, dstBuffer, dstOffset, dataSize, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdUpdateBuffer", "commandBuffer, dstBuffer, dstOffset, dataSize, pData", "void");
     }
@@ -6468,7 +6365,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdFillBuffer(VkCommandBuffer commandBuffer, VkBuff
             dump_text_params_vkCmdFillBuffer(ApiDumpInstance::current(), commandBuffer, dstBuffer, dstOffset, size, data);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdFillBuffer", "commandBuffer, dstBuffer, dstOffset, size, data", "void");
     }
@@ -6498,7 +6395,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdClearColorImage(VkCommandBuffer commandBuffer, V
             dump_text_params_vkCmdClearColorImage(ApiDumpInstance::current(), commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdClearColorImage", "commandBuffer, image, imageLayout, pColor, rangeCount, pRanges", "void");
     }
@@ -6528,7 +6425,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdClearDepthStencilImage(VkCommandBuffer commandBu
             dump_text_params_vkCmdClearDepthStencilImage(ApiDumpInstance::current(), commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdClearDepthStencilImage", "commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges", "void");
     }
@@ -6558,7 +6455,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdClearAttachments(VkCommandBuffer commandBuffer, 
             dump_text_params_vkCmdClearAttachments(ApiDumpInstance::current(), commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdClearAttachments", "commandBuffer, attachmentCount, pAttachments, rectCount, pRects", "void");
     }
@@ -6588,7 +6485,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResolveImage(VkCommandBuffer commandBuffer, VkIm
             dump_text_params_vkCmdResolveImage(ApiDumpInstance::current(), commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdResolveImage", "commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions", "void");
     }
@@ -6618,7 +6515,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetEvent(VkCommandBuffer commandBuffer, VkEvent 
             dump_text_params_vkCmdSetEvent(ApiDumpInstance::current(), commandBuffer, event, stageMask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetEvent", "commandBuffer, event, stageMask", "void");
     }
@@ -6648,7 +6545,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResetEvent(VkCommandBuffer commandBuffer, VkEven
             dump_text_params_vkCmdResetEvent(ApiDumpInstance::current(), commandBuffer, event, stageMask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdResetEvent", "commandBuffer, event, stageMask", "void");
     }
@@ -6678,7 +6575,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWaitEvents(VkCommandBuffer commandBuffer, uint32
             dump_text_params_vkCmdWaitEvents(ApiDumpInstance::current(), commandBuffer, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWaitEvents", "commandBuffer, eventCount, pEvents, srcStageMask, dstStageMask, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers", "void");
     }
@@ -6708,7 +6605,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPipelineBarrier(VkCommandBuffer commandBuffer, V
             dump_text_params_vkCmdPipelineBarrier(ApiDumpInstance::current(), commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPipelineBarrier", "commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers", "void");
     }
@@ -6738,7 +6635,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginQuery(VkCommandBuffer commandBuffer, VkQuer
             dump_text_params_vkCmdBeginQuery(ApiDumpInstance::current(), commandBuffer, queryPool, query, flags);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginQuery", "commandBuffer, queryPool, query, flags", "void");
     }
@@ -6768,7 +6665,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndQuery(VkCommandBuffer commandBuffer, VkQueryP
             dump_text_params_vkCmdEndQuery(ApiDumpInstance::current(), commandBuffer, queryPool, query);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndQuery", "commandBuffer, queryPool, query", "void");
     }
@@ -6798,7 +6695,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResetQueryPool(VkCommandBuffer commandBuffer, Vk
             dump_text_params_vkCmdResetQueryPool(ApiDumpInstance::current(), commandBuffer, queryPool, firstQuery, queryCount);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdResetQueryPool", "commandBuffer, queryPool, firstQuery, queryCount", "void");
     }
@@ -6828,7 +6725,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteTimestamp(VkCommandBuffer commandBuffer, Vk
             dump_text_params_vkCmdWriteTimestamp(ApiDumpInstance::current(), commandBuffer, pipelineStage, queryPool, query);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWriteTimestamp", "commandBuffer, pipelineStage, queryPool, query", "void");
     }
@@ -6858,7 +6755,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyQueryPoolResults(VkCommandBuffer commandBuff
             dump_text_params_vkCmdCopyQueryPoolResults(ApiDumpInstance::current(), commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyQueryPoolResults", "commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags", "void");
     }
@@ -6888,7 +6785,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushConstants(VkCommandBuffer commandBuffer, VkP
             dump_text_params_vkCmdPushConstants(ApiDumpInstance::current(), commandBuffer, layout, stageFlags, offset, size, pValues);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushConstants", "commandBuffer, layout, stageFlags, offset, size, pValues", "void");
     }
@@ -6918,7 +6815,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderPass(VkCommandBuffer commandBuffer, c
             dump_text_params_vkCmdBeginRenderPass(ApiDumpInstance::current(), commandBuffer, pRenderPassBegin, contents);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginRenderPass", "commandBuffer, pRenderPassBegin, contents", "void");
     }
@@ -6948,7 +6845,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass(VkCommandBuffer commandBuffer, VkSub
             dump_text_params_vkCmdNextSubpass(ApiDumpInstance::current(), commandBuffer, contents);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdNextSubpass", "commandBuffer, contents", "void");
     }
@@ -6978,7 +6875,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass(VkCommandBuffer commandBuffer)
             dump_text_params_vkCmdEndRenderPass(ApiDumpInstance::current(), commandBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndRenderPass", "commandBuffer", "void");
     }
@@ -7008,7 +6905,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdExecuteCommands(VkCommandBuffer commandBuffer, u
             dump_text_params_vkCmdExecuteCommands(ApiDumpInstance::current(), commandBuffer, commandBufferCount, pCommandBuffers);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdExecuteCommands", "commandBuffer, commandBufferCount, pCommandBuffers", "void");
     }
@@ -7038,7 +6935,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindBufferMemory2(VkDevice device, uint32_t bin
             dump_text_params_vkBindBufferMemory2(ApiDumpInstance::current(), device, bindInfoCount, pBindInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBindBufferMemory2", "device, bindInfoCount, pBindInfos", "VkResult");
     }
@@ -7069,7 +6966,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory2(VkDevice device, uint32_t bind
             dump_text_params_vkBindImageMemory2(ApiDumpInstance::current(), device, bindInfoCount, pBindInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBindImageMemory2", "device, bindInfoCount, pBindInfos", "VkResult");
     }
@@ -7100,7 +6997,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceGroupPeerMemoryFeatures(VkDevice device, u
             dump_text_params_vkGetDeviceGroupPeerMemoryFeatures(ApiDumpInstance::current(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceGroupPeerMemoryFeatures", "device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures", "void");
     }
@@ -7130,7 +7027,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDeviceMask(VkCommandBuffer commandBuffer, uin
             dump_text_params_vkCmdSetDeviceMask(ApiDumpInstance::current(), commandBuffer, deviceMask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDeviceMask", "commandBuffer, deviceMask", "void");
     }
@@ -7160,7 +7057,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchBase(VkCommandBuffer commandBuffer, uint
             dump_text_params_vkCmdDispatchBase(ApiDumpInstance::current(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchBase", "commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ", "void");
     }
@@ -7190,7 +7087,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements2(VkDevice device, const 
             dump_text_params_vkGetImageMemoryRequirements2(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageMemoryRequirements2", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -7220,7 +7117,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetBufferMemoryRequirements2(VkDevice device, const
             dump_text_params_vkGetBufferMemoryRequirements2(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetBufferMemoryRequirements2", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -7250,7 +7147,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements2(VkDevice device, 
             dump_text_params_vkGetImageSparseMemoryRequirements2(ApiDumpInstance::current(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageSparseMemoryRequirements2", "device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements", "void");
     }
@@ -7280,7 +7177,7 @@ VKAPI_ATTR void VKAPI_CALL vkTrimCommandPool(VkDevice device, VkCommandPool comm
             dump_text_params_vkTrimCommandPool(ApiDumpInstance::current(), device, commandPool, flags);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkTrimCommandPool", "device, commandPool, flags", "void");
     }
@@ -7310,7 +7207,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue2(VkDevice device, const VkDeviceQueu
             dump_text_params_vkGetDeviceQueue2(ApiDumpInstance::current(), device, pQueueInfo, pQueue);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceQueue2", "device, pQueueInfo, pQueue", "void");
     }
@@ -7340,7 +7237,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSamplerYcbcrConversion(VkDevice device, c
             dump_text_params_vkCreateSamplerYcbcrConversion(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pYcbcrConversion);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateSamplerYcbcrConversion", "device, pCreateInfo, pAllocator, pYcbcrConversion", "VkResult");
     }
@@ -7371,7 +7268,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySamplerYcbcrConversion(VkDevice device, VkSa
             dump_text_params_vkDestroySamplerYcbcrConversion(ApiDumpInstance::current(), device, ycbcrConversion, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroySamplerYcbcrConversion", "device, ycbcrConversion, pAllocator", "void");
     }
@@ -7401,7 +7298,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorUpdateTemplate(VkDevice device,
             dump_text_params_vkCreateDescriptorUpdateTemplate(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDescriptorUpdateTemplate", "device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate", "VkResult");
     }
@@ -7432,7 +7329,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorUpdateTemplate(VkDevice device, Vk
             dump_text_params_vkDestroyDescriptorUpdateTemplate(ApiDumpInstance::current(), device, descriptorUpdateTemplate, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyDescriptorUpdateTemplate", "device, descriptorUpdateTemplate, pAllocator", "void");
     }
@@ -7462,7 +7359,7 @@ VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSetWithTemplate(VkDevice device, Vk
             dump_text_params_vkUpdateDescriptorSetWithTemplate(ApiDumpInstance::current(), device, descriptorSet, descriptorUpdateTemplate, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkUpdateDescriptorSetWithTemplate", "device, descriptorSet, descriptorUpdateTemplate, pData", "void");
     }
@@ -7492,7 +7389,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutSupport(VkDevice device, cons
             dump_text_params_vkGetDescriptorSetLayoutSupport(ApiDumpInstance::current(), device, pCreateInfo, pSupport);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDescriptorSetLayoutSupport", "device, pCreateInfo, pSupport", "void");
     }
@@ -7522,7 +7419,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCount(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdDrawIndirectCount(ApiDumpInstance::current(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndirectCount", "commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride", "void");
     }
@@ -7552,7 +7449,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCount(VkCommandBuffer command
             dump_text_params_vkCmdDrawIndexedIndirectCount(ApiDumpInstance::current(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndexedIndirectCount", "commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride", "void");
     }
@@ -7582,7 +7479,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass2(VkDevice device, const VkRend
             dump_text_params_vkCreateRenderPass2(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pRenderPass);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateRenderPass2", "device, pCreateInfo, pAllocator, pRenderPass", "VkResult");
     }
@@ -7613,7 +7510,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderPass2(VkCommandBuffer commandBuffer, 
             dump_text_params_vkCmdBeginRenderPass2(ApiDumpInstance::current(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginRenderPass2", "commandBuffer, pRenderPassBegin, pSubpassBeginInfo", "void");
     }
@@ -7643,7 +7540,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass2(VkCommandBuffer commandBuffer, cons
             dump_text_params_vkCmdNextSubpass2(ApiDumpInstance::current(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdNextSubpass2", "commandBuffer, pSubpassBeginInfo, pSubpassEndInfo", "void");
     }
@@ -7673,7 +7570,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, co
             dump_text_params_vkCmdEndRenderPass2(ApiDumpInstance::current(), commandBuffer, pSubpassEndInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndRenderPass2", "commandBuffer, pSubpassEndInfo", "void");
     }
@@ -7703,7 +7600,7 @@ VKAPI_ATTR void VKAPI_CALL vkResetQueryPool(VkDevice device, VkQueryPool queryPo
             dump_text_params_vkResetQueryPool(ApiDumpInstance::current(), device, queryPool, firstQuery, queryCount);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkResetQueryPool", "device, queryPool, firstQuery, queryCount", "void");
     }
@@ -7733,7 +7630,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreCounterValue(VkDevice device, VkSem
             dump_text_params_vkGetSemaphoreCounterValue(ApiDumpInstance::current(), device, semaphore, pValue);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetSemaphoreCounterValue", "device, semaphore, pValue", "VkResult");
     }
@@ -7786,7 +7683,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSignalSemaphore(VkDevice device, const VkSemaph
             dump_text_params_vkSignalSemaphore(ApiDumpInstance::current(), device, pSignalInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSignalSemaphore", "device, pSignalInfo", "VkResult");
     }
@@ -7817,7 +7714,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddress(VkDevice device, 
             dump_text_params_vkGetBufferDeviceAddress(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkDeviceAddress");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetBufferDeviceAddress", "device, pInfo", "VkDeviceAddress");
     }
@@ -7848,7 +7745,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetBufferOpaqueCaptureAddress(VkDevice device, 
             dump_text_params_vkGetBufferOpaqueCaptureAddress(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "uint64_t");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetBufferOpaqueCaptureAddress", "device, pInfo", "uint64_t");
     }
@@ -7879,7 +7776,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetDeviceMemoryOpaqueCaptureAddress(VkDevice de
             dump_text_params_vkGetDeviceMemoryOpaqueCaptureAddress(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "uint64_t");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceMemoryOpaqueCaptureAddress", "device, pInfo", "uint64_t");
     }
@@ -7910,7 +7807,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreatePrivateDataSlot(VkDevice device, const Vk
             dump_text_params_vkCreatePrivateDataSlot(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pPrivateDataSlot);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreatePrivateDataSlot", "device, pCreateInfo, pAllocator, pPrivateDataSlot", "VkResult");
     }
@@ -7941,7 +7838,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPrivateDataSlot(VkDevice device, VkPrivateDa
             dump_text_params_vkDestroyPrivateDataSlot(ApiDumpInstance::current(), device, privateDataSlot, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyPrivateDataSlot", "device, privateDataSlot, pAllocator", "void");
     }
@@ -7971,7 +7868,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetPrivateData(VkDevice device, VkObjectType ob
             dump_text_params_vkSetPrivateData(ApiDumpInstance::current(), device, objectType, objectHandle, privateDataSlot, data);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetPrivateData", "device, objectType, objectHandle, privateDataSlot, data", "VkResult");
     }
@@ -8002,7 +7899,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPrivateData(VkDevice device, VkObjectType object
             dump_text_params_vkGetPrivateData(ApiDumpInstance::current(), device, objectType, objectHandle, privateDataSlot, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPrivateData", "device, objectType, objectHandle, privateDataSlot, pData", "void");
     }
@@ -8032,7 +7929,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetEvent2(VkCommandBuffer                   comm
             dump_text_params_vkCmdSetEvent2(ApiDumpInstance::current(), commandBuffer, event, pDependencyInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetEvent2", "commandBuffer, event, pDependencyInfo", "void");
     }
@@ -8062,7 +7959,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResetEvent2(VkCommandBuffer                   co
             dump_text_params_vkCmdResetEvent2(ApiDumpInstance::current(), commandBuffer, event, stageMask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdResetEvent2", "commandBuffer, event, stageMask", "void");
     }
@@ -8092,7 +7989,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWaitEvents2(VkCommandBuffer                   co
             dump_text_params_vkCmdWaitEvents2(ApiDumpInstance::current(), commandBuffer, eventCount, pEvents, pDependencyInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWaitEvents2", "commandBuffer, eventCount, pEvents, pDependencyInfos", "void");
     }
@@ -8122,7 +8019,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPipelineBarrier2(VkCommandBuffer                
             dump_text_params_vkCmdPipelineBarrier2(ApiDumpInstance::current(), commandBuffer, pDependencyInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPipelineBarrier2", "commandBuffer, pDependencyInfo", "void");
     }
@@ -8152,7 +8049,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteTimestamp2(VkCommandBuffer                 
             dump_text_params_vkCmdWriteTimestamp2(ApiDumpInstance::current(), commandBuffer, stage, queryPool, query);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWriteTimestamp2", "commandBuffer, stage, queryPool, query", "void");
     }
@@ -8182,7 +8079,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit2(VkQueue                           
             dump_text_params_vkQueueSubmit2(ApiDumpInstance::current(), queue, submitCount, pSubmits, fence);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkQueueSubmit2", "queue, submitCount, pSubmits, fence", "VkResult");
     }
@@ -8213,7 +8110,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer2(VkCommandBuffer commandBuffer, const
             dump_text_params_vkCmdCopyBuffer2(ApiDumpInstance::current(), commandBuffer, pCopyBufferInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyBuffer2", "commandBuffer, pCopyBufferInfo", "void");
     }
@@ -8243,7 +8140,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImage2(VkCommandBuffer commandBuffer, const 
             dump_text_params_vkCmdCopyImage2(ApiDumpInstance::current(), commandBuffer, pCopyImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyImage2", "commandBuffer, pCopyImageInfo", "void");
     }
@@ -8273,7 +8170,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBufferToImage2(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdCopyBufferToImage2(ApiDumpInstance::current(), commandBuffer, pCopyBufferToImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyBufferToImage2", "commandBuffer, pCopyBufferToImageInfo", "void");
     }
@@ -8303,7 +8200,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToBuffer2(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdCopyImageToBuffer2(ApiDumpInstance::current(), commandBuffer, pCopyImageToBufferInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyImageToBuffer2", "commandBuffer, pCopyImageToBufferInfo", "void");
     }
@@ -8333,7 +8230,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBlitImage2(VkCommandBuffer commandBuffer, const 
             dump_text_params_vkCmdBlitImage2(ApiDumpInstance::current(), commandBuffer, pBlitImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBlitImage2", "commandBuffer, pBlitImageInfo", "void");
     }
@@ -8363,7 +8260,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResolveImage2(VkCommandBuffer commandBuffer, con
             dump_text_params_vkCmdResolveImage2(ApiDumpInstance::current(), commandBuffer, pResolveImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdResolveImage2", "commandBuffer, pResolveImageInfo", "void");
     }
@@ -8393,7 +8290,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginRendering(VkCommandBuffer                  
             dump_text_params_vkCmdBeginRendering(ApiDumpInstance::current(), commandBuffer, pRenderingInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginRendering", "commandBuffer, pRenderingInfo", "void");
     }
@@ -8423,7 +8320,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering(VkCommandBuffer                   c
             dump_text_params_vkCmdEndRendering(ApiDumpInstance::current(), commandBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndRendering", "commandBuffer", "void");
     }
@@ -8453,7 +8350,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCullMode(VkCommandBuffer commandBuffer, VkCul
             dump_text_params_vkCmdSetCullMode(ApiDumpInstance::current(), commandBuffer, cullMode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetCullMode", "commandBuffer, cullMode", "void");
     }
@@ -8483,7 +8380,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetFrontFace(VkCommandBuffer commandBuffer, VkFr
             dump_text_params_vkCmdSetFrontFace(ApiDumpInstance::current(), commandBuffer, frontFace);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetFrontFace", "commandBuffer, frontFace", "void");
     }
@@ -8513,7 +8410,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveTopology(VkCommandBuffer commandBuff
             dump_text_params_vkCmdSetPrimitiveTopology(ApiDumpInstance::current(), commandBuffer, primitiveTopology);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetPrimitiveTopology", "commandBuffer, primitiveTopology", "void");
     }
@@ -8543,7 +8440,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWithCount(VkCommandBuffer commandBuff
             dump_text_params_vkCmdSetViewportWithCount(ApiDumpInstance::current(), commandBuffer, viewportCount, pViewports);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetViewportWithCount", "commandBuffer, viewportCount, pViewports", "void");
     }
@@ -8573,7 +8470,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetScissorWithCount(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdSetScissorWithCount(ApiDumpInstance::current(), commandBuffer, scissorCount, pScissors);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetScissorWithCount", "commandBuffer, scissorCount, pScissors", "void");
     }
@@ -8603,7 +8500,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers2(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdBindVertexBuffers2(ApiDumpInstance::current(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindVertexBuffers2", "commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides", "void");
     }
@@ -8633,7 +8530,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthTestEnable(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdSetDepthTestEnable(ApiDumpInstance::current(), commandBuffer, depthTestEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthTestEnable", "commandBuffer, depthTestEnable", "void");
     }
@@ -8663,7 +8560,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthWriteEnable(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdSetDepthWriteEnable(ApiDumpInstance::current(), commandBuffer, depthWriteEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthWriteEnable", "commandBuffer, depthWriteEnable", "void");
     }
@@ -8693,7 +8590,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthCompareOp(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdSetDepthCompareOp(ApiDumpInstance::current(), commandBuffer, depthCompareOp);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthCompareOp", "commandBuffer, depthCompareOp", "void");
     }
@@ -8723,7 +8620,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBoundsTestEnable(VkCommandBuffer command
             dump_text_params_vkCmdSetDepthBoundsTestEnable(ApiDumpInstance::current(), commandBuffer, depthBoundsTestEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthBoundsTestEnable", "commandBuffer, depthBoundsTestEnable", "void");
     }
@@ -8753,7 +8650,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilTestEnable(VkCommandBuffer commandBuff
             dump_text_params_vkCmdSetStencilTestEnable(ApiDumpInstance::current(), commandBuffer, stencilTestEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetStencilTestEnable", "commandBuffer, stencilTestEnable", "void");
     }
@@ -8783,7 +8680,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilOp(VkCommandBuffer commandBuffer, VkSt
             dump_text_params_vkCmdSetStencilOp(ApiDumpInstance::current(), commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetStencilOp", "commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp", "void");
     }
@@ -8813,7 +8710,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizerDiscardEnable(VkCommandBuffer comma
             dump_text_params_vkCmdSetRasterizerDiscardEnable(ApiDumpInstance::current(), commandBuffer, rasterizerDiscardEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetRasterizerDiscardEnable", "commandBuffer, rasterizerDiscardEnable", "void");
     }
@@ -8843,7 +8740,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBiasEnable(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdSetDepthBiasEnable(ApiDumpInstance::current(), commandBuffer, depthBiasEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthBiasEnable", "commandBuffer, depthBiasEnable", "void");
     }
@@ -8873,7 +8770,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartEnable(VkCommandBuffer comman
             dump_text_params_vkCmdSetPrimitiveRestartEnable(ApiDumpInstance::current(), commandBuffer, primitiveRestartEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetPrimitiveRestartEnable", "commandBuffer, primitiveRestartEnable", "void");
     }
@@ -8903,7 +8800,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(VkDevice device, 
             dump_text_params_vkGetDeviceBufferMemoryRequirements(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceBufferMemoryRequirements", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -8933,7 +8830,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageMemoryRequirements(VkDevice device, c
             dump_text_params_vkGetDeviceImageMemoryRequirements(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceImageMemoryRequirements", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -8963,7 +8860,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSparseMemoryRequirements(VkDevice dev
             dump_text_params_vkGetDeviceImageSparseMemoryRequirements(ApiDumpInstance::current(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceImageSparseMemoryRequirements", "device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements", "void");
     }
@@ -8993,7 +8890,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStipple(VkCommandBuffer commandBuffer, ui
             dump_text_params_vkCmdSetLineStipple(ApiDumpInstance::current(), commandBuffer, lineStippleFactor, lineStipplePattern);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetLineStipple", "commandBuffer, lineStippleFactor, lineStipplePattern", "void");
     }
@@ -9023,7 +8920,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkMapMemory2(VkDevice device, const VkMemoryMapIn
             dump_text_params_vkMapMemory2(ApiDumpInstance::current(), device, pMemoryMapInfo, ppData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkMapMemory2", "device, pMemoryMapInfo, ppData", "VkResult");
     }
@@ -9054,7 +8951,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkUnmapMemory2(VkDevice device, const VkMemoryUnm
             dump_text_params_vkUnmapMemory2(ApiDumpInstance::current(), device, pMemoryUnmapInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkUnmapMemory2", "device, pMemoryUnmapInfo", "VkResult");
     }
@@ -9085,7 +8982,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer2(VkCommandBuffer commandBuffer, 
             dump_text_params_vkCmdBindIndexBuffer2(ApiDumpInstance::current(), commandBuffer, buffer, offset, size, indexType);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindIndexBuffer2", "commandBuffer, buffer, offset, size, indexType", "void");
     }
@@ -9115,7 +9012,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetRenderingAreaGranularity(VkDevice device, const 
             dump_text_params_vkGetRenderingAreaGranularity(ApiDumpInstance::current(), device, pRenderingAreaInfo, pGranularity);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetRenderingAreaGranularity", "device, pRenderingAreaInfo, pGranularity", "void");
     }
@@ -9145,7 +9042,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSubresourceLayout(VkDevice device, co
             dump_text_params_vkGetDeviceImageSubresourceLayout(ApiDumpInstance::current(), device, pInfo, pLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceImageSubresourceLayout", "device, pInfo, pLayout", "void");
     }
@@ -9175,7 +9072,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2(VkDevice device, VkImage
             dump_text_params_vkGetImageSubresourceLayout2(ApiDumpInstance::current(), device, image, pSubresource, pLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageSubresourceLayout2", "device, image, pSubresource, pLayout", "void");
     }
@@ -9205,7 +9102,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSet(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdPushDescriptorSet(ApiDumpInstance::current(), commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushDescriptorSet", "commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites", "void");
     }
@@ -9235,7 +9132,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate(VkCommandBuffer co
             dump_text_params_vkCmdPushDescriptorSetWithTemplate(ApiDumpInstance::current(), commandBuffer, descriptorUpdateTemplate, layout, set, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushDescriptorSetWithTemplate", "commandBuffer, descriptorUpdateTemplate, layout, set, pData", "void");
     }
@@ -9265,7 +9162,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingAttachmentLocations(VkCommandBuffer 
             dump_text_params_vkCmdSetRenderingAttachmentLocations(ApiDumpInstance::current(), commandBuffer, pLocationInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetRenderingAttachmentLocations", "commandBuffer, pLocationInfo", "void");
     }
@@ -9295,7 +9192,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingInputAttachmentIndices(VkCommandBuff
             dump_text_params_vkCmdSetRenderingInputAttachmentIndices(ApiDumpInstance::current(), commandBuffer, pInputAttachmentIndexInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetRenderingInputAttachmentIndices", "commandBuffer, pInputAttachmentIndexInfo", "void");
     }
@@ -9325,7 +9222,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets2(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdBindDescriptorSets2(ApiDumpInstance::current(), commandBuffer, pBindDescriptorSetsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindDescriptorSets2", "commandBuffer, pBindDescriptorSetsInfo", "void");
     }
@@ -9355,7 +9252,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushConstants2(VkCommandBuffer commandBuffer, co
             dump_text_params_vkCmdPushConstants2(ApiDumpInstance::current(), commandBuffer, pPushConstantsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushConstants2", "commandBuffer, pPushConstantsInfo", "void");
     }
@@ -9385,7 +9282,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSet2(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdPushDescriptorSet2(ApiDumpInstance::current(), commandBuffer, pPushDescriptorSetInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushDescriptorSet2", "commandBuffer, pPushDescriptorSetInfo", "void");
     }
@@ -9415,7 +9312,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate2(VkCommandBuffer c
             dump_text_params_vkCmdPushDescriptorSetWithTemplate2(ApiDumpInstance::current(), commandBuffer, pPushDescriptorSetWithTemplateInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushDescriptorSetWithTemplate2", "commandBuffer, pPushDescriptorSetWithTemplateInfo", "void");
     }
@@ -9445,7 +9342,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToImage(VkDevice device, const VkCopy
             dump_text_params_vkCopyMemoryToImage(ApiDumpInstance::current(), device, pCopyMemoryToImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyMemoryToImage", "device, pCopyMemoryToImageInfo", "VkResult");
     }
@@ -9476,7 +9373,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToMemory(VkDevice device, const VkCopy
             dump_text_params_vkCopyImageToMemory(ApiDumpInstance::current(), device, pCopyImageToMemoryInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyImageToMemory", "device, pCopyImageToMemoryInfo", "VkResult");
     }
@@ -9507,7 +9404,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToImage(VkDevice device, const VkCopyI
             dump_text_params_vkCopyImageToImage(ApiDumpInstance::current(), device, pCopyImageToImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyImageToImage", "device, pCopyImageToImageInfo", "VkResult");
     }
@@ -9538,7 +9435,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkTransitionImageLayout(VkDevice device, uint32_t
             dump_text_params_vkTransitionImageLayout(ApiDumpInstance::current(), device, transitionCount, pTransitions);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkTransitionImageLayout", "device, transitionCount, pTransitions", "VkResult");
     }
@@ -9569,7 +9466,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSwapchainKHR(VkDevice device, const VkSwa
             dump_text_params_vkCreateSwapchainKHR(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pSwapchain);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateSwapchainKHR", "device, pCreateInfo, pAllocator, pSwapchain", "VkResult");
     }
@@ -9600,7 +9497,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySwapchainKHR(VkDevice device, VkSwapchainKHR
             dump_text_params_vkDestroySwapchainKHR(ApiDumpInstance::current(), device, swapchain, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroySwapchainKHR", "device, swapchain, pAllocator", "void");
     }
@@ -9630,7 +9527,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainImagesKHR(VkDevice device, VkSwapch
             dump_text_params_vkGetSwapchainImagesKHR(ApiDumpInstance::current(), device, swapchain, pSwapchainImageCount, pSwapchainImages);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetSwapchainImagesKHR", "device, swapchain, pSwapchainImageCount, pSwapchainImages", "VkResult");
     }
@@ -9706,7 +9603,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupPresentCapabilitiesKHR(VkDevice d
             dump_text_params_vkGetDeviceGroupPresentCapabilitiesKHR(ApiDumpInstance::current(), device, pDeviceGroupPresentCapabilities);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceGroupPresentCapabilitiesKHR", "device, pDeviceGroupPresentCapabilities", "VkResult");
     }
@@ -9737,7 +9634,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModesKHR(VkDevice d
             dump_text_params_vkGetDeviceGroupSurfacePresentModesKHR(ApiDumpInstance::current(), device, surface, pModes);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceGroupSurfacePresentModesKHR", "device, surface, pModes", "VkResult");
     }
@@ -9768,7 +9665,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireNextImage2KHR(VkDevice device, const VkA
             dump_text_params_vkAcquireNextImage2KHR(ApiDumpInstance::current(), device, pAcquireInfo, pImageIndex);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAcquireNextImage2KHR", "device, pAcquireInfo, pImageIndex", "VkResult");
     }
@@ -9799,7 +9696,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSharedSwapchainsKHR(VkDevice device, uint
             dump_text_params_vkCreateSharedSwapchainsKHR(ApiDumpInstance::current(), device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateSharedSwapchainsKHR", "device, swapchainCount, pCreateInfos, pAllocator, pSwapchains", "VkResult");
     }
@@ -9830,7 +9727,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectTagEXT(VkDevice device, con
             dump_text_params_vkDebugMarkerSetObjectTagEXT(ApiDumpInstance::current(), device, pTagInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDebugMarkerSetObjectTagEXT", "device, pTagInfo", "VkResult");
     }
@@ -9862,7 +9759,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectNameEXT(VkDevice device, co
             dump_text_params_vkDebugMarkerSetObjectNameEXT(ApiDumpInstance::current(), device, pNameInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDebugMarkerSetObjectNameEXT", "device, pNameInfo", "VkResult");
     }
@@ -9893,7 +9790,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerBeginEXT(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdDebugMarkerBeginEXT(ApiDumpInstance::current(), commandBuffer, pMarkerInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDebugMarkerBeginEXT", "commandBuffer, pMarkerInfo", "void");
     }
@@ -9923,7 +9820,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerEndEXT(VkCommandBuffer commandBuffer)
             dump_text_params_vkCmdDebugMarkerEndEXT(ApiDumpInstance::current(), commandBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDebugMarkerEndEXT", "commandBuffer", "void");
     }
@@ -9953,7 +9850,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDebugMarkerInsertEXT(VkCommandBuffer commandBuff
             dump_text_params_vkCmdDebugMarkerInsertEXT(ApiDumpInstance::current(), commandBuffer, pMarkerInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDebugMarkerInsertEXT", "commandBuffer, pMarkerInfo", "void");
     }
@@ -9983,7 +9880,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateVideoSessionKHR(VkDevice device, const Vk
             dump_text_params_vkCreateVideoSessionKHR(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pVideoSession);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateVideoSessionKHR", "device, pCreateInfo, pAllocator, pVideoSession", "VkResult");
     }
@@ -10014,7 +9911,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyVideoSessionKHR(VkDevice device, VkVideoSess
             dump_text_params_vkDestroyVideoSessionKHR(ApiDumpInstance::current(), device, videoSession, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyVideoSessionKHR", "device, videoSession, pAllocator", "void");
     }
@@ -10044,7 +9941,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetVideoSessionMemoryRequirementsKHR(VkDevice d
             dump_text_params_vkGetVideoSessionMemoryRequirementsKHR(ApiDumpInstance::current(), device, videoSession, pMemoryRequirementsCount, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetVideoSessionMemoryRequirementsKHR", "device, videoSession, pMemoryRequirementsCount, pMemoryRequirements", "VkResult");
     }
@@ -10075,7 +9972,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindVideoSessionMemoryKHR(VkDevice device, VkVi
             dump_text_params_vkBindVideoSessionMemoryKHR(ApiDumpInstance::current(), device, videoSession, bindSessionMemoryInfoCount, pBindSessionMemoryInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBindVideoSessionMemoryKHR", "device, videoSession, bindSessionMemoryInfoCount, pBindSessionMemoryInfos", "VkResult");
     }
@@ -10106,7 +10003,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateVideoSessionParametersKHR(VkDevice device
             dump_text_params_vkCreateVideoSessionParametersKHR(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pVideoSessionParameters);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateVideoSessionParametersKHR", "device, pCreateInfo, pAllocator, pVideoSessionParameters", "VkResult");
     }
@@ -10137,7 +10034,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkUpdateVideoSessionParametersKHR(VkDevice device
             dump_text_params_vkUpdateVideoSessionParametersKHR(ApiDumpInstance::current(), device, videoSessionParameters, pUpdateInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkUpdateVideoSessionParametersKHR", "device, videoSessionParameters, pUpdateInfo", "VkResult");
     }
@@ -10168,7 +10065,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyVideoSessionParametersKHR(VkDevice device, V
             dump_text_params_vkDestroyVideoSessionParametersKHR(ApiDumpInstance::current(), device, videoSessionParameters, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyVideoSessionParametersKHR", "device, videoSessionParameters, pAllocator", "void");
     }
@@ -10198,7 +10095,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginVideoCodingKHR(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdBeginVideoCodingKHR(ApiDumpInstance::current(), commandBuffer, pBeginInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginVideoCodingKHR", "commandBuffer, pBeginInfo", "void");
     }
@@ -10228,7 +10125,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndVideoCodingKHR(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdEndVideoCodingKHR(ApiDumpInstance::current(), commandBuffer, pEndCodingInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndVideoCodingKHR", "commandBuffer, pEndCodingInfo", "void");
     }
@@ -10258,7 +10155,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdControlVideoCodingKHR(VkCommandBuffer commandBuf
             dump_text_params_vkCmdControlVideoCodingKHR(ApiDumpInstance::current(), commandBuffer, pCodingControlInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdControlVideoCodingKHR", "commandBuffer, pCodingControlInfo", "void");
     }
@@ -10288,7 +10185,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDecodeVideoKHR(VkCommandBuffer commandBuffer, co
             dump_text_params_vkCmdDecodeVideoKHR(ApiDumpInstance::current(), commandBuffer, pDecodeInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDecodeVideoKHR", "commandBuffer, pDecodeInfo", "void");
     }
@@ -10318,7 +10215,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindTransformFeedbackBuffersEXT(VkCommandBuffer 
             dump_text_params_vkCmdBindTransformFeedbackBuffersEXT(ApiDumpInstance::current(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindTransformFeedbackBuffersEXT", "commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes", "void");
     }
@@ -10348,7 +10245,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginTransformFeedbackEXT(VkCommandBuffer comman
             dump_text_params_vkCmdBeginTransformFeedbackEXT(ApiDumpInstance::current(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginTransformFeedbackEXT", "commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets", "void");
     }
@@ -10378,7 +10275,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndTransformFeedbackEXT(VkCommandBuffer commandB
             dump_text_params_vkCmdEndTransformFeedbackEXT(ApiDumpInstance::current(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndTransformFeedbackEXT", "commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets", "void");
     }
@@ -10408,7 +10305,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginQueryIndexedEXT(VkCommandBuffer commandBuff
             dump_text_params_vkCmdBeginQueryIndexedEXT(ApiDumpInstance::current(), commandBuffer, queryPool, query, flags, index);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginQueryIndexedEXT", "commandBuffer, queryPool, query, flags, index", "void");
     }
@@ -10438,7 +10335,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndQueryIndexedEXT(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdEndQueryIndexedEXT(ApiDumpInstance::current(), commandBuffer, queryPool, query, index);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndQueryIndexedEXT", "commandBuffer, queryPool, query, index", "void");
     }
@@ -10468,7 +10365,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectByteCountEXT(VkCommandBuffer command
             dump_text_params_vkCmdDrawIndirectByteCountEXT(ApiDumpInstance::current(), commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndirectByteCountEXT", "commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride", "void");
     }
@@ -10498,7 +10395,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateCuModuleNVX(VkDevice device, const VkCuMo
             dump_text_params_vkCreateCuModuleNVX(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pModule);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateCuModuleNVX", "device, pCreateInfo, pAllocator, pModule", "VkResult");
     }
@@ -10529,7 +10426,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateCuFunctionNVX(VkDevice device, const VkCu
             dump_text_params_vkCreateCuFunctionNVX(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pFunction);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateCuFunctionNVX", "device, pCreateInfo, pAllocator, pFunction", "VkResult");
     }
@@ -10560,7 +10457,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCuModuleNVX(VkDevice device, VkCuModuleNVX m
             dump_text_params_vkDestroyCuModuleNVX(ApiDumpInstance::current(), device, module, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyCuModuleNVX", "device, module, pAllocator", "void");
     }
@@ -10590,7 +10487,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCuFunctionNVX(VkDevice device, VkCuFunctionN
             dump_text_params_vkDestroyCuFunctionNVX(ApiDumpInstance::current(), device, function, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyCuFunctionNVX", "device, function, pAllocator", "void");
     }
@@ -10620,7 +10517,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCuLaunchKernelNVX(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdCuLaunchKernelNVX(ApiDumpInstance::current(), commandBuffer, pLaunchInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCuLaunchKernelNVX", "commandBuffer, pLaunchInfo", "void");
     }
@@ -10650,7 +10547,7 @@ VKAPI_ATTR uint32_t VKAPI_CALL vkGetImageViewHandleNVX(VkDevice device, const Vk
             dump_text_params_vkGetImageViewHandleNVX(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "uint32_t");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageViewHandleNVX", "device, pInfo", "uint32_t");
     }
@@ -10681,7 +10578,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetImageViewHandle64NVX(VkDevice device, const 
             dump_text_params_vkGetImageViewHandle64NVX(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "uint64_t");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageViewHandle64NVX", "device, pInfo", "uint64_t");
     }
@@ -10712,7 +10609,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewAddressNVX(VkDevice device, VkImage
             dump_text_params_vkGetImageViewAddressNVX(ApiDumpInstance::current(), device, imageView, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageViewAddressNVX", "device, imageView, pProperties", "VkResult");
     }
@@ -10743,7 +10640,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCountAMD(VkCommandBuffer commandBuff
             dump_text_params_vkCmdDrawIndirectCountAMD(ApiDumpInstance::current(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndirectCountAMD", "commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride", "void");
     }
@@ -10773,7 +10670,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCountAMD(VkCommandBuffer comm
             dump_text_params_vkCmdDrawIndexedIndirectCountAMD(ApiDumpInstance::current(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndexedIndirectCountAMD", "commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride", "void");
     }
@@ -10803,7 +10700,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetShaderInfoAMD(VkDevice device, VkPipeline pi
             dump_text_params_vkGetShaderInfoAMD(ApiDumpInstance::current(), device, pipeline, shaderStage, infoType, pInfoSize, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetShaderInfoAMD", "device, pipeline, shaderStage, infoType, pInfoSize, pInfo", "VkResult");
     }
@@ -10834,7 +10731,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderingKHR(VkCommandBuffer               
             dump_text_params_vkCmdBeginRenderingKHR(ApiDumpInstance::current(), commandBuffer, pRenderingInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginRenderingKHR", "commandBuffer, pRenderingInfo", "void");
     }
@@ -10864,7 +10761,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderingKHR(VkCommandBuffer                 
             dump_text_params_vkCmdEndRenderingKHR(ApiDumpInstance::current(), commandBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndRenderingKHR", "commandBuffer", "void");
     }
@@ -10895,7 +10792,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleNV(VkDevice device, VkDevic
             dump_text_params_vkGetMemoryWin32HandleNV(ApiDumpInstance::current(), device, memory, handleType, pHandle);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryWin32HandleNV", "device, memory, handleType, pHandle", "VkResult");
     }
@@ -10927,7 +10824,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceGroupPeerMemoryFeaturesKHR(VkDevice device
             dump_text_params_vkGetDeviceGroupPeerMemoryFeaturesKHR(ApiDumpInstance::current(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceGroupPeerMemoryFeaturesKHR", "device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures", "void");
     }
@@ -10957,7 +10854,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDeviceMaskKHR(VkCommandBuffer commandBuffer, 
             dump_text_params_vkCmdSetDeviceMaskKHR(ApiDumpInstance::current(), commandBuffer, deviceMask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDeviceMaskKHR", "commandBuffer, deviceMask", "void");
     }
@@ -10987,7 +10884,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchBaseKHR(VkCommandBuffer commandBuffer, u
             dump_text_params_vkCmdDispatchBaseKHR(ApiDumpInstance::current(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchBaseKHR", "commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ", "void");
     }
@@ -11017,7 +10914,7 @@ VKAPI_ATTR void VKAPI_CALL vkTrimCommandPoolKHR(VkDevice device, VkCommandPool c
             dump_text_params_vkTrimCommandPoolKHR(ApiDumpInstance::current(), device, commandPool, flags);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkTrimCommandPoolKHR", "device, commandPool, flags", "void");
     }
@@ -11048,7 +10945,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(VkDevice device, const 
             dump_text_params_vkGetMemoryWin32HandleKHR(ApiDumpInstance::current(), device, pGetWin32HandleInfo, pHandle);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryWin32HandleKHR", "device, pGetWin32HandleInfo, pHandle", "VkResult");
     }
@@ -11081,7 +10978,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandlePropertiesKHR(VkDevice devi
             dump_text_params_vkGetMemoryWin32HandlePropertiesKHR(ApiDumpInstance::current(), device, handleType, handle, pMemoryWin32HandleProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryWin32HandlePropertiesKHR", "device, handleType, handle, pMemoryWin32HandleProperties", "VkResult");
     }
@@ -11113,7 +11010,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryFdKHR(VkDevice device, const VkMemoryG
             dump_text_params_vkGetMemoryFdKHR(ApiDumpInstance::current(), device, pGetFdInfo, pFd);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryFdKHR", "device, pGetFdInfo, pFd", "VkResult");
     }
@@ -11144,7 +11041,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryFdPropertiesKHR(VkDevice device, VkExt
             dump_text_params_vkGetMemoryFdPropertiesKHR(ApiDumpInstance::current(), device, handleType, fd, pMemoryFdProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryFdPropertiesKHR", "device, handleType, fd, pMemoryFdProperties", "VkResult");
     }
@@ -11176,7 +11073,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreWin32HandleKHR(VkDevice device, 
             dump_text_params_vkImportSemaphoreWin32HandleKHR(ApiDumpInstance::current(), device, pImportSemaphoreWin32HandleInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkImportSemaphoreWin32HandleKHR", "device, pImportSemaphoreWin32HandleInfo", "VkResult");
     }
@@ -11209,7 +11106,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreWin32HandleKHR(VkDevice device, con
             dump_text_params_vkGetSemaphoreWin32HandleKHR(ApiDumpInstance::current(), device, pGetWin32HandleInfo, pHandle);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetSemaphoreWin32HandleKHR", "device, pGetWin32HandleInfo, pHandle", "VkResult");
     }
@@ -11241,7 +11138,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreFdKHR(VkDevice device, const VkI
             dump_text_params_vkImportSemaphoreFdKHR(ApiDumpInstance::current(), device, pImportSemaphoreFdInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkImportSemaphoreFdKHR", "device, pImportSemaphoreFdInfo", "VkResult");
     }
@@ -11272,7 +11169,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreFdKHR(VkDevice device, const VkSema
             dump_text_params_vkGetSemaphoreFdKHR(ApiDumpInstance::current(), device, pGetFdInfo, pFd);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetSemaphoreFdKHR", "device, pGetFdInfo, pFd", "VkResult");
     }
@@ -11303,7 +11200,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetKHR(VkCommandBuffer commandBuff
             dump_text_params_vkCmdPushDescriptorSetKHR(ApiDumpInstance::current(), commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushDescriptorSetKHR", "commandBuffer, pipelineBindPoint, layout, set, descriptorWriteCount, pDescriptorWrites", "void");
     }
@@ -11333,7 +11230,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer
             dump_text_params_vkCmdPushDescriptorSetWithTemplateKHR(ApiDumpInstance::current(), commandBuffer, descriptorUpdateTemplate, layout, set, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushDescriptorSetWithTemplateKHR", "commandBuffer, descriptorUpdateTemplate, layout, set, pData", "void");
     }
@@ -11363,7 +11260,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginConditionalRenderingEXT(VkCommandBuffer com
             dump_text_params_vkCmdBeginConditionalRenderingEXT(ApiDumpInstance::current(), commandBuffer, pConditionalRenderingBegin);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginConditionalRenderingEXT", "commandBuffer, pConditionalRenderingBegin", "void");
     }
@@ -11393,7 +11290,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndConditionalRenderingEXT(VkCommandBuffer comma
             dump_text_params_vkCmdEndConditionalRenderingEXT(ApiDumpInstance::current(), commandBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndConditionalRenderingEXT", "commandBuffer", "void");
     }
@@ -11423,7 +11320,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDescriptorUpdateTemplateKHR(VkDevice devi
             dump_text_params_vkCreateDescriptorUpdateTemplateKHR(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDescriptorUpdateTemplateKHR", "device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate", "VkResult");
     }
@@ -11454,7 +11351,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorUpdateTemplateKHR(VkDevice device,
             dump_text_params_vkDestroyDescriptorUpdateTemplateKHR(ApiDumpInstance::current(), device, descriptorUpdateTemplate, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyDescriptorUpdateTemplateKHR", "device, descriptorUpdateTemplate, pAllocator", "void");
     }
@@ -11484,7 +11381,7 @@ VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSetWithTemplateKHR(VkDevice device,
             dump_text_params_vkUpdateDescriptorSetWithTemplateKHR(ApiDumpInstance::current(), device, descriptorSet, descriptorUpdateTemplate, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkUpdateDescriptorSetWithTemplateKHR", "device, descriptorSet, descriptorUpdateTemplate, pData", "void");
     }
@@ -11514,7 +11411,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWScalingNV(VkCommandBuffer commandBuf
             dump_text_params_vkCmdSetViewportWScalingNV(ApiDumpInstance::current(), commandBuffer, firstViewport, viewportCount, pViewportWScalings);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetViewportWScalingNV", "commandBuffer, firstViewport, viewportCount, pViewportWScalings", "void");
     }
@@ -11544,7 +11441,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDisplayPowerControlEXT(VkDevice device, VkDispl
             dump_text_params_vkDisplayPowerControlEXT(ApiDumpInstance::current(), device, display, pDisplayPowerInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDisplayPowerControlEXT", "device, display, pDisplayPowerInfo", "VkResult");
     }
@@ -11575,7 +11472,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkRegisterDeviceEventEXT(VkDevice device, const V
             dump_text_params_vkRegisterDeviceEventEXT(ApiDumpInstance::current(), device, pDeviceEventInfo, pAllocator, pFence);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkRegisterDeviceEventEXT", "device, pDeviceEventInfo, pAllocator, pFence", "VkResult");
     }
@@ -11606,7 +11503,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkRegisterDisplayEventEXT(VkDevice device, VkDisp
             dump_text_params_vkRegisterDisplayEventEXT(ApiDumpInstance::current(), device, display, pDisplayEventInfo, pAllocator, pFence);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkRegisterDisplayEventEXT", "device, display, pDisplayEventInfo, pAllocator, pFence", "VkResult");
     }
@@ -11637,7 +11534,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainCounterEXT(VkDevice device, VkSwapc
             dump_text_params_vkGetSwapchainCounterEXT(ApiDumpInstance::current(), device, swapchain, counter, pCounterValue);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetSwapchainCounterEXT", "device, swapchain, counter, pCounterValue", "VkResult");
     }
@@ -11668,7 +11565,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRefreshCycleDurationGOOGLE(VkDevice device, 
             dump_text_params_vkGetRefreshCycleDurationGOOGLE(ApiDumpInstance::current(), device, swapchain, pDisplayTimingProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetRefreshCycleDurationGOOGLE", "device, swapchain, pDisplayTimingProperties", "VkResult");
     }
@@ -11699,7 +11596,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPastPresentationTimingGOOGLE(VkDevice device
             dump_text_params_vkGetPastPresentationTimingGOOGLE(ApiDumpInstance::current(), device, swapchain, pPresentationTimingCount, pPresentationTimings);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPastPresentationTimingGOOGLE", "device, swapchain, pPresentationTimingCount, pPresentationTimings", "VkResult");
     }
@@ -11730,7 +11627,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDiscardRectangleEXT(VkCommandBuffer commandBu
             dump_text_params_vkCmdSetDiscardRectangleEXT(ApiDumpInstance::current(), commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDiscardRectangleEXT", "commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles", "void");
     }
@@ -11760,7 +11657,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDiscardRectangleEnableEXT(VkCommandBuffer com
             dump_text_params_vkCmdSetDiscardRectangleEnableEXT(ApiDumpInstance::current(), commandBuffer, discardRectangleEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDiscardRectangleEnableEXT", "commandBuffer, discardRectangleEnable", "void");
     }
@@ -11790,7 +11687,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDiscardRectangleModeEXT(VkCommandBuffer comma
             dump_text_params_vkCmdSetDiscardRectangleModeEXT(ApiDumpInstance::current(), commandBuffer, discardRectangleMode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDiscardRectangleModeEXT", "commandBuffer, discardRectangleMode", "void");
     }
@@ -11820,7 +11717,7 @@ VKAPI_ATTR void VKAPI_CALL vkSetHdrMetadataEXT(VkDevice device, uint32_t swapcha
             dump_text_params_vkSetHdrMetadataEXT(ApiDumpInstance::current(), device, swapchainCount, pSwapchains, pMetadata);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetHdrMetadataEXT", "device, swapchainCount, pSwapchains, pMetadata", "void");
     }
@@ -11850,7 +11747,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateRenderPass2KHR(VkDevice device, const VkR
             dump_text_params_vkCreateRenderPass2KHR(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pRenderPass);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateRenderPass2KHR", "device, pCreateInfo, pAllocator, pRenderPass", "VkResult");
     }
@@ -11881,7 +11778,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginRenderPass2KHR(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdBeginRenderPass2KHR(ApiDumpInstance::current(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginRenderPass2KHR", "commandBuffer, pRenderPassBegin, pSubpassBeginInfo", "void");
     }
@@ -11911,7 +11808,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdNextSubpass2KHR(VkCommandBuffer commandBuffer, c
             dump_text_params_vkCmdNextSubpass2KHR(ApiDumpInstance::current(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdNextSubpass2KHR", "commandBuffer, pSubpassBeginInfo, pSubpassEndInfo", "void");
     }
@@ -11941,7 +11838,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRenderPass2KHR(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdEndRenderPass2KHR(ApiDumpInstance::current(), commandBuffer, pSubpassEndInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndRenderPass2KHR", "commandBuffer, pSubpassEndInfo", "void");
     }
@@ -11971,7 +11868,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainStatusKHR(VkDevice device, VkSwapch
             dump_text_params_vkGetSwapchainStatusKHR(ApiDumpInstance::current(), device, swapchain);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetSwapchainStatusKHR", "device, swapchain", "VkResult");
     }
@@ -12003,7 +11900,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceWin32HandleKHR(VkDevice device, cons
             dump_text_params_vkImportFenceWin32HandleKHR(ApiDumpInstance::current(), device, pImportFenceWin32HandleInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkImportFenceWin32HandleKHR", "device, pImportFenceWin32HandleInfo", "VkResult");
     }
@@ -12036,7 +11933,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceWin32HandleKHR(VkDevice device, const V
             dump_text_params_vkGetFenceWin32HandleKHR(ApiDumpInstance::current(), device, pGetWin32HandleInfo, pHandle);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetFenceWin32HandleKHR", "device, pGetWin32HandleInfo, pHandle", "VkResult");
     }
@@ -12068,7 +11965,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceFdKHR(VkDevice device, const VkImpor
             dump_text_params_vkImportFenceFdKHR(ApiDumpInstance::current(), device, pImportFenceFdInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkImportFenceFdKHR", "device, pImportFenceFdInfo", "VkResult");
     }
@@ -12099,7 +11996,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceFdKHR(VkDevice device, const VkFenceGet
             dump_text_params_vkGetFenceFdKHR(ApiDumpInstance::current(), device, pGetFdInfo, pFd);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetFenceFdKHR", "device, pGetFdInfo, pFd", "VkResult");
     }
@@ -12130,7 +12027,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireProfilingLockKHR(VkDevice device, const 
             dump_text_params_vkAcquireProfilingLockKHR(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAcquireProfilingLockKHR", "device, pInfo", "VkResult");
     }
@@ -12161,7 +12058,7 @@ VKAPI_ATTR void VKAPI_CALL vkReleaseProfilingLockKHR(VkDevice device)
             dump_text_params_vkReleaseProfilingLockKHR(ApiDumpInstance::current(), device);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkReleaseProfilingLockKHR", "device", "void");
     }
@@ -12192,7 +12089,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetDebugUtilsObjectNameEXT(VkDevice device, con
             dump_text_params_vkSetDebugUtilsObjectNameEXT(ApiDumpInstance::current(), device, pNameInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetDebugUtilsObjectNameEXT", "device, pNameInfo", "VkResult");
     }
@@ -12223,7 +12120,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetDebugUtilsObjectTagEXT(VkDevice device, cons
             dump_text_params_vkSetDebugUtilsObjectTagEXT(ApiDumpInstance::current(), device, pTagInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetDebugUtilsObjectTagEXT", "device, pTagInfo", "VkResult");
     }
@@ -12254,7 +12151,7 @@ VKAPI_ATTR void VKAPI_CALL vkQueueBeginDebugUtilsLabelEXT(VkQueue queue, const V
             dump_text_params_vkQueueBeginDebugUtilsLabelEXT(ApiDumpInstance::current(), queue, pLabelInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkQueueBeginDebugUtilsLabelEXT", "queue, pLabelInfo", "void");
     }
@@ -12284,7 +12181,7 @@ VKAPI_ATTR void VKAPI_CALL vkQueueEndDebugUtilsLabelEXT(VkQueue queue)
             dump_text_params_vkQueueEndDebugUtilsLabelEXT(ApiDumpInstance::current(), queue);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkQueueEndDebugUtilsLabelEXT", "queue", "void");
     }
@@ -12314,7 +12211,7 @@ VKAPI_ATTR void VKAPI_CALL vkQueueInsertDebugUtilsLabelEXT(VkQueue queue, const 
             dump_text_params_vkQueueInsertDebugUtilsLabelEXT(ApiDumpInstance::current(), queue, pLabelInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkQueueInsertDebugUtilsLabelEXT", "queue, pLabelInfo", "void");
     }
@@ -12344,7 +12241,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandB
             dump_text_params_vkCmdBeginDebugUtilsLabelEXT(ApiDumpInstance::current(), commandBuffer, pLabelInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginDebugUtilsLabelEXT", "commandBuffer, pLabelInfo", "void");
     }
@@ -12374,7 +12271,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuf
             dump_text_params_vkCmdEndDebugUtilsLabelEXT(ApiDumpInstance::current(), commandBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndDebugUtilsLabelEXT", "commandBuffer", "void");
     }
@@ -12404,7 +12301,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer command
             dump_text_params_vkCmdInsertDebugUtilsLabelEXT(ApiDumpInstance::current(), commandBuffer, pLabelInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdInsertDebugUtilsLabelEXT", "commandBuffer, pLabelInfo", "void");
     }
@@ -12435,7 +12332,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetAndroidHardwareBufferPropertiesANDROID(VkDev
             dump_text_params_vkGetAndroidHardwareBufferPropertiesANDROID(ApiDumpInstance::current(), device, buffer, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetAndroidHardwareBufferPropertiesANDROID", "device, buffer, pProperties", "VkResult");
     }
@@ -12468,7 +12365,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(VkDevice 
             dump_text_params_vkGetMemoryAndroidHardwareBufferANDROID(ApiDumpInstance::current(), device, pInfo, pBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryAndroidHardwareBufferANDROID", "device, pInfo, pBuffer", "VkResult");
     }
@@ -12501,7 +12398,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateExecutionGraphPipelinesAMDX(VkDevice     
             dump_text_params_vkCreateExecutionGraphPipelinesAMDX(ApiDumpInstance::current(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateExecutionGraphPipelinesAMDX", "device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines", "VkResult");
     }
@@ -12534,7 +12431,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineScratchSizeAMDX(VkDevi
             dump_text_params_vkGetExecutionGraphPipelineScratchSizeAMDX(ApiDumpInstance::current(), device, executionGraph, pSizeInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetExecutionGraphPipelineScratchSizeAMDX", "device, executionGraph, pSizeInfo", "VkResult");
     }
@@ -12567,7 +12464,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineNodeIndexAMDX(VkDevice
             dump_text_params_vkGetExecutionGraphPipelineNodeIndexAMDX(ApiDumpInstance::current(), device, executionGraph, pNodeInfo, pNodeIndex);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetExecutionGraphPipelineNodeIndexAMDX", "device, executionGraph, pNodeInfo, pNodeIndex", "VkResult");
     }
@@ -12600,7 +12497,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdInitializeGraphScratchMemoryAMDX(VkCommandBuffer
             dump_text_params_vkCmdInitializeGraphScratchMemoryAMDX(ApiDumpInstance::current(), commandBuffer, executionGraph, scratch, scratchSize);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdInitializeGraphScratchMemoryAMDX", "commandBuffer, executionGraph, scratch, scratchSize", "void");
     }
@@ -12632,7 +12529,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphAMDX(VkCommandBuffer               
             dump_text_params_vkCmdDispatchGraphAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, pCountInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchGraphAMDX", "commandBuffer, scratch, scratchSize, pCountInfo", "void");
     }
@@ -12664,7 +12561,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphIndirectAMDX(VkCommandBuffer       
             dump_text_params_vkCmdDispatchGraphIndirectAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, pCountInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchGraphIndirectAMDX", "commandBuffer, scratch, scratchSize, pCountInfo", "void");
     }
@@ -12696,7 +12593,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphIndirectCountAMDX(VkCommandBuffer  
             dump_text_params_vkCmdDispatchGraphIndirectCountAMDX(ApiDumpInstance::current(), commandBuffer, scratch, scratchSize, countInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchGraphIndirectCountAMDX", "commandBuffer, scratch, scratchSize, countInfo", "void");
     }
@@ -12727,7 +12624,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEXT(VkCommandBuffer commandBuf
             dump_text_params_vkCmdSetSampleLocationsEXT(ApiDumpInstance::current(), commandBuffer, pSampleLocationsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetSampleLocationsEXT", "commandBuffer, pSampleLocationsInfo", "void");
     }
@@ -12757,7 +12654,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements2KHR(VkDevice device, con
             dump_text_params_vkGetImageMemoryRequirements2KHR(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageMemoryRequirements2KHR", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -12787,7 +12684,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetBufferMemoryRequirements2KHR(VkDevice device, co
             dump_text_params_vkGetBufferMemoryRequirements2KHR(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetBufferMemoryRequirements2KHR", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -12817,7 +12714,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements2KHR(VkDevice devic
             dump_text_params_vkGetImageSparseMemoryRequirements2KHR(ApiDumpInstance::current(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageSparseMemoryRequirements2KHR", "device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements", "void");
     }
@@ -12847,7 +12744,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(VkDevice        
             dump_text_params_vkCreateAccelerationStructureKHR(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pAccelerationStructure);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateAccelerationStructureKHR", "device, pCreateInfo, pAllocator, pAccelerationStructure", "VkResult");
     }
@@ -12878,7 +12775,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureKHR(VkDevice device, Vk
             dump_text_params_vkDestroyAccelerationStructureKHR(ApiDumpInstance::current(), device, accelerationStructure, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyAccelerationStructureKHR", "device, accelerationStructure, pAllocator", "void");
     }
@@ -12908,7 +12805,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructuresKHR(VkCommandBuffer  
             dump_text_params_vkCmdBuildAccelerationStructuresKHR(ApiDumpInstance::current(), commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBuildAccelerationStructuresKHR", "commandBuffer, infoCount, pInfos, ppBuildRangeInfos", "void");
     }
@@ -12938,7 +12835,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructuresIndirectKHR(VkCommand
             dump_text_params_vkCmdBuildAccelerationStructuresIndirectKHR(ApiDumpInstance::current(), commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBuildAccelerationStructuresIndirectKHR", "commandBuffer, infoCount, pInfos, pIndirectDeviceAddresses, pIndirectStrides, ppMaxPrimitiveCounts", "void");
     }
@@ -12968,7 +12865,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBuildAccelerationStructuresKHR(VkDevice        
             dump_text_params_vkBuildAccelerationStructuresKHR(ApiDumpInstance::current(), device, deferredOperation, infoCount, pInfos, ppBuildRangeInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBuildAccelerationStructuresKHR", "device, deferredOperation, infoCount, pInfos, ppBuildRangeInfos", "VkResult");
     }
@@ -12999,7 +12896,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyAccelerationStructureKHR(VkDevice device, V
             dump_text_params_vkCopyAccelerationStructureKHR(ApiDumpInstance::current(), device, deferredOperation, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyAccelerationStructureKHR", "device, deferredOperation, pInfo", "VkResult");
     }
@@ -13030,7 +12927,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyAccelerationStructureToMemoryKHR(VkDevice d
             dump_text_params_vkCopyAccelerationStructureToMemoryKHR(ApiDumpInstance::current(), device, deferredOperation, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyAccelerationStructureToMemoryKHR", "device, deferredOperation, pInfo", "VkResult");
     }
@@ -13061,7 +12958,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToAccelerationStructureKHR(VkDevice d
             dump_text_params_vkCopyMemoryToAccelerationStructureKHR(ApiDumpInstance::current(), device, deferredOperation, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyMemoryToAccelerationStructureKHR", "device, deferredOperation, pInfo", "VkResult");
     }
@@ -13092,7 +12989,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWriteAccelerationStructuresPropertiesKHR(VkDevi
             dump_text_params_vkWriteAccelerationStructuresPropertiesKHR(ApiDumpInstance::current(), device, accelerationStructureCount, pAccelerationStructures, queryType, dataSize, pData, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkWriteAccelerationStructuresPropertiesKHR", "device, accelerationStructureCount, pAccelerationStructures, queryType, dataSize, pData, stride", "VkResult");
     }
@@ -13123,7 +13020,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyAccelerationStructureKHR(VkCommandBuffer com
             dump_text_params_vkCmdCopyAccelerationStructureKHR(ApiDumpInstance::current(), commandBuffer, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyAccelerationStructureKHR", "commandBuffer, pInfo", "void");
     }
@@ -13153,7 +13050,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyAccelerationStructureToMemoryKHR(VkCommandBu
             dump_text_params_vkCmdCopyAccelerationStructureToMemoryKHR(ApiDumpInstance::current(), commandBuffer, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyAccelerationStructureToMemoryKHR", "commandBuffer, pInfo", "void");
     }
@@ -13183,7 +13080,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToAccelerationStructureKHR(VkCommandBu
             dump_text_params_vkCmdCopyMemoryToAccelerationStructureKHR(ApiDumpInstance::current(), commandBuffer, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyMemoryToAccelerationStructureKHR", "commandBuffer, pInfo", "void");
     }
@@ -13213,7 +13110,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetAccelerationStructureDeviceAddressKHR
             dump_text_params_vkGetAccelerationStructureDeviceAddressKHR(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkDeviceAddress");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetAccelerationStructureDeviceAddressKHR", "device, pInfo", "VkDeviceAddress");
     }
@@ -13244,7 +13141,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteAccelerationStructuresPropertiesKHR(VkComma
             dump_text_params_vkCmdWriteAccelerationStructuresPropertiesKHR(ApiDumpInstance::current(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWriteAccelerationStructuresPropertiesKHR", "commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery", "void");
     }
@@ -13274,7 +13171,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceAccelerationStructureCompatibilityKHR(VkDe
             dump_text_params_vkGetDeviceAccelerationStructureCompatibilityKHR(ApiDumpInstance::current(), device, pVersionInfo, pCompatibility);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceAccelerationStructureCompatibilityKHR", "device, pVersionInfo, pCompatibility", "void");
     }
@@ -13304,7 +13201,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureBuildSizesKHR(VkDevice     
             dump_text_params_vkGetAccelerationStructureBuildSizesKHR(ApiDumpInstance::current(), device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetAccelerationStructureBuildSizesKHR", "device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo", "void");
     }
@@ -13334,7 +13231,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSamplerYcbcrConversionKHR(VkDevice device
             dump_text_params_vkCreateSamplerYcbcrConversionKHR(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pYcbcrConversion);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateSamplerYcbcrConversionKHR", "device, pCreateInfo, pAllocator, pYcbcrConversion", "VkResult");
     }
@@ -13365,7 +13262,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroySamplerYcbcrConversionKHR(VkDevice device, V
             dump_text_params_vkDestroySamplerYcbcrConversionKHR(ApiDumpInstance::current(), device, ycbcrConversion, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroySamplerYcbcrConversionKHR", "device, ycbcrConversion, pAllocator", "void");
     }
@@ -13395,7 +13292,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindBufferMemory2KHR(VkDevice device, uint32_t 
             dump_text_params_vkBindBufferMemory2KHR(ApiDumpInstance::current(), device, bindInfoCount, pBindInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBindBufferMemory2KHR", "device, bindInfoCount, pBindInfos", "VkResult");
     }
@@ -13426,7 +13323,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory2KHR(VkDevice device, uint32_t b
             dump_text_params_vkBindImageMemory2KHR(ApiDumpInstance::current(), device, bindInfoCount, pBindInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBindImageMemory2KHR", "device, bindInfoCount, pBindInfos", "VkResult");
     }
@@ -13457,7 +13354,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageDrmFormatModifierPropertiesEXT(VkDevice
             dump_text_params_vkGetImageDrmFormatModifierPropertiesEXT(ApiDumpInstance::current(), device, image, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageDrmFormatModifierPropertiesEXT", "device, image, pProperties", "VkResult");
     }
@@ -13488,7 +13385,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateValidationCacheEXT(VkDevice device, const
             dump_text_params_vkCreateValidationCacheEXT(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pValidationCache);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateValidationCacheEXT", "device, pCreateInfo, pAllocator, pValidationCache", "VkResult");
     }
@@ -13519,7 +13416,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyValidationCacheEXT(VkDevice device, VkValida
             dump_text_params_vkDestroyValidationCacheEXT(ApiDumpInstance::current(), device, validationCache, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyValidationCacheEXT", "device, validationCache, pAllocator", "void");
     }
@@ -13549,7 +13446,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkMergeValidationCachesEXT(VkDevice device, VkVal
             dump_text_params_vkMergeValidationCachesEXT(ApiDumpInstance::current(), device, dstCache, srcCacheCount, pSrcCaches);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkMergeValidationCachesEXT", "device, dstCache, srcCacheCount, pSrcCaches", "VkResult");
     }
@@ -13580,7 +13477,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetValidationCacheDataEXT(VkDevice device, VkVa
             dump_text_params_vkGetValidationCacheDataEXT(ApiDumpInstance::current(), device, validationCache, pDataSize, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetValidationCacheDataEXT", "device, validationCache, pDataSize, pData", "VkResult");
     }
@@ -13611,7 +13508,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindShadingRateImageNV(VkCommandBuffer commandBu
             dump_text_params_vkCmdBindShadingRateImageNV(ApiDumpInstance::current(), commandBuffer, imageView, imageLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindShadingRateImageNV", "commandBuffer, imageView, imageLayout", "void");
     }
@@ -13641,7 +13538,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportShadingRatePaletteNV(VkCommandBuffer 
             dump_text_params_vkCmdSetViewportShadingRatePaletteNV(ApiDumpInstance::current(), commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetViewportShadingRatePaletteNV", "commandBuffer, firstViewport, viewportCount, pShadingRatePalettes", "void");
     }
@@ -13671,7 +13568,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoarseSampleOrderNV(VkCommandBuffer commandBu
             dump_text_params_vkCmdSetCoarseSampleOrderNV(ApiDumpInstance::current(), commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetCoarseSampleOrderNV", "commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders", "void");
     }
@@ -13701,7 +13598,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureNV(VkDevice device, 
             dump_text_params_vkCreateAccelerationStructureNV(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pAccelerationStructure);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateAccelerationStructureNV", "device, pCreateInfo, pAllocator, pAccelerationStructure", "VkResult");
     }
@@ -13732,7 +13629,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureNV(VkDevice device, VkA
             dump_text_params_vkDestroyAccelerationStructureNV(ApiDumpInstance::current(), device, accelerationStructure, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyAccelerationStructureNV", "device, accelerationStructure, pAllocator", "void");
     }
@@ -13762,7 +13659,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureMemoryRequirementsNV(VkDevi
             dump_text_params_vkGetAccelerationStructureMemoryRequirementsNV(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetAccelerationStructureMemoryRequirementsNV", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -13792,7 +13689,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindAccelerationStructureMemoryNV(VkDevice devi
             dump_text_params_vkBindAccelerationStructureMemoryNV(ApiDumpInstance::current(), device, bindInfoCount, pBindInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBindAccelerationStructureMemoryNV", "device, bindInfoCount, pBindInfos", "VkResult");
     }
@@ -13823,7 +13720,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructureNV(VkCommandBuffer com
             dump_text_params_vkCmdBuildAccelerationStructureNV(ApiDumpInstance::current(), commandBuffer, pInfo, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBuildAccelerationStructureNV", "commandBuffer, pInfo, instanceData, instanceOffset, update, dst, src, scratch, scratchOffset", "void");
     }
@@ -13853,7 +13750,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyAccelerationStructureNV(VkCommandBuffer comm
             dump_text_params_vkCmdCopyAccelerationStructureNV(ApiDumpInstance::current(), commandBuffer, dst, src, mode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyAccelerationStructureNV", "commandBuffer, dst, src, mode", "void");
     }
@@ -13883,7 +13780,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysNV(VkCommandBuffer commandBuffer, VkBuf
             dump_text_params_vkCmdTraceRaysNV(ApiDumpInstance::current(), commandBuffer, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdTraceRaysNV", "commandBuffer, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth", "void");
     }
@@ -13913,7 +13810,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateRayTracingPipelinesNV(VkDevice device, Vk
             dump_text_params_vkCreateRayTracingPipelinesNV(ApiDumpInstance::current(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateRayTracingPipelinesNV", "device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines", "VkResult");
     }
@@ -13944,7 +13841,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRayTracingShaderGroupHandlesKHR(VkDevice dev
             dump_text_params_vkGetRayTracingShaderGroupHandlesKHR(ApiDumpInstance::current(), device, pipeline, firstGroup, groupCount, dataSize, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetRayTracingShaderGroupHandlesKHR", "device, pipeline, firstGroup, groupCount, dataSize, pData", "VkResult");
     }
@@ -13975,7 +13872,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRayTracingShaderGroupHandlesNV(VkDevice devi
             dump_text_params_vkGetRayTracingShaderGroupHandlesNV(ApiDumpInstance::current(), device, pipeline, firstGroup, groupCount, dataSize, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetRayTracingShaderGroupHandlesNV", "device, pipeline, firstGroup, groupCount, dataSize, pData", "VkResult");
     }
@@ -14006,7 +13903,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetAccelerationStructureHandleNV(VkDevice devic
             dump_text_params_vkGetAccelerationStructureHandleNV(ApiDumpInstance::current(), device, accelerationStructure, dataSize, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetAccelerationStructureHandleNV", "device, accelerationStructure, dataSize, pData", "VkResult");
     }
@@ -14037,7 +13934,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteAccelerationStructuresPropertiesNV(VkComman
             dump_text_params_vkCmdWriteAccelerationStructuresPropertiesNV(ApiDumpInstance::current(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWriteAccelerationStructuresPropertiesNV", "commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery", "void");
     }
@@ -14067,7 +13964,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCompileDeferredNV(VkDevice device, VkPipeline p
             dump_text_params_vkCompileDeferredNV(ApiDumpInstance::current(), device, pipeline, shader);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCompileDeferredNV", "device, pipeline, shader", "VkResult");
     }
@@ -14098,7 +13995,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutSupportKHR(VkDevice device, c
             dump_text_params_vkGetDescriptorSetLayoutSupportKHR(ApiDumpInstance::current(), device, pCreateInfo, pSupport);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDescriptorSetLayoutSupportKHR", "device, pCreateInfo, pSupport", "void");
     }
@@ -14128,7 +14025,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCountKHR(VkCommandBuffer commandBuff
             dump_text_params_vkCmdDrawIndirectCountKHR(ApiDumpInstance::current(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndirectCountKHR", "commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride", "void");
     }
@@ -14158,7 +14055,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCountKHR(VkCommandBuffer comm
             dump_text_params_vkCmdDrawIndexedIndirectCountKHR(ApiDumpInstance::current(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndexedIndirectCountKHR", "commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride", "void");
     }
@@ -14188,7 +14085,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryHostPointerPropertiesEXT(VkDevice devi
             dump_text_params_vkGetMemoryHostPointerPropertiesEXT(ApiDumpInstance::current(), device, handleType, pHostPointer, pMemoryHostPointerProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryHostPointerPropertiesEXT", "device, handleType, pHostPointer, pMemoryHostPointerProperties", "VkResult");
     }
@@ -14219,7 +14116,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteBufferMarkerAMD(VkCommandBuffer commandBuff
             dump_text_params_vkCmdWriteBufferMarkerAMD(ApiDumpInstance::current(), commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWriteBufferMarkerAMD", "commandBuffer, pipelineStage, dstBuffer, dstOffset, marker", "void");
     }
@@ -14249,7 +14146,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteBufferMarker2AMD(VkCommandBuffer           
             dump_text_params_vkCmdWriteBufferMarker2AMD(ApiDumpInstance::current(), commandBuffer, stage, dstBuffer, dstOffset, marker);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWriteBufferMarker2AMD", "commandBuffer, stage, dstBuffer, dstOffset, marker", "void");
     }
@@ -14279,7 +14176,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsKHR(VkDevice device, uin
             dump_text_params_vkGetCalibratedTimestampsKHR(ApiDumpInstance::current(), device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetCalibratedTimestampsKHR", "device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation", "VkResult");
     }
@@ -14310,7 +14207,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsEXT(VkDevice device, uin
             dump_text_params_vkGetCalibratedTimestampsEXT(ApiDumpInstance::current(), device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetCalibratedTimestampsEXT", "device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation", "VkResult");
     }
@@ -14341,7 +14238,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksNV(VkCommandBuffer commandBuffer, u
             dump_text_params_vkCmdDrawMeshTasksNV(ApiDumpInstance::current(), commandBuffer, taskCount, firstTask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawMeshTasksNV", "commandBuffer, taskCount, firstTask", "void");
     }
@@ -14371,7 +14268,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectNV(VkCommandBuffer commandB
             dump_text_params_vkCmdDrawMeshTasksIndirectNV(ApiDumpInstance::current(), commandBuffer, buffer, offset, drawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawMeshTasksIndirectNV", "commandBuffer, buffer, offset, drawCount, stride", "void");
     }
@@ -14401,7 +14298,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectCountNV(VkCommandBuffer com
             dump_text_params_vkCmdDrawMeshTasksIndirectCountNV(ApiDumpInstance::current(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawMeshTasksIndirectCountNV", "commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride", "void");
     }
@@ -14431,7 +14328,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetExclusiveScissorEnableNV(VkCommandBuffer comm
             dump_text_params_vkCmdSetExclusiveScissorEnableNV(ApiDumpInstance::current(), commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissorEnables);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetExclusiveScissorEnableNV", "commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissorEnables", "void");
     }
@@ -14461,7 +14358,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetExclusiveScissorNV(VkCommandBuffer commandBuf
             dump_text_params_vkCmdSetExclusiveScissorNV(ApiDumpInstance::current(), commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetExclusiveScissorNV", "commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors", "void");
     }
@@ -14491,7 +14388,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCheckpointNV(VkCommandBuffer commandBuffer, c
             dump_text_params_vkCmdSetCheckpointNV(ApiDumpInstance::current(), commandBuffer, pCheckpointMarker);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetCheckpointNV", "commandBuffer, pCheckpointMarker", "void");
     }
@@ -14521,7 +14418,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointDataNV(VkQueue queue, uint32_t* p
             dump_text_params_vkGetQueueCheckpointDataNV(ApiDumpInstance::current(), queue, pCheckpointDataCount, pCheckpointData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetQueueCheckpointDataNV", "queue, pCheckpointDataCount, pCheckpointData", "void");
     }
@@ -14551,7 +14448,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointData2NV(VkQueue queue, uint32_t* 
             dump_text_params_vkGetQueueCheckpointData2NV(ApiDumpInstance::current(), queue, pCheckpointDataCount, pCheckpointData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetQueueCheckpointData2NV", "queue, pCheckpointDataCount, pCheckpointData", "void");
     }
@@ -14581,7 +14478,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreCounterValueKHR(VkDevice device, Vk
             dump_text_params_vkGetSemaphoreCounterValueKHR(ApiDumpInstance::current(), device, semaphore, pValue);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetSemaphoreCounterValueKHR", "device, semaphore, pValue", "VkResult");
     }
@@ -14634,7 +14531,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSignalSemaphoreKHR(VkDevice device, const VkSem
             dump_text_params_vkSignalSemaphoreKHR(ApiDumpInstance::current(), device, pSignalInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSignalSemaphoreKHR", "device, pSignalInfo", "VkResult");
     }
@@ -14665,7 +14562,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkInitializePerformanceApiINTEL(VkDevice device, 
             dump_text_params_vkInitializePerformanceApiINTEL(ApiDumpInstance::current(), device, pInitializeInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkInitializePerformanceApiINTEL", "device, pInitializeInfo", "VkResult");
     }
@@ -14696,7 +14593,7 @@ VKAPI_ATTR void VKAPI_CALL vkUninitializePerformanceApiINTEL(VkDevice device)
             dump_text_params_vkUninitializePerformanceApiINTEL(ApiDumpInstance::current(), device);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkUninitializePerformanceApiINTEL", "device", "void");
     }
@@ -14726,7 +14623,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCmdSetPerformanceMarkerINTEL(VkCommandBuffer co
             dump_text_params_vkCmdSetPerformanceMarkerINTEL(ApiDumpInstance::current(), commandBuffer, pMarkerInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetPerformanceMarkerINTEL", "commandBuffer, pMarkerInfo", "VkResult");
     }
@@ -14757,7 +14654,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCmdSetPerformanceStreamMarkerINTEL(VkCommandBuf
             dump_text_params_vkCmdSetPerformanceStreamMarkerINTEL(ApiDumpInstance::current(), commandBuffer, pMarkerInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetPerformanceStreamMarkerINTEL", "commandBuffer, pMarkerInfo", "VkResult");
     }
@@ -14788,7 +14685,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCmdSetPerformanceOverrideINTEL(VkCommandBuffer 
             dump_text_params_vkCmdSetPerformanceOverrideINTEL(ApiDumpInstance::current(), commandBuffer, pOverrideInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetPerformanceOverrideINTEL", "commandBuffer, pOverrideInfo", "VkResult");
     }
@@ -14819,7 +14716,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquirePerformanceConfigurationINTEL(VkDevice d
             dump_text_params_vkAcquirePerformanceConfigurationINTEL(ApiDumpInstance::current(), device, pAcquireInfo, pConfiguration);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAcquirePerformanceConfigurationINTEL", "device, pAcquireInfo, pConfiguration", "VkResult");
     }
@@ -14850,7 +14747,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleasePerformanceConfigurationINTEL(VkDevice d
             dump_text_params_vkReleasePerformanceConfigurationINTEL(ApiDumpInstance::current(), device, configuration);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkReleasePerformanceConfigurationINTEL", "device, configuration", "VkResult");
     }
@@ -14881,7 +14778,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSetPerformanceConfigurationINTEL(VkQueue q
             dump_text_params_vkQueueSetPerformanceConfigurationINTEL(ApiDumpInstance::current(), queue, configuration);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkQueueSetPerformanceConfigurationINTEL", "queue, configuration", "VkResult");
     }
@@ -14912,7 +14809,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPerformanceParameterINTEL(VkDevice device, V
             dump_text_params_vkGetPerformanceParameterINTEL(ApiDumpInstance::current(), device, parameter, pValue);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPerformanceParameterINTEL", "device, parameter, pValue", "VkResult");
     }
@@ -14943,7 +14840,7 @@ VKAPI_ATTR void VKAPI_CALL vkSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR 
             dump_text_params_vkSetLocalDimmingAMD(ApiDumpInstance::current(), device, swapChain, localDimmingEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetLocalDimmingAMD", "device, swapChain, localDimmingEnable", "void");
     }
@@ -14973,7 +14870,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateKHR(VkCommandBuffer       
             dump_text_params_vkCmdSetFragmentShadingRateKHR(ApiDumpInstance::current(), commandBuffer, pFragmentSize, combinerOps);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetFragmentShadingRateKHR", "commandBuffer, pFragmentSize, combinerOps", "void");
     }
@@ -15003,7 +14900,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingAttachmentLocationsKHR(VkCommandBuff
             dump_text_params_vkCmdSetRenderingAttachmentLocationsKHR(ApiDumpInstance::current(), commandBuffer, pLocationInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetRenderingAttachmentLocationsKHR", "commandBuffer, pLocationInfo", "void");
     }
@@ -15033,7 +14930,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRenderingInputAttachmentIndicesKHR(VkCommandB
             dump_text_params_vkCmdSetRenderingInputAttachmentIndicesKHR(ApiDumpInstance::current(), commandBuffer, pInputAttachmentIndexInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetRenderingInputAttachmentIndicesKHR", "commandBuffer, pInputAttachmentIndexInfo", "void");
     }
@@ -15063,7 +14960,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddressEXT(VkDevice devic
             dump_text_params_vkGetBufferDeviceAddressEXT(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkDeviceAddress");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetBufferDeviceAddressEXT", "device, pInfo", "VkDeviceAddress");
     }
@@ -15094,7 +14991,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitForPresentKHR(VkDevice device, VkSwapchainK
             dump_text_params_vkWaitForPresentKHR(ApiDumpInstance::current(), device, swapchain, presentId, timeout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkWaitForPresentKHR", "device, swapchain, presentId, timeout", "VkResult");
     }
@@ -15126,7 +15023,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireFullScreenExclusiveModeEXT(VkDevice devi
             dump_text_params_vkAcquireFullScreenExclusiveModeEXT(ApiDumpInstance::current(), device, swapchain);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAcquireFullScreenExclusiveModeEXT", "device, swapchain", "VkResult");
     }
@@ -15159,7 +15056,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseFullScreenExclusiveModeEXT(VkDevice devi
             dump_text_params_vkReleaseFullScreenExclusiveModeEXT(ApiDumpInstance::current(), device, swapchain);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkReleaseFullScreenExclusiveModeEXT", "device, swapchain", "VkResult");
     }
@@ -15192,7 +15089,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModes2EXT(VkDevice 
             dump_text_params_vkGetDeviceGroupSurfacePresentModes2EXT(ApiDumpInstance::current(), device, pSurfaceInfo, pModes);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceGroupSurfacePresentModes2EXT", "device, pSurfaceInfo, pModes", "VkResult");
     }
@@ -15224,7 +15121,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddressKHR(VkDevice devic
             dump_text_params_vkGetBufferDeviceAddressKHR(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkDeviceAddress");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetBufferDeviceAddressKHR", "device, pInfo", "VkDeviceAddress");
     }
@@ -15255,7 +15152,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetBufferOpaqueCaptureAddressKHR(VkDevice devic
             dump_text_params_vkGetBufferOpaqueCaptureAddressKHR(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "uint64_t");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetBufferOpaqueCaptureAddressKHR", "device, pInfo", "uint64_t");
     }
@@ -15286,7 +15183,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetDeviceMemoryOpaqueCaptureAddressKHR(VkDevice
             dump_text_params_vkGetDeviceMemoryOpaqueCaptureAddressKHR(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "uint64_t");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceMemoryOpaqueCaptureAddressKHR", "device, pInfo", "uint64_t");
     }
@@ -15317,7 +15214,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleEXT(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdSetLineStippleEXT(ApiDumpInstance::current(), commandBuffer, lineStippleFactor, lineStipplePattern);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetLineStippleEXT", "commandBuffer, lineStippleFactor, lineStipplePattern", "void");
     }
@@ -15347,7 +15244,7 @@ VKAPI_ATTR void VKAPI_CALL vkResetQueryPoolEXT(VkDevice device, VkQueryPool quer
             dump_text_params_vkResetQueryPoolEXT(ApiDumpInstance::current(), device, queryPool, firstQuery, queryCount);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkResetQueryPoolEXT", "device, queryPool, firstQuery, queryCount", "void");
     }
@@ -15377,7 +15274,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCullModeEXT(VkCommandBuffer commandBuffer, Vk
             dump_text_params_vkCmdSetCullModeEXT(ApiDumpInstance::current(), commandBuffer, cullMode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetCullModeEXT", "commandBuffer, cullMode", "void");
     }
@@ -15407,7 +15304,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetFrontFaceEXT(VkCommandBuffer commandBuffer, V
             dump_text_params_vkCmdSetFrontFaceEXT(ApiDumpInstance::current(), commandBuffer, frontFace);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetFrontFaceEXT", "commandBuffer, frontFace", "void");
     }
@@ -15437,7 +15334,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveTopologyEXT(VkCommandBuffer commandB
             dump_text_params_vkCmdSetPrimitiveTopologyEXT(ApiDumpInstance::current(), commandBuffer, primitiveTopology);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetPrimitiveTopologyEXT", "commandBuffer, primitiveTopology", "void");
     }
@@ -15467,7 +15364,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWithCountEXT(VkCommandBuffer commandB
             dump_text_params_vkCmdSetViewportWithCountEXT(ApiDumpInstance::current(), commandBuffer, viewportCount, pViewports);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetViewportWithCountEXT", "commandBuffer, viewportCount, pViewports", "void");
     }
@@ -15497,7 +15394,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetScissorWithCountEXT(VkCommandBuffer commandBu
             dump_text_params_vkCmdSetScissorWithCountEXT(ApiDumpInstance::current(), commandBuffer, scissorCount, pScissors);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetScissorWithCountEXT", "commandBuffer, scissorCount, pScissors", "void");
     }
@@ -15527,7 +15424,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers2EXT(VkCommandBuffer commandBuf
             dump_text_params_vkCmdBindVertexBuffers2EXT(ApiDumpInstance::current(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindVertexBuffers2EXT", "commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides", "void");
     }
@@ -15557,7 +15454,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthTestEnableEXT(VkCommandBuffer commandBuf
             dump_text_params_vkCmdSetDepthTestEnableEXT(ApiDumpInstance::current(), commandBuffer, depthTestEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthTestEnableEXT", "commandBuffer, depthTestEnable", "void");
     }
@@ -15587,7 +15484,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthWriteEnableEXT(VkCommandBuffer commandBu
             dump_text_params_vkCmdSetDepthWriteEnableEXT(ApiDumpInstance::current(), commandBuffer, depthWriteEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthWriteEnableEXT", "commandBuffer, depthWriteEnable", "void");
     }
@@ -15617,7 +15514,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthCompareOpEXT(VkCommandBuffer commandBuff
             dump_text_params_vkCmdSetDepthCompareOpEXT(ApiDumpInstance::current(), commandBuffer, depthCompareOp);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthCompareOpEXT", "commandBuffer, depthCompareOp", "void");
     }
@@ -15647,7 +15544,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBoundsTestEnableEXT(VkCommandBuffer comm
             dump_text_params_vkCmdSetDepthBoundsTestEnableEXT(ApiDumpInstance::current(), commandBuffer, depthBoundsTestEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthBoundsTestEnableEXT", "commandBuffer, depthBoundsTestEnable", "void");
     }
@@ -15677,7 +15574,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilTestEnableEXT(VkCommandBuffer commandB
             dump_text_params_vkCmdSetStencilTestEnableEXT(ApiDumpInstance::current(), commandBuffer, stencilTestEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetStencilTestEnableEXT", "commandBuffer, stencilTestEnable", "void");
     }
@@ -15707,7 +15604,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilOpEXT(VkCommandBuffer commandBuffer, V
             dump_text_params_vkCmdSetStencilOpEXT(ApiDumpInstance::current(), commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetStencilOpEXT", "commandBuffer, faceMask, failOp, passOp, depthFailOp, compareOp", "void");
     }
@@ -15737,7 +15634,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDeferredOperationKHR(VkDevice device, con
             dump_text_params_vkCreateDeferredOperationKHR(ApiDumpInstance::current(), device, pAllocator, pDeferredOperation);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateDeferredOperationKHR", "device, pAllocator, pDeferredOperation", "VkResult");
     }
@@ -15768,7 +15665,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDeferredOperationKHR(VkDevice device, VkDefe
             dump_text_params_vkDestroyDeferredOperationKHR(ApiDumpInstance::current(), device, operation, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyDeferredOperationKHR", "device, operation, pAllocator", "void");
     }
@@ -15798,7 +15695,7 @@ VKAPI_ATTR uint32_t VKAPI_CALL vkGetDeferredOperationMaxConcurrencyKHR(VkDevice 
             dump_text_params_vkGetDeferredOperationMaxConcurrencyKHR(ApiDumpInstance::current(), device, operation);
         }
         dump_return_preamble(ApiDumpInstance::current(), "uint32_t");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeferredOperationMaxConcurrencyKHR", "device, operation", "uint32_t");
     }
@@ -15829,7 +15726,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeferredOperationResultKHR(VkDevice device, 
             dump_text_params_vkGetDeferredOperationResultKHR(ApiDumpInstance::current(), device, operation);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeferredOperationResultKHR", "device, operation", "VkResult");
     }
@@ -15860,7 +15757,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkDeferredOperationJoinKHR(VkDevice device, VkDef
             dump_text_params_vkDeferredOperationJoinKHR(ApiDumpInstance::current(), device, operation);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDeferredOperationJoinKHR", "device, operation", "VkResult");
     }
@@ -15891,7 +15788,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineExecutablePropertiesKHR(VkDevice    
             dump_text_params_vkGetPipelineExecutablePropertiesKHR(ApiDumpInstance::current(), device, pPipelineInfo, pExecutableCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPipelineExecutablePropertiesKHR", "device, pPipelineInfo, pExecutableCount, pProperties", "VkResult");
     }
@@ -15922,7 +15819,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineExecutableStatisticsKHR(VkDevice    
             dump_text_params_vkGetPipelineExecutableStatisticsKHR(ApiDumpInstance::current(), device, pExecutableInfo, pStatisticCount, pStatistics);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPipelineExecutableStatisticsKHR", "device, pExecutableInfo, pStatisticCount, pStatistics", "VkResult");
     }
@@ -15953,7 +15850,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineExecutableInternalRepresentationsKHR
             dump_text_params_vkGetPipelineExecutableInternalRepresentationsKHR(ApiDumpInstance::current(), device, pExecutableInfo, pInternalRepresentationCount, pInternalRepresentations);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPipelineExecutableInternalRepresentationsKHR", "device, pExecutableInfo, pInternalRepresentationCount, pInternalRepresentations", "VkResult");
     }
@@ -15984,7 +15881,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToImageEXT(VkDevice device, const VkC
             dump_text_params_vkCopyMemoryToImageEXT(ApiDumpInstance::current(), device, pCopyMemoryToImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyMemoryToImageEXT", "device, pCopyMemoryToImageInfo", "VkResult");
     }
@@ -16015,7 +15912,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToMemoryEXT(VkDevice device, const VkC
             dump_text_params_vkCopyImageToMemoryEXT(ApiDumpInstance::current(), device, pCopyImageToMemoryInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyImageToMemoryEXT", "device, pCopyImageToMemoryInfo", "VkResult");
     }
@@ -16046,7 +15943,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToImageEXT(VkDevice device, const VkCo
             dump_text_params_vkCopyImageToImageEXT(ApiDumpInstance::current(), device, pCopyImageToImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyImageToImageEXT", "device, pCopyImageToImageInfo", "VkResult");
     }
@@ -16077,7 +15974,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkTransitionImageLayoutEXT(VkDevice device, uint3
             dump_text_params_vkTransitionImageLayoutEXT(ApiDumpInstance::current(), device, transitionCount, pTransitions);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkTransitionImageLayoutEXT", "device, transitionCount, pTransitions", "VkResult");
     }
@@ -16108,7 +16005,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2EXT(VkDevice device, VkIm
             dump_text_params_vkGetImageSubresourceLayout2EXT(ApiDumpInstance::current(), device, image, pSubresource, pLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageSubresourceLayout2EXT", "device, image, pSubresource, pLayout", "void");
     }
@@ -16138,7 +16035,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkMapMemory2KHR(VkDevice device, const VkMemoryMa
             dump_text_params_vkMapMemory2KHR(ApiDumpInstance::current(), device, pMemoryMapInfo, ppData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkMapMemory2KHR", "device, pMemoryMapInfo, ppData", "VkResult");
     }
@@ -16169,7 +16066,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkUnmapMemory2KHR(VkDevice device, const VkMemory
             dump_text_params_vkUnmapMemory2KHR(ApiDumpInstance::current(), device, pMemoryUnmapInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkUnmapMemory2KHR", "device, pMemoryUnmapInfo", "VkResult");
     }
@@ -16200,7 +16097,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesEXT(VkDevice device, cons
             dump_text_params_vkReleaseSwapchainImagesEXT(ApiDumpInstance::current(), device, pReleaseInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkReleaseSwapchainImagesEXT", "device, pReleaseInfo", "VkResult");
     }
@@ -16231,7 +16128,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetGeneratedCommandsMemoryRequirementsNV(VkDevice d
             dump_text_params_vkGetGeneratedCommandsMemoryRequirementsNV(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetGeneratedCommandsMemoryRequirementsNV", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -16261,7 +16158,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPreprocessGeneratedCommandsNV(VkCommandBuffer co
             dump_text_params_vkCmdPreprocessGeneratedCommandsNV(ApiDumpInstance::current(), commandBuffer, pGeneratedCommandsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPreprocessGeneratedCommandsNV", "commandBuffer, pGeneratedCommandsInfo", "void");
     }
@@ -16291,7 +16188,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdExecuteGeneratedCommandsNV(VkCommandBuffer comma
             dump_text_params_vkCmdExecuteGeneratedCommandsNV(ApiDumpInstance::current(), commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdExecuteGeneratedCommandsNV", "commandBuffer, isPreprocessed, pGeneratedCommandsInfo", "void");
     }
@@ -16321,7 +16218,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindPipelineShaderGroupNV(VkCommandBuffer comman
             dump_text_params_vkCmdBindPipelineShaderGroupNV(ApiDumpInstance::current(), commandBuffer, pipelineBindPoint, pipeline, groupIndex);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindPipelineShaderGroupNV", "commandBuffer, pipelineBindPoint, pipeline, groupIndex", "void");
     }
@@ -16351,7 +16248,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateIndirectCommandsLayoutNV(VkDevice device,
             dump_text_params_vkCreateIndirectCommandsLayoutNV(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateIndirectCommandsLayoutNV", "device, pCreateInfo, pAllocator, pIndirectCommandsLayout", "VkResult");
     }
@@ -16382,7 +16279,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyIndirectCommandsLayoutNV(VkDevice device, Vk
             dump_text_params_vkDestroyIndirectCommandsLayoutNV(ApiDumpInstance::current(), device, indirectCommandsLayout, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyIndirectCommandsLayoutNV", "device, indirectCommandsLayout, pAllocator", "void");
     }
@@ -16412,7 +16309,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBias2EXT(VkCommandBuffer commandBuffer, 
             dump_text_params_vkCmdSetDepthBias2EXT(ApiDumpInstance::current(), commandBuffer, pDepthBiasInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthBias2EXT", "commandBuffer, pDepthBiasInfo", "void");
     }
@@ -16442,7 +16339,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreatePrivateDataSlotEXT(VkDevice device, const
             dump_text_params_vkCreatePrivateDataSlotEXT(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pPrivateDataSlot);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreatePrivateDataSlotEXT", "device, pCreateInfo, pAllocator, pPrivateDataSlot", "VkResult");
     }
@@ -16473,7 +16370,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPrivateDataSlotEXT(VkDevice device, VkPrivat
             dump_text_params_vkDestroyPrivateDataSlotEXT(ApiDumpInstance::current(), device, privateDataSlot, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyPrivateDataSlotEXT", "device, privateDataSlot, pAllocator", "void");
     }
@@ -16503,7 +16400,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetPrivateDataEXT(VkDevice device, VkObjectType
             dump_text_params_vkSetPrivateDataEXT(ApiDumpInstance::current(), device, objectType, objectHandle, privateDataSlot, data);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetPrivateDataEXT", "device, objectType, objectHandle, privateDataSlot, data", "VkResult");
     }
@@ -16534,7 +16431,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPrivateDataEXT(VkDevice device, VkObjectType obj
             dump_text_params_vkGetPrivateDataEXT(ApiDumpInstance::current(), device, objectType, objectHandle, privateDataSlot, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPrivateDataEXT", "device, objectType, objectHandle, privateDataSlot, pData", "void");
     }
@@ -16564,7 +16461,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetEncodedVideoSessionParametersKHR(VkDevice de
             dump_text_params_vkGetEncodedVideoSessionParametersKHR(ApiDumpInstance::current(), device, pVideoSessionParametersInfo, pFeedbackInfo, pDataSize, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetEncodedVideoSessionParametersKHR", "device, pVideoSessionParametersInfo, pFeedbackInfo, pDataSize, pData", "VkResult");
     }
@@ -16595,7 +16492,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEncodeVideoKHR(VkCommandBuffer commandBuffer, co
             dump_text_params_vkCmdEncodeVideoKHR(ApiDumpInstance::current(), commandBuffer, pEncodeInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEncodeVideoKHR", "commandBuffer, pEncodeInfo", "void");
     }
@@ -16626,7 +16523,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateCudaModuleNV(VkDevice device, const VkCud
             dump_text_params_vkCreateCudaModuleNV(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pModule);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateCudaModuleNV", "device, pCreateInfo, pAllocator, pModule", "VkResult");
     }
@@ -16659,7 +16556,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetCudaModuleCacheNV(VkDevice device, VkCudaMod
             dump_text_params_vkGetCudaModuleCacheNV(ApiDumpInstance::current(), device, module, pCacheSize, pCacheData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetCudaModuleCacheNV", "device, module, pCacheSize, pCacheData", "VkResult");
     }
@@ -16692,7 +16589,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateCudaFunctionNV(VkDevice device, const VkC
             dump_text_params_vkCreateCudaFunctionNV(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pFunction);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateCudaFunctionNV", "device, pCreateInfo, pAllocator, pFunction", "VkResult");
     }
@@ -16725,7 +16622,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCudaModuleNV(VkDevice device, VkCudaModuleNV
             dump_text_params_vkDestroyCudaModuleNV(ApiDumpInstance::current(), device, module, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyCudaModuleNV", "device, module, pAllocator", "void");
     }
@@ -16757,7 +16654,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCudaFunctionNV(VkDevice device, VkCudaFuncti
             dump_text_params_vkDestroyCudaFunctionNV(ApiDumpInstance::current(), device, function, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyCudaFunctionNV", "device, function, pAllocator", "void");
     }
@@ -16789,7 +16686,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCudaLaunchKernelNV(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdCudaLaunchKernelNV(ApiDumpInstance::current(), commandBuffer, pLaunchInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCudaLaunchKernelNV", "commandBuffer, pLaunchInfo", "void");
     }
@@ -16820,7 +16717,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(VkCommandBuffer commandBuffer, 
             dump_text_params_vkCmdDispatchTileQCOM(ApiDumpInstance::current(), commandBuffer, pDispatchTileInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchTileQCOM", "commandBuffer, pDispatchTileInfo", "void");
     }
@@ -16850,7 +16747,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginPerTileExecutionQCOM(VkCommandBuffer comman
             dump_text_params_vkCmdBeginPerTileExecutionQCOM(ApiDumpInstance::current(), commandBuffer, pPerTileBeginInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBeginPerTileExecutionQCOM", "commandBuffer, pPerTileBeginInfo", "void");
     }
@@ -16880,7 +16777,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndPerTileExecutionQCOM(VkCommandBuffer commandB
             dump_text_params_vkCmdEndPerTileExecutionQCOM(ApiDumpInstance::current(), commandBuffer, pPerTileEndInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndPerTileExecutionQCOM", "commandBuffer, pPerTileEndInfo", "void");
     }
@@ -16911,7 +16808,7 @@ VKAPI_ATTR void VKAPI_CALL vkExportMetalObjectsEXT(VkDevice device, VkExportMeta
             dump_text_params_vkExportMetalObjectsEXT(ApiDumpInstance::current(), device, pMetalObjectsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkExportMetalObjectsEXT", "device, pMetalObjectsInfo", "void");
     }
@@ -16942,7 +16839,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetEvent2KHR(VkCommandBuffer                   c
             dump_text_params_vkCmdSetEvent2KHR(ApiDumpInstance::current(), commandBuffer, event, pDependencyInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetEvent2KHR", "commandBuffer, event, pDependencyInfo", "void");
     }
@@ -16972,7 +16869,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResetEvent2KHR(VkCommandBuffer                  
             dump_text_params_vkCmdResetEvent2KHR(ApiDumpInstance::current(), commandBuffer, event, stageMask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdResetEvent2KHR", "commandBuffer, event, stageMask", "void");
     }
@@ -17002,7 +16899,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWaitEvents2KHR(VkCommandBuffer                  
             dump_text_params_vkCmdWaitEvents2KHR(ApiDumpInstance::current(), commandBuffer, eventCount, pEvents, pDependencyInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWaitEvents2KHR", "commandBuffer, eventCount, pEvents, pDependencyInfos", "void");
     }
@@ -17032,7 +16929,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPipelineBarrier2KHR(VkCommandBuffer             
             dump_text_params_vkCmdPipelineBarrier2KHR(ApiDumpInstance::current(), commandBuffer, pDependencyInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPipelineBarrier2KHR", "commandBuffer, pDependencyInfo", "void");
     }
@@ -17062,7 +16959,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteTimestamp2KHR(VkCommandBuffer              
             dump_text_params_vkCmdWriteTimestamp2KHR(ApiDumpInstance::current(), commandBuffer, stage, queryPool, query);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWriteTimestamp2KHR", "commandBuffer, stage, queryPool, query", "void");
     }
@@ -17092,7 +16989,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit2KHR(VkQueue                        
             dump_text_params_vkQueueSubmit2KHR(ApiDumpInstance::current(), queue, submitCount, pSubmits, fence);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkQueueSubmit2KHR", "queue, submitCount, pSubmits, fence", "VkResult");
     }
@@ -17123,7 +17020,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutSizeEXT(VkDevice device, VkDe
             dump_text_params_vkGetDescriptorSetLayoutSizeEXT(ApiDumpInstance::current(), device, layout, pLayoutSizeInBytes);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDescriptorSetLayoutSizeEXT", "device, layout, pLayoutSizeInBytes", "void");
     }
@@ -17153,7 +17050,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutBindingOffsetEXT(VkDevice dev
             dump_text_params_vkGetDescriptorSetLayoutBindingOffsetEXT(ApiDumpInstance::current(), device, layout, binding, pOffset);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDescriptorSetLayoutBindingOffsetEXT", "device, layout, binding, pOffset", "void");
     }
@@ -17183,7 +17080,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorEXT(VkDevice device, const VkDescripto
             dump_text_params_vkGetDescriptorEXT(ApiDumpInstance::current(), device, pDescriptorInfo, dataSize, pDescriptor);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDescriptorEXT", "device, pDescriptorInfo, dataSize, pDescriptor", "void");
     }
@@ -17213,7 +17110,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBuffersEXT(VkCommandBuffer command
             dump_text_params_vkCmdBindDescriptorBuffersEXT(ApiDumpInstance::current(), commandBuffer, bufferCount, pBindingInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindDescriptorBuffersEXT", "commandBuffer, bufferCount, pBindingInfos", "void");
     }
@@ -17243,7 +17140,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDescriptorBufferOffsetsEXT(VkCommandBuffer co
             dump_text_params_vkCmdSetDescriptorBufferOffsetsEXT(ApiDumpInstance::current(), commandBuffer, pipelineBindPoint, layout, firstSet, setCount, pBufferIndices, pOffsets);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDescriptorBufferOffsetsEXT", "commandBuffer, pipelineBindPoint, layout, firstSet, setCount, pBufferIndices, pOffsets", "void");
     }
@@ -17273,7 +17170,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplersEXT(VkComman
             dump_text_params_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(ApiDumpInstance::current(), commandBuffer, pipelineBindPoint, layout, set);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindDescriptorBufferEmbeddedSamplersEXT", "commandBuffer, pipelineBindPoint, layout, set", "void");
     }
@@ -17303,7 +17200,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetBufferOpaqueCaptureDescriptorDataEXT(VkDevic
             dump_text_params_vkGetBufferOpaqueCaptureDescriptorDataEXT(ApiDumpInstance::current(), device, pInfo, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetBufferOpaqueCaptureDescriptorDataEXT", "device, pInfo, pData", "VkResult");
     }
@@ -17334,7 +17231,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageOpaqueCaptureDescriptorDataEXT(VkDevice
             dump_text_params_vkGetImageOpaqueCaptureDescriptorDataEXT(ApiDumpInstance::current(), device, pInfo, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageOpaqueCaptureDescriptorDataEXT", "device, pInfo, pData", "VkResult");
     }
@@ -17365,7 +17262,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewOpaqueCaptureDescriptorDataEXT(VkDe
             dump_text_params_vkGetImageViewOpaqueCaptureDescriptorDataEXT(ApiDumpInstance::current(), device, pInfo, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageViewOpaqueCaptureDescriptorDataEXT", "device, pInfo, pData", "VkResult");
     }
@@ -17396,7 +17293,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSamplerOpaqueCaptureDescriptorDataEXT(VkDevi
             dump_text_params_vkGetSamplerOpaqueCaptureDescriptorDataEXT(ApiDumpInstance::current(), device, pInfo, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetSamplerOpaqueCaptureDescriptorDataEXT", "device, pInfo, pData", "VkResult");
     }
@@ -17427,7 +17324,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetAccelerationStructureOpaqueCaptureDescriptor
             dump_text_params_vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT(ApiDumpInstance::current(), device, pInfo, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT", "device, pInfo, pData", "VkResult");
     }
@@ -17458,7 +17355,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateEnumNV(VkCommandBuffer    
             dump_text_params_vkCmdSetFragmentShadingRateEnumNV(ApiDumpInstance::current(), commandBuffer, shadingRate, combinerOps);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetFragmentShadingRateEnumNV", "commandBuffer, shadingRate, combinerOps", "void");
     }
@@ -17488,7 +17385,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksEXT(VkCommandBuffer commandBuffer, 
             dump_text_params_vkCmdDrawMeshTasksEXT(ApiDumpInstance::current(), commandBuffer, groupCountX, groupCountY, groupCountZ);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawMeshTasksEXT", "commandBuffer, groupCountX, groupCountY, groupCountZ", "void");
     }
@@ -17518,7 +17415,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectEXT(VkCommandBuffer command
             dump_text_params_vkCmdDrawMeshTasksIndirectEXT(ApiDumpInstance::current(), commandBuffer, buffer, offset, drawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawMeshTasksIndirectEXT", "commandBuffer, buffer, offset, drawCount, stride", "void");
     }
@@ -17548,7 +17445,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectCountEXT(VkCommandBuffer co
             dump_text_params_vkCmdDrawMeshTasksIndirectCountEXT(ApiDumpInstance::current(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawMeshTasksIndirectCountEXT", "commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride", "void");
     }
@@ -17578,7 +17475,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer2KHR(VkCommandBuffer commandBuffer, co
             dump_text_params_vkCmdCopyBuffer2KHR(ApiDumpInstance::current(), commandBuffer, pCopyBufferInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyBuffer2KHR", "commandBuffer, pCopyBufferInfo", "void");
     }
@@ -17608,7 +17505,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImage2KHR(VkCommandBuffer commandBuffer, con
             dump_text_params_vkCmdCopyImage2KHR(ApiDumpInstance::current(), commandBuffer, pCopyImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyImage2KHR", "commandBuffer, pCopyImageInfo", "void");
     }
@@ -17638,7 +17535,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyBufferToImage2KHR(VkCommandBuffer commandBuf
             dump_text_params_vkCmdCopyBufferToImage2KHR(ApiDumpInstance::current(), commandBuffer, pCopyBufferToImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyBufferToImage2KHR", "commandBuffer, pCopyBufferToImageInfo", "void");
     }
@@ -17668,7 +17565,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToBuffer2KHR(VkCommandBuffer commandBuf
             dump_text_params_vkCmdCopyImageToBuffer2KHR(ApiDumpInstance::current(), commandBuffer, pCopyImageToBufferInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyImageToBuffer2KHR", "commandBuffer, pCopyImageToBufferInfo", "void");
     }
@@ -17698,7 +17595,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBlitImage2KHR(VkCommandBuffer commandBuffer, con
             dump_text_params_vkCmdBlitImage2KHR(ApiDumpInstance::current(), commandBuffer, pBlitImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBlitImage2KHR", "commandBuffer, pBlitImageInfo", "void");
     }
@@ -17728,7 +17625,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResolveImage2KHR(VkCommandBuffer commandBuffer, 
             dump_text_params_vkCmdResolveImage2KHR(ApiDumpInstance::current(), commandBuffer, pResolveImageInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdResolveImage2KHR", "commandBuffer, pResolveImageInfo", "void");
     }
@@ -17758,7 +17655,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceFaultInfoEXT(VkDevice device, VkDevice
             dump_text_params_vkGetDeviceFaultInfoEXT(ApiDumpInstance::current(), device, pFaultCounts, pFaultInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceFaultInfoEXT", "device, pFaultCounts, pFaultInfo", "VkResult");
     }
@@ -17789,7 +17686,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysKHR(VkCommandBuffer commandBuffer, cons
             dump_text_params_vkCmdTraceRaysKHR(ApiDumpInstance::current(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdTraceRaysKHR", "commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth", "void");
     }
@@ -17819,7 +17716,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateRayTracingPipelinesKHR(VkDevice device, V
             dump_text_params_vkCreateRayTracingPipelinesKHR(ApiDumpInstance::current(), device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateRayTracingPipelinesKHR", "device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines", "VkResult");
     }
@@ -17850,7 +17747,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetRayTracingCaptureReplayShaderGroupHandlesKHR
             dump_text_params_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(ApiDumpInstance::current(), device, pipeline, firstGroup, groupCount, dataSize, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetRayTracingCaptureReplayShaderGroupHandlesKHR", "device, pipeline, firstGroup, groupCount, dataSize, pData", "VkResult");
     }
@@ -17881,7 +17778,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysIndirectKHR(VkCommandBuffer commandBuff
             dump_text_params_vkCmdTraceRaysIndirectKHR(ApiDumpInstance::current(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdTraceRaysIndirectKHR", "commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, indirectDeviceAddress", "void");
     }
@@ -17911,7 +17808,7 @@ VKAPI_ATTR VkDeviceSize VKAPI_CALL vkGetRayTracingShaderGroupStackSizeKHR(VkDevi
             dump_text_params_vkGetRayTracingShaderGroupStackSizeKHR(ApiDumpInstance::current(), device, pipeline, group, groupShader);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkDeviceSize");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetRayTracingShaderGroupStackSizeKHR", "device, pipeline, group, groupShader", "VkDeviceSize");
     }
@@ -17942,7 +17839,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRayTracingPipelineStackSizeKHR(VkCommandBuffe
             dump_text_params_vkCmdSetRayTracingPipelineStackSizeKHR(ApiDumpInstance::current(), commandBuffer, pipelineStackSize);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetRayTracingPipelineStackSizeKHR", "commandBuffer, pipelineStackSize", "void");
     }
@@ -17972,7 +17869,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetVertexInputEXT(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdSetVertexInputEXT(ApiDumpInstance::current(), commandBuffer, vertexBindingDescriptionCount, pVertexBindingDescriptions, vertexAttributeDescriptionCount, pVertexAttributeDescriptions);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetVertexInputEXT", "commandBuffer, vertexBindingDescriptionCount, pVertexBindingDescriptions, vertexAttributeDescriptionCount, pVertexAttributeDescriptions", "void");
     }
@@ -18003,7 +17900,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandleFUCHSIA(VkDevice device, c
             dump_text_params_vkGetMemoryZirconHandleFUCHSIA(ApiDumpInstance::current(), device, pGetZirconHandleInfo, pZirconHandle);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryZirconHandleFUCHSIA", "device, pGetZirconHandleInfo, pZirconHandle", "VkResult");
     }
@@ -18036,7 +17933,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandlePropertiesFUCHSIA(VkDevice
             dump_text_params_vkGetMemoryZirconHandlePropertiesFUCHSIA(ApiDumpInstance::current(), device, handleType, zirconHandle, pMemoryZirconHandleProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryZirconHandlePropertiesFUCHSIA", "device, handleType, zirconHandle, pMemoryZirconHandleProperties", "VkResult");
     }
@@ -18069,7 +17966,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreZirconHandleFUCHSIA(VkDevice dev
             dump_text_params_vkImportSemaphoreZirconHandleFUCHSIA(ApiDumpInstance::current(), device, pImportSemaphoreZirconHandleInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkImportSemaphoreZirconHandleFUCHSIA", "device, pImportSemaphoreZirconHandleInfo", "VkResult");
     }
@@ -18102,7 +17999,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreZirconHandleFUCHSIA(VkDevice device
             dump_text_params_vkGetSemaphoreZirconHandleFUCHSIA(ApiDumpInstance::current(), device, pGetZirconHandleInfo, pZirconHandle);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetSemaphoreZirconHandleFUCHSIA", "device, pGetZirconHandleInfo, pZirconHandle", "VkResult");
     }
@@ -18135,7 +18032,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateBufferCollectionFUCHSIA(VkDevice device, 
             dump_text_params_vkCreateBufferCollectionFUCHSIA(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pCollection);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateBufferCollectionFUCHSIA", "device, pCreateInfo, pAllocator, pCollection", "VkResult");
     }
@@ -18168,7 +18065,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetBufferCollectionImageConstraintsFUCHSIA(VkDe
             dump_text_params_vkSetBufferCollectionImageConstraintsFUCHSIA(ApiDumpInstance::current(), device, collection, pImageConstraintsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetBufferCollectionImageConstraintsFUCHSIA", "device, collection, pImageConstraintsInfo", "VkResult");
     }
@@ -18201,7 +18098,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetBufferCollectionBufferConstraintsFUCHSIA(VkD
             dump_text_params_vkSetBufferCollectionBufferConstraintsFUCHSIA(ApiDumpInstance::current(), device, collection, pBufferConstraintsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetBufferCollectionBufferConstraintsFUCHSIA", "device, collection, pBufferConstraintsInfo", "VkResult");
     }
@@ -18234,7 +18131,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyBufferCollectionFUCHSIA(VkDevice device, VkB
             dump_text_params_vkDestroyBufferCollectionFUCHSIA(ApiDumpInstance::current(), device, collection, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyBufferCollectionFUCHSIA", "device, collection, pAllocator", "void");
     }
@@ -18266,7 +18163,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetBufferCollectionPropertiesFUCHSIA(VkDevice d
             dump_text_params_vkGetBufferCollectionPropertiesFUCHSIA(ApiDumpInstance::current(), device, collection, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetBufferCollectionPropertiesFUCHSIA", "device, collection, pProperties", "VkResult");
     }
@@ -18298,7 +18195,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI(V
             dump_text_params_vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI(ApiDumpInstance::current(), device, renderpass, pMaxWorkgroupSize);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI", "device, renderpass, pMaxWorkgroupSize", "VkResult");
     }
@@ -18329,7 +18226,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSubpassShadingHUAWEI(VkCommandBuffer commandBuff
             dump_text_params_vkCmdSubpassShadingHUAWEI(ApiDumpInstance::current(), commandBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSubpassShadingHUAWEI", "commandBuffer", "void");
     }
@@ -18359,7 +18256,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindInvocationMaskHUAWEI(VkCommandBuffer command
             dump_text_params_vkCmdBindInvocationMaskHUAWEI(ApiDumpInstance::current(), commandBuffer, imageView, imageLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindInvocationMaskHUAWEI", "commandBuffer, imageView, imageLayout", "void");
     }
@@ -18389,7 +18286,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryRemoteAddressNV(VkDevice device, const
             dump_text_params_vkGetMemoryRemoteAddressNV(ApiDumpInstance::current(), device, pMemoryGetRemoteAddressInfo, pAddress);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryRemoteAddressNV", "device, pMemoryGetRemoteAddressInfo, pAddress", "VkResult");
     }
@@ -18420,7 +18317,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelinePropertiesEXT(VkDevice device, const
             dump_text_params_vkGetPipelinePropertiesEXT(ApiDumpInstance::current(), device, pPipelineInfo, pPipelineProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPipelinePropertiesEXT", "device, pPipelineInfo, pPipelineProperties", "VkResult");
     }
@@ -18451,7 +18348,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPatchControlPointsEXT(VkCommandBuffer command
             dump_text_params_vkCmdSetPatchControlPointsEXT(ApiDumpInstance::current(), commandBuffer, patchControlPoints);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetPatchControlPointsEXT", "commandBuffer, patchControlPoints", "void");
     }
@@ -18481,7 +18378,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizerDiscardEnableEXT(VkCommandBuffer co
             dump_text_params_vkCmdSetRasterizerDiscardEnableEXT(ApiDumpInstance::current(), commandBuffer, rasterizerDiscardEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetRasterizerDiscardEnableEXT", "commandBuffer, rasterizerDiscardEnable", "void");
     }
@@ -18511,7 +18408,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBiasEnableEXT(VkCommandBuffer commandBuf
             dump_text_params_vkCmdSetDepthBiasEnableEXT(ApiDumpInstance::current(), commandBuffer, depthBiasEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthBiasEnableEXT", "commandBuffer, depthBiasEnable", "void");
     }
@@ -18541,7 +18438,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLogicOpEXT(VkCommandBuffer commandBuffer, VkL
             dump_text_params_vkCmdSetLogicOpEXT(ApiDumpInstance::current(), commandBuffer, logicOp);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetLogicOpEXT", "commandBuffer, logicOp", "void");
     }
@@ -18571,7 +18468,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartEnableEXT(VkCommandBuffer com
             dump_text_params_vkCmdSetPrimitiveRestartEnableEXT(ApiDumpInstance::current(), commandBuffer, primitiveRestartEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetPrimitiveRestartEnableEXT", "commandBuffer, primitiveRestartEnable", "void");
     }
@@ -18601,7 +18498,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetColorWriteEnableEXT(VkCommandBuffer       com
             dump_text_params_vkCmdSetColorWriteEnableEXT(ApiDumpInstance::current(), commandBuffer, attachmentCount, pColorWriteEnables);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetColorWriteEnableEXT", "commandBuffer, attachmentCount, pColorWriteEnables", "void");
     }
@@ -18631,7 +18528,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdTraceRaysIndirect2KHR(VkCommandBuffer commandBuf
             dump_text_params_vkCmdTraceRaysIndirect2KHR(ApiDumpInstance::current(), commandBuffer, indirectDeviceAddress);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdTraceRaysIndirect2KHR", "commandBuffer, indirectDeviceAddress", "void");
     }
@@ -18661,7 +18558,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMultiEXT(VkCommandBuffer commandBuffer, uint
             dump_text_params_vkCmdDrawMultiEXT(ApiDumpInstance::current(), commandBuffer, drawCount, pVertexInfo, instanceCount, firstInstance, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawMultiEXT", "commandBuffer, drawCount, pVertexInfo, instanceCount, firstInstance, stride", "void");
     }
@@ -18691,7 +18588,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawMultiIndexedEXT(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdDrawMultiIndexedEXT(ApiDumpInstance::current(), commandBuffer, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawMultiIndexedEXT", "commandBuffer, drawCount, pIndexInfo, instanceCount, firstInstance, stride, pVertexOffset", "void");
     }
@@ -18721,7 +18618,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateMicromapEXT(VkDevice                     
             dump_text_params_vkCreateMicromapEXT(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pMicromap);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateMicromapEXT", "device, pCreateInfo, pAllocator, pMicromap", "VkResult");
     }
@@ -18752,7 +18649,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyMicromapEXT(VkDevice device, VkMicromapEXT m
             dump_text_params_vkDestroyMicromapEXT(ApiDumpInstance::current(), device, micromap, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyMicromapEXT", "device, micromap, pAllocator", "void");
     }
@@ -18782,7 +18679,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildMicromapsEXT(VkCommandBuffer               
             dump_text_params_vkCmdBuildMicromapsEXT(ApiDumpInstance::current(), commandBuffer, infoCount, pInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBuildMicromapsEXT", "commandBuffer, infoCount, pInfos", "void");
     }
@@ -18812,7 +18709,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBuildMicromapsEXT(VkDevice                     
             dump_text_params_vkBuildMicromapsEXT(ApiDumpInstance::current(), device, deferredOperation, infoCount, pInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBuildMicromapsEXT", "device, deferredOperation, infoCount, pInfos", "VkResult");
     }
@@ -18843,7 +18740,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMicromapEXT(VkDevice device, VkDeferredOper
             dump_text_params_vkCopyMicromapEXT(ApiDumpInstance::current(), device, deferredOperation, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyMicromapEXT", "device, deferredOperation, pInfo", "VkResult");
     }
@@ -18874,7 +18771,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMicromapToMemoryEXT(VkDevice device, VkDefe
             dump_text_params_vkCopyMicromapToMemoryEXT(ApiDumpInstance::current(), device, deferredOperation, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyMicromapToMemoryEXT", "device, deferredOperation, pInfo", "VkResult");
     }
@@ -18905,7 +18802,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCopyMemoryToMicromapEXT(VkDevice device, VkDefe
             dump_text_params_vkCopyMemoryToMicromapEXT(ApiDumpInstance::current(), device, deferredOperation, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCopyMemoryToMicromapEXT", "device, deferredOperation, pInfo", "VkResult");
     }
@@ -18936,7 +18833,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWriteMicromapsPropertiesEXT(VkDevice device, ui
             dump_text_params_vkWriteMicromapsPropertiesEXT(ApiDumpInstance::current(), device, micromapCount, pMicromaps, queryType, dataSize, pData, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkWriteMicromapsPropertiesEXT", "device, micromapCount, pMicromaps, queryType, dataSize, pData, stride", "VkResult");
     }
@@ -18967,7 +18864,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMicromapEXT(VkCommandBuffer commandBuffer, c
             dump_text_params_vkCmdCopyMicromapEXT(ApiDumpInstance::current(), commandBuffer, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyMicromapEXT", "commandBuffer, pInfo", "void");
     }
@@ -18997,7 +18894,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMicromapToMemoryEXT(VkCommandBuffer commandB
             dump_text_params_vkCmdCopyMicromapToMemoryEXT(ApiDumpInstance::current(), commandBuffer, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyMicromapToMemoryEXT", "commandBuffer, pInfo", "void");
     }
@@ -19027,7 +18924,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToMicromapEXT(VkCommandBuffer commandB
             dump_text_params_vkCmdCopyMemoryToMicromapEXT(ApiDumpInstance::current(), commandBuffer, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyMemoryToMicromapEXT", "commandBuffer, pInfo", "void");
     }
@@ -19057,7 +18954,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdWriteMicromapsPropertiesEXT(VkCommandBuffer comm
             dump_text_params_vkCmdWriteMicromapsPropertiesEXT(ApiDumpInstance::current(), commandBuffer, micromapCount, pMicromaps, queryType, queryPool, firstQuery);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdWriteMicromapsPropertiesEXT", "commandBuffer, micromapCount, pMicromaps, queryType, queryPool, firstQuery", "void");
     }
@@ -19087,7 +18984,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceMicromapCompatibilityEXT(VkDevice device, 
             dump_text_params_vkGetDeviceMicromapCompatibilityEXT(ApiDumpInstance::current(), device, pVersionInfo, pCompatibility);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceMicromapCompatibilityEXT", "device, pVersionInfo, pCompatibility", "void");
     }
@@ -19117,7 +19014,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetMicromapBuildSizesEXT(VkDevice                  
             dump_text_params_vkGetMicromapBuildSizesEXT(ApiDumpInstance::current(), device, buildType, pBuildInfo, pSizeInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMicromapBuildSizesEXT", "device, buildType, pBuildInfo, pSizeInfo", "void");
     }
@@ -19147,7 +19044,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawClusterHUAWEI(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdDrawClusterHUAWEI(ApiDumpInstance::current(), commandBuffer, groupCountX, groupCountY, groupCountZ);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawClusterHUAWEI", "commandBuffer, groupCountX, groupCountY, groupCountZ", "void");
     }
@@ -19177,7 +19074,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDrawClusterIndirectHUAWEI(VkCommandBuffer comman
             dump_text_params_vkCmdDrawClusterIndirectHUAWEI(ApiDumpInstance::current(), commandBuffer, buffer, offset);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDrawClusterIndirectHUAWEI", "commandBuffer, buffer, offset", "void");
     }
@@ -19207,7 +19104,7 @@ VKAPI_ATTR void VKAPI_CALL vkSetDeviceMemoryPriorityEXT(VkDevice       device, V
             dump_text_params_vkSetDeviceMemoryPriorityEXT(ApiDumpInstance::current(), device, memory, priority);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetDeviceMemoryPriorityEXT", "device, memory, priority", "void");
     }
@@ -19237,7 +19134,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirementsKHR(VkDevice devic
             dump_text_params_vkGetDeviceBufferMemoryRequirementsKHR(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceBufferMemoryRequirementsKHR", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -19267,7 +19164,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageMemoryRequirementsKHR(VkDevice device
             dump_text_params_vkGetDeviceImageMemoryRequirementsKHR(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceImageMemoryRequirementsKHR", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -19297,7 +19194,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSparseMemoryRequirementsKHR(VkDevice 
             dump_text_params_vkGetDeviceImageSparseMemoryRequirementsKHR(ApiDumpInstance::current(), device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceImageSparseMemoryRequirementsKHR", "device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements", "void");
     }
@@ -19327,7 +19224,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutHostMappingInfoVALVE(VkDevice
             dump_text_params_vkGetDescriptorSetLayoutHostMappingInfoVALVE(ApiDumpInstance::current(), device, pBindingReference, pHostMapping);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDescriptorSetLayoutHostMappingInfoVALVE", "device, pBindingReference, pHostMapping", "void");
     }
@@ -19357,7 +19254,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetHostMappingVALVE(VkDevice device, V
             dump_text_params_vkGetDescriptorSetHostMappingVALVE(ApiDumpInstance::current(), device, descriptorSet, ppData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDescriptorSetHostMappingVALVE", "device, descriptorSet, ppData", "void");
     }
@@ -19387,7 +19284,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryIndirectNV(VkCommandBuffer commandBuff
             dump_text_params_vkCmdCopyMemoryIndirectNV(ApiDumpInstance::current(), commandBuffer, copyBufferAddress, copyCount, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyMemoryIndirectNV", "commandBuffer, copyBufferAddress, copyCount, stride", "void");
     }
@@ -19417,7 +19314,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToImageIndirectNV(VkCommandBuffer comm
             dump_text_params_vkCmdCopyMemoryToImageIndirectNV(ApiDumpInstance::current(), commandBuffer, copyBufferAddress, copyCount, stride, dstImage, dstImageLayout, pImageSubresources);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdCopyMemoryToImageIndirectNV", "commandBuffer, copyBufferAddress, copyCount, stride, dstImage, dstImageLayout, pImageSubresources", "void");
     }
@@ -19447,7 +19344,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDecompressMemoryNV(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdDecompressMemoryNV(ApiDumpInstance::current(), commandBuffer, decompressRegionCount, pDecompressMemoryRegions);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDecompressMemoryNV", "commandBuffer, decompressRegionCount, pDecompressMemoryRegions", "void");
     }
@@ -19477,7 +19374,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDecompressMemoryIndirectCountNV(VkCommandBuffer 
             dump_text_params_vkCmdDecompressMemoryIndirectCountNV(ApiDumpInstance::current(), commandBuffer, indirectCommandsAddress, indirectCommandsCountAddress, stride);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdDecompressMemoryIndirectCountNV", "commandBuffer, indirectCommandsAddress, indirectCommandsCountAddress, stride", "void");
     }
@@ -19507,7 +19404,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPipelineIndirectMemoryRequirementsNV(VkDevice de
             dump_text_params_vkGetPipelineIndirectMemoryRequirementsNV(ApiDumpInstance::current(), device, pCreateInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPipelineIndirectMemoryRequirementsNV", "device, pCreateInfo, pMemoryRequirements", "void");
     }
@@ -19537,7 +19434,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdUpdatePipelineIndirectBufferNV(VkCommandBuffer c
             dump_text_params_vkCmdUpdatePipelineIndirectBufferNV(ApiDumpInstance::current(), commandBuffer, pipelineBindPoint, pipeline);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdUpdatePipelineIndirectBufferNV", "commandBuffer, pipelineBindPoint, pipeline", "void");
     }
@@ -19567,7 +19464,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetPipelineIndirectDeviceAddressNV(VkDev
             dump_text_params_vkGetPipelineIndirectDeviceAddressNV(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkDeviceAddress");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPipelineIndirectDeviceAddressNV", "device, pInfo", "VkDeviceAddress");
     }
@@ -19598,7 +19495,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClampEnableEXT(VkCommandBuffer commandBu
             dump_text_params_vkCmdSetDepthClampEnableEXT(ApiDumpInstance::current(), commandBuffer, depthClampEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthClampEnableEXT", "commandBuffer, depthClampEnable", "void");
     }
@@ -19628,7 +19525,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetPolygonModeEXT(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdSetPolygonModeEXT(ApiDumpInstance::current(), commandBuffer, polygonMode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetPolygonModeEXT", "commandBuffer, polygonMode", "void");
     }
@@ -19658,7 +19555,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizationSamplesEXT(VkCommandBuffer comma
             dump_text_params_vkCmdSetRasterizationSamplesEXT(ApiDumpInstance::current(), commandBuffer, rasterizationSamples);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetRasterizationSamplesEXT", "commandBuffer, rasterizationSamples", "void");
     }
@@ -19688,7 +19585,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleMaskEXT(VkCommandBuffer commandBuffer, 
             dump_text_params_vkCmdSetSampleMaskEXT(ApiDumpInstance::current(), commandBuffer, samples, pSampleMask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetSampleMaskEXT", "commandBuffer, samples, pSampleMask", "void");
     }
@@ -19718,7 +19615,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetAlphaToCoverageEnableEXT(VkCommandBuffer comm
             dump_text_params_vkCmdSetAlphaToCoverageEnableEXT(ApiDumpInstance::current(), commandBuffer, alphaToCoverageEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetAlphaToCoverageEnableEXT", "commandBuffer, alphaToCoverageEnable", "void");
     }
@@ -19748,7 +19645,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetAlphaToOneEnableEXT(VkCommandBuffer commandBu
             dump_text_params_vkCmdSetAlphaToOneEnableEXT(ApiDumpInstance::current(), commandBuffer, alphaToOneEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetAlphaToOneEnableEXT", "commandBuffer, alphaToOneEnable", "void");
     }
@@ -19778,7 +19675,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLogicOpEnableEXT(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdSetLogicOpEnableEXT(ApiDumpInstance::current(), commandBuffer, logicOpEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetLogicOpEnableEXT", "commandBuffer, logicOpEnable", "void");
     }
@@ -19808,7 +19705,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetColorBlendEnableEXT(VkCommandBuffer commandBu
             dump_text_params_vkCmdSetColorBlendEnableEXT(ApiDumpInstance::current(), commandBuffer, firstAttachment, attachmentCount, pColorBlendEnables);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetColorBlendEnableEXT", "commandBuffer, firstAttachment, attachmentCount, pColorBlendEnables", "void");
     }
@@ -19838,7 +19735,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetColorBlendEquationEXT(VkCommandBuffer command
             dump_text_params_vkCmdSetColorBlendEquationEXT(ApiDumpInstance::current(), commandBuffer, firstAttachment, attachmentCount, pColorBlendEquations);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetColorBlendEquationEXT", "commandBuffer, firstAttachment, attachmentCount, pColorBlendEquations", "void");
     }
@@ -19868,7 +19765,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetColorWriteMaskEXT(VkCommandBuffer commandBuff
             dump_text_params_vkCmdSetColorWriteMaskEXT(ApiDumpInstance::current(), commandBuffer, firstAttachment, attachmentCount, pColorWriteMasks);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetColorWriteMaskEXT", "commandBuffer, firstAttachment, attachmentCount, pColorWriteMasks", "void");
     }
@@ -19898,7 +19795,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetTessellationDomainOriginEXT(VkCommandBuffer c
             dump_text_params_vkCmdSetTessellationDomainOriginEXT(ApiDumpInstance::current(), commandBuffer, domainOrigin);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetTessellationDomainOriginEXT", "commandBuffer, domainOrigin", "void");
     }
@@ -19928,7 +19825,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizationStreamEXT(VkCommandBuffer comman
             dump_text_params_vkCmdSetRasterizationStreamEXT(ApiDumpInstance::current(), commandBuffer, rasterizationStream);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetRasterizationStreamEXT", "commandBuffer, rasterizationStream", "void");
     }
@@ -19958,7 +19855,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetConservativeRasterizationModeEXT(VkCommandBuf
             dump_text_params_vkCmdSetConservativeRasterizationModeEXT(ApiDumpInstance::current(), commandBuffer, conservativeRasterizationMode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetConservativeRasterizationModeEXT", "commandBuffer, conservativeRasterizationMode", "void");
     }
@@ -19988,7 +19885,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetExtraPrimitiveOverestimationSizeEXT(VkCommand
             dump_text_params_vkCmdSetExtraPrimitiveOverestimationSizeEXT(ApiDumpInstance::current(), commandBuffer, extraPrimitiveOverestimationSize);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetExtraPrimitiveOverestimationSizeEXT", "commandBuffer, extraPrimitiveOverestimationSize", "void");
     }
@@ -20018,7 +19915,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClipEnableEXT(VkCommandBuffer commandBuf
             dump_text_params_vkCmdSetDepthClipEnableEXT(ApiDumpInstance::current(), commandBuffer, depthClipEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthClipEnableEXT", "commandBuffer, depthClipEnable", "void");
     }
@@ -20048,7 +19945,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEnableEXT(VkCommandBuffer comm
             dump_text_params_vkCmdSetSampleLocationsEnableEXT(ApiDumpInstance::current(), commandBuffer, sampleLocationsEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetSampleLocationsEnableEXT", "commandBuffer, sampleLocationsEnable", "void");
     }
@@ -20078,7 +19975,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetColorBlendAdvancedEXT(VkCommandBuffer command
             dump_text_params_vkCmdSetColorBlendAdvancedEXT(ApiDumpInstance::current(), commandBuffer, firstAttachment, attachmentCount, pColorBlendAdvanced);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetColorBlendAdvancedEXT", "commandBuffer, firstAttachment, attachmentCount, pColorBlendAdvanced", "void");
     }
@@ -20108,7 +20005,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetProvokingVertexModeEXT(VkCommandBuffer comman
             dump_text_params_vkCmdSetProvokingVertexModeEXT(ApiDumpInstance::current(), commandBuffer, provokingVertexMode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetProvokingVertexModeEXT", "commandBuffer, provokingVertexMode", "void");
     }
@@ -20138,7 +20035,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineRasterizationModeEXT(VkCommandBuffer comm
             dump_text_params_vkCmdSetLineRasterizationModeEXT(ApiDumpInstance::current(), commandBuffer, lineRasterizationMode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetLineRasterizationModeEXT", "commandBuffer, lineRasterizationMode", "void");
     }
@@ -20168,7 +20065,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleEnableEXT(VkCommandBuffer commandB
             dump_text_params_vkCmdSetLineStippleEnableEXT(ApiDumpInstance::current(), commandBuffer, stippledLineEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetLineStippleEnableEXT", "commandBuffer, stippledLineEnable", "void");
     }
@@ -20198,7 +20095,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClipNegativeOneToOneEXT(VkCommandBuffer 
             dump_text_params_vkCmdSetDepthClipNegativeOneToOneEXT(ApiDumpInstance::current(), commandBuffer, negativeOneToOne);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthClipNegativeOneToOneEXT", "commandBuffer, negativeOneToOne", "void");
     }
@@ -20228,7 +20125,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWScalingEnableNV(VkCommandBuffer comm
             dump_text_params_vkCmdSetViewportWScalingEnableNV(ApiDumpInstance::current(), commandBuffer, viewportWScalingEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetViewportWScalingEnableNV", "commandBuffer, viewportWScalingEnable", "void");
     }
@@ -20258,7 +20155,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportSwizzleNV(VkCommandBuffer commandBuff
             dump_text_params_vkCmdSetViewportSwizzleNV(ApiDumpInstance::current(), commandBuffer, firstViewport, viewportCount, pViewportSwizzles);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetViewportSwizzleNV", "commandBuffer, firstViewport, viewportCount, pViewportSwizzles", "void");
     }
@@ -20288,7 +20185,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageToColorEnableNV(VkCommandBuffer comma
             dump_text_params_vkCmdSetCoverageToColorEnableNV(ApiDumpInstance::current(), commandBuffer, coverageToColorEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetCoverageToColorEnableNV", "commandBuffer, coverageToColorEnable", "void");
     }
@@ -20318,7 +20215,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageToColorLocationNV(VkCommandBuffer com
             dump_text_params_vkCmdSetCoverageToColorLocationNV(ApiDumpInstance::current(), commandBuffer, coverageToColorLocation);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetCoverageToColorLocationNV", "commandBuffer, coverageToColorLocation", "void");
     }
@@ -20348,7 +20245,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageModulationModeNV(VkCommandBuffer comm
             dump_text_params_vkCmdSetCoverageModulationModeNV(ApiDumpInstance::current(), commandBuffer, coverageModulationMode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetCoverageModulationModeNV", "commandBuffer, coverageModulationMode", "void");
     }
@@ -20378,7 +20275,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageModulationTableEnableNV(VkCommandBuff
             dump_text_params_vkCmdSetCoverageModulationTableEnableNV(ApiDumpInstance::current(), commandBuffer, coverageModulationTableEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetCoverageModulationTableEnableNV", "commandBuffer, coverageModulationTableEnable", "void");
     }
@@ -20408,7 +20305,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageModulationTableNV(VkCommandBuffer com
             dump_text_params_vkCmdSetCoverageModulationTableNV(ApiDumpInstance::current(), commandBuffer, coverageModulationTableCount, pCoverageModulationTable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetCoverageModulationTableNV", "commandBuffer, coverageModulationTableCount, pCoverageModulationTable", "void");
     }
@@ -20438,7 +20335,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetShadingRateImageEnableNV(VkCommandBuffer comm
             dump_text_params_vkCmdSetShadingRateImageEnableNV(ApiDumpInstance::current(), commandBuffer, shadingRateImageEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetShadingRateImageEnableNV", "commandBuffer, shadingRateImageEnable", "void");
     }
@@ -20468,7 +20365,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetRepresentativeFragmentTestEnableNV(VkCommandB
             dump_text_params_vkCmdSetRepresentativeFragmentTestEnableNV(ApiDumpInstance::current(), commandBuffer, representativeFragmentTestEnable);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetRepresentativeFragmentTestEnableNV", "commandBuffer, representativeFragmentTestEnable", "void");
     }
@@ -20498,7 +20395,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetCoverageReductionModeNV(VkCommandBuffer comma
             dump_text_params_vkCmdSetCoverageReductionModeNV(ApiDumpInstance::current(), commandBuffer, coverageReductionMode);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetCoverageReductionModeNV", "commandBuffer, coverageReductionMode", "void");
     }
@@ -20528,7 +20425,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetShaderModuleIdentifierEXT(VkDevice device, VkSha
             dump_text_params_vkGetShaderModuleIdentifierEXT(ApiDumpInstance::current(), device, shaderModule, pIdentifier);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetShaderModuleIdentifierEXT", "device, shaderModule, pIdentifier", "void");
     }
@@ -20558,7 +20455,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetShaderModuleCreateInfoIdentifierEXT(VkDevice dev
             dump_text_params_vkGetShaderModuleCreateInfoIdentifierEXT(ApiDumpInstance::current(), device, pCreateInfo, pIdentifier);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetShaderModuleCreateInfoIdentifierEXT", "device, pCreateInfo, pIdentifier", "void");
     }
@@ -20588,7 +20485,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateOpticalFlowSessionNV(VkDevice device, con
             dump_text_params_vkCreateOpticalFlowSessionNV(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pSession);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateOpticalFlowSessionNV", "device, pCreateInfo, pAllocator, pSession", "VkResult");
     }
@@ -20619,7 +20516,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyOpticalFlowSessionNV(VkDevice device, VkOpti
             dump_text_params_vkDestroyOpticalFlowSessionNV(ApiDumpInstance::current(), device, session, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyOpticalFlowSessionNV", "device, session, pAllocator", "void");
     }
@@ -20649,7 +20546,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindOpticalFlowSessionImageNV(VkDevice device, 
             dump_text_params_vkBindOpticalFlowSessionImageNV(ApiDumpInstance::current(), device, session, bindingPoint, view, layout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkBindOpticalFlowSessionImageNV", "device, session, bindingPoint, view, layout", "VkResult");
     }
@@ -20680,7 +20577,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdOpticalFlowExecuteNV(VkCommandBuffer commandBuff
             dump_text_params_vkCmdOpticalFlowExecuteNV(ApiDumpInstance::current(), commandBuffer, session, pExecuteInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdOpticalFlowExecuteNV", "commandBuffer, session, pExecuteInfo", "void");
     }
@@ -20710,7 +20607,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer2KHR(VkCommandBuffer commandBuffe
             dump_text_params_vkCmdBindIndexBuffer2KHR(ApiDumpInstance::current(), commandBuffer, buffer, offset, size, indexType);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindIndexBuffer2KHR", "commandBuffer, buffer, offset, size, indexType", "void");
     }
@@ -20740,7 +20637,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetRenderingAreaGranularityKHR(VkDevice device, con
             dump_text_params_vkGetRenderingAreaGranularityKHR(ApiDumpInstance::current(), device, pRenderingAreaInfo, pGranularity);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetRenderingAreaGranularityKHR", "device, pRenderingAreaInfo, pGranularity", "void");
     }
@@ -20770,7 +20667,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSubresourceLayoutKHR(VkDevice device,
             dump_text_params_vkGetDeviceImageSubresourceLayoutKHR(ApiDumpInstance::current(), device, pInfo, pLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDeviceImageSubresourceLayoutKHR", "device, pInfo, pLayout", "void");
     }
@@ -20800,7 +20697,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2KHR(VkDevice device, VkIm
             dump_text_params_vkGetImageSubresourceLayout2KHR(ApiDumpInstance::current(), device, image, pSubresource, pLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetImageSubresourceLayout2KHR", "device, image, pSubresource, pLayout", "void");
     }
@@ -20830,7 +20727,7 @@ VKAPI_ATTR void VKAPI_CALL vkAntiLagUpdateAMD(VkDevice device, const VkAntiLagDa
             dump_text_params_vkAntiLagUpdateAMD(ApiDumpInstance::current(), device, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkAntiLagUpdateAMD", "device, pData", "void");
     }
@@ -20860,7 +20757,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateShadersEXT(VkDevice device, uint32_t crea
             dump_text_params_vkCreateShadersEXT(ApiDumpInstance::current(), device, createInfoCount, pCreateInfos, pAllocator, pShaders);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateShadersEXT", "device, createInfoCount, pCreateInfos, pAllocator, pShaders", "VkResult");
     }
@@ -20891,7 +20788,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyShaderEXT(VkDevice device, VkShaderEXT shade
             dump_text_params_vkDestroyShaderEXT(ApiDumpInstance::current(), device, shader, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyShaderEXT", "device, shader, pAllocator", "void");
     }
@@ -20921,7 +20818,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetShaderBinaryDataEXT(VkDevice device, VkShade
             dump_text_params_vkGetShaderBinaryDataEXT(ApiDumpInstance::current(), device, shader, pDataSize, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetShaderBinaryDataEXT", "device, shader, pDataSize, pData", "VkResult");
     }
@@ -20952,7 +20849,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindShadersEXT(VkCommandBuffer commandBuffer, ui
             dump_text_params_vkCmdBindShadersEXT(ApiDumpInstance::current(), commandBuffer, stageCount, pStages, pShaders);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindShadersEXT", "commandBuffer, stageCount, pStages, pShaders", "void");
     }
@@ -20982,7 +20879,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthClampRangeEXT(VkCommandBuffer commandBuf
             dump_text_params_vkCmdSetDepthClampRangeEXT(ApiDumpInstance::current(), commandBuffer, depthClampMode, pDepthClampRange);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDepthClampRangeEXT", "commandBuffer, depthClampMode, pDepthClampRange", "void");
     }
@@ -21012,7 +20909,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineBinariesKHR(VkDevice device, cons
             dump_text_params_vkCreatePipelineBinariesKHR(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pBinaries);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreatePipelineBinariesKHR", "device, pCreateInfo, pAllocator, pBinaries", "VkResult");
     }
@@ -21043,7 +20940,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyPipelineBinaryKHR(VkDevice device, VkPipelin
             dump_text_params_vkDestroyPipelineBinaryKHR(ApiDumpInstance::current(), device, pipelineBinary, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyPipelineBinaryKHR", "device, pipelineBinary, pAllocator", "void");
     }
@@ -21073,7 +20970,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineKeyKHR(VkDevice device, const VkPipe
             dump_text_params_vkGetPipelineKeyKHR(ApiDumpInstance::current(), device, pPipelineCreateInfo, pPipelineKey);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPipelineKeyKHR", "device, pPipelineCreateInfo, pPipelineKey", "VkResult");
     }
@@ -21104,7 +21001,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineBinaryDataKHR(VkDevice device, const
             dump_text_params_vkGetPipelineBinaryDataKHR(ApiDumpInstance::current(), device, pInfo, pPipelineBinaryKey, pPipelineBinaryDataSize, pPipelineBinaryData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPipelineBinaryDataKHR", "device, pInfo, pPipelineBinaryKey, pPipelineBinaryDataSize, pPipelineBinaryData", "VkResult");
     }
@@ -21135,7 +21032,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseCapturedPipelineDataKHR(VkDevice device,
             dump_text_params_vkReleaseCapturedPipelineDataKHR(ApiDumpInstance::current(), device, pInfo, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkReleaseCapturedPipelineDataKHR", "device, pInfo, pAllocator", "VkResult");
     }
@@ -21166,7 +21063,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetFramebufferTilePropertiesQCOM(VkDevice devic
             dump_text_params_vkGetFramebufferTilePropertiesQCOM(ApiDumpInstance::current(), device, framebuffer, pPropertiesCount, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetFramebufferTilePropertiesQCOM", "device, framebuffer, pPropertiesCount, pProperties", "VkResult");
     }
@@ -21197,7 +21094,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetDynamicRenderingTilePropertiesQCOM(VkDevice 
             dump_text_params_vkGetDynamicRenderingTilePropertiesQCOM(ApiDumpInstance::current(), device, pRenderingInfo, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetDynamicRenderingTilePropertiesQCOM", "device, pRenderingInfo, pProperties", "VkResult");
     }
@@ -21228,7 +21125,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkConvertCooperativeVectorMatrixNV(VkDevice devic
             dump_text_params_vkConvertCooperativeVectorMatrixNV(ApiDumpInstance::current(), device, pInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkConvertCooperativeVectorMatrixNV", "device, pInfo", "VkResult");
     }
@@ -21259,7 +21156,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdConvertCooperativeVectorMatrixNV(VkCommandBuffer
             dump_text_params_vkCmdConvertCooperativeVectorMatrixNV(ApiDumpInstance::current(), commandBuffer, infoCount, pInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdConvertCooperativeVectorMatrixNV", "commandBuffer, infoCount, pInfos", "void");
     }
@@ -21289,7 +21186,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetLatencySleepModeNV(VkDevice device, VkSwapch
             dump_text_params_vkSetLatencySleepModeNV(ApiDumpInstance::current(), device, swapchain, pSleepModeInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetLatencySleepModeNV", "device, swapchain, pSleepModeInfo", "VkResult");
     }
@@ -21320,7 +21217,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkLatencySleepNV(VkDevice device, VkSwapchainKHR 
             dump_text_params_vkLatencySleepNV(ApiDumpInstance::current(), device, swapchain, pSleepInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkLatencySleepNV", "device, swapchain, pSleepInfo", "VkResult");
     }
@@ -21351,7 +21248,7 @@ VKAPI_ATTR void VKAPI_CALL vkSetLatencyMarkerNV(VkDevice device, VkSwapchainKHR 
             dump_text_params_vkSetLatencyMarkerNV(ApiDumpInstance::current(), device, swapchain, pLatencyMarkerInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkSetLatencyMarkerNV", "device, swapchain, pLatencyMarkerInfo", "void");
     }
@@ -21381,7 +21278,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetLatencyTimingsNV(VkDevice device, VkSwapchainKHR
             dump_text_params_vkGetLatencyTimingsNV(ApiDumpInstance::current(), device, swapchain, pLatencyMarkerInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetLatencyTimingsNV", "device, swapchain, pLatencyMarkerInfo", "void");
     }
@@ -21411,7 +21308,7 @@ VKAPI_ATTR void VKAPI_CALL vkQueueNotifyOutOfBandNV(VkQueue queue, const VkOutOf
             dump_text_params_vkQueueNotifyOutOfBandNV(ApiDumpInstance::current(), queue, pQueueTypeInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkQueueNotifyOutOfBandNV", "queue, pQueueTypeInfo", "void");
     }
@@ -21441,7 +21338,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetAttachmentFeedbackLoopEnableEXT(VkCommandBuff
             dump_text_params_vkCmdSetAttachmentFeedbackLoopEnableEXT(ApiDumpInstance::current(), commandBuffer, aspectMask);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetAttachmentFeedbackLoopEnableEXT", "commandBuffer, aspectMask", "void");
     }
@@ -21472,7 +21369,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetScreenBufferPropertiesQNX(VkDevice device, c
             dump_text_params_vkGetScreenBufferPropertiesQNX(ApiDumpInstance::current(), device, buffer, pProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetScreenBufferPropertiesQNX", "device, buffer, pProperties", "VkResult");
     }
@@ -21504,7 +21401,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleKHR(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdSetLineStippleKHR(ApiDumpInstance::current(), commandBuffer, lineStippleFactor, lineStipplePattern);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetLineStippleKHR", "commandBuffer, lineStippleFactor, lineStipplePattern", "void");
     }
@@ -21534,7 +21431,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets2KHR(VkCommandBuffer commandBu
             dump_text_params_vkCmdBindDescriptorSets2KHR(ApiDumpInstance::current(), commandBuffer, pBindDescriptorSetsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindDescriptorSets2KHR", "commandBuffer, pBindDescriptorSetsInfo", "void");
     }
@@ -21564,7 +21461,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushConstants2KHR(VkCommandBuffer commandBuffer,
             dump_text_params_vkCmdPushConstants2KHR(ApiDumpInstance::current(), commandBuffer, pPushConstantsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushConstants2KHR", "commandBuffer, pPushConstantsInfo", "void");
     }
@@ -21594,7 +21491,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSet2KHR(VkCommandBuffer commandBuf
             dump_text_params_vkCmdPushDescriptorSet2KHR(ApiDumpInstance::current(), commandBuffer, pPushDescriptorSetInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushDescriptorSet2KHR", "commandBuffer, pPushDescriptorSetInfo", "void");
     }
@@ -21624,7 +21521,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate2KHR(VkCommandBuffe
             dump_text_params_vkCmdPushDescriptorSetWithTemplate2KHR(ApiDumpInstance::current(), commandBuffer, pPushDescriptorSetWithTemplateInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPushDescriptorSetWithTemplate2KHR", "commandBuffer, pPushDescriptorSetWithTemplateInfo", "void");
     }
@@ -21654,7 +21551,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetDescriptorBufferOffsets2EXT(VkCommandBuffer c
             dump_text_params_vkCmdSetDescriptorBufferOffsets2EXT(ApiDumpInstance::current(), commandBuffer, pSetDescriptorBufferOffsetsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdSetDescriptorBufferOffsets2EXT", "commandBuffer, pSetDescriptorBufferOffsetsInfo", "void");
     }
@@ -21684,7 +21581,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(VkComma
             dump_text_params_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(ApiDumpInstance::current(), commandBuffer, pBindDescriptorBufferEmbeddedSamplersInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindDescriptorBufferEmbeddedSamplers2EXT", "commandBuffer, pBindDescriptorBufferEmbeddedSamplersInfo", "void");
     }
@@ -21714,7 +21611,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindTileMemoryQCOM(VkCommandBuffer commandBuffer
             dump_text_params_vkCmdBindTileMemoryQCOM(ApiDumpInstance::current(), commandBuffer, pTileMemoryBindInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBindTileMemoryQCOM", "commandBuffer, pTileMemoryBindInfo", "void");
     }
@@ -21744,7 +21641,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateExternalComputeQueueNV(VkDevice device, c
             dump_text_params_vkCreateExternalComputeQueueNV(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pExternalQueue);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateExternalComputeQueueNV", "device, pCreateInfo, pAllocator, pExternalQueue", "VkResult");
     }
@@ -21775,7 +21672,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyExternalComputeQueueNV(VkDevice device, VkEx
             dump_text_params_vkDestroyExternalComputeQueueNV(ApiDumpInstance::current(), device, externalQueue, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyExternalComputeQueueNV", "device, externalQueue, pAllocator", "void");
     }
@@ -21805,7 +21702,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetExternalComputeQueueDataNV(VkExternalComputeQueu
             dump_text_params_vkGetExternalComputeQueueDataNV(ApiDumpInstance::current(), externalQueue, params, pData);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetExternalComputeQueueDataNV", "externalQueue, params, pData", "void");
     }
@@ -21835,7 +21732,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetClusterAccelerationStructureBuildSizesNV(VkDevic
             dump_text_params_vkGetClusterAccelerationStructureBuildSizesNV(ApiDumpInstance::current(), device, pInfo, pSizeInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetClusterAccelerationStructureBuildSizesNV", "device, pInfo, pSizeInfo", "void");
     }
@@ -21865,7 +21762,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildClusterAccelerationStructureIndirectNV(VkCo
             dump_text_params_vkCmdBuildClusterAccelerationStructureIndirectNV(ApiDumpInstance::current(), commandBuffer, pCommandInfos);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBuildClusterAccelerationStructureIndirectNV", "commandBuffer, pCommandInfos", "void");
     }
@@ -21895,7 +21792,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetPartitionedAccelerationStructuresBuildSizesNV(Vk
             dump_text_params_vkGetPartitionedAccelerationStructuresBuildSizesNV(ApiDumpInstance::current(), device, pInfo, pSizeInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetPartitionedAccelerationStructuresBuildSizesNV", "device, pInfo, pSizeInfo", "void");
     }
@@ -21925,7 +21822,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBuildPartitionedAccelerationStructuresNV(VkComma
             dump_text_params_vkCmdBuildPartitionedAccelerationStructuresNV(ApiDumpInstance::current(), commandBuffer, pBuildInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdBuildPartitionedAccelerationStructuresNV", "commandBuffer, pBuildInfo", "void");
     }
@@ -21955,7 +21852,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetGeneratedCommandsMemoryRequirementsEXT(VkDevice 
             dump_text_params_vkGetGeneratedCommandsMemoryRequirementsEXT(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetGeneratedCommandsMemoryRequirementsEXT", "device, pInfo, pMemoryRequirements", "void");
     }
@@ -21985,7 +21882,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPreprocessGeneratedCommandsEXT(VkCommandBuffer c
             dump_text_params_vkCmdPreprocessGeneratedCommandsEXT(ApiDumpInstance::current(), commandBuffer, pGeneratedCommandsInfo, stateCommandBuffer);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdPreprocessGeneratedCommandsEXT", "commandBuffer, pGeneratedCommandsInfo, stateCommandBuffer", "void");
     }
@@ -22015,7 +21912,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdExecuteGeneratedCommandsEXT(VkCommandBuffer comm
             dump_text_params_vkCmdExecuteGeneratedCommandsEXT(ApiDumpInstance::current(), commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdExecuteGeneratedCommandsEXT", "commandBuffer, isPreprocessed, pGeneratedCommandsInfo", "void");
     }
@@ -22045,7 +21942,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateIndirectCommandsLayoutEXT(VkDevice device
             dump_text_params_vkCreateIndirectCommandsLayoutEXT(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateIndirectCommandsLayoutEXT", "device, pCreateInfo, pAllocator, pIndirectCommandsLayout", "VkResult");
     }
@@ -22076,7 +21973,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyIndirectCommandsLayoutEXT(VkDevice device, V
             dump_text_params_vkDestroyIndirectCommandsLayoutEXT(ApiDumpInstance::current(), device, indirectCommandsLayout, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyIndirectCommandsLayoutEXT", "device, indirectCommandsLayout, pAllocator", "void");
     }
@@ -22106,7 +22003,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateIndirectExecutionSetEXT(VkDevice device, 
             dump_text_params_vkCreateIndirectExecutionSetEXT(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pIndirectExecutionSet);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCreateIndirectExecutionSetEXT", "device, pCreateInfo, pAllocator, pIndirectExecutionSet", "VkResult");
     }
@@ -22137,7 +22034,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyIndirectExecutionSetEXT(VkDevice device, VkI
             dump_text_params_vkDestroyIndirectExecutionSetEXT(ApiDumpInstance::current(), device, indirectExecutionSet, pAllocator);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkDestroyIndirectExecutionSetEXT", "device, indirectExecutionSet, pAllocator", "void");
     }
@@ -22167,7 +22064,7 @@ VKAPI_ATTR void VKAPI_CALL vkUpdateIndirectExecutionSetPipelineEXT(VkDevice devi
             dump_text_params_vkUpdateIndirectExecutionSetPipelineEXT(ApiDumpInstance::current(), device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkUpdateIndirectExecutionSetPipelineEXT", "device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites", "void");
     }
@@ -22197,7 +22094,7 @@ VKAPI_ATTR void VKAPI_CALL vkUpdateIndirectExecutionSetShaderEXT(VkDevice device
             dump_text_params_vkUpdateIndirectExecutionSetShaderEXT(ApiDumpInstance::current(), device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkUpdateIndirectExecutionSetShaderEXT", "device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites", "void");
     }
@@ -22228,7 +22125,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandleEXT(VkDevice device, const 
             dump_text_params_vkGetMemoryMetalHandleEXT(ApiDumpInstance::current(), device, pGetMetalHandleInfo, pHandle);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryMetalHandleEXT", "device, pGetMetalHandleInfo, pHandle", "VkResult");
     }
@@ -22261,7 +22158,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandlePropertiesEXT(VkDevice devi
             dump_text_params_vkGetMemoryMetalHandlePropertiesEXT(ApiDumpInstance::current(), device, handleType, pHandle, pMemoryMetalHandleProperties);
         }
         dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkGetMemoryMetalHandlePropertiesEXT", "device, handleType, pHandle, pMemoryMetalHandleProperties", "VkResult");
     }
@@ -22293,7 +22190,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering2EXT(VkCommandBuffer                
             dump_text_params_vkCmdEndRendering2EXT(ApiDumpInstance::current(), commandBuffer, pRenderingEndInfo);
         }
         dump_return_preamble(ApiDumpInstance::current(), "void");
-        
+
     } else {
         dump_function_head(ApiDumpInstance::current(), "vkCmdEndRendering2EXT", "commandBuffer, pRenderingEndInfo", "void");
     }
