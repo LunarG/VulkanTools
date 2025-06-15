@@ -1062,15 +1062,37 @@ inline void OutputAddress(const ApiDumpSettings &settings, const void *addr) {
         settings.stream() << "address";
 }
 
-inline void OutputAddressJSON(const ApiDumpSettings &settings, const void *addr) {
-    settings.stream() << "\"";
-    OutputAddress(settings, addr);
-    settings.stream() << "\"";
+inline void flush(const ApiDumpSettings &settings) {
+    if (settings.shouldFlush()) {
+        settings.stream().flush();
+    }
 }
 
-inline void flush(const ApiDumpSettings &settings) { settings.shouldFlush() ? settings.stream() << std::flush : settings.stream(); }
-
 //==================================== Text Backend Helpers ======================================//
+
+template <typename... T>
+inline void dump_text_value(const ApiDumpSettings &settings, T &&...values) {
+    (settings.stream() << ... << values);
+}
+
+inline void dump_text_value_start(const ApiDumpSettings &settings) {}
+inline void dump_text_value_end(const ApiDumpSettings &settings) {}
+
+template <typename T>
+inline void dump_text_handle(const ApiDumpSettings &settings, const T &handle) {
+    if (settings.showAddress())
+        dump_text_value(settings, handle);
+    else
+        dump_text_value(settings, "address");
+}
+inline void dump_text_address(const ApiDumpSettings &settings, const void *address) {
+    if (address == NULL)
+        dump_text_value(settings, "NULL");
+    else if (settings.showAddress())
+        dump_text_value(settings, address);
+    else
+        dump_text_value(settings, "address");
+}
 
 inline void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
                                     const char *funcReturn) {
@@ -1119,23 +1141,16 @@ inline void dump_text_return_preamble(ApiDumpInstance &dump_inst, const char *fu
     flush(settings);
 }
 
-inline void dump_text_struct_summary(const ApiDumpSettings &settings, const void *object) {
-    if (settings.showAddress())
-        settings.stream() << object << ":\n";
-    else
-        settings.stream() << "address:\n";
-}
-
-inline void dump_text_union_summary(const ApiDumpSettings &settings, const void *object) {
-    if (settings.showAddress())
-        settings.stream() << object << " (Union):\n";
-    else
-        settings.stream() << "address (Union):\n";
-}
-
 inline void dump_text_start(const ApiDumpSettings &settings, OutputConstruct construct, const char *type_string, const char *name,
                             int indents, const void *address = nullptr) {
     settings.formatNameType(indents, name, type_string);
+    if (construct == OutputConstruct::api_struct) {
+        dump_text_handle(settings, address);
+        settings.stream() << ":\n";
+    } else if (construct == OutputConstruct::api_union) {
+        dump_text_handle(settings, address);
+        settings.stream() << " (Union):\n";
+    }
 }
 
 inline void dump_text_end(const ApiDumpSettings &settings, OutputConstruct construct, int indents) {
@@ -1161,26 +1176,22 @@ inline void dump_text_char(const char *object, const ApiDumpSettings &settings, 
 inline void dump_text_void(const void *object, const ApiDumpSettings &settings, const char *type_string, const char *name,
                            int indents) {
     dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    OutputAddress(settings, object);
+    dump_text_address(settings, object);
     dump_text_end(settings, OutputConstruct::value, indents);
 }
 
 inline void dump_text_void(const void **object, const ApiDumpSettings &settings, const char *type_string, const char *name,
                            int indents) {
     dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    OutputAddress(settings, object);
+    dump_text_address(settings, object);
     dump_text_end(settings, OutputConstruct::value, indents);
 }
 
 inline void dump_text_array_start(const void *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
                                   const char *name, int indents) {
-    settings.formatNameType(indents, name, type_string);
-    if (array == NULL) {
-        settings.stream() << "NULL\n";
-        return;
-    }
-    OutputAddress(settings, array);
-    settings.stream() << "\n";
+    dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
+    dump_text_address(settings, array);
+    dump_text_end(settings, OutputConstruct::value, indents);
 }
 
 inline void dump_text_array_end(const void *array, size_t len, const ApiDumpSettings &settings, int indents) {}
@@ -1188,19 +1199,45 @@ inline void dump_text_array_end(const void *array, size_t len, const ApiDumpSett
 inline void dump_text_api_version(uint32_t api_version, const ApiDumpSettings &settings, const char *type_string, const char *name,
                                   int indents) {
     dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    settings.stream() << api_version << " (" << VK_API_VERSION_MAJOR(api_version) << "." << VK_API_VERSION_MINOR(api_version) << "."
-                      << VK_API_VERSION_PATCH(api_version) << ")";
+    dump_text_value(settings, api_version, " (", VK_API_VERSION_MAJOR(api_version), ".", VK_API_VERSION_MINOR(api_version), ".",
+                    VK_API_VERSION_PATCH(api_version), ")");
     dump_text_end(settings, OutputConstruct::value, indents);
 }
 
 inline void dump_text_special(const char *const &text, const ApiDumpSettings &settings, const char *type_string, const char *name,
                               int indents) {
     dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    settings.stream() << text;
+    dump_text_value(settings, text);
     dump_text_end(settings, OutputConstruct::value, indents);
 }
 
 //==================================== Html Backend Helpers ======================================//
+
+template <typename... T>
+inline void dump_html_value(const ApiDumpSettings &settings, T &&...values) {
+    settings.stream() << "<div class=\'val\'>";
+    (settings.stream() << ... << values) << "</div>";
+}
+
+inline void dump_html_value_start(const ApiDumpSettings &settings) { settings.stream() << "<div class=\'val\'>"; }
+inline void dump_html_value_end(const ApiDumpSettings &settings) { settings.stream() << "</div>"; }
+
+template <typename T>
+inline void dump_html_handle(const ApiDumpSettings &settings, const T &handle) {
+    if (settings.showAddress())
+        dump_html_value(settings, handle);
+    else
+        dump_html_value(settings, "address");
+}
+inline void dump_html_address(const ApiDumpSettings &settings, const void *address) {
+    if (settings.showAddress())
+        if (address == NULL)
+            dump_html_value(settings, "NULL");
+        else
+            dump_html_value(settings, address);
+    else
+        dump_html_value(settings, "address");
+}
 
 inline void dump_html_nametype(std::ostream &stream, bool showType, const char *name, const char *type) {
     stream << "<div class='var'>" << name << "</div>";
@@ -1235,28 +1272,27 @@ inline void dump_html_function_head(ApiDumpInstance &dump_inst, const char *func
     dump_html_return_preamble(dump_inst, funcReturn);
 }
 
-inline void dump_html_struct_summary(const ApiDumpSettings &settings, const void *object) {
-    settings.stream() << "<div class='val'>";
-    if (settings.showAddress())
-        settings.stream() << object << "\n";
-    else
-        settings.stream() << "address\n";
-    settings.stream() << "</div></summary>";
-}
-
-inline void dump_html_union_summary(const ApiDumpSettings &settings, const void *object) {
-    settings.stream() << "<div class='val'>";
-    if (settings.showAddress())
-        settings.stream() << object << "(Union):\n";
-    else
-        settings.stream() << "address (Union):\n";
-    settings.stream() << "</div></summary>";
-}
-
 inline void dump_html_start(const ApiDumpSettings &settings, OutputConstruct construct, const char *type_string, const char *name,
                             int indents, const void *address = nullptr) {
     settings.stream() << "<details class='data'><summary>";
     dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
+
+    if (construct == OutputConstruct::api_struct) {
+        settings.stream() << "<div class='val'>";
+        if (settings.showAddress())
+            settings.stream() << address << "\n";
+        else
+            settings.stream() << "address\n";
+        settings.stream() << "</div></summary>";
+    }
+    else if (construct == OutputConstruct::api_union) {
+        settings.stream() << "<div class='val'>";
+        if (settings.showAddress())
+            settings.stream() << address << "(Union):\n";
+        else
+            settings.stream() << "address (Union):\n";
+        settings.stream() << "</div></summary>";
+    }
 }
 
 inline void dump_html_end(const ApiDumpSettings &settings, OutputConstruct construct, int indents) {
@@ -1270,37 +1306,29 @@ inline void dump_html_end(const ApiDumpSettings &settings, OutputConstruct const
 inline void dump_html_char(const char *object, const ApiDumpSettings &settings, const char *type_string, const char *name,
                            int indents) {
     dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
-    settings.stream() << "<div class='val'>";
     if (object == NULL)
-        settings.stream() << "NULL";
+        dump_html_value(settings, "NULL");
     else
-        settings.stream() << "\"" << object << "\"";
-    settings.stream() << "</div>";
+        dump_html_value(settings, '"', object, '"');
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 
 inline void dump_html_void(const void *object, const ApiDumpSettings &settings, const char *type_string, const char *name,
                            int indents) {
     dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
-    settings.stream() << "<div class='val'>";
-    OutputAddress(settings, object);
-    settings.stream() << "</div>";
+    dump_html_address(settings, object);
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 inline void dump_html_void(const void **object, const ApiDumpSettings &settings, const char *type_string, const char *name,
                            int indents) {
     dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
-    settings.stream() << "<div class='val'>";
-    OutputAddress(settings, object);
-    settings.stream() << "</div>";
+    dump_html_address(settings, object);
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 
 inline void dump_html_nullptr(const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
     dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
-    settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
-    settings.stream() << "<div class='val'>NULL</div></summary></details>";
+    dump_html_value(settings, "NULL");
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 
@@ -1310,31 +1338,26 @@ inline void dump_html_array_start(const void *array, size_t len, const ApiDumpSe
         dump_html_nullptr(settings, type_string, name, indents);
         return;
     }
-    settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
-    settings.stream() << "<div class='val'>";
-    OutputAddress(settings, array);
-    settings.stream() << "\n";
-    settings.stream() << "</div></summary>";
+    dump_html_start(settings, OutputConstruct::api_struct, type_string, name, indents, array);
 }
 
 inline void dump_html_array_end(const void *array, size_t len, const ApiDumpSettings &settings, int indents) {
-    settings.stream() << "</details>";
+    dump_html_end(settings, OutputConstruct::api_struct, indents);
 }
 
 inline void dump_html_api_version(uint32_t api_version, const ApiDumpSettings &settings, const char *type_string, const char *name,
                                   int indents) {
-    settings.stream() << "<div class='val'>";
-    settings.stream() << api_version << " (" << VK_API_VERSION_MAJOR(api_version) << "." << VK_API_VERSION_MINOR(api_version) << "."
-                      << VK_API_VERSION_PATCH(api_version) << ")";
-    settings.stream() << "</div>";
+    dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
+    dump_html_value(settings, api_version, " (", VK_API_VERSION_MAJOR(api_version), ".", VK_API_VERSION_MINOR(api_version), ".",
+                    VK_API_VERSION_PATCH(api_version), ")");
+    dump_html_end(settings, OutputConstruct::value, indents);
 }
 
 inline void dump_html_special(const char *const &text, const ApiDumpSettings &settings, const char *type_string, const char *name,
                               int indents) {
-    settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
-    settings.stream() << "<div class='val'>" << text << "</div></summary></details>";
+    dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
+    dump_html_value(settings, text);
+    dump_html_end(settings, OutputConstruct::value, indents);
 }
 
 //==================================== Json Backend Helpers ======================================//
@@ -1370,6 +1393,10 @@ inline void dump_json_value(const ApiDumpSettings &settings, T &&...values) {
     settings.stream() << " \"";
     (settings.stream() << ... << values) << "\"";
 }
+
+inline void dump_json_value_start(const ApiDumpSettings &settings) { settings.stream() << " \""; }
+inline void dump_json_value_end(const ApiDumpSettings &settings) { settings.stream() << "\""; }
+
 template <typename... T>
 inline void dump_json_key_value(const ApiDumpSettings &settings, int indents, const char *key, T &&...values) {
     dump_json_key(settings, indents, key);
@@ -1383,11 +1410,12 @@ inline void dump_json_handle(const ApiDumpSettings &settings, const T &handle) {
         dump_json_value(settings, "address");
 }
 inline void dump_json_address(const ApiDumpSettings &settings, const void *address) {
-    if (address == NULL)
-        dump_json_value(settings, "NULL");
-    else if (settings.showAddress())
-        dump_json_value(settings, address);
-    else
+    if (settings.showAddress()) {
+        if (address == NULL)
+            dump_json_value(settings, address);
+        else
+            dump_json_value(settings, "NULL");
+    } else
         dump_json_value(settings, "address");
 }
 inline void dump_json_key_address(const ApiDumpSettings &settings, int indents, const void *address) {
@@ -1490,11 +1518,15 @@ inline void dump_json_start(const ApiDumpSettings &settings, OutputConstruct con
         } else if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
             dump_json_key(settings, indents + 1, "members");
             settings.stream() << "\n";
+            dump_json_start_array(settings, indents + 1);
         }
     }
 }
 
 inline void dump_json_end(const ApiDumpSettings &settings, OutputConstruct construct, int indents) {
+    if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
+        dump_json_newline_end_array(settings, indents + 1);
+    }
     dump_json_newline_end_object(settings, indents);
 }
 
@@ -1506,10 +1538,7 @@ inline void dump_json_nullptr(const ApiDumpSettings &settings, const char *type_
 inline void dump_json_char(const char *object, const ApiDumpSettings &settings, const char *type_string, const char *name,
                            int indents) {
     dump_json_start(settings, OutputConstruct::value, type_string, name, indents);
-    if (object == NULL)
-        settings.stream() << " NULL";
-    else
-        settings.stream() << " \"" << object << "\"";
+    dump_json_value(settings, (object != NULL ? object : ""));
     dump_json_end(settings, OutputConstruct::value, indents);
 }
 

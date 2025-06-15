@@ -30,9 +30,7 @@
 void dump_html_uint32_t(const uint32_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
-    settings.stream() << object;
-    settings.stream() << "</div>";
+    dump_html_value(settings, object);
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_uint32_t(const uint32_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -45,9 +43,7 @@ void dump_html_uint32_t(const uint32_t* object, const ApiDumpSettings &settings,
 void dump_html_uint8_t(const uint8_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
-    settings.stream() << (uint32_t) object;
-    settings.stream() << "</div>";
+    dump_html_value(settings, (uint32_t) object);
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_uint8_t(const uint8_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -60,9 +56,7 @@ void dump_html_uint8_t(const uint8_t* object, const ApiDumpSettings &settings, c
 void dump_html_uint16_t(const uint16_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
-    settings.stream() << object;
-    settings.stream() << "</div>";
+    dump_html_value(settings, object);
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_uint16_t(const uint16_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -75,9 +69,7 @@ void dump_html_uint16_t(const uint16_t* object, const ApiDumpSettings &settings,
 void dump_html_int32_t(const int32_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
-    settings.stream() << object;
-    settings.stream() << "</div>";
+    dump_html_value(settings, object);
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_int32_t(const int32_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -90,9 +82,7 @@ void dump_html_int32_t(const int32_t* object, const ApiDumpSettings &settings, c
 void dump_html_int8_t(const int8_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
-    settings.stream() << (int32_t) object;
-    settings.stream() << "</div>";
+    dump_html_value(settings, (int32_t) object);
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_int8_t(const int8_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -105,9 +95,7 @@ void dump_html_int8_t(const int8_t* object, const ApiDumpSettings &settings, con
 void dump_html_int16_t(const int16_t &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
-    settings.stream() << object;
-    settings.stream() << "</div>";
+    dump_html_value(settings, object);
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_int16_t(const int16_t* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -129,28 +117,26 @@ void dump_html_int16_t(const int16_t* object, const ApiDumpSettings &settings, c
 void dump_html_StdVideoH264ChromaFormatIdc(const StdVideoH264ChromaFormatIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_CHROMA_FORMAT_IDC_MONOCHROME (";
+        dump_html_value(settings, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_MONOCHROME (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_CHROMA_FORMAT_IDC_420 (";
+        dump_html_value(settings, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_420 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_CHROMA_FORMAT_IDC_422 (";
+        dump_html_value(settings, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_422 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H264_CHROMA_FORMAT_IDC_444 (";
+        dump_html_value(settings, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_444 (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_CHROMA_FORMAT_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_CHROMA_FORMAT_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264ChromaFormatIdc(const StdVideoH264ChromaFormatIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -163,28 +149,26 @@ void dump_html_StdVideoH264ChromaFormatIdc(const StdVideoH264ChromaFormatIdc* ob
 void dump_html_StdVideoH264ProfileIdc(const StdVideoH264ProfileIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 66:
-        settings.stream() << "STD_VIDEO_H264_PROFILE_IDC_BASELINE (";
+        dump_html_value(settings, "STD_VIDEO_H264_PROFILE_IDC_BASELINE (", object, ")");
         break;
     case 77:
-        settings.stream() << "STD_VIDEO_H264_PROFILE_IDC_MAIN (";
+        dump_html_value(settings, "STD_VIDEO_H264_PROFILE_IDC_MAIN (", object, ")");
         break;
     case 100:
-        settings.stream() << "STD_VIDEO_H264_PROFILE_IDC_HIGH (";
+        dump_html_value(settings, "STD_VIDEO_H264_PROFILE_IDC_HIGH (", object, ")");
         break;
     case 244:
-        settings.stream() << "STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE (";
+        dump_html_value(settings, "STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_PROFILE_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_PROFILE_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264ProfileIdc(const StdVideoH264ProfileIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -197,73 +181,71 @@ void dump_html_StdVideoH264ProfileIdc(const StdVideoH264ProfileIdc* object, cons
 void dump_html_StdVideoH264LevelIdc(const StdVideoH264LevelIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_1_0 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_1_0 (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_1_1 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_1_1 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_1_2 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_1_2 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_1_3 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_1_3 (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_2_0 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_2_0 (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_2_1 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_2_1 (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_2_2 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_2_2 (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_3_0 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_3_0 (", object, ")");
         break;
     case 8:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_3_1 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_3_1 (", object, ")");
         break;
     case 9:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_3_2 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_3_2 (", object, ")");
         break;
     case 10:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_4_0 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_4_0 (", object, ")");
         break;
     case 11:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_4_1 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_4_1 (", object, ")");
         break;
     case 12:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_4_2 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_4_2 (", object, ")");
         break;
     case 13:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_5_0 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_5_0 (", object, ")");
         break;
     case 14:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_5_1 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_5_1 (", object, ")");
         break;
     case 15:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_5_2 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_5_2 (", object, ")");
         break;
     case 16:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_6_0 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_6_0 (", object, ")");
         break;
     case 17:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_6_1 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_6_1 (", object, ")");
         break;
     case 18:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_6_2 (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_6_2 (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_LEVEL_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_LEVEL_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264LevelIdc(const StdVideoH264LevelIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -276,25 +258,23 @@ void dump_html_StdVideoH264LevelIdc(const StdVideoH264LevelIdc* object, const Ap
 void dump_html_StdVideoH264PocType(const StdVideoH264PocType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_POC_TYPE_0 (";
+        dump_html_value(settings, "STD_VIDEO_H264_POC_TYPE_0 (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_POC_TYPE_1 (";
+        dump_html_value(settings, "STD_VIDEO_H264_POC_TYPE_1 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_POC_TYPE_2 (";
+        dump_html_value(settings, "STD_VIDEO_H264_POC_TYPE_2 (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_POC_TYPE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_POC_TYPE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264PocType(const StdVideoH264PocType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -307,70 +287,68 @@ void dump_html_StdVideoH264PocType(const StdVideoH264PocType* object, const ApiD
 void dump_html_StdVideoH264AspectRatioIdc(const StdVideoH264AspectRatioIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_UNSPECIFIED (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_UNSPECIFIED (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_SQUARE (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_SQUARE (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_12_11 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_12_11 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_10_11 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_10_11 (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_16_11 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_16_11 (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_40_33 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_40_33 (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_24_11 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_24_11 (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_20_11 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_20_11 (", object, ")");
         break;
     case 8:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_32_11 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_32_11 (", object, ")");
         break;
     case 9:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_80_33 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_80_33 (", object, ")");
         break;
     case 10:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_18_11 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_18_11 (", object, ")");
         break;
     case 11:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_15_11 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_15_11 (", object, ")");
         break;
     case 12:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_64_33 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_64_33 (", object, ")");
         break;
     case 13:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_160_99 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_160_99 (", object, ")");
         break;
     case 14:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_4_3 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_4_3 (", object, ")");
         break;
     case 15:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_3_2 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_3_2 (", object, ")");
         break;
     case 16:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_2_1 (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_2_1 (", object, ")");
         break;
     case 255:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_EXTENDED_SAR (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_EXTENDED_SAR (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_ASPECT_RATIO_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_ASPECT_RATIO_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264AspectRatioIdc(const StdVideoH264AspectRatioIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -383,25 +361,23 @@ void dump_html_StdVideoH264AspectRatioIdc(const StdVideoH264AspectRatioIdc* obje
 void dump_html_StdVideoH264WeightedBipredIdc(const StdVideoH264WeightedBipredIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_DEFAULT (";
+        dump_html_value(settings, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_DEFAULT (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_EXPLICIT (";
+        dump_html_value(settings, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_EXPLICIT (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_IMPLICIT (";
+        dump_html_value(settings, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_IMPLICIT (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264WeightedBipredIdc(const StdVideoH264WeightedBipredIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -414,28 +390,26 @@ void dump_html_StdVideoH264WeightedBipredIdc(const StdVideoH264WeightedBipredIdc
 void dump_html_StdVideoH264ModificationOfPicNumsIdc(const StdVideoH264ModificationOfPicNumsIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_SUBTRACT (";
+        dump_html_value(settings, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_SUBTRACT (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_ADD (";
+        dump_html_value(settings, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_ADD (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_LONG_TERM (";
+        dump_html_value(settings, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_LONG_TERM (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_END (";
+        dump_html_value(settings, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_END (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264ModificationOfPicNumsIdc(const StdVideoH264ModificationOfPicNumsIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -448,37 +422,35 @@ void dump_html_StdVideoH264ModificationOfPicNumsIdc(const StdVideoH264Modificati
 void dump_html_StdVideoH264MemMgmtControlOp(const StdVideoH264MemMgmtControlOp object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_END (";
+        dump_html_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_END (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_SHORT_TERM (";
+        dump_html_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_SHORT_TERM (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_LONG_TERM (";
+        dump_html_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_LONG_TERM (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_MARK_LONG_TERM (";
+        dump_html_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_MARK_LONG_TERM (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_SET_MAX_LONG_TERM_INDEX (";
+        dump_html_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_SET_MAX_LONG_TERM_INDEX (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_ALL (";
+        dump_html_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_UNMARK_ALL (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_MARK_CURRENT_AS_LONG_TERM (";
+        dump_html_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_MARK_CURRENT_AS_LONG_TERM (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264MemMgmtControlOp(const StdVideoH264MemMgmtControlOp* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -491,25 +463,23 @@ void dump_html_StdVideoH264MemMgmtControlOp(const StdVideoH264MemMgmtControlOp* 
 void dump_html_StdVideoH264CabacInitIdc(const StdVideoH264CabacInitIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_CABAC_INIT_IDC_0 (";
+        dump_html_value(settings, "STD_VIDEO_H264_CABAC_INIT_IDC_0 (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_CABAC_INIT_IDC_1 (";
+        dump_html_value(settings, "STD_VIDEO_H264_CABAC_INIT_IDC_1 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_CABAC_INIT_IDC_2 (";
+        dump_html_value(settings, "STD_VIDEO_H264_CABAC_INIT_IDC_2 (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_CABAC_INIT_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_CABAC_INIT_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264CabacInitIdc(const StdVideoH264CabacInitIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -522,25 +492,23 @@ void dump_html_StdVideoH264CabacInitIdc(const StdVideoH264CabacInitIdc* object, 
 void dump_html_StdVideoH264DisableDeblockingFilterIdc(const StdVideoH264DisableDeblockingFilterIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_DISABLED (";
+        dump_html_value(settings, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_DISABLED (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_ENABLED (";
+        dump_html_value(settings, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_ENABLED (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_PARTIAL (";
+        dump_html_value(settings, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_PARTIAL (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264DisableDeblockingFilterIdc(const StdVideoH264DisableDeblockingFilterIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -553,25 +521,23 @@ void dump_html_StdVideoH264DisableDeblockingFilterIdc(const StdVideoH264DisableD
 void dump_html_StdVideoH264SliceType(const StdVideoH264SliceType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_SLICE_TYPE_P (";
+        dump_html_value(settings, "STD_VIDEO_H264_SLICE_TYPE_P (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_SLICE_TYPE_B (";
+        dump_html_value(settings, "STD_VIDEO_H264_SLICE_TYPE_B (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_SLICE_TYPE_I (";
+        dump_html_value(settings, "STD_VIDEO_H264_SLICE_TYPE_I (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_SLICE_TYPE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_SLICE_TYPE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264SliceType(const StdVideoH264SliceType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -584,28 +550,26 @@ void dump_html_StdVideoH264SliceType(const StdVideoH264SliceType* object, const 
 void dump_html_StdVideoH264PictureType(const StdVideoH264PictureType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_PICTURE_TYPE_P (";
+        dump_html_value(settings, "STD_VIDEO_H264_PICTURE_TYPE_P (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_PICTURE_TYPE_B (";
+        dump_html_value(settings, "STD_VIDEO_H264_PICTURE_TYPE_B (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_PICTURE_TYPE_I (";
+        dump_html_value(settings, "STD_VIDEO_H264_PICTURE_TYPE_I (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_H264_PICTURE_TYPE_IDR (";
+        dump_html_value(settings, "STD_VIDEO_H264_PICTURE_TYPE_IDR (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_PICTURE_TYPE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_PICTURE_TYPE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264PictureType(const StdVideoH264PictureType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -618,37 +582,35 @@ void dump_html_StdVideoH264PictureType(const StdVideoH264PictureType* object, co
 void dump_html_StdVideoH264NonVclNaluType(const StdVideoH264NonVclNaluType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H264_NON_VCL_NALU_TYPE_SPS (";
+        dump_html_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_SPS (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H264_NON_VCL_NALU_TYPE_PPS (";
+        dump_html_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_PPS (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H264_NON_VCL_NALU_TYPE_AUD (";
+        dump_html_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_AUD (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H264_NON_VCL_NALU_TYPE_PREFIX (";
+        dump_html_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_PREFIX (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_H264_NON_VCL_NALU_TYPE_END_OF_SEQUENCE (";
+        dump_html_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_END_OF_SEQUENCE (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_H264_NON_VCL_NALU_TYPE_END_OF_STREAM (";
+        dump_html_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_END_OF_STREAM (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_H264_NON_VCL_NALU_TYPE_PRECODED (";
+        dump_html_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_PRECODED (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H264_NON_VCL_NALU_TYPE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H264_NON_VCL_NALU_TYPE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH264NonVclNaluType(const StdVideoH264NonVclNaluType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -661,22 +623,20 @@ void dump_html_StdVideoH264NonVclNaluType(const StdVideoH264NonVclNaluType* obje
 void dump_html_StdVideoDecodeH264FieldOrderCount(const StdVideoDecodeH264FieldOrderCount object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_TOP (";
+        dump_html_value(settings, "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_TOP (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_BOTTOM (";
+        dump_html_value(settings, "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_BOTTOM (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoDecodeH264FieldOrderCount(const StdVideoDecodeH264FieldOrderCount* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -689,28 +649,26 @@ void dump_html_StdVideoDecodeH264FieldOrderCount(const StdVideoDecodeH264FieldOr
 void dump_html_StdVideoH265ChromaFormatIdc(const StdVideoH265ChromaFormatIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H265_CHROMA_FORMAT_IDC_MONOCHROME (";
+        dump_html_value(settings, "STD_VIDEO_H265_CHROMA_FORMAT_IDC_MONOCHROME (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H265_CHROMA_FORMAT_IDC_420 (";
+        dump_html_value(settings, "STD_VIDEO_H265_CHROMA_FORMAT_IDC_420 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H265_CHROMA_FORMAT_IDC_422 (";
+        dump_html_value(settings, "STD_VIDEO_H265_CHROMA_FORMAT_IDC_422 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H265_CHROMA_FORMAT_IDC_444 (";
+        dump_html_value(settings, "STD_VIDEO_H265_CHROMA_FORMAT_IDC_444 (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H265_CHROMA_FORMAT_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H265_CHROMA_FORMAT_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH265ChromaFormatIdc(const StdVideoH265ChromaFormatIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -723,31 +681,29 @@ void dump_html_StdVideoH265ChromaFormatIdc(const StdVideoH265ChromaFormatIdc* ob
 void dump_html_StdVideoH265ProfileIdc(const StdVideoH265ProfileIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 1:
-        settings.stream() << "STD_VIDEO_H265_PROFILE_IDC_MAIN (";
+        dump_html_value(settings, "STD_VIDEO_H265_PROFILE_IDC_MAIN (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H265_PROFILE_IDC_MAIN_10 (";
+        dump_html_value(settings, "STD_VIDEO_H265_PROFILE_IDC_MAIN_10 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H265_PROFILE_IDC_MAIN_STILL_PICTURE (";
+        dump_html_value(settings, "STD_VIDEO_H265_PROFILE_IDC_MAIN_STILL_PICTURE (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_H265_PROFILE_IDC_FORMAT_RANGE_EXTENSIONS (";
+        dump_html_value(settings, "STD_VIDEO_H265_PROFILE_IDC_FORMAT_RANGE_EXTENSIONS (", object, ")");
         break;
     case 9:
-        settings.stream() << "STD_VIDEO_H265_PROFILE_IDC_SCC_EXTENSIONS (";
+        dump_html_value(settings, "STD_VIDEO_H265_PROFILE_IDC_SCC_EXTENSIONS (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H265_PROFILE_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H265_PROFILE_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH265ProfileIdc(const StdVideoH265ProfileIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -760,55 +716,53 @@ void dump_html_StdVideoH265ProfileIdc(const StdVideoH265ProfileIdc* object, cons
 void dump_html_StdVideoH265LevelIdc(const StdVideoH265LevelIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_1_0 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_1_0 (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_2_0 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_2_0 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_2_1 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_2_1 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_3_0 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_3_0 (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_3_1 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_3_1 (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_4_0 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_4_0 (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_4_1 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_4_1 (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_5_0 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_5_0 (", object, ")");
         break;
     case 8:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_5_1 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_5_1 (", object, ")");
         break;
     case 9:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_5_2 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_5_2 (", object, ")");
         break;
     case 10:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_6_0 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_6_0 (", object, ")");
         break;
     case 11:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_6_1 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_6_1 (", object, ")");
         break;
     case 12:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_6_2 (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_6_2 (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H265_LEVEL_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H265_LEVEL_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH265LevelIdc(const StdVideoH265LevelIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -821,25 +775,23 @@ void dump_html_StdVideoH265LevelIdc(const StdVideoH265LevelIdc* object, const Ap
 void dump_html_StdVideoH265SliceType(const StdVideoH265SliceType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H265_SLICE_TYPE_B (";
+        dump_html_value(settings, "STD_VIDEO_H265_SLICE_TYPE_B (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H265_SLICE_TYPE_P (";
+        dump_html_value(settings, "STD_VIDEO_H265_SLICE_TYPE_P (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H265_SLICE_TYPE_I (";
+        dump_html_value(settings, "STD_VIDEO_H265_SLICE_TYPE_I (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H265_SLICE_TYPE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H265_SLICE_TYPE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH265SliceType(const StdVideoH265SliceType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -852,28 +804,26 @@ void dump_html_StdVideoH265SliceType(const StdVideoH265SliceType* object, const 
 void dump_html_StdVideoH265PictureType(const StdVideoH265PictureType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H265_PICTURE_TYPE_P (";
+        dump_html_value(settings, "STD_VIDEO_H265_PICTURE_TYPE_P (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H265_PICTURE_TYPE_B (";
+        dump_html_value(settings, "STD_VIDEO_H265_PICTURE_TYPE_B (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H265_PICTURE_TYPE_I (";
+        dump_html_value(settings, "STD_VIDEO_H265_PICTURE_TYPE_I (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H265_PICTURE_TYPE_IDR (";
+        dump_html_value(settings, "STD_VIDEO_H265_PICTURE_TYPE_IDR (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H265_PICTURE_TYPE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H265_PICTURE_TYPE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH265PictureType(const StdVideoH265PictureType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -886,70 +836,68 @@ void dump_html_StdVideoH265PictureType(const StdVideoH265PictureType* object, co
 void dump_html_StdVideoH265AspectRatioIdc(const StdVideoH265AspectRatioIdc object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_UNSPECIFIED (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_UNSPECIFIED (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_SQUARE (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_SQUARE (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_12_11 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_12_11 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_10_11 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_10_11 (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_16_11 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_16_11 (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_40_33 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_40_33 (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_24_11 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_24_11 (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_20_11 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_20_11 (", object, ")");
         break;
     case 8:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_32_11 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_32_11 (", object, ")");
         break;
     case 9:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_80_33 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_80_33 (", object, ")");
         break;
     case 10:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_18_11 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_18_11 (", object, ")");
         break;
     case 11:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_15_11 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_15_11 (", object, ")");
         break;
     case 12:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_64_33 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_64_33 (", object, ")");
         break;
     case 13:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_160_99 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_160_99 (", object, ")");
         break;
     case 14:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_4_3 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_4_3 (", object, ")");
         break;
     case 15:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_3_2 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_3_2 (", object, ")");
         break;
     case 16:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_2_1 (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_2_1 (", object, ")");
         break;
     case 255:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_EXTENDED_SAR (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_EXTENDED_SAR (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_H265_ASPECT_RATIO_IDC_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_H265_ASPECT_RATIO_IDC_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoH265AspectRatioIdc(const StdVideoH265AspectRatioIdc* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -962,25 +910,23 @@ void dump_html_StdVideoH265AspectRatioIdc(const StdVideoH265AspectRatioIdc* obje
 void dump_html_StdVideoAV1Profile(const StdVideoAV1Profile object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_AV1_PROFILE_MAIN (";
+        dump_html_value(settings, "STD_VIDEO_AV1_PROFILE_MAIN (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_PROFILE_HIGH (";
+        dump_html_value(settings, "STD_VIDEO_AV1_PROFILE_HIGH (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_PROFILE_PROFESSIONAL (";
+        dump_html_value(settings, "STD_VIDEO_AV1_PROFILE_PROFESSIONAL (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_PROFILE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_PROFILE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1Profile(const StdVideoAV1Profile* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -993,88 +939,86 @@ void dump_html_StdVideoAV1Profile(const StdVideoAV1Profile* object, const ApiDum
 void dump_html_StdVideoAV1Level(const StdVideoAV1Level object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_2_0 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_2_0 (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_2_1 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_2_1 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_2_2 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_2_2 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_2_3 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_2_3 (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_3_0 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_3_0 (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_3_1 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_3_1 (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_3_2 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_3_2 (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_3_3 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_3_3 (", object, ")");
         break;
     case 8:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_4_0 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_4_0 (", object, ")");
         break;
     case 9:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_4_1 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_4_1 (", object, ")");
         break;
     case 10:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_4_2 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_4_2 (", object, ")");
         break;
     case 11:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_4_3 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_4_3 (", object, ")");
         break;
     case 12:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_5_0 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_5_0 (", object, ")");
         break;
     case 13:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_5_1 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_5_1 (", object, ")");
         break;
     case 14:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_5_2 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_5_2 (", object, ")");
         break;
     case 15:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_5_3 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_5_3 (", object, ")");
         break;
     case 16:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_6_0 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_6_0 (", object, ")");
         break;
     case 17:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_6_1 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_6_1 (", object, ")");
         break;
     case 18:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_6_2 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_6_2 (", object, ")");
         break;
     case 19:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_6_3 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_6_3 (", object, ")");
         break;
     case 20:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_7_0 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_7_0 (", object, ")");
         break;
     case 21:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_7_1 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_7_1 (", object, ")");
         break;
     case 22:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_7_2 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_7_2 (", object, ")");
         break;
     case 23:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_7_3 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_7_3 (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_LEVEL_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_LEVEL_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1Level(const StdVideoAV1Level* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1087,28 +1031,26 @@ void dump_html_StdVideoAV1Level(const StdVideoAV1Level* object, const ApiDumpSet
 void dump_html_StdVideoAV1FrameType(const StdVideoAV1FrameType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_AV1_FRAME_TYPE_KEY (";
+        dump_html_value(settings, "STD_VIDEO_AV1_FRAME_TYPE_KEY (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_FRAME_TYPE_INTER (";
+        dump_html_value(settings, "STD_VIDEO_AV1_FRAME_TYPE_INTER (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_FRAME_TYPE_INTRA_ONLY (";
+        dump_html_value(settings, "STD_VIDEO_AV1_FRAME_TYPE_INTRA_ONLY (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_AV1_FRAME_TYPE_SWITCH (";
+        dump_html_value(settings, "STD_VIDEO_AV1_FRAME_TYPE_SWITCH (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_FRAME_TYPE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_FRAME_TYPE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1FrameType(const StdVideoAV1FrameType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1121,40 +1063,38 @@ void dump_html_StdVideoAV1FrameType(const StdVideoAV1FrameType* object, const Ap
 void dump_html_StdVideoAV1ReferenceName(const StdVideoAV1ReferenceName object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_AV1_REFERENCE_NAME_INTRA_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_INTRA_FRAME (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_REFERENCE_NAME_LAST_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_LAST_FRAME (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_REFERENCE_NAME_LAST2_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_LAST2_FRAME (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_AV1_REFERENCE_NAME_LAST3_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_LAST3_FRAME (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_AV1_REFERENCE_NAME_GOLDEN_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_GOLDEN_FRAME (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_AV1_REFERENCE_NAME_BWDREF_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_BWDREF_FRAME (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_AV1_REFERENCE_NAME_ALTREF2_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_ALTREF2_FRAME (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_AV1_REFERENCE_NAME_ALTREF_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_ALTREF_FRAME (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_REFERENCE_NAME_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_REFERENCE_NAME_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1ReferenceName(const StdVideoAV1ReferenceName* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1167,31 +1107,29 @@ void dump_html_StdVideoAV1ReferenceName(const StdVideoAV1ReferenceName* object, 
 void dump_html_StdVideoAV1InterpolationFilter(const StdVideoAV1InterpolationFilter object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP (";
+        dump_html_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH (";
+        dump_html_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SHARP (";
+        dump_html_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP_SHARP (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_AV1_INTERPOLATION_FILTER_BILINEAR (";
+        dump_html_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_BILINEAR (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_AV1_INTERPOLATION_FILTER_SWITCHABLE (";
+        dump_html_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_SWITCHABLE (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_INTERPOLATION_FILTER_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_INTERPOLATION_FILTER_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1InterpolationFilter(const StdVideoAV1InterpolationFilter* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1204,25 +1142,23 @@ void dump_html_StdVideoAV1InterpolationFilter(const StdVideoAV1InterpolationFilt
 void dump_html_StdVideoAV1TxMode(const StdVideoAV1TxMode object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_AV1_TX_MODE_ONLY_4X4 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TX_MODE_ONLY_4X4 (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_TX_MODE_LARGEST (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TX_MODE_LARGEST (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_TX_MODE_SELECT (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TX_MODE_SELECT (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_TX_MODE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TX_MODE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1TxMode(const StdVideoAV1TxMode* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1235,28 +1171,26 @@ void dump_html_StdVideoAV1TxMode(const StdVideoAV1TxMode* object, const ApiDumpS
 void dump_html_StdVideoAV1FrameRestorationType(const StdVideoAV1FrameRestorationType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_NONE (";
+        dump_html_value(settings, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_NONE (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_WIENER (";
+        dump_html_value(settings, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_WIENER (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_SGRPROJ (";
+        dump_html_value(settings, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_SGRPROJ (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_SWITCHABLE (";
+        dump_html_value(settings, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_SWITCHABLE (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1FrameRestorationType(const StdVideoAV1FrameRestorationType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1269,52 +1203,50 @@ void dump_html_StdVideoAV1FrameRestorationType(const StdVideoAV1FrameRestoration
 void dump_html_StdVideoAV1ColorPrimaries(const StdVideoAV1ColorPrimaries object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_709 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_709 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_UNSPECIFIED (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_UNSPECIFIED (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_M (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_M (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_B_G (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_470_B_G (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_601 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_601 (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_240 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_240 (", object, ")");
         break;
     case 8:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_GENERIC_FILM (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_GENERIC_FILM (", object, ")");
         break;
     case 9:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_2020 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_BT_2020 (", object, ")");
         break;
     case 10:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_XYZ (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_XYZ (", object, ")");
         break;
     case 11:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_431 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_431 (", object, ")");
         break;
     case 12:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_432 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_SMPTE_432 (", object, ")");
         break;
     case 22:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_EBU_3213 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_EBU_3213 (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_COLOR_PRIMARIES_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_COLOR_PRIMARIES_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1ColorPrimaries(const StdVideoAV1ColorPrimaries* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1327,73 +1259,71 @@ void dump_html_StdVideoAV1ColorPrimaries(const StdVideoAV1ColorPrimaries* object
 void dump_html_StdVideoAV1TransferCharacteristics(const StdVideoAV1TransferCharacteristics object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_0 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_0 (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_709 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_709 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_UNSPECIFIED (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_UNSPECIFIED (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_3 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_3 (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_470_M (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_470_M (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_470_B_G (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_470_B_G (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_601 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_601 (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_240 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_240 (", object, ")");
         break;
     case 8:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LINEAR (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LINEAR (", object, ")");
         break;
     case 9:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LOG_100 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LOG_100 (", object, ")");
         break;
     case 10:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LOG_100_SQRT10 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_LOG_100_SQRT10 (", object, ")");
         break;
     case 11:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_IEC_61966 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_IEC_61966 (", object, ")");
         break;
     case 12:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_1361 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_1361 (", object, ")");
         break;
     case 13:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SRGB (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SRGB (", object, ")");
         break;
     case 14:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_2020_10_BIT (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_2020_10_BIT (", object, ")");
         break;
     case 15:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_2020_12_BIT (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_BT_2020_12_BIT (", object, ")");
         break;
     case 16:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_2084 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_2084 (", object, ")");
         break;
     case 17:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_428 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_SMPTE_428 (", object, ")");
         break;
     case 18:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_HLG (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_HLG (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1TransferCharacteristics(const StdVideoAV1TransferCharacteristics* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1406,61 +1336,59 @@ void dump_html_StdVideoAV1TransferCharacteristics(const StdVideoAV1TransferChara
 void dump_html_StdVideoAV1MatrixCoefficients(const StdVideoAV1MatrixCoefficients object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_IDENTITY (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_IDENTITY (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_709 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_709 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_UNSPECIFIED (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_UNSPECIFIED (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_RESERVED_3 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_RESERVED_3 (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_FCC (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_FCC (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_470_B_G (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_470_B_G (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_601 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_601 (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_240 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_240 (", object, ")");
         break;
     case 8:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_YCGCO (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_YCGCO (", object, ")");
         break;
     case 9:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_2020_NCL (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_2020_NCL (", object, ")");
         break;
     case 10:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_2020_CL (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_BT_2020_CL (", object, ")");
         break;
     case 11:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_2085 (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_SMPTE_2085 (", object, ")");
         break;
     case 12:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_CHROMAT_NCL (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_CHROMAT_NCL (", object, ")");
         break;
     case 13:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_CHROMAT_CL (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_CHROMAT_CL (", object, ")");
         break;
     case 14:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_ICTCP (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_ICTCP (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_MATRIX_COEFFICIENTS_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1MatrixCoefficients(const StdVideoAV1MatrixCoefficients* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1473,28 +1401,26 @@ void dump_html_StdVideoAV1MatrixCoefficients(const StdVideoAV1MatrixCoefficients
 void dump_html_StdVideoAV1ChromaSamplePosition(const StdVideoAV1ChromaSamplePosition object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_UNKNOWN (";
+        dump_html_value(settings, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_UNKNOWN (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_VERTICAL (";
+        dump_html_value(settings, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_VERTICAL (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_COLOCATED (";
+        dump_html_value(settings, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_COLOCATED (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_RESERVED (";
+        dump_html_value(settings, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_RESERVED (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoAV1ChromaSamplePosition(const StdVideoAV1ChromaSamplePosition* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1507,28 +1433,26 @@ void dump_html_StdVideoAV1ChromaSamplePosition(const StdVideoAV1ChromaSamplePosi
 void dump_html_StdVideoVP9Profile(const StdVideoVP9Profile object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_VP9_PROFILE_0 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_PROFILE_0 (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_VP9_PROFILE_1 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_PROFILE_1 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_VP9_PROFILE_2 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_PROFILE_2 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_VP9_PROFILE_3 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_PROFILE_3 (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_VP9_PROFILE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_VP9_PROFILE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoVP9Profile(const StdVideoVP9Profile* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1541,58 +1465,56 @@ void dump_html_StdVideoVP9Profile(const StdVideoVP9Profile* object, const ApiDum
 void dump_html_StdVideoVP9Level(const StdVideoVP9Level object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_1_0 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_1_0 (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_1_1 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_1_1 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_2_0 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_2_0 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_2_1 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_2_1 (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_3_0 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_3_0 (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_3_1 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_3_1 (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_4_0 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_4_0 (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_4_1 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_4_1 (", object, ")");
         break;
     case 8:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_5_0 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_5_0 (", object, ")");
         break;
     case 9:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_5_1 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_5_1 (", object, ")");
         break;
     case 10:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_5_2 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_5_2 (", object, ")");
         break;
     case 11:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_6_0 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_6_0 (", object, ")");
         break;
     case 12:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_6_1 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_6_1 (", object, ")");
         break;
     case 13:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_6_2 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_6_2 (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_VP9_LEVEL_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_VP9_LEVEL_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoVP9Level(const StdVideoVP9Level* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1605,22 +1527,20 @@ void dump_html_StdVideoVP9Level(const StdVideoVP9Level* object, const ApiDumpSet
 void dump_html_StdVideoVP9FrameType(const StdVideoVP9FrameType object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_VP9_FRAME_TYPE_KEY (";
+        dump_html_value(settings, "STD_VIDEO_VP9_FRAME_TYPE_KEY (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_VP9_FRAME_TYPE_NON_KEY (";
+        dump_html_value(settings, "STD_VIDEO_VP9_FRAME_TYPE_NON_KEY (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_VP9_FRAME_TYPE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_VP9_FRAME_TYPE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoVP9FrameType(const StdVideoVP9FrameType* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1633,28 +1553,26 @@ void dump_html_StdVideoVP9FrameType(const StdVideoVP9FrameType* object, const Ap
 void dump_html_StdVideoVP9ReferenceName(const StdVideoVP9ReferenceName object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_VP9_REFERENCE_NAME_LAST_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_VP9_REFERENCE_NAME_LAST_FRAME (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_VP9_REFERENCE_NAME_GOLDEN_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_VP9_REFERENCE_NAME_GOLDEN_FRAME (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_VP9_REFERENCE_NAME_ALTREF_FRAME (";
+        dump_html_value(settings, "STD_VIDEO_VP9_REFERENCE_NAME_ALTREF_FRAME (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_VP9_REFERENCE_NAME_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_VP9_REFERENCE_NAME_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoVP9ReferenceName(const StdVideoVP9ReferenceName* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1667,31 +1585,29 @@ void dump_html_StdVideoVP9ReferenceName(const StdVideoVP9ReferenceName* object, 
 void dump_html_StdVideoVP9InterpolationFilter(const StdVideoVP9InterpolationFilter object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP (";
+        dump_html_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH (";
+        dump_html_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SHARP (";
+        dump_html_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SHARP (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_BILINEAR (";
+        dump_html_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_BILINEAR (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_SWITCHABLE (";
+        dump_html_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_SWITCHABLE (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_VP9_INTERPOLATION_FILTER_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_VP9_INTERPOLATION_FILTER_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoVP9InterpolationFilter(const StdVideoVP9InterpolationFilter* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1704,40 +1620,38 @@ void dump_html_StdVideoVP9InterpolationFilter(const StdVideoVP9InterpolationFilt
 void dump_html_StdVideoVP9ColorSpace(const StdVideoVP9ColorSpace object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    settings.stream() << "<div class='val'>";
     switch((int64_t) object)
     {
     case 0:
-        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN (";
+        dump_html_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN (", object, ")");
         break;
     case 1:
-        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_BT_601 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_BT_601 (", object, ")");
         break;
     case 2:
-        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_BT_709 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_BT_709 (", object, ")");
         break;
     case 3:
-        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_SMPTE_170 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_SMPTE_170 (", object, ")");
         break;
     case 4:
-        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_SMPTE_240 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_SMPTE_240 (", object, ")");
         break;
     case 5:
-        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_BT_2020 (";
+        dump_html_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_BT_2020 (", object, ")");
         break;
     case 6:
-        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_RESERVED (";
+        dump_html_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_RESERVED (", object, ")");
         break;
     case 7:
-        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_RGB (";
+        dump_html_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_RGB (", object, ")");
         break;
     case 0x7FFFFFFF:
-        settings.stream() << "STD_VIDEO_VP9_COLOR_SPACE_INVALID (";
+        dump_html_value(settings, "STD_VIDEO_VP9_COLOR_SPACE_INVALID (", object, ")");
         break;
     default:
-        settings.stream() << "UNKNOWN (";
+        dump_html_value(settings, "UNKNOWN (", object, ")");
     }
-    settings.stream() << object << ")</div>";
     dump_html_end(settings, OutputConstruct::value, indents);
 }
 void dump_html_StdVideoVP9ColorSpace(const StdVideoVP9ColorSpace* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){
@@ -1768,7 +1682,6 @@ void dump_html_StdVideoVP9ColorSpace(const StdVideoVP9ColorSpace* object, const 
 void dump_html_StdVideoH264SpsVuiFlags(const StdVideoH264SpsVuiFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.aspect_ratio_info_present_flag, settings, "uint32_t: 1", "aspect_ratio_info_present_flag", indents + 1);
     dump_html_uint32_t(object.overscan_info_present_flag, settings, "uint32_t: 1", "overscan_info_present_flag", indents + 1);
     dump_html_uint32_t(object.overscan_appropriate_flag, settings, "uint32_t: 1", "overscan_appropriate_flag", indents + 1);
@@ -1793,7 +1706,6 @@ void dump_html_StdVideoH264SpsVuiFlags(const StdVideoH264SpsVuiFlags* object, co
 void dump_html_StdVideoH264HrdParameters(const StdVideoH264HrdParameters& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint8_t(object.cpb_cnt_minus1, settings, "uint8_t", "cpb_cnt_minus1", indents + 1);
     dump_html_uint8_t(object.bit_rate_scale, settings, "uint8_t", "bit_rate_scale", indents + 1);
     dump_html_uint8_t(object.cpb_size_scale, settings, "uint8_t", "cpb_size_scale", indents + 1);
@@ -1838,7 +1750,6 @@ void dump_html_StdVideoH264HrdParameters(const StdVideoH264HrdParameters* object
 void dump_html_StdVideoH264SequenceParameterSetVui(const StdVideoH264SequenceParameterSetVui& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH264SpsVuiFlags(object.flags, settings, "StdVideoH264SpsVuiFlags", "flags", indents + 1);
     dump_html_StdVideoH264AspectRatioIdc(object.aspect_ratio_idc, settings, "StdVideoH264AspectRatioIdc", "aspect_ratio_idc", indents + 1);
     dump_html_uint16_t(object.sar_width, settings, "uint16_t", "sar_width", indents + 1);
@@ -1867,7 +1778,6 @@ void dump_html_StdVideoH264SequenceParameterSetVui(const StdVideoH264SequencePar
 void dump_html_StdVideoH264SpsFlags(const StdVideoH264SpsFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.constraint_set0_flag, settings, "uint32_t: 1", "constraint_set0_flag", indents + 1);
     dump_html_uint32_t(object.constraint_set1_flag, settings, "uint32_t: 1", "constraint_set1_flag", indents + 1);
     dump_html_uint32_t(object.constraint_set2_flag, settings, "uint32_t: 1", "constraint_set2_flag", indents + 1);
@@ -1896,7 +1806,6 @@ void dump_html_StdVideoH264SpsFlags(const StdVideoH264SpsFlags* object, const Ap
 void dump_html_StdVideoH264ScalingLists(const StdVideoH264ScalingLists& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint16_t(object.scaling_list_present_mask, settings, "uint16_t", "scaling_list_present_mask", indents + 1);
     dump_html_uint16_t(object.use_default_scaling_matrix_mask, settings, "uint16_t", "use_default_scaling_matrix_mask", indents + 1);
     dump_html_array_start(object.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS]", "ScalingList4x4", indents + 1);
@@ -1931,7 +1840,6 @@ void dump_html_StdVideoH264ScalingLists(const StdVideoH264ScalingLists* object, 
 void dump_html_StdVideoH264SequenceParameterSet(const StdVideoH264SequenceParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH264SpsFlags(object.flags, settings, "StdVideoH264SpsFlags", "flags", indents + 1);
     dump_html_StdVideoH264ProfileIdc(object.profile_idc, settings, "StdVideoH264ProfileIdc", "profile_idc", indents + 1);
     dump_html_StdVideoH264LevelIdc(object.level_idc, settings, "StdVideoH264LevelIdc", "level_idc", indents + 1);
@@ -1969,7 +1877,6 @@ void dump_html_StdVideoH264SequenceParameterSet(const StdVideoH264SequenceParame
 void dump_html_StdVideoH264PpsFlags(const StdVideoH264PpsFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.transform_8x8_mode_flag, settings, "uint32_t: 1", "transform_8x8_mode_flag", indents + 1);
     dump_html_uint32_t(object.redundant_pic_cnt_present_flag, settings, "uint32_t: 1", "redundant_pic_cnt_present_flag", indents + 1);
     dump_html_uint32_t(object.constrained_intra_pred_flag, settings, "uint32_t: 1", "constrained_intra_pred_flag", indents + 1);
@@ -1990,7 +1897,6 @@ void dump_html_StdVideoH264PpsFlags(const StdVideoH264PpsFlags* object, const Ap
 void dump_html_StdVideoH264PictureParameterSet(const StdVideoH264PictureParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH264PpsFlags(object.flags, settings, "StdVideoH264PpsFlags", "flags", indents + 1);
     dump_html_uint8_t(object.seq_parameter_set_id, settings, "uint8_t", "seq_parameter_set_id", indents + 1);
     dump_html_uint8_t(object.pic_parameter_set_id, settings, "uint8_t", "pic_parameter_set_id", indents + 1);
@@ -2014,7 +1920,6 @@ void dump_html_StdVideoH264PictureParameterSet(const StdVideoH264PictureParamete
 void dump_html_StdVideoDecodeH264PictureInfoFlags(const StdVideoDecodeH264PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.field_pic_flag, settings, "uint32_t: 1", "field_pic_flag", indents + 1);
     dump_html_uint32_t(object.is_intra, settings, "uint32_t: 1", "is_intra", indents + 1);
     dump_html_uint32_t(object.IdrPicFlag, settings, "uint32_t: 1", "IdrPicFlag", indents + 1);
@@ -2033,7 +1938,6 @@ void dump_html_StdVideoDecodeH264PictureInfoFlags(const StdVideoDecodeH264Pictur
 void dump_html_StdVideoDecodeH264PictureInfo(const StdVideoDecodeH264PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoDecodeH264PictureInfoFlags(object.flags, settings, "StdVideoDecodeH264PictureInfoFlags", "flags", indents + 1);
     dump_html_uint8_t(object.seq_parameter_set_id, settings, "uint8_t", "seq_parameter_set_id", indents + 1);
     dump_html_uint8_t(object.pic_parameter_set_id, settings, "uint8_t", "pic_parameter_set_id", indents + 1);
@@ -2061,7 +1965,6 @@ void dump_html_StdVideoDecodeH264PictureInfo(const StdVideoDecodeH264PictureInfo
 void dump_html_StdVideoDecodeH264ReferenceInfoFlags(const StdVideoDecodeH264ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.top_field_flag, settings, "uint32_t: 1", "top_field_flag", indents + 1);
     dump_html_uint32_t(object.bottom_field_flag, settings, "uint32_t: 1", "bottom_field_flag", indents + 1);
     dump_html_uint32_t(object.used_for_long_term_reference, settings, "uint32_t: 1", "used_for_long_term_reference", indents + 1);
@@ -2078,7 +1981,6 @@ void dump_html_StdVideoDecodeH264ReferenceInfoFlags(const StdVideoDecodeH264Refe
 void dump_html_StdVideoDecodeH264ReferenceInfo(const StdVideoDecodeH264ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoDecodeH264ReferenceInfoFlags(object.flags, settings, "StdVideoDecodeH264ReferenceInfoFlags", "flags", indents + 1);
     dump_html_uint16_t(object.FrameNum, settings, "uint16_t", "FrameNum", indents + 1);
     dump_html_uint16_t(object.reserved, settings, "uint16_t", "reserved", indents + 1);
@@ -2102,7 +2004,6 @@ void dump_html_StdVideoDecodeH264ReferenceInfo(const StdVideoDecodeH264Reference
 void dump_html_StdVideoEncodeH264WeightTableFlags(const StdVideoEncodeH264WeightTableFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.luma_weight_l0_flag, settings, "uint32_t", "luma_weight_l0_flag", indents + 1);
     dump_html_uint32_t(object.chroma_weight_l0_flag, settings, "uint32_t", "chroma_weight_l0_flag", indents + 1);
     dump_html_uint32_t(object.luma_weight_l1_flag, settings, "uint32_t", "luma_weight_l1_flag", indents + 1);
@@ -2119,7 +2020,6 @@ void dump_html_StdVideoEncodeH264WeightTableFlags(const StdVideoEncodeH264Weight
 void dump_html_StdVideoEncodeH264WeightTable(const StdVideoEncodeH264WeightTable& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeH264WeightTableFlags(object.flags, settings, "StdVideoEncodeH264WeightTableFlags", "flags", indents + 1);
     dump_html_uint8_t(object.luma_log2_weight_denom, settings, "uint8_t", "luma_log2_weight_denom", indents + 1);
     dump_html_uint8_t(object.chroma_log2_weight_denom, settings, "uint8_t", "chroma_log2_weight_denom", indents + 1);
@@ -2207,7 +2107,6 @@ void dump_html_StdVideoEncodeH264WeightTable(const StdVideoEncodeH264WeightTable
 void dump_html_StdVideoEncodeH264SliceHeaderFlags(const StdVideoEncodeH264SliceHeaderFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.direct_spatial_mv_pred_flag, settings, "uint32_t: 1", "direct_spatial_mv_pred_flag", indents + 1);
     dump_html_uint32_t(object.num_ref_idx_active_override_flag, settings, "uint32_t: 1", "num_ref_idx_active_override_flag", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 1);
@@ -2223,7 +2122,6 @@ void dump_html_StdVideoEncodeH264SliceHeaderFlags(const StdVideoEncodeH264SliceH
 void dump_html_StdVideoEncodeH264PictureInfoFlags(const StdVideoEncodeH264PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.IdrPicFlag, settings, "uint32_t: 1", "IdrPicFlag", indents + 1);
     dump_html_uint32_t(object.is_reference, settings, "uint32_t: 1", "is_reference", indents + 1);
     dump_html_uint32_t(object.no_output_of_prior_pics_flag, settings, "uint32_t: 1", "no_output_of_prior_pics_flag", indents + 1);
@@ -2242,7 +2140,6 @@ void dump_html_StdVideoEncodeH264PictureInfoFlags(const StdVideoEncodeH264Pictur
 void dump_html_StdVideoEncodeH264ReferenceInfoFlags(const StdVideoEncodeH264ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.used_for_long_term_reference, settings, "uint32_t: 1", "used_for_long_term_reference", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 31", "reserved", indents + 1);
     dump_html_end(settings, OutputConstruct::api_struct, indents);
@@ -2257,7 +2154,6 @@ void dump_html_StdVideoEncodeH264ReferenceInfoFlags(const StdVideoEncodeH264Refe
 void dump_html_StdVideoEncodeH264ReferenceListsInfoFlags(const StdVideoEncodeH264ReferenceListsInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.ref_pic_list_modification_flag_l0, settings, "uint32_t: 1", "ref_pic_list_modification_flag_l0", indents + 1);
     dump_html_uint32_t(object.ref_pic_list_modification_flag_l1, settings, "uint32_t: 1", "ref_pic_list_modification_flag_l1", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 1);
@@ -2273,7 +2169,6 @@ void dump_html_StdVideoEncodeH264ReferenceListsInfoFlags(const StdVideoEncodeH26
 void dump_html_StdVideoEncodeH264RefListModEntry(const StdVideoEncodeH264RefListModEntry& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH264ModificationOfPicNumsIdc(object.modification_of_pic_nums_idc, settings, "StdVideoH264ModificationOfPicNumsIdc", "modification_of_pic_nums_idc", indents + 1);
     dump_html_uint16_t(object.abs_diff_pic_num_minus1, settings, "uint16_t", "abs_diff_pic_num_minus1", indents + 1);
     dump_html_uint16_t(object.long_term_pic_num, settings, "uint16_t", "long_term_pic_num", indents + 1);
@@ -2289,7 +2184,6 @@ void dump_html_StdVideoEncodeH264RefListModEntry(const StdVideoEncodeH264RefList
 void dump_html_StdVideoEncodeH264RefPicMarkingEntry(const StdVideoEncodeH264RefPicMarkingEntry& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH264MemMgmtControlOp(object.memory_management_control_operation, settings, "StdVideoH264MemMgmtControlOp", "memory_management_control_operation", indents + 1);
     dump_html_uint16_t(object.difference_of_pic_nums_minus1, settings, "uint16_t", "difference_of_pic_nums_minus1", indents + 1);
     dump_html_uint16_t(object.long_term_pic_num, settings, "uint16_t", "long_term_pic_num", indents + 1);
@@ -2307,7 +2201,6 @@ void dump_html_StdVideoEncodeH264RefPicMarkingEntry(const StdVideoEncodeH264RefP
 void dump_html_StdVideoEncodeH264ReferenceListsInfo(const StdVideoEncodeH264ReferenceListsInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeH264ReferenceListsInfoFlags(object.flags, settings, "StdVideoEncodeH264ReferenceListsInfoFlags", "flags", indents + 1);
     dump_html_uint8_t(object.num_ref_idx_l0_active_minus1, settings, "uint8_t", "num_ref_idx_l0_active_minus1", indents + 1);
     dump_html_uint8_t(object.num_ref_idx_l1_active_minus1, settings, "uint8_t", "num_ref_idx_l1_active_minus1", indents + 1);
@@ -2353,7 +2246,6 @@ void dump_html_StdVideoEncodeH264ReferenceListsInfo(const StdVideoEncodeH264Refe
 void dump_html_StdVideoEncodeH264PictureInfo(const StdVideoEncodeH264PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeH264PictureInfoFlags(object.flags, settings, "StdVideoEncodeH264PictureInfoFlags", "flags", indents + 1);
     dump_html_uint8_t(object.seq_parameter_set_id, settings, "uint8_t", "seq_parameter_set_id", indents + 1);
     dump_html_uint8_t(object.pic_parameter_set_id, settings, "uint8_t", "pic_parameter_set_id", indents + 1);
@@ -2383,7 +2275,6 @@ void dump_html_StdVideoEncodeH264PictureInfo(const StdVideoEncodeH264PictureInfo
 void dump_html_StdVideoEncodeH264ReferenceInfo(const StdVideoEncodeH264ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeH264ReferenceInfoFlags(object.flags, settings, "StdVideoEncodeH264ReferenceInfoFlags", "flags", indents + 1);
     dump_html_StdVideoH264PictureType(object.primary_pic_type, settings, "StdVideoH264PictureType", "primary_pic_type", indents + 1);
     dump_html_uint32_t(object.FrameNum, settings, "uint32_t", "FrameNum", indents + 1);
@@ -2403,7 +2294,6 @@ void dump_html_StdVideoEncodeH264ReferenceInfo(const StdVideoEncodeH264Reference
 void dump_html_StdVideoEncodeH264SliceHeader(const StdVideoEncodeH264SliceHeader& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeH264SliceHeaderFlags(object.flags, settings, "StdVideoEncodeH264SliceHeaderFlags", "flags", indents + 1);
     dump_html_uint32_t(object.first_mb_in_slice, settings, "uint32_t", "first_mb_in_slice", indents + 1);
     dump_html_StdVideoH264SliceType(object.slice_type, settings, "StdVideoH264SliceType", "slice_type", indents + 1);
@@ -2426,7 +2316,6 @@ void dump_html_StdVideoEncodeH264SliceHeader(const StdVideoEncodeH264SliceHeader
 void dump_html_StdVideoH265DecPicBufMgr(const StdVideoH265DecPicBufMgr& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_array_start(object.max_latency_increase_plus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "max_latency_increase_plus1", indents + 1);
     for (size_t i = 0; i < STD_VIDEO_H265_SUBLAYERS_LIST_SIZE; ++i) {
         std::stringstream stream;
@@ -2463,7 +2352,6 @@ void dump_html_StdVideoH265DecPicBufMgr(const StdVideoH265DecPicBufMgr* object, 
 void dump_html_StdVideoH265SubLayerHrdParameters(const StdVideoH265SubLayerHrdParameters& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_array_start(object.bit_rate_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "bit_rate_value_minus1", indents + 1);
     for (size_t i = 0; i < STD_VIDEO_H265_CPB_CNT_LIST_SIZE; ++i) {
         std::stringstream stream;
@@ -2509,7 +2397,6 @@ void dump_html_StdVideoH265SubLayerHrdParameters(const StdVideoH265SubLayerHrdPa
 void dump_html_StdVideoH265HrdFlags(const StdVideoH265HrdFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.nal_hrd_parameters_present_flag, settings, "uint32_t: 1", "nal_hrd_parameters_present_flag", indents + 1);
     dump_html_uint32_t(object.vcl_hrd_parameters_present_flag, settings, "uint32_t: 1", "vcl_hrd_parameters_present_flag", indents + 1);
     dump_html_uint32_t(object.sub_pic_hrd_params_present_flag, settings, "uint32_t: 1", "sub_pic_hrd_params_present_flag", indents + 1);
@@ -2529,7 +2416,6 @@ void dump_html_StdVideoH265HrdFlags(const StdVideoH265HrdFlags* object, const Ap
 void dump_html_StdVideoH265HrdParameters(const StdVideoH265HrdParameters& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH265HrdFlags(object.flags, settings, "StdVideoH265HrdFlags", "flags", indents + 1);
     dump_html_uint8_t(object.tick_divisor_minus2, settings, "uint8_t", "tick_divisor_minus2", indents + 1);
     dump_html_uint8_t(object.du_cpb_removal_delay_increment_length_minus1, settings, "uint8_t", "du_cpb_removal_delay_increment_length_minus1", indents + 1);
@@ -2578,7 +2464,6 @@ void dump_html_StdVideoH265HrdParameters(const StdVideoH265HrdParameters* object
 void dump_html_StdVideoH265VpsFlags(const StdVideoH265VpsFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.vps_temporal_id_nesting_flag, settings, "uint32_t: 1", "vps_temporal_id_nesting_flag", indents + 1);
     dump_html_uint32_t(object.vps_sub_layer_ordering_info_present_flag, settings, "uint32_t: 1", "vps_sub_layer_ordering_info_present_flag", indents + 1);
     dump_html_uint32_t(object.vps_timing_info_present_flag, settings, "uint32_t: 1", "vps_timing_info_present_flag", indents + 1);
@@ -2595,7 +2480,6 @@ void dump_html_StdVideoH265VpsFlags(const StdVideoH265VpsFlags* object, const Ap
 void dump_html_StdVideoH265ProfileTierLevelFlags(const StdVideoH265ProfileTierLevelFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.general_tier_flag, settings, "uint32_t: 1", "general_tier_flag", indents + 1);
     dump_html_uint32_t(object.general_progressive_source_flag, settings, "uint32_t: 1", "general_progressive_source_flag", indents + 1);
     dump_html_uint32_t(object.general_interlaced_source_flag, settings, "uint32_t: 1", "general_interlaced_source_flag", indents + 1);
@@ -2613,7 +2497,6 @@ void dump_html_StdVideoH265ProfileTierLevelFlags(const StdVideoH265ProfileTierLe
 void dump_html_StdVideoH265ProfileTierLevel(const StdVideoH265ProfileTierLevel& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH265ProfileTierLevelFlags(object.flags, settings, "StdVideoH265ProfileTierLevelFlags", "flags", indents + 1);
     dump_html_StdVideoH265ProfileIdc(object.general_profile_idc, settings, "StdVideoH265ProfileIdc", "general_profile_idc", indents + 1);
     dump_html_StdVideoH265LevelIdc(object.general_level_idc, settings, "StdVideoH265LevelIdc", "general_level_idc", indents + 1);
@@ -2629,7 +2512,6 @@ void dump_html_StdVideoH265ProfileTierLevel(const StdVideoH265ProfileTierLevel* 
 void dump_html_StdVideoH265VideoParameterSet(const StdVideoH265VideoParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH265VpsFlags(object.flags, settings, "StdVideoH265VpsFlags", "flags", indents + 1);
     dump_html_uint8_t(object.vps_video_parameter_set_id, settings, "uint8_t", "vps_video_parameter_set_id", indents + 1);
     dump_html_uint8_t(object.vps_max_sub_layers_minus1, settings, "uint8_t", "vps_max_sub_layers_minus1", indents + 1);
@@ -2654,7 +2536,6 @@ void dump_html_StdVideoH265VideoParameterSet(const StdVideoH265VideoParameterSet
 void dump_html_StdVideoH265ScalingLists(const StdVideoH265ScalingLists& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_array_start(object.ScalingList4x4, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS*STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS]", "ScalingList4x4", indents + 1);
     for (size_t i = 0; i < STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS; ++i) {
       for (size_t j = 0; j < STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS; ++j) {
@@ -2723,7 +2604,6 @@ void dump_html_StdVideoH265ScalingLists(const StdVideoH265ScalingLists* object, 
 void dump_html_StdVideoH265SpsVuiFlags(const StdVideoH265SpsVuiFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.aspect_ratio_info_present_flag, settings, "uint32_t: 1", "aspect_ratio_info_present_flag", indents + 1);
     dump_html_uint32_t(object.overscan_info_present_flag, settings, "uint32_t: 1", "overscan_info_present_flag", indents + 1);
     dump_html_uint32_t(object.overscan_appropriate_flag, settings, "uint32_t: 1", "overscan_appropriate_flag", indents + 1);
@@ -2754,7 +2634,6 @@ void dump_html_StdVideoH265SpsVuiFlags(const StdVideoH265SpsVuiFlags* object, co
 void dump_html_StdVideoH265SequenceParameterSetVui(const StdVideoH265SequenceParameterSetVui& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH265SpsVuiFlags(object.flags, settings, "StdVideoH265SpsVuiFlags", "flags", indents + 1);
     dump_html_StdVideoH265AspectRatioIdc(object.aspect_ratio_idc, settings, "StdVideoH265AspectRatioIdc", "aspect_ratio_idc", indents + 1);
     dump_html_uint16_t(object.sar_width, settings, "uint16_t", "sar_width", indents + 1);
@@ -2793,7 +2672,6 @@ void dump_html_StdVideoH265SequenceParameterSetVui(const StdVideoH265SequencePar
 void dump_html_StdVideoH265PredictorPaletteEntries(const StdVideoH265PredictorPaletteEntries& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_array_start(object.PredictorPaletteEntries, STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE*STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE][STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE]", "PredictorPaletteEntries", indents + 1);
     for (size_t i = 0; i < STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE; ++i) {
       for (size_t j = 0; j < STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE; ++j) {
@@ -2816,7 +2694,6 @@ void dump_html_StdVideoH265PredictorPaletteEntries(const StdVideoH265PredictorPa
 void dump_html_StdVideoH265SpsFlags(const StdVideoH265SpsFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.sps_temporal_id_nesting_flag, settings, "uint32_t: 1", "sps_temporal_id_nesting_flag", indents + 1);
     dump_html_uint32_t(object.separate_colour_plane_flag, settings, "uint32_t: 1", "separate_colour_plane_flag", indents + 1);
     dump_html_uint32_t(object.conformance_window_flag, settings, "uint32_t: 1", "conformance_window_flag", indents + 1);
@@ -2859,7 +2736,6 @@ void dump_html_StdVideoH265SpsFlags(const StdVideoH265SpsFlags* object, const Ap
 void dump_html_StdVideoH265ShortTermRefPicSetFlags(const StdVideoH265ShortTermRefPicSetFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.inter_ref_pic_set_prediction_flag, settings, "uint32_t: 1", "inter_ref_pic_set_prediction_flag", indents + 1);
     dump_html_uint32_t(object.delta_rps_sign, settings, "uint32_t: 1", "delta_rps_sign", indents + 1);
     dump_html_end(settings, OutputConstruct::api_struct, indents);
@@ -2874,7 +2750,6 @@ void dump_html_StdVideoH265ShortTermRefPicSetFlags(const StdVideoH265ShortTermRe
 void dump_html_StdVideoH265ShortTermRefPicSet(const StdVideoH265ShortTermRefPicSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH265ShortTermRefPicSetFlags(object.flags, settings, "StdVideoH265ShortTermRefPicSetFlags", "flags", indents + 1);
     dump_html_uint32_t(object.delta_idx_minus1, settings, "uint32_t", "delta_idx_minus1", indents + 1);
     dump_html_uint16_t(object.use_delta_flag, settings, "uint16_t", "use_delta_flag", indents + 1);
@@ -2915,7 +2790,6 @@ void dump_html_StdVideoH265ShortTermRefPicSet(const StdVideoH265ShortTermRefPicS
 void dump_html_StdVideoH265LongTermRefPicsSps(const StdVideoH265LongTermRefPicsSps& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.used_by_curr_pic_lt_sps_flag, settings, "uint32_t", "used_by_curr_pic_lt_sps_flag", indents + 1);
     dump_html_array_start(object.lt_ref_pic_poc_lsb_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint32_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "lt_ref_pic_poc_lsb_sps", indents + 1);
     for (size_t i = 0; i < STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS; ++i) {
@@ -2937,7 +2811,6 @@ void dump_html_StdVideoH265LongTermRefPicsSps(const StdVideoH265LongTermRefPicsS
 void dump_html_StdVideoH265SequenceParameterSet(const StdVideoH265SequenceParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH265SpsFlags(object.flags, settings, "StdVideoH265SpsFlags", "flags", indents + 1);
     dump_html_StdVideoH265ChromaFormatIdc(object.chroma_format_idc, settings, "StdVideoH265ChromaFormatIdc", "chroma_format_idc", indents + 1);
     dump_html_uint32_t(object.pic_width_in_luma_samples, settings, "uint32_t", "pic_width_in_luma_samples", indents + 1);
@@ -2989,7 +2862,6 @@ void dump_html_StdVideoH265SequenceParameterSet(const StdVideoH265SequenceParame
 void dump_html_StdVideoH265PpsFlags(const StdVideoH265PpsFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.dependent_slice_segments_enabled_flag, settings, "uint32_t: 1", "dependent_slice_segments_enabled_flag", indents + 1);
     dump_html_uint32_t(object.output_flag_present_flag, settings, "uint32_t: 1", "output_flag_present_flag", indents + 1);
     dump_html_uint32_t(object.sign_data_hiding_enabled_flag, settings, "uint32_t: 1", "sign_data_hiding_enabled_flag", indents + 1);
@@ -3033,7 +2905,6 @@ void dump_html_StdVideoH265PpsFlags(const StdVideoH265PpsFlags* object, const Ap
 void dump_html_StdVideoH265PictureParameterSet(const StdVideoH265PictureParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoH265PpsFlags(object.flags, settings, "StdVideoH265PpsFlags", "flags", indents + 1);
     dump_html_uint8_t(object.pps_pic_parameter_set_id, settings, "uint8_t", "pps_pic_parameter_set_id", indents + 1);
     dump_html_uint8_t(object.pps_seq_parameter_set_id, settings, "uint8_t", "pps_seq_parameter_set_id", indents + 1);
@@ -3110,7 +2981,6 @@ void dump_html_StdVideoH265PictureParameterSet(const StdVideoH265PictureParamete
 void dump_html_StdVideoDecodeH265PictureInfoFlags(const StdVideoDecodeH265PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.IrapPicFlag, settings, "uint32_t: 1", "IrapPicFlag", indents + 1);
     dump_html_uint32_t(object.IdrPicFlag, settings, "uint32_t: 1", "IdrPicFlag", indents + 1);
     dump_html_uint32_t(object.IsReference, settings, "uint32_t: 1", "IsReference", indents + 1);
@@ -3127,7 +2997,6 @@ void dump_html_StdVideoDecodeH265PictureInfoFlags(const StdVideoDecodeH265Pictur
 void dump_html_StdVideoDecodeH265PictureInfo(const StdVideoDecodeH265PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoDecodeH265PictureInfoFlags(object.flags, settings, "StdVideoDecodeH265PictureInfoFlags", "flags", indents + 1);
     dump_html_uint8_t(object.sps_video_parameter_set_id, settings, "uint8_t", "sps_video_parameter_set_id", indents + 1);
     dump_html_uint8_t(object.pps_seq_parameter_set_id, settings, "uint8_t", "pps_seq_parameter_set_id", indents + 1);
@@ -3172,7 +3041,6 @@ void dump_html_StdVideoDecodeH265PictureInfo(const StdVideoDecodeH265PictureInfo
 void dump_html_StdVideoDecodeH265ReferenceInfoFlags(const StdVideoDecodeH265ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.used_for_long_term_reference, settings, "uint32_t: 1", "used_for_long_term_reference", indents + 1);
     dump_html_uint32_t(object.unused_for_reference, settings, "uint32_t: 1", "unused_for_reference", indents + 1);
     dump_html_end(settings, OutputConstruct::api_struct, indents);
@@ -3187,7 +3055,6 @@ void dump_html_StdVideoDecodeH265ReferenceInfoFlags(const StdVideoDecodeH265Refe
 void dump_html_StdVideoDecodeH265ReferenceInfo(const StdVideoDecodeH265ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoDecodeH265ReferenceInfoFlags(object.flags, settings, "StdVideoDecodeH265ReferenceInfoFlags", "flags", indents + 1);
     dump_html_int32_t(object.PicOrderCntVal, settings, "int32_t", "PicOrderCntVal", indents + 1);
     dump_html_end(settings, OutputConstruct::api_struct, indents);
@@ -3202,7 +3069,6 @@ void dump_html_StdVideoDecodeH265ReferenceInfo(const StdVideoDecodeH265Reference
 void dump_html_StdVideoEncodeH265WeightTableFlags(const StdVideoEncodeH265WeightTableFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint16_t(object.luma_weight_l0_flag, settings, "uint16_t", "luma_weight_l0_flag", indents + 1);
     dump_html_uint16_t(object.chroma_weight_l0_flag, settings, "uint16_t", "chroma_weight_l0_flag", indents + 1);
     dump_html_uint16_t(object.luma_weight_l1_flag, settings, "uint16_t", "luma_weight_l1_flag", indents + 1);
@@ -3219,7 +3085,6 @@ void dump_html_StdVideoEncodeH265WeightTableFlags(const StdVideoEncodeH265Weight
 void dump_html_StdVideoEncodeH265WeightTable(const StdVideoEncodeH265WeightTable& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeH265WeightTableFlags(object.flags, settings, "StdVideoEncodeH265WeightTableFlags", "flags", indents + 1);
     dump_html_uint8_t(object.luma_log2_weight_denom, settings, "uint8_t", "luma_log2_weight_denom", indents + 1);
     dump_html_int8_t(object.delta_chroma_log2_weight_denom, settings, "int8_t", "delta_chroma_log2_weight_denom", indents + 1);
@@ -3307,7 +3172,6 @@ void dump_html_StdVideoEncodeH265WeightTable(const StdVideoEncodeH265WeightTable
 void dump_html_StdVideoEncodeH265SliceSegmentHeaderFlags(const StdVideoEncodeH265SliceSegmentHeaderFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.first_slice_segment_in_pic_flag, settings, "uint32_t: 1", "first_slice_segment_in_pic_flag", indents + 1);
     dump_html_uint32_t(object.dependent_slice_segment_flag, settings, "uint32_t: 1", "dependent_slice_segment_flag", indents + 1);
     dump_html_uint32_t(object.slice_sao_luma_flag, settings, "uint32_t: 1", "slice_sao_luma_flag", indents + 1);
@@ -3333,7 +3197,6 @@ void dump_html_StdVideoEncodeH265SliceSegmentHeaderFlags(const StdVideoEncodeH26
 void dump_html_StdVideoEncodeH265SliceSegmentHeader(const StdVideoEncodeH265SliceSegmentHeader& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeH265SliceSegmentHeaderFlags(object.flags, settings, "StdVideoEncodeH265SliceSegmentHeaderFlags", "flags", indents + 1);
     dump_html_StdVideoH265SliceType(object.slice_type, settings, "StdVideoH265SliceType", "slice_type", indents + 1);
     dump_html_uint32_t(object.slice_segment_address, settings, "uint32_t", "slice_segment_address", indents + 1);
@@ -3361,7 +3224,6 @@ void dump_html_StdVideoEncodeH265SliceSegmentHeader(const StdVideoEncodeH265Slic
 void dump_html_StdVideoEncodeH265ReferenceListsInfoFlags(const StdVideoEncodeH265ReferenceListsInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.ref_pic_list_modification_flag_l0, settings, "uint32_t: 1", "ref_pic_list_modification_flag_l0", indents + 1);
     dump_html_uint32_t(object.ref_pic_list_modification_flag_l1, settings, "uint32_t: 1", "ref_pic_list_modification_flag_l1", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 1);
@@ -3377,7 +3239,6 @@ void dump_html_StdVideoEncodeH265ReferenceListsInfoFlags(const StdVideoEncodeH26
 void dump_html_StdVideoEncodeH265ReferenceListsInfo(const StdVideoEncodeH265ReferenceListsInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeH265ReferenceListsInfoFlags(object.flags, settings, "StdVideoEncodeH265ReferenceListsInfoFlags", "flags", indents + 1);
     dump_html_uint8_t(object.num_ref_idx_l0_active_minus1, settings, "uint8_t", "num_ref_idx_l0_active_minus1", indents + 1);
     dump_html_uint8_t(object.num_ref_idx_l1_active_minus1, settings, "uint8_t", "num_ref_idx_l1_active_minus1", indents + 1);
@@ -3425,7 +3286,6 @@ void dump_html_StdVideoEncodeH265ReferenceListsInfo(const StdVideoEncodeH265Refe
 void dump_html_StdVideoEncodeH265PictureInfoFlags(const StdVideoEncodeH265PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.is_reference, settings, "uint32_t: 1", "is_reference", indents + 1);
     dump_html_uint32_t(object.IrapPicFlag, settings, "uint32_t: 1", "IrapPicFlag", indents + 1);
     dump_html_uint32_t(object.used_for_long_term_reference, settings, "uint32_t: 1", "used_for_long_term_reference", indents + 1);
@@ -3448,7 +3308,6 @@ void dump_html_StdVideoEncodeH265PictureInfoFlags(const StdVideoEncodeH265Pictur
 void dump_html_StdVideoEncodeH265LongTermRefPics(const StdVideoEncodeH265LongTermRefPics& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint8_t(object.num_long_term_sps, settings, "uint8_t", "num_long_term_sps", indents + 1);
     dump_html_uint8_t(object.num_long_term_pics, settings, "uint8_t", "num_long_term_pics", indents + 1);
     dump_html_array_start(object.lt_idx_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "lt_idx_sps", indents + 1);
@@ -3496,7 +3355,6 @@ void dump_html_StdVideoEncodeH265LongTermRefPics(const StdVideoEncodeH265LongTer
 void dump_html_StdVideoEncodeH265PictureInfo(const StdVideoEncodeH265PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeH265PictureInfoFlags(object.flags, settings, "StdVideoEncodeH265PictureInfoFlags", "flags", indents + 1);
     dump_html_StdVideoH265PictureType(object.pic_type, settings, "StdVideoH265PictureType", "pic_type", indents + 1);
     dump_html_uint8_t(object.sps_video_parameter_set_id, settings, "uint8_t", "sps_video_parameter_set_id", indents + 1);
@@ -3528,7 +3386,6 @@ void dump_html_StdVideoEncodeH265PictureInfo(const StdVideoEncodeH265PictureInfo
 void dump_html_StdVideoEncodeH265ReferenceInfoFlags(const StdVideoEncodeH265ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.used_for_long_term_reference, settings, "uint32_t: 1", "used_for_long_term_reference", indents + 1);
     dump_html_uint32_t(object.unused_for_reference, settings, "uint32_t: 1", "unused_for_reference", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 1);
@@ -3544,7 +3401,6 @@ void dump_html_StdVideoEncodeH265ReferenceInfoFlags(const StdVideoEncodeH265Refe
 void dump_html_StdVideoEncodeH265ReferenceInfo(const StdVideoEncodeH265ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeH265ReferenceInfoFlags(object.flags, settings, "StdVideoEncodeH265ReferenceInfoFlags", "flags", indents + 1);
     dump_html_StdVideoH265PictureType(object.pic_type, settings, "StdVideoH265PictureType", "pic_type", indents + 1);
     dump_html_int32_t(object.PicOrderCntVal, settings, "int32_t", "PicOrderCntVal", indents + 1);
@@ -3561,7 +3417,6 @@ void dump_html_StdVideoEncodeH265ReferenceInfo(const StdVideoEncodeH265Reference
 void dump_html_StdVideoAV1ColorConfigFlags(const StdVideoAV1ColorConfigFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.mono_chrome, settings, "uint32_t: 1", "mono_chrome", indents + 1);
     dump_html_uint32_t(object.color_range, settings, "uint32_t: 1", "color_range", indents + 1);
     dump_html_uint32_t(object.separate_uv_delta_q, settings, "uint32_t: 1", "separate_uv_delta_q", indents + 1);
@@ -3579,7 +3434,6 @@ void dump_html_StdVideoAV1ColorConfigFlags(const StdVideoAV1ColorConfigFlags* ob
 void dump_html_StdVideoAV1ColorConfig(const StdVideoAV1ColorConfig& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoAV1ColorConfigFlags(object.flags, settings, "StdVideoAV1ColorConfigFlags", "flags", indents + 1);
     dump_html_uint8_t(object.BitDepth, settings, "uint8_t", "BitDepth", indents + 1);
     dump_html_uint8_t(object.subsampling_x, settings, "uint8_t", "subsampling_x", indents + 1);
@@ -3601,7 +3455,6 @@ void dump_html_StdVideoAV1ColorConfig(const StdVideoAV1ColorConfig* object, cons
 void dump_html_StdVideoAV1TimingInfoFlags(const StdVideoAV1TimingInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.equal_picture_interval, settings, "uint32_t: 1", "equal_picture_interval", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 31", "reserved", indents + 1);
     dump_html_end(settings, OutputConstruct::api_struct, indents);
@@ -3616,7 +3469,6 @@ void dump_html_StdVideoAV1TimingInfoFlags(const StdVideoAV1TimingInfoFlags* obje
 void dump_html_StdVideoAV1TimingInfo(const StdVideoAV1TimingInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoAV1TimingInfoFlags(object.flags, settings, "StdVideoAV1TimingInfoFlags", "flags", indents + 1);
     dump_html_uint32_t(object.num_units_in_display_tick, settings, "uint32_t", "num_units_in_display_tick", indents + 1);
     dump_html_uint32_t(object.time_scale, settings, "uint32_t", "time_scale", indents + 1);
@@ -3633,7 +3485,6 @@ void dump_html_StdVideoAV1TimingInfo(const StdVideoAV1TimingInfo* object, const 
 void dump_html_StdVideoAV1LoopFilterFlags(const StdVideoAV1LoopFilterFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.loop_filter_delta_enabled, settings, "uint32_t: 1", "loop_filter_delta_enabled", indents + 1);
     dump_html_uint32_t(object.loop_filter_delta_update, settings, "uint32_t: 1", "loop_filter_delta_update", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 1);
@@ -3649,7 +3500,6 @@ void dump_html_StdVideoAV1LoopFilterFlags(const StdVideoAV1LoopFilterFlags* obje
 void dump_html_StdVideoAV1LoopFilter(const StdVideoAV1LoopFilter& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoAV1LoopFilterFlags(object.flags, settings, "StdVideoAV1LoopFilterFlags", "flags", indents + 1);
     dump_html_array_start(object.loop_filter_level, STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS]", "loop_filter_level", indents + 1);
     for (size_t i = 0; i < STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS; ++i) {
@@ -3690,7 +3540,6 @@ void dump_html_StdVideoAV1LoopFilter(const StdVideoAV1LoopFilter* object, const 
 void dump_html_StdVideoAV1QuantizationFlags(const StdVideoAV1QuantizationFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.using_qmatrix, settings, "uint32_t: 1", "using_qmatrix", indents + 1);
     dump_html_uint32_t(object.diff_uv_delta, settings, "uint32_t: 1", "diff_uv_delta", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 1);
@@ -3706,7 +3555,6 @@ void dump_html_StdVideoAV1QuantizationFlags(const StdVideoAV1QuantizationFlags* 
 void dump_html_StdVideoAV1Quantization(const StdVideoAV1Quantization& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoAV1QuantizationFlags(object.flags, settings, "StdVideoAV1QuantizationFlags", "flags", indents + 1);
     dump_html_uint8_t(object.base_q_idx, settings, "uint8_t", "base_q_idx", indents + 1);
     dump_html_int8_t(object.DeltaQYDc, settings, "int8_t", "DeltaQYDc", indents + 1);
@@ -3729,7 +3577,6 @@ void dump_html_StdVideoAV1Quantization(const StdVideoAV1Quantization* object, co
 void dump_html_StdVideoAV1Segmentation(const StdVideoAV1Segmentation& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_array_start(object.FeatureEnabled, STD_VIDEO_AV1_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "FeatureEnabled", indents + 1);
     for (size_t i = 0; i < STD_VIDEO_AV1_MAX_SEGMENTS; ++i) {
         std::stringstream stream;
@@ -3760,7 +3607,6 @@ void dump_html_StdVideoAV1Segmentation(const StdVideoAV1Segmentation* object, co
 void dump_html_StdVideoAV1TileInfoFlags(const StdVideoAV1TileInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.uniform_tile_spacing_flag, settings, "uint32_t: 1", "uniform_tile_spacing_flag", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 31", "reserved", indents + 1);
     dump_html_end(settings, OutputConstruct::api_struct, indents);
@@ -3775,7 +3621,6 @@ void dump_html_StdVideoAV1TileInfoFlags(const StdVideoAV1TileInfoFlags* object, 
 void dump_html_StdVideoAV1TileInfo(const StdVideoAV1TileInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoAV1TileInfoFlags(object.flags, settings, "StdVideoAV1TileInfoFlags", "flags", indents + 1);
     dump_html_uint8_t(object.TileCols, settings, "uint8_t", "TileCols", indents + 1);
     dump_html_uint8_t(object.TileRows, settings, "uint8_t", "TileRows", indents + 1);
@@ -3805,7 +3650,6 @@ void dump_html_StdVideoAV1TileInfo(const StdVideoAV1TileInfo* object, const ApiD
 void dump_html_StdVideoAV1CDEF(const StdVideoAV1CDEF& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint8_t(object.cdef_damping_minus_3, settings, "uint8_t", "cdef_damping_minus_3", indents + 1);
     dump_html_uint8_t(object.cdef_bits, settings, "uint8_t", "cdef_bits", indents + 1);
     dump_html_array_start(object.cdef_y_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_y_pri_strength", indents + 1);
@@ -3852,7 +3696,6 @@ void dump_html_StdVideoAV1CDEF(const StdVideoAV1CDEF* object, const ApiDumpSetti
 void dump_html_StdVideoAV1LoopRestoration(const StdVideoAV1LoopRestoration& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_array_start(object.FrameRestorationType, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "StdVideoAV1FrameRestorationType[STD_VIDEO_AV1_MAX_NUM_PLANES]", "FrameRestorationType", indents + 1);
     for (size_t i = 0; i < STD_VIDEO_AV1_MAX_NUM_PLANES; ++i) {
         std::stringstream stream;
@@ -3881,7 +3724,6 @@ void dump_html_StdVideoAV1LoopRestoration(const StdVideoAV1LoopRestoration* obje
 void dump_html_StdVideoAV1GlobalMotion(const StdVideoAV1GlobalMotion& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_array_start(object.GmType, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "GmType", indents + 1);
     for (size_t i = 0; i < STD_VIDEO_AV1_NUM_REF_FRAMES; ++i) {
         std::stringstream stream;
@@ -3912,7 +3754,6 @@ void dump_html_StdVideoAV1GlobalMotion(const StdVideoAV1GlobalMotion* object, co
 void dump_html_StdVideoAV1FilmGrainFlags(const StdVideoAV1FilmGrainFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.chroma_scaling_from_luma, settings, "uint32_t: 1", "chroma_scaling_from_luma", indents + 1);
     dump_html_uint32_t(object.overlap_flag, settings, "uint32_t: 1", "overlap_flag", indents + 1);
     dump_html_uint32_t(object.clip_to_restricted_range, settings, "uint32_t: 1", "clip_to_restricted_range", indents + 1);
@@ -3930,7 +3771,6 @@ void dump_html_StdVideoAV1FilmGrainFlags(const StdVideoAV1FilmGrainFlags* object
 void dump_html_StdVideoAV1FilmGrain(const StdVideoAV1FilmGrain& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoAV1FilmGrainFlags(object.flags, settings, "StdVideoAV1FilmGrainFlags", "flags", indents + 1);
     dump_html_uint8_t(object.grain_scaling_minus_8, settings, "uint8_t", "grain_scaling_minus_8", indents + 1);
     dump_html_uint8_t(object.ar_coeff_lag, settings, "uint8_t", "ar_coeff_lag", indents + 1);
@@ -4031,7 +3871,6 @@ void dump_html_StdVideoAV1FilmGrain(const StdVideoAV1FilmGrain* object, const Ap
 void dump_html_StdVideoAV1SequenceHeaderFlags(const StdVideoAV1SequenceHeaderFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.still_picture, settings, "uint32_t: 1", "still_picture", indents + 1);
     dump_html_uint32_t(object.reduced_still_picture_header, settings, "uint32_t: 1", "reduced_still_picture_header", indents + 1);
     dump_html_uint32_t(object.use_128x128_superblock, settings, "uint32_t: 1", "use_128x128_superblock", indents + 1);
@@ -4064,7 +3903,6 @@ void dump_html_StdVideoAV1SequenceHeaderFlags(const StdVideoAV1SequenceHeaderFla
 void dump_html_StdVideoAV1SequenceHeader(const StdVideoAV1SequenceHeader& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoAV1SequenceHeaderFlags(object.flags, settings, "StdVideoAV1SequenceHeaderFlags", "flags", indents + 1);
     dump_html_StdVideoAV1Profile(object.seq_profile, settings, "StdVideoAV1Profile", "seq_profile", indents + 1);
     dump_html_uint8_t(object.frame_width_bits_minus_1, settings, "uint8_t", "frame_width_bits_minus_1", indents + 1);
@@ -4098,7 +3936,6 @@ void dump_html_StdVideoAV1SequenceHeader(const StdVideoAV1SequenceHeader* object
 void dump_html_StdVideoDecodeAV1PictureInfoFlags(const StdVideoDecodeAV1PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.error_resilient_mode, settings, "uint32_t: 1", "error_resilient_mode", indents + 1);
     dump_html_uint32_t(object.disable_cdf_update, settings, "uint32_t: 1", "disable_cdf_update", indents + 1);
     dump_html_uint32_t(object.use_superres, settings, "uint32_t: 1", "use_superres", indents + 1);
@@ -4141,7 +3978,6 @@ void dump_html_StdVideoDecodeAV1PictureInfoFlags(const StdVideoDecodeAV1PictureI
 void dump_html_StdVideoDecodeAV1PictureInfo(const StdVideoDecodeAV1PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoDecodeAV1PictureInfoFlags(object.flags, settings, "StdVideoDecodeAV1PictureInfoFlags", "flags", indents + 1);
     dump_html_StdVideoAV1FrameType(object.frame_type, settings, "StdVideoAV1FrameType", "frame_type", indents + 1);
     dump_html_uint32_t(object.current_frame_id, settings, "uint32_t", "current_frame_id", indents + 1);
@@ -4206,7 +4042,6 @@ void dump_html_StdVideoDecodeAV1PictureInfo(const StdVideoDecodeAV1PictureInfo* 
 void dump_html_StdVideoDecodeAV1ReferenceInfoFlags(const StdVideoDecodeAV1ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.disable_frame_end_update_cdf, settings, "uint32_t: 1", "disable_frame_end_update_cdf", indents + 1);
     dump_html_uint32_t(object.segmentation_enabled, settings, "uint32_t: 1", "segmentation_enabled", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 1);
@@ -4222,7 +4057,6 @@ void dump_html_StdVideoDecodeAV1ReferenceInfoFlags(const StdVideoDecodeAV1Refere
 void dump_html_StdVideoDecodeAV1ReferenceInfo(const StdVideoDecodeAV1ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoDecodeAV1ReferenceInfoFlags(object.flags, settings, "StdVideoDecodeAV1ReferenceInfoFlags", "flags", indents + 1);
     dump_html_uint8_t(object.frame_type, settings, "uint8_t", "frame_type", indents + 1);
     dump_html_uint8_t(object.RefFrameSignBias, settings, "uint8_t", "RefFrameSignBias", indents + 1);
@@ -4247,7 +4081,6 @@ void dump_html_StdVideoDecodeAV1ReferenceInfo(const StdVideoDecodeAV1ReferenceIn
 void dump_html_StdVideoEncodeAV1DecoderModelInfo(const StdVideoEncodeAV1DecoderModelInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint8_t(object.buffer_delay_length_minus_1, settings, "uint8_t", "buffer_delay_length_minus_1", indents + 1);
     dump_html_uint8_t(object.buffer_removal_time_length_minus_1, settings, "uint8_t", "buffer_removal_time_length_minus_1", indents + 1);
     dump_html_uint8_t(object.frame_presentation_time_length_minus_1, settings, "uint8_t", "frame_presentation_time_length_minus_1", indents + 1);
@@ -4265,7 +4098,6 @@ void dump_html_StdVideoEncodeAV1DecoderModelInfo(const StdVideoEncodeAV1DecoderM
 void dump_html_StdVideoEncodeAV1ExtensionHeader(const StdVideoEncodeAV1ExtensionHeader& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint8_t(object.temporal_id, settings, "uint8_t", "temporal_id", indents + 1);
     dump_html_uint8_t(object.spatial_id, settings, "uint8_t", "spatial_id", indents + 1);
     dump_html_end(settings, OutputConstruct::api_struct, indents);
@@ -4280,7 +4112,6 @@ void dump_html_StdVideoEncodeAV1ExtensionHeader(const StdVideoEncodeAV1Extension
 void dump_html_StdVideoEncodeAV1OperatingPointInfoFlags(const StdVideoEncodeAV1OperatingPointInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.decoder_model_present_for_this_op, settings, "uint32_t: 1", "decoder_model_present_for_this_op", indents + 1);
     dump_html_uint32_t(object.low_delay_mode_flag, settings, "uint32_t: 1", "low_delay_mode_flag", indents + 1);
     dump_html_uint32_t(object.initial_display_delay_present_for_this_op, settings, "uint32_t: 1", "initial_display_delay_present_for_this_op", indents + 1);
@@ -4297,7 +4128,6 @@ void dump_html_StdVideoEncodeAV1OperatingPointInfoFlags(const StdVideoEncodeAV1O
 void dump_html_StdVideoEncodeAV1OperatingPointInfo(const StdVideoEncodeAV1OperatingPointInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeAV1OperatingPointInfoFlags(object.flags, settings, "StdVideoEncodeAV1OperatingPointInfoFlags", "flags", indents + 1);
     dump_html_uint16_t(object.operating_point_idc, settings, "uint16_t", "operating_point_idc", indents + 1);
     dump_html_uint8_t(object.seq_level_idx, settings, "uint8_t", "seq_level_idx", indents + 1);
@@ -4317,7 +4147,6 @@ void dump_html_StdVideoEncodeAV1OperatingPointInfo(const StdVideoEncodeAV1Operat
 void dump_html_StdVideoEncodeAV1PictureInfoFlags(const StdVideoEncodeAV1PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.error_resilient_mode, settings, "uint32_t: 1", "error_resilient_mode", indents + 1);
     dump_html_uint32_t(object.disable_cdf_update, settings, "uint32_t: 1", "disable_cdf_update", indents + 1);
     dump_html_uint32_t(object.use_superres, settings, "uint32_t: 1", "use_superres", indents + 1);
@@ -4360,7 +4189,6 @@ void dump_html_StdVideoEncodeAV1PictureInfoFlags(const StdVideoEncodeAV1PictureI
 void dump_html_StdVideoEncodeAV1PictureInfo(const StdVideoEncodeAV1PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeAV1PictureInfoFlags(object.flags, settings, "StdVideoEncodeAV1PictureInfoFlags", "flags", indents + 1);
     dump_html_StdVideoAV1FrameType(object.frame_type, settings, "StdVideoAV1FrameType", "frame_type", indents + 1);
     dump_html_uint32_t(object.frame_presentation_time, settings, "uint32_t", "frame_presentation_time", indents + 1);
@@ -4428,7 +4256,6 @@ void dump_html_StdVideoEncodeAV1PictureInfo(const StdVideoEncodeAV1PictureInfo* 
 void dump_html_StdVideoEncodeAV1ReferenceInfoFlags(const StdVideoEncodeAV1ReferenceInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.disable_frame_end_update_cdf, settings, "uint32_t: 1", "disable_frame_end_update_cdf", indents + 1);
     dump_html_uint32_t(object.segmentation_enabled, settings, "uint32_t: 1", "segmentation_enabled", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 1);
@@ -4444,7 +4271,6 @@ void dump_html_StdVideoEncodeAV1ReferenceInfoFlags(const StdVideoEncodeAV1Refere
 void dump_html_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoEncodeAV1ReferenceInfoFlags(object.flags, settings, "StdVideoEncodeAV1ReferenceInfoFlags", "flags", indents + 1);
     dump_html_uint32_t(object.RefFrameId, settings, "uint32_t", "RefFrameId", indents + 1);
     dump_html_StdVideoAV1FrameType(object.frame_type, settings, "StdVideoAV1FrameType", "frame_type", indents + 1);
@@ -4470,7 +4296,6 @@ void dump_html_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceIn
 void dump_html_StdVideoVP9ColorConfigFlags(const StdVideoVP9ColorConfigFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.color_range, settings, "uint32_t: 1", "color_range", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 31", "reserved", indents + 1);
     dump_html_end(settings, OutputConstruct::api_struct, indents);
@@ -4485,7 +4310,6 @@ void dump_html_StdVideoVP9ColorConfigFlags(const StdVideoVP9ColorConfigFlags* ob
 void dump_html_StdVideoVP9ColorConfig(const StdVideoVP9ColorConfig& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoVP9ColorConfigFlags(object.flags, settings, "StdVideoVP9ColorConfigFlags", "flags", indents + 1);
     dump_html_uint8_t(object.BitDepth, settings, "uint8_t", "BitDepth", indents + 1);
     dump_html_uint8_t(object.subsampling_x, settings, "uint8_t", "subsampling_x", indents + 1);
@@ -4504,7 +4328,6 @@ void dump_html_StdVideoVP9ColorConfig(const StdVideoVP9ColorConfig* object, cons
 void dump_html_StdVideoVP9LoopFilterFlags(const StdVideoVP9LoopFilterFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.loop_filter_delta_enabled, settings, "uint32_t: 1", "loop_filter_delta_enabled", indents + 1);
     dump_html_uint32_t(object.loop_filter_delta_update, settings, "uint32_t: 1", "loop_filter_delta_update", indents + 1);
     dump_html_uint32_t(object.reserved, settings, "uint32_t: 30", "reserved", indents + 1);
@@ -4520,7 +4343,6 @@ void dump_html_StdVideoVP9LoopFilterFlags(const StdVideoVP9LoopFilterFlags* obje
 void dump_html_StdVideoVP9LoopFilter(const StdVideoVP9LoopFilter& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoVP9LoopFilterFlags(object.flags, settings, "StdVideoVP9LoopFilterFlags", "flags", indents + 1);
     dump_html_uint8_t(object.loop_filter_level, settings, "uint8_t", "loop_filter_level", indents + 1);
     dump_html_uint8_t(object.loop_filter_sharpness, settings, "uint8_t", "loop_filter_sharpness", indents + 1);
@@ -4554,7 +4376,6 @@ void dump_html_StdVideoVP9LoopFilter(const StdVideoVP9LoopFilter* object, const 
 void dump_html_StdVideoVP9SegmentationFlags(const StdVideoVP9SegmentationFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.segmentation_update_map, settings, "uint32_t: 1", "segmentation_update_map", indents + 1);
     dump_html_uint32_t(object.segmentation_temporal_update, settings, "uint32_t: 1", "segmentation_temporal_update", indents + 1);
     dump_html_uint32_t(object.segmentation_update_data, settings, "uint32_t: 1", "segmentation_update_data", indents + 1);
@@ -4572,7 +4393,6 @@ void dump_html_StdVideoVP9SegmentationFlags(const StdVideoVP9SegmentationFlags* 
 void dump_html_StdVideoVP9Segmentation(const StdVideoVP9Segmentation& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoVP9SegmentationFlags(object.flags, settings, "StdVideoVP9SegmentationFlags", "flags", indents + 1);
     dump_html_array_start(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS]", "segmentation_tree_probs", indents + 1);
     for (size_t i = 0; i < STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS; ++i) {
@@ -4620,7 +4440,6 @@ void dump_html_StdVideoVP9Segmentation(const StdVideoVP9Segmentation* object, co
 void dump_html_StdVideoDecodeVP9PictureInfoFlags(const StdVideoDecodeVP9PictureInfoFlags& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_uint32_t(object.error_resilient_mode, settings, "uint32_t: 1", "error_resilient_mode", indents + 1);
     dump_html_uint32_t(object.intra_only, settings, "uint32_t: 1", "intra_only", indents + 1);
     dump_html_uint32_t(object.allow_high_precision_mv, settings, "uint32_t: 1", "allow_high_precision_mv", indents + 1);
@@ -4642,7 +4461,6 @@ void dump_html_StdVideoDecodeVP9PictureInfoFlags(const StdVideoDecodeVP9PictureI
 void dump_html_StdVideoDecodeVP9PictureInfo(const StdVideoDecodeVP9PictureInfo& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)
 {
     dump_html_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_html_struct_summary(settings, static_cast<const void*>(&object));
     dump_html_StdVideoDecodeVP9PictureInfoFlags(object.flags, settings, "StdVideoDecodeVP9PictureInfoFlags", "flags", indents + 1);
     dump_html_StdVideoVP9Profile(object.profile, settings, "StdVideoVP9Profile", "profile", indents + 1);
     dump_html_StdVideoVP9FrameType(object.frame_type, settings, "StdVideoVP9FrameType", "frame_type", indents + 1);
