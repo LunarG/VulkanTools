@@ -769,8 +769,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write_basetype_contents(output_format)
             self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
-            if not basetype.name in POINTER_TYPES:
-                self.write_pointer_overload(output_format, basetype.name)
+            self.write_pointer_overload(output_format, basetype.name)
             if basetype.protect:
                 self.write(f'#endif // {basetype.protect}')
 
@@ -808,32 +807,17 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write(f'void dump_{output_format}_{handle.name}(const {handle.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
                 self.write('{')
                 self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-                if output_format == 'text':
-                    self.write('''    if(settings.showAddress()) {
-        settings.stream() << object;
-
-        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
-        if (it != ApiDumpInstance::current().object_name_map.end()) {
-            settings.stream() << " [" << it->second << "]";
-        }
-    } else {
-        settings.stream() << "address";
-    }''')
-
-                if output_format == 'html':
-                    self.write('''    settings.stream() << "<div class=\'val\'>";
-    if(settings.showAddress()) {
-        settings.stream() << object;
-
-        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
-        if (it != ApiDumpInstance::current().object_name_map.end()) {
-            settings.stream() << "</div><div class=\'val\'>[" << it->second << "]";
-        }
-    } else {
-        settings.stream() << "address";
-    }
-    settings.stream() << "</div>";''')
-
+                if output_format in ['text', 'html']:
+                    self.write('    if(settings.showAddress()) {')
+                    self.write('        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);')
+                    self.write('        if (it != ApiDumpInstance::current().object_name_map.end()) {')
+                    self.write(f'            dump_{output_format}_value(settings, object, " [", it->second, "]");')
+                    self.write('        } else {')
+                    self.write(f'            dump_{output_format}_value(settings, object);')
+                    self.write('        }')
+                    self.write('    } else {')
+                    self.write(f'       dump_{output_format}_value(settings, "address");')
+                    self.write('    }')
                 if output_format == 'json':
                     self.write('    dump_json_handle(settings, object);')
                 self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
@@ -874,26 +858,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write(f'void dump_{output_format}_{bitmask.name}(const {bitmask.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
             self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-            if output_format == 'html':
-                self.write('    settings.stream() << "<div class=\'val\'>";')
-            self.write('    bool is_first = true;')
-            if output_format in ['text', 'html']:
-                self.write('    settings.stream() << object;')
-            if output_format == 'json':
-                self.write('    settings.stream() << " \\"" << object;')
-            for field in bitmask.flags:
-                self.write(f'    if(object {"==" if  field.zero or field.multiBit else "&"} {field.valueStr if field.multiBit else field.value}) {{')
-                self.write(f'        settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
-                self.write('    }')
-            self.write('    if(!is_first)')
-            if output_format in ['text', 'html']:
-                self.write('        settings.stream() << ")";')
-            if output_format == 'json':
-                self.write('        settings.stream() << \')\';')
-            if output_format == 'html':
-                self.write('    settings.stream() << "</div>";')
-            if output_format == 'json':
-                self.write('    settings.stream() << "\\"";')
+            self.write_bitmask_constents(output_format, bitmask)
             self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, bitmask.name)
@@ -910,12 +875,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write(f'    dump_{output_format}_{flag.bitmaskName}(static_cast<{flag.bitmaskName}>(object), settings, type_name, var_name, indents, address);')
             else:
                 self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-                if output_format == 'text':
-                    self.write('    settings.stream() << std::to_string(object).c_str();')
-                if output_format == 'html':
-                    self.write('    settings.stream() << "<div class=\'val\'>" << std::to_string(object).c_str() << "</div>";')
-                if output_format == 'json':
-                    self.write('    dump_json_value(settings, object);')
+                self.write(f'    dump_{output_format}_value(settings, object);')
                 self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, flag.name)
@@ -928,18 +888,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write(f'void dump_{output_format}_{funcpointer.name}(const {funcpointer.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
             self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-            if output_format == 'html':
-                self.write('    settings.stream() << "<div class=\'val\'>";')
-            if output_format in ['text', 'html']:
-                self.write('    if(settings.showAddress())')
-                self.write('        settings.stream() << object;')
-                self.write('    else')
-                self.write('        settings.stream() << "address";')
-            if output_format == 'html':
-                self.write('    settings.stream() << "</div>";')
-
-            if output_format == 'json':
-                self.write('    dump_json_handle(settings, object);')
+            self.write(f'    dump_{output_format}_handle(settings, object);')
             self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, funcpointer.name)
@@ -973,10 +922,6 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write(f'void dump_{output_format}_{struct.name}(const {struct.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
             self.write(f'    dump_{output_format}_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);')
-            if output_format in ['text', 'html']:
-                self.write(f'    dump_{output_format}_struct_summary(settings, static_cast<const void*>(&object));')
-            if output_format == 'json':
-                self.write('    dump_json_start_array(settings, indents + 1);')
 
             for member in struct.members:
                 validity_check = self.get_validity_check(member, struct)
@@ -995,7 +940,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 validity_check = self.get_validity_check(member, struct)
                 if output_format == 'json':
                     if member != struct.members[0]:
-                        self.write('    settings.stream() << ",\\n";')
+                        self.write('    dump_json_comma_and_newline(settings);')
 
                 if validity_check is not None:
                     self.write(f'    if({validity_check}) {{')
@@ -1015,11 +960,8 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             if output_format == 'text':
                 for member in struct.members:
                     if member.pointer and member.name == 'pNext' and struct.name not in ['VkBaseInStructure', 'VkBaseOutStructure']:
-                        self.write('    if(object.pNext != nullptr) {')
-                        self.write(f'        dump_text_pNext_trampoline(object.pNext, settings, "{member.fullType}", "{member.type}", indents < 2 ? indents + {json_indent} : indents);')
-                        self.write('    }')
-            if output_format == 'json':
-                self.write('    dump_json_newline_end_array(settings, indents + 1);')
+                        self.write(f'    dump_text_pNext_trampoline(object.pNext, settings, "{member.fullType}", "{member.type}", indents < 2 ? indents + {json_indent} : indents);')
+
             self.write(f'    dump_{output_format}_end(settings, OutputConstruct::api_struct, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, struct.name)
@@ -1035,16 +977,11 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write('{')
             self.write(f'    dump_{output_format}_start(settings, OutputConstruct::api_union, type_name, var_name, indents, address);')
 
-            if output_format in ['text', 'html']:
-                self.write(f'    dump_{output_format}_union_summary(settings, static_cast<const void*>(&object));')
-            if output_format == 'json':
-                self.write('    dump_json_start_array(settings, indents + 1);')
-
             for member in union.members:
                 validity_check = self.get_validity_check(member, union)
                 if output_format == 'json':
                     if member != union.members[0] and validity_check is None:
-                        self.write('    settings.stream() << ",\\n"; // Only need commas when more than one field is printed')
+                        self.write('    dump_json_comma_and_newline(settings);')
 
                 if validity_check is not None:
                     self.write(f'    if({validity_check}) {{')
@@ -1054,8 +991,6 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 if validity_check is not None:
                     self.write('    }')
 
-            if output_format == 'json':
-                self.write('    dump_json_newline_end_array(settings, indents + 1);')
             self.write(f'    dump_{output_format}_end(settings, OutputConstruct::api_union, indents);')
 
             self.write('}')
@@ -1079,7 +1014,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     if struct.sType is not None:
                         self.write(f'        case {struct.sType}:')
                         self.write(f'            dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents);')
-                        self.write(f'            settings.stream() << "{struct.name}";')
+                        self.write(f'            dump_{output_format}_value(settings, "{struct.name}");')
                         self.write(f'            dump_{output_format}_end(settings, OutputConstruct::value, indents);')
                         self.write('            break;')
                     if struct.protect:
@@ -1088,7 +1023,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write('        case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
                 self.write('        default:')
                 self.write(f'            dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents);')
-                self.write('            settings.stream() << "NULL";')
+                self.write(f'            dump_{output_format}_value(settings, "NULL");')
                 self.write(f'            dump_{output_format}_end(settings, OutputConstruct::value, indents);')
                 self.write('            break;')
                 self.write('    }')
@@ -1096,6 +1031,11 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
             self.write(f'void dump_{output_format}_pNext_trampoline(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents)')
             self.write('{')
+            self.write('    if (object == NULL) {')
+            if output_format in ['html', 'json']:
+                self.write(f'        dump_{output_format}_nullptr(settings, type_name, var_name, indents);')
+            self.write('        return;')
+            self.write('    }')
             self.write('    VkBaseInStructure base_struct{};')
             self.write('    memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
             self.write('    switch(base_struct.sType) {')
@@ -1104,7 +1044,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     self.write(f'#if defined({struct.protect})')
                 if struct.sType is not None:
                     self.write(f'    case {struct.sType}:')
-                    self.write(f'        dump_{output_format}_{struct.name}(*reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}*", "pNext", indents, reinterpret_cast<const {struct.name}*>(object));')
+                    self.write(f'        dump_{output_format}_{struct.name}(*reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}{"*" if output_format == "json" else ""}", "pNext", indents, reinterpret_cast<const {struct.name}*>(object));')
                     self.write('        break;')
                 if struct.protect:
                     self.write(f'#endif // {struct.protect}')
@@ -1114,37 +1054,14 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write('        if(base_struct.pNext != nullptr){')
             self.write(f'            dump_{output_format}_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, type_name, var_name, indents);')
             self.write('        } else {')
-            if output_format == 'text':
-                self.write('            settings.formatNameType(indents, "pNext", "const void*");')
-                self.write('            settings.stream() << "NULL\\n";')
-                self.write('        }')
-                self.write('        break;')
-                self.write('    default:')
-                self.write('        settings.formatNameType(indents, "pNext", "const void*");')
-                self.write('        settings.stream() << "UNKNOWN (" << (int64_t) (base_struct.sType) << ")\\n";')
-                self.write('    }')
-            if output_format == 'html':
-                self.write('            settings.stream() << "<details class=\'data\'><summary>";')
-                self.write('            dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");')
-                self.write('            settings.stream() << "<div class=\'val\'> NULL</div></summary></details>";')
-                self.write('        }')
-                self.write('        break;')
-                self.write('    default:')
-                self.write('        settings.stream() << "<details class=\'data\'><summary>";')
-                self.write('        dump_html_nametype(settings.stream(), settings.showType(), "pNext", "const void*");')
-                self.write('        settings.stream() << "<div class=\'val\'>UNKNOWN (" << (int64_t) (base_struct.sType) <<")</div></summary></details>";')
-                self.write('    }')
-            if output_format == 'json':
-                self.write('            dump_json_start(settings, OutputConstruct::value, "const void*", "pNext", indents);')
-                self.write('            dump_json_value(settings, "NULL");')
-                self.write('            dump_json_end(settings, OutputConstruct::value, indents);')
-                self.write('        }')
-                self.write('        break;')
-                self.write('    default:')
-                self.write('        dump_json_start(settings, OutputConstruct::value, "const void*", "pNext", indents);')
-                self.write('        dump_json_value(settings, "UNKNOWN (", (int64_t) (base_struct.sType), ")");')
-                self.write('        dump_json_end(settings, OutputConstruct::value, indents);')
-                self.write('    }')
+            self.write(f'            dump_{output_format}_nullptr(settings, "const void*", "pNext", indents);')
+            self.write('        }')
+            self.write('        break;')
+            self.write('    default:')
+            self.write(f'        dump_{output_format}_start(settings, OutputConstruct::value, "const void*", "pNext", indents);')
+            self.write(f'        dump_{output_format}_value(settings, "UNKNOWN (", (int64_t) (base_struct.sType), ")");')
+            self.write(f'        dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+            self.write('    }')
             self.write('}')
 
         self.write('\n//========================== Function Helpers ===============================//\n')
@@ -1163,7 +1080,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             for param in command.params:
                 if output_format == 'json':
                     if param != command.params[0]:
-                        self.write('        settings.stream() << ",\\n";')
+                        self.write('        dump_json_comma_and_newline(settings);')
 
                 parameter_state = self.get_parameter_state(param, command)
                 if parameter_state is not None:
@@ -1171,15 +1088,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
                 self.write_value(output_format, param, command)
 
-            if output_format == 'text':
-                self.write('        if (settings.shouldFlush()) settings.stream().flush();')
             if output_format == 'json':
                 self.write('        settings.stream() << "\\n" << settings.indentation(3) << "]\\n";')
+            if output_format in ['text', 'html']:
+                self.write('        settings.stream() << "\\n";')
+            self.write('        flush(settings);')
             self.write('    }')
-            if output_format == 'html':
-                self.write('    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";')
-            if output_format == 'json':
-                self.write('    if (settings.shouldFlush()) settings.stream().flush();')
             self.write('}')
             if command.protect:
                 self.write(f'#endif // {command.protect}')
@@ -1210,12 +1124,11 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write('    settings.stream() << "</summary>";')
 
             self.write(f'    dump_{output_format}_params_{command.name}(dump_inst, {commandParameterUsageText(command)});')
-            if output_format == 'text':
-                self.write('    settings.shouldFlush() ? settings.stream() << std::endl : settings.stream() << "\\n";')
             if output_format == 'html':
                 self.write('\n    settings.stream() << "</details>";')
             if output_format == 'json':
                 self.write('    settings.stream() << settings.indentation(2) << "}";')
+            self.write('    flush(settings);')
             self.write('}')
             if command.protect:
                 self.write(f'#endif // {command.protect}')
@@ -1363,12 +1276,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 if output_format == 'text':
                     self.write(f'    dump_{output_format}_pNext_struct_name(object.{var.name}, settings, "{var.fullType}", "{var.name}", {indent});')
                 elif output_format in ['html', 'json']:
-                    self.write('    if(object.pNext != nullptr){')
-                    self.write(f'        dump_{output_format}_pNext_trampoline(object.{var.name}, settings, "{var.fullType}", "{var.name}", {indent});')
-                    self.write('    } else {')
-                    self.write(f'        dump_{output_format}_nullptr(settings, "{var.fullType}", "{var.name}", {indent});')
-                    self.write('    }')
-
+                    self.write(f'    dump_{output_format}_pNext_trampoline(object.{var.name}, settings, "{var.fullType}", "{var.name}", {indent});')
             else:
                 self.write(pi + f'    dump_{output_format}_{call_type}({object_access}{var.name}, settings, "{custom_fullType}", "{var.name}", {indent});')
 
@@ -1379,83 +1287,54 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             cast = '(uint32_t) '
         if t.name == 'int8_t':
             cast = '(int32_t) '
-
-        if output_format == 'text':
-            self.write(f'    settings.stream() << {cast}object;')
-        if output_format == 'html':
-            self.write('    settings.stream() << "<div class=\'val\'>";')
-            self.write(f'    settings.stream() << {cast}object;')
-            self.write('    settings.stream() << "</div>";')
-        if output_format == 'json':
-            self.write(f'    dump_json_value(settings, {cast}object);')
+        self.write(f'    dump_{output_format}_value(settings, {cast}object);')
 
     def write_basetype_contents(self, output_format):
-        if output_format == 'text':
-            self.write('    settings.stream() << object;')
-        if output_format == 'html':
-            self.write('    settings.stream() << "<div class=\'val\'>" << object << "</div>";')
-        if output_format == 'json':
-            self.write('    dump_json_value(settings, object);')
-
+        self.write(f'    dump_{output_format}_value(settings, object);')
 
     def write_system_type_contents(self, output_format, sys):
-        if output_format == 'text':
-            if '*' in sys.name:
-                self.write('    if (object == NULL) {')
-                self.write('        settings.stream() << "NULL";')
-                self.write('        return;')
-                self.write('    }')
-                self.write('    OutputAddress(settings, object);')
-            else:
-                self.write('    if (settings.showAddress())')
-                self.write('        settings.stream() << object;')
-                self.write('    else')
-                self.write('        settings.stream() << "address";')
-
-        if output_format == 'html':
-            if '*' in sys.name:
-                self.write('    settings.stream() << "<div class=\'val\'>";')
-                self.write('    OutputAddress(settings, object);')
-                self.write('    settings.stream() << "</div>";')
-            else:
-                self.write('    if (settings.showAddress())')
-                self.write('        settings.stream() << "<div class=\'val\'>" << object << "</div>";')
-                self.write('    else')
-                self.write('        settings.stream() << "<div class=\'val\'>address</div>";')
-
-        if output_format == 'json':
-            if '*' in sys.name:
-                self.write('    dump_json_address(settings, object);')
+        if '*' in sys.name:
+            self.write(f'    dump_{output_format}_address(settings, &object);')
+            if output_format == 'json':
                 self.write('    settings.stream() << "\\n";')
-            else:
-                self.write('    dump_json_handle(settings, object);')
+        else:
+            self.write(f'    dump_{output_format}_handle(settings, object);')
 
     def write_enum_contents(self, output_format, enum):
-        if output_format == 'html':
-            self.write('    settings.stream() << "<div class=\'val\'>";')
         self.write('    switch((int64_t) object)')
         self.write('    {')
         for field in enum.fields:
             self.write(f'    case {field.valueStr}:')
             if output_format in ['text', 'html']:
-                self.write(f'        settings.stream() << "{field.name} (";')
+                self.write(f'        dump_{output_format}_value(settings, "{field.name} (", object, ")");')
             if output_format == 'json':
-                self.write(f'        dump_json_value(settings, "{field.name}");')
+                self.write(f'        dump_{output_format}_value(settings, "{field.name}");')
             self.write('        break;')
-
         self.write('    default:')
-        if output_format in ['text', 'html']:
-            self.write('        settings.stream() << "UNKNOWN (";')
-        if output_format == 'json':
-            self.write('        dump_json_value(settings, "UNKNOWN (", object, ")");')
+        self.write(f'        dump_{output_format}_value(settings, "UNKNOWN (", object, ")");')
         self.write('    }')
-        if output_format == 'text':
-            self.write('    settings.stream() << object << ")";')
-        if output_format == 'html':
-            self.write('    settings.stream() << object << ")</div>";')
+
+    def write_bitmask_constents(self, output_format, bitmask):
+        self.write(f'    dump_{output_format}_value_start(settings);')
+        self.write('    settings.stream() << object;')
+        self.write('    bool is_first = true;')
+        for field in bitmask.flags:
+            self.write(f'    if(object {"==" if  field.zero or field.multiBit else "&"} {field.valueStr if field.multiBit else field.value}) {{')
+            self.write(f'        settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
+            self.write('    }')
+        self.write('    if(!is_first)')
+        self.write('        settings.stream() << ")";')
+        self.write(f'    dump_{output_format}_value_end(settings);')
 
     def write_pointer_overload(self, output_format, object_type):
-        self.write(f'void dump_{output_format}_{object_type}(const {object_type}* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){{')
+        # Workaround for some types needing a double pointer overload function
+        const = 'const '
+        double_ptr = ''
+        if object_type in ['AHardwareBuffer', 'ANativeWindow']:
+            const = ''
+            double_ptr = '*'
+
+        self.write(f'void dump_{output_format}_{object_type}({const}{object_type}{double_ptr}* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){{')
         self.write('    if (object == NULL) {')
         self.write(f'        dump_{output_format}_nullptr(settings, type_string, name, indents);')
         self.write('    } else {')
