@@ -482,94 +482,6 @@ TEXT_CODEGEN_HEADER = """
 
 #include "api_dump.h"
 
-@if(not {isVideoGeneration})
-void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type);
-void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
-@end if
-@foreach union
-void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
-@end union
-
-//=========================== Type Implementations ==========================//
-
-@foreach type where('{etyName}' != 'void')
-void dump_text_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents);
-@end type
-
-//========================= Basetype Implementations ========================//
-
-@foreach basetype where(not '{baseName}' in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer'])
-void dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
-@end basetype
-@foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
-void dump_text_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents);
-@end basetype
-@foreach basetype where('{baseName}' in ['CAMetalLayer'])
-void dump_text_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
-@end basetype
-
-//======================= System Type Implementations =======================//
-
-@foreach systype
-void dump_text_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents);
-@end systype
-
-//========================== Handle Implementations =========================//
-
-@foreach handle
-void dump_text_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents);
-@end handle
-
-//=========================== Enum Implementations ==========================//
-
-@foreach enum
-void dump_text_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents);
-@end enum
-
-//========================= Bitmask Implementations =========================//
-
-@foreach bitmask
-@if('{bitWidth}' == '64')
-// 64 bit bitmasks don't have an enum of bit values.
-typedef VkFlags64 {bitName};
-@end if
-void dump_text_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents);
-@end bitmask
-
-//=========================== Flag Implementations ==========================//
-
-@foreach flag where('{flagEnum}' != 'None')
-void dump_text_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents);
-@end flag
-@foreach flag where('{flagEnum}' == 'None')
-void dump_text_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents);
-@end flag
-
-//======================= Func Pointer Implementations ======================//
-
-@foreach funcpointer
-void dump_text_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents);
-@end funcpointer
-
-//========================== Struct Implementations =========================//
-
-@foreach struct
-void dump_text_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
-@end struct
-
-//========================== Union Implementations ==========================//
-
-@foreach union
-void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
-@end union
-
-//======================== pNext Chain Implementation =======================//
-@if(not {isVideoGeneration})
-void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type);
-
-void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
-@end if
-
 //========================= Function Helpers ================================//
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 void dump_text_params_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams});
@@ -770,6 +682,19 @@ void dump_text_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int 
         settings.stream() << "address";
 }}
 @end funcpointer
+
+//======================== Union Forward Declarations =======================//
+
+@foreach union
+void dump_text_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
+@end union
+
+//======================== pNext Chain Declarations =======================//
+
+@if(not {isVideoGeneration})
+void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, int indents, const char* pnext_type);
+void dump_text_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
+@end if
 
 //========================== Struct Implementations =========================//
 
@@ -1028,87 +953,6 @@ HTML_CODEGEN_HEADER = """
 
 #include "api_dump.h"
 
-@if(not {isVideoGeneration})
-void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
-@end if
-@foreach union
-void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
-@end union
-
-//=========================== Type Implementations ==========================//
-
-@foreach type where('{etyName}' != 'void')
-void dump_html_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents);
-@end type
-
-//========================= Basetype Implementations ========================//
-
-@foreach basetype where(not '{baseName}' in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer'])
-void dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
-@end basetype
-@foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
-void dump_html_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents);
-@end basetype
-@foreach basetype where('{baseName}' in ['CAMetalLayer'])
-void dump_html_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
-@end basetype
-
-//======================= System Type Implementations =======================//
-
-@foreach systype
-void dump_html_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents);
-@end systype
-
-//========================== Handle Implementations =========================//
-
-@foreach handle
-void dump_html_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents);
-@end handle
-
-//=========================== Enum Implementations ==========================//
-
-@foreach enum
-void dump_html_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents);
-@end enum
-
-//========================= Bitmask Implementations =========================//
-
-@foreach bitmask
-void dump_html_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents);
-@end bitmask
-
-//=========================== Flag Implementations ==========================//
-
-@foreach flag where('{flagEnum}' != 'None')
-void dump_html_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents);
-@end flag
-@foreach flag where('{flagEnum}' == 'None')
-void dump_html_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents);
-@end flag
-
-//======================= Func Pointer Implementations ======================//
-
-@foreach funcpointer
-void dump_html_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents);
-@end funcpointer
-
-//========================== Struct Implementations =========================//
-
-@foreach struct
-void dump_html_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
-@end struct
-
-//========================== Union Implementations ==========================//
-
-@foreach union
-void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
-@end union
-
-//======================== pNext Chain Implementation =======================//
-@if(not {isVideoGeneration})
-void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
-@end if
-
 //========================= Function Helpers ================================//
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
 void dump_html_params_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams});
@@ -1313,6 +1157,18 @@ void dump_html_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int 
     settings.stream() << "</div></summary>";
 }}
 @end funcpointer
+
+//======================== Union Forward Declarations =======================//
+
+@foreach union
+void dump_html_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
+@end union
+
+//======================== pNext Chain Declarations =======================//
+
+@if(not {isVideoGeneration})
+void dump_html_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
+@end if
 
 //========================== Struct Implementations =========================//
 
@@ -1543,85 +1399,6 @@ JSON_CODEGEN_HEADER = """
 
 #include "api_dump.h"
 
-@if(not {isVideoGeneration})
-void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
-@end if
-@foreach union
-void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
-@end union
-
-//=========================== Type Implementations ==========================//
-
-@foreach type where('{etyName}' != 'void')
-void dump_json_{etyName}({etyName} object, const ApiDumpSettings& settings, int indents);
-@end type
-
-//========================= Basetype Implementations ========================//
-
-@foreach basetype where(not '{baseName}' in ['ANativeWindow', 'AHardwareBuffer', 'CAMetalLayer'])
-void dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
-@end basetype
-@foreach basetype where('{baseName}' in ['ANativeWindow', 'AHardwareBuffer'])
-void dump_json_{baseName}(const {baseName}* object, const ApiDumpSettings& settings, int indents);
-@end basetype
-@foreach basetype where('{baseName}' in ['CAMetalLayer'])
-void dump_json_{baseName}({baseName} object, const ApiDumpSettings& settings, int indents);
-@end basetype
-
-//======================= System Type Implementations =======================//
-
-@foreach systype
-void dump_json_{sysName}(const {sysType} object, const ApiDumpSettings& settings, int indents);
-@end systype
-
-//========================== Handle Implementations =========================//
-
-@foreach handle
-void dump_json_{hdlName}(const {hdlName} object, const ApiDumpSettings& settings, int indents);
-@end handle
-
-//=========================== Enum Implementations ==========================//
-
-@foreach enum
-void dump_json_{enumName}({enumName} object, const ApiDumpSettings& settings, int indents);
-@end enum
-
-//========================= Bitmask Implementations =========================//
-
-@foreach bitmask
-void dump_json_{bitName}({bitName} object, const ApiDumpSettings& settings, int indents);
-@end bitmask
-
-//=========================== Flag Implementations ==========================//
-
-@foreach flag where('{flagEnum}' != 'None')
-void dump_json_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents);
-@end flag
-@foreach flag where('{flagEnum}' == 'None')
-void dump_json_{flagName}({flagName} object, const ApiDumpSettings& settings, int indents);
-@end flag
-
-//======================= Func Pointer Implementations ======================//
-
-@foreach funcpointer
-void dump_json_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int indents);
-@end funcpointer
-
-//========================== Struct Implementations =========================//
-
-@foreach struct
-void dump_json_{sctName}(const {sctName}& object, const ApiDumpSettings& settings, int indents);
-@end struct
-
-//========================== Union Implementations ==========================//
-@foreach union
-void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
-@end union
-
-//======================== pNext Chain Implementation =======================//
-@if(not {isVideoGeneration})
-void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
-@end if
 
 //========================= Function Helpers ================================//
 @foreach function where('{funcName}' not in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr'])
@@ -1813,6 +1590,18 @@ void dump_json_{pfnName}({pfnName} object, const ApiDumpSettings& settings, int 
         settings.stream() << "\\"address\\"";
 }}
 @end funcpointer
+
+//======================== Union Forward Declarations =======================//
+
+@foreach union
+void dump_json_{unName}(const {unName}& object, const ApiDumpSettings& settings, int indents);
+@end union
+
+//======================== pNext Chain Declarations =======================//
+
+@if(not {isVideoGeneration})
+void dump_json_pNext_trampoline(const void* object, const ApiDumpSettings& settings, int indents);
+@end if
 
 //========================== Struct Implementations =========================//
 
