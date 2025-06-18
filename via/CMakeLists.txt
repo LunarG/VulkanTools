@@ -69,6 +69,9 @@ endif()
 find_package(jsoncpp CONFIG)
 if (TARGET jsoncpp_static)
     target_link_libraries(vkvia PRIVATE jsoncpp_static)
+
+elseif (TARGET JsonCpp::JsonCpp)
+    target_link_libraries(vkvia PRIVATE JsonCpp::JsonCpp)
     
 # Support using jsoncpp.pc but only for UNIX platforms.
 # And only if UPDATE_DEPS is disabled.
