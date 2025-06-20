@@ -499,78 +499,80 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
             self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({commandParameterDeclarationText(command)})')
             self.write('{')
             if command.name not in BLOCKING_API_CALLS:
-                self.write(f'''    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {{
-        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}");
-        if (ApiDumpInstance::current().shouldDumpOutput()) {{
-            dump_text_params_{command.name}(ApiDumpInstance::current(), {commandParameterUsageText(command)});
-        }}
-        dump_return_preamble(ApiDumpInstance::current(), "{command.returnType}");
-    }} else {{
-        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");
-    }}''')
+                self.write(f'''
+                    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+                    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {{
+                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}");
+                        if (ApiDumpInstance::current().shouldDumpOutput()) {{
+                            dump_text_params_{command.name}(ApiDumpInstance::current(), {commandParameterUsageText(command)});
+                        }}
+                        dump_return_preamble(ApiDumpInstance::current(), "{command.returnType}");
+                    }} else {{
+                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");
+                    }}''')
 
             if command.name == 'vkGetPhysicalDeviceToolPropertiesEXT':
-                self.write('''    static const VkPhysicalDeviceToolPropertiesEXT api_dump_layer_tool_props = {
-        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT,
-        nullptr,
-        "API Dump Layer",
-        "2",
-        VK_TOOL_PURPOSE_PROFILING_BIT_EXT | VK_TOOL_PURPOSE_TRACING_BIT_EXT,
-        "The VK_LAYER_LUNARG_api_dump utility layer prints API calls, parameters, and values to the identified output stream.",
-        "VK_LAYER_LUNARG_api_dump"};
+                self.write('''
+                    static const VkPhysicalDeviceToolPropertiesEXT api_dump_layer_tool_props = {
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT,
+                        nullptr,
+                        "API Dump Layer",
+                        "2",
+                        VK_TOOL_PURPOSE_PROFILING_BIT_EXT | VK_TOOL_PURPOSE_TRACING_BIT_EXT,
+                        "The VK_LAYER_LUNARG_api_dump utility layer prints API calls, parameters, and values to the identified output stream.",
+                        "VK_LAYER_LUNARG_api_dump"};
 
-    auto original_pToolProperties = pToolProperties;
-    if (pToolProperties != nullptr) {
-        *pToolProperties = api_dump_layer_tool_props;
-        pToolProperties = ((*pToolCount > 1) ? &pToolProperties[1] : nullptr);
-        (*pToolCount)--;
-    }''')
+                    auto original_pToolProperties = pToolProperties;
+                    if (pToolProperties != nullptr) {
+                        *pToolProperties = api_dump_layer_tool_props;
+                        pToolProperties = ((*pToolCount > 1) ? &pToolProperties[1] : nullptr);
+                        (*pToolCount)--;
+                    }''')
             if command.name == 'vkDestroyInstance':
-                self.write('    auto dispatch_key = get_dispatch_key(instance);')
+                self.write('auto dispatch_key = get_dispatch_key(instance);')
 
             return_str = f'{command.returnType} result = ' if command.returnType != 'void' else ''
-            self.write(f'    {return_str}instance_dispatch_table({command.params[0].name})->{command.name[2:]}({commandParameterUsageText(command)});')
+            self.write(f'{return_str}instance_dispatch_table({command.params[0].name})->{command.name[2:]}({commandParameterUsageText(command)});')
             if command.name in BLOCKING_API_CALLS:
-                self.write('    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
-                self.write(f'    dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");')
+                self.write('std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
+                self.write(f'dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");')
 
-            self.write('    ')
             if command.name in TRACKED_STATE:
                 self.write(TRACKED_STATE[command.name])
 
             if command.name == 'vkEnumeratePhysicalDevices':
-                self.write('    if (pPhysicalDeviceCount != nullptr && pPhysicalDevices != nullptr) {')
-                self.write('        for (uint32_t i = 0; i < *pPhysicalDeviceCount; i++) {')
-                self.write('            ApiDumpInstance::current().set_vk_instance(pPhysicalDevices[i], instance);')
-                self.write('        }')
-                self.write('    }')
+                self.write('''
+                    if (pPhysicalDeviceCount != nullptr && pPhysicalDevices != nullptr) {
+                        for (uint32_t i = 0; i < *pPhysicalDeviceCount; i++) {
+                            ApiDumpInstance::current().set_vk_instance(pPhysicalDevices[i], instance);
+                        }
+                    }''')
 
             if command.name == 'vkDestroyInstance':
-                self.write('    destroy_instance_dispatch_table(dispatch_key);')
+                self.write('destroy_instance_dispatch_table(dispatch_key);')
 
             if command.name == 'vkGetPhysicalDeviceToolPropertiesEXT':
-                self.write('    if (original_pToolProperties != nullptr) {')
-                self.write('        pToolProperties = original_pToolProperties;')
-                self.write('    }\n')
-                self.write('    (*pToolCount)++;')
+                self.write('if (original_pToolProperties != nullptr) {')
+                self.write('pToolProperties = original_pToolProperties;')
+                self.write('}\n')
+                self.write('(*pToolCount)++;')
 
-            self.write(f'''    if (ApiDumpInstance::current().shouldDumpOutput()) {{
-        switch(ApiDumpInstance::current().settings().format())
-        {{
-            case ApiDumpFormat::Text:
-                dump_text_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
-                break;
-            case ApiDumpFormat::Html:
-                dump_html_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
-                break;
-        }}
-    }}''')
+            self.write(f'''if (ApiDumpInstance::current().shouldDumpOutput()) {{
+                switch(ApiDumpInstance::current().settings().format())
+                {{
+                    case ApiDumpFormat::Text:
+                        dump_text_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
+                        break;
+                    case ApiDumpFormat::Html:
+                        dump_html_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
+                        break;
+                    case ApiDumpFormat::Json:
+                        dump_json_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
+                        break;
+                }}
+            }}''')
             if command.returnType != 'void':
-                self.write('    return result;')
+                self.write('return result;')
             self.write('}')
             if command.protect:
                 self.write(f'#endif // {command.protect}')
@@ -588,51 +590,50 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
             self.write('{')
 
             if command.name not in BLOCKING_API_CALLS:
-                self.write('    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
+                self.write('std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
                 if command.name in ['vkDebugMarkerSetObjectNameEXT', 'vkSetDebugUtilsObjectNameEXT']:
-                    self.write('    ApiDumpInstance::current().update_object_name_map(pNameInfo);')
-                self.write('    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {')
-                self.write(f'        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}");')
-                self.write('        if (ApiDumpInstance::current().shouldDumpOutput()) {')
-                self.write(f'            dump_text_params_{command.name}(ApiDumpInstance::current(), {commandParameterUsageText(command)});')
-                self.write('        }')
-                self.write(f'        dump_return_preamble(ApiDumpInstance::current(), "{command.returnType}");\n')
-                self.write('    } else {')
-                self.write(f'        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");')
-                self.write('    }')
+                    self.write('ApiDumpInstance::current().update_object_name_map(pNameInfo);')
+                self.write(f'''
+                    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {{
+                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}");
+                        if (ApiDumpInstance::current().shouldDumpOutput()) {{
+                            dump_text_params_{command.name}(ApiDumpInstance::current(), {commandParameterUsageText(command)});
+                        }}
+                        dump_return_preamble(ApiDumpInstance::current(), "{command.returnType}");\n
+                    }} else {{
+                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");
+                    }}''')
 
             return_str = f'{command.returnType} result = ' if command.returnType != 'void' else ''
-            self.write(f'    {return_str}device_dispatch_table({command.params[0].name})->{command.name[2:]}({commandParameterUsageText(command)});')
+            self.write(f'{return_str}device_dispatch_table({command.params[0].name})->{command.name[2:]}({commandParameterUsageText(command)});')
             if command.name in BLOCKING_API_CALLS:
-                self.write('    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
-                self.write(f'    dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");')
+                self.write('std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
+                self.write(f'dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");')
 
             if command.name in TRACKED_STATE:
-                self.write('    ' + TRACKED_STATE[command.name])
-            else:
-                self.write('    ')
+                self.write('' + TRACKED_STATE[command.name])
 
             if command.name == 'vkDestroyDevice':
-                self.write('    destroy_device_dispatch_table(get_dispatch_key(device));')
+                self.write('destroy_device_dispatch_table(get_dispatch_key(device));')
 
-            self.write(f'''    if (ApiDumpInstance::current().shouldDumpOutput()) {{
-        switch(ApiDumpInstance::current().settings().format())
-        {{
-            case ApiDumpFormat::Text:
-                dump_text_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{commandParameterUsageText(command)});
-                break;
-            case ApiDumpFormat::Html:
-                dump_html_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{commandParameterUsageText(command)});
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{commandParameterUsageText(command)});
-                break;
-        }}
-    }}''')
+            self.write(f'''if (ApiDumpInstance::current().shouldDumpOutput()) {{
+                switch(ApiDumpInstance::current().settings().format())
+                {{
+                    case ApiDumpFormat::Text:
+                        dump_text_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{commandParameterUsageText(command)});
+                        break;
+                    case ApiDumpFormat::Html:
+                        dump_html_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{commandParameterUsageText(command)});
+                        break;
+                    case ApiDumpFormat::Json:
+                        dump_json_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{commandParameterUsageText(command)});
+                        break;
+                }}
+            }}''')
             if command.name == 'vkQueuePresentKHR':
-                self.write('    ApiDumpInstance::current().nextFrame();')
+                self.write('ApiDumpInstance::current().nextFrame();')
             if command.returnType != 'void':
-                self.write('    return result;')
+                self.write('return result;')
             self.write('}')
             if command.protect:
                 self.write(f'#endif // {command.protect}')
@@ -646,10 +647,10 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
                 self.write(f'#if defined({command.protect})')
             # checking for instance functions seems to have always been broken
             # if command.params[0].type in ['VkInstance', 'VkPhysicalDevice']:
-            #     self.write(f'    if(strcmp(pName, "{command.name}") == 0 && (!instance || instance_dispatch_table(instance)->{command.name[2:]}))')
+            #     self.write(f'if(strcmp(pName, "{command.name}") == 0 && (!instance || instance_dispatch_table(instance)->{command.name[2:]}))')
             # else:
-            self.write(f'    if(strcmp(pName, "{command.name}") == 0)')
-            self.write(f'        return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
+            self.write(f'if(strcmp(pName, "{command.name}") == 0)')
+            self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
             if command.protect:
                 self.write(f'#endif // {command.protect}')
         self.write('\n    return nullptr;')
@@ -660,8 +661,8 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
         for command in [x for x in self.vk.commands.values() if x.device ]:
             if command.protect:
                 self.write(f'#if defined({command.protect})')
-            self.write(f'    if(strcmp(pName, "{command.name}") == 0 && (!device || device_dispatch_table(device)->{command.name[2:]}))')
-            self.write(f'        return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
+            self.write(f'if(strcmp(pName, "{command.name}") == 0 && (!device || device_dispatch_table(device)->{command.name[2:]}))')
+            self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
             if command.protect:
                 self.write(f'#endif // {command.protect}')
 
@@ -739,12 +740,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 continue
             self.write(f'void dump_{output_format}_{t.name}(const {t.name} &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+            self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
             if t.name in self.return_types:
-                self.write(f'    dump_{output_format}_return_value_{t.name}(object, settings, indents);')
+                self.write(f'dump_{output_format}_return_value_{t.name}(object, settings, indents);')
             else:
                 self.write_platform_type_contents(output_format, t)
-            self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+            self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             if '*' not in t.name:
                 self.write_pointer_overload(output_format, t.name)
@@ -762,12 +763,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write(f'#if defined({basetype.protect})')
             self.write(f'void dump_{output_format}_{basetype.name}(const {basetype.name}{"*" if basetype.name in POINTER_TYPES else "&"} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+            self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
             if basetype.name in self.return_types:
-                self.write(f'    dump_{output_format}_return_value_{basetype.name}(object, settings, indents);')
+                self.write(f'dump_{output_format}_return_value_{basetype.name}(object, settings, indents);')
             else:
                 self.write_basetype_contents(output_format)
-            self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+            self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, basetype.name)
             if basetype.protect:
@@ -787,12 +788,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write('}')
             self.write(f'void dump_{output_format}_{sys.name}(const {sys.name}{"*" if sys.name in POINTER_TYPES else "&"} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents{", object" if sys.name in POINTER_TYPES else ""});')
+            self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents{", object" if sys.name in POINTER_TYPES else ""});')
             if sys.name in self.return_types:
-                self.write(f'    dump_{output_format}_return_value_{sys.name}(object, settings, indents);')
+                self.write(f'dump_{output_format}_return_value_{sys.name}(object, settings, indents);')
             else:
                 self.write_system_type_contents(output_format, sys)
-            self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+            self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             if sys.name not in POINTER_TYPES:
                 self.write_pointer_overload(output_format, sys.name)
@@ -806,21 +807,22 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     self.write(f'#if defined({handle.protect})')
                 self.write(f'void dump_{output_format}_{handle.name}(const {handle.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
                 self.write('{')
-                self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+                self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
                 if output_format in ['text', 'html']:
-                    self.write('    if(settings.showAddress()) {')
-                    self.write('        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);')
-                    self.write('        if (it != ApiDumpInstance::current().object_name_map.end()) {')
-                    self.write(f'            dump_{output_format}_value(settings, object, " [", it->second, "]");')
-                    self.write('        } else {')
-                    self.write(f'            dump_{output_format}_value(settings, object);')
-                    self.write('        }')
-                    self.write('    } else {')
-                    self.write(f'       dump_{output_format}_value(settings, "address");')
-                    self.write('    }')
+                    self.write(f'''
+                    if(settings.showAddress()) {{
+                        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
+                        if (it != ApiDumpInstance::current().object_name_map.end()) {{
+                            dump_{output_format}_value(settings, object, " [", it->second, "]");
+                        }} else {{
+                            dump_{output_format}_value(settings, object);
+                        }}
+                    }} else {{
+                       dump_{output_format}_value(settings, "address");
+                    }}''')
                 if output_format == 'json':
-                    self.write('    dump_json_handle(settings, object);')
-                self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+                    self.write('dump_json_handle(settings, object);')
+                self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
                 self.write('}')
                 self.write_pointer_overload(output_format, handle.name)
                 if handle.protect:
@@ -836,12 +838,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write('}')
             self.write(f'void dump_{output_format}_{enum.name}(const {enum.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+            self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
             if enum.name in self.return_types:
-                self.write(f'    dump_{output_format}_return_value_{enum.name}(object, settings, indents);')
+                self.write(f'dump_{output_format}_return_value_{enum.name}(object, settings, indents);')
             else:
                 self.write_enum_contents(output_format, enum)
-            self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+            self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, enum.name)
             if enum.protect:
@@ -857,9 +859,9 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                     self.write(f'typedef VkFlags64 {bitmask.name};')
             self.write(f'void dump_{output_format}_{bitmask.name}(const {bitmask.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+            self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
             self.write_bitmask_constents(output_format, bitmask)
-            self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+            self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, bitmask.name)
             if bitmask.protect:
@@ -872,11 +874,11 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write(f'#if defined({flag.protect})')
             self.write(f'void dump_{output_format}_{flag.name}(const {flag.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{')
             if flag.bitmaskName is not None:
-                self.write(f'    dump_{output_format}_{flag.bitmaskName}(static_cast<{flag.bitmaskName}>(object), settings, type_name, var_name, indents, address);')
+                self.write(f'dump_{output_format}_{flag.bitmaskName}(static_cast<{flag.bitmaskName}>(object), settings, type_name, var_name, indents, address);')
             else:
-                self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-                self.write(f'    dump_{output_format}_value(settings, object);')
-                self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+                self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+                self.write(f'dump_{output_format}_value(settings, object);')
+                self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, flag.name)
             if flag.protect:
@@ -885,12 +887,11 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         self.write('\n//======================= Func Pointer Implementations ======================//\n')
 
         for funcpointer in self.vk.funcPointers.values():
-            self.write(f'void dump_{output_format}_{funcpointer.name}(const {funcpointer.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
-            self.write('{')
-            self.write(f'    dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-            self.write(f'    dump_{output_format}_handle(settings, object);')
-            self.write(f'    dump_{output_format}_end(settings, OutputConstruct::value, indents);')
-            self.write('}')
+            self.write(f'''void dump_{output_format}_{funcpointer.name}(const {funcpointer.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
+                dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
+                dump_{output_format}_handle(settings, object);
+                dump_{output_format}_end(settings, OutputConstruct::value, indents);
+            }}''')
             self.write_pointer_overload(output_format, funcpointer.name)
 
         self.write('\n//======================== Union Forward Declarations =======================//\n')
@@ -921,17 +922,17 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
             self.write(f'void dump_{output_format}_{struct.name}(const {struct.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'    dump_{output_format}_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);')
+            self.write(f'dump_{output_format}_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);')
 
             for member in struct.members:
                 validity_check = self.get_validity_check(member, struct)
                 parameter_state = self.get_parameter_state(member, struct)
                 if parameter_state is not None:
                     if validity_check is not None:
-                        self.write(f'    if ({validity_check})')
-                        self.write('        ' + parameter_state)
+                        self.write(f'if ({validity_check})')
+                        self.write('' + parameter_state)
                     else:
-                        self.write('    ' + parameter_state)
+                        self.write('' + parameter_state)
 
             self.write('')
             json_indent = '2' if output_format == 'json' else '1'
@@ -940,29 +941,29 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 validity_check = self.get_validity_check(member, struct)
                 if output_format == 'json':
                     if member != struct.members[0]:
-                        self.write('    dump_json_comma_and_newline(settings);')
+                        self.write('dump_json_comma_and_newline(settings);')
 
                 if validity_check is not None:
-                    self.write(f'    if({validity_check}) {{')
+                    self.write(f'if({validity_check}) {{')
 
                 self.write_value(output_format, member, struct)
 
                 self.write('')
                 if validity_check is not None:
-                    self.write('    } else {')
+                    self.write('} else {')
                     if output_format in ['text', 'html']:
-                        self.write(f'        dump_{output_format}_special("UNUSED", settings, "{custom_fullType}", "{member.name}", indents + {json_indent});')
+                        self.write(f'dump_{output_format}_special("UNUSED", settings, "{custom_fullType}", "{member.name}", indents + {json_indent});')
                     if output_format == 'json':
-                        self.write(f'        dump_{output_format}_UNUSED(settings, "{custom_fullType}", "{member.name}", indents + {json_indent});')
-                    self.write('    }')
+                        self.write(f'dump_{output_format}_UNUSED(settings, "{custom_fullType}", "{member.name}", indents + {json_indent});')
+                    self.write('}')
 
             self.write('')
             if output_format == 'text':
                 for member in struct.members:
                     if member.pointer and member.name == 'pNext' and struct.name not in ['VkBaseInStructure', 'VkBaseOutStructure']:
-                        self.write(f'    dump_text_pNext_trampoline(object.pNext, settings, "{member.fullType}", "{member.type}", indents < 2 ? indents + {json_indent} : indents);')
+                        self.write(f'dump_text_pNext_trampoline(object.pNext, settings, "{member.fullType}", "{member.type}", indents < 2 ? indents + {json_indent} : indents);')
 
-            self.write(f'    dump_{output_format}_end(settings, OutputConstruct::api_struct, indents);')
+            self.write(f'dump_{output_format}_end(settings, OutputConstruct::api_struct, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, struct.name)
             if struct.protect:
@@ -975,23 +976,23 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write(f'#if defined({union.protect})')
             self.write(f'void dump_{output_format}_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address)')
             self.write('{')
-            self.write(f'    dump_{output_format}_start(settings, OutputConstruct::api_union, type_name, var_name, indents, address);')
+            self.write(f'dump_{output_format}_start(settings, OutputConstruct::api_union, type_name, var_name, indents, address);')
 
             for member in union.members:
                 validity_check = self.get_validity_check(member, union)
                 if output_format == 'json':
                     if member != union.members[0] and validity_check is None:
-                        self.write('    dump_json_comma_and_newline(settings);')
+                        self.write('dump_json_comma_and_newline(settings);')
 
                 if validity_check is not None:
-                    self.write(f'    if({validity_check}) {{')
+                    self.write(f'if({validity_check}) {{')
 
                 self.write_value(output_format, member, union)
 
                 if validity_check is not None:
-                    self.write('    }')
+                    self.write('}')
 
-            self.write(f'    dump_{output_format}_end(settings, OutputConstruct::api_union, indents);')
+            self.write(f'dump_{output_format}_end(settings, OutputConstruct::api_union, indents);')
 
             self.write('}')
             self.write_pointer_overload(output_format, union.name)
@@ -1001,68 +1002,68 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         self.write('\n//======================== pNext Chain Implementation =======================//\n')
         if not video:
             if output_format == 'text':
-                self.write('void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents)')
-                self.write('{')
-                self.write('    if (object == nullptr) {')
-                self.write('        dump_text_nullptr(settings, type_name, var_name, indents);')
-                self.write('        return;')
-                self.write('    }\n')
-                self.write('    switch(reinterpret_cast<const VkBaseInStructure*>(object)->sType) {')
+                self.write('''void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents){
+                if (object == nullptr) {
+                    dump_text_nullptr(settings, type_name, var_name, indents);
+                    return;
+                }\n
+                switch(reinterpret_cast<const VkBaseInStructure*>(object)->sType) {''')
                 for struct in [ x for x in self.vk.structs.values() if not x.union ]:
                     if struct.protect:
                         self.write(f'#if defined({struct.protect})')
                     if struct.sType is not None:
-                        self.write(f'        case {struct.sType}:')
-                        self.write(f'            dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents);')
-                        self.write(f'            dump_{output_format}_value(settings, "{struct.name}");')
-                        self.write(f'            dump_{output_format}_end(settings, OutputConstruct::value, indents);')
-                        self.write('            break;')
+                        self.write(f'case {struct.sType}:')
+                        self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents);')
+                        self.write(f'dump_{output_format}_value(settings, "{struct.name}");')
+                        self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+                        self.write('break;')
                     if struct.protect:
                         self.write(f'#endif // {struct.protect}')
-                self.write('        case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47')
-                self.write('        case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
-                self.write('        default:')
-                self.write(f'            dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents);')
-                self.write(f'            dump_{output_format}_value(settings, "NULL");')
-                self.write(f'            dump_{output_format}_end(settings, OutputConstruct::value, indents);')
-                self.write('            break;')
-                self.write('    }')
-                self.write('}\n')
+                self.write(f'''
+                    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
+                    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
+                    default:
+                        dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents);
+                        dump_{output_format}_value(settings, "NULL");
+                        dump_{output_format}_end(settings, OutputConstruct::value, indents);
+                        break;
+                    }}
+                }}\n''')
 
             self.write(f'void dump_{output_format}_pNext_trampoline(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents)')
             self.write('{')
-            self.write('    if (object == NULL) {')
+            self.write('if (object == NULL) {')
             if output_format in ['html', 'json']:
-                self.write(f'        dump_{output_format}_nullptr(settings, type_name, var_name, indents);')
-            self.write('        return;')
-            self.write('    }')
-            self.write('    VkBaseInStructure base_struct{};')
-            self.write('    memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
-            self.write('    switch(base_struct.sType) {')
+                self.write(f'dump_{output_format}_nullptr(settings, type_name, var_name, indents);')
+            self.write('return;')
+            self.write('}')
+            self.write('VkBaseInStructure base_struct{};')
+            self.write('memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
+            self.write('switch(base_struct.sType) {')
             for struct in [ x for x in self.vk.structs.values() if not x.union ]:
                 if struct.protect:
                     self.write(f'#if defined({struct.protect})')
                 if struct.sType is not None:
-                    self.write(f'    case {struct.sType}:')
-                    self.write(f'        dump_{output_format}_{struct.name}(*reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}{"*" if output_format == "json" else ""}", "pNext", indents, reinterpret_cast<const {struct.name}*>(object));')
-                    self.write('        break;')
+                    self.write(f'case {struct.sType}:')
+                    self.write(f'dump_{output_format}_{struct.name}(*reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}{"*" if output_format == "json" else ""}", "pNext", indents, reinterpret_cast<const {struct.name}*>(object));')
+                    self.write('break;')
                 if struct.protect:
                     self.write(f'#endif // {struct.protect}')
-            self.write('')
-            self.write('    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47')
-            self.write('    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48')
-            self.write('        if(base_struct.pNext != nullptr){')
-            self.write(f'            dump_{output_format}_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, type_name, var_name, indents);')
-            self.write('        } else {')
-            self.write(f'            dump_{output_format}_nullptr(settings, "const void*", "pNext", indents);')
-            self.write('        }')
-            self.write('        break;')
-            self.write('    default:')
-            self.write(f'        dump_{output_format}_start(settings, OutputConstruct::value, "const void*", "pNext", indents);')
-            self.write(f'        dump_{output_format}_value(settings, "UNKNOWN (", (int64_t) (base_struct.sType), ")");')
-            self.write(f'        dump_{output_format}_end(settings, OutputConstruct::value, indents);')
-            self.write('    }')
-            self.write('}')
+            self.write(f'''
+                case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
+                case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
+                    if(base_struct.pNext != nullptr){{
+                        dump_{output_format}_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, type_name, var_name, indents);
+                    }} else {{
+                        dump_{output_format}_nullptr(settings, "const void*", "pNext", indents);
+                    }}
+                    break;
+                default:
+                    dump_{output_format}_start(settings, OutputConstruct::value, "const void*", "pNext", indents);
+                    dump_{output_format}_value(settings, "UNKNOWN (", (int64_t) (base_struct.sType), ")");
+                    dump_{output_format}_end(settings, OutputConstruct::value, indents);
+                    }}
+                }}''')
 
         self.write('\n//========================== Function Helpers ===============================//\n')
 
@@ -1071,29 +1072,29 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write(f'#if defined({command.protect})')
             self.write(f'void dump_{output_format}_params_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)})')
             self.write('{')
-            self.write('    const ApiDumpSettings& settings(dump_inst.settings());')
-            self.write('    if(settings.showParams())')
-            self.write('    {')
+            self.write('const ApiDumpSettings& settings(dump_inst.settings());')
+            self.write('if(settings.showParams())')
+            self.write('{')
             if output_format == 'json':
-                self.write('        settings.stream() << settings.indentation(3) << "\\\"args\\\" :\\n";')
-                self.write('        settings.stream() << settings.indentation(3) << "[\\n";')
+                self.write('settings.stream() << settings.indentation(3) << "\\\"args\\\" :\\n";')
+                self.write('settings.stream() << settings.indentation(3) << "[\\n";')
             for param in command.params:
                 if output_format == 'json':
                     if param != command.params[0]:
-                        self.write('        dump_json_comma_and_newline(settings);')
+                        self.write('dump_json_comma_and_newline(settings);')
 
                 parameter_state = self.get_parameter_state(param, command)
                 if parameter_state is not None:
-                    self.write('        ' + parameter_state)
+                    self.write('' + parameter_state)
 
                 self.write_value(output_format, param, command)
 
             if output_format == 'json':
-                self.write('        settings.stream() << "\\n" << settings.indentation(3) << "]\\n";')
+                self.write('settings.stream() << "\\n" << settings.indentation(3) << "]\\n";')
             if output_format in ['text', 'html']:
-                self.write('        settings.stream() << "\\n";')
-            self.write('        flush(settings);')
-            self.write('    }')
+                self.write('settings.stream() << "\\n";')
+            self.write('flush(settings);')
+            self.write('}')
             self.write('}')
             if command.protect:
                 self.write(f'#endif // {command.protect}')
@@ -1106,29 +1107,29 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{commandParameterDeclarationText(command)})')
 
             self.write('{')
-            self.write('    const ApiDumpSettings& settings(dump_inst.settings());')
+            self.write('const ApiDumpSettings& settings(dump_inst.settings());')
             if command.returnType != 'void':
                 call_type = self.get_unaliased_type(command.returnType)
                 if output_format == 'text':
-                    self.write('    settings.stream() << " ";')
+                    self.write('settings.stream() << " ";')
                 if output_format == 'json':
-                    self.write('    settings.stream() << settings.indentation(3) << "\\\"returnValue\\\" :";')
-                self.write(f'    dump_{output_format}_return_value_{call_type}(result, settings, 0);')
+                    self.write('settings.stream() << settings.indentation(3) << "\\\"returnValue\\\" :";')
+                self.write(f'dump_{output_format}_return_value_{call_type}(result, settings, 0);')
                 if output_format == 'json':
-                    self.write('    if(settings.showParams())')
-                    self.write('        settings.stream() << ",";')
-                    self.write('    settings.stream() << "\\n";')
+                    self.write('if(settings.showParams())')
+                    self.write('settings.stream() << ",";')
+                    self.write('settings.stream() << "\\n";')
             if output_format == 'text':
-                self.write('    settings.stream() << ":\\n";')
+                self.write('settings.stream() << ":\\n";')
             if output_format == 'html':
-                self.write('    settings.stream() << "</summary>";')
+                self.write('settings.stream() << "</summary>";')
 
-            self.write(f'    dump_{output_format}_params_{command.name}(dump_inst, {commandParameterUsageText(command)});')
+            self.write(f'dump_{output_format}_params_{command.name}(dump_inst, {commandParameterUsageText(command)});')
             if output_format == 'html':
                 self.write('\n    settings.stream() << "</details>";')
             if output_format == 'json':
-                self.write('    settings.stream() << settings.indentation(2) << "}";')
-            self.write('    flush(settings);')
+                self.write('settings.stream() << settings.indentation(2) << "}";')
+            self.write('flush(settings);')
             self.write('}')
             if command.protect:
                 self.write(f'#endif // {command.protect}')
@@ -1195,9 +1196,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         object_access = 'object.' if isinstance(parent, Struct) else ''
         call_type = self.get_unaliased_type(var.type)
         indent_plus = '2' if output_format == 'json' else '1'
-        pi = ''
         if isinstance(parent, Command):
-            pi = '    '
             indent = 4 if output_format == 'json' else 1
         else:
             indent = f'indents + {"2" if output_format == "json" else "1"}'
@@ -1213,72 +1212,69 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
             if parent.name == 'VkShaderModuleCreateInfo' and var.name == 'pCode':
                 array_len = f'{object_access}{var.length}'
-                self.write('    if(settings.showShader()) {')
-                pi = '    ' + pi
+                self.write('if(settings.showShader()) {')
 
             not_null_check = f'{object_access}{var.name} != NULL' if var.pointer else 'true'
             if var.pointer:
-                self.write(pi + f'    if ({array_len} > 0 && {not_null_check}) {{')
-                pi = '    ' + pi
+                self.write(f'if ({array_len} > 0 && {not_null_check}) {{')
 
-            self.write(pi + f'    dump_{output_format}_array_start({array_ptr}, {array_len}, settings, "{custom_fullType}", "{var.name}", {indent});')
+            self.write(f'dump_{output_format}_array_start({array_ptr}, {array_len}, settings, "{custom_fullType}", "{var.name}", {indent});')
 
             if len(var.fixedSizeArray) == 2:
-                self.write(pi + f'    for (size_t i = 0; i < {var.fixedSizeArray[0]}; ++i) {{')
-                self.write(pi + f'      for (size_t j = 0; j < {var.fixedSizeArray[1]}; ++j) {{')
-                self.write(pi + '        std::stringstream stream;')
-                self.write(pi + f'       stream << "{var.name if output_format != "json" else ""}" << "[" << i << "][" << j << "]";')
-                self.write(pi + '        std::string indexName = stream.str();')
-                self.write(pi + f'        dump_{output_format}_{call_type}({object_access}{var.name}[i][j], settings, "{custom_type}", indexName.c_str(), {indent} + {indent_plus});')
+                self.write(f'for (size_t i = 0; i < {var.fixedSizeArray[0]}; ++i) {{')
+                self.write(f'  for (size_t j = 0; j < {var.fixedSizeArray[1]}; ++j) {{')
+                self.write('std::stringstream stream;')
+                self.write(f'   stream << "{var.name if output_format != "json" else ""}" << "[" << i << "][" << j << "]";')
+                self.write('std::string indexName = stream.str();')
+                self.write(f'dump_{output_format}_{call_type}({object_access}{var.name}[i][j], settings, "{custom_type}", indexName.c_str(), {indent} + {indent_plus});')
                 if output_format == 'json':
-                    self.write(pi + f'        if (i < {var.fixedSizeArray[1]} - 1 && j < {var.fixedSizeArray[0]} - 1) settings.stream() << \',\';')
-                    self.write(pi + '    settings.stream() << "\\n";')
-                self.write(pi + '      }')
-                self.write(pi + '    }')
+                    self.write(f'if (i < {var.fixedSizeArray[1]} - 1 && j < {var.fixedSizeArray[0]} - 1) settings.stream() << \',\';')
+                    self.write('settings.stream() << "\\n";')
+                self.write('  }')
+                self.write('}')
             elif len(var.fixedSizeArray) == 1:
                 fixed_array_len = get_fixed_array_length(var.fixedSizeArray[0], var, parent)
-                self.write(pi + f'    for (size_t i = 0; i < {fixed_array_len}; ++i) {{')
-                self.write(pi + '        std::stringstream stream;')
-                self.write(pi + f'        stream << "{var.name if output_format != "json" else ""}" <<"[" << i << "]";')
-                self.write(pi + '        std::string indexName = stream.str();')
-                self.write(pi + f'        dump_{output_format}_{call_type}({object_access}{var.name}[i], settings, "{custom_type}", indexName.c_str(), {indent} + {indent_plus});')
+                self.write(f'for (size_t i = 0; i < {fixed_array_len}; ++i) {{')
+                self.write('std::stringstream stream;')
+                self.write(f'stream << "{var.name if output_format != "json" else ""}" <<"[" << i << "]";')
+                self.write('std::string indexName = stream.str();')
+                self.write(f'dump_{output_format}_{call_type}({object_access}{var.name}[i], settings, "{custom_type}", indexName.c_str(), {indent} + {indent_plus});')
                 if output_format == 'json':
-                    self.write(pi + f'          if (i < {fixed_array_len} - 1) settings.stream() << \',\';')
-                    self.write(pi + '    settings.stream() << "\\n";')
-                self.write(pi + '    }')
+                    self.write(f'  if (i < {fixed_array_len} - 1) settings.stream() << \',\';')
+                    self.write('settings.stream() << "\\n";')
+                self.write('}')
             else:
                 elem = f'{object_access}{var.name}[i]'
                 if var.fullType.count('*') > 1 and var.type != 'void' and var.type != 'char':
                     elem = f'*{object_access}{var.name}[i]'
 
-                self.write(pi + f'    for (size_t i = 0; i < {array_len}; ++i) {{')
-                self.write(pi + '        std::stringstream stream;')
-                self.write(pi + f'        stream << "{var.name if output_format != "json" else ""}" << "[" << i << "]";')
-                self.write(pi + '        std::string indexName = stream.str();')
-                self.write(pi + f'        dump_{output_format}_{call_type}({elem}, settings, "{custom_type}", indexName.c_str(), {indent} + {indent_plus});')
+                self.write(f'for (size_t i = 0; i < {array_len}; ++i) {{')
+                self.write('std::stringstream stream;')
+                self.write(f'stream << "{var.name if output_format != "json" else ""}" << "[" << i << "]";')
+                self.write('std::string indexName = stream.str();')
+                self.write(f'dump_{output_format}_{call_type}({elem}, settings, "{custom_type}", indexName.c_str(), {indent} + {indent_plus});')
                 if output_format == 'json':
-                    self.write(pi + f'        if (i < {array_len} - 1) settings.stream() << \',\';')
-                    self.write(pi + '        settings.stream() << "\\n";')
-                self.write(pi + '    }')
+                    self.write(f'if (i < {array_len} - 1) settings.stream() << \',\';')
+                    self.write('settings.stream() << "\\n";')
+                self.write('}')
 
-            self.write(pi + f'    dump_{output_format}_array_end({array_ptr}, {array_len}, settings, {indent});')
+            self.write(f'dump_{output_format}_array_end({array_ptr}, {array_len}, settings, {indent});')
             if var.pointer:
-                pi = pi[4:]
-                self.write(pi + '    } else {')
-                self.write(pi + f'        dump_{output_format}_nullptr(settings, "{custom_fullType}", "{var.name}", {indent});')
-                self.write(pi + '    }')
+                self.write('} else {')
+                self.write(f'dump_{output_format}_nullptr(settings, "{custom_fullType}", "{var.name}", {indent});')
+                self.write('}')
             if parent.name == 'VkShaderModuleCreateInfo' and var.name == 'pCode':
-                self.write('    } else {')
-                self.write(f'        dump_{output_format}_special("SHADER DATA", settings, "{var.fullType}", "{var.name}", {indent});')
-                self.write('    }')
+                self.write('} else {')
+                self.write(f'dump_{output_format}_special("SHADER DATA", settings, "{var.fullType}", "{var.name}", {indent});')
+                self.write('}')
         else:
             if var.name == 'pNext' and var.fullType in ['void*', 'const void*']:
                 if output_format == 'text':
-                    self.write(f'    dump_{output_format}_pNext_struct_name(object.{var.name}, settings, "{var.fullType}", "{var.name}", {indent});')
+                    self.write(f'dump_{output_format}_pNext_struct_name(object.{var.name}, settings, "{var.fullType}", "{var.name}", {indent});')
                 elif output_format in ['html', 'json']:
-                    self.write(f'    dump_{output_format}_pNext_trampoline(object.{var.name}, settings, "{var.fullType}", "{var.name}", {indent});')
+                    self.write(f'dump_{output_format}_pNext_trampoline(object.{var.name}, settings, "{var.fullType}", "{var.name}", {indent});')
             else:
-                self.write(pi + f'    dump_{output_format}_{call_type}({object_access}{var.name}, settings, "{custom_fullType}", "{var.name}", {indent});')
+                self.write(f'dump_{output_format}_{call_type}({object_access}{var.name}, settings, "{custom_fullType}", "{var.name}", {indent});')
 
 
     def write_platform_type_contents(self, output_format, t):
@@ -1287,44 +1283,44 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             cast = '(uint32_t) '
         if t.name == 'int8_t':
             cast = '(int32_t) '
-        self.write(f'    dump_{output_format}_value(settings, {cast}object);')
+        self.write(f'dump_{output_format}_value(settings, {cast}object);')
 
     def write_basetype_contents(self, output_format):
-        self.write(f'    dump_{output_format}_value(settings, object);')
+        self.write(f'dump_{output_format}_value(settings, object);')
 
     def write_system_type_contents(self, output_format, sys):
         if '*' in sys.name:
-            self.write(f'    dump_{output_format}_address(settings, &object);')
+            self.write(f'dump_{output_format}_address(settings, &object);')
             if output_format == 'json':
-                self.write('    settings.stream() << "\\n";')
+                self.write('settings.stream() << "\\n";')
         else:
-            self.write(f'    dump_{output_format}_handle(settings, object);')
+            self.write(f'dump_{output_format}_handle(settings, object);')
 
     def write_enum_contents(self, output_format, enum):
-        self.write('    switch((int64_t) object)')
-        self.write('    {')
+        self.write('switch((int64_t) object)')
+        self.write('{')
         for field in enum.fields:
-            self.write(f'    case {field.valueStr}:')
+            self.write(f'case {field.valueStr}:')
             if output_format in ['text', 'html']:
-                self.write(f'        dump_{output_format}_value(settings, "{field.name} (", object, ")");')
+                self.write(f'dump_{output_format}_value(settings, "{field.name} (", object, ")");')
             if output_format == 'json':
-                self.write(f'        dump_{output_format}_value(settings, "{field.name}");')
-            self.write('        break;')
-        self.write('    default:')
-        self.write(f'        dump_{output_format}_value(settings, "UNKNOWN (", object, ")");')
-        self.write('    }')
+                self.write(f'dump_{output_format}_value(settings, "{field.name}");')
+            self.write('break;')
+        self.write('default:')
+        self.write(f'dump_{output_format}_value(settings, "UNKNOWN (", object, ")");')
+        self.write('}')
 
     def write_bitmask_constents(self, output_format, bitmask):
-        self.write(f'    dump_{output_format}_value_start(settings);')
-        self.write('    settings.stream() << object;')
-        self.write('    bool is_first = true;')
+        self.write(f'dump_{output_format}_value_start(settings);')
+        self.write('settings.stream() << object;')
+        self.write('bool is_first = true;')
         for field in bitmask.flags:
-            self.write(f'    if(object {"==" if  field.zero or field.multiBit else "&"} {field.valueStr if field.multiBit else field.value}) {{')
-            self.write(f'        settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
-            self.write('    }')
-        self.write('    if(!is_first)')
-        self.write('        settings.stream() << ")";')
-        self.write(f'    dump_{output_format}_value_end(settings);')
+            self.write(f'if(object {"==" if  field.zero or field.multiBit else "&"} {field.valueStr if field.multiBit else field.value}) {{')
+            self.write(f'settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
+            self.write('}')
+        self.write('if(!is_first)')
+        self.write('settings.stream() << ")";')
+        self.write(f'dump_{output_format}_value_end(settings);')
 
     def write_pointer_overload(self, output_format, object_type):
         # Workaround for some types needing a double pointer overload function
@@ -1334,10 +1330,11 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             const = ''
             double_ptr = '*'
 
-        self.write(f'void dump_{output_format}_{object_type}({const}{object_type}{double_ptr}* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents){{')
-        self.write('    if (object == NULL) {')
-        self.write(f'        dump_{output_format}_nullptr(settings, type_string, name, indents);')
-        self.write('    } else {')
-        self.write(f'        dump_{output_format}_{object_type}(*object, settings, type_string, name, indents, object);')
-        self.write('    }')
-        self.write('}')
+        self.write(f'''
+            void dump_{output_format}_{object_type}({const}{object_type}{double_ptr}* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {{
+            if (object == NULL) {{
+                dump_{output_format}_nullptr(settings, type_string, name, indents);
+            }} else {{
+                dump_{output_format}_{object_type}(*object, settings, type_string, name, indents, object);
+            }}
+        }}''')
