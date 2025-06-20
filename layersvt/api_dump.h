@@ -71,6 +71,14 @@
 
 #endif  // ANDROID
 
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define EXPORT_FUNCTION __attribute__((visibility("default")))
+#elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590)
+#define EXPORT_FUNCTION __attribute__((visibility("default")))
+#else
+#define EXPORT_FUNCTION
+#endif
+
 #if defined(WIN32)
 // Disable warning about bitshift precedence
 #pragma warning(disable : 4554)
@@ -128,6 +136,10 @@
 #endif  // TARGET_OS_OSX
 
 #endif  // __APPLE__
+
+// Forward declarations of generated code in api_dump.cpp
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char* pName);
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevice device, const char* pName);
 
 enum class ApiDumpFormat {
     Text,
