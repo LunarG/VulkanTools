@@ -1098,8 +1098,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateXlibSurfaceKHR(VkInstance instance, const
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_XLIB_KHR
-#if defined(VK_USE_PLATFORM_XLIB_KHR)
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, Display* dpy, VisualID visualID) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
@@ -1156,8 +1154,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(VkInstance instance, const 
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_XCB_KHR
-#if defined(VK_USE_PLATFORM_XCB_KHR)
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, xcb_connection_t* connection, xcb_visualid_t visual_id) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
@@ -1214,8 +1210,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateWaylandSurfaceKHR(VkInstance instance, co
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_WAYLAND_KHR
-#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, struct wl_display* display) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
@@ -1301,8 +1295,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance instance, cons
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
@@ -2215,8 +2207,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireXlibDisplayEXT(VkPhysicalDevice physical
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_XLIB_XRANDR_EXT
-#if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetRandROutputDisplayEXT(VkPhysicalDevice physicalDevice, Display* dpy, RROutput rrOutput, VkDisplayKHR* pDisplay) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
@@ -2760,8 +2750,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireWinrtDisplayNV(VkPhysicalDevice physical
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetWinrtDisplayNV(VkPhysicalDevice physicalDevice, uint32_t deviceRelativeId, VkDisplayKHR* pDisplay) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
@@ -2818,8 +2806,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDirectFBSurfaceEXT(VkInstance instance, c
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_DIRECTFB_EXT
-#if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceDirectFBPresentationSupportEXT(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, IDirectFB* dfb) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
@@ -2876,8 +2862,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateScreenSurfaceQNX(VkInstance instance, con
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_SCREEN_QNX
-#if defined(VK_USE_PLATFORM_SCREEN_QNX)
 VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, struct _screen_window* window) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
@@ -9534,8 +9518,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(VkDevice device, const 
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandlePropertiesKHR(VkDevice device, VkExternalMemoryHandleTypeFlagBits handleType, HANDLE handle, VkMemoryWin32HandlePropertiesKHR* pMemoryWin32HandleProperties) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -9654,8 +9636,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreWin32HandleKHR(VkDevice device, 
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreWin32HandleKHR(VkDevice device, const VkSemaphoreGetWin32HandleInfoKHR* pGetWin32HandleInfo, HANDLE* pHandle) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -10057,8 +10037,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceWin32HandleKHR(VkDevice device, cons
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceWin32HandleKHR(VkDevice device, const VkFenceGetWin32HandleInfoKHR* pGetWin32HandleInfo, HANDLE* pHandle) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -13352,8 +13330,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetAndroidHardwareBufferPropertiesANDROID(VkDev
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_ANDROID_KHR
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(VkDevice device, const VkMemoryGetAndroidHardwareBufferInfoANDROID* pInfo, struct AHardwareBuffer** pBuffer) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -13414,8 +13390,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateExecutionGraphPipelinesAMDX(VkDevice devi
     }
     return result;
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineScratchSizeAMDX(VkDevice device, VkPipeline executionGraph, VkExecutionGraphPipelineScratchSizeAMDX* pSizeInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -13445,8 +13419,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineScratchSizeAMDX(VkDevi
     }
     return result;
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineNodeIndexAMDX(VkDevice device, VkPipeline executionGraph, const VkPipelineShaderStageNodeCreateInfoAMDX* pNodeInfo, uint32_t* pNodeIndex) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -13476,8 +13448,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetExecutionGraphPipelineNodeIndexAMDX(VkDevice
     }
     return result;
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR void VKAPI_CALL vkCmdInitializeGraphScratchMemoryAMDX(VkCommandBuffer commandBuffer, VkPipeline executionGraph, VkDeviceAddress scratch, VkDeviceSize scratchSize) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -13506,8 +13476,6 @@ VKAPI_ATTR void VKAPI_CALL vkCmdInitializeGraphScratchMemoryAMDX(VkCommandBuffer
         }
     }
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphAMDX(VkCommandBuffer commandBuffer, VkDeviceAddress scratch, VkDeviceSize scratchSize, const VkDispatchGraphCountInfoAMDX* pCountInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -13536,8 +13504,6 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphAMDX(VkCommandBuffer commandBuffer,
         }
     }
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphIndirectAMDX(VkCommandBuffer commandBuffer, VkDeviceAddress scratch, VkDeviceSize scratchSize, const VkDispatchGraphCountInfoAMDX* pCountInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -13566,8 +13532,6 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphIndirectAMDX(VkCommandBuffer comman
         }
     }
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphIndirectCountAMDX(VkCommandBuffer commandBuffer, VkDeviceAddress scratch, VkDeviceSize scratchSize, VkDeviceAddress countInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -14909,8 +14873,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAcquireFullScreenExclusiveModeEXT(VkDevice devi
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
 VKAPI_ATTR VkResult VKAPI_CALL vkReleaseFullScreenExclusiveModeEXT(VkDevice device, VkSwapchainKHR swapchain) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -14940,8 +14902,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseFullScreenExclusiveModeEXT(VkDevice devi
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModes2EXT(VkDevice device, const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo, VkDeviceGroupPresentModeFlagsKHR* pModes) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -15878,8 +15838,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateCudaModuleNV(VkDevice device, const VkCud
     }
     return result;
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetCudaModuleCacheNV(VkDevice device, VkCudaModuleNV module, size_t* pCacheSize, void* pCacheData) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -15909,8 +15867,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetCudaModuleCacheNV(VkDevice device, VkCudaMod
     }
     return result;
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateCudaFunctionNV(VkDevice device, const VkCudaFunctionCreateInfoNV* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkCudaFunctionNV* pFunction) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -15940,8 +15896,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateCudaFunctionNV(VkDevice device, const VkC
     }
     return result;
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR void VKAPI_CALL vkDestroyCudaModuleNV(VkDevice device, VkCudaModuleNV module, const VkAllocationCallbacks* pAllocator) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -15970,8 +15924,6 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCudaModuleNV(VkDevice device, VkCudaModuleNV
         }
     }
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR void VKAPI_CALL vkDestroyCudaFunctionNV(VkDevice device, VkCudaFunctionNV function, const VkAllocationCallbacks* pAllocator) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16000,8 +15952,6 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyCudaFunctionNV(VkDevice device, VkCudaFuncti
         }
     }
 }
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
 VKAPI_ATTR void VKAPI_CALL vkCmdCudaLaunchKernelNV(VkCommandBuffer commandBuffer, const VkCudaLaunchInfoNV* pLaunchInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16573,8 +16523,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandleFUCHSIA(VkDevice device, c
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandlePropertiesFUCHSIA(VkDevice device, VkExternalMemoryHandleTypeFlagBits handleType, zx_handle_t zirconHandle, VkMemoryZirconHandlePropertiesFUCHSIA* pMemoryZirconHandleProperties) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16604,8 +16552,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandlePropertiesFUCHSIA(VkDevice
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
 VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreZirconHandleFUCHSIA(VkDevice device, const VkImportSemaphoreZirconHandleInfoFUCHSIA* pImportSemaphoreZirconHandleInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16635,8 +16581,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreZirconHandleFUCHSIA(VkDevice dev
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreZirconHandleFUCHSIA(VkDevice device, const VkSemaphoreGetZirconHandleInfoFUCHSIA* pGetZirconHandleInfo, zx_handle_t* pZirconHandle) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16666,8 +16610,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreZirconHandleFUCHSIA(VkDevice device
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateBufferCollectionFUCHSIA(VkDevice device, const VkBufferCollectionCreateInfoFUCHSIA* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkBufferCollectionFUCHSIA* pCollection) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16697,8 +16639,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateBufferCollectionFUCHSIA(VkDevice device, 
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
 VKAPI_ATTR VkResult VKAPI_CALL vkSetBufferCollectionImageConstraintsFUCHSIA(VkDevice device, VkBufferCollectionFUCHSIA collection, const VkImageConstraintsInfoFUCHSIA* pImageConstraintsInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16728,8 +16668,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetBufferCollectionImageConstraintsFUCHSIA(VkDe
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
 VKAPI_ATTR VkResult VKAPI_CALL vkSetBufferCollectionBufferConstraintsFUCHSIA(VkDevice device, VkBufferCollectionFUCHSIA collection, const VkBufferConstraintsInfoFUCHSIA* pBufferConstraintsInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16759,8 +16697,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkSetBufferCollectionBufferConstraintsFUCHSIA(VkD
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
 VKAPI_ATTR void VKAPI_CALL vkDestroyBufferCollectionFUCHSIA(VkDevice device, VkBufferCollectionFUCHSIA collection, const VkAllocationCallbacks* pAllocator) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16789,8 +16725,6 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyBufferCollectionFUCHSIA(VkDevice device, VkB
         }
     }
 }
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetBufferCollectionPropertiesFUCHSIA(VkDevice device, VkBufferCollectionFUCHSIA collection, VkBufferCollectionPropertiesFUCHSIA* pProperties) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -20241,8 +20175,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandleEXT(VkDevice device, const 
     }
     return result;
 }
-#endif  // VK_USE_PLATFORM_METAL_EXT
-#if defined(VK_USE_PLATFORM_METAL_EXT)
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandlePropertiesEXT(VkDevice device, VkExternalMemoryHandleTypeFlagBits handleType, const void* pHandle, VkMemoryMetalHandlePropertiesEXT* pMemoryMetalHandleProperties) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -21096,24 +21028,18 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
     if (strcmp(pName, "vkCreateXlibSurfaceKHR") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateXlibSurfaceKHR);
-#endif  // VK_USE_PLATFORM_XLIB_KHR
-#if defined(VK_USE_PLATFORM_XLIB_KHR)
     if (strcmp(pName, "vkGetPhysicalDeviceXlibPresentationSupportKHR") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceXlibPresentationSupportKHR);
 #endif  // VK_USE_PLATFORM_XLIB_KHR
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     if (strcmp(pName, "vkCreateXcbSurfaceKHR") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateXcbSurfaceKHR);
-#endif  // VK_USE_PLATFORM_XCB_KHR
-#if defined(VK_USE_PLATFORM_XCB_KHR)
     if (strcmp(pName, "vkGetPhysicalDeviceXcbPresentationSupportKHR") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceXcbPresentationSupportKHR);
 #endif  // VK_USE_PLATFORM_XCB_KHR
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
     if (strcmp(pName, "vkCreateWaylandSurfaceKHR") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateWaylandSurfaceKHR);
-#endif  // VK_USE_PLATFORM_WAYLAND_KHR
-#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
     if (strcmp(pName, "vkGetPhysicalDeviceWaylandPresentationSupportKHR") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceWaylandPresentationSupportKHR);
 #endif  // VK_USE_PLATFORM_WAYLAND_KHR
@@ -21124,8 +21050,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkCreateWin32SurfaceKHR") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateWin32SurfaceKHR);
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkGetPhysicalDeviceWin32PresentationSupportKHR") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceWin32PresentationSupportKHR);
 #endif  // VK_USE_PLATFORM_WIN32_KHR
@@ -21200,8 +21124,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
 #if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
     if (strcmp(pName, "vkAcquireXlibDisplayEXT") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkAcquireXlibDisplayEXT);
-#endif  // VK_USE_PLATFORM_XLIB_XRANDR_EXT
-#if defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
     if (strcmp(pName, "vkGetRandROutputDisplayEXT") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetRandROutputDisplayEXT);
 #endif  // VK_USE_PLATFORM_XLIB_XRANDR_EXT
@@ -21268,24 +21190,18 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkAcquireWinrtDisplayNV") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkAcquireWinrtDisplayNV);
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkGetWinrtDisplayNV") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetWinrtDisplayNV);
 #endif  // VK_USE_PLATFORM_WIN32_KHR
 #if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
     if (strcmp(pName, "vkCreateDirectFBSurfaceEXT") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateDirectFBSurfaceEXT);
-#endif  // VK_USE_PLATFORM_DIRECTFB_EXT
-#if defined(VK_USE_PLATFORM_DIRECTFB_EXT)
     if (strcmp(pName, "vkGetPhysicalDeviceDirectFBPresentationSupportEXT") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceDirectFBPresentationSupportEXT);
 #endif  // VK_USE_PLATFORM_DIRECTFB_EXT
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
     if (strcmp(pName, "vkCreateScreenSurfaceQNX") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateScreenSurfaceQNX);
-#endif  // VK_USE_PLATFORM_SCREEN_QNX
-#if defined(VK_USE_PLATFORM_SCREEN_QNX)
     if (strcmp(pName, "vkGetPhysicalDeviceScreenPresentationSupportQNX") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceScreenPresentationSupportQNX);
 #endif  // VK_USE_PLATFORM_SCREEN_QNX
@@ -21771,8 +21687,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkGetMemoryWin32HandleKHR") == 0 && (!device || device_dispatch_table(device)->GetMemoryWin32HandleKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryWin32HandleKHR);
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkGetMemoryWin32HandlePropertiesKHR") == 0 && (!device || device_dispatch_table(device)->GetMemoryWin32HandlePropertiesKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryWin32HandlePropertiesKHR);
 #endif  // VK_USE_PLATFORM_WIN32_KHR
@@ -21783,8 +21697,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkImportSemaphoreWin32HandleKHR") == 0 && (!device || device_dispatch_table(device)->ImportSemaphoreWin32HandleKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkImportSemaphoreWin32HandleKHR);
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkGetSemaphoreWin32HandleKHR") == 0 && (!device || device_dispatch_table(device)->GetSemaphoreWin32HandleKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetSemaphoreWin32HandleKHR);
 #endif  // VK_USE_PLATFORM_WIN32_KHR
@@ -21815,8 +21727,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkImportFenceWin32HandleKHR") == 0 && (!device || device_dispatch_table(device)->ImportFenceWin32HandleKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkImportFenceWin32HandleKHR);
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkGetFenceWin32HandleKHR") == 0 && (!device || device_dispatch_table(device)->GetFenceWin32HandleKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetFenceWin32HandleKHR);
 #endif  // VK_USE_PLATFORM_WIN32_KHR
@@ -22053,36 +21963,22 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     if (strcmp(pName, "vkGetAndroidHardwareBufferPropertiesANDROID") == 0 && (!device || device_dispatch_table(device)->GetAndroidHardwareBufferPropertiesANDROID))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetAndroidHardwareBufferPropertiesANDROID);
-#endif  // VK_USE_PLATFORM_ANDROID_KHR
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
     if (strcmp(pName, "vkGetMemoryAndroidHardwareBufferANDROID") == 0 && (!device || device_dispatch_table(device)->GetMemoryAndroidHardwareBufferANDROID))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryAndroidHardwareBufferANDROID);
 #endif  // VK_USE_PLATFORM_ANDROID_KHR
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkCreateExecutionGraphPipelinesAMDX") == 0 && (!device || device_dispatch_table(device)->CreateExecutionGraphPipelinesAMDX))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateExecutionGraphPipelinesAMDX);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkGetExecutionGraphPipelineScratchSizeAMDX") == 0 && (!device || device_dispatch_table(device)->GetExecutionGraphPipelineScratchSizeAMDX))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetExecutionGraphPipelineScratchSizeAMDX);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkGetExecutionGraphPipelineNodeIndexAMDX") == 0 && (!device || device_dispatch_table(device)->GetExecutionGraphPipelineNodeIndexAMDX))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetExecutionGraphPipelineNodeIndexAMDX);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkCmdInitializeGraphScratchMemoryAMDX") == 0 && (!device || device_dispatch_table(device)->CmdInitializeGraphScratchMemoryAMDX))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdInitializeGraphScratchMemoryAMDX);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkCmdDispatchGraphAMDX") == 0 && (!device || device_dispatch_table(device)->CmdDispatchGraphAMDX))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDispatchGraphAMDX);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkCmdDispatchGraphIndirectAMDX") == 0 && (!device || device_dispatch_table(device)->CmdDispatchGraphIndirectAMDX))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDispatchGraphIndirectAMDX);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkCmdDispatchGraphIndirectCountAMDX") == 0 && (!device || device_dispatch_table(device)->CmdDispatchGraphIndirectCountAMDX))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDispatchGraphIndirectCountAMDX);
 #endif  // VK_ENABLE_BETA_EXTENSIONS
@@ -22179,12 +22075,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkAcquireFullScreenExclusiveModeEXT") == 0 && (!device || device_dispatch_table(device)->AcquireFullScreenExclusiveModeEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkAcquireFullScreenExclusiveModeEXT);
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkReleaseFullScreenExclusiveModeEXT") == 0 && (!device || device_dispatch_table(device)->ReleaseFullScreenExclusiveModeEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkReleaseFullScreenExclusiveModeEXT);
-#endif  // VK_USE_PLATFORM_WIN32_KHR
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (strcmp(pName, "vkGetDeviceGroupSurfacePresentModes2EXT") == 0 && (!device || device_dispatch_table(device)->GetDeviceGroupSurfacePresentModes2EXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceGroupSurfacePresentModes2EXT);
 #endif  // VK_USE_PLATFORM_WIN32_KHR
@@ -22253,24 +22145,14 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkCreateCudaModuleNV") == 0 && (!device || device_dispatch_table(device)->CreateCudaModuleNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateCudaModuleNV);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkGetCudaModuleCacheNV") == 0 && (!device || device_dispatch_table(device)->GetCudaModuleCacheNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetCudaModuleCacheNV);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkCreateCudaFunctionNV") == 0 && (!device || device_dispatch_table(device)->CreateCudaFunctionNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateCudaFunctionNV);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkDestroyCudaModuleNV") == 0 && (!device || device_dispatch_table(device)->DestroyCudaModuleNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyCudaModuleNV);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkDestroyCudaFunctionNV") == 0 && (!device || device_dispatch_table(device)->DestroyCudaFunctionNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyCudaFunctionNV);
-#endif  // VK_ENABLE_BETA_EXTENSIONS
-#if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkCmdCudaLaunchKernelNV") == 0 && (!device || device_dispatch_table(device)->CmdCudaLaunchKernelNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCudaLaunchKernelNV);
 #endif  // VK_ENABLE_BETA_EXTENSIONS
@@ -22315,36 +22197,20 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
 #if defined(VK_USE_PLATFORM_FUCHSIA)
     if (strcmp(pName, "vkGetMemoryZirconHandleFUCHSIA") == 0 && (!device || device_dispatch_table(device)->GetMemoryZirconHandleFUCHSIA))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryZirconHandleFUCHSIA);
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
     if (strcmp(pName, "vkGetMemoryZirconHandlePropertiesFUCHSIA") == 0 && (!device || device_dispatch_table(device)->GetMemoryZirconHandlePropertiesFUCHSIA))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryZirconHandlePropertiesFUCHSIA);
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
     if (strcmp(pName, "vkImportSemaphoreZirconHandleFUCHSIA") == 0 && (!device || device_dispatch_table(device)->ImportSemaphoreZirconHandleFUCHSIA))
         return reinterpret_cast<PFN_vkVoidFunction>(vkImportSemaphoreZirconHandleFUCHSIA);
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
     if (strcmp(pName, "vkGetSemaphoreZirconHandleFUCHSIA") == 0 && (!device || device_dispatch_table(device)->GetSemaphoreZirconHandleFUCHSIA))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetSemaphoreZirconHandleFUCHSIA);
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
     if (strcmp(pName, "vkCreateBufferCollectionFUCHSIA") == 0 && (!device || device_dispatch_table(device)->CreateBufferCollectionFUCHSIA))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateBufferCollectionFUCHSIA);
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
     if (strcmp(pName, "vkSetBufferCollectionImageConstraintsFUCHSIA") == 0 && (!device || device_dispatch_table(device)->SetBufferCollectionImageConstraintsFUCHSIA))
         return reinterpret_cast<PFN_vkVoidFunction>(vkSetBufferCollectionImageConstraintsFUCHSIA);
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
     if (strcmp(pName, "vkSetBufferCollectionBufferConstraintsFUCHSIA") == 0 && (!device || device_dispatch_table(device)->SetBufferCollectionBufferConstraintsFUCHSIA))
         return reinterpret_cast<PFN_vkVoidFunction>(vkSetBufferCollectionBufferConstraintsFUCHSIA);
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
     if (strcmp(pName, "vkDestroyBufferCollectionFUCHSIA") == 0 && (!device || device_dispatch_table(device)->DestroyBufferCollectionFUCHSIA))
         return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyBufferCollectionFUCHSIA);
-#endif  // VK_USE_PLATFORM_FUCHSIA
-#if defined(VK_USE_PLATFORM_FUCHSIA)
     if (strcmp(pName, "vkGetBufferCollectionPropertiesFUCHSIA") == 0 && (!device || device_dispatch_table(device)->GetBufferCollectionPropertiesFUCHSIA))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetBufferCollectionPropertiesFUCHSIA);
 #endif  // VK_USE_PLATFORM_FUCHSIA
@@ -22593,8 +22459,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     if (strcmp(pName, "vkGetMemoryMetalHandleEXT") == 0 && (!device || device_dispatch_table(device)->GetMemoryMetalHandleEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryMetalHandleEXT);
-#endif  // VK_USE_PLATFORM_METAL_EXT
-#if defined(VK_USE_PLATFORM_METAL_EXT)
     if (strcmp(pName, "vkGetMemoryMetalHandlePropertiesEXT") == 0 && (!device || device_dispatch_table(device)->GetMemoryMetalHandlePropertiesEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryMetalHandlePropertiesEXT);
 #endif  // VK_USE_PLATFORM_METAL_EXT

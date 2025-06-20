@@ -169,6 +169,20 @@ EXCLUDED_INCLUDE_LIST = [
 
 FUNCTION_IMPLEMENTATION_IGNORE_LIST = ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr', 'vkEnumerateInstanceVersion']
 
+class PlatformGuardHelper():
+    """Used to elide platform guards together, so redundant #endif then #ifdefs are removed
+    Note - be sure to call add_guard(None) when done to add a trailing #endif if needed
+    """
+    def __init__(self):
+        self.current_guard = None
+
+    def add_guard(self, generator, guard):
+        if self.current_guard != guard and self.current_guard is not None:
+            generator.write(f'#endif  // {self.current_guard}')
+        if self.current_guard != guard and guard is not None:
+            generator.write(f'#if defined({guard})')
+        self.current_guard = guard
+
 # Returns the command's parameters declaration. ex) uint32_t foo, float bar, char* baz
 def commandParameterDeclarationText(command):
     return ', '.join(str.strip(p.cDeclaration) for p in command.params)
@@ -490,12 +504,11 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
 // Autogen instance functions
 ''')
 
-
+        protect = PlatformGuardHelper()
         for command in  [x for x in self.vk.commands.values() if x.instance]:
             if command.name in ['vkCreateInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceLayerProperties', 'vkEnumerateInstanceVersion']:
                 continue
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
+            protect.add_guard(self, command.protect)
             self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({commandParameterDeclarationText(command)})')
             self.write('{')
             if command.name not in BLOCKING_API_CALLS:
@@ -574,8 +587,7 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
             if command.returnType != 'void':
                 self.write('return result;')
             self.write('}')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n// Autogen device functions\n')
 
@@ -583,8 +595,7 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
             if command.name in ['vkGetDeviceProcAddr']:
                 continue
 
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
+            protect.add_guard(self, command.protect)
 
             self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({commandParameterDeclarationText(command)})')
             self.write('{')
@@ -635,36 +646,32 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
             if command.returnType != 'void':
                 self.write('return result;')
             self.write('}')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
+        protect.add_guard(self, None)
+
 
         self.write('\nVKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char* pName)')
         self.write('{\n')
         for command in self.vk.commands.values():
             if command.name in ['vkEnumerateDeviceExtensionProperties', 'vkEnumerateInstanceVersion'] or (command.device and 'VK_EXT_debug_utils' not in command.extensions):
                 continue
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
+            protect.add_guard(self, command.protect)
             # checking for instance functions seems to have always been broken
             # if command.params[0].type in ['VkInstance', 'VkPhysicalDevice']:
             #     self.write(f'if(strcmp(pName, "{command.name}") == 0 && (!instance || instance_dispatch_table(instance)->{command.name[2:]}))')
             # else:
             self.write(f'if(strcmp(pName, "{command.name}") == 0)')
             self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
+        protect.add_guard(self, None)
         self.write('\n    return nullptr;')
         self.write('}')
 
         self.write('\nVKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevice device, const char* pName)')
         self.write('{\n')
         for command in [x for x in self.vk.commands.values() if x.device ]:
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
+            protect.add_guard(self, command.protect)
             self.write(f'if(strcmp(pName, "{command.name}") == 0 && (!device || device_dispatch_table(device)->{command.name[2:]}))')
             self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n    return nullptr;')
         self.write('}')
@@ -697,28 +704,26 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 }''')
 
     def generate_header(self, output_format):
+        protect = PlatformGuardHelper()
         self.write('#pragma once\n')
 
         self.write('#include "api_dump.h"')
 
         self.write('\n//========================= Function Helpers ================================//\n')
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
+            protect.add_guard(self, command.protect)
+
             self.write(f'void dump_{output_format}_params_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)});')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n//========================= Function Implementations ========================//\n')
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
+            protect.add_guard(self, command.protect)
             if command.returnType != 'void':
                 self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {command.returnType} result, {commandParameterDeclarationText(command)});')
             else:
                 self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)});')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
+        protect.add_guard(self, None)
         self.write('\n')
 
     def generate_implementation(self, output_format, video=False):
@@ -753,14 +758,14 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
         self.write('\n//========================= Basetype Implementations ========================//\n')
 
+        protect = PlatformGuardHelper()
         for basetype in self.vk.baseTypes.values():
+            protect.add_guard(self, basetype.protect)
             if basetype.name in self.return_types:
                 self.write(f'void dump_{output_format}_return_value_{basetype.name}(const {basetype.name}& object, const ApiDumpSettings& settings, int indents) {{')
                 self.write_basetype_contents(output_format)
                 self.write('}')
 
-            if basetype.protect:
-                self.write(f'#if defined({basetype.protect})')
             self.write(f'void dump_{output_format}_{basetype.name}(const {basetype.name}{"*" if basetype.name in POINTER_TYPES else "&"} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
             self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
@@ -771,8 +776,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, basetype.name)
-            if basetype.protect:
-                self.write(f'#endif // {basetype.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n//======================= System Type Implementations =======================//\n')
 
@@ -780,8 +784,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for sys in sortedSystemTypes.values():
             if (sys.requires is not None and (sys.requires in EXCLUDED_INCLUDE_LIST or 'vk_video' in sys.requires)) or (video and sys.name in DUPLICATE_TYPES_IN_VIDEO_HEADER):
                 continue
-            if sys.protect:
-                self.write(f'#if defined({sys.protect})')
+            protect.add_guard(self, sys.protect)
             if sys.name in self.return_types:
                 self.write(f'void dump_{output_format}_return_value_{sys.name}(const {sys.name}& object, const ApiDumpSettings& settings, int indents) {{')
                 self.write_system_type_contents(output_format, sys)
@@ -797,14 +800,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write('}')
             if sys.name not in POINTER_TYPES:
                 self.write_pointer_overload(output_format, sys.name)
-            if sys.protect:
-                self.write(f'#endif // {sys.protect}')
+        protect.add_guard(self, None)
 
         if not video:
             self.write('\n//========================== Handle Implementations =========================//\n')
             for handle in self.vk.handles.values():
-                if handle.protect:
-                    self.write(f'#if defined({handle.protect})')
+                protect.add_guard(self, handle.protect)
                 self.write(f'void dump_{output_format}_{handle.name}(const {handle.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
                 self.write('{')
                 self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
@@ -825,13 +826,11 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
                 self.write('}')
                 self.write_pointer_overload(output_format, handle.name)
-                if handle.protect:
-                    self.write(f'#endif // {handle.protect}')
+            protect.add_guard(self, None)
 
         self.write('\n//=========================== Enum Implementations ==========================//\n')
         for enum in self.vk.enums.values():
-            if enum.protect:
-                self.write(f'#if defined({enum.protect})')
+            protect.add_guard(self, enum.protect)
             if enum.name in self.return_types:
                 self.write(f'void dump_{output_format}_return_value_{enum.name}(const {enum.name}& object, const ApiDumpSettings& settings, int indents) {{')
                 self.write_enum_contents(output_format, enum)
@@ -846,13 +845,11 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, enum.name)
-            if enum.protect:
-                self.write(f'#endif // {enum.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n//========================= Bitmask Implementations =========================//\n')
         for bitmask in self.vk.bitmasks.values():
-            if bitmask.protect:
-                self.write(f'#if defined({bitmask.protect})')
+            protect.add_guard(self, bitmask.protect)
             if output_format == 'text':
                 if bitmask.bitWidth == 64:
                     self.write('// 64 bit bitmasks don\'t have an enum of bit values.')
@@ -864,14 +861,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, bitmask.name)
-            if bitmask.protect:
-                self.write(f'#endif // {bitmask.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n//=========================== Flag Implementations ==========================//\n')
 
         for flag in self.vk.flags.values():
-            if flag.protect:
-                self.write(f'#if defined({flag.protect})')
+            protect.add_guard(self, flag.protect)
             self.write(f'void dump_{output_format}_{flag.name}(const {flag.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{')
             if flag.bitmaskName is not None:
                 self.write(f'dump_{output_format}_{flag.bitmaskName}(static_cast<{flag.bitmaskName}>(object), settings, type_name, var_name, indents, address);')
@@ -881,8 +876,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, flag.name)
-            if flag.protect:
-                self.write(f'#endif // {flag.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n//======================= Func Pointer Implementations ======================//\n')
 
@@ -897,12 +891,10 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         self.write('\n//======================== Union Forward Declarations =======================//\n')
 
         for union in [ x for x in self.vk.structs.values() if x.union ]:
-            if union.protect:
-                self.write(f'#if defined({union.protect})')
+            protect.add_guard(self, union.protect)
             self.write(f'void dump_{output_format}_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr);')
             self.write(f'void dump_{output_format}_{union.name}(const {union.name}* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents);')
-            if union.protect:
-                self.write(f'#endif // {union.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n//======================== pNext Chain Declarations =======================//\n')
         if not video:
@@ -913,8 +905,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         self.write('\n//========================== Struct Implementations =========================//\n')
 
         for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-            if struct.protect:
-                self.write(f'#if defined({struct.protect})')
+            protect.add_guard(self, struct.protect)
 
             # Rare recursive structure, needs pointer type declaration to work properly
             if struct.name in ['VkBaseInStructure', 'VkBaseOutStructure']:
@@ -966,14 +957,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write(f'dump_{output_format}_end(settings, OutputConstruct::api_struct, indents);')
             self.write('}')
             self.write_pointer_overload(output_format, struct.name)
-            if struct.protect:
-                self.write(f'#endif // {struct.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n//========================== Union Implementations ==========================//\n')
 
         for union in [ x for x in self.vk.structs.values() if x.union ]:
-            if union.protect:
-                self.write(f'#if defined({union.protect})')
+            protect.add_guard(self, union.protect)
             self.write(f'void dump_{output_format}_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address)')
             self.write('{')
             self.write(f'dump_{output_format}_start(settings, OutputConstruct::api_union, type_name, var_name, indents, address);')
@@ -996,8 +985,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
             self.write('}')
             self.write_pointer_overload(output_format, union.name)
-            if union.protect:
-                self.write(f'#endif // {union.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n//======================== pNext Chain Implementation =======================//\n')
         if not video:
@@ -1009,16 +997,14 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 }\n
                 switch(reinterpret_cast<const VkBaseInStructure*>(object)->sType) {''')
                 for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-                    if struct.protect:
-                        self.write(f'#if defined({struct.protect})')
+                    protect.add_guard(self, struct.protect)
                     if struct.sType is not None:
                         self.write(f'case {struct.sType}:')
                         self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents);')
                         self.write(f'dump_{output_format}_value(settings, "{struct.name}");')
                         self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
                         self.write('break;')
-                    if struct.protect:
-                        self.write(f'#endif // {struct.protect}')
+                protect.add_guard(self, None)
                 self.write(f'''
                     case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
                     case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
@@ -1041,14 +1027,12 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write('memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
             self.write('switch(base_struct.sType) {')
             for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-                if struct.protect:
-                    self.write(f'#if defined({struct.protect})')
+                protect.add_guard(self, struct.protect)
                 if struct.sType is not None:
                     self.write(f'case {struct.sType}:')
                     self.write(f'dump_{output_format}_{struct.name}(*reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}{"*" if output_format == "json" else ""}", "pNext", indents, reinterpret_cast<const {struct.name}*>(object));')
                     self.write('break;')
-                if struct.protect:
-                    self.write(f'#endif // {struct.protect}')
+            protect.add_guard(self, None)
             self.write(f'''
                 case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
                 case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
@@ -1068,8 +1052,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         self.write('\n//========================== Function Helpers ===============================//\n')
 
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
+            protect.add_guard(self, command.protect)
             self.write(f'void dump_{output_format}_params_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)})')
             self.write('{')
             self.write('const ApiDumpSettings& settings(dump_inst.settings());')
@@ -1096,13 +1079,11 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             self.write('flush(settings);')
             self.write('}')
             self.write('}')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
+        protect.add_guard(self, None)
 
         self.write('\n//========================= Function Implementations ========================//\n')
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            if command.protect:
-                self.write(f'#if defined({command.protect})')
+            protect.add_guard(self, command.protect)
             returnParam = f'{command.returnType} result, ' if command.returnType != 'void' else ''
             self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{commandParameterDeclarationText(command)})')
 
@@ -1131,8 +1112,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
                 self.write('settings.stream() << settings.indentation(2) << "}";')
             self.write('flush(settings);')
             self.write('}')
-            if command.protect:
-                self.write(f'#endif // {command.protect}')
+        protect.add_guard(self, None)
         self.write('\n')
 
     def buildAliasMap(self):
