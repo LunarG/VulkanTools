@@ -20,6 +20,7 @@
 
 import sys
 import os
+import subprocess
 
 # Returns true if we are running in GitHub actions
 # https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
