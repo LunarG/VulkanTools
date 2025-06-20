@@ -154,8 +154,15 @@ VALIDITY_CHECKS = {
 # outputs
 DUPLICATE_TYPES_IN_VIDEO_HEADER = ['uint32_t', 'uint16_t', 'uint8_t', 'int32_t', 'int16_t', 'int8_t']
 
-# Short list of all of the functions that are 'global', meaning they can be queried from vkGetInstanceProcAddr(NULL, "<func_name>")
-GLOBAL_FUNCTION_NAMES = ['vkEnumerateInstanceLayerProperties', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceVersion', 'vkCreateInstance']
+HANDWRITTEN_FUNCTIONS = ['vkCreateInstance',
+                         'vkCreateDevice',
+                         'vkEnumerateInstanceExtensionProperties',
+                         'vkEnumerateInstanceLayerProperties',
+                         'vkEnumerateInstanceVersion',
+                         'vkEnumerateDeviceLayerProperties',
+                         'vkEnumerateDeviceExtensionProperties',
+                         'vkGetInstanceProcAddr',
+                         'vkGetDeviceProcAddr']
 
 BLOCKING_API_CALLS = [
     'vkWaitForFences', 'vkWaitSemaphores', 'vkQueuePresentKHR', 'vkDeviceWaitIdle',
@@ -184,11 +191,11 @@ class PlatformGuardHelper():
         self.current_guard = guard
 
 # Returns the command's parameters declaration. ex) uint32_t foo, float bar, char* baz
-def commandParameterDeclarationText(command):
+def command_param_declaration_text(command : Command):
     return ', '.join(str.strip(p.cDeclaration) for p in command.params)
 
 # Comma separate the names of the parameters. ex) foo, bar, baz
-def commandParameterUsageText(command):
+def command_param_usage_text(command : Command):
     return ', '.join(p.name for p in command.params)
 
 def get_fulltype(var):
@@ -303,8 +310,8 @@ class ApiDumpGenerator(BaseGenerator):
         self.return_types = set()
 
     def generate(self):
-        self.getReturnTypes()
-        self.buildAliasMap()
+        self.get_return_types()
+        self.build_alias_map()
         self.generate_copyright()
         if self.filename == 'api_dump.cpp':
             self.generate_dispatch_codegen()
@@ -355,173 +362,30 @@ class ApiDumpGenerator(BaseGenerator):
     def generate_dispatch_codegen(self):
 
         self.write('''#include "api_dump_text.h"
-#include "api_dump_html.h"
-#include "api_dump_json.h"
+            #include "api_dump_html.h"
+            #include "api_dump_json.h"
 
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-
-// Specifically implemented functions
-
-#if defined(__GNUC__) && __GNUC__ >= 4
-#define EXPORT_FUNCTION __attribute__((visibility("default")))
-#elif defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590)
-#define EXPORT_FUNCTION __attribute__((visibility("default")))
-#else
-#define EXPORT_FUNCTION
-#endif
-
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance)
-{
-    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-    ApiDumpInstance::current().initLayerSettings(pCreateInfo, pAllocator);
-    if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
-        dump_function_head(ApiDumpInstance::current(), "vkCreateInstance", "pCreateInfo, pAllocator, pInstance");
-        if (ApiDumpInstance::current().shouldDumpOutput()) {
-            dump_text_params_vkCreateInstance(ApiDumpInstance::current(), pCreateInfo, pAllocator, pInstance);
-        }
-        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-    } else {
-        dump_function_head(ApiDumpInstance::current(), "vkCreateInstance", "pCreateInfo, pAllocator, pInstance", "VkResult");
-    }
-
-    // Get the function pointer
-    VkLayerInstanceCreateInfo* chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
-    assert(chain_info->u.pLayerInfo != 0);
-    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
-    assert(fpGetInstanceProcAddr != 0);
-    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance) fpGetInstanceProcAddr(NULL, "vkCreateInstance");
-    if(fpCreateInstance == NULL) {
-        return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    // Call the function and create the dispatch table
-    chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
-    VkResult result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
-    if(result == VK_SUCCESS) {
-        initInstanceTable(*pInstance, fpGetInstanceProcAddr);
-    }
-
-    // Output the API dump
-    if (ApiDumpInstance::current().shouldDumpOutput()) {
-        switch(ApiDumpInstance::current().settings().format())
-        {
-            case ApiDumpFormat::Text:
-                dump_text_vkCreateInstance(ApiDumpInstance::current(), result, pCreateInfo, pAllocator, pInstance);
-                break;
-            case ApiDumpFormat::Html:
-                dump_html_vkCreateInstance(ApiDumpInstance::current(), result, pCreateInfo, pAllocator, pInstance);
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_vkCreateInstance(ApiDumpInstance::current(), result, pCreateInfo, pAllocator, pInstance);
-                break;
-        }
-    }
-    return result;
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice)
-{
-    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-    if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
-        dump_function_head(ApiDumpInstance::current(), "vkCreateDevice", "physicalDevice, pCreateInfo, pAllocator, pDevice");
-        if (ApiDumpInstance::current().shouldDumpOutput()) {
-            dump_text_params_vkCreateDevice(ApiDumpInstance::current(), physicalDevice, pCreateInfo, pAllocator, pDevice);
-        }
-        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-    } else {
-        dump_function_head(ApiDumpInstance::current(), "vkCreateDevice", "physicalDevice, pCreateInfo, pAllocator, pDevice", "VkResult");
-    }
-
-    // Get the function pointer
-    VkLayerDeviceCreateInfo* chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
-    assert(chain_info->u.pLayerInfo != 0);
-    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
-    PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
-    VkInstance vk_instance = ApiDumpInstance::current().get_vk_instance(physicalDevice);
-    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice) fpGetInstanceProcAddr(vk_instance, "vkCreateDevice");
-    if(fpCreateDevice == NULL) {
-        return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    // Call the function and create the dispatch table
-    chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
-    VkResult result = fpCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
-    if(result == VK_SUCCESS) {
-        initDeviceTable(*pDevice, fpGetDeviceProcAddr);
-    }
-
-    // Output the API dump
-    if (ApiDumpInstance::current().shouldDumpOutput()) {
-        switch(ApiDumpInstance::current().settings().format())
-        {
-            case ApiDumpFormat::Text:
-                dump_text_vkCreateDevice(ApiDumpInstance::current(), result, physicalDevice, pCreateInfo, pAllocator, pDevice);
-                break;
-            case ApiDumpFormat::Html:
-                dump_html_vkCreateDevice(ApiDumpInstance::current(), result, physicalDevice, pCreateInfo, pAllocator, pDevice);
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_vkCreateDevice(ApiDumpInstance::current(), result, physicalDevice, pCreateInfo, pAllocator, pDevice);
-                break;
-        }
-    }
-    return result;
-}
-
-EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
-{
-    return util_GetExtensionProperties(0, NULL, pPropertyCount, pProperties);
-}
-
-EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties)
-{
-    static const VkLayerProperties layerProperties[] = {
-        {
-            "VK_LAYER_LUNARG_api_dump",
-            VK_MAKE_VERSION(1, 4, VK_HEADER_VERSION), // specVersion
-            VK_MAKE_VERSION(0, 2, 0), // implementationVersion
-            "layer: api_dump",
-        }
-    };
-
-    return util_GetLayerProperties(ARRAY_SIZE(layerProperties), layerProperties, pPropertyCount, pProperties);
-}
-
-EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties)
-{
-    static const VkLayerProperties layerProperties[] = {
-        {
-            "VK_LAYER_LUNARG_api_dump",
-            VK_MAKE_VERSION(1, 4, VK_HEADER_VERSION),
-            VK_MAKE_VERSION(0, 2, 0),
-            "layer: api_dump",
-        }
-    };
-
-    return util_GetLayerProperties(ARRAY_SIZE(layerProperties), layerProperties, pPropertyCount, pProperties);
-}
-
-// Autogen instance functions
-''')
+            // Autogen instance functions
+            ''')
 
         protect = PlatformGuardHelper()
         for command in  [x for x in self.vk.commands.values() if x.instance]:
-            if command.name in ['vkCreateInstance', 'vkCreateDevice', 'vkGetInstanceProcAddr', 'vkEnumerateDeviceExtensionProperties', 'vkEnumerateDeviceLayerProperties', 'vkEnumerateInstanceExtensionProperties', 'vkEnumerateInstanceLayerProperties', 'vkEnumerateInstanceVersion']:
+            if command.name in HANDWRITTEN_FUNCTIONS:
                 continue
             protect.add_guard(self, command.protect)
-            self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({commandParameterDeclarationText(command)})')
+            self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({command_param_declaration_text(command)})')
             self.write('{')
             if command.name not in BLOCKING_API_CALLS:
                 self.write(f'''
                     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
                     if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {{
-                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}");
+                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}");
                         if (ApiDumpInstance::current().shouldDumpOutput()) {{
-                            dump_text_params_{command.name}(ApiDumpInstance::current(), {commandParameterUsageText(command)});
+                            dump_text_params_{command.name}(ApiDumpInstance::current(), {command_param_usage_text(command)});
                         }}
                         dump_return_preamble(ApiDumpInstance::current(), "{command.returnType}");
                     }} else {{
-                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");
+                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
                     }}''')
 
             if command.name == 'vkGetPhysicalDeviceToolPropertiesEXT':
@@ -545,10 +409,10 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
                 self.write('auto dispatch_key = get_dispatch_key(instance);')
 
             return_str = f'{command.returnType} result = ' if command.returnType != 'void' else ''
-            self.write(f'{return_str}instance_dispatch_table({command.params[0].name})->{command.name[2:]}({commandParameterUsageText(command)});')
+            self.write(f'{return_str}instance_dispatch_table({command.params[0].name})->{command.name[2:]}({command_param_usage_text(command)});')
             if command.name in BLOCKING_API_CALLS:
                 self.write('std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
-                self.write(f'dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");')
+                self.write(f'dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");')
 
             if command.name in TRACKED_STATE:
                 self.write(TRACKED_STATE[command.name])
@@ -591,13 +455,13 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
 
         self.write('\n// Autogen device functions\n')
 
-        for command in [x for x in self.vk.commands.values() if x.device]:
+        for command in [x for x in self.vk.commands.values() if x.device and x.name not in HANDWRITTEN_FUNCTIONS]:
             if command.name in ['vkGetDeviceProcAddr']:
                 continue
 
             protect.add_guard(self, command.protect)
 
-            self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({commandParameterDeclarationText(command)})')
+            self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({command_param_declaration_text(command)})')
             self.write('{')
 
             if command.name not in BLOCKING_API_CALLS:
@@ -606,20 +470,20 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
                     self.write('ApiDumpInstance::current().update_object_name_map(pNameInfo);')
                 self.write(f'''
                     if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {{
-                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}");
+                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}");
                         if (ApiDumpInstance::current().shouldDumpOutput()) {{
-                            dump_text_params_{command.name}(ApiDumpInstance::current(), {commandParameterUsageText(command)});
+                            dump_text_params_{command.name}(ApiDumpInstance::current(), {command_param_usage_text(command)});
                         }}
                         dump_return_preamble(ApiDumpInstance::current(), "{command.returnType}");\n
                     }} else {{
-                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");
+                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
                     }}''')
 
             return_str = f'{command.returnType} result = ' if command.returnType != 'void' else ''
-            self.write(f'{return_str}device_dispatch_table({command.params[0].name})->{command.name[2:]}({commandParameterUsageText(command)});')
+            self.write(f'{return_str}device_dispatch_table({command.params[0].name})->{command.name[2:]}({command_param_usage_text(command)});')
             if command.name in BLOCKING_API_CALLS:
                 self.write('std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
-                self.write(f'dump_function_head(ApiDumpInstance::current(), "{command.name}", "{commandParameterUsageText(command)}", "{command.returnType}");')
+                self.write(f'dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");')
 
             if command.name in TRACKED_STATE:
                 self.write('' + TRACKED_STATE[command.name])
@@ -631,13 +495,13 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
                 switch(ApiDumpInstance::current().settings().format())
                 {{
                     case ApiDumpFormat::Text:
-                        dump_text_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{commandParameterUsageText(command)});
+                        dump_text_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
                         break;
                     case ApiDumpFormat::Html:
-                        dump_html_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{commandParameterUsageText(command)});
+                        dump_html_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
                         break;
                     case ApiDumpFormat::Json:
-                        dump_json_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{commandParameterUsageText(command)});
+                        dump_json_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
                         break;
                 }}
             }}''')
@@ -655,10 +519,6 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
             if command.name in ['vkEnumerateDeviceExtensionProperties', 'vkEnumerateInstanceVersion'] or (command.device and 'VK_EXT_debug_utils' not in command.extensions):
                 continue
             protect.add_guard(self, command.protect)
-            # checking for instance functions seems to have always been broken
-            # if command.params[0].type in ['VkInstance', 'VkPhysicalDevice']:
-            #     self.write(f'if(strcmp(pName, "{command.name}") == 0 && (!instance || instance_dispatch_table(instance)->{command.name[2:]}))')
-            # else:
             self.write(f'if(strcmp(pName, "{command.name}") == 0)')
             self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
         protect.add_guard(self, None)
@@ -676,33 +536,6 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
         self.write('\n    return nullptr;')
         self.write('}')
 
-        self.write('''
-EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
-{
-    auto instance_func = api_dump_known_instance_functions(instance, pName);
-    if (instance_func) return instance_func;
-
-    // Make sure that device functions queried through GIPA works
-    auto device_func = api_dump_known_device_functions(NULL, pName);
-    if (device_func) return device_func;
-
-    // Haven't created an instance yet, exit now since there is no instance_dispatch_table
-    if(instance_dispatch_table(instance)->GetInstanceProcAddr == NULL)
-        return nullptr;
-    return instance_dispatch_table(instance)->GetInstanceProcAddr(instance, pName);
-}
-
-EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
-{
-    auto device_func = api_dump_known_device_functions(device, pName);
-    if (device_func) return device_func;
-
-    // Haven't created a device yet, exit now since there is no device_dispatch_table
-    if(device_dispatch_table(device)->GetDeviceProcAddr == NULL)
-        return nullptr;
-    return device_dispatch_table(device)->GetDeviceProcAddr(device, pName);
-}''')
-
     def generate_header(self, output_format):
         protect = PlatformGuardHelper()
         self.write('#pragma once\n')
@@ -713,16 +546,16 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
             protect.add_guard(self, command.protect)
 
-            self.write(f'void dump_{output_format}_params_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)});')
+            self.write(f'void dump_{output_format}_params_{command.name}(ApiDumpInstance& dump_inst, {command_param_declaration_text(command)});')
         protect.add_guard(self, None)
 
         self.write('\n//========================= Function Implementations ========================//\n')
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
             protect.add_guard(self, command.protect)
             if command.returnType != 'void':
-                self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {command.returnType} result, {commandParameterDeclarationText(command)});')
+                self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {command.returnType} result, {command_param_declaration_text(command)});')
             else:
-                self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)});')
+                self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {command_param_declaration_text(command)});')
         protect.add_guard(self, None)
         self.write('\n')
 
@@ -1053,7 +886,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
 
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
             protect.add_guard(self, command.protect)
-            self.write(f'void dump_{output_format}_params_{command.name}(ApiDumpInstance& dump_inst, {commandParameterDeclarationText(command)})')
+            self.write(f'void dump_{output_format}_params_{command.name}(ApiDumpInstance& dump_inst, {command_param_declaration_text(command)})')
             self.write('{')
             self.write('const ApiDumpSettings& settings(dump_inst.settings());')
             self.write('if(settings.showParams())')
@@ -1085,7 +918,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
             protect.add_guard(self, command.protect)
             returnParam = f'{command.returnType} result, ' if command.returnType != 'void' else ''
-            self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{commandParameterDeclarationText(command)})')
+            self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{command_param_declaration_text(command)})')
 
             self.write('{')
             self.write('const ApiDumpSettings& settings(dump_inst.settings());')
@@ -1105,7 +938,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             if output_format == 'html':
                 self.write('settings.stream() << "</summary>";')
 
-            self.write(f'dump_{output_format}_params_{command.name}(dump_inst, {commandParameterUsageText(command)});')
+            self.write(f'dump_{output_format}_params_{command.name}(dump_inst, {command_param_usage_text(command)});')
             if output_format == 'html':
                 self.write('\n    settings.stream() << "</details>";')
             if output_format == 'json':
@@ -1115,7 +948,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
         protect.add_guard(self, None)
         self.write('\n')
 
-    def buildAliasMap(self):
+    def build_alias_map(self):
         for handle in self.vk.handles.values():
             for alias in handle.aliases:
                 self.aliases[alias] = handle.name
@@ -1143,7 +976,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             for alias in flag.aliases:
                 self.aliases[alias] = flag.name
 
-    def getReturnTypes(self):
+    def get_return_types(self):
         for command in self.vk.commands.values():
             if command.returnType != 'void' :
                 self.return_types.add(command.returnType)
@@ -1164,11 +997,6 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             if var.noAutoValidity or (isinstance(parent, Struct) and parent.union):
                 return VALIDITY_CHECKS[parent.name][var.name]
         return None
-
-    def get_kind_of_value(self,var):
-        if var.type in self.vk.structs:
-            return 'union' if self.vk.structs[var.type].union else 'struct'
-        return 'value'
 
     def write_value(self, output_format, var, parent):
         custom_fullType = get_fulltype(var)

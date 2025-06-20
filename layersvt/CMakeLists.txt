@@ -66,6 +66,7 @@ if(BUILD_APIDUMP)
         generated/api_dump_video_html.h
         generated/api_dump_video_json.h
         api_dump.h
+        api_dump_handwritten_dispatch.cpp
         vk_layer_table.cpp
         vk_layer_table.h
         api_dump_layer.md

@@ -80,6 +80,7 @@ vt_sources = [
   "layersvt/generated/api_dump_video_html.h",
   "layersvt/generated/api_dump_video_json.h",
   "layersvt/api_dump.h",
+  "layersvt/api_dump_handwritten_dispatch.cpp",
   "layersvt/vk_layer_table.cpp",
   "layersvt/vk_layer_table.h",
 ]
