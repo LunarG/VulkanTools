@@ -90,7 +90,7 @@ if(BUILD_APIDUMP)
     target_compile_definitions(VkLayer_api_dump PRIVATE VK_ENABLE_BETA_EXTENSIONS)
 
     if (VT_CODEGEN)
-        add_dependencies(VkLayer_api_dump vt_codegen)
+        add_dependencies(VkLayer_api_dump vt_codegen_as_needed)
     endif()
 endif ()
 
