@@ -172,7 +172,7 @@ void ConfigurationLayerWidget::on_layer_state_currentIndexChanged(int index) {
                     "%s was overridden but it is an implicit layer. This may cause undefined behavior, including crashes.";
 
                 QMessageBox alert;
-                alert.QDialog::setWindowTitle("An Vulkan implicit layer was overridden...");
+                alert.setWindowTitle("An Vulkan implicit layer was overridden...");
                 alert.setText(format(text, this->layer_name.c_str()).c_str());
                 alert.setInformativeText("Do you want to continue?");
                 alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);

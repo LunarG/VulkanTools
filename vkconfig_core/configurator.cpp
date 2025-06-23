@@ -1193,6 +1193,22 @@ bool Configurator::Load() {
                 this->current_theme_mode = ::GetThemeMode(json_object.value("current_theme_mode").toString().toStdString().c_str());
             }
 
+            if (json_object.value("theme_light_alternate_enabled") != QJsonValue::Undefined) {
+                this->theme_light_alternate_enabled = json_object.value("theme_light_alternate_enabled").toBool();
+            }
+
+            if (json_object.value("theme_dark_alternate_enabled") != QJsonValue::Undefined) {
+                this->theme_dark_alternate_enabled = json_object.value("theme_dark_alternate_enabled").toBool();
+            }
+
+            if (json_object.value("theme_light_alternate_color") != QJsonValue::Undefined) {
+                this->theme_light_alternate_color = json_object.value("theme_light_alternate_color").toString();
+            }
+
+            if (json_object.value("theme_dark_alternate_color") != QJsonValue::Undefined) {
+                this->theme_dark_alternate_color = json_object.value("theme_dark_alternate_color").toString();
+            }
+
             if (json_object.value("latest_sdk_version") != QJsonValue::Undefined) {
                 this->latest_sdk_version = Version(json_object.value("latest_sdk_version").toString().toStdString().c_str());
             }
@@ -1269,6 +1285,10 @@ bool Configurator::Save() const {
         json_object.insert("use_system_tray", this->use_system_tray);
         json_object.insert("use_layer_debug_mode", this->use_layer_debug_mode);
         json_object.insert("current_theme_mode", ::GetToken(this->current_theme_mode));
+        json_object.insert("theme_light_alternate_enabled", this->theme_light_alternate_enabled);
+        json_object.insert("theme_dark_alternate_enabled", this->theme_dark_alternate_enabled);
+        json_object.insert("theme_light_alternate_color", this->theme_light_alternate_color.name());
+        json_object.insert("theme_dark_alternate_color", this->theme_dark_alternate_color.name());
         json_object.insert("use_notify_releases", this->use_notify_releases);
         json_object.insert("latest_sdk_version", this->latest_sdk_version.str().c_str());
         json_object.insert("last_vkconfig_version", Version::VKCONFIG.str().c_str());

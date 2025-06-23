@@ -51,8 +51,13 @@ class TabPreferences : public Tab {
     void on_download_progress(qint64 bytesReceived, qint64 bytesTotal);
     void on_notify_releases_toggled(bool checked);
     void on_theme_mode_changed(int index);
+    void on_theme_light_alternate_enabled(bool checked);
+    void on_theme_dark_alternate_enabled(bool checked);
+    void on_theme_light_alternate_pressed();
+    void on_theme_dark_alternate_pressed();
 
    private:
     QNetworkAccessManager network_manager;
     QByteArray downloaded_data;
+    bool initialized = false;
 };

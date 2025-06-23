@@ -14,6 +14,7 @@
   - Add optional information about which setting replaced a deprecated setting
   - Add layer setting dependences to generated vk_layer_settings.txt
 - Add theme mode control in preference tab
+  - Add custom alternate rows color
 
 ### Fixes:
   - Fix crashes when `QT_QPA_PLATFORM` is set
