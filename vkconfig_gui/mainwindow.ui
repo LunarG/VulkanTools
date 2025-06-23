@@ -88,7 +88,7 @@
        <bool>true</bool>
       </property>
       <property name="tabShape">
-       <enum>QTabWidget::TabShape::Rounded</enum>
+       <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
        <number>5</number>
@@ -146,7 +146,7 @@
               <number>0</number>
              </property>
              <property name="orientation">
-              <enum>Qt::Orientation::Horizontal</enum>
+              <enum>Qt::Horizontal</enum>
              </property>
              <property name="opaqueResize">
               <bool>true</bool>
@@ -162,7 +162,7 @@
                <number>0</number>
               </property>
               <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
+               <enum>Qt::Vertical</enum>
               </property>
               <property name="childrenCollapsible">
                <bool>false</bool>
@@ -254,7 +254,7 @@
                         </font>
                        </property>
                        <property name="sizeAdjustPolicy">
-                        <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                        <enum>QComboBox::AdjustToContents</enum>
                        </property>
                       </widget>
                      </item>
@@ -399,19 +399,19 @@
                         <bool>false</bool>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::Shape::NoFrame</enum>
+                        <enum>QFrame::NoFrame</enum>
                        </property>
                        <property name="lineWidth">
                         <number>1</number>
                        </property>
                        <property name="verticalScrollBarPolicy">
-                        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+                        <enum>Qt::ScrollBarAlwaysOn</enum>
                        </property>
                        <property name="sizeAdjustPolicy">
-                        <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+                        <enum>QAbstractScrollArea::AdjustToContents</enum>
                        </property>
                        <property name="editTriggers">
-                        <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+                        <set>QAbstractItemView::NoEditTriggers</set>
                        </property>
                        <property name="alternatingRowColors">
                         <bool>false</bool>
@@ -626,7 +626,7 @@
                         <string>Execute Closer to the Vulkan Application</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
+                        <set>Qt::AlignBottom|Qt::AlignHCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -646,22 +646,22 @@
                         </font>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::Shape::NoFrame</enum>
+                        <enum>QFrame::NoFrame</enum>
                        </property>
                        <property name="lineWidth">
                         <number>1</number>
                        </property>
                        <property name="verticalScrollBarPolicy">
-                        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+                        <enum>Qt::ScrollBarAlwaysOn</enum>
                        </property>
                        <property name="sizeAdjustPolicy">
-                        <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+                        <enum>QAbstractScrollArea::AdjustToContents</enum>
                        </property>
                        <property name="autoScrollMargin">
                         <number>0</number>
                        </property>
                        <property name="editTriggers">
-                        <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+                        <set>QAbstractItemView::NoEditTriggers</set>
                        </property>
                        <property name="dragEnabled">
                         <bool>true</bool>
@@ -670,10 +670,10 @@
                         <bool>false</bool>
                        </property>
                        <property name="dragDropMode">
-                        <enum>QAbstractItemView::DragDropMode::DragDrop</enum>
+                        <enum>QAbstractItemView::DragDrop</enum>
                        </property>
                        <property name="defaultDropAction">
-                        <enum>Qt::DropAction::MoveAction</enum>
+                        <enum>Qt::MoveAction</enum>
                        </property>
                        <property name="alternatingRowColors">
                         <bool>true</bool>
@@ -712,7 +712,7 @@
                         <string>Execute Closer to the Vulkan Driver</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
+                        <set>Qt::AlignHCenter|Qt::AlignTop</set>
                        </property>
                        <property name="margin">
                         <number>0</number>
@@ -875,7 +875,7 @@
                <number>0</number>
               </property>
               <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
+               <enum>Qt::Horizontal</enum>
               </property>
               <widget class="QWidget" name="verticalLayout_17" native="true">
                <property name="enabled">
@@ -974,7 +974,7 @@
                       </font>
                      </property>
                      <property name="sizeAdjustPolicy">
-                      <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                      <enum>QComboBox::AdjustToContents</enum>
                      </property>
                     </widget>
                    </item>
@@ -1009,7 +1009,7 @@
                       </font>
                      </property>
                      <property name="sizeAdjustPolicy">
-                      <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                      <enum>QComboBox::AdjustToContents</enum>
                      </property>
                     </widget>
                    </item>
@@ -1026,22 +1026,22 @@
                       <string>Edit to change the layer settings</string>
                      </property>
                      <property name="frameShape">
-                      <enum>QFrame::Shape::NoFrame</enum>
+                      <enum>QFrame::NoFrame</enum>
                      </property>
                      <property name="lineWidth">
                       <number>0</number>
                      </property>
                      <property name="horizontalScrollBarPolicy">
-                      <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+                      <enum>Qt::ScrollBarAsNeeded</enum>
                      </property>
                      <property name="sizeAdjustPolicy">
-                      <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+                      <enum>QAbstractScrollArea::AdjustToContents</enum>
                      </property>
                      <property name="autoScrollMargin">
                       <number>0</number>
                      </property>
                      <property name="editTriggers">
-                      <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+                      <set>QAbstractItemView::NoEditTriggers</set>
                      </property>
                      <property name="alternatingRowColors">
                       <bool>true</bool>
@@ -1287,13 +1287,13 @@
               </sizepolicy>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::NoFrame</enum>
+              <enum>QFrame::NoFrame</enum>
              </property>
              <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+              <enum>Qt::ScrollBarAlwaysOn</enum>
              </property>
              <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
              </property>
              <property name="alternatingRowColors">
               <bool>true</bool>
@@ -2020,7 +2020,7 @@
              <item>
               <spacer name="horizontalSpacer">
                <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
+                <enum>Qt::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -2075,16 +2075,16 @@
              </font>
             </property>
             <property name="frameShape">
-             <enum>QFrame::Shape::NoFrame</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <property name="lineWidth">
              <number>1</number>
             </property>
             <property name="verticalScrollBarPolicy">
-             <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+             <enum>Qt::ScrollBarAlwaysOn</enum>
             </property>
             <property name="sizeAdjustPolicy">
-             <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+             <enum>QAbstractScrollArea::AdjustToContents</enum>
             </property>
             <property name="readOnly">
              <bool>true</bool>
@@ -2199,7 +2199,7 @@
                 </size>
                </property>
                <property name="sizeAdjustPolicy">
-                <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                <enum>QComboBox::AdjustToContents</enum>
                </property>
                <item>
                 <property name="text">
@@ -2258,7 +2258,7 @@
                 </size>
                </property>
                <property name="sizeAdjustPolicy">
-                <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                <enum>QComboBox::AdjustToContents</enum>
                </property>
               </widget>
              </item>
@@ -2489,16 +2489,16 @@
               </font>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::NoFrame</enum>
+              <enum>QFrame::NoFrame</enum>
              </property>
              <property name="lineWidth">
               <number>0</number>
              </property>
              <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+              <enum>Qt::ScrollBarAlwaysOn</enum>
              </property>
              <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -2579,28 +2579,28 @@
               </font>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+              <enum>Qt::NoContextMenu</enum>
              </property>
              <property name="autoFillBackground">
               <bool>false</bool>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::NoFrame</enum>
+              <enum>QFrame::NoFrame</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Shadow::Plain</enum>
+              <enum>QFrame::Plain</enum>
              </property>
              <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+              <enum>Qt::ScrollBarAlwaysOn</enum>
              </property>
              <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
              </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
              <property name="textInteractionFlags">
-              <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
+              <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
              </property>
              <property name="openExternalLinks">
               <bool>true</bool>
@@ -2707,6 +2707,12 @@
               </property>
               <item>
                <widget class="QCheckBox" name="preferences_keep_running">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>24</height>
+                 </size>
+                </property>
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -2738,6 +2744,12 @@
                 </property>
                 <item>
                  <widget class="QLabel" name="label_5">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>24</height>
+                   </size>
+                  </property>
                   <property name="font">
                    <font>
                     <family>Arial</family>
@@ -2836,6 +2848,83 @@
                <number>5</number>
               </property>
               <item>
+               <widget class="QCheckBox" name="preferences_show_override_settings">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>24</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>Otherwise, the field will be hidden when unused</string>
+                </property>
+                <property name="text">
+                 <string>Show 'Use Layers Settings file' field by default</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="preferences_show_debug_settings">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>24</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>Show debug layer settings, for layer development</string>
+                </property>
+                <property name="text">
+                 <string>Show Debug Layer Settings</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_10">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="title">
+              <string>Vulkan Configurator Appearence</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_12">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>5</number>
+              </property>
+              <property name="topMargin">
+               <number>5</number>
+              </property>
+              <property name="rightMargin">
+               <number>5</number>
+              </property>
+              <property name="bottomMargin">
+               <number>5</number>
+              </property>
+              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_15">
                 <property name="spacing">
                  <number>0</number>
@@ -2848,6 +2937,12 @@
                 </property>
                 <item>
                  <widget class="QLabel" name="preferences_theme_label">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>24</height>
+                   </size>
+                  </property>
                   <property name="font">
                    <font>
                     <family>Arial</family>
@@ -2868,6 +2963,12 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>24</height>
+                   </size>
+                  </property>
                   <property name="font">
                    <font>
                     <family>Arial</family>
@@ -2876,7 +2977,7 @@
                    </font>
                   </property>
                   <property name="sizeAdjustPolicy">
-                   <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                   <enum>QComboBox::AdjustToContents</enum>
                   </property>
                   <item>
                    <property name="text">
@@ -2898,7 +2999,7 @@
                 <item>
                  <spacer name="horizontalSpacer_4">
                   <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
+                   <enum>Qt::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -2911,38 +3012,127 @@
                </layout>
               </item>
               <item>
-               <widget class="QCheckBox" name="preferences_show_override_settings">
-                <property name="font">
-                 <font>
-                  <family>Arial</family>
-                  <pointsize>10</pointsize>
-                  <bold>false</bold>
-                 </font>
+               <layout class="QGridLayout" name="gridLayout_4">
+                <property name="topMargin">
+                 <number>0</number>
                 </property>
-                <property name="toolTip">
-                 <string>Otherwise, the field will be hidden when unused</string>
+                <property name="spacing">
+                 <number>0</number>
                 </property>
-                <property name="text">
-                 <string>Show 'Use Layers Settings file' field by default</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="preferences_show_debug_settings">
-                <property name="font">
-                 <font>
-                  <family>Arial</family>
-                  <pointsize>10</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>Show debug layer settings, for layer development</string>
-                </property>
-                <property name="text">
-                 <string>Show Debug Layer Settings</string>
-                </property>
-               </widget>
+                <item row="1" column="3">
+                 <spacer name="horizontalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QPushButton" name="preferences_theme_light_alternate_open">
+                  <property name="maximumSize">
+                   <size>
+                    <width>24</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QCheckBox" name="preferences_theme_dark_alternate_enabled">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Use custom Dark mode alternate rows color</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QPushButton" name="preferences_theme_dark_alternate_open">
+                  <property name="maximumSize">
+                   <size>
+                    <width>24</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QCheckBox" name="preferences_theme_light_alternate_enabled">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Use custom Light mode alternate rows color</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_12">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
@@ -3020,6 +3210,12 @@
                   </property>
                   <item>
                    <widget class="QLabel" name="label_4">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>24</height>
+                     </size>
+                    </property>
                     <property name="font">
                      <font>
                       <family>Arial</family>
@@ -3128,6 +3324,12 @@
                   </property>
                   <item>
                    <widget class="QCheckBox" name="preferences_notify_releases">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>24</height>
+                     </size>
+                    </property>
                     <property name="font">
                      <font>
                       <family>Arial</family>
@@ -3146,7 +3348,7 @@
                   <item>
                    <spacer name="horizontalSpacer_2">
                     <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
+                     <enum>Qt::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -3221,10 +3423,10 @@
         <item>
          <spacer name="verticalSpacer_2">
           <property name="orientation">
-           <enum>Qt::Orientation::Vertical</enum>
+           <enum>Qt::Vertical</enum>
           </property>
           <property name="sizeType">
-           <enum>QSizePolicy::Policy::Expanding</enum>
+           <enum>QSizePolicy::Expanding</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -3245,7 +3447,7 @@
           <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
+             <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -3257,6 +3459,12 @@
           </item>
           <item>
            <widget class="QPushButton" name="preferences_reset">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>24</height>
+             </size>
+            </property>
             <property name="toolTip">
              <string>Resetting Vulkan Configurator to default...</string>
             </property>
@@ -3362,7 +3570,7 @@
                <pixmap resource="resources.qrc">:/resourcefiles/lunarg_logo.png</pixmap>
               </property>
               <property name="textInteractionFlags">
-               <set>Qt::TextInteractionFlag::NoTextInteraction</set>
+               <set>Qt::NoTextInteraction</set>
               </property>
              </widget>
              <widget class="QLabel" name="label_10">
@@ -3401,7 +3609,7 @@
                <string>Vulkan Configurator licensed under Apache 2.0</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -3424,13 +3632,13 @@
                </font>
               </property>
               <property name="layoutDirection">
-               <enum>Qt::LayoutDirection::LeftToRight</enum>
+               <enum>Qt::LeftToRight</enum>
               </property>
               <property name="text">
                <string>Copyright (c) 2020-2025 LunarG, Inc.</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -3481,7 +3689,7 @@
                <string>Qt licensed under LGPL 3.0</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -3518,7 +3726,7 @@
                <bool>true</bool>
               </property>
               <property name="textInteractionFlags">
-               <set>Qt::TextInteractionFlag::NoTextInteraction</set>
+               <set>Qt::NoTextInteraction</set>
               </property>
              </widget>
              <widget class="QPushButton" name="about_lunarg_pushButton">
@@ -3563,7 +3771,7 @@
                </font>
               </property>
               <property name="layoutDirection">
-               <enum>Qt::LayoutDirection::LeftToRight</enum>
+               <enum>Qt::LeftToRight</enum>
               </property>
               <property name="text">
                <string/>
@@ -3577,16 +3785,16 @@
               <bool>false</bool>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::NoFrame</enum>
+              <enum>QFrame::NoFrame</enum>
              </property>
              <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+              <enum>Qt::ScrollBarAlwaysOn</enum>
              </property>
              <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
              </property>
              <property name="textInteractionFlags">
-              <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse</set>
+              <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
              </property>
              <property name="openExternalLinks">
               <bool>true</bool>

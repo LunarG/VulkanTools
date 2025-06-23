@@ -164,6 +164,10 @@ class Configurator {
     QByteArray window_geometry;
     QByteArray window_state;
     ThemeMode current_theme_mode = THEME_MODE_AUTO;
+    bool theme_light_alternate_enabled = false;
+    bool theme_dark_alternate_enabled = false;
+    QColor theme_light_alternate_color = 0xF8F8F8;
+    QColor theme_dark_alternate_color = 0x202020;
 
    private:
     int hide_message_boxes_flags = 0;

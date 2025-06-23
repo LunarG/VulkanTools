@@ -25,6 +25,7 @@
 #include "../vkconfig_core/configurator.h"
 
 #include <QFileDialog>
+#include <QColorDialog>
 #include <QMessageBox>
 #include <QDesktopServices>
 #include <QStyleHints>
@@ -48,12 +49,29 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->preferences_notify_releases, SIGNAL(toggled(bool)), this, SLOT(on_notify_releases_toggled(bool)));
     this->connect(this->ui->preferences_download, SIGNAL(clicked()), this, SLOT(on_download_pressed()));
     this->connect(this->ui->preferences_theme_mode, SIGNAL(currentIndexChanged(int)), this, SLOT(on_theme_mode_changed(int)));
+    this->connect(this->ui->preferences_theme_light_alternate_enabled, SIGNAL(toggled(bool)), this,
+                  SLOT(on_theme_light_alternate_enabled(bool)));
+    this->connect(this->ui->preferences_theme_dark_alternate_enabled, SIGNAL(toggled(bool)), this,
+                  SLOT(on_theme_dark_alternate_enabled(bool)));
+    this->connect(this->ui->preferences_theme_light_alternate_open, SIGNAL(clicked()), this,
+                  SLOT(on_theme_light_alternate_pressed()));
+    this->connect(this->ui->preferences_theme_dark_alternate_open, SIGNAL(clicked()), this,
+                  SLOT(on_theme_dark_alternate_pressed()));
 
-    // this->ui->preferences_theme_mode->setToolTip("Control of the theme mode requires Vulkan Configurator to be build against
-    // Qt 6.8.0 or newer"); this->ui->preferences_theme_mode->setEnabled(QT_VERSION >= QT_VERSION_CHECK(6, 8, 0));
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
+    this->ui->preferences_theme_mode->setToolTip(
+        "Control of the theme mode requires Vulkan Configurator to be build against Qt 6.8.0 or newer");
+#endif
+    this->ui->preferences_theme_mode->setEnabled(QT_VERSION >= QT_VERSION_CHECK(6, 8, 0));
     this->ui->preferences_theme_mode->blockSignals(true);
     this->ui->preferences_theme_mode->setCurrentIndex(configurator.current_theme_mode);
     this->ui->preferences_theme_mode->blockSignals(false);
+    this->ui->preferences_theme_light_alternate_enabled->blockSignals(true);
+    this->ui->preferences_theme_light_alternate_enabled->setChecked(configurator.theme_light_alternate_enabled);
+    this->ui->preferences_theme_light_alternate_enabled->blockSignals(false);
+    this->ui->preferences_theme_dark_alternate_enabled->blockSignals(true);
+    this->ui->preferences_theme_dark_alternate_enabled->setChecked(configurator.theme_dark_alternate_enabled);
+    this->ui->preferences_theme_dark_alternate_enabled->blockSignals(false);
     this->on_theme_mode_changed(configurator.current_theme_mode);
 
     this->ui->preferences_progress->setVisible(false);
@@ -109,7 +127,7 @@ bool TabPreferences::EventFilter(QObject *target, QEvent *event) {
 void TabPreferences::on_theme_mode_changed(int index) {
     Configurator &configurator = Configurator::Get();
 
-    ThemeMode new_theme_mode = static_cast<ThemeMode>(index);
+    const ThemeMode new_theme_mode = static_cast<ThemeMode>(index);
 
     // Configurations
     this->ui->configurations_executable_append->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
@@ -152,44 +170,144 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->preferences_vk_home_browse->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
     this->ui->preferences_vk_download_browse->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
 
-    if (configurator.current_theme_mode == new_theme_mode) {
-        return;  // Prevent Qt 6.8 crash
-    }
+    {
+        QListWidget *dummy_widget = new QListWidget;
 
-    configurator.current_theme_mode = new_theme_mode;
+        QPalette palette = dummy_widget->palette();
 
-    if (VKC_PLATFORM == PLATFORM_LINUX) {
-        if (!(configurator.Get(HIDE_MESSAGE_WARN_DARK_THEME_LINUX))) {
-            QMessageBox alert;
-            alert.setWindowTitle("Dark Mode on Linux system");
-            alert.setText(
-                "The support of Dark Mode depends on the Linux desktop support so this option may have limited effects...");
-            alert.setInformativeText("Only Vulkan Configurator icons may change color when dark mode is not supported.");
-            alert.setStandardButtons(QMessageBox::Ok);
-            alert.setDefaultButton(QMessageBox::Ok);
-            alert.setIcon(QMessageBox::Warning);
-            alert.setCheckBox(new QCheckBox("Do not show again."));
-            alert.exec();
-            if (alert.checkBox()->isChecked()) {
-                configurator.Set(HIDE_MESSAGE_WARN_DARK_THEME_LINUX);
+        ThemeMode selected_theme_mode = new_theme_mode;
+        if (new_theme_mode == THEME_MODE_AUTO) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+            if (QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+                selected_theme_mode = THEME_MODE_FORCE_DARK;
+            } else
+#endif  // QT_VERSION
+            {
+                selected_theme_mode = THEME_MODE_FORCE_LIGHT;
             }
         }
+
+        switch (selected_theme_mode) {
+            default:
+            case THEME_MODE_AUTO:
+                assert(0);
+                break;
+            case THEME_MODE_FORCE_LIGHT: {
+                if (configurator.theme_light_alternate_enabled) {
+                    palette.setColor(QPalette::AlternateBase, configurator.theme_light_alternate_color);
+                }
+                break;
+            }
+            case THEME_MODE_FORCE_DARK: {
+                if (configurator.theme_dark_alternate_enabled) {
+                    palette.setColor(QPalette::AlternateBase, configurator.theme_dark_alternate_color);
+                }
+                break;
+            }
+        }
+
+        QString theme_light = QString("background-color: %1").arg(configurator.theme_light_alternate_color.name());
+        this->ui->preferences_theme_light_alternate_open->setStyleSheet(theme_light);
+        QString theme_dark = QString("background-color: %1").arg(configurator.theme_dark_alternate_color.name());
+        this->ui->preferences_theme_dark_alternate_open->setStyleSheet(theme_dark);
+
+        this->ui->configurations_list->setPalette(palette);
+        this->ui->configurations_settings->setPalette(palette);
+        this->ui->configurations_layers_list->setPalette(palette);
+        this->ui->layers_paths_tree->setPalette(palette);
+
+        delete dummy_widget;
     }
 
+    {
+        if (VKC_PLATFORM == PLATFORM_LINUX) {
+            if (!(configurator.Get(HIDE_MESSAGE_WARN_DARK_THEME_LINUX))) {
+                QMessageBox alert;
+                alert.setWindowTitle("Dark Mode on Linux system");
+                alert.setText(
+                    "The support of Dark Mode depends on the Linux desktop support so this option may have limited effects...");
+                alert.setInformativeText("Only Vulkan Configurator icons may change color when dark mode is not supported.");
+                alert.setStandardButtons(QMessageBox::Ok);
+                alert.setDefaultButton(QMessageBox::Ok);
+                alert.setIcon(QMessageBox::Warning);
+                alert.setCheckBox(new QCheckBox("Do not show again."));
+                alert.exec();
+                if (alert.checkBox()->isChecked()) {
+                    configurator.Set(HIDE_MESSAGE_WARN_DARK_THEME_LINUX);
+                }
+            }
+        }
+
+        if (configurator.current_theme_mode == new_theme_mode && this->initialized) {
+            return;  // Prevent Qt 6.8 crash
+        }
+
+        configurator.current_theme_mode = new_theme_mode;
+
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 8, 0))
-    switch (new_theme_mode) {
-        default:
-        case THEME_MODE_AUTO:
-            this->window.app.styleHints()->unsetColorScheme();
-            break;
-        case THEME_MODE_FORCE_LIGHT:
-            this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
-            break;
-        case THEME_MODE_FORCE_DARK:
-            this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
-            break;
-    }
+        switch (new_theme_mode) {
+            default:
+            case THEME_MODE_AUTO:
+                this->window.app.styleHints()->unsetColorScheme();
+                break;
+            case THEME_MODE_FORCE_LIGHT: {
+                this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
+                break;
+            }
+            case THEME_MODE_FORCE_DARK: {
+                this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+                break;
+            }
+        }
 #endif
+    }
+
+    this->initialized = true;
+}
+
+void TabPreferences::on_theme_light_alternate_enabled(bool checked) {
+    Configurator &configurator = Configurator::Get();
+    configurator.theme_light_alternate_enabled = checked;
+
+    this->on_theme_mode_changed(configurator.current_theme_mode);
+}
+
+void TabPreferences::on_theme_dark_alternate_enabled(bool checked) {
+    Configurator &configurator = Configurator::Get();
+    configurator.theme_dark_alternate_enabled = checked;
+
+    this->on_theme_mode_changed(configurator.current_theme_mode);
+}
+
+void TabPreferences::on_theme_light_alternate_pressed() {
+    Configurator &configurator = Configurator::Get();
+
+    this->ui->preferences_theme_light_alternate_open->setStyleSheet("");
+
+    QColor color =
+        QColorDialog::getColor(configurator.theme_light_alternate_color, this->ui->preferences_theme_light_alternate_open,
+                               tr("Select Light Alternate rows color"));
+
+    if (color.isValid()) {
+        configurator.theme_light_alternate_color = color;
+    }
+
+    this->on_theme_mode_changed(configurator.current_theme_mode);
+}
+
+void TabPreferences::on_theme_dark_alternate_pressed() {
+    Configurator &configurator = Configurator::Get();
+
+    this->ui->preferences_theme_dark_alternate_open->setStyleSheet("");
+
+    QColor color = QColorDialog::getColor(configurator.theme_dark_alternate_color, this->ui->preferences_theme_dark_alternate_open,
+                                          tr("Select Dark Alternate rows color"));
+
+    if (color.isValid()) {
+        configurator.theme_light_alternate_color = color;
+    }
+
+    this->on_theme_mode_changed(configurator.current_theme_mode);
 }
 
 void TabPreferences::on_keep_running_toggled(bool checked) {
