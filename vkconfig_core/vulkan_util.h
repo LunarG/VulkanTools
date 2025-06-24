@@ -42,7 +42,7 @@ enum VendorID {
 
 struct VulkanPhysicalDeviceInfo {
     std::string deviceName;
-    std::string deviceUUID;
+    uint8_t deviceUUID[VK_UUID_SIZE];
     std::string driverUUID;
     std::string deviceLUID;
     Version apiVersion;
@@ -60,6 +60,8 @@ struct VulkanSystemInfo {
 };
 
 VulkanSystemInfo BuildVulkanSystemInfo();
+
+std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]);
 
 std::string TrimPrefix(const std::string &layer_key);
 std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char *setting_key, bool android_sysprop = false);
