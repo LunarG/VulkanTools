@@ -72,6 +72,59 @@ const char* GetToken(SettingType type) {
     return table[type];
 }
 
+const char* GetLayerSettingTypeString(SettingType type) {
+    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
+
+    static const char* table[] = {
+        "VK_LAYER_SETTING_TYPE_STRING_EXT",   // SETTING_STRING
+        "VK_LAYER_SETTING_TYPE_INT32_EXT",    // SETTING_INT
+        "VK_LAYER_SETTING_TYPE_FLOAT32_EXT",  // SETTING_FLOAT
+        "N/A",                                // SETTING_GROUP
+        "VK_LAYER_SETTING_TYPE_STRING_EXT",   // SETTING_SAVE_FILE
+        "VK_LAYER_SETTING_TYPE_STRING_EXT",   // SETTING_LOAD_FILE
+        "VK_LAYER_SETTING_TYPE_STRING_EXT",   // SETTING_SAVE_FOLDER
+        "VK_LAYER_SETTING_TYPE_STRING_EXT",   // SETTING_LOAD_FOLDER
+        "VK_LAYER_SETTING_TYPE_BOOL32_EXT",   // SETTING_BOOL
+        "VK_LAYER_SETTING_TYPE_INT32_EXT",    // SETTING_BOOL_NUMERIC_DEPRECATED
+        "VK_LAYER_SETTING_TYPE_STRING_EXT",   // SETTING_ENUM
+        "VK_LAYER_SETTING_TYPE_STRING_EXT",   // SETTING_FLAGS
+        "VK_LAYER_SETTING_TYPE_UINT32_EXT",   // SETTING_FRAMES
+        "VK_LAYER_SETTING_TYPE_STRING_EXT"    // SETTING_LIST
+    };
+    static_assert(std::size(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return table[type];
+}
+
+const char* GetCodeTypeString(SettingType type) {
+    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
+
+    static const char* table[] = {
+        "const char*",  // SETTING_STRING
+        "int32_t",      // SETTING_INT
+        "float",        // SETTING_FLOAT
+        "N/A",          // SETTING_GROUP
+        "const char*",  // SETTING_SAVE_FILE
+        "const char*",  // SETTING_LOAD_FILE
+        "const char*",  // SETTING_SAVE_FOLDER
+        "const char*",  // SETTING_LOAD_FOLDER
+        "VkBool32",     // SETTING_BOOL
+        "int32_t",      // SETTING_BOOL_NUMERIC_DEPRECATED
+        "const char*",  // SETTING_ENUM
+        "const char*",  // SETTING_FLAGS
+        "uint32_t",     // SETTING_FRAMES
+        "const char*"   // SETTING_LIST
+    };
+    static_assert(std::size(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return table[type];
+}
+
+bool IsSettingTypeString(SettingType type) {
+    return type == SETTING_STRING || type == SETTING_SAVE_FILE || type == SETTING_LOAD_FILE || type == SETTING_SAVE_FOLDER ||
+           type == SETTING_LOAD_FOLDER || type == SETTING_ENUM || type == SETTING_FLAGS || type == SETTING_LIST;
+}
+
 SettingData::SettingData(const std::string& key, const SettingType& type) : key(key), type(type) { assert(!this->key.empty()); }
 
 bool SettingData::Equal(const SettingData& other) const {
