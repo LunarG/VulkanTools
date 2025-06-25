@@ -64,6 +64,9 @@ enum { SETTING_COUNT = SETTING_LAST - SETTING_FIRST + 1 };
 
 SettingType GetSettingType(const char* token);
 const char* GetToken(SettingType type);
+const char* GetLayerSettingTypeString(SettingType type);
+const char* GetCodeTypeString(SettingType type);
+bool IsSettingTypeString(SettingType type);
 
 inline bool IsEnum(SettingType type) {
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
